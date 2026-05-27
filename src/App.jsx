@@ -185,7 +185,19 @@ export default function App() {
     setShowAddAcModal(false); setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[]});
     showToast(editTarget?"수정됨 ✓":"추가됨 ✓");
   };
-  const deleteAcademy=(id)=>{ setAcademies(p=>({...p,[childId]:(p[childId]||[]).filter(a=>a.id!==id)})); setShowDetailModal(null); showToast("삭제됨"); };
+  const deleteAcademy=(id)=>{
+    // 학원 삭제
+    setAcademies(p=>({...p,[childId]:(p[childId]||[]).filter(a=>a.id!==id)}));
+    // 해당 학원 결석 기록 삭제
+    setAbsences(p=>({...p,[childId]:(p[childId]||[]).filter(a=>Number(a.academyId)!==id)}));
+    // 해당 학원 날짜별 숙제/준비물 삭제
+    setDailyData(p=>{
+      const next={...p};
+      Object.keys(next).forEach(k=>{ if(k.startsWith(`${childId}-${id}-`)) delete next[k]; });
+      return next;
+    });
+    setShowDetailModal(null); showToast("삭제됨");
+  };
   const toggleDay=(day)=>setNewAc(p=>({...p,days:p.days.includes(day)?p.days.filter(d=>d!==day):[...p.days,day]}));
   const addBaseSupply=()=>{ const v=supplyInput.trim(); if(!v) return; setNewAc(p=>({...p,baseSupplies:[...(p.baseSupplies||[]),v]})); setSupplyInput(""); };
 
@@ -268,9 +280,10 @@ export default function App() {
           </div>
           {/* 아이 추가 버튼 - 탭 우측 구석 */}
           <button onClick={openAddChild}
-            style={{flexShrink:0,padding:"10px 14px",border:"none",background:"rgba(255,255,255,0.15)",color:"rgba(255,255,255,0.85)",fontSize:18,cursor:"pointer",borderLeft:"1px solid rgba(255,255,255,0.15)"}}
+            style={{flexShrink:0,padding:"8px 12px",border:"none",background:"rgba(255,255,255,0.15)",color:"rgba(255,255,255,0.85)",cursor:"pointer",borderLeft:"1px solid rgba(255,255,255,0.15)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:2}}
             title="아이 추가">
-            👶
+            <span style={{fontSize:15,lineHeight:1}}>👶</span>
+            <span style={{fontSize:9,fontWeight:600,letterSpacing:0.3,opacity:0.9}}>아이추가</span>
           </button>
         </div>
       </div>
