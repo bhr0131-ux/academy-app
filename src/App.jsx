@@ -39,8 +39,8 @@ const getCalDays = (y,m) => {
 const getDN = (y,m,d) => ["일","월","화","수","목","금","토"][new Date(y,m,d).getDay()];
 
 // ── 저장 ─────────────────────────────────
-const save = async(k,v)=>{ try{ await window.storage.set(k,JSON.stringify(v)); }catch(e){} };
-const load = async(k)=>{ try{ const r=await window.storage.get(k); return r?JSON.parse(r.value):null; }catch(e){ return null; } };
+const save = async (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const load = async (k) => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch (e) { return null; } };
 
 // ── SMS ─────────────────────────────────
 const smsLink=(phone,body="")=>{ const enc=encodeURIComponent(body); const ios=/iPad|iPhone|iPod/.test(navigator.userAgent); return `sms:${phone}${body?(ios?`&body=${enc}`:`?body=${enc}`):""}` };
@@ -77,6 +77,7 @@ export default function App() {
   const [feeMonth,setFeeMonth] = useState(new Date().getMonth()+1);
   const [calDate,setCalDate] = useState(new Date());
   const [calSelDate,setCalSelDate] = useState(null);
+  const [homeDate,setHomeDate] = useState(TODAY);
 
   // 모달
   const [showAddAcModal,setShowAddAcModal] = useState(false);
@@ -247,28 +248,30 @@ export default function App() {
             <p style={{fontSize:11,color:"rgba(255,255,255,0.75)",margin:0,letterSpacing:2,fontWeight:600}}>ACADEMY PLANNER</p>
             <h1 style={{fontSize:22,fontWeight:900,margin:"3px 0 0",color:"#fff"}}>🎒 우리 아이 학원 관리</h1>
           </div>
-          <div style={{display:"flex",gap:8}}>
-            {/* 아이 추가 버튼 */}
-            <button onClick={openAddChild} style={{background:"rgba(255,255,255,0.25)",backdropFilter:"blur(8px)",border:"1.5px solid rgba(255,255,255,0.45)",borderRadius:12,padding:"8px 12px",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer"}} title="아이 추가">👶+</button>
-            <button onClick={openAdd} style={{background:"rgba(255,255,255,0.25)",backdropFilter:"blur(8px)",border:"1.5px solid rgba(255,255,255,0.45)",borderRadius:12,padding:"8px 14px",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer"}}>+ 추가</button>
-          </div>
         </div>
 
-        {/* 아이 탭 */}
-        <div style={{display:"flex",gap:0,background:"rgba(0,0,0,0.15)",borderRadius:"12px 12px 0 0",overflow:"hidden",overflowX:"auto"}}>
-          {children.map(c=>{
-            const t=GENDER_THEME[c.gender]||GENDER_THEME.boy;
-            const sel=childId===c.id;
-            return (
-              <button key={c.id} onClick={()=>setChildId(c.id)}
-                style={{flex:"0 0 auto",minWidth:80,padding:"12px 16px",border:"none",cursor:"pointer",fontSize:14,fontWeight:sel?800:500,
-                  background:sel?"rgba(255,255,255,0.95)":"transparent",
-                  color:sel?t.main:"rgba(255,255,255,0.82)",whiteSpace:"nowrap",transition:"all 0.2s",
-                  borderRadius:sel?"12px 12px 0 0":"0"}}>
-                {t.emoji} {c.name}
-              </button>
-            );
-          })}
+        {/* 아이 탭 + 아이 추가 버튼 */}
+        <div style={{display:"flex",alignItems:"flex-end",background:"rgba(0,0,0,0.15)",borderRadius:"12px 12px 0 0",overflow:"hidden"}}>
+          <div style={{display:"flex",flex:1,overflowX:"auto"}}>
+            {children.map(c=>{
+              const t=GENDER_THEME[c.gender]||GENDER_THEME.boy;
+              const sel=childId===c.id;
+              return (
+                <button key={c.id} onClick={()=>setChildId(c.id)}
+                  style={{flex:"0 0 auto",minWidth:80,padding:"12px 16px",border:"none",cursor:"pointer",fontSize:14,fontWeight:sel?800:500,
+                    background:sel?"rgba(255,255,255,0.95)":"transparent",
+                    color:sel?t.main:"rgba(255,255,255,0.82)",whiteSpace:"nowrap",transition:"all 0.2s"}}>
+                  {t.emoji} {c.name}
+                </button>
+              );
+            })}
+          </div>
+          {/* 아이 추가 버튼 - 탭 우측 구석 */}
+          <button onClick={openAddChild}
+            style={{flexShrink:0,padding:"10px 14px",border:"none",background:"rgba(255,255,255,0.15)",color:"rgba(255,255,255,0.85)",fontSize:18,cursor:"pointer",borderLeft:"1px solid rgba(255,255,255,0.15)"}}
+            title="아이 추가">
+            👶
+          </button>
         </div>
       </div>
 
@@ -283,21 +286,49 @@ export default function App() {
 
         {/* ════ 홈 탭 ════ */}
         {tab==="home"&&(()=>{
-          const dn=todayDN();
-          const dateLabel=`${new Date().getMonth()+1}월 ${new Date().getDate()}일 ${dn}요일`;
+          const hd=new Date(homeDate.replace(/-/g,"/"));
+          const hDN=["일","월","화","수","목","금","토"][hd.getDay()];
+          const isToday=homeDate===TODAY;
+          const isTomorrow=homeDate===addDays(TODAY,1);
+          const isYesterday=homeDate===addDays(TODAY,-1);
+          const dayTag=isToday?"오늘":isTomorrow?"내일":isYesterday?"어제":null;
+          const fullLabel=`${hd.getMonth()+1}월 ${hd.getDate()}일 ${hDN}요일`;
+          const homeAc=curAc.filter(a=>a.days.includes(hDN)).sort((a,b)=>a.time.localeCompare(b.time));
+          const absOnHome=curAbs.filter(a=>a.date===homeDate);
+          const makeupOnHome=curAbs.filter(a=>a.makeupDate===homeDate);
+          const homePendingHw=homeAc.reduce((n,ac)=>n+(getDailyEntry(childId,ac.id,homeDate).homeworks||[]).filter(h=>!h.done).length,0);
           const pendingHw=pendingHwTotal();
           return (
             <div>
-              {/* 날짜 요약 카드 */}
-              <div style={{background:th.grad,borderRadius:16,padding:"18px 20px",marginBottom:16,color:"#fff",boxShadow:`0 4px 18px ${th.main}30`}}>
-                <p style={{fontSize:13,opacity:0.85,margin:0,fontWeight:600}}>{th.emoji} {curChild?.name}</p>
-                <p style={{fontSize:22,fontWeight:900,margin:"4px 0 10px"}}>{dateLabel}</p>
-                <div style={{display:"flex",gap:8}}>
+              {/* 날짜 이동 헤더 카드 */}
+              <div style={{background:th.grad,borderRadius:16,padding:"16px 18px",marginBottom:16,color:"#fff",boxShadow:`0 4px 18px ${th.main}30`}}>
+                <p style={{fontSize:13,opacity:0.85,margin:"0 0 10px",fontWeight:600}}>{th.emoji} {curChild?.name}</p>
+                {/* 날짜 이동 행 */}
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+                  <button onClick={()=>setHomeDate(addDays(homeDate,-1))}
+                    style={{width:38,height:38,borderRadius:12,background:"rgba(255,255,255,0.2)",border:"1.5px solid rgba(255,255,255,0.35)",color:"#fff",fontSize:22,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>‹</button>
+                  <div style={{flex:1,textAlign:"center"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+                      <span style={{fontSize:18,fontWeight:900}}>{fullLabel}</span>
+                      {dayTag&&<span style={{fontSize:11,background:"rgba(255,255,255,0.3)",borderRadius:6,padding:"2px 9px",fontWeight:700,flexShrink:0}}>{dayTag}</span>}
+                    </div>
+                    {!isToday&&(
+                      <button onClick={()=>setHomeDate(TODAY)}
+                        style={{marginTop:5,background:"rgba(255,255,255,0.18)",border:"1px solid rgba(255,255,255,0.3)",borderRadius:6,color:"#fff",fontSize:11,cursor:"pointer",padding:"2px 12px",fontWeight:600}}>
+                        ↩ 오늘로
+                      </button>
+                    )}
+                  </div>
+                  <button onClick={()=>setHomeDate(addDays(homeDate,1))}
+                    style={{width:38,height:38,borderRadius:12,background:"rgba(255,255,255,0.2)",border:"1.5px solid rgba(255,255,255,0.35)",color:"#fff",fontSize:22,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>›</button>
+                </div>
+                {/* 요약 지표 */}
+                <div style={{display:"flex",gap:6}}>
                   {[
-                    {label:"오늘 학원",value:`${todayAc.length}개`,alert:false},
-                    {label:"미완 숙제",value:`${pendingHw}개`,alert:pendingHw>0},
-                    {label:"보충 예정",value:`${pendingAbsCnt}개`,alert:pendingAbsCnt>0},
-                    {label:"이번달",value:`${Math.round(totalFee(childId)/10000)}만원`,alert:false},
+                    {label:"학원",       value:`${homeAc.length}개`,         alert:false},
+                    {label:"미완 숙제",  value:`${homePendingHw}개`,          alert:homePendingHw>0},
+                    {label:"결석",       value:`${absOnHome.length}개`,       alert:absOnHome.length>0},
+                    {label:"보충수업",   value:`${makeupOnHome.length}개`,    alert:makeupOnHome.length>0},
                   ].map((s,i)=>(
                     <div key={i} style={{flex:1,background:s.alert?"rgba(255,80,80,0.25)":"rgba(255,255,255,0.2)",borderRadius:10,padding:"9px 4px",textAlign:"center",border:s.alert?"1px solid rgba(255,120,120,0.4)":"1px solid transparent"}}>
                       <p style={{fontSize:10,color:"rgba(255,255,255,0.82)",margin:0,fontWeight:600}}>{s.label}</p>
@@ -307,20 +338,42 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 오늘 학원 없는 날 */}
-              {todayAc.length===0&&(
+              {/* 학원 없는 날 */}
+              {homeAc.length===0&&absOnHome.length===0&&makeupOnHome.length===0&&(
                 <div style={{textAlign:"center",padding:"30px 20px",background:C.card,borderRadius:16,border:`1.5px dashed ${C.border}`,marginBottom:14}}>
                   <p style={{fontSize:30,margin:0}}>😴</p>
-                  <p style={{color:C.sub,fontSize:15,margin:"8px 0 0"}}>오늘은 학원이 없어요</p>
+                  <p style={{color:C.sub,fontSize:15,margin:"8px 0 0"}}>{dayTag||fullLabel}은 학원이 없어요</p>
                 </div>
               )}
 
-              {/* 오늘 학원 카드 */}
-              {todayAc.map(ac=>{
+              {/* 결석 표시 */}
+              {absOnHome.length>0&&(
+                <div style={{background:`${C.red}08`,border:`1px solid ${C.red}25`,borderRadius:14,padding:"12px 16px",marginBottom:12}}>
+                  <p style={{fontSize:13,fontWeight:700,color:C.red,margin:"0 0 6px"}}>🏥 결석</p>
+                  {absOnHome.map(ab=>{
+                    const ac=curAc.find(a=>a.id===Number(ab.academyId)); if(!ac) return null;
+                    return <p key={ab.id} style={{fontSize:13,color:C.text,margin:"2px 0"}}>{ac.name}{ab.reason&&` · ${ab.reason}`}</p>;
+                  })}
+                </div>
+              )}
+
+              {/* 보충수업 표시 */}
+              {makeupOnHome.length>0&&(
+                <div style={{background:`${C.orange}08`,border:`1px solid ${C.orange}25`,borderRadius:14,padding:"12px 16px",marginBottom:12}}>
+                  <p style={{fontSize:13,fontWeight:700,color:C.orange,margin:"0 0 6px"}}>📚 보충수업</p>
+                  {makeupOnHome.map(ab=>{
+                    const ac=curAc.find(a=>a.id===Number(ab.academyId)); if(!ac) return null;
+                    return <p key={ab.id} style={{fontSize:13,color:C.text,margin:"2px 0"}}>{ac.name} (결석일: {ab.date})</p>;
+                  })}
+                </div>
+              )}
+
+              {/* 학원 카드 */}
+              {homeAc.map(ac=>{
                 const [h,m]=(ac.time||"00:00").split(":").map(Number);
                 const tm=h*60+m+Number(ac.duration||0);
                 const endT=`${String(Math.floor(tm/60)%24).padStart(2,"0")}:${String(tm%60).padStart(2,"0")}`;
-                const entry=getDailyEntry(childId,ac.id,TODAY);
+                const entry=getDailyEntry(childId,ac.id,homeDate);
                 const hw=entry.homeworks||[], sup=entry.supplies||[];
                 const doneCnt=hw.filter(h=>h.done).length;
                 const allDone=hw.length>0&&doneCnt===hw.length;
@@ -358,7 +411,7 @@ export default function App() {
                           <div style={{display:"flex",flexDirection:"column",gap:6}}>
                             {hw.map(h=>(
                               <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:10,background:h.done?`${C.green}08`:C.faint,border:`1px solid ${h.done?C.green+"25":C.faintB}`}}>
-                                <button onClick={()=>{ const e=getDailyEntry(childId,ac.id,TODAY); setDailyEntry(childId,ac.id,TODAY,{...e,homeworks:(e.homeworks||[]).map(x=>x.id===h.id?{...x,done:!x.done}:x)}); }}
+                                <button onClick={()=>{ const e=getDailyEntry(childId,ac.id,homeDate); setDailyEntry(childId,ac.id,homeDate,{...e,homeworks:(e.homeworks||[]).map(x=>x.id===h.id?{...x,done:!x.done}:x)}); }}
                                   style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
                                 <span style={{flex:1,fontSize:14,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.text}</span>
                               </div>
@@ -366,9 +419,9 @@ export default function App() {
                           </div>
                         )}
                       </div>
-                      <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:TODAY,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); }}
+                      <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:homeDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); }}
                         style={{width:"100%",padding:"9px",borderRadius:10,border:`1.5px dashed ${ac.color}50`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:700,cursor:"pointer"}}>
-                        ✏️ 오늘 숙제 · 준비물 편집
+                        ✏️ 숙제 · 준비물 편집
                       </button>
                     </div>
                   </div>
@@ -380,19 +433,20 @@ export default function App() {
                 <p style={{fontSize:13,color:C.sub,fontWeight:700,marginBottom:10,letterSpacing:0.5}}>📅 이번 주 예정</p>
                 <div style={{background:C.card,borderRadius:14,border:`1px solid ${C.border}`,overflow:"hidden"}}>
                   {DAYS.map(day=>{
-                    if(day===todayDN()) return null;
                     const da=curAc.filter(a=>a.days.includes(day));
                     if(da.length===0) return null;
+                    const isTodayRow=day===todayDN();
                     return (
-                      <div key={day} style={{display:"flex",alignItems:"center",padding:"11px 14px",borderBottom:`1px solid ${C.border}`}}>
-                        <span style={{width:30,fontSize:13,fontWeight:700,color:DAY_COLORS[day]}}>{day}</span>
+                      <div key={day} style={{display:"flex",alignItems:"center",padding:"11px 14px",borderBottom:`1px solid ${C.border}`,background:isTodayRow?`${th.main}08`:"transparent"}}>
+                        <span style={{width:30,fontSize:13,fontWeight:700,color:isTodayRow?th.main:DAY_COLORS[day]}}>{day}</span>
+                        {isTodayRow&&<span style={{fontSize:10,background:th.main,color:"#fff",borderRadius:4,padding:"1px 6px",marginRight:6,fontWeight:700,flexShrink:0}}>오늘</span>}
                         <div style={{flex:1,display:"flex",gap:6,flexWrap:"wrap"}}>
                           {da.map(a=><span key={a.id} style={{fontSize:12,padding:"3px 10px",borderRadius:6,background:`${a.color}18`,color:a.color,fontWeight:600}}>{a.name} {a.time}</span>)}
                         </div>
                       </div>
                     );
                   })}
-                  {curAc.every(a=>a.days.every(d=>d===todayDN()||!DAYS.includes(d)))&&<p style={{textAlign:"center",padding:"16px",color:C.sub,fontSize:13,margin:0}}>이번 주 예정 없음</p>}
+                  {DAYS.every(day=>curAc.filter(a=>a.days.includes(day)).length===0)&&<p style={{textAlign:"center",padding:"16px",color:C.sub,fontSize:13,margin:0}}>이번 주 예정 없음</p>}
                 </div>
               </div>
 
