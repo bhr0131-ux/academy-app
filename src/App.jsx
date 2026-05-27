@@ -91,7 +91,7 @@ const smsLink=(phone,body="")=>{ const enc=encodeURIComponent(body); const ios=/
 
 // ── 기본 아이 데이터 ─────────────────────
 const DEFAULT_CHILDREN = [
-  { id:"child_1", name:"첫째", gender:"boy" }
+  { id:"child_1", name:"아이1", gender:"boy" }
 ];
 
 const SAMPLE_TMPL = [
@@ -328,7 +328,7 @@ export default function App() {
       <div style={{background:th.grad,padding:"20px 18px 0",boxShadow:"0 4px 20px rgba(0,0,0,0.12)"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
           <div>
-            <p style={{fontSize:17,color:"rgba(255,255,255,0.75)",margin:0,letterSpacing:2,fontWeight:600}}>ACADEMY PLANNER</p>
+            <p style={{fontSize:11,color:"rgba(255,255,255,0.75)",margin:0,letterSpacing:2,fontWeight:600}}>ACADEMY PLANNER</p>
             <h1 style={{fontSize:22,fontWeight:900,margin:"3px 0 0",color:"#fff"}}>🎒 우리 아이 학원 관리</h1>
           </div>
         </div>
@@ -410,14 +410,14 @@ export default function App() {
                 {/* 요약 지표 */}
                 <div style={{display:"flex",gap:6}}>
                   {[
-                    {label:"학원",       value:`${homeAc.length}개`,         alert:false},
-                    {label:"미완 숙제",  value:`${homePendingHw}개`,          alert:homePendingHw>0},
-                    {label:"결석",       value:`${absOnHome.length}개`,       alert:absOnHome.length>0},
-                    {label:"보충수업",   value:`${makeupOnHome.length}개`,    alert:makeupOnHome.length>0},
+                    {label:"학원",              value:`${homeAc.length}개`,           alert:false},
+                    {label:"미완\n숙제",         value:`${homePendingHw}개`,            alert:homePendingHw>0},
+                    {label:"결석",              value:`${absOnHome.length}개`,         alert:absOnHome.length>0},
+                    {label:"보충\n수업",         value:`${makeupOnHome.length}개`,      alert:makeupOnHome.length>0},
                   ].map((s,i)=>(
                     <div key={i} style={{flex:1,background:s.alert?"rgba(255,80,80,0.25)":"rgba(255,255,255,0.2)",borderRadius:10,padding:"9px 4px",textAlign:"center",border:s.alert?"1px solid rgba(255,120,120,0.4)":"1px solid transparent"}}>
-                      <p style={{fontSize:17,color:"rgba(255,255,255,0.82)",margin:0,fontWeight:600}}>{s.label}</p>
-                      <p style={{fontSize:17,fontWeight:800,margin:"3px 0 0",color:s.alert?"#FFE066":"#fff"}}>{s.value}</p>
+                      <p style={{fontSize:10,color:"rgba(255,255,255,0.82)",margin:0,fontWeight:600,whiteSpace:"pre-line",lineHeight:1.3}}>{s.label}</p>
+                      <p style={{fontSize:15,fontWeight:800,margin:"3px 0 0",color:s.alert?"#FFE066":"#fff"}}>{s.value}</p>
                     </div>
                   ))}
                 </div>
@@ -777,8 +777,8 @@ export default function App() {
                         <p style={{fontSize:26,margin:"0 0 6px"}}>😴</p>학원이 없는 날이에요
                       </div>
                     )}
-                    {/* 학원별 숙제/준비물 */}
-                    {selInfo.acList.map(ac=>{
+                    {/* 학원별 숙제/준비물 - 방학 중인 학원 제외 */}
+                    {selInfo.acList.filter(ac=>!isVacationDay(childId,ac.id,calSelDate)).map(ac=>{
                       const entry=getDailyEntry(childId,ac.id,calSelDate);
                       const hw=entry.homeworks||[], sup=entry.supplies||[];
                       const doneCnt=hw.filter(h=>h.done).length;
