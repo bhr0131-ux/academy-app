@@ -721,13 +721,6 @@ export default function App() {
                       );
                     })()}
 
-                    {/* 방학 설정 버튼 */}
-                    {selInfo.acList.length>0&&(
-                      <button onClick={()=>{ setVacForm({academyId:"",start:calSelDate,end:calSelDate}); setShowVacModal({date:calSelDate,acList:selInfo.acList}); }}
-                        style={{width:"100%",padding:"9px",borderRadius:10,border:"1.5px dashed #F0A500",background:"#FFFBF0",color:"#E65100",fontSize:17,fontWeight:700,cursor:"pointer",marginBottom:14}}>
-                        🏖️ 방학 기간 설정
-                      </button>
-                    )}
                     {/* 결석 */}
                     {selInfo.absOnDay.length>0&&(
                       <div style={{background:`${C.red}08`,border:`1px solid ${C.red}25`,borderRadius:12,padding:"12px 14px",marginBottom:12}}>
