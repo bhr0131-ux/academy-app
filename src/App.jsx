@@ -110,22 +110,41 @@ const SAMPLE_TMPL = [
 ];
 
 const EMPTY_AC = {
-  name:"", schedules:[], fee:0, payDay:1, color:"#FF6B6B",
+  name:"", days:[], time:"15:00", duration:60,
+  useCustomSchedule:false, schedules:[],
+  shuttleInfo:"", useCustomShuttle:false, shuttleSchedules:[],
+  fee:0, payDay:1, color:"#FF6B6B",
   baseSupplies:[], phone:"", teacher:"", address:"", memo:""
 };
 const EMPTY_ABS = { academyId:"", date:TODAY, reason:"", makeupDate:"", makeupDone:false };
 
-// ── 요일별 스케줄 유틸 (기존 days/time/duration 구조 호환) ──
-const getSchedules = (academy) => {
-  if (academy.schedules && academy.schedules.length > 0) return academy.schedules;
-  return (academy.days || []).map(day => ({
-    day, time: academy.time || "", duration: academy.duration || 60
-  }));
+// ── 요일별 스케줄 유틸 (하이브리드: 기본 공통시간 + 예외 요일별 시간) ──
+const hasClassOnDay = (academy, day) => {
+  if (academy.useCustomSchedule) return (academy.schedules||[]).some(s=>s.day===day);
+  return (academy.days||[]).includes(day);
 };
-const hasClassOnDay = (academy, day) => getSchedules(academy).some(s => s.day === day);
-const getScheduleForDay = (academy, day) => getSchedules(academy).find(s => s.day === day);
+const getScheduleForDay = (academy, day) => {
+  if (academy.useCustomSchedule) return (academy.schedules||[]).find(s=>s.day===day);
+  if ((academy.days||[]).includes(day)) return {day, time:academy.time||"", duration:academy.duration||60};
+  return null;
+};
 const getClassTime = (academy, day) => getScheduleForDay(academy, day)?.time || "";
 const getClassDuration = (academy, day) => getScheduleForDay(academy, day)?.duration || 0;
+const getSchedules = (academy) => {
+  if (academy.useCustomSchedule && (academy.schedules||[]).length>0) return academy.schedules;
+  return (academy.days||[]).map(day=>({day, time:academy.time||"", duration:academy.duration||60}));
+};
+
+// ── 셔틀 헬퍼 ──────────────────────────────
+const getShuttleText = (academy, day) => {
+  if (!academy) return "";
+  if (academy.useCustomShuttle) {
+    const s=(academy.shuttleSchedules||[]).find(x=>x.day===day);
+    const customText=[s?.time,s?.place,s?.memo].filter(Boolean).join(" ");
+    return customText||academy.shuttleInfo||"";
+  }
+  return academy.shuttleInfo||"";
+};
 
 export default function App() {
   const [loaded,setLoaded] = useState(false);
@@ -260,10 +279,12 @@ export default function App() {
 
   // 학원 CRUD
   const openAdd=()=>{ setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[]}); setSupplyInput(""); setShowAddAcModal(true); };
-  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],schedules:[...getSchedules(ac)]}); setSupplyInput(""); setShowDetailModal(null); setShowAddAcModal(true); };
+  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setShowDetailModal(null); setShowAddAcModal(true); };
   const saveAcademy=()=>{
-    if(!newAc.name.trim()||(newAc.schedules||[]).length===0){ showToast("학원명과 수업 시간을 입력해줘"); return; }
-    const cleaned={...newAc,name:newAc.name.trim(),fee:Number(newAc.fee||0),payDay:Number(newAc.payDay||1),baseSupplies:newAc.baseSupplies||[],schedules:newAc.schedules||[]};
+    if(!newAc.name.trim()||(newAc.useCustomSchedule?(newAc.schedules||[]).length===0:(newAc.days||[]).length===0)){
+      showToast("학원명과 수업 요일을 입력해줘"); return;
+    }
+    const cleaned={...newAc,name:newAc.name.trim(),fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),baseSupplies:newAc.baseSupplies||[],schedules:newAc.schedules||[]};
     setAcademies(prev=>{
       const list=prev[childId]||[];
       return editTarget!==null
@@ -519,7 +540,11 @@ export default function App() {
                       <div style={{flex:1}}>
                         <p style={{fontSize:18,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
                         <p style={{fontSize:17,color:C.sub,margin:"3px 0 0"}}>{sc?.time} ~ {endT} &nbsp;·&nbsp; {sc?.duration}분</p>
-                        {ac.teacher&&<p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>👩‍🏫 {ac.teacher}</p>}
+                        {(()=>{
+                          const shuttleText=getShuttleText(ac,hDN);
+                          if(!shuttleText) return null;
+                          return <p style={{fontSize:14,color:C.sub,margin:"4px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
+                        })()}
                       </div>
                       <div style={{display:"flex",gap:8}}>
                         {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:38,height:38,borderRadius:10,background:`${C.green}15`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,textDecoration:"none"}}>📞</a>}
@@ -616,7 +641,11 @@ export default function App() {
                           <div style={{width:5,height:42,borderRadius:3,background:ac.color,flexShrink:0}}/>
                           <div style={{flex:1}}>
                             <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>{ac.name}</p>
-                            <p style={{fontSize:17,color:C.sub,margin:"3px 0 0"}}>{getSchedules(ac).map(s=>s.day).join("·")}요일</p>
+                            <p style={{fontSize:17,color:C.sub,margin:"3px 0 0"}}>
+                              {ac.useCustomSchedule
+                                ? (ac.schedules||[]).map(s=>`${s.day} ${s.time}`).join(" / ")
+                                : `${(ac.days||[]).join("·")}요일 · ${ac.time} · ${ac.duration}분`}
+                            </p>
                           </div>
                           <button onClick={()=>openEdit(ac)} style={{padding:"6px 12px",borderRadius:8,border:`1px solid ${ac.color}40`,background:`${ac.color}10`,color:ac.color,fontSize:17,fontWeight:700,cursor:"pointer",flexShrink:0}}>✏️ 수정</button>
                         </div>
@@ -694,6 +723,8 @@ export default function App() {
                   else if(doneHwD&&!hasVac) badges.push("✓");
                   if(hasExSup) badges.push("🎒");
                   if(hasMemo) badges.push("📝");
+                  const shuttleToday=acList.some(a=>getShuttleText(a,dn));
+                  if(shuttleToday) badges.push("🚌");
                   return (
                     <div key={i} onClick={()=>setCalSelDate(isSel?null:dateStr)}
                       style={{background:isToday?th.main:isSel?`${th.main}15`:hasVac?"#FFF3CD":C.card,borderRadius:10,padding:"4px 3px 3px",minHeight:68,cursor:"pointer",
@@ -723,7 +754,7 @@ export default function App() {
 
               {/* 범례 */}
               <div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:10,padding:"10px 12px",background:C.card,borderRadius:10,border:`1px solid ${C.border}`}}>
-                {[{icon:"●",label:"학원"},{icon:"🔴",label:"공휴일"},{icon:"🏥",label:"결석"},{icon:"📚",label:"보충예정"},{icon:"✅",label:"보충완료"},{icon:"🏖️",label:"방학"},{icon:"⚠️",label:"숙제미완"},{icon:"🎒",label:"추가준비물"},{icon:"📝",label:"메모"}].map((l,i)=>(
+                {[{icon:"●",label:"학원"},{icon:"🔴",label:"공휴일"},{icon:"🏥",label:"결석"},{icon:"📚",label:"보충예정"},{icon:"✅",label:"보충완료"},{icon:"🏖️",label:"방학"},{icon:"🚌",label:"셔틀"},{icon:"⚠️",label:"숙제미완"},{icon:"🎒",label:"추가준비물"},{icon:"📝",label:"메모"}].map((l,i)=>(
                   <span key={i} style={{display:"flex",alignItems:"center",gap:3,fontSize:11,color:C.sub}}>
                     <span style={{fontSize:i===0?8:i===1?10:11,color:i===0?th.main:i===1?"#E74C3C":"inherit"}}>{l.icon}</span>{l.label}
                   </span>
@@ -833,7 +864,12 @@ export default function App() {
                             <div style={{width:4,height:38,borderRadius:2,background:ac.color,flexShrink:0}}/>
                             <div style={{flex:1}}>
                               <p style={{fontSize:17,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
-                              <p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT}</p>
+                              <p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT} · {sc?.duration}분</p>
+                              {(()=>{
+                                const shuttleText=getShuttleText(ac,selInfo.dn);
+                                if(!shuttleText) return null;
+                                return <p style={{fontSize:14,color:C.sub,margin:"4px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
+                              })()}
                             </div>
                             {hw.length>0&&<span style={{fontSize:17,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:6,padding:"3px 8px"}}>{allDone?"✓ 완료":`${doneCnt}/${hw.length}`}</span>}
                           </div>
@@ -1145,37 +1181,72 @@ export default function App() {
             </div>
             <label style={lbl}>학원 이름 *</label>
             <input value={newAc.name} onChange={e=>setNewAc(p=>({...p,name:e.target.value}))} placeholder="예: 수학학원" style={{...inp,marginBottom:16}}/>
-            <label style={lbl}>수업 요일/시간 *</label>
-            <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
+            <label style={lbl}>수업 요일 *</label>
+            <div style={{display:"flex",gap:5,marginBottom:12}}>
               {DAYS.map(day=>{
-                const sc=(newAc.schedules||[]).find(s=>s.day===day);
-                const selected=!!sc;
+                const sel=(newAc.days||[]).includes(day);
                 return (
-                  <div key={day} style={{display:"flex",alignItems:"center",gap:8,background:selected?`${DAY_COLORS[day]}10`:C.faint,border:`1.5px solid ${selected?DAY_COLORS[day]:C.faintB}`,borderRadius:10,padding:"8px"}}>
-                    <button onClick={()=>{
-                      setNewAc(p=>{
-                        const schedules=p.schedules||[];
-                        if(selected) return {...p,schedules:schedules.filter(s=>s.day!==day)};
-                        return {...p,schedules:[...schedules,{day,time:"15:00",duration:60}]};
-                      });
-                    }} style={{width:42,padding:"8px 0",borderRadius:8,border:"none",background:selected?DAY_COLORS[day]:"#fff",color:selected?"#fff":C.sub,fontSize:17,fontWeight:700,cursor:"pointer",flexShrink:0}}>
-                      {day}
-                    </button>
-                    {selected&&(
-                      <>
-                        <input type="time" value={sc.time}
-                          onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===day?{...s,time:e.target.value}:s)}))}
-                          style={{...inp,flex:1,width:"auto",fontSize:15,padding:"8px 10px"}}/>
-                        <input type="number" value={sc.duration}
-                          onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===day?{...s,duration:Number(e.target.value)}:s)}))}
-                          style={{...inp,width:70,fontSize:15,padding:"8px 10px"}}/>
-                        <span style={{fontSize:13,color:C.sub,flexShrink:0}}>분</span>
-                      </>
-                    )}
-                  </div>
+                  <button key={day} onClick={()=>{
+                    setNewAc(p=>{
+                      const days=p.days||[];
+                      const newDays=sel?days.filter(d=>d!==day):[...days,day];
+                      // useCustomSchedule 켜져있으면 schedules도 동기화
+                      if(p.useCustomSchedule){
+                        const schedules=sel
+                          ?(p.schedules||[]).filter(s=>s.day!==day)
+                          :[...(p.schedules||[]),{day,time:p.time||"15:00",duration:p.duration||60}];
+                        return {...p,days:newDays,schedules};
+                      }
+                      return {...p,days:newDays};
+                    });
+                  }} style={{flex:1,padding:"9px 0",borderRadius:8,border:`1.5px solid ${sel?DAY_COLORS[day]:C.faintB}`,background:sel?DAY_COLORS[day]:C.faint,color:sel?"#fff":C.sub,fontSize:17,fontWeight:600,cursor:"pointer"}}>{day}</button>
                 );
               })}
             </div>
+
+            {/* 공통 시간 입력 */}
+            {!newAc.useCustomSchedule&&(
+              <div style={{display:"flex",gap:10,marginBottom:12}}>
+                <div style={{flex:1}}><label style={lbl}>시작 시간</label><input type="time" value={newAc.time||""} onChange={e=>setNewAc(p=>({...p,time:e.target.value}))} style={inp}/></div>
+                <div style={{flex:1}}><label style={lbl}>수업 시간(분)</label><input type="number" value={newAc.duration||60} onChange={e=>setNewAc(p=>({...p,duration:Number(e.target.value)}))} style={inp}/></div>
+              </div>
+            )}
+
+            {/* 요일별 시간 토글 버튼 */}
+            <button onClick={()=>{
+              if(!newAc.useCustomSchedule){
+                // 켜기: 선택된 요일로 schedules 생성 (기존 schedules 있으면 유지)
+                const existing=newAc.schedules||[];
+                const schedules=(newAc.days||[]).map(day=>{
+                  const ex=existing.find(s=>s.day===day);
+                  return ex||{day,time:newAc.time||"15:00",duration:newAc.duration||60};
+                });
+                setNewAc(p=>({...p,useCustomSchedule:true,schedules}));
+              } else {
+                setNewAc(p=>({...p,useCustomSchedule:false}));
+              }
+            }} style={{width:"100%",padding:"10px",borderRadius:10,border:`1.5px solid ${newAc.useCustomSchedule?th.main:C.border}`,background:newAc.useCustomSchedule?`${th.main}10`:C.faint,color:newAc.useCustomSchedule?th.main:C.sub,fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:12}}>
+              {newAc.useCustomSchedule?"✓ 요일별 시간 설정 중":"📅 요일별 시간이 달라요"}
+            </button>
+
+            {/* 요일별 시간 개별 입력 */}
+            {newAc.useCustomSchedule&&(
+              <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12,background:`${th.main}06`,borderRadius:12,padding:"12px"}}>
+                {(newAc.schedules||[]).map(sc=>(
+                  <div key={sc.day} style={{display:"flex",alignItems:"center",gap:8,background:"#fff",border:`1.5px solid ${DAY_COLORS[sc.day]}40`,borderRadius:10,padding:"8px 10px"}}>
+                    <span style={{width:28,fontSize:15,fontWeight:700,color:DAY_COLORS[sc.day],flexShrink:0}}>{sc.day}</span>
+                    <input type="time" value={sc.time}
+                      onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,time:e.target.value}:s)}))}
+                      style={{...inp,flex:1,width:"auto",fontSize:14,padding:"7px 10px"}}/>
+                    <input type="number" value={sc.duration}
+                      onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,duration:Number(e.target.value)}:s)}))}
+                      style={{...inp,width:65,fontSize:14,padding:"7px 8px"}}/>
+                    <span style={{fontSize:12,color:C.sub,flexShrink:0}}>분</span>
+                  </div>
+                ))}
+                {(newAc.schedules||[]).length===0&&<p style={{fontSize:13,color:C.sub,margin:0,textAlign:"center"}}>위에서 요일을 먼저 선택해주세요</p>}
+              </div>
+            )}
             <div style={{display:"flex",gap:10,marginBottom:16}}>
               <div style={{flex:1}}><label style={lbl}>월 학원비(원)</label><input type="number" value={newAc.fee} onChange={e=>setNewAc(p=>({...p,fee:Number(e.target.value)}))} placeholder="0" style={inp}/></div>
               <div style={{flex:1}}><label style={lbl}>납부일</label><input type="number" min="1" max="31" value={newAc.payDay} onChange={e=>setNewAc(p=>({...p,payDay:Number(e.target.value)}))} style={inp}/></div>
@@ -1204,6 +1275,47 @@ export default function App() {
               <input value={newAc.phone} onChange={e=>setNewAc(p=>({...p,phone:e.target.value}))} placeholder="예: 010-1234-5678" style={{...inp,marginBottom:14}}/>
               <label style={lbl}>📍 주소</label>
               <input value={newAc.address} onChange={e=>setNewAc(p=>({...p,address:e.target.value}))} placeholder="예: 서울시 강남구" style={{...inp,marginBottom:14}}/>
+
+              <label style={lbl}>🚌 셔틀버스 메모</label>
+              <textarea value={newAc.shuttleInfo||""} onChange={e=>setNewAc(p=>({...p,shuttleInfo:e.target.value}))}
+                placeholder="예: 월수금 하원 차량 / 3시10분 아파트 정문"
+                style={{...inp,minHeight:70,resize:"none",marginBottom:10}}/>
+
+              <button type="button" onClick={()=>{
+                setNewAc(p=>({...p,
+                  useCustomShuttle:!p.useCustomShuttle,
+                  shuttleSchedules:p.shuttleSchedules?.length
+                    ? p.shuttleSchedules
+                    : (p.days||[]).map(day=>({day,time:"",place:"",memo:""}))
+                }));
+              }} style={{width:"100%",padding:"11px",borderRadius:10,border:`1px dashed ${C.purple}`,background:newAc.useCustomShuttle?C.purpleL:C.faint,color:C.purple,fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:10}}>
+                {newAc.useCustomShuttle?"🚌 요일별 셔틀 설정 사용중":"🚌 요일별 셔틀 정보가 달라요"}
+              </button>
+
+              {newAc.useCustomShuttle&&(
+                <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
+                  {(newAc.days||[]).map(day=>{
+                    const shuttle=(newAc.shuttleSchedules||[]).find(s=>s.day===day)||{};
+                    return (
+                      <div key={day} style={{border:`1px solid ${C.border}`,borderRadius:12,padding:"12px",background:C.faint}}>
+                        <div style={{fontWeight:800,marginBottom:8,color:DAY_COLORS[day],fontSize:14}}>{day}요일</div>
+                        <div style={{display:"flex",gap:8,marginBottom:8}}>
+                          <input type="time" value={shuttle.time||""}
+                            onChange={e=>setNewAc(p=>({...p,shuttleSchedules:(p.shuttleSchedules||[]).map(s=>s.day===day?{...s,time:e.target.value}:s)}))}
+                            style={{...inp,flex:1,width:"auto",fontSize:14,padding:"8px 10px"}}/>
+                          <input value={shuttle.place||""} placeholder="위치"
+                            onChange={e=>setNewAc(p=>({...p,shuttleSchedules:(p.shuttleSchedules||[]).map(s=>s.day===day?{...s,place:e.target.value}:s)}))}
+                            style={{...inp,flex:2,width:"auto",fontSize:14,padding:"8px 10px"}}/>
+                        </div>
+                        <input value={shuttle.memo||""} placeholder="메모"
+                          onChange={e=>setNewAc(p=>({...p,shuttleSchedules:(p.shuttleSchedules||[]).map(s=>s.day===day?{...s,memo:e.target.value}:s)}))}
+                          style={{...inp,fontSize:14,padding:"8px 10px"}}/>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               <label style={lbl}>📝 학원 메모</label>
               <input value={newAc.memo} onChange={e=>setNewAc(p=>({...p,memo:e.target.value}))} placeholder="특이사항, 레벨 등" style={inp}/>
             </div>
@@ -1224,7 +1336,11 @@ export default function App() {
               </div>
               <div style={{flex:1}}>
                 <h3 style={{margin:0,fontSize:20,fontWeight:900,color:C.text}}>{showDetailModal.name}</h3>
-                <p style={{margin:"3px 0 0",fontSize:17,color:C.sub}}>{getSchedules(showDetailModal).map(s=>`${s.day} ${s.time}`).join(" / ")}</p>
+                <p style={{margin:"3px 0 0",fontSize:17,color:C.sub}}>
+                  {showDetailModal.useCustomSchedule
+                    ? (showDetailModal.schedules||[]).map(s=>`${s.day} ${s.time}(${s.duration}분)`).join(" / ")
+                    : `${(showDetailModal.days||[]).join("·")}요일 · ${showDetailModal.time} · ${showDetailModal.duration}분`}
+                </p>
               </div>
             </div>
             {[["💰 월 학원비",`${Number(showDetailModal.fee||0).toLocaleString()}원`],["📆 납부일",`매월 ${showDetailModal.payDay}일`],["🎒 기본 준비물",(showDetailModal.baseSupplies||[]).join(", ")||"없음"],...(showDetailModal.teacher?[["👩‍🏫 선생님",showDetailModal.teacher]]:[]),...(showDetailModal.address?[["📍 주소",showDetailModal.address]]:[])].map(([k,v])=>(
@@ -1319,68 +1435,4 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowSmsModal(null)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 44px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18}}>
-              <div style={{width:12,height:12,borderRadius:"50%",background:showSmsModal.color}}/>
-              <div style={{flex:1}}>
-                <p style={{fontWeight:800,fontSize:17,margin:0,color:C.text}}>{showSmsModal.name} 문자 보내기</p>
-                {showSmsModal.phone&&<p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>📞 {showSmsModal.phone}</p>}
-              </div>
-              <button onClick={()=>setShowSmsModal(null)} style={{background:C.faint,border:"none",borderRadius:8,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:14}}>✕</button>
-            </div>
-            <p style={{fontSize:17,color:C.sub,fontWeight:700,margin:"0 0 10px"}}>📋 템플릿 선택</p>
-            <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:16}}>
-              {templates.map(t=><button key={t.id} onClick={()=>applyTmpl(t,showSmsModal)} style={{padding:"7px 14px",borderRadius:8,border:`1px solid ${C.purple}40`,background:C.purpleL,color:C.purple,fontSize:17,fontWeight:600,cursor:"pointer"}}>{t.title}</button>)}
-            </div>
-            <label style={lbl}>✏️ 문자 내용</label>
-            <textarea value={smsDraft} onChange={e=>setSmsDraft(e.target.value)} placeholder={"템플릿을 선택하거나\n직접 입력하세요"} style={{...inp,height:140,resize:"none",marginBottom:16,whiteSpace:"pre-wrap"}}/>
-            <div style={{display:"flex",gap:10}}>
-              {showSmsModal.phone?(
-                <>
-                  <a href={smsLink(showSmsModal.phone,smsDraft)} style={{flex:2,padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.purple},#9B7FFF)`,color:"#fff",fontSize:17,fontWeight:700,textAlign:"center",textDecoration:"none",display:"block",boxShadow:`0 4px 14px ${C.purple}40`}}>📲 문자 앱으로 발송</a>
-                  <a href={`tel:${showSmsModal.phone}`} style={{flex:1,padding:14,borderRadius:14,border:`1.5px solid ${C.green}40`,background:`${C.green}10`,color:C.green,fontSize:17,fontWeight:700,textAlign:"center",textDecoration:"none",display:"block"}}>📞 전화</a>
-                </>
-              ):<p style={{fontSize:17,color:C.red,margin:0}}>⚠️ 연락처가 등록되지 않았어요</p>}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── 템플릿 편집 모달 ── */}
-      {showTmplEdit&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowTmplEdit(null)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,boxSizing:"border-box"}}>
-            <h3 style={{margin:"0 0 20px",fontSize:18,fontWeight:800,color:C.text}}>{showTmplEdit==="new"?"새 템플릿 추가":"템플릿 수정"}</h3>
-            <label style={lbl}>템플릿 제목</label>
-            <input value={editTmpl.title} onChange={e=>setEditTmpl(p=>({...p,title:e.target.value}))} placeholder="예: 결석 안내" style={{...inp,marginBottom:16}}/>
-            <label style={lbl}>문자 내용</label>
-            <textarea value={editTmpl.body} onChange={e=>setEditTmpl(p=>({...p,body:e.target.value}))} placeholder={"{아이이름}, {학원명}, {날짜}, {시간} 변수 사용 가능"} style={{...inp,height:140,resize:"none",marginBottom:22}}/>
-            <div style={{display:"flex",gap:10}}>
-              <button onClick={()=>setShowTmplEdit(null)} style={{flex:1,padding:14,borderRadius:12,border:`1px solid ${C.border}`,background:C.faint,color:C.sub,fontSize:17,cursor:"pointer"}}>취소</button>
-              <button onClick={saveTmpl} style={{flex:2,padding:14,borderRadius:12,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>저장</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── 결석 추가 모달 ── */}
-      {showAbsModal&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:200}} onClick={()=>setShowAbsModal(false)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,boxSizing:"border-box"}}>
-            <h3 style={{margin:"0 0 20px",fontSize:18,fontWeight:800,color:C.text}}>결석 기록 추가 ({th.emoji} {curChild?.name})</h3>
-            <label style={lbl}>학원 선택</label>
-            <select value={newAbs.academyId} onChange={e=>setNewAbs(p=>({...p,academyId:e.target.value}))} style={{...inp,marginBottom:14}}>
-              <option value="">학원을 선택하세요</option>
-              {curAc.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}
-            </select>
-            <label style={lbl}>결석일</label>
-            <input type="date" value={newAbs.date} onChange={e=>setNewAbs(p=>({...p,date:e.target.value}))} style={{...inp,marginBottom:14}}/>
-            <label style={lbl}>결석 사유</label>
-            <input value={newAbs.reason} onChange={e=>setNewAbs(p=>({...p,reason:e.target.value}))} placeholder="예: 감기, 가족 행사" style={{...inp,marginBottom:14}}/>
-            <label style={lbl}>보충 예정일</label>
-            <input type="date" value={newAbs.makeupDate} onChange={e=>setNewAbs(p=>({...p,makeupDate:e.target.value}))} style={{...inp,marginBottom:24}}/>
-            <button onClick={addAbs} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.red},#FF8FA3)`,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>기록하기</button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+              <
