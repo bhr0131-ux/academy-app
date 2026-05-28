@@ -109,8 +109,23 @@ const SAMPLE_TMPL = [
   { id:4, title:"준비물 확인", body:"안녕하세요. {아이이름} 학부모입니다.\n{학원명} 준비물 관련하여 확인 부탁드립니다. 감사합니다." },
 ];
 
-const EMPTY_AC = { name:"", days:[], time:"", duration:60, fee:0, payDay:1, color:"#FF6B6B", baseSupplies:[], phone:"", teacher:"", address:"", memo:"" };
+const EMPTY_AC = {
+  name:"", schedules:[], fee:0, payDay:1, color:"#FF6B6B",
+  baseSupplies:[], phone:"", teacher:"", address:"", memo:""
+};
 const EMPTY_ABS = { academyId:"", date:TODAY, reason:"", makeupDate:"", makeupDone:false };
+
+// ── 요일별 스케줄 유틸 (기존 days/time/duration 구조 호환) ──
+const getSchedules = (academy) => {
+  if (academy.schedules && academy.schedules.length > 0) return academy.schedules;
+  return (academy.days || []).map(day => ({
+    day, time: academy.time || "", duration: academy.duration || 60
+  }));
+};
+const hasClassOnDay = (academy, day) => getSchedules(academy).some(s => s.day === day);
+const getScheduleForDay = (academy, day) => getSchedules(academy).find(s => s.day === day);
+const getClassTime = (academy, day) => getScheduleForDay(academy, day)?.time || "";
+const getClassDuration = (academy, day) => getScheduleForDay(academy, day)?.duration || 0;
 
 export default function App() {
   const [loaded,setLoaded] = useState(false);
@@ -241,14 +256,14 @@ export default function App() {
     return n;
   };
   const pendingAbsCnt=curAbs.filter(a=>a.makeupDate&&!a.makeupDone).length;
-  const todayAc=curAc.filter(a=>a.days.includes(todayDN())).sort((a,b)=>a.time.localeCompare(b.time));
+  const todayAc=curAc.filter(a=>hasClassOnDay(a,todayDN())).sort((a,b)=>getClassTime(a,todayDN()).localeCompare(getClassTime(b,todayDN())));
 
   // 학원 CRUD
   const openAdd=()=>{ setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[]}); setSupplyInput(""); setShowAddAcModal(true); };
-  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])]}); setSupplyInput(""); setShowDetailModal(null); setShowAddAcModal(true); };
+  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],schedules:[...getSchedules(ac)]}); setSupplyInput(""); setShowDetailModal(null); setShowAddAcModal(true); };
   const saveAcademy=()=>{
-    if(!newAc.name.trim()||newAc.days.length===0){ showToast("학원명과 요일을 입력해줘"); return; }
-    const cleaned={...newAc,name:newAc.name.trim(),fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),baseSupplies:newAc.baseSupplies||[]};
+    if(!newAc.name.trim()||(newAc.schedules||[]).length===0){ showToast("학원명과 수업 시간을 입력해줘"); return; }
+    const cleaned={...newAc,name:newAc.name.trim(),fee:Number(newAc.fee||0),payDay:Number(newAc.payDay||1),baseSupplies:newAc.baseSupplies||[],schedules:newAc.schedules||[]};
     setAcademies(prev=>{
       const list=prev[childId]||[];
       return editTarget!==null
@@ -300,7 +315,7 @@ export default function App() {
   const toggleMakeup=(id)=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(a=>a.id===id?{...a,makeupDone:!a.makeupDone}:a)}));
 
   // 문자
-  const applyTmpl=(tmpl,ac)=>setSmsDraft(tmpl.body.replace(/{아이이름}/g,curChild?.name||"").replace(/{학원명}/g,ac.name).replace(/{날짜}/g,fmt(TODAY)).replace(/{시간}/g,ac.time||""));
+  const applyTmpl=(tmpl,ac)=>setSmsDraft(tmpl.body.replace(/{아이이름}/g,curChild?.name||"").replace(/{학원명}/g,ac.name).replace(/{날짜}/g,fmt(TODAY)).replace(/{시간}/g,getClassTime(ac,todayDN())||getSchedules(ac)[0]?.time||""));
   const saveTmpl=()=>{
     if(!editTmpl.title.trim()||!editTmpl.body.trim()){ showToast("제목과 내용을 입력해줘"); return; }
     setTemplates(p=>showTmplEdit==="new"?[...p,{...editTmpl,id:Date.now()}]:p.map(t=>t.id===showTmplEdit?{...editTmpl,id:t.id}:t));
@@ -399,8 +414,8 @@ export default function App() {
           const isYesterday=homeDate===addDays(TODAY,-1);
           const dayTag=isToday?"오늘":isTomorrow?"내일":isYesterday?"어제":null;
           const fullLabel=`${hd.getMonth()+1}월 ${hd.getDate()}일 ${hDN}요일`;
-          const homeAc=curAc.filter(a=>a.days.includes(hDN)&&!isVacationDay(childId,a.id,homeDate)).sort((a,b)=>a.time.localeCompare(b.time));
-          const vacAcToday=curAc.filter(a=>a.days.includes(hDN)&&isVacationDay(childId,a.id,homeDate));
+          const homeAc=curAc.filter(a=>hasClassOnDay(a,hDN)&&!isVacationDay(childId,a.id,homeDate)).sort((a,b)=>getClassTime(a,hDN).localeCompare(getClassTime(b,hDN)));
+          const vacAcToday=curAc.filter(a=>hasClassOnDay(a,hDN)&&isVacationDay(childId,a.id,homeDate));
           const absOnHome=curAbs.filter(a=>a.date===homeDate);
           const makeupOnHome=curAbs.filter(a=>a.makeupDate===homeDate);
           const homePendingHw=homeAc.reduce((n,ac)=>n+(getDailyEntry(childId,ac.id,homeDate).homeworks||[]).filter(h=>!h.done).length,0);
@@ -489,8 +504,9 @@ export default function App() {
 
               {/* 학원 카드 */}
               {homeAc.map(ac=>{
-                const [h,m]=(ac.time||"00:00").split(":").map(Number);
-                const tm=h*60+m+Number(ac.duration||0);
+                const sc=getScheduleForDay(ac,hDN);
+                const [h,m]=(sc?.time||"00:00").split(":").map(Number);
+                const tm=h*60+m+Number(sc?.duration||0);
                 const endT=`${String(Math.floor(tm/60)%24).padStart(2,"0")}:${String(tm%60).padStart(2,"0")}`;
                 const entry=getDailyEntry(childId,ac.id,homeDate);
                 const hw=entry.homeworks||[], sup=entry.supplies||[];
@@ -502,7 +518,7 @@ export default function App() {
                       <div style={{width:5,height:52,borderRadius:3,background:ac.color,flexShrink:0}}/>
                       <div style={{flex:1}}>
                         <p style={{fontSize:18,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
-                        <p style={{fontSize:17,color:C.sub,margin:"3px 0 0"}}>{ac.time} ~ {endT} &nbsp;·&nbsp; {ac.duration}분</p>
+                        <p style={{fontSize:17,color:C.sub,margin:"3px 0 0"}}>{sc?.time} ~ {endT} &nbsp;·&nbsp; {sc?.duration}분</p>
                         {ac.teacher&&<p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>👩‍🏫 {ac.teacher}</p>}
                       </div>
                       <div style={{display:"flex",gap:8}}>
@@ -553,8 +569,8 @@ export default function App() {
                 <div style={{background:C.card,borderRadius:14,border:`1px solid ${C.border}`,overflow:"hidden"}}>
                   {DAYS.map(day=>{
                     const da=curAc
-                      .filter(a=>a.days.includes(day))
-                      .sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+                      .filter(a=>hasClassOnDay(a,day))
+                      .sort((a,b)=>getClassTime(a,day).localeCompare(getClassTime(b,day)));
                     if(da.length===0) return null;
                     const isTodayRow=day===todayDN();
                     const now=new Date();
@@ -570,7 +586,7 @@ export default function App() {
                             const onVac=isVacationDay(childId,a.id,rowDate);
                             return (
                               <span key={a.id} style={{fontSize:14,padding:"3px 8px",borderRadius:6,background:onVac?"#FFF8E1":`${a.color}18`,color:onVac?"#E65100":a.color,fontWeight:600}}>
-                                {onVac?"🏖️ ":""}{a.name} {a.time}
+                                {onVac?"🏖️ ":""}{a.name} {getClassTime(a,day)}
                               </span>
                             );
                           })}
@@ -578,7 +594,7 @@ export default function App() {
                       </div>
                     );
                   })}
-                  {DAYS.every(day=>curAc.filter(a=>a.days.includes(day)).length===0)&&<p style={{textAlign:"center",padding:"16px",color:C.sub,fontSize:17,margin:0}}>이번 주 예정 없음</p>}
+                  {DAYS.every(day=>curAc.filter(a=>hasClassOnDay(a,day)).length===0)&&<p style={{textAlign:"center",padding:"16px",color:C.sub,fontSize:17,margin:0}}>이번 주 예정 없음</p>}
                 </div>
               </div>
 
@@ -600,7 +616,7 @@ export default function App() {
                           <div style={{width:5,height:42,borderRadius:3,background:ac.color,flexShrink:0}}/>
                           <div style={{flex:1}}>
                             <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>{ac.name}</p>
-                            <p style={{fontSize:17,color:C.sub,margin:"3px 0 0"}}>{ac.days.join("·")}요일 &nbsp;·&nbsp; {ac.time} &nbsp;·&nbsp; {ac.duration}분</p>
+                            <p style={{fontSize:17,color:C.sub,margin:"3px 0 0"}}>{getSchedules(ac).map(s=>s.day).join("·")}요일</p>
                           </div>
                           <button onClick={()=>openEdit(ac)} style={{padding:"6px 12px",borderRadius:8,border:`1px solid ${ac.color}40`,background:`${ac.color}10`,color:ac.color,fontSize:17,fontWeight:700,cursor:"pointer",flexShrink:0}}>✏️ 수정</button>
                         </div>
@@ -629,7 +645,7 @@ export default function App() {
           const selInfo=calSelDate?(()=>{
             const d=new Date(calSelDate), y=d.getFullYear(), m=d.getMonth(), day=d.getDate();
             const dn=getDN(y,m,day);
-            const acList=curAc.filter(a=>a.days.includes(dn));
+            const acList=curAc.filter(a=>hasClassOnDay(a,dn));
             const mk=mKey(childId,y,m,day);
             const absOnDay=curAbs.filter(a=>a.date===calSelDate);
             const makeupOnDay=curAbs.filter(a=>a.makeupDate===calSelDate);
@@ -652,7 +668,7 @@ export default function App() {
                 {calDays.map((day,i)=>{
                   if(!day) return <div key={i}/>;
                   const dn=getDN(calDate.getFullYear(),calDate.getMonth(),day);
-                  const acList=curAc.filter(a=>a.days.includes(dn));
+                  const acList=curAc.filter(a=>hasClassOnDay(a,dn));
                   const mk=mKey(childId,calDate.getFullYear(),calDate.getMonth(),day);
                   const hasMemo=!!dayMemos[mk];
                   const now=new Date();
@@ -807,8 +823,9 @@ export default function App() {
                       const hw=entry.homeworks||[], sup=entry.supplies||[];
                       const doneCnt=hw.filter(h=>h.done).length;
                       const allDone=hw.length>0&&doneCnt===hw.length;
-                      const [h,m]=(ac.time||"00:00").split(":").map(Number);
-                      const tm=h*60+m+Number(ac.duration||0);
+                      const sc=getScheduleForDay(ac,selInfo.dn);
+                      const [h,m]=(sc?.time||"00:00").split(":").map(Number);
+                      const tm=h*60+m+Number(sc?.duration||0);
                       const endT=`${String(Math.floor(tm/60)%24).padStart(2,"0")}:${String(tm%60).padStart(2,"0")}`;
                       return (
                         <div key={ac.id} style={{marginBottom:12,borderRadius:14,border:`1.5px solid ${ac.color}25`,overflow:"hidden"}}>
@@ -816,7 +833,7 @@ export default function App() {
                             <div style={{width:4,height:38,borderRadius:2,background:ac.color,flexShrink:0}}/>
                             <div style={{flex:1}}>
                               <p style={{fontSize:17,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
-                              <p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>{ac.time} ~ {endT}</p>
+                              <p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT}</p>
                             </div>
                             {hw.length>0&&<span style={{fontSize:17,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:6,padding:"3px 8px"}}>{allDone?"✓ 완료":`${doneCnt}/${hw.length}`}</span>}
                           </div>
@@ -1128,15 +1145,36 @@ export default function App() {
             </div>
             <label style={lbl}>학원 이름 *</label>
             <input value={newAc.name} onChange={e=>setNewAc(p=>({...p,name:e.target.value}))} placeholder="예: 수학학원" style={{...inp,marginBottom:16}}/>
-            <label style={lbl}>수업 요일 *</label>
-            <div style={{display:"flex",gap:5,marginBottom:16}}>
-              {DAYS.map(day=>(
-                <button key={day} onClick={()=>toggleDay(day)} style={{flex:1,padding:"9px 0",borderRadius:8,border:`1.5px solid ${newAc.days.includes(day)?DAY_COLORS[day]:C.faintB}`,background:newAc.days.includes(day)?DAY_COLORS[day]:C.faint,color:newAc.days.includes(day)?"#fff":C.sub,fontSize:17,fontWeight:600,cursor:"pointer"}}>{day}</button>
-              ))}
-            </div>
-            <div style={{display:"flex",gap:10,marginBottom:16}}>
-              <div style={{flex:1}}><label style={lbl}>시작 시간</label><input type="time" value={newAc.time} onChange={e=>setNewAc(p=>({...p,time:e.target.value}))} style={inp}/></div>
-              <div style={{flex:1}}><label style={lbl}>수업 시간(분)</label><input type="number" value={newAc.duration} onChange={e=>setNewAc(p=>({...p,duration:Number(e.target.value)}))} style={inp}/></div>
+            <label style={lbl}>수업 요일/시간 *</label>
+            <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
+              {DAYS.map(day=>{
+                const sc=(newAc.schedules||[]).find(s=>s.day===day);
+                const selected=!!sc;
+                return (
+                  <div key={day} style={{display:"flex",alignItems:"center",gap:8,background:selected?`${DAY_COLORS[day]}10`:C.faint,border:`1.5px solid ${selected?DAY_COLORS[day]:C.faintB}`,borderRadius:10,padding:"8px"}}>
+                    <button onClick={()=>{
+                      setNewAc(p=>{
+                        const schedules=p.schedules||[];
+                        if(selected) return {...p,schedules:schedules.filter(s=>s.day!==day)};
+                        return {...p,schedules:[...schedules,{day,time:"15:00",duration:60}]};
+                      });
+                    }} style={{width:42,padding:"8px 0",borderRadius:8,border:"none",background:selected?DAY_COLORS[day]:"#fff",color:selected?"#fff":C.sub,fontSize:17,fontWeight:700,cursor:"pointer",flexShrink:0}}>
+                      {day}
+                    </button>
+                    {selected&&(
+                      <>
+                        <input type="time" value={sc.time}
+                          onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===day?{...s,time:e.target.value}:s)}))}
+                          style={{...inp,flex:1,width:"auto",fontSize:15,padding:"8px 10px"}}/>
+                        <input type="number" value={sc.duration}
+                          onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===day?{...s,duration:Number(e.target.value)}:s)}))}
+                          style={{...inp,width:70,fontSize:15,padding:"8px 10px"}}/>
+                        <span style={{fontSize:13,color:C.sub,flexShrink:0}}>분</span>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             <div style={{display:"flex",gap:10,marginBottom:16}}>
               <div style={{flex:1}}><label style={lbl}>월 학원비(원)</label><input type="number" value={newAc.fee} onChange={e=>setNewAc(p=>({...p,fee:Number(e.target.value)}))} placeholder="0" style={inp}/></div>
@@ -1186,7 +1224,7 @@ export default function App() {
               </div>
               <div style={{flex:1}}>
                 <h3 style={{margin:0,fontSize:20,fontWeight:900,color:C.text}}>{showDetailModal.name}</h3>
-                <p style={{margin:"3px 0 0",fontSize:17,color:C.sub}}>{showDetailModal.days.join(", ")}요일 · {showDetailModal.time} ({showDetailModal.duration}분)</p>
+                <p style={{margin:"3px 0 0",fontSize:17,color:C.sub}}>{getSchedules(showDetailModal).map(s=>`${s.day} ${s.time}`).join(" / ")}</p>
               </div>
             </div>
             {[["💰 월 학원비",`${Number(showDetailModal.fee||0).toLocaleString()}원`],["📆 납부일",`매월 ${showDetailModal.payDay}일`],["🎒 기본 준비물",(showDetailModal.baseSupplies||[]).join(", ")||"없음"],...(showDetailModal.teacher?[["👩‍🏫 선생님",showDetailModal.teacher]]:[]),...(showDetailModal.address?[["📍 주소",showDetailModal.address]]:[])].map(([k,v])=>(
