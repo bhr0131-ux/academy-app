@@ -411,8 +411,8 @@ export default function App() {
           <button onClick={openAddChild}
             style={{flexShrink:0,padding:"8px 12px",border:"none",background:"rgba(255,255,255,0.15)",color:"rgba(255,255,255,0.85)",cursor:"pointer",borderLeft:"1px solid rgba(255,255,255,0.15)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:2}}
             title="아이 추가">
-            <span style={{fontSize:15,lineHeight:1}}>👶</span>
-            <span style={{fontSize:17,fontWeight:600,letterSpacing:0.3,opacity:0.9}}>아이추가</span>
+            <span style={{fontSize:14,lineHeight:1}}>👶</span>
+            <span style={{fontSize:9,fontWeight:600,letterSpacing:0.3,opacity:0.9}}>아이추가</span>
           </button>
         </div>
       </div>
@@ -580,7 +580,7 @@ export default function App() {
                         )}
                       </div>
                       <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:homeDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); }}
-                        style={{width:"100%",padding:"9px",borderRadius:10,border:`1.5px dashed ${ac.color}50`,background:`${ac.color}06`,color:ac.color,fontSize:17,fontWeight:700,cursor:"pointer"}}>
+                        style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
                         ✏️ 숙제 · 준비물 편집
                       </button>
                     </div>
@@ -627,7 +627,7 @@ export default function App() {
               <div style={{marginBottom:8}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
                   <p style={{fontSize:17,color:C.sub,fontWeight:700,margin:0,letterSpacing:0.5}}>📋 등록 학원 ({curAc.length})</p>
-                  <button onClick={openAdd} style={{fontSize:17,padding:"6px 14px",borderRadius:8,border:"none",background:th.grad,color:"#fff",fontWeight:700,cursor:"pointer"}}>+ 학원 추가</button>
+                  <button onClick={openAdd} style={{fontSize:13,padding:"5px 12px",borderRadius:8,border:"none",background:th.grad,color:"#fff",fontWeight:700,cursor:"pointer"}}>+ 학원 추가</button>
                 </div>
                 {curAc.length===0?(
                   <div style={{textAlign:"center",padding:"28px",color:C.sub,fontSize:17,background:C.card,borderRadius:14,border:`1.5px dashed ${C.border}`}}>
@@ -647,7 +647,7 @@ export default function App() {
                                 : `${(ac.days||[]).join("·")}요일 · ${ac.time} · ${ac.duration}분`}
                             </p>
                           </div>
-                          <button onClick={()=>openEdit(ac)} style={{padding:"6px 12px",borderRadius:8,border:`1px solid ${ac.color}40`,background:`${ac.color}10`,color:ac.color,fontSize:17,fontWeight:700,cursor:"pointer",flexShrink:0}}>✏️ 수정</button>
+                          <button onClick={()=>openEdit(ac)} style={{padding:"5px 10px",borderRadius:8,border:`1px solid ${ac.color}40`,background:`${ac.color}10`,color:ac.color,fontSize:13,fontWeight:700,cursor:"pointer",flexShrink:0}}>✏️ 수정</button>
                         </div>
                         <div style={{padding:"10px 16px",display:"flex",alignItems:"center",gap:10}}>
                           <div style={{flex:1,display:"flex",flexWrap:"wrap",gap:8}}>
@@ -897,7 +897,7 @@ export default function App() {
                               )}
                             </div>
                             <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); }}
-                              style={{width:"100%",padding:"8px",borderRadius:9,border:`1.5px dashed ${ac.color}50`,background:`${ac.color}06`,color:ac.color,fontSize:17,fontWeight:700,cursor:"pointer"}}>
+                              style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
                               ✏️ 숙제 · 준비물 편집
                             </button>
                           </div>
@@ -911,7 +911,7 @@ export default function App() {
 
               {/* 방학 전체 관리 버튼 */}
               <button onClick={()=>{ setVacForm({academyId:"",start:TODAY,end:TODAY}); setShowVacModal({date:TODAY,acList:curAc}); }}
-                style={{width:"100%",marginTop:12,padding:"12px",borderRadius:12,border:"1.5px dashed #F0A500",background:"#FFFBF0",color:"#E65100",fontSize:17,fontWeight:700,cursor:"pointer"}}>
+                style={{width:"100%",marginTop:12,padding:"9px",borderRadius:10,border:"1px dashed #F0A500",background:"#FFFBF0",color:"#E65100",fontSize:13,fontWeight:700,cursor:"pointer"}}>
                 🏖️ 방학 기간 관리
               </button>
             </div>
@@ -967,7 +967,7 @@ export default function App() {
                 </div>
               ))}
             </div>
-            <button onClick={()=>setShowAbsModal(true)} style={{width:"100%",padding:14,borderRadius:12,border:`1.5px dashed ${C.red}55`,background:`${C.red}08`,color:C.red,fontSize:17,fontWeight:700,cursor:"pointer",marginBottom:16}}>+ 결석 기록 추가</button>
+            <button onClick={()=>setShowAbsModal(true)} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px dashed ${C.red}40`,background:`${C.red}06`,color:C.red,fontSize:13,fontWeight:700,cursor:"pointer",marginBottom:16}}>+ 결석 기록 추가</button>
             {[...curAbs].sort((a,b)=>b.date.localeCompare(a.date)).map(ab=>{
               const ac=curAc.find(a=>a.id===Number(ab.academyId)); if(!ac) return null;
               const past=ab.makeupDate&&ab.makeupDate<TODAY;
@@ -1008,7 +1008,7 @@ export default function App() {
           <div>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
               <p style={{fontSize:17,color:C.sub,fontWeight:700,margin:0}}>문자 템플릿 관리</p>
-              <button onClick={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }} style={{padding:"8px 16px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>+ 새 템플릿</button>
+              <button onClick={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }} style={{padding:"7px 14px",borderRadius:8,border:"none",background:th.grad,color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ 새 템플릿</button>
             </div>
             <div style={{background:`${C.purple}08`,border:`1px solid ${C.purple}25`,borderRadius:12,padding:"12px 16px",marginBottom:16}}>
               <p style={{fontSize:17,color:C.purple,fontWeight:700,margin:"0 0 6px"}}>📌 사용 가능한 변수</p>
@@ -1021,8 +1021,8 @@ export default function App() {
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
                   <span style={{fontWeight:700,fontSize:17,color:C.text}}>💬 {tmpl.title}</span>
                   <div style={{display:"flex",gap:6}}>
-                    <button onClick={()=>{ setShowTmplEdit(tmpl.id); setEditTmpl({title:tmpl.title,body:tmpl.body}); }} style={{padding:"5px 12px",borderRadius:7,border:`1px solid ${C.border}`,background:C.faint,color:C.sub,fontSize:17,cursor:"pointer"}}>수정</button>
-                    <button onClick={()=>{ setTemplates(p=>p.filter(t=>t.id!==tmpl.id)); showToast("삭제됨"); }} style={{padding:"5px 12px",borderRadius:7,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,fontSize:17,cursor:"pointer"}}>삭제</button>
+                    <button onClick={()=>{ setShowTmplEdit(tmpl.id); setEditTmpl({title:tmpl.title,body:tmpl.body}); }} style={{padding:"4px 10px",borderRadius:6,border:`1px solid ${C.border}`,background:C.faint,color:C.sub,fontSize:12,cursor:"pointer"}}>수정</button>
+                    <button onClick={()=>{ setTemplates(p=>p.filter(t=>t.id!==tmpl.id)); showToast("삭제됨"); }} style={{padding:"4px 10px",borderRadius:6,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,fontSize:12,cursor:"pointer"}}>삭제</button>
                   </div>
                 </div>
                 <p style={{fontSize:17,color:C.sub,margin:0,whiteSpace:"pre-wrap",background:C.faint,borderRadius:8,padding:"10px 12px"}}>{tmpl.body}</p>
@@ -1435,4 +1435,4 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowSmsModal(null)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 44px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18}}>
-              <
+             
