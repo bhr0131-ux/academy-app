@@ -7,8 +7,16 @@ const DAY_COLORS = { 월:"#FF6B6B", 화:"#FF9F43", 수:"#4A90E2", 목:"#9B59B6",
 // 성별별 테마
 const GENDER_THEME = {
   boy:  { emoji:"👦", main:"#4A90E2", light:"#F0F6FF", grad:"linear-gradient(135deg,#4A90E2,#6EC6F5)" },
-  girl: { emoji:"👧", main:"#FF6B9D", light:"#FFF0F6", grad:"linear-gradient(135deg,#FF6B9D,#FF9A8B)" },
+  girl: { emoji:"👧", main:"#EFA6B8", light:"#FFF6F8", grad:"linear-gradient(135deg,#EFA6B8,#F7C7D4)" },
 };
+
+const CHILD_THEME_COLORS = [
+  { name:"하늘",   main:"#4A90E2", light:"#F0F6FF", grad:"linear-gradient(135deg,#4A90E2,#6EC6F5)" },
+  { name:"연분홍", main:"#EFA6B8", light:"#FFF6F8", grad:"linear-gradient(135deg,#EFA6B8,#F7C7D4)" },
+  { name:"라벤더", main:"#A99BEF", light:"#F6F3FF", grad:"linear-gradient(135deg,#A99BEF,#C9BFFF)" },
+  { name:"민트",   main:"#6BCBB8", light:"#F1FFFB", grad:"linear-gradient(135deg,#6BCBB8,#A5E7DA)" },
+  { name:"살구",   main:"#F3B27A", light:"#FFF7EF", grad:"linear-gradient(135deg,#F3B27A,#FFD0A3)" },
+];
 
 const C = {
   bg:"#F4F6FB", card:"#FFFFFF", border:"#EAECF5",
@@ -143,7 +151,7 @@ export default function App() {
   // 아이 관리 모달
   const [showChildMgr,setShowChildMgr] = useState(false);
   const [editingChild,setEditingChild] = useState(null);
-  const [childForm,setChildForm] = useState({name:"",gender:"boy"});
+  const [childForm,setChildForm] = useState({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0]});
 
   // 방학 데이터: { "childId-academyId": [{id, start, end}] }
   const [vacations,setVacations] = useState({});
@@ -180,7 +188,12 @@ export default function App() {
 
   // 현재 아이 정보
   const curChild = children.find(c=>c.id===childId) || children[0];
-  const th = curChild ? GENDER_THEME[curChild.gender]||GENDER_THEME.boy : GENDER_THEME.boy;
+  const getChildTheme = (child) => {
+    if (!child) return GENDER_THEME.boy;
+    return child.theme || GENDER_THEME[child.gender] || GENDER_THEME.boy;
+  };
+
+  const th = getChildTheme(curChild);
   const curAc = academies[childId]||[];
   const curAbs = absences[childId]||[];
   const totalFee=(cid)=>(academies[cid]||[]).reduce((s,a)=>s+Number(a.fee||0),0);
@@ -189,15 +202,16 @@ export default function App() {
   const saveChild=()=>{
     if(!childForm.name.trim()){ showToast("이름을 입력해줘"); return; }
     if(editingChild){
-      setChildren(p=>p.map(c=>c.id===editingChild?{...c,name:childForm.name.trim(),gender:childForm.gender}:c));
+      setChildren(p=>p.map(c=>c.id===editingChild?{...c,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}:c));
       showToast("수정됨 ✓");
     } else {
       const newId=`child_${Date.now()}`;
-      setChildren(p=>[...p,{id:newId,name:childForm.name.trim(),gender:childForm.gender}]);
+      setChildren(p=>[...p,{id:newId,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}]);
       setChildId(newId);
       showToast("추가됨 ✓");
     }
-    setShowChildMgr(false); setEditingChild(null); setChildForm({name:"",gender:"boy"});
+    setShowChildMgr(false); setEditingChild(null);
+    setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0]});
   };
   const deleteChild=(id)=>{
     if(children.length<=1){ showToast("마지막 아이는 삭제할 수 없어요"); return; }
@@ -205,8 +219,16 @@ export default function App() {
     if(childId===id) setChildId(children.find(c=>c.id!==id)?.id||"");
     showToast("삭제됨");
   };
-  const openAddChild=()=>{ setEditingChild(null); setChildForm({name:"",gender:"boy"}); setShowChildMgr(true); };
-  const openEditChild=(c)=>{ setEditingChild(c.id); setChildForm({name:c.name,gender:c.gender}); setShowChildMgr(true); };
+  const openAddChild=()=>{
+    setEditingChild(null);
+    setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0]});
+    setShowChildMgr(true);
+  };
+  const openEditChild=(c)=>{
+    setEditingChild(c.id);
+    setChildForm({name:c.name,gender:c.gender,theme:c.theme||GENDER_THEME[c.gender]||GENDER_THEME.boy});
+    setShowChildMgr(true);
+  };
 
   // dailyKey
   const dKey=(cid,aId,date)=>`${cid}-${aId}-${date}`;
@@ -337,7 +359,7 @@ export default function App() {
         <div style={{display:"flex",alignItems:"flex-end",background:"rgba(0,0,0,0.15)",borderRadius:"12px 12px 0 0",overflow:"hidden"}}>
           <div style={{display:"flex",flex:1,overflowX:"auto"}}>
             {children.map(c=>{
-              const t=GENDER_THEME[c.gender]||GENDER_THEME.boy;
+              const t=getChildTheme(c);
               const sel=childId===c.id;
               return (
                 <button key={c.id} onClick={()=>setChildId(c.id)}
@@ -530,7 +552,9 @@ export default function App() {
                 <p style={{fontSize:17,color:C.sub,fontWeight:700,marginBottom:10,letterSpacing:0.5}}>📅 이번 주 예정</p>
                 <div style={{background:C.card,borderRadius:14,border:`1px solid ${C.border}`,overflow:"hidden"}}>
                   {DAYS.map(day=>{
-                    const da=curAc.filter(a=>a.days.includes(day));
+                    const da=curAc
+                      .filter(a=>a.days.includes(day))
+                      .sort((a,b)=>(a.time||"").localeCompare(b.time||""));
                     if(da.length===0) return null;
                     const isTodayRow=day===todayDN();
                     const now=new Date();
@@ -539,13 +563,13 @@ export default function App() {
                     const rowDate=toStr(new Date(now.getFullYear(),now.getMonth(),now.getDate()+diff));
                     return (
                       <div key={day} style={{display:"flex",alignItems:"center",padding:"11px 14px",borderBottom:`1px solid ${C.border}`,background:isTodayRow?`${th.main}08`:"transparent"}}>
-                        <span style={{width:30,fontSize:17,fontWeight:700,color:isTodayRow?th.main:DAY_COLORS[day]}}>{day}</span>
+                        <span style={{width:28,fontSize:15,fontWeight:700,color:isTodayRow?th.main:DAY_COLORS[day]}}>{day}</span>
                         {isTodayRow&&<span style={{fontSize:17,background:th.main,color:"#fff",borderRadius:4,padding:"1px 6px",marginRight:6,fontWeight:700,flexShrink:0}}>오늘</span>}
                         <div style={{flex:1,display:"flex",gap:6,flexWrap:"wrap"}}>
                           {da.map(a=>{
                             const onVac=isVacationDay(childId,a.id,rowDate);
                             return (
-                              <span key={a.id} style={{fontSize:17,padding:"3px 10px",borderRadius:6,background:onVac?"#FFF8E1":`${a.color}18`,color:onVac?"#E65100":a.color,fontWeight:600}}>
+                              <span key={a.id} style={{fontSize:14,padding:"3px 8px",borderRadius:6,background:onVac?"#FFF8E1":`${a.color}18`,color:onVac?"#E65100":a.color,fontWeight:600}}>
                                 {onVac?"🏖️ ":""}{a.name} {a.time}
                               </span>
                             );
@@ -1040,7 +1064,7 @@ export default function App() {
             <input value={childForm.name} onChange={e=>setChildForm(p=>({...p,name:e.target.value}))} placeholder="예: 이연우" style={{...inp,marginBottom:16}}/>
 
             <label style={lbl}>성별 *</label>
-            <div style={{display:"flex",gap:12,marginBottom:24}}>
+            <div style={{display:"flex",gap:12,marginBottom:16}}>
               {[{key:"boy",label:"👦 남자아이"},{key:"girl",label:"👧 여자아이"}].map(g=>(
                 <button key={g.key} onClick={()=>setChildForm(p=>({...p,gender:g.key}))}
                   style={{flex:1,padding:"14px",borderRadius:12,border:`2px solid ${childForm.gender===g.key?GENDER_THEME[g.key].main:C.border}`,
@@ -1052,13 +1076,24 @@ export default function App() {
               ))}
             </div>
 
+            <label style={lbl}>배경색 *</label>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:20}}>
+              {CHILD_THEME_COLORS.map((theme)=>(
+                <button key={theme.name} onClick={()=>setChildForm(p=>({...p,theme}))}
+                  style={{width:58,height:42,borderRadius:12,border:`2px solid ${childForm.theme?.main===theme.main?theme.main:C.border}`,
+                    background:theme.grad,cursor:"pointer",
+                    boxShadow:childForm.theme?.main===theme.main?`0 0 0 3px ${theme.light}`:"none"}}
+                  title={theme.name}/>
+              ))}
+            </div>
+
             {/* 색상 미리보기 */}
-            <div style={{background:GENDER_THEME[childForm.gender].grad,borderRadius:12,padding:"14px 18px",marginBottom:24,color:"#fff",textAlign:"center"}}>
+            <div style={{background:childForm.theme?.grad||GENDER_THEME[childForm.gender].grad,borderRadius:12,padding:"14px 18px",marginBottom:24,color:"#fff",textAlign:"center"}}>
               <p style={{fontSize:28,margin:"0 0 4px"}}>{GENDER_THEME[childForm.gender].emoji}</p>
               <p style={{fontSize:17,fontWeight:700,margin:0}}>{childForm.name||"이름 미입력"}</p>
             </div>
 
-            <button onClick={saveChild} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:GENDER_THEME[childForm.gender].grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer",boxShadow:`0 4px 16px ${GENDER_THEME[childForm.gender].main}40`}}>
+            <button onClick={saveChild} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:childForm.theme?.grad||GENDER_THEME[childForm.gender].grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer",boxShadow:`0 4px 16px ${(childForm.theme?.main||GENDER_THEME[childForm.gender].main)}40`}}>
               {editingChild?"수정 완료 ✓":"추가하기"}
             </button>
 
@@ -1067,7 +1102,7 @@ export default function App() {
               <div style={{marginTop:24,borderTop:`1px solid ${C.border}`,paddingTop:18}}>
                 <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 12px"}}>등록된 아이 ({children.length})</p>
                 {children.map(c=>{
-                  const t=GENDER_THEME[c.gender]||GENDER_THEME.boy;
+                  const t=getChildTheme(c);
                   return (
                     <div key={c.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",borderRadius:12,border:`1px solid ${C.border}`,marginBottom:8,background:C.faint}}>
                       <span style={{fontSize:22}}>{t.emoji}</span>
