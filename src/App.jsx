@@ -1531,7 +1531,7 @@ export default function App() {
                         <span style={{fontSize:12,fontWeight:900,color:approved?C.green:C.red,background:approved?`${C.green}15`:`${C.red}0A`,padding:"5px 8px",borderRadius:20}}>
                           {approved?"완료":"거절"}
                         </span>
-                        utton onClick={()=>deleteRewardRequest(req.id)}
+                        <button onClick={()=>deleteRewardRequest(req.id)}
                           style={{border:"none",background:"transparent",color:"#CCC",fontSize:16,cursor:"pointer"}}>✕</button>
                       </div>
                     );
