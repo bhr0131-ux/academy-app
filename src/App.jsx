@@ -191,6 +191,10 @@ export default function App() {
   const [showChildRewards,setShowChildRewards] = useState(false);
   const [showChildXP,setShowChildXP] = useState(false);
   const [showParentXP,setShowParentXP] = useState(false);
+  const [openRewardId,setOpenRewardId] = useState(null);
+  const [showParentTodayQuest,setShowParentTodayQuest] = useState(true);
+  const [showParentRewardManage,setShowParentRewardManage] = useState(false);
+  const [showParentXpAdjust,setShowParentXpAdjust] = useState(false);
   const [childDate,setChildDate] = useState(TODAY);
 
   // 아이 목록 상태
@@ -208,6 +212,7 @@ export default function App() {
   const [rewardRequests,setRewardRequests] = useState({});
   const [showRewardModal,setShowRewardModal] = useState(false);
   const [rewardForm,setRewardForm] = useState({title:"",point:300,emoji:"🎁",grade:"common"});
+  const [unlockedBadgeIds,setUnlockedBadgeIds] = useState([]);
   const [showTodoPickerModal,setShowTodoPickerModal] = useState(null);
   const [xpAdjustInput,setXpAdjustInput] = useState("");
   const [xpAdjustLabel,setXpAdjustLabel] = useState("");
@@ -255,7 +260,8 @@ export default function App() {
             p=await load("v6_paid"), dm=await load("v6_dm"), dd=await load("v6_daily"),
             tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac"),
             pin=await load("v6_parent_pin"), score=await load("v6_score"),
-            reward=await load("v6_reward"), rewardReq=await load("v6_reward_requests");
+            reward=await load("v6_reward"), rewardReq=await load("v6_reward_requests"),
+            badges=await load("v6_unlocked_badges");
       if(ch) setChildren(ch);
       if(ac) setAcademies(ac); if(ab) setAbsences(ab);
       if(p) setPaidStatus(p); if(dm) setDayMemos(dm); if(dd) setDailyData(dd);
@@ -266,6 +272,7 @@ export default function App() {
       if(score) setScoreData(score);
       if(reward) setRewardData(reward);
       if(rewardReq) setRewardRequests(rewardReq);
+      if(badges) setUnlockedBadgeIds(badges);
       setLoaded(true);
     })();
   },[]);
@@ -283,6 +290,7 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_score",scoreData); },[scoreData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_reward",rewardData); },[rewardData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_reward_requests",rewardRequests); },[rewardRequests,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_unlocked_badges",unlockedBadgeIds); },[unlockedBadgeIds,loaded]);
 
   const showToast=(msg="저장됨 ✓")=>{ setToast(msg); setTimeout(()=>setToast(""),1600); };
 
@@ -358,6 +366,48 @@ export default function App() {
   const getDailyEntry=(cid,aId,date)=>dailyData[dKey(cid,aId,date)]||{homeworks:[],supplies:[],todos:[]};
   const setDailyEntry=(cid,aId,date,entry)=>setDailyData(p=>({...p,[dKey(cid,aId,date)]:entry}));
 
+  const getAcademyById=(cid,academyId)=>{
+    if(String(academyId)===String(EXTRA_QUEST_ID)){
+      const child=children.find(c=>c.id===cid);
+      const t=getChildTheme(child);
+      return {id:EXTRA_QUEST_ID,name:"기타",color:t.main};
+    }
+    return (academies[cid]||[]).find(a=>String(a.id)===String(academyId));
+  };
+
+  const getQuestItemsForDate=(cid,date)=>{
+    const prefix=`${cid}-`;
+    const suffix=`-${date}`;
+    const items=[];
+    Object.entries(dailyData).forEach(([key,entry])=>{
+      if(!key.startsWith(prefix)||!key.endsWith(suffix)) return;
+      const academyId=key.slice(prefix.length,key.length-suffix.length);
+      const ac=getAcademyById(cid,academyId);
+      if(!ac) return;
+      (entry.homeworks||[]).forEach(h=>items.push({...h,kind:"homework",academyId,date,academyName:ac.name,academyColor:ac.color,label:h.text}));
+      (entry.todos||[]).forEach(t=>items.push({...t,kind:"todo",academyId,date,academyName:ac.name,academyColor:ac.color,label:t.text}));
+    });
+    return items;
+  };
+
+  const getCarryOverQuestItems=(cid,date)=>{
+    const prefix=`${cid}-`;
+    const items=[];
+    Object.entries(dailyData).forEach(([key,entry])=>{
+      if(!key.startsWith(prefix)) return;
+      const datePart=key.slice(-10);
+      if(datePart>=date) return;
+      const academyId=key.slice(prefix.length,key.length-11);
+      const ac=getAcademyById(cid,academyId);
+      if(!ac) return;
+      (entry.homeworks||[]).filter(h=>!h.done&&!h.failed).forEach(h=>items.push({...h,kind:"homework",academyId,date:datePart,academyName:ac.name,academyColor:ac.color,label:h.text,carried:true}));
+      (entry.todos||[]).filter(t=>!t.done&&!t.failed).forEach(t=>items.push({...t,kind:"todo",academyId,date:datePart,academyName:ac.name,academyColor:ac.color,label:t.text,carried:true}));
+    });
+    return items;
+  };
+
+  const getChildQuestBoardItems=(cid,date)=>[...getCarryOverQuestItems(cid,date),...getQuestItemsForDate(cid,date)];
+
   const getChildScore=(cid)=>scoreData[cid]?.total||0;
 
   const getScoreHistory=(cid)=>scoreData[cid]?.history||[];
@@ -392,6 +442,37 @@ export default function App() {
     return false;
   };
   const getUnlockedBadges=(cid)=>DEFAULT_BADGES.filter(b=>isBadgeUnlocked(cid,b.id));
+
+  const hasCompletedQuestOnDate=(cid,date)=>{
+    return Object.entries(dailyData).some(([key,entry])=>{
+      if(!key.startsWith(`${cid}-`)) return false;
+      if(!key.endsWith(`-${date}`)) return false;
+      const hwDone=(entry.homeworks||[]).some(h=>h.done);
+      const todoDone=(entry.todos||[]).some(t=>t.done);
+      return hwDone||todoDone;
+    });
+  };
+  const getQuestStreak=(cid)=>{
+    let streak=0;
+    let date=TODAY;
+    while(hasCompletedQuestOnDate(cid,date)){
+      streak+=1;
+      date=addDays(date,-1);
+    }
+    return streak;
+  };
+
+  useEffect(()=>{
+    if(!loaded||!childId) return;
+    const newlyUnlocked=DEFAULT_BADGES.filter(badge=>
+      isBadgeUnlocked(childId,badge.id)&&
+      !unlockedBadgeIds.includes(`${childId}-${badge.id}`)
+    );
+    if(newlyUnlocked.length===0) return;
+    const first=newlyUnlocked[0];
+    setUnlockedBadgeIds(prev=>[...prev,...newlyUnlocked.map(b=>`${childId}-${b.id}`)]);
+    showToast(`🏅 업적 달성! ${first.title}`);
+  },[scoreData,dailyData,rewardRequests,childId,loaded]);
 
   const getChildLevel=(cid)=>{
     const score=getChildScore(cid);
@@ -478,7 +559,7 @@ export default function App() {
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
     const acName=(academies[cid]||[]).find(a=>a.id===academyId)?.name||"학원";
-    setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:nextDone}:h)});
+    setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:nextDone,failed:false}:h)});
     addChildScore(cid,nextDone?point:-point,nextDone?`${acName} 숙제 완료`:`${acName} 숙제 체크 취소`,"homework");
     showToast(nextDone?`퀘스트 완료! +${point} XP ⚡`:`체크 취소 -${point} XP`);
   };
@@ -491,9 +572,22 @@ export default function App() {
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
     const acName=(academies[cid]||[]).find(a=>a.id===academyId)?.name||(academyId===EXTRA_QUEST_ID?"기타":"학원");
-    setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:nextDone}:t)});
+    setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:nextDone,failed:false}:t)});
     addChildScore(cid,nextDone?point:-point,nextDone?`${acName} 생활 퀘스트 완료`:`${acName} 생활 퀘스트 체크 취소`,"todo");
     showToast(nextDone?`퀘스트 완료! +${point} XP ⚡`:`체크 취소 -${point} XP`);
+  };
+
+  const failHomeworkQuest=(cid,academyId,date,homeworkId)=>{
+    const entry=getDailyEntry(cid,academyId,date);
+    const homeworks=entry.homeworks||[];
+    setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:false,failed:!h.failed}:h)});
+    showToast("퀘스트 실패 처리했어요 ❌");
+  };
+  const failTodoQuest=(cid,academyId,date,todoId)=>{
+    const entry=getDailyEntry(cid,academyId,date);
+    const todos=entry.todos||[];
+    setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:false,failed:!t.failed}:t)});
+    showToast("퀘스트 실패 처리했어요 ❌");
   };
 
   const pendingHwTotal=()=>{
@@ -621,10 +715,20 @@ export default function App() {
               <p style={{fontSize:13,opacity:0.8,margin:0,fontWeight:700}}>학원 일정</p>
               <h1 style={{fontSize:26,fontWeight:900,margin:"4px 0 0"}}>{th.emoji} {curChild?.name}</h1>
             </div>
-            <button onClick={()=>setShowParentPin(true)}
-              style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"9px 11px",fontSize:13,fontWeight:800,cursor:"pointer"}}>
-              🔒 엄마
-            </button>
+            <div style={{display:"flex",gap:7,alignItems:"center"}}>
+              {children.length>1&&(
+                <select value={childId} onChange={e=>setChildId(e.target.value)}
+                  style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"8px 8px",fontSize:13,fontWeight:800,outline:"none"}}>
+                  {children.map(c=>(
+                    <option key={c.id} value={c.id} style={{color:C.text}}>{getChildTheme(c).emoji} {c.name}</option>
+                  ))}
+                </select>
+              )}
+              <button onClick={()=>setShowParentPin(true)}
+                style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"9px 11px",fontSize:13,fontWeight:800,cursor:"pointer"}}>
+                🔒 엄마
+              </button>
+            </div>
           </div>
           {/* 날짜 이동 */}
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"rgba(255,255,255,0.15)",borderRadius:14,padding:"10px 14px"}}>
@@ -731,21 +835,7 @@ export default function App() {
 
               {/* 퀘스트 전체 카드 - 항상 오늘 기준 */}
               {(()=>{
-                const todayAcForQuest=curAc
-                  .filter(a=>hasClassOnDay(a,todayDN())&&!isVacationDay(childId,a.id,TODAY))
-                  .sort((a,b)=>getClassTime(a,todayDN()).localeCompare(getClassTime(b,todayDN())));
-                const todayTodos=todayAcForQuest.flatMap(ac=>{
-                  const entry=getDailyEntry(childId,ac.id,TODAY);
-                  const hw=entry.homeworks||[];
-                  const todos=entry.todos||[];
-                  return [
-                    ...hw.map(h=>({...h,kind:"homework",academyId:ac.id,academyName:ac.name,academyColor:ac.color,label:h.text})),
-                    ...todos.map(t=>({...t,kind:"todo",academyId:ac.id,academyName:ac.name,academyColor:ac.color,label:t.text}))
-                  ];
-                });
-                const extraQEntry=getDailyEntry(childId,EXTRA_QUEST_ID,TODAY);
-                const extraQTodos=(extraQEntry.todos||[]).map(t=>({...t,kind:"todo",academyId:EXTRA_QUEST_ID,academyName:"기타",academyColor:th.main,label:t.text}));
-                const allTodayTodos=[...todayTodos,...extraQTodos];
+                const allTodayTodos=getChildQuestBoardItems(childId,childDate);
                 if(allTodayTodos.length===0) return null;
                 const doneCnt=allTodayTodos.filter(i=>i.done).length;
                 const allDone=doneCnt===allTodayTodos.length;
@@ -759,20 +849,34 @@ export default function App() {
                     </div>
                     <div style={{display:"flex",flexDirection:"column",gap:8}}>
                       {allTodayTodos.map(item=>(
-                        <div key={`${item.kind}-${item.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,background:item.done?`${C.green}10`:"#fff",border:`1.5px solid ${item.done?C.green+"30":C.border}`}}>
+                        <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,background:item.done?`${C.green}10`:item.failed?`${C.red}08`:"#fff",border:`1.5px solid ${item.done?C.green+"30":item.failed?C.red+"30":C.border}`}}>
                           <button onClick={()=>{
-                            if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,TODAY,item.id);
-                            else toggleTodoDone(childId,item.academyId,TODAY,item.id);
-                          }} style={{width:28,height:28,borderRadius:"50%",border:`2.5px solid ${item.done?C.green:"#CCC"}`,background:item.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0,fontSize:14}}>
-                            {item.done?"✓":""}
+                            if(item.failed) return;
+                            if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id);
+                            else toggleTodoDone(childId,item.academyId,item.date,item.id);
+                          }} style={{width:28,height:28,borderRadius:"50%",border:`2.5px solid ${item.done?C.green:item.failed?C.red:"#CCC"}`,background:item.done?C.green:item.failed?C.red:"transparent",color:"#fff",fontWeight:900,cursor:item.failed?"default":"pointer",flexShrink:0,fontSize:14}}>
+                            {item.done?"✓":item.failed?"×":""}
                           </button>
                           <div style={{flex:1,minWidth:0}}>
                             <p style={{fontSize:12,color:item.academyColor,fontWeight:700,margin:"0 0 2px"}}>
                               {item.kind==="homework"?"📚":"✅"} {item.academyName}{item.kind==="homework"?" 숙제":""}
+                              {item.carried&&<span style={{color:C.orange}}> · 지난 퀘스트</span>}
                             </p>
-                            <p style={{fontSize:16,fontWeight:700,margin:0,color:item.done?C.sub:C.text,textDecoration:item.done?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</p>
+                            <p style={{fontSize:16,fontWeight:700,margin:0,color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</p>
                           </div>
-                          <span style={{fontSize:13,fontWeight:800,color:item.done?C.green:C.orange,flexShrink:0}}>+{item.point||DEFAULT_HOMEWORK_SCORE} XP</span>
+                          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4,flexShrink:0}}>
+                            <span style={{fontSize:13,fontWeight:800,color:item.done?C.green:item.failed?C.red:C.orange}}>
+                              {item.failed?"실패":`+${item.point||DEFAULT_HOMEWORK_SCORE} XP`}
+                            </span>
+                            {!item.done&&(
+                              <button onClick={()=>{
+                                if(item.kind==="homework") failHomeworkQuest(childId,item.academyId,item.date,item.id);
+                                else failTodoQuest(childId,item.academyId,item.date,item.id);
+                              }} style={{border:"none",background:item.failed?`${C.red}18`:C.faint,color:item.failed?C.red:C.sub,borderRadius:7,padding:"3px 7px",fontSize:10,fontWeight:900,cursor:"pointer"}}>
+                                {item.failed?"실패 취소":"실패"}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -812,6 +916,41 @@ export default function App() {
                 );
               })()}
 
+              {/* 연속 달성 카드 */}
+              <div style={{background:C.card,borderRadius:18,padding:"16px 18px",marginBottom:14,border:`1px solid ${C.border}`,boxShadow:"0 3px 12px rgba(0,0,0,0.04)"}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div>
+                    <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>🔥 연속 달성</p>
+                    <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>퀘스트를 완료한 날이 연속으로 기록돼요</p>
+                  </div>
+                  <div style={{background:"#FFF4E5",color:C.orange,padding:"10px 14px",borderRadius:16,fontSize:20,fontWeight:900}}>
+                    {getQuestStreak(childId)}일
+                  </div>
+                </div>
+              </div>
+
+              {/* 업적 카드 */}
+              <div style={{background:C.card,borderRadius:18,padding:"16px 18px",marginBottom:14,border:`1px solid ${C.border}`,boxShadow:"0 3px 12px rgba(0,0,0,0.04)"}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                  <div>
+                    <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>🏅 업적</p>
+                    <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>{getUnlockedBadges(childId).length}/{DEFAULT_BADGES.length}개 달성</p>
+                  </div>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:9}}>
+                  {DEFAULT_BADGES.map(badge=>{
+                    const unlocked=unlockedBadgeIds.includes(`${childId}-${badge.id}`)||isBadgeUnlocked(childId,badge.id);
+                    return (
+                      <div key={badge.id} style={{borderRadius:14,padding:"12px 10px",background:unlocked?th.light:C.faint,border:`1.5px solid ${unlocked?th.main+"40":C.border}`,opacity:unlocked?1:0.55}}>
+                        <p style={{fontSize:26,margin:"0 0 6px",textAlign:"center"}}>{unlocked?badge.emoji:"🔒"}</p>
+                        <p style={{fontSize:14,fontWeight:900,margin:"0 0 3px",color:unlocked?C.text:C.sub,textAlign:"center"}}>{badge.title}</p>
+                        <p style={{fontSize:11,color:C.sub,margin:0,fontWeight:700,textAlign:"center",lineHeight:1.35}}>{badge.desc}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* 보상상점 카드 (접었다 펴기) */}
               <div style={{background:C.card,borderRadius:18,padding:"16px 18px",marginBottom:14,border:`1px solid ${C.border}`,boxShadow:"0 3px 12px rgba(0,0,0,0.04)"}}>
                 <button onClick={()=>setShowChildRewards(v=>!v)}
@@ -832,10 +971,12 @@ export default function App() {
                       const remain=Math.max(0,reward.point-score);
                       const progress=Math.min(100,Math.round((score/reward.point)*100));
                       const grade=REWARD_GRADES.find(g=>g.id===(reward.grade||"common"))||REWARD_GRADES[0];
+                      const isOpen=openRewardId===reward.id;
                       return (
-                        <div key={reward.id} style={{border:`1.5px solid ${canGet?C.green+"40":grade.color+"30"}`,background:canGet?`${C.green}08`:C.faint,borderRadius:14,padding:"12px 13px"}}>
-                          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-                            <div style={{display:"flex",alignItems:"center",gap:9}}>
+                        <div key={reward.id} style={{border:`1.5px solid ${canGet?C.green+"40":grade.color+"30"}`,background:canGet?`${C.green}08`:C.faint,borderRadius:14,overflow:"hidden"}}>
+                          <button onClick={()=>setOpenRewardId(isOpen?null:reward.id)}
+                            style={{width:"100%",border:"none",background:"transparent",padding:"12px 13px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
+                            <div style={{display:"flex",alignItems:"center",gap:9,textAlign:"left"}}>
                               <span style={{fontSize:25}}>{reward.emoji}</span>
                               <div>
                                 <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2}}>
@@ -845,26 +986,28 @@ export default function App() {
                                 <p style={{fontSize:13,fontWeight:700,margin:0,color:C.sub}}>{reward.point} XP 필요</p>
                               </div>
                             </div>
-                            {hasPendingRewardRequest(childId,reward.id)?(
-                              <span style={{fontSize:13,fontWeight:900,color:C.purple,background:C.purpleL,padding:"5px 9px",borderRadius:20}}>승인 대기 중</span>
-                            ):(
-                              <span style={{fontSize:13,fontWeight:900,color:canGet?C.green:C.orange,background:canGet?`${C.green}15`:`${C.orange}15`,padding:"5px 9px",borderRadius:20}}>
-                                {canGet?"구매 가능!":`${remain} XP 부족`}
-                              </span>
-                            )}
-                          </div>
-                          <div style={{width:"100%",height:9,borderRadius:99,background:"#fff",overflow:"hidden"}}>
-                            <div style={{width:`${progress}%`,height:"100%",borderRadius:99,background:canGet?C.green:th.grad,transition:"width 0.25s"}}/>
-                          </div>
-                          <button onClick={()=>requestReward(reward)}
-                            disabled={!canGet||hasPendingRewardRequest(childId,reward.id)}
-                            style={{width:"100%",marginTop:10,padding:"10px 12px",borderRadius:11,border:"none",
-                              background:hasPendingRewardRequest(childId,reward.id)?C.purpleL:canGet?th.grad:C.border,
-                              color:hasPendingRewardRequest(childId,reward.id)?C.purple:canGet?"#fff":C.sub,
-                              fontSize:15,fontWeight:900,
-                              cursor:canGet&&!hasPendingRewardRequest(childId,reward.id)?"pointer":"not-allowed"}}>
-                            {hasPendingRewardRequest(childId,reward.id)?"승인 대기 중...":canGet?"🛒 구매 요청":"XP가 더 필요해요"}
+                            <span style={{fontSize:12,fontWeight:900,color:canGet?C.green:C.orange,background:canGet?`${C.green}15`:`${C.orange}15`,padding:"5px 8px",borderRadius:20}}>
+                              {isOpen?"▲":canGet?"구매 가능":"▼"}
+                            </span>
                           </button>
+                          {isOpen&&(
+                            <div style={{padding:"0 13px 13px"}}>
+                              <div style={{width:"100%",height:9,borderRadius:99,background:"#fff",overflow:"hidden",marginBottom:10}}>
+                                <div style={{width:`${progress}%`,height:"100%",borderRadius:99,background:canGet?C.green:th.grad,transition:"width 0.25s"}}/>
+                              </div>
+                              <p style={{fontSize:13,fontWeight:800,color:canGet?C.green:C.orange,margin:"0 0 10px"}}>
+                                {hasPendingRewardRequest(childId,reward.id)?"구매 승인 대기 중이에요":canGet?"지금 구매 요청할 수 있어요":`${remain} XP 더 모으면 구매할 수 있어요`}
+                              </p>
+                              <button onClick={()=>requestReward(reward)}
+                                disabled={!canGet||hasPendingRewardRequest(childId,reward.id)}
+                                style={{width:"100%",padding:"10px 12px",borderRadius:11,border:"none",
+                                  background:hasPendingRewardRequest(childId,reward.id)?C.purpleL:canGet?th.grad:C.border,
+                                  color:hasPendingRewardRequest(childId,reward.id)?C.purple:canGet?"#fff":C.sub,
+                                  fontSize:15,fontWeight:900,cursor:canGet&&!hasPendingRewardRequest(childId,reward.id)?"pointer":"not-allowed"}}>
+                                {hasPendingRewardRequest(childId,reward.id)?"승인 대기 중...":canGet?"🛒 구매 요청":"XP가 더 필요해요"}
+                              </button>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -1016,18 +1159,6 @@ export default function App() {
           const fullLabel=`${hd.getMonth()+1}월 ${hd.getDate()}일 ${hDN}요일`;
           const homeAc=curAc.filter(a=>hasClassOnDay(a,hDN)&&!isVacationDay(childId,a.id,homeDate)).sort((a,b)=>getClassTime(a,hDN).localeCompare(getClassTime(b,hDN)));
           const vacAcToday=curAc.filter(a=>hasClassOnDay(a,hDN)&&isVacationDay(childId,a.id,homeDate));
-          const homeTodos=homeAc.flatMap(ac=>{
-            const entry=getDailyEntry(childId,ac.id,homeDate);
-            const hw=entry.homeworks||[], todos=entry.todos||[];
-            return [
-              ...hw.map(h=>({...h,kind:"homework",academyId:ac.id,academyName:ac.name,academyColor:ac.color,label:h.text})),
-              ...todos.map(t=>({...t,kind:"todo",academyId:ac.id,academyName:ac.name,academyColor:ac.color,label:t.text}))
-            ];
-          });
-          // 기타 퀘스트도 포함
-          const extraEntry=getDailyEntry(childId,EXTRA_QUEST_ID,homeDate);
-          const extraTodos=(extraEntry.todos||[]).map(t=>({...t,kind:"todo",academyId:EXTRA_QUEST_ID,academyName:"기타",academyColor:th.main,label:t.text}));
-          const allHomeTodos=[...homeTodos,...extraTodos];
           const absOnHome=curAbs.filter(a=>a.date===homeDate);
           const makeupOnHome=curAbs.filter(a=>a.makeupDate===homeDate);
           const homePendingHw=homeAc.reduce((n,ac)=>n+(getDailyEntry(childId,ac.id,homeDate).homeworks||[]).filter(h=>!h.done).length,0);
@@ -1196,43 +1327,6 @@ export default function App() {
                   </div>
                 );
               })}
-
-              {/* 전체 퀘스트 카드 */}
-              <div style={{background:C.card,borderRadius:16,padding:"14px 16px",marginBottom:12,border:`1px solid ${C.border}`}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                  <p style={{fontSize:16,fontWeight:900,margin:0,color:C.text}}>🎯 오늘의 퀘스트</p>
-                  <button onClick={()=>setShowTodoPickerModal(homeDate)}
-                    style={{padding:"5px 11px",borderRadius:8,border:`1px solid ${th.main}40`,background:`${th.main}08`,color:th.main,fontSize:12,fontWeight:800,cursor:"pointer"}}>
-                    ✏️ 퀘스트 수정
-                  </button>
-                </div>
-                {allHomeTodos.length===0?(
-                  <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
-                    <p style={{fontSize:26,margin:0}}>🌿</p>
-                    <p style={{fontSize:14,margin:"6px 0 0"}}>등록된 퀘스트가 없어요</p>
-                  </div>
-                ):(
-                  <div style={{display:"flex",flexDirection:"column",gap:7}}>
-                    {allHomeTodos.map(item=>(
-                      <div key={`${item.kind}-${item.academyId}-${item.id}`} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 11px",borderRadius:11,background:item.done?`${C.green}10`:C.faint,border:`1px solid ${item.done?C.green+"30":C.border}`}}>
-                        <button onClick={()=>{
-                          if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,homeDate,item.id);
-                          else toggleTodoDone(childId,item.academyId,homeDate,item.id);
-                        }} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${item.done?C.green:"#CCC"}`,background:item.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0,fontSize:12}}>
-                          {item.done?"✓":""}
-                        </button>
-                        <div style={{flex:1,minWidth:0}}>
-                          <p style={{fontSize:11,color:item.academyColor,margin:"0 0 1px",fontWeight:800}}>
-                            {item.kind==="homework"?"📚":"✅"} {item.academyName}{item.kind==="homework"?" 퀘스트":""}
-                          </p>
-                          <p style={{fontSize:15,fontWeight:700,margin:0,color:item.done?C.sub:C.text,textDecoration:item.done?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</p>
-                        </div>
-                        <span style={{fontSize:11,color:C.orange,fontWeight:800,flexShrink:0}}>+{item.point||DEFAULT_HOMEWORK_SCORE} XP</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
 
               {/* 등록 학원 목록 */}
               <div style={{marginBottom:8}}>
@@ -1637,9 +1731,67 @@ export default function App() {
         {/* ════ 보상 탭 ════ */}
         {tab==="reward"&&(
           <div>
+            {/* 오늘의 퀘스트 카드 */}
+            {(()=>{
+              const rewardTodayTodos=getQuestItemsForDate(childId,TODAY);
+              const doneCnt=rewardTodayTodos.filter(i=>i.done).length;
+              const allDone=rewardTodayTodos.length>0&&doneCnt===rewardTodayTodos.length;
+              return (
+                <div style={{background:C.card,borderRadius:16,padding:"16px",marginBottom:12,border:`1.5px solid ${allDone?C.green+"40":C.border}`}}>
+                  <button onClick={()=>setShowParentTodayQuest(v=>!v)}
+                    style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
+                    <div style={{textAlign:"left"}}>
+                      <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎯 오늘의 퀘스트</p>
+                      <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{doneCnt}/{rewardTodayTodos.length} 완료 · 오늘 퀘스트 관리</p>
+                    </div>
+                    <span style={{fontSize:12,fontWeight:900,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,padding:"6px 9px",borderRadius:14}}>
+                      {showParentTodayQuest?"접기 ▲":"열기 ▼"}
+                    </span>
+                  </button>
+                  {showParentTodayQuest&&(
+                    <div style={{marginTop:14}}>
+                      <button onClick={()=>setShowTodoPickerModal(TODAY)}
+                        style={{width:"100%",padding:"9px 10px",borderRadius:10,border:`1px dashed ${th.main}50`,background:`${th.main}08`,color:th.main,fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10}}>
+                        ✏️ 퀘스트 수정
+                      </button>
+                      {rewardTodayTodos.length===0?(
+                        <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
+                          <p style={{fontSize:26,margin:0}}>🌿</p>
+                          <p style={{fontSize:14,margin:"6px 0 0"}}>등록된 퀘스트가 없어요</p>
+                        </div>
+                      ):(
+                        <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                          {rewardTodayTodos.map(item=>(
+                            <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 11px",borderRadius:11,background:item.done?`${C.green}10`:item.failed?`${C.red}08`:C.faint,border:`1px solid ${item.done?C.green+"30":item.failed?C.red+"30":C.border}`}}>
+                              <button onClick={()=>{
+                                if(item.failed) return;
+                                if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id);
+                                else toggleTodoDone(childId,item.academyId,item.date,item.id);
+                              }} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${item.done?C.green:item.failed?C.red:"#CCC"}`,background:item.done?C.green:item.failed?C.red:"transparent",color:"#fff",fontWeight:900,cursor:item.failed?"default":"pointer",flexShrink:0,fontSize:12}}>
+                                {item.done?"✓":item.failed?"×":""}
+                              </button>
+                              <div style={{flex:1,minWidth:0}}>
+                                <p style={{fontSize:11,color:item.academyColor,margin:"0 0 1px",fontWeight:800}}>
+                                  {item.kind==="homework"?"📚":"✅"} {item.academyName}{item.kind==="homework"?" 퀘스트":""}
+                                </p>
+                                <p style={{fontSize:15,fontWeight:700,margin:0,color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</p>
+                              </div>
+                              <span style={{fontSize:11,color:item.failed?C.red:C.orange,fontWeight:800,flexShrink:0}}>
+                                {item.failed?"실패":`+${item.point||DEFAULT_HOMEWORK_SCORE} XP`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             {getChildRewardRequests(childId).filter(r=>r.status==="pending").length>0&&(
               <div style={{background:"#FFF8E1",border:"1.5px solid #F0A500",borderRadius:16,padding:"16px",marginBottom:14}}>
-                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:"#E65100"}}>🛒 구매 요청 대기</p>
+                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:"#E65100"}}>🔔 확인 필요한 구매 요청</p>
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
                   {getChildRewardRequests(childId).filter(r=>r.status==="pending").map(req=>(
                     <div key={req.id} style={{background:"#fff",borderRadius:12,padding:"12px",border:"1px solid #F0A500"}}>
@@ -1663,60 +1815,118 @@ export default function App() {
             )}
 
             <div style={{background:C.card,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${C.border}`}}>
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
-                <div>
+              <button onClick={()=>setShowParentRewardManage(v=>!v)}
+                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
+                <div style={{textAlign:"left"}}>
                   <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 리워드 관리</p>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{curChild?.name}의 리워드 목록을 관리해요</p>
+                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>리워드 목록 추가/삭제</p>
                 </div>
-                <button onClick={()=>setShowRewardModal(true)}
-                  style={{border:"none",background:th.grad,color:"#fff",borderRadius:10,padding:"8px 12px",fontSize:13,fontWeight:900,cursor:"pointer"}}>+ 보상</button>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {getChildRewards(childId).map(reward=>(
-                  <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:12,background:C.faint,border:`1px solid ${C.border}`}}>
-                    <span style={{fontSize:23}}>{reward.emoji}</span>
-                    <div style={{flex:1}}>
-                      <p style={{fontSize:16,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
-                      <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point} XP 필요</p>
-                    </div>
-                    <button onClick={()=>deleteReward(reward.id)}
-                      style={{border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:8,padding:"5px 9px",fontSize:12,fontWeight:800,cursor:"pointer"}}>삭제</button>
+                <span style={{fontSize:12,fontWeight:900,color:th.main,background:th.light,padding:"6px 9px",borderRadius:14}}>
+                  {showParentRewardManage?"닫기 ▲":"열기 ▼"}
+                </span>
+              </button>
+              {showParentRewardManage&&(
+                <div style={{marginTop:14}}>
+                  <button onClick={()=>setShowRewardModal(true)}
+                    style={{width:"100%",border:"none",background:th.grad,color:"#fff",borderRadius:10,padding:"10px 12px",fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10}}>
+                    + 리워드 추가
+                  </button>
+                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                    {getChildRewards(childId).map(reward=>(
+                      <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:12,background:C.faint,border:`1px solid ${C.border}`}}>
+                        <span style={{fontSize:23}}>{reward.emoji}</span>
+                        <div style={{flex:1}}>
+                          <p style={{fontSize:16,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
+                          <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point} XP 필요</p>
+                        </div>
+                        <button onClick={()=>deleteReward(reward.id)}
+                          style={{border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:8,padding:"5px 9px",fontSize:12,fontWeight:800,cursor:"pointer"}}>삭제</button>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+              )}
+            </div>
+
+            {/* 연속 달성 */}
+            <div style={{background:C.card,borderRadius:16,padding:"14px 16px",marginBottom:12,border:`1px solid ${C.border}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div>
+                  <p style={{fontSize:16,fontWeight:900,margin:0,color:C.text}}>🔥 연속 달성</p>
+                  <p style={{fontSize:12,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>최근 연속 퀘스트 완료일</p>
+                </div>
+                <span style={{fontSize:18,fontWeight:900,color:C.orange,background:"#FFF4E5",padding:"7px 12px",borderRadius:14}}>
+                  {getQuestStreak(childId)}일
+                </span>
+              </div>
+            </div>
+
+            {/* 업적 현황 */}
+            <div style={{background:C.card,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${C.border}`}}>
+              <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:C.text}}>🏅 업적 현황</p>
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {DEFAULT_BADGES.map(badge=>{
+                  const unlocked=unlockedBadgeIds.includes(`${childId}-${badge.id}`)||isBadgeUnlocked(childId,badge.id);
+                  return (
+                    <div key={badge.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:12,background:unlocked?`${C.green}08`:C.faint,border:`1px solid ${unlocked?C.green+"30":C.border}`}}>
+                      <span style={{fontSize:24}}>{unlocked?badge.emoji:"🔒"}</span>
+                      <div style={{flex:1}}>
+                        <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{badge.title}</p>
+                        <p style={{fontSize:12,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{badge.desc}</p>
+                      </div>
+                      <span style={{fontSize:12,fontWeight:900,color:unlocked?C.green:C.sub,background:unlocked?`${C.green}15`:"#fff",padding:"5px 8px",borderRadius:20}}>
+                        {unlocked?"달성":"미달성"}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             {/* 수동 XP 조정 - 독립 카드 */}
             <div style={{background:C.card,borderRadius:16,padding:"14px 16px",marginBottom:12,border:`1px solid ${C.border}`}}>
-              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 10px"}}>✍️ 수동 XP 조정</p>
-              <div style={{display:"flex",gap:6,marginBottom:8}}>
-                <button onClick={()=>setXpAdjustSign("+")}
-                  style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="+"?C.green:C.border}`,background:xpAdjustSign==="+"?`${C.green}15`:"#fff",color:xpAdjustSign==="+"?C.green:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
-                  + 지급
-                </button>
-                <button onClick={()=>setXpAdjustSign("-")}
-                  style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="-"?C.red:C.border}`,background:xpAdjustSign==="-"?`${C.red}10`:"#fff",color:xpAdjustSign==="-"?C.red:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
-                  - 차감
-                </button>
-              </div>
-              <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                <input value={xpAdjustLabel} onChange={e=>setXpAdjustLabel(e.target.value)}
-                  placeholder="사유"
-                  style={{flex:1,padding:"9px 10px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",minWidth:0}}/>
-                <input type="number" value={xpAdjustInput} onChange={e=>setXpAdjustInput(e.target.value)}
-                  placeholder="XP"
-                  style={{width:58,padding:"9px 6px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:14,outline:"none",background:"#fff",textAlign:"center",flexShrink:0}}/>
-                <button onClick={()=>{
-                  const v=Number(xpAdjustInput);
-                  if(!v||v<=0){ showToast("XP 값을 입력해줘"); return; }
-                  const point=xpAdjustSign==="+"?v:-v;
-                  addChildScore(childId,point,xpAdjustLabel||"수동 조정","manual");
-                  setXpAdjustInput(""); setXpAdjustLabel("");
-                  showToast(xpAdjustSign==="+"?`+${v} XP 지급 완료`:`-${v} XP 차감 완료`);
-                }} style={{padding:"9px 14px",borderRadius:9,border:"none",background:xpAdjustSign==="+"?C.green:C.red,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",flexShrink:0}}>
-                  {xpAdjustSign==="+"?"지급":"차감"}
-                </button>
-              </div>
+              <button onClick={()=>setShowParentXpAdjust(v=>!v)}
+                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
+                <div style={{textAlign:"left"}}>
+                  <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 3px"}}>✍️ 수동 XP 조정</p>
+                  <p style={{fontSize:12,color:C.sub,fontWeight:700,margin:0}}>보너스 지급 / XP 차감</p>
+                </div>
+                <span style={{fontSize:12,fontWeight:900,color:th.main,background:th.light,padding:"5px 9px",borderRadius:12}}>
+                  {showParentXpAdjust?"닫기 ▲":"열기 ▼"}
+                </span>
+              </button>
+              {showParentXpAdjust&&(
+                <div style={{marginTop:12}}>
+                  <div style={{display:"flex",gap:6,marginBottom:8}}>
+                    <button onClick={()=>setXpAdjustSign("+")}
+                      style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="+"?C.green:C.border}`,background:xpAdjustSign==="+"?`${C.green}15`:"#fff",color:xpAdjustSign==="+"?C.green:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
+                      + 지급
+                    </button>
+                    <button onClick={()=>setXpAdjustSign("-")}
+                      style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="-"?C.red:C.border}`,background:xpAdjustSign==="-"?`${C.red}10`:"#fff",color:xpAdjustSign==="-"?C.red:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
+                      - 차감
+                    </button>
+                  </div>
+                  <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                    <input value={xpAdjustLabel} onChange={e=>setXpAdjustLabel(e.target.value)}
+                      placeholder="사유"
+                      style={{flex:1,padding:"9px 10px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",minWidth:0}}/>
+                    <input type="number" value={xpAdjustInput} onChange={e=>setXpAdjustInput(e.target.value)}
+                      placeholder="XP"
+                      style={{width:58,padding:"9px 6px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:14,outline:"none",background:"#fff",textAlign:"center",flexShrink:0}}/>
+                    <button onClick={()=>{
+                      const v=Number(xpAdjustInput);
+                      if(!v||v<=0){ showToast("XP 값을 입력해줘"); return; }
+                      const point=xpAdjustSign==="+"?v:-v;
+                      addChildScore(childId,point,xpAdjustLabel||"수동 조정","manual");
+                      setXpAdjustInput(""); setXpAdjustLabel("");
+                      showToast(xpAdjustSign==="+"?`+${v} XP 지급 완료`:`-${v} XP 차감 완료`);
+                    }} style={{padding:"9px 14px",borderRadius:9,border:"none",background:xpAdjustSign==="+"?C.green:C.red,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",flexShrink:0}}>
+                      {xpAdjustSign==="+"?"지급":"차감"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* XP 통장 */}
