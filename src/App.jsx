@@ -26,19 +26,35 @@ const C = {
 };
 const PALETTE = ["#FF6B6B","#FF9F43","#FFC312","#26de81","#4A90E2","#45AAF2","#9B59B6","#FF6B9D","#1ABC9C","#E91E8C"];
 const DEFAULT_HOMEWORK_SCORE = 10;
+const EXTRA_QUEST_ID = "extra_quest"; // 학원 무관 기타 퀘스트용 고정 ID
 
 const DEFAULT_LEVELS = [
-  { level:1, name:"새싹",   minScore:0,    emoji:"🌱" },
-  { level:2, name:"병아리", minScore:100,  emoji:"🐣" },
-  { level:3, name:"토끼",   minScore:300,  emoji:"🐰" },
-  { level:4, name:"사자",   minScore:700,  emoji:"🦁" },
-  { level:5, name:"마스터", minScore:1200, emoji:"🏆" },
+  { level:1, name:"루키",      minScore:0,    emoji:"⚔️" },
+  { level:2, name:"어드벤처",  minScore:100,  emoji:"🗺️" },
+  { level:3, name:"헌터",      minScore:300,  emoji:"🏹" },
+  { level:4, name:"챔피언",    minScore:700,  emoji:"🛡️" },
+  { level:5, name:"레전드",    minScore:1200, emoji:"👑" },
+];
+
+const REWARD_GRADES = [
+  { id:"common",    name:"일반", color:"#888888" },
+  { id:"rare",      name:"희귀", color:"#4A90E2" },
+  { id:"epic",      name:"영웅", color:"#9B59B6" },
+  { id:"legendary", name:"전설", color:"#FF9F43" },
 ];
 
 const DEFAULT_REWARDS = [
   { id:1, title:"아이스크림", point:300,  emoji:"🍦" },
   { id:2, title:"게임 30분",  point:500,  emoji:"🎮" },
   { id:3, title:"장난감",     point:1000, emoji:"🧸" },
+];
+
+const DEFAULT_BADGES = [
+  { id:"first_quest",   title:"첫 퀘스트 완료",  desc:"퀘스트를 처음 완료했어요",   emoji:"🏅" },
+  { id:"xp_100",        title:"100 XP 달성",     desc:"100 XP를 모았어요",          emoji:"💯" },
+  { id:"xp_500",        title:"500 XP 달성",     desc:"500 XP를 모았어요",          emoji:"🔥" },
+  { id:"first_reward",  title:"첫 리워드 구매",   desc:"리워드를 처음 구매했어요",   emoji:"🛒" },
+  { id:"homework_10",   title:"숙제 헌터",        desc:"숙제를 10개 완료했어요",     emoji:"📚" },
 ];
 
 // ── 한국 공휴일 (2025~2026) ──────────────────
@@ -173,6 +189,9 @@ export default function App() {
   const [newPinConfirm,setNewPinConfirm] = useState("");
   const [childTab,setChildTab] = useState("today");
   const [showChildRewards,setShowChildRewards] = useState(false);
+  const [showChildXP,setShowChildXP] = useState(false);
+  const [showParentXP,setShowParentXP] = useState(false);
+  const [childDate,setChildDate] = useState(TODAY);
 
   // 아이 목록 상태
   const [children,setChildren] = useState(DEFAULT_CHILDREN);
@@ -188,7 +207,11 @@ export default function App() {
   const [rewardData,setRewardData] = useState({});
   const [rewardRequests,setRewardRequests] = useState({});
   const [showRewardModal,setShowRewardModal] = useState(false);
-  const [rewardForm,setRewardForm] = useState({title:"",point:300,emoji:"🎁"});
+  const [rewardForm,setRewardForm] = useState({title:"",point:300,emoji:"🎁",grade:"common"});
+  const [showTodoPickerModal,setShowTodoPickerModal] = useState(null);
+  const [xpAdjustInput,setXpAdjustInput] = useState("");
+  const [xpAdjustLabel,setXpAdjustLabel] = useState("");
+  const [xpAdjustSign,setXpAdjustSign] = useState("+"); // "+" or "-" // null or date string
   const [templates,setTemplates] = useState(SAMPLE_TMPL);
   const [feeMonth,setFeeMonth] = useState(new Date().getMonth()+1);
   const [calDate,setCalDate] = useState(new Date());
@@ -337,6 +360,39 @@ export default function App() {
 
   const getChildScore=(cid)=>scoreData[cid]?.total||0;
 
+  const getScoreHistory=(cid)=>scoreData[cid]?.history||[];
+
+  const getScoreHistoryLabel=(item)=>{
+    if(item.memo) return item.memo;
+    if(item.label) return item.label;
+    if(item.type==="reward") return "리워드샵 구매";
+    if(item.type==="homework") return item.point>=0?"퀘스트 완료":"퀘스트 체크 취소";
+    if(item.type==="todo") return item.point>=0?"퀘스트 완료":"퀘스트 체크 취소";
+    if(item.type==="manual") return "엄마 XP 조정";
+    return "XP 변동";
+  };
+
+  const getCompletedHomeworkCount=(cid)=>{
+    let count=0;
+    Object.entries(dailyData).forEach(([key,entry])=>{
+      if(!key.startsWith(`${cid}-`)) return;
+      count+=(entry.homeworks||[]).filter(h=>h.done).length;
+    });
+    return count;
+  };
+  const hasApprovedReward=(cid)=>getChildRewardRequests(cid).some(r=>r.status==="approved");
+  const isBadgeUnlocked=(cid,badgeId)=>{
+    const score=getChildScore(cid);
+    const history=getScoreHistory(cid);
+    if(badgeId==="first_quest") return history.some(h=>Number(h.point)>0&&(h.type==="homework"||h.type==="todo"));
+    if(badgeId==="xp_100") return score>=100;
+    if(badgeId==="xp_500") return score>=500;
+    if(badgeId==="first_reward") return hasApprovedReward(cid);
+    if(badgeId==="homework_10") return getCompletedHomeworkCount(cid)>=10;
+    return false;
+  };
+  const getUnlockedBadges=(cid)=>DEFAULT_BADGES.filter(b=>isBadgeUnlocked(cid,b.id));
+
   const getChildLevel=(cid)=>{
     const score=getChildScore(cid);
     return [...DEFAULT_LEVELS].sort((a,b)=>b.minScore-a.minScore).find(lv=>score>=lv.minScore)||DEFAULT_LEVELS[0];
@@ -362,19 +418,19 @@ export default function App() {
 
   const requestReward=(reward)=>{
     const score=getChildScore(childId);
-    if(score<reward.point){ showToast("아직 점수가 부족해요"); return; }
-    if(hasPendingRewardRequest(childId,reward.id)){ showToast("이미 요청한 보상이에요"); return; }
+    if(score<reward.point){ showToast("XP가 부족해요"); return; }
+    if(hasPendingRewardRequest(childId,reward.id)){ showToast("이미 요청한 리워드예요"); return; }
     const newRequest={id:Date.now(),rewardId:reward.id,title:reward.title,point:reward.point,emoji:reward.emoji,status:"pending",requestedAt:new Date().toISOString()};
     setRewardRequests(prev=>({...prev,[childId]:[...getChildRewardRequests(childId),newRequest]}));
-    showToast("엄마에게 보상 요청했어요 🎁");
+    showToast("구매 요청을 보냈어요 🛒");
   };
   const approveRewardRequest=(requestId)=>{
     const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
     if(!request) return;
     if(getChildScore(childId)<request.point){ showToast("점수가 부족해서 승인할 수 없어요"); return; }
-    spendChildScore(childId,request.point);
+    spendChildScore(childId,request.point,`${request.title} 구매 승인`);
     setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"approved",approvedAt:new Date().toISOString()}:r)}));
-    showToast("보상 승인 완료 🎁");
+    showToast("구매 승인 완료! 🎉");
   };
   const rejectRewardRequest=(requestId)=>{
     setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"rejected",rejectedAt:new Date().toISOString()}:r)}));
@@ -386,31 +442,31 @@ export default function App() {
   };
   const addReward=()=>{
     if(!rewardForm.title.trim()){ showToast("보상 이름을 입력해줘"); return; }
-    const newReward={id:Date.now(),title:rewardForm.title.trim(),point:Number(rewardForm.point||0),emoji:rewardForm.emoji||"🎁"};
+    const newReward={id:Date.now(),title:rewardForm.title.trim(),point:Number(rewardForm.point||0),emoji:rewardForm.emoji||"🎁",grade:rewardForm.grade||"common"};
     setRewardData(prev=>({...prev,[childId]:[...getChildRewards(childId),newReward]}));
-    setRewardForm({title:"",point:300,emoji:"🎁"});
+    setRewardForm({title:"",point:300,emoji:"🎁",grade:"common"});
     setShowRewardModal(false);
-    showToast("보상이 추가됐어요 🎁");
+    showToast("리워드가 추가됐어요 🎁");
   };
   const deleteReward=(rewardId)=>{
     setRewardData(prev=>({...prev,[childId]:getChildRewards(childId).filter(r=>r.id!==rewardId)}));
     showToast("보상이 삭제됐어요");
   };
-  const addChildScore=(cid,point)=>{
+  const addChildScore=(cid,point,memo="",type="quest")=>{
     setScoreData(prev=>{
       const cur=prev[cid]||{total:0,history:[]};
       return {...prev,[cid]:{
-        total:Math.max(0,Number(cur.total||0)+point),
-        history:[...(cur.history||[]),{id:Date.now(),point,date:TODAY,type:"homework"}]
+        total:Math.max(0,Number(cur.total||0)+Number(point||0)),
+        history:[...(cur.history||[]),{id:Date.now(),point:Number(point||0),date:TODAY,type,memo}]
       }};
     });
   };
-  const spendChildScore=(cid,point)=>{
+  const spendChildScore=(cid,point,memo="리워드샵 구매 승인")=>{
     setScoreData(prev=>{
       const cur=prev[cid]||{total:0,history:[]};
       return {...prev,[cid]:{
         total:Math.max(0,Number(cur.total||0)-Number(point||0)),
-        history:[...(cur.history||[]),{id:Date.now(),point:-Number(point||0),date:TODAY,type:"reward"}]
+        history:[...(cur.history||[]),{id:Date.now(),point:-Number(point||0),date:TODAY,type:"reward",memo}]
       }};
     });
   };
@@ -421,9 +477,10 @@ export default function App() {
     if(!target) return;
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
+    const acName=(academies[cid]||[]).find(a=>a.id===academyId)?.name||"학원";
     setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:nextDone}:h)});
-    addChildScore(cid,nextDone?point:-point);
-    showToast(nextDone?`미션 완료! +${point}점 ⭐`:`체크 취소 -${point}점`);
+    addChildScore(cid,nextDone?point:-point,nextDone?`${acName} 숙제 완료`:`${acName} 숙제 체크 취소`,"homework");
+    showToast(nextDone?`퀘스트 완료! +${point} XP ⚡`:`체크 취소 -${point} XP`);
   };
 
   const toggleTodoDone=(cid,academyId,date,todoId)=>{
@@ -433,9 +490,10 @@ export default function App() {
     if(!target) return;
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
+    const acName=(academies[cid]||[]).find(a=>a.id===academyId)?.name||(academyId===EXTRA_QUEST_ID?"기타":"학원");
     setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:nextDone}:t)});
-    addChildScore(cid,nextDone?point:-point);
-    showToast(nextDone?`할 일 완료! +${point}점 ⭐`:`체크 취소 -${point}점`);
+    addChildScore(cid,nextDone?point:-point,nextDone?`${acName} 생활 퀘스트 완료`:`${acName} 생활 퀘스트 체크 취소`,"todo");
+    showToast(nextDone?`퀘스트 완료! +${point} XP ⚡`:`체크 취소 -${point} XP`);
   };
 
   const pendingHwTotal=()=>{
@@ -545,9 +603,11 @@ export default function App() {
   );
 
   if(appMode==="child") {
-    const childTodayDN=todayDN();
+    const childDt=new Date(childDate+"T00:00:00");
+    const childTodayDN=["일","월","화","수","목","금","토"][childDt.getDay()];
+    const isChildToday=childDate===TODAY;
     const childTodayAc=curAc
-      .filter(a=>hasClassOnDay(a,childTodayDN)&&!isVacationDay(childId,a.id,TODAY))
+      .filter(a=>hasClassOnDay(a,childTodayDN)&&!isVacationDay(childId,a.id,childDate))
       .sort((a,b)=>getClassTime(a,childTodayDN).localeCompare(getClassTime(b,childTodayDN)));
     return (
       <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30}}>
@@ -555,10 +615,10 @@ export default function App() {
         {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
 
         {/* 아이 모드 헤더 */}
-        <div style={{background:th.grad,padding:"24px 18px 22px",color:"#fff",borderRadius:"0 0 24px 24px",boxShadow:"0 4px 20px rgba(0,0,0,0.12)"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{background:th.grad,padding:"20px 18px 16px",color:"#fff",borderRadius:"0 0 24px 24px",boxShadow:"0 4px 20px rgba(0,0,0,0.12)"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
             <div>
-              <p style={{fontSize:13,opacity:0.8,margin:0,fontWeight:700}}>오늘의 미션</p>
+              <p style={{fontSize:13,opacity:0.8,margin:0,fontWeight:700}}>학원 일정</p>
               <h1 style={{fontSize:26,fontWeight:900,margin:"4px 0 0"}}>{th.emoji} {curChild?.name}</h1>
             </div>
             <button onClick={()=>setShowParentPin(true)}
@@ -566,11 +626,32 @@ export default function App() {
               🔒 엄마
             </button>
           </div>
+          {/* 날짜 이동 */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"rgba(255,255,255,0.15)",borderRadius:14,padding:"10px 14px"}}>
+            <button onClick={()=>{
+              const d=new Date(childDate+"T00:00:00"); d.setDate(d.getDate()-1);
+              setChildDate(toStr(d));
+            }} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",borderRadius:8,width:32,height:32,fontSize:18,cursor:"pointer",fontWeight:700}}>‹</button>
+            <div style={{textAlign:"center"}}>
+              <p style={{fontSize:15,fontWeight:900,margin:0}}>
+                {childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일
+              </p>
+              {!isChildToday&&<p style={{fontSize:11,opacity:0.8,margin:"2px 0 0",fontWeight:700}}>오늘과 다른 날짜예요</p>}
+            </div>
+            <div style={{display:"flex",gap:6,alignItems:"center"}}>
+              {!isChildToday&&<button onClick={()=>setChildDate(TODAY)}
+                style={{background:"rgba(255,255,255,0.25)",border:"none",color:"#fff",borderRadius:8,padding:"4px 8px",fontSize:11,cursor:"pointer",fontWeight:800}}>오늘</button>}
+              <button onClick={()=>{
+                const d=new Date(childDate+"T00:00:00"); d.setDate(d.getDate()+1);
+                setChildDate(toStr(d));
+              }} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",borderRadius:8,width:32,height:32,fontSize:18,cursor:"pointer",fontWeight:700}}>›</button>
+            </div>
+          </div>
         </div>
 
         {/* 아이 모드 탭 */}
         <div style={{display:"flex",background:C.card,margin:"14px 16px 0",borderRadius:14,padding:4,border:`1px solid ${C.border}`}}>
-          {[["today","📅 오늘"],["growth","🏆 내 성장"]].map(([k,label])=>(
+          {[["today","🎯 퀘스트"],["growth","👤 내 캐릭터"]].map(([k,label])=>(
             <button key={k} onClick={()=>setChildTab(k)}
               style={{flex:1,border:"none",borderRadius:11,padding:"11px 8px",background:childTab===k?th.grad:"transparent",color:childTab===k?"#fff":C.sub,fontSize:15,fontWeight:900,cursor:"pointer"}}>
               {label}
@@ -583,7 +664,9 @@ export default function App() {
           {childTab==="today"&&(
             <>
               <div style={{background:C.card,borderRadius:18,padding:"18px",marginBottom:14,border:`1px solid ${C.border}`}}>
-                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px"}}>📅 오늘 일정</p>
+                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px"}}>
+                  📅 {isChildToday?"오늘":`${childDt.getMonth()+1}/${childDt.getDate()}`} 일정
+                </p>
                 {childTodayAc.length===0?(
                   <div style={{textAlign:"center",padding:"24px 10px",color:C.sub}}>
                     <p style={{fontSize:34,margin:0}}>😴</p>
@@ -592,7 +675,7 @@ export default function App() {
                 ):(
                   childTodayAc.map(ac=>{
                     const sc=getScheduleForDay(ac,childTodayDN);
-                    const entry=getDailyEntry(childId,ac.id,TODAY);
+                    const entry=getDailyEntry(childId,ac.id,childDate);
                     const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
                     const shuttleText=getShuttleText(ac,childTodayDN);
                     const totalTodoCnt=hw.length+todos.length;
@@ -618,23 +701,23 @@ export default function App() {
                         </div>
                         {/* 학원별 할 일 요약 - 체크는 아래 Things to do에서만 */}
                         <div style={{marginTop:12}}>
-                          <p style={{fontSize:14,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>✅ 할 일 요약</p>
+                          <p style={{fontSize:14,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>🎯 퀘스트 요약</p>
                           {totalTodoCnt===0?(
-                            <p style={{fontSize:13,color:"#BBB",margin:0}}>등록된 할 일 없음</p>
+                            <p style={{fontSize:13,color:"#BBB",margin:0}}>등록된 퀘스트 없음</p>
                           ):(
                             <div style={{display:"flex",flexDirection:"column",gap:5,background:"#fff",border:`1px solid ${C.border}`,borderRadius:10,padding:"9px 10px"}}>
                               {hw.map(h=>(
                                 <div key={`hw-summary-${h.id}`} style={{display:"flex",alignItems:"center",gap:6,fontSize:13,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>
                                   <span>{h.done?"✅":"⬜"}</span>
                                   <span style={{flex:1}}>숙제: {h.text}</span>
-                                  <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE}</span>
+                                  <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE} XP</span>
                                 </div>
                               ))}
                               {todos.map(t=>(
                                 <div key={`todo-summary-${t.id}`} style={{display:"flex",alignItems:"center",gap:6,fontSize:13,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>
                                   <span>{t.done?"✅":"⬜"}</span>
                                   <span style={{flex:1}}>{t.text}</span>
-                                  <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE}</span>
+                                  <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE} XP</span>
                                 </div>
                               ))}
                             </div>
@@ -646,9 +729,12 @@ export default function App() {
                 )}
               </div>
 
-              {/* Things to do 전체 카드 */}
+              {/* 퀘스트 전체 카드 - 항상 오늘 기준 */}
               {(()=>{
-                const todayTodos=childTodayAc.flatMap(ac=>{
+                const todayAcForQuest=curAc
+                  .filter(a=>hasClassOnDay(a,todayDN())&&!isVacationDay(childId,a.id,TODAY))
+                  .sort((a,b)=>getClassTime(a,todayDN()).localeCompare(getClassTime(b,todayDN())));
+                const todayTodos=todayAcForQuest.flatMap(ac=>{
                   const entry=getDailyEntry(childId,ac.id,TODAY);
                   const hw=entry.homeworks||[];
                   const todos=entry.todos||[];
@@ -657,19 +743,22 @@ export default function App() {
                     ...todos.map(t=>({...t,kind:"todo",academyId:ac.id,academyName:ac.name,academyColor:ac.color,label:t.text}))
                   ];
                 });
-                if(todayTodos.length===0) return null;
-                const doneCnt=todayTodos.filter(i=>i.done).length;
-                const allDone=doneCnt===todayTodos.length;
+                const extraQEntry=getDailyEntry(childId,EXTRA_QUEST_ID,TODAY);
+                const extraQTodos=(extraQEntry.todos||[]).map(t=>({...t,kind:"todo",academyId:EXTRA_QUEST_ID,academyName:"기타",academyColor:th.main,label:t.text}));
+                const allTodayTodos=[...todayTodos,...extraQTodos];
+                if(allTodayTodos.length===0) return null;
+                const doneCnt=allTodayTodos.filter(i=>i.done).length;
+                const allDone=doneCnt===allTodayTodos.length;
                 return (
                   <div style={{background:C.card,borderRadius:18,padding:"18px",marginBottom:14,border:`1.5px solid ${allDone?C.green+"40":C.border}`,boxShadow:allDone?`0 4px 18px ${C.green}15`:"none"}}>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-                      <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>✅ Things to do</p>
+                      <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>🎯 오늘의 퀘스트</p>
                       <span style={{fontSize:14,fontWeight:800,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:8,padding:"4px 10px"}}>
-                        {allDone?"🎉 모두 완료!":`${doneCnt}/${todayTodos.length} 완료`}
+                        {allDone?"🎉 모두 완료!":`${doneCnt}/${allTodayTodos.length} 완료`}
                       </span>
                     </div>
                     <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                      {todayTodos.map(item=>(
+                      {allTodayTodos.map(item=>(
                         <div key={`${item.kind}-${item.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,background:item.done?`${C.green}10`:"#fff",border:`1.5px solid ${item.done?C.green+"30":C.border}`}}>
                           <button onClick={()=>{
                             if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,TODAY,item.id);
@@ -683,7 +772,7 @@ export default function App() {
                             </p>
                             <p style={{fontSize:16,fontWeight:700,margin:0,color:item.done?C.sub:C.text,textDecoration:item.done?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</p>
                           </div>
-                          <span style={{fontSize:13,fontWeight:800,color:item.done?C.green:C.orange,flexShrink:0}}>+{item.point||DEFAULT_HOMEWORK_SCORE}</span>
+                          <span style={{fontSize:13,fontWeight:800,color:item.done?C.green:C.orange,flexShrink:0}}>+{item.point||DEFAULT_HOMEWORK_SCORE} XP</span>
                         </div>
                       ))}
                     </div>
@@ -715,7 +804,7 @@ export default function App() {
                       <div style={{width:`${progress}%`,height:"100%",borderRadius:99,background:th.grad,transition:"width 0.25s"}}/>
                     </div>
                     {nextLevel?(
-                      <p style={{fontSize:14,color:C.sub,margin:0,fontWeight:700}}>다음 레벨까지 {Math.max(0,nextLevel.minScore-score)}점 남았어요</p>
+                      <p style={{fontSize:14,color:C.sub,margin:0,fontWeight:700}}>다음 레벨까지 {Math.max(0,nextLevel.minScore-score)} XP 남았어요</p>
                     ):(
                       <p style={{fontSize:14,color:C.green,margin:0,fontWeight:800}}>🎉 최고 레벨 달성!</p>
                     )}
@@ -728,8 +817,8 @@ export default function App() {
                 <button onClick={()=>setShowChildRewards(v=>!v)}
                   style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
                   <div style={{textAlign:"left"}}>
-                    <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>🎁 보상상점</p>
-                    <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>받을 수 있는 보상을 확인해요</p>
+                    <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>🛒 리워드샵</p>
+                    <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>XP를 사용해 리워드를 구매해요</p>
                   </div>
                   <span style={{fontSize:14,color:th.main,fontWeight:900,background:th.light,padding:"6px 10px",borderRadius:20}}>
                     {showChildRewards?"닫기 ▲":"열기 ▼"}
@@ -742,21 +831,25 @@ export default function App() {
                       const canGet=score>=reward.point;
                       const remain=Math.max(0,reward.point-score);
                       const progress=Math.min(100,Math.round((score/reward.point)*100));
+                      const grade=REWARD_GRADES.find(g=>g.id===(reward.grade||"common"))||REWARD_GRADES[0];
                       return (
-                        <div key={reward.id} style={{border:`1px solid ${canGet?C.green+"40":C.border}`,background:canGet?`${C.green}08`:C.faint,borderRadius:14,padding:"12px 13px"}}>
+                        <div key={reward.id} style={{border:`1.5px solid ${canGet?C.green+"40":grade.color+"30"}`,background:canGet?`${C.green}08`:C.faint,borderRadius:14,padding:"12px 13px"}}>
                           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
                             <div style={{display:"flex",alignItems:"center",gap:9}}>
                               <span style={{fontSize:25}}>{reward.emoji}</span>
                               <div>
-                                <p style={{fontSize:17,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
-                                <p style={{fontSize:13,fontWeight:700,margin:"2px 0 0",color:C.sub}}>{reward.point}점 필요</p>
+                                <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2}}>
+                                  <p style={{fontSize:17,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
+                                  <span style={{fontSize:11,fontWeight:900,color:grade.color,background:`${grade.color}18`,padding:"1px 7px",borderRadius:20}}>{grade.name}</span>
+                                </div>
+                                <p style={{fontSize:13,fontWeight:700,margin:0,color:C.sub}}>{reward.point} XP 필요</p>
                               </div>
                             </div>
                             {hasPendingRewardRequest(childId,reward.id)?(
-                              <span style={{fontSize:13,fontWeight:900,color:C.purple,background:C.purpleL,padding:"5px 9px",borderRadius:20}}>요청 중</span>
+                              <span style={{fontSize:13,fontWeight:900,color:C.purple,background:C.purpleL,padding:"5px 9px",borderRadius:20}}>승인 대기 중</span>
                             ):(
                               <span style={{fontSize:13,fontWeight:900,color:canGet?C.green:C.orange,background:canGet?`${C.green}15`:`${C.orange}15`,padding:"5px 9px",borderRadius:20}}>
-                                {canGet?"받을 수 있어요!":`${remain}점 남음`}
+                                {canGet?"구매 가능!":`${remain} XP 부족`}
                               </span>
                             )}
                           </div>
@@ -770,11 +863,55 @@ export default function App() {
                               color:hasPendingRewardRequest(childId,reward.id)?C.purple:canGet?"#fff":C.sub,
                               fontSize:15,fontWeight:900,
                               cursor:canGet&&!hasPendingRewardRequest(childId,reward.id)?"pointer":"not-allowed"}}>
-                            {hasPendingRewardRequest(childId,reward.id)?"엄마 승인 기다리는 중":canGet?"🎁 보상 요청하기":"점수가 더 필요해요"}
+                            {hasPendingRewardRequest(childId,reward.id)?"승인 대기 중...":canGet?"🛒 구매 요청":"XP가 더 필요해요"}
                           </button>
                         </div>
                       );
                     })}
+                  </div>
+                )}
+              </div>
+
+              {/* XP 통장 카드 */}
+              <div style={{background:C.card,borderRadius:18,padding:"16px 18px",marginBottom:14,border:`1px solid ${C.border}`,boxShadow:"0 3px 12px rgba(0,0,0,0.04)"}}>
+                <button onClick={()=>setShowChildXP(v=>!v)}
+                  style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
+                  <div style={{textAlign:"left"}}>
+                    <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>⭐ XP 통장</p>
+                    <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>최근 XP 변동 내역이에요</p>
+                  </div>
+                  <span style={{fontSize:14,color:th.main,fontWeight:900,background:th.light,padding:"6px 10px",borderRadius:20}}>
+                    {showChildXP?"닫기 ▲":"열기 ▼"}
+                  </span>
+                </button>
+                {showChildXP&&(
+                  <div style={{marginTop:14}}>
+                    {getScoreHistory(childId).length===0?(
+                      <div style={{textAlign:"center",padding:"18px 8px",color:C.sub}}>
+                        <p style={{fontSize:26,margin:0}}>📭</p>
+                        <p style={{fontSize:15,margin:"6px 0 0"}}>아직 XP 기록이 없어요</p>
+                      </div>
+                    ):(
+                      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                        {getScoreHistory(childId).slice().reverse().slice(0,10).map(item=>{
+                          const plus=Number(item.point)>=0;
+                          return (
+                            <div key={item.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:12,background:plus?`${C.green}08`:`${C.red}08`,border:`1px solid ${plus?C.green+"25":C.red+"25"}`}}>
+                              <span style={{width:32,height:32,borderRadius:"50%",background:plus?`${C.green}18`:`${C.red}12`,color:plus?C.green:C.red,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:16,flexShrink:0}}>
+                                {plus?"+":"-"}
+                              </span>
+                              <div style={{flex:1}}>
+                                <p style={{fontSize:14,fontWeight:900,margin:0,color:C.text}}>{getScoreHistoryLabel(item)}</p>
+                                <p style={{fontSize:12,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{item.date||""}</p>
+                              </div>
+                              <span style={{fontSize:14,fontWeight:900,color:plus?C.green:C.red}}>
+                                {plus?"+":""}{item.point} XP
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -821,14 +958,14 @@ export default function App() {
             <p style={{fontSize:11,color:"rgba(255,255,255,0.75)",margin:0,letterSpacing:2,fontWeight:600}}>ACADEMY PLANNER</p>
             <h1 style={{fontSize:22,fontWeight:900,margin:"3px 0 0",color:"#fff"}}>🎒 엄마 관리 모드</h1>
           </div>
-          <div style={{display:"flex",gap:7}}>
-            <button onClick={()=>setShowPinChangeModal(true)}
-              style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"8px 10px",fontSize:12,fontWeight:800,cursor:"pointer"}}>
-              비번 변경
-            </button>
+          <div style={{display:"flex",flexDirection:"column",gap:5,alignItems:"flex-end"}}>
             <button onClick={exitParentMode}
-              style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"8px 10px",fontSize:12,fontWeight:800,cursor:"pointer"}}>
+              style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.25)",color:"#fff",borderRadius:10,padding:"7px 12px",fontSize:12,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap"}}>
               🎒 아이 모드
+            </button>
+            <button onClick={()=>setShowPinChangeModal(true)}
+              style={{border:"1px solid rgba(255,255,255,0.2)",background:"rgba(255,255,255,0.1)",color:"rgba(255,255,255,0.8)",borderRadius:10,padding:"5px 10px",fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
+              🔐 비번 변경
             </button>
           </div>
         </div>
@@ -861,7 +998,7 @@ export default function App() {
 
       {/* ── 탭 바 ── */}
       <div style={{display:"flex",background:C.card,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:10,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
-        {[["home","🏠 홈"],["calendar","🗓 달력"],["fee","💰 학원비"],["absence","🏥 결석"],["reward","🎁 보상"],["sms","💬 문자"]].map(([k,l])=>(
+        {[["home","🏠 홈"],["calendar","🗓 달력"],["fee","💰 학원비"],["absence","🏥 결석"],["reward","🎁 리워드"],["sms","💬 문자"]].map(([k,l])=>(
           <button key={k} onClick={()=>setTab(k)} style={{flex:1,padding:"13px 2px",border:"none",background:"transparent",fontSize:12,fontWeight:tab===k?800:400,color:tab===k?th.main:C.sub,borderBottom:tab===k?`2.5px solid ${th.main}`:"2.5px solid transparent",cursor:"pointer",whiteSpace:"nowrap",transition:"color 0.2s"}}>{l}</button>
         ))}
       </div>
@@ -879,6 +1016,18 @@ export default function App() {
           const fullLabel=`${hd.getMonth()+1}월 ${hd.getDate()}일 ${hDN}요일`;
           const homeAc=curAc.filter(a=>hasClassOnDay(a,hDN)&&!isVacationDay(childId,a.id,homeDate)).sort((a,b)=>getClassTime(a,hDN).localeCompare(getClassTime(b,hDN)));
           const vacAcToday=curAc.filter(a=>hasClassOnDay(a,hDN)&&isVacationDay(childId,a.id,homeDate));
+          const homeTodos=homeAc.flatMap(ac=>{
+            const entry=getDailyEntry(childId,ac.id,homeDate);
+            const hw=entry.homeworks||[], todos=entry.todos||[];
+            return [
+              ...hw.map(h=>({...h,kind:"homework",academyId:ac.id,academyName:ac.name,academyColor:ac.color,label:h.text})),
+              ...todos.map(t=>({...t,kind:"todo",academyId:ac.id,academyName:ac.name,academyColor:ac.color,label:t.text}))
+            ];
+          });
+          // 기타 퀘스트도 포함
+          const extraEntry=getDailyEntry(childId,EXTRA_QUEST_ID,homeDate);
+          const extraTodos=(extraEntry.todos||[]).map(t=>({...t,kind:"todo",academyId:EXTRA_QUEST_ID,academyName:"기타",academyColor:th.main,label:t.text}));
+          const allHomeTodos=[...homeTodos,...extraTodos];
           const absOnHome=curAbs.filter(a=>a.date===homeDate);
           const makeupOnHome=curAbs.filter(a=>a.makeupDate===homeDate);
           const homePendingHw=homeAc.reduce((n,ac)=>n+(getDailyEntry(childId,ac.id,homeDate).homeworks||[]).filter(h=>!h.done).length,0);
@@ -913,7 +1062,7 @@ export default function App() {
                     <p style={{fontSize:12,opacity:0.8,margin:"0 0 3px",fontWeight:700}}>현재 레벨</p>
                     <p style={{fontSize:17,fontWeight:900,margin:0}}>{getChildLevel(childId).emoji} Lv.{getChildLevel(childId).level} {getChildLevel(childId).name}</p>
                   </div>
-                  <p style={{fontSize:20,fontWeight:900,margin:0}}>{getChildScore(childId)}점</p>
+                  <p style={{fontSize:20,fontWeight:900,margin:0}}>{getChildScore(childId)} XP</p>
                 </div>
                 {/* 요약 지표 */}
                 <div style={{display:"flex",gap:6}}>
@@ -1012,28 +1161,28 @@ export default function App() {
                           {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:17,color:"#CCC"}}>없음</span>}
                         </div>
                       </div>
-                      {/* Things to do */}
+                      {/* 학원별 할 일 요약 */}
                       <div style={{marginBottom:12}}>
                         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:7}}>
-                          <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:0,letterSpacing:0.5}}>✅ Things to do</p>
-                          {totalTodoCnt>0&&<span style={{fontSize:17,fontWeight:700,color:allDone?C.green:C.orange}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt} 완료`}</span>}
+                          <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0}}>🎯 퀘스트 요약</p>
+                          {totalTodoCnt>0&&<span style={{fontSize:13,fontWeight:800,color:allDone?C.green:C.orange}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
                         </div>
                         {totalTodoCnt===0?(
-                          <p style={{fontSize:17,color:"#CCC",margin:0}}>등록된 할 일 없음</p>
+                          <p style={{fontSize:14,color:"#CCC",margin:0}}>등록된 퀘스트 없음</p>
                         ):(
-                          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                          <div style={{display:"flex",flexDirection:"column",gap:5,background:C.faint,border:`1px solid ${C.border}`,borderRadius:10,padding:"9px 10px"}}>
                             {hw.map(h=>(
-                              <div key={`hw-${h.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:10,background:h.done?`${C.green}08`:C.faint,border:`1px solid ${h.done?C.green+"25":C.faintB}`}}>
-                                <button onClick={()=>toggleHomeworkDone(childId,ac.id,homeDate,h.id)}
-                                  style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
-                                <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
+                              <div key={`hw-summary-${h.id}`} style={{display:"flex",alignItems:"center",gap:6,fontSize:13,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>
+                                <span>{h.done?"✅":"⬜"}</span>
+                                <span style={{flex:1}}>숙제: {h.text}</span>
+                                <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE} XP</span>
                               </div>
                             ))}
                             {todos.map(t=>(
-                              <div key={`todo-${t.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:10,background:t.done?`${C.green}08`:C.faint,border:`1px solid ${t.done?C.green+"25":C.faintB}`}}>
-                                <button onClick={()=>toggleTodoDone(childId,ac.id,homeDate,t.id)}
-                                  style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{t.done?"✓":""}</button>
-                                <span style={{flex:1,fontSize:17,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
+                              <div key={`todo-summary-${t.id}`} style={{display:"flex",alignItems:"center",gap:6,fontSize:13,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>
+                                <span>{t.done?"✅":"⬜"}</span>
+                                <span style={{flex:1}}>{t.text}</span>
+                                <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE} XP</span>
                               </div>
                             ))}
                           </div>
@@ -1041,46 +1190,48 @@ export default function App() {
                       </div>
                       <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:homeDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
                         style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
-                        ✏️ 할 일 · 준비물 편집
+                        🎯 퀘스트 · 준비물 편집
                       </button>
                     </div>
                   </div>
                 );
               })}
 
-              {/* 이번 주 예정 */}
-              <div style={{marginTop:8,marginBottom:14}}>
-                <p style={{fontSize:17,color:C.sub,fontWeight:700,marginBottom:10,letterSpacing:0.5}}>📅 이번 주 예정</p>
-                <div style={{background:C.card,borderRadius:14,border:`1px solid ${C.border}`,overflow:"hidden"}}>
-                  {DAYS.map(day=>{
-                    const da=curAc
-                      .filter(a=>hasClassOnDay(a,day))
-                      .sort((a,b)=>getClassTime(a,day).localeCompare(getClassTime(b,day)));
-                    if(da.length===0) return null;
-                    const isTodayRow=day===todayDN();
-                    const now=new Date();
-                    const nowDay=now.getDay()===0?7:now.getDay();
-                    const diff=(DAYS.indexOf(day)+1)-nowDay;
-                    const rowDate=toStr(new Date(now.getFullYear(),now.getMonth(),now.getDate()+diff));
-                    return (
-                      <div key={day} style={{display:"flex",alignItems:"center",padding:"11px 14px",borderBottom:`1px solid ${C.border}`,background:isTodayRow?`${th.main}08`:"transparent"}}>
-                        <span style={{width:28,fontSize:15,fontWeight:700,color:isTodayRow?th.main:DAY_COLORS[day]}}>{day}</span>
-                        {isTodayRow&&<span style={{fontSize:17,background:th.main,color:"#fff",borderRadius:4,padding:"1px 6px",marginRight:6,fontWeight:700,flexShrink:0}}>오늘</span>}
-                        <div style={{flex:1,display:"flex",gap:6,flexWrap:"wrap"}}>
-                          {da.map(a=>{
-                            const onVac=isVacationDay(childId,a.id,rowDate);
-                            return (
-                              <span key={a.id} style={{fontSize:14,padding:"3px 8px",borderRadius:6,background:onVac?"#FFF8E1":`${a.color}18`,color:onVac?"#E65100":a.color,fontWeight:600}}>
-                                {onVac?"🏖️ ":""}{a.name} {getClassTime(a,day)}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {DAYS.every(day=>curAc.filter(a=>hasClassOnDay(a,day)).length===0)&&<p style={{textAlign:"center",padding:"16px",color:C.sub,fontSize:17,margin:0}}>이번 주 예정 없음</p>}
+              {/* 전체 퀘스트 카드 */}
+              <div style={{background:C.card,borderRadius:16,padding:"14px 16px",marginBottom:12,border:`1px solid ${C.border}`}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                  <p style={{fontSize:16,fontWeight:900,margin:0,color:C.text}}>🎯 오늘의 퀘스트</p>
+                  <button onClick={()=>setShowTodoPickerModal(homeDate)}
+                    style={{padding:"5px 11px",borderRadius:8,border:`1px solid ${th.main}40`,background:`${th.main}08`,color:th.main,fontSize:12,fontWeight:800,cursor:"pointer"}}>
+                    ✏️ 퀘스트 수정
+                  </button>
                 </div>
+                {allHomeTodos.length===0?(
+                  <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
+                    <p style={{fontSize:26,margin:0}}>🌿</p>
+                    <p style={{fontSize:14,margin:"6px 0 0"}}>등록된 퀘스트가 없어요</p>
+                  </div>
+                ):(
+                  <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                    {allHomeTodos.map(item=>(
+                      <div key={`${item.kind}-${item.academyId}-${item.id}`} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 11px",borderRadius:11,background:item.done?`${C.green}10`:C.faint,border:`1px solid ${item.done?C.green+"30":C.border}`}}>
+                        <button onClick={()=>{
+                          if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,homeDate,item.id);
+                          else toggleTodoDone(childId,item.academyId,homeDate,item.id);
+                        }} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${item.done?C.green:"#CCC"}`,background:item.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0,fontSize:12}}>
+                          {item.done?"✓":""}
+                        </button>
+                        <div style={{flex:1,minWidth:0}}>
+                          <p style={{fontSize:11,color:item.academyColor,margin:"0 0 1px",fontWeight:800}}>
+                            {item.kind==="homework"?"📚":"✅"} {item.academyName}{item.kind==="homework"?" 퀘스트":""}
+                          </p>
+                          <p style={{fontSize:15,fontWeight:700,margin:0,color:item.done?C.sub:C.text,textDecoration:item.done?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</p>
+                        </div>
+                        <span style={{fontSize:11,color:C.orange,fontWeight:800,flexShrink:0}}>+{item.point||DEFAULT_HOMEWORK_SCORE} XP</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* 등록 학원 목록 */}
@@ -1311,9 +1462,10 @@ export default function App() {
                     {/* 학원별 숙제/준비물 - 방학 중인 학원 제외 */}
                     {selInfo.acList.filter(ac=>!isVacationDay(childId,ac.id,calSelDate)).map(ac=>{
                       const entry=getDailyEntry(childId,ac.id,calSelDate);
-                      const hw=entry.homeworks||[], sup=entry.supplies||[];
-                      const doneCnt=hw.filter(h=>h.done).length;
-                      const allDone=hw.length>0&&doneCnt===hw.length;
+                      const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
+                      const totalTodoCnt=hw.length+todos.length;
+                      const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
+                      const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
                       const sc=getScheduleForDay(ac,selInfo.dn);
                       const [h,m]=(sc?.time||"00:00").split(":").map(Number);
                       const tm=h*60+m+Number(sc?.duration||0);
@@ -1331,7 +1483,7 @@ export default function App() {
                                 return <p style={{fontSize:14,color:C.sub,margin:"4px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
                               })()}
                             </div>
-                            {hw.length>0&&<span style={{fontSize:17,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:6,padding:"3px 8px"}}>{allDone?"✓ 완료":`${doneCnt}/${hw.length}`}</span>}
+                            {totalTodoCnt>0&&<span style={{fontSize:17,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:6,padding:"3px 8px"}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
                           </div>
                           <div style={{padding:"12px 14px"}}>
                             <div style={{marginBottom:10}}>
@@ -1342,23 +1494,9 @@ export default function App() {
                                 {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:17,color:"#CCC"}}>없음</span>}
                               </div>
                             </div>
-                            <div style={{marginBottom:10}}>
-                              <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 6px"}}>✅ Things to do</p>
-                              {hw.length===0?<p style={{fontSize:17,color:"#CCC",margin:0}}>없음</p>:(
-                                <div style={{display:"flex",flexDirection:"column",gap:5}}>
-                                  {hw.map(h=>(
-                                    <div key={h.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 10px",borderRadius:9,background:h.done?`${C.green}08`:C.faint,border:`1px solid ${h.done?C.green+"25":C.faintB}`}}>
-                                      <button onClick={()=>toggleHomeworkDone(childId,ac.id,calSelDate,h.id)}
-                                        style={{width:20,height:20,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
-                                      <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.text}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
                             <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
                               style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
-                              ✏️ 할 일 · 준비물 편집
+                              🎯 퀘스트 · 준비물 편집
                             </button>
                           </div>
                         </div>
@@ -1368,6 +1506,39 @@ export default function App() {
                 </div>
               )}
               {!selInfo&&<div style={{marginTop:12,textAlign:"center",padding:"18px",color:C.sub,fontSize:17,background:C.card,borderRadius:12,border:`1.5px dashed ${C.border}`}}>날짜를 탭하면 학원·숙제·결석·보충수업을 확인할 수 있어요</div>}
+
+              {/* 이번 주 예정 */}
+              <div style={{marginTop:14,marginBottom:14}}>
+                <p style={{fontSize:17,color:C.sub,fontWeight:700,marginBottom:10,letterSpacing:0.5}}>📅 이번 주 예정</p>
+                <div style={{background:C.card,borderRadius:14,border:`1px solid ${C.border}`,overflow:"hidden"}}>
+                  {DAYS.map(day=>{
+                    const da=curAc.filter(a=>hasClassOnDay(a,day)).sort((a,b)=>getClassTime(a,day).localeCompare(getClassTime(b,day)));
+                    if(da.length===0) return null;
+                    const isTodayRow=day===todayDN();
+                    const now=new Date();
+                    const nowDay=now.getDay()===0?7:now.getDay();
+                    const diff=(DAYS.indexOf(day)+1)-nowDay;
+                    const rowDate=toStr(new Date(now.getFullYear(),now.getMonth(),now.getDate()+diff));
+                    return (
+                      <div key={day} style={{display:"flex",alignItems:"center",padding:"11px 14px",borderBottom:`1px solid ${C.border}`,background:isTodayRow?`${th.main}08`:"transparent"}}>
+                        <span style={{width:28,fontSize:15,fontWeight:700,color:isTodayRow?th.main:DAY_COLORS[day]}}>{day}</span>
+                        {isTodayRow&&<span style={{fontSize:17,background:th.main,color:"#fff",borderRadius:4,padding:"1px 6px",marginRight:6,fontWeight:700,flexShrink:0}}>오늘</span>}
+                        <div style={{flex:1,display:"flex",gap:6,flexWrap:"wrap"}}>
+                          {da.map(a=>{
+                            const onVac=isVacationDay(childId,a.id,rowDate);
+                            return (
+                              <span key={a.id} style={{fontSize:14,padding:"3px 8px",borderRadius:6,background:onVac?"#FFF8E1":`${a.color}18`,color:onVac?"#E65100":a.color,fontWeight:600}}>
+                                {onVac?"🏖️ ":""}{a.name} {getClassTime(a,day)}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {DAYS.every(day=>curAc.filter(a=>hasClassOnDay(a,day)).length===0)&&<p style={{textAlign:"center",padding:"16px",color:C.sub,fontSize:17,margin:0}}>이번 주 예정 없음</p>}
+                </div>
+              </div>
 
               {/* 방학 전체 관리 버튼 */}
               <button onClick={()=>{ setVacForm({academyId:"",start:TODAY,end:TODAY}); setShowVacModal({date:TODAY,acList:curAc}); }}
@@ -1468,7 +1639,7 @@ export default function App() {
           <div>
             {getChildRewardRequests(childId).filter(r=>r.status==="pending").length>0&&(
               <div style={{background:"#FFF8E1",border:"1.5px solid #F0A500",borderRadius:16,padding:"16px",marginBottom:14}}>
-                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:"#E65100"}}>🎁 보상 요청 대기</p>
+                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:"#E65100"}}>🛒 구매 요청 대기</p>
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
                   {getChildRewardRequests(childId).filter(r=>r.status==="pending").map(req=>(
                     <div key={req.id} style={{background:"#fff",borderRadius:12,padding:"12px",border:"1px solid #F0A500"}}>
@@ -1476,7 +1647,7 @@ export default function App() {
                         <span style={{fontSize:25}}>{req.emoji}</span>
                         <div style={{flex:1}}>
                           <p style={{fontSize:16,fontWeight:900,margin:0,color:C.text}}>{req.title}</p>
-                          <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{req.point}점 사용 요청</p>
+                          <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{req.point} XP 사용</p>
                         </div>
                       </div>
                       <div style={{display:"flex",gap:8}}>
@@ -1494,8 +1665,8 @@ export default function App() {
             <div style={{background:C.card,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${C.border}`}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
                 <div>
-                  <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상관리</p>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{curChild?.name}의 보상 목록을 관리해요</p>
+                  <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 리워드 관리</p>
+                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{curChild?.name}의 리워드 목록을 관리해요</p>
                 </div>
                 <button onClick={()=>setShowRewardModal(true)}
                   style={{border:"none",background:th.grad,color:"#fff",borderRadius:10,padding:"8px 12px",fontSize:13,fontWeight:900,cursor:"pointer"}}>+ 보상</button>
@@ -1506,7 +1677,7 @@ export default function App() {
                     <span style={{fontSize:23}}>{reward.emoji}</span>
                     <div style={{flex:1}}>
                       <p style={{fontSize:16,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
-                      <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point}점 필요</p>
+                      <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point} XP 필요</p>
                     </div>
                     <button onClick={()=>deleteReward(reward.id)}
                       style={{border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:8,padding:"5px 9px",fontSize:12,fontWeight:800,cursor:"pointer"}}>삭제</button>
@@ -1515,30 +1686,88 @@ export default function App() {
               </div>
             </div>
 
-            {getChildRewardRequests(childId).filter(r=>r.status!=="pending").length>0&&(
-              <div style={{background:C.card,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${C.border}`}}>
-                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:C.text}}>📜 보상 요청 기록</p>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {getChildRewardRequests(childId).filter(r=>r.status!=="pending").slice().reverse().map(req=>{
-                    const approved=req.status==="approved";
-                    return (
-                      <div key={req.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:12,background:C.faint,border:`1px solid ${C.border}`}}>
-                        <span style={{fontSize:23}}>{req.emoji}</span>
-                        <div style={{flex:1}}>
-                          <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{req.title}</p>
-                          <p style={{fontSize:12,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{req.point}점 · {approved?"승인됨":"거절됨"}</p>
-                        </div>
-                        <span style={{fontSize:12,fontWeight:900,color:approved?C.green:C.red,background:approved?`${C.green}15`:`${C.red}0A`,padding:"5px 8px",borderRadius:20}}>
-                          {approved?"완료":"거절"}
-                        </span>
-                        <button onClick={()=>deleteRewardRequest(req.id)}
-                          style={{border:"none",background:"transparent",color:"#CCC",fontSize:16,cursor:"pointer"}}>✕</button>
-                      </div>
-                    );
-                  })}
-                </div>
+            {/* 수동 XP 조정 - 독립 카드 */}
+            <div style={{background:C.card,borderRadius:16,padding:"14px 16px",marginBottom:12,border:`1px solid ${C.border}`}}>
+              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 10px"}}>✍️ 수동 XP 조정</p>
+              <div style={{display:"flex",gap:6,marginBottom:8}}>
+                <button onClick={()=>setXpAdjustSign("+")}
+                  style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="+"?C.green:C.border}`,background:xpAdjustSign==="+"?`${C.green}15`:"#fff",color:xpAdjustSign==="+"?C.green:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
+                  + 지급
+                </button>
+                <button onClick={()=>setXpAdjustSign("-")}
+                  style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="-"?C.red:C.border}`,background:xpAdjustSign==="-"?`${C.red}10`:"#fff",color:xpAdjustSign==="-"?C.red:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
+                  - 차감
+                </button>
               </div>
-            )}
+              <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                <input value={xpAdjustLabel} onChange={e=>setXpAdjustLabel(e.target.value)}
+                  placeholder="사유"
+                  style={{flex:1,padding:"9px 10px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",minWidth:0}}/>
+                <input type="number" value={xpAdjustInput} onChange={e=>setXpAdjustInput(e.target.value)}
+                  placeholder="XP"
+                  style={{width:58,padding:"9px 6px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:14,outline:"none",background:"#fff",textAlign:"center",flexShrink:0}}/>
+                <button onClick={()=>{
+                  const v=Number(xpAdjustInput);
+                  if(!v||v<=0){ showToast("XP 값을 입력해줘"); return; }
+                  const point=xpAdjustSign==="+"?v:-v;
+                  addChildScore(childId,point,xpAdjustLabel||"수동 조정","manual");
+                  setXpAdjustInput(""); setXpAdjustLabel("");
+                  showToast(xpAdjustSign==="+"?`+${v} XP 지급 완료`:`-${v} XP 차감 완료`);
+                }} style={{padding:"9px 14px",borderRadius:9,border:"none",background:xpAdjustSign==="+"?C.green:C.red,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",flexShrink:0}}>
+                  {xpAdjustSign==="+"?"지급":"차감"}
+                </button>
+              </div>
+            </div>
+
+            {/* XP 통장 */}
+            <div style={{background:C.card,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${C.border}`}}>
+              <button onClick={()=>setShowParentXP(v=>!v)}
+                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
+                <div style={{textAlign:"left"}}>
+                  <p style={{fontSize:17,fontWeight:900,margin:"0 0 2px",color:C.text}}>⭐ XP 통장</p>
+                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{curChild?.name}의 XP 변동 내역</p>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:7}}>
+                  <span style={{fontSize:14,fontWeight:900,color:th.main,background:th.light,padding:"5px 10px",borderRadius:16}}>
+                    {getChildScore(childId)} XP
+                  </span>
+                  <span style={{fontSize:12,color:th.main,fontWeight:900,background:th.light,padding:"5px 9px",borderRadius:12}}>
+                    {showParentXP?"닫기 ▲":"열기 ▼"}
+                  </span>
+                </div>
+              </button>
+
+              {showParentXP&&(
+                <div style={{marginTop:12}}>
+                  {getScoreHistory(childId).length===0?(
+                    <div style={{textAlign:"center",padding:"20px 8px",color:C.sub}}>
+                      <p style={{fontSize:28,margin:0}}>📭</p>
+                      <p style={{fontSize:15,margin:"6px 0 0"}}>아직 XP 기록이 없어요</p>
+                    </div>
+                  ):(
+                    <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                      {getScoreHistory(childId).slice().reverse().slice(0,20).map(item=>{
+                        const plus=Number(item.point)>=0;
+                        return (
+                          <div key={item.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:12,background:C.faint,border:`1px solid ${C.border}`}}>
+                            <span style={{width:28,height:28,borderRadius:"50%",background:plus?`${C.green}15`:`${C.red}10`,color:plus?C.green:C.red,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:14,flexShrink:0}}>
+                              {plus?"+":"-"}
+                            </span>
+                            <div style={{flex:1}}>
+                              <p style={{fontSize:14,fontWeight:800,margin:0,color:C.text}}>{getScoreHistoryLabel(item)}</p>
+                              <p style={{fontSize:11,color:C.sub,margin:"2px 0 0"}}>{item.date||""}</p>
+                            </div>
+                            <span style={{fontSize:13,fontWeight:900,color:plus?C.green:C.red,flexShrink:0}}>
+                              {plus?"+":""}{item.point} XP
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -1573,33 +1802,87 @@ export default function App() {
 
       {/* ════════ 모달들 ════════ */}
 
+      {/* ── 퀘스트 수정 학원 선택 피커 ── */}
+      {showTodoPickerModal&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowTodoPickerModal(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 18px 44px",width:"100%",maxWidth:430,boxSizing:"border-box",maxHeight:"80vh",overflowY:"auto"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>✏️ 퀘스트 수정</h3>
+              <button onClick={()=>setShowTodoPickerModal(null)} style={{background:C.faint,border:"none",borderRadius:8,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+            </div>
+            <p style={{fontSize:12,color:C.sub,fontWeight:600,margin:"0 0 14px"}}>수정할 학원을 선택하거나, 기타 퀘스트를 추가하세요</p>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {curAc.map(ac=>(
+                <button key={ac.id} onClick={()=>{
+                  setShowDailyModal({academyId:ac.id,date:showTodoPickerModal,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies});
+                  setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
+                  setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+                  setShowTodoPickerModal(null);
+                }} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",borderRadius:13,border:`1.5px solid ${ac.color}30`,background:`${ac.color}06`,cursor:"pointer",textAlign:"left"}}>
+                  <div style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
+                  <div style={{flex:1}}>
+                    <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{ac.name}</p>
+                    <p style={{fontSize:11,color:C.sub,margin:"2px 0 0",fontWeight:600}}>{getSchedules(ac).map(s=>`${s.day} ${s.time}`).join(" / ")}</p>
+                  </div>
+                  <span style={{fontSize:12,color:ac.color,fontWeight:700}}>선택 →</span>
+                </button>
+              ))}
+              {/* 기타 퀘스트 */}
+              <button onClick={()=>{
+                setShowDailyModal({academyId:EXTRA_QUEST_ID,date:showTodoPickerModal,acName:"기타 퀘스트",acColor:th.main,baseSupplies:[]});
+                setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
+                setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+                setShowTodoPickerModal(null);
+              }} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",borderRadius:13,border:`1.5px dashed ${th.main}40`,background:`${th.main}06`,cursor:"pointer",textAlign:"left"}}>
+                <div style={{width:9,height:9,borderRadius:"50%",background:th.main,flexShrink:0}}/>
+                <div style={{flex:1}}>
+                  <p style={{fontSize:15,fontWeight:900,margin:0,color:th.main}}>기타 퀘스트</p>
+                  <p style={{fontSize:11,color:C.sub,margin:"2px 0 0",fontWeight:600}}>학원 관련 없는 할 일을 추가해요</p>
+                </div>
+                <span style={{fontSize:12,color:th.main,fontWeight:700}}>선택 →</span>
+              </button>
+              {curAc.length===0&&<p style={{textAlign:"center",color:C.sub,fontSize:14,padding:"16px 0"}}>등록된 학원이 없어요</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── 보상 추가 모달 ── */}
       {showRewardModal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowRewardModal(false)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-              <h3 style={{margin:0,fontSize:19,fontWeight:900,color:C.text}}>🎁 보상 추가</h3>
+              <h3 style={{margin:0,fontSize:19,fontWeight:900,color:C.text}}>🎁 리워드 추가</h3>
               <button onClick={()=>setShowRewardModal(false)} style={{background:C.faint,border:"none",borderRadius:8,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:16}}>✕</button>
             </div>
-            <label style={lbl}>보상 이모지</label>
+            <label style={lbl}>리워드 이모지</label>
             <input value={rewardForm.emoji} onChange={e=>setRewardForm(p=>({...p,emoji:e.target.value}))}
               placeholder="예: 🍦" maxLength={4}
               style={{...inp,marginBottom:16,fontSize:26,textAlign:"center"}}/>
-            <label style={lbl}>보상 이름 *</label>
+            <label style={lbl}>리워드 이름 *</label>
             <input value={rewardForm.title} onChange={e=>setRewardForm(p=>({...p,title:e.target.value}))}
-              placeholder="예: 아이스크림, 게임 30분"
+              placeholder="예: 아이스크림, 게임 30분, 치킨"
               style={{...inp,marginBottom:16}}/>
-            <label style={lbl}>필요 점수 *</label>
+            <label style={lbl}>등급</label>
+            <div style={{display:"flex",gap:8,marginBottom:16}}>
+              {REWARD_GRADES.map(g=>(
+                <button key={g.id} onClick={()=>setRewardForm(p=>({...p,grade:g.id}))}
+                  style={{flex:1,padding:"8px 0",borderRadius:10,border:`2px solid ${rewardForm.grade===g.id?g.color:C.border}`,background:rewardForm.grade===g.id?`${g.color}15`:"#fff",color:rewardForm.grade===g.id?g.color:C.sub,fontSize:13,fontWeight:900,cursor:"pointer"}}>
+                  {g.name}
+                </button>
+              ))}
+            </div>
+            <label style={lbl}>필요 XP *</label>
             <input type="number" value={rewardForm.point} onChange={e=>setRewardForm(p=>({...p,point:Number(e.target.value)}))}
               placeholder="예: 300"
               style={{...inp,marginBottom:20}}/>
             <div style={{background:th.light,border:`1px solid ${th.main}30`,borderRadius:14,padding:"14px",marginBottom:20}}>
               <p style={{fontSize:14,fontWeight:800,color:th.main,margin:"0 0 6px"}}>미리보기</p>
-              <p style={{fontSize:18,fontWeight:900,color:C.text,margin:0}}>{rewardForm.emoji||"🎁"} {rewardForm.title||"보상 이름"} · {rewardForm.point||0}점</p>
+              <p style={{fontSize:18,fontWeight:900,color:C.text,margin:0}}>{rewardForm.emoji||"🎁"} {rewardForm.title||"보상 이름"} · {rewardForm.point||0} XP</p>
             </div>
             <button onClick={addReward}
               style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",boxShadow:`0 4px 16px ${th.main}40`}}>
-              보상 추가하기
+              리워드 추가하기
             </button>
           </div>
         </div>
@@ -2001,14 +2284,14 @@ export default function App() {
                   </div>
                 </div>
               )}
-              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>✅ Things to do</p>
-              {hw.length===0&&todos.length===0&&<p style={{fontSize:17,color:C.sub,marginBottom:10}}>등록된 할 일이 없어요</p>}
+              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>🎯 오늘의 퀘스트</p>
+              {hw.length===0&&todos.length===0&&<p style={{fontSize:17,color:C.sub,marginBottom:10}}>등록된 퀘스트가 없어요</p>}
               <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:12}}>
                 {hw.map(h=>(
                   <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:h.done?`${C.green}08`:C.faint,border:`1.5px solid ${h.done?C.green+"30":C.faintB}`}}>
                     <button onClick={()=>toggleHomeworkDone(childId,academyId,date,h.id)} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
                     <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
-                    <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE}</span>
+                    <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE} XP</span>
                     <button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id)})} style={{background:"none",border:"none",color:"#CCC",cursor:"pointer",fontSize:16}}>✕</button>
                   </div>
                 ))}
@@ -2016,7 +2299,7 @@ export default function App() {
                   <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:t.done?`${C.green}08`:C.faint,border:`1.5px solid ${t.done?C.green+"30":C.faintB}`}}>
                     <button onClick={()=>toggleTodoDone(childId,academyId,date,t.id)} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{t.done?"✓":""}</button>
                     <span style={{flex:1,fontSize:17,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
-                    <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE}</span>
+                    <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE} XP</span>
                     <button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id)})} style={{background:"none",border:"none",color:"#CCC",cursor:"pointer",fontSize:16}}>✕</button>
                   </div>
                 ))}
@@ -2028,10 +2311,10 @@ export default function App() {
                 <button onClick={addHw} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",flexShrink:0}}>숙제</button>
               </div>
               <div style={{display:"flex",gap:6,marginBottom:20,alignItems:"center"}}>
-                <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="할 일 입력" style={{...inp,flex:3,width:"auto",fontSize:14,padding:"9px 10px"}}/>
+                <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="퀘스트 입력" style={{...inp,flex:3,width:"auto",fontSize:14,padding:"9px 10px"}}/>
                 <input type="number" value={dailyTodoPoint} onChange={e=>setDailyTodoPoint(e.target.value)} style={{...inp,width:52,fontSize:14,padding:"9px 6px",textAlign:"center"}} min="1"/>
                 <span style={{fontSize:12,color:C.sub,flexShrink:0}}>점</span>
-                <button onClick={addTodo} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",flexShrink:0}}>할 일</button>
+                <button onClick={addTodo} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",flexShrink:0}}>퀘스트</button>
               </div>
               <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>📦 이번 수업 추가 준비물</p>
               <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:10}}>
