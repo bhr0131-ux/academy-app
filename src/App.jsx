@@ -211,6 +211,8 @@ export default function App() {
   const [dailyHwInput,setDailyHwInput] = useState("");
   const [dailySupInput,setDailySupInput] = useState("");
   const [dailyTodoInput,setDailyTodoInput] = useState("");
+  const [dailyHwPoint,setDailyHwPoint] = useState(DEFAULT_HOMEWORK_SCORE);
+  const [dailyTodoPoint,setDailyTodoPoint] = useState(DEFAULT_HOMEWORK_SCORE);
   const [toast,setToast] = useState("");
 
   // 아이 관리 모달
@@ -614,34 +616,28 @@ export default function App() {
                             {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:15,color:"#BBB"}}>없음</span>}
                           </div>
                         </div>
-                        {/* Things to do */}
+                        {/* 학원별 할 일 요약 - 체크는 아래 Things to do에서만 */}
                         <div style={{marginTop:12}}>
-                          <p style={{fontSize:16,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>✅ Things to do</p>
+                          <p style={{fontSize:14,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>✅ 할 일 요약</p>
                           {totalTodoCnt===0?(
-                            <p style={{fontSize:15,color:"#BBB",margin:0}}>할 일 없음</p>
+                            <p style={{fontSize:13,color:"#BBB",margin:0}}>등록된 할 일 없음</p>
                           ):(
-                            <>
+                            <div style={{display:"flex",flexDirection:"column",gap:5,background:"#fff",border:`1px solid ${C.border}`,borderRadius:10,padding:"9px 10px"}}>
                               {hw.map(h=>(
-                                <div key={`hw-${h.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:10,background:h.done?`${C.green}10`:"#fff",border:`1px solid ${h.done?C.green+"30":C.border}`,marginBottom:6}}>
-                                  <button onClick={()=>toggleHomeworkDone(childId,ac.id,TODAY,h.id)}
-                                    style={{width:25,height:25,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0}}>
-                                    {h.done?"✓":""}
-                                  </button>
-                                  <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
-                                  <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE}</span>
+                                <div key={`hw-summary-${h.id}`} style={{display:"flex",alignItems:"center",gap:6,fontSize:13,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>
+                                  <span>{h.done?"✅":"⬜"}</span>
+                                  <span style={{flex:1}}>숙제: {h.text}</span>
+                                  <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE}</span>
                                 </div>
                               ))}
                               {todos.map(t=>(
-                                <div key={`todo-${t.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:10,background:t.done?`${C.green}10`:"#fff",border:`1px solid ${t.done?C.green+"30":C.border}`,marginBottom:6}}>
-                                  <button onClick={()=>toggleTodoDone(childId,ac.id,TODAY,t.id)}
-                                    style={{width:25,height:25,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0}}>
-                                    {t.done?"✓":""}
-                                  </button>
-                                  <span style={{flex:1,fontSize:17,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
-                                  <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE}</span>
+                                <div key={`todo-summary-${t.id}`} style={{display:"flex",alignItems:"center",gap:6,fontSize:13,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>
+                                  <span>{t.done?"✅":"⬜"}</span>
+                                  <span style={{flex:1}}>{t.text}</span>
+                                  <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE}</span>
                                 </div>
                               ))}
-                            </>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -649,6 +645,51 @@ export default function App() {
                   })
                 )}
               </div>
+
+              {/* Things to do 전체 카드 */}
+              {(()=>{
+                const todayTodos=childTodayAc.flatMap(ac=>{
+                  const entry=getDailyEntry(childId,ac.id,TODAY);
+                  const hw=entry.homeworks||[];
+                  const todos=entry.todos||[];
+                  return [
+                    ...hw.map(h=>({...h,kind:"homework",academyId:ac.id,academyName:ac.name,academyColor:ac.color,label:h.text})),
+                    ...todos.map(t=>({...t,kind:"todo",academyId:ac.id,academyName:ac.name,academyColor:ac.color,label:t.text}))
+                  ];
+                });
+                if(todayTodos.length===0) return null;
+                const doneCnt=todayTodos.filter(i=>i.done).length;
+                const allDone=doneCnt===todayTodos.length;
+                return (
+                  <div style={{background:C.card,borderRadius:18,padding:"18px",marginBottom:14,border:`1.5px solid ${allDone?C.green+"40":C.border}`,boxShadow:allDone?`0 4px 18px ${C.green}15`:"none"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+                      <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>✅ Things to do</p>
+                      <span style={{fontSize:14,fontWeight:800,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:8,padding:"4px 10px"}}>
+                        {allDone?"🎉 모두 완료!":`${doneCnt}/${todayTodos.length} 완료`}
+                      </span>
+                    </div>
+                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                      {todayTodos.map(item=>(
+                        <div key={`${item.kind}-${item.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,background:item.done?`${C.green}10`:"#fff",border:`1.5px solid ${item.done?C.green+"30":C.border}`}}>
+                          <button onClick={()=>{
+                            if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,TODAY,item.id);
+                            else toggleTodoDone(childId,item.academyId,TODAY,item.id);
+                          }} style={{width:28,height:28,borderRadius:"50%",border:`2.5px solid ${item.done?C.green:"#CCC"}`,background:item.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0,fontSize:14}}>
+                            {item.done?"✓":""}
+                          </button>
+                          <div style={{flex:1,minWidth:0}}>
+                            <p style={{fontSize:12,color:item.academyColor,fontWeight:700,margin:"0 0 2px"}}>
+                              {item.kind==="homework"?"📚":"✅"} {item.academyName}{item.kind==="homework"?" 숙제":""}
+                            </p>
+                            <p style={{fontSize:16,fontWeight:700,margin:0,color:item.done?C.sub:C.text,textDecoration:item.done?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</p>
+                          </div>
+                          <span style={{fontSize:13,fontWeight:800,color:item.done?C.green:C.orange,flexShrink:0}}>+{item.point||DEFAULT_HOMEWORK_SCORE}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </>
           )}
 
@@ -971,25 +1012,34 @@ export default function App() {
                           {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:17,color:"#CCC"}}>없음</span>}
                         </div>
                       </div>
-                      {/* 숙제 */}
+                      {/* Things to do */}
                       <div style={{marginBottom:12}}>
                         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:7}}>
                           <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:0,letterSpacing:0.5}}>✅ Things to do</p>
-                          {hw.length>0&&<span style={{fontSize:17,fontWeight:700,color:allDone?C.green:C.orange}}>{allDone?"✓ 완료":`${doneCnt}/${hw.length} 완료`}</span>}
+                          {totalTodoCnt>0&&<span style={{fontSize:17,fontWeight:700,color:allDone?C.green:C.orange}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt} 완료`}</span>}
                         </div>
-                        {hw.length===0?<p style={{fontSize:17,color:"#CCC",margin:0}}>등록된 숙제 없음</p>:(
+                        {totalTodoCnt===0?(
+                          <p style={{fontSize:17,color:"#CCC",margin:0}}>등록된 할 일 없음</p>
+                        ):(
                           <div style={{display:"flex",flexDirection:"column",gap:6}}>
                             {hw.map(h=>(
-                              <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:10,background:h.done?`${C.green}08`:C.faint,border:`1px solid ${h.done?C.green+"25":C.faintB}`}}>
+                              <div key={`hw-${h.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:10,background:h.done?`${C.green}08`:C.faint,border:`1px solid ${h.done?C.green+"25":C.faintB}`}}>
                                 <button onClick={()=>toggleHomeworkDone(childId,ac.id,homeDate,h.id)}
                                   style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
-                                <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.text}</span>
+                                <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
+                              </div>
+                            ))}
+                            {todos.map(t=>(
+                              <div key={`todo-${t.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:10,background:t.done?`${C.green}08`:C.faint,border:`1px solid ${t.done?C.green+"25":C.faintB}`}}>
+                                <button onClick={()=>toggleTodoDone(childId,ac.id,homeDate,t.id)}
+                                  style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{t.done?"✓":""}</button>
+                                <span style={{flex:1,fontSize:17,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
                               </div>
                             ))}
                           </div>
                         )}
                       </div>
-                      <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:homeDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); }}
+                      <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:homeDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
                         style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
                         ✏️ 할 일 · 준비물 편집
                       </button>
@@ -1306,7 +1356,7 @@ export default function App() {
                                 </div>
                               )}
                             </div>
-                            <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); }}
+                            <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
                               style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
                               ✏️ 할 일 · 준비물 편집
                             </button>
@@ -1481,7 +1531,7 @@ export default function App() {
                         <span style={{fontSize:12,fontWeight:900,color:approved?C.green:C.red,background:approved?`${C.green}15`:`${C.red}0A`,padding:"5px 8px",borderRadius:20}}>
                           {approved?"완료":"거절"}
                         </span>
-                        <button onClick={()=>deleteRewardRequest(req.id)}
+                        utton onClick={()=>deleteRewardRequest(req.id)}
                           style={{border:"none",background:"transparent",color:"#CCC",fontSize:16,cursor:"pointer"}}>✕</button>
                       </div>
                     );
@@ -1929,9 +1979,9 @@ export default function App() {
         const entry=getDailyEntry(childId,academyId,date);
         const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
         const upd=(ne)=>setDailyEntry(childId,academyId,date,ne);
-        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; upd({...entry,homeworks:[...hw,{id:Date.now(),text:v,done:false,point:DEFAULT_HOMEWORK_SCORE}]}); setDailyHwInput(""); };
+        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; upd({...entry,homeworks:[...hw,{id:Date.now(),text:v,done:false,point:Number(dailyHwPoint||DEFAULT_HOMEWORK_SCORE)}]}); setDailyHwInput(""); };
         const addSup=()=>{ const v=dailySupInput.trim(); if(!v) return; upd({...entry,supplies:[...sup,v]}); setDailySupInput(""); };
-        const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; upd({...entry,todos:[...todos,{id:Date.now(),text:v,done:false,point:DEFAULT_HOMEWORK_SCORE}]}); setDailyTodoInput(""); };
+        const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; upd({...entry,todos:[...todos,{id:Date.now(),text:v,done:false,point:Number(dailyTodoPoint||DEFAULT_HOMEWORK_SCORE)}]}); setDailyTodoInput(""); };
         return (
           <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowDailyModal(null)}>
             <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"88vh",overflowY:"auto",boxSizing:"border-box"}}>
@@ -1971,13 +2021,17 @@ export default function App() {
                   </div>
                 ))}
               </div>
-              <div style={{display:"flex",gap:8,marginBottom:10}}>
-                <input value={dailyHwInput} onChange={e=>setDailyHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addHw()} placeholder="숙제 입력 후 Enter" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"9px 12px"}}/>
-                <button onClick={addHw} style={{padding:"0 14px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>숙제</button>
+              <div style={{display:"flex",gap:6,marginBottom:10,alignItems:"center"}}>
+                <input value={dailyHwInput} onChange={e=>setDailyHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addHw()} placeholder="숙제 입력" style={{...inp,flex:3,width:"auto",fontSize:14,padding:"9px 10px"}}/>
+                <input type="number" value={dailyHwPoint} onChange={e=>setDailyHwPoint(e.target.value)} style={{...inp,width:52,fontSize:14,padding:"9px 6px",textAlign:"center"}} min="1"/>
+                <span style={{fontSize:12,color:C.sub,flexShrink:0}}>점</span>
+                <button onClick={addHw} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",flexShrink:0}}>숙제</button>
               </div>
-              <div style={{display:"flex",gap:8,marginBottom:20}}>
-                <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="할 일 입력 후 Enter" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"9px 12px"}}/>
-                <button onClick={addTodo} style={{padding:"0 14px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>할 일</button>
+              <div style={{display:"flex",gap:6,marginBottom:20,alignItems:"center"}}>
+                <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="할 일 입력" style={{...inp,flex:3,width:"auto",fontSize:14,padding:"9px 10px"}}/>
+                <input type="number" value={dailyTodoPoint} onChange={e=>setDailyTodoPoint(e.target.value)} style={{...inp,width:52,fontSize:14,padding:"9px 6px",textAlign:"center"}} min="1"/>
+                <span style={{fontSize:12,color:C.sub,flexShrink:0}}>점</span>
+                <button onClick={addTodo} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",flexShrink:0}}>할 일</button>
               </div>
               <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>📦 이번 수업 추가 준비물</p>
               <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:10}}>
