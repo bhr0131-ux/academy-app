@@ -25,6 +25,21 @@ const C = {
   purple:"#6C63FF", purpleL:"#EEF0FF",
 };
 const PALETTE = ["#FF6B6B","#FF9F43","#FFC312","#26de81","#4A90E2","#45AAF2","#9B59B6","#FF6B9D","#1ABC9C","#E91E8C"];
+const DEFAULT_HOMEWORK_SCORE = 10;
+
+const DEFAULT_LEVELS = [
+  { level:1, name:"새싹",   minScore:0,    emoji:"🌱" },
+  { level:2, name:"병아리", minScore:100,  emoji:"🐣" },
+  { level:3, name:"토끼",   minScore:300,  emoji:"🐰" },
+  { level:4, name:"사자",   minScore:700,  emoji:"🦁" },
+  { level:5, name:"마스터", minScore:1200, emoji:"🏆" },
+];
+
+const DEFAULT_REWARDS = [
+  { id:1, title:"아이스크림", point:300,  emoji:"🍦" },
+  { id:2, title:"게임 30분",  point:500,  emoji:"🎮" },
+  { id:3, title:"장난감",     point:1000, emoji:"🧸" },
+];
 
 // ── 한국 공휴일 (2025~2026) ──────────────────
 const HOLIDAYS = {
@@ -152,6 +167,12 @@ export default function App() {
   const [showParentPin,setShowParentPin] = useState(false);
   const [parentPin,setParentPin] = useState("1234");
   const [pinInput,setPinInput] = useState("");
+  const [showPinChangeModal,setShowPinChangeModal] = useState(false);
+  const [oldPinInput,setOldPinInput] = useState("");
+  const [newPinInput,setNewPinInput] = useState("");
+  const [newPinConfirm,setNewPinConfirm] = useState("");
+  const [childTab,setChildTab] = useState("today");
+  const [showChildRewards,setShowChildRewards] = useState(false);
 
   // 아이 목록 상태
   const [children,setChildren] = useState(DEFAULT_CHILDREN);
@@ -163,6 +184,11 @@ export default function App() {
   const [paidStatus,setPaidStatus] = useState({});
   const [dayMemos,setDayMemos] = useState({});
   const [dailyData,setDailyData] = useState({});
+  const [scoreData,setScoreData] = useState({});
+  const [rewardData,setRewardData] = useState({});
+  const [rewardRequests,setRewardRequests] = useState({});
+  const [showRewardModal,setShowRewardModal] = useState(false);
+  const [rewardForm,setRewardForm] = useState({title:"",point:300,emoji:"🎁"});
   const [templates,setTemplates] = useState(SAMPLE_TMPL);
   const [feeMonth,setFeeMonth] = useState(new Date().getMonth()+1);
   const [calDate,setCalDate] = useState(new Date());
@@ -184,6 +210,7 @@ export default function App() {
   const [supplyInput,setSupplyInput] = useState("");
   const [dailyHwInput,setDailyHwInput] = useState("");
   const [dailySupInput,setDailySupInput] = useState("");
+  const [dailyTodoInput,setDailyTodoInput] = useState("");
   const [toast,setToast] = useState("");
 
   // 아이 관리 모달
@@ -202,7 +229,8 @@ export default function App() {
       const ch=await load("v6_children"), ac=await load("v6_ac"), ab=await load("v6_abs"),
             p=await load("v6_paid"), dm=await load("v6_dm"), dd=await load("v6_daily"),
             tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac"),
-            pin=await load("v6_parent_pin");
+            pin=await load("v6_parent_pin"), score=await load("v6_score"),
+            reward=await load("v6_reward"), rewardReq=await load("v6_reward_requests");
       if(ch) setChildren(ch);
       if(ac) setAcademies(ac); if(ab) setAbsences(ab);
       if(p) setPaidStatus(p); if(dm) setDayMemos(dm); if(dd) setDailyData(dd);
@@ -210,6 +238,9 @@ export default function App() {
       if(cid) setChildId(cid);
       if(vac) setVacations(vac);
       if(pin) setParentPin(pin);
+      if(score) setScoreData(score);
+      if(reward) setRewardData(reward);
+      if(rewardReq) setRewardRequests(rewardReq);
       setLoaded(true);
     })();
   },[]);
@@ -224,6 +255,9 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_cid",childId); },[childId,loaded]);
   useEffect(()=>{ if(loaded) save("v6_vac",vacations); },[vacations,loaded]);
   useEffect(()=>{ if(loaded) save("v6_parent_pin",parentPin); },[parentPin,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_score",scoreData); },[scoreData,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_reward",rewardData); },[rewardData,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_reward_requests",rewardRequests); },[rewardRequests,loaded]);
 
   const showToast=(msg="저장됨 ✓")=>{ setToast(msg); setTimeout(()=>setToast(""),1600); };
 
@@ -238,6 +272,16 @@ export default function App() {
   const exitParentMode=()=>{
     setAppMode("child"); setPinInput("");
     showToast("아이 모드로 전환됨 🎒");
+  };
+
+  const changeParentPin=()=>{
+    if(oldPinInput!==parentPin){ showToast("기존 비밀번호가 달라요"); return; }
+    if(!newPinInput||newPinInput.length<4){ showToast("새 비밀번호는 4자리 이상으로 해줘"); return; }
+    if(newPinInput!==newPinConfirm){ showToast("새 비밀번호 확인이 달라요"); return; }
+    setParentPin(newPinInput);
+    setOldPinInput(""); setNewPinInput(""); setNewPinConfirm("");
+    setShowPinChangeModal(false);
+    showToast("비밀번호가 변경됐어요 🔐");
   };
 
   // 현재 아이 정보
@@ -286,8 +330,111 @@ export default function App() {
 
   // dailyKey
   const dKey=(cid,aId,date)=>`${cid}-${aId}-${date}`;
-  const getDailyEntry=(cid,aId,date)=>dailyData[dKey(cid,aId,date)]||{homeworks:[],supplies:[]};
+  const getDailyEntry=(cid,aId,date)=>dailyData[dKey(cid,aId,date)]||{homeworks:[],supplies:[],todos:[]};
   const setDailyEntry=(cid,aId,date,entry)=>setDailyData(p=>({...p,[dKey(cid,aId,date)]:entry}));
+
+  const getChildScore=(cid)=>scoreData[cid]?.total||0;
+
+  const getChildLevel=(cid)=>{
+    const score=getChildScore(cid);
+    return [...DEFAULT_LEVELS].sort((a,b)=>b.minScore-a.minScore).find(lv=>score>=lv.minScore)||DEFAULT_LEVELS[0];
+  };
+  const getNextLevel=(cid)=>{
+    const score=getChildScore(cid);
+    return [...DEFAULT_LEVELS].sort((a,b)=>a.minScore-b.minScore).find(lv=>score<lv.minScore)||null;
+  };
+  const getLevelProgress=(cid)=>{
+    const score=getChildScore(cid);
+    const current=getChildLevel(cid);
+    const next=getNextLevel(cid);
+    if(!next) return 100;
+    const range=next.minScore-current.minScore;
+    const gained=score-current.minScore;
+    return Math.min(100,Math.max(0,Math.round((gained/range)*100)));
+  };
+
+  const getChildRewards=(cid)=>rewardData[cid]||DEFAULT_REWARDS;
+
+  const getChildRewardRequests=(cid)=>rewardRequests[cid]||[];
+  const hasPendingRewardRequest=(cid,rewardId)=>getChildRewardRequests(cid).some(r=>r.rewardId===rewardId&&r.status==="pending");
+
+  const requestReward=(reward)=>{
+    const score=getChildScore(childId);
+    if(score<reward.point){ showToast("아직 점수가 부족해요"); return; }
+    if(hasPendingRewardRequest(childId,reward.id)){ showToast("이미 요청한 보상이에요"); return; }
+    const newRequest={id:Date.now(),rewardId:reward.id,title:reward.title,point:reward.point,emoji:reward.emoji,status:"pending",requestedAt:new Date().toISOString()};
+    setRewardRequests(prev=>({...prev,[childId]:[...getChildRewardRequests(childId),newRequest]}));
+    showToast("엄마에게 보상 요청했어요 🎁");
+  };
+  const approveRewardRequest=(requestId)=>{
+    const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
+    if(!request) return;
+    if(getChildScore(childId)<request.point){ showToast("점수가 부족해서 승인할 수 없어요"); return; }
+    spendChildScore(childId,request.point);
+    setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"approved",approvedAt:new Date().toISOString()}:r)}));
+    showToast("보상 승인 완료 🎁");
+  };
+  const rejectRewardRequest=(requestId)=>{
+    setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"rejected",rejectedAt:new Date().toISOString()}:r)}));
+    showToast("요청을 거절했어요");
+  };
+  const deleteRewardRequest=(requestId)=>{
+    setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).filter(r=>r.id!==requestId)}));
+    showToast("요청 기록 삭제됨");
+  };
+  const addReward=()=>{
+    if(!rewardForm.title.trim()){ showToast("보상 이름을 입력해줘"); return; }
+    const newReward={id:Date.now(),title:rewardForm.title.trim(),point:Number(rewardForm.point||0),emoji:rewardForm.emoji||"🎁"};
+    setRewardData(prev=>({...prev,[childId]:[...getChildRewards(childId),newReward]}));
+    setRewardForm({title:"",point:300,emoji:"🎁"});
+    setShowRewardModal(false);
+    showToast("보상이 추가됐어요 🎁");
+  };
+  const deleteReward=(rewardId)=>{
+    setRewardData(prev=>({...prev,[childId]:getChildRewards(childId).filter(r=>r.id!==rewardId)}));
+    showToast("보상이 삭제됐어요");
+  };
+  const addChildScore=(cid,point)=>{
+    setScoreData(prev=>{
+      const cur=prev[cid]||{total:0,history:[]};
+      return {...prev,[cid]:{
+        total:Math.max(0,Number(cur.total||0)+point),
+        history:[...(cur.history||[]),{id:Date.now(),point,date:TODAY,type:"homework"}]
+      }};
+    });
+  };
+  const spendChildScore=(cid,point)=>{
+    setScoreData(prev=>{
+      const cur=prev[cid]||{total:0,history:[]};
+      return {...prev,[cid]:{
+        total:Math.max(0,Number(cur.total||0)-Number(point||0)),
+        history:[...(cur.history||[]),{id:Date.now(),point:-Number(point||0),date:TODAY,type:"reward"}]
+      }};
+    });
+  };
+  const toggleHomeworkDone=(cid,academyId,date,homeworkId)=>{
+    const entry=getDailyEntry(cid,academyId,date);
+    const homeworks=entry.homeworks||[];
+    const target=homeworks.find(h=>h.id===homeworkId);
+    if(!target) return;
+    const nextDone=!target.done;
+    const point=target.point||DEFAULT_HOMEWORK_SCORE;
+    setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:nextDone}:h)});
+    addChildScore(cid,nextDone?point:-point);
+    showToast(nextDone?`미션 완료! +${point}점 ⭐`:`체크 취소 -${point}점`);
+  };
+
+  const toggleTodoDone=(cid,academyId,date,todoId)=>{
+    const entry=getDailyEntry(cid,academyId,date);
+    const todos=entry.todos||[];
+    const target=todos.find(t=>t.id===todoId);
+    if(!target) return;
+    const nextDone=!target.done;
+    const point=target.point||DEFAULT_HOMEWORK_SCORE;
+    setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:nextDone}:t)});
+    addChildScore(cid,nextDone?point:-point);
+    showToast(nextDone?`할 일 완료! +${point}점 ⭐`:`체크 취소 -${point}점`);
+  };
 
   const pendingHwTotal=()=>{
     let n=0;
@@ -419,64 +566,179 @@ export default function App() {
           </div>
         </div>
 
+        {/* 아이 모드 탭 */}
+        <div style={{display:"flex",background:C.card,margin:"14px 16px 0",borderRadius:14,padding:4,border:`1px solid ${C.border}`}}>
+          {[["today","📅 오늘"],["growth","🏆 내 성장"]].map(([k,label])=>(
+            <button key={k} onClick={()=>setChildTab(k)}
+              style={{flex:1,border:"none",borderRadius:11,padding:"11px 8px",background:childTab===k?th.grad:"transparent",color:childTab===k?"#fff":C.sub,fontSize:15,fontWeight:900,cursor:"pointer"}}>
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div style={{padding:"16px"}}>
-          <div style={{background:C.card,borderRadius:18,padding:"18px",marginBottom:14,border:`1px solid ${C.border}`}}>
-            <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px"}}>📅 오늘 일정</p>
-            {childTodayAc.length===0?(
-              <div style={{textAlign:"center",padding:"24px 10px",color:C.sub}}>
-                <p style={{fontSize:34,margin:0}}>😴</p>
-                <p style={{fontSize:17,margin:"8px 0 0"}}>오늘은 학원이 없어요</p>
-              </div>
-            ):(
-              childTodayAc.map(ac=>{
-                const sc=getScheduleForDay(ac,childTodayDN);
-                const entry=getDailyEntry(childId,ac.id,TODAY);
-                const hw=entry.homeworks||[], sup=entry.supplies||[];
-                const shuttleText=getShuttleText(ac,childTodayDN);
-                const doneCnt=hw.filter(h=>h.done).length;
-                const allDone=hw.length>0&&doneCnt===hw.length;
-                return (
-                  <div key={ac.id} style={{border:`1.5px solid ${ac.color}30`,borderRadius:14,padding:"14px",marginBottom:10,background:`${ac.color}08`}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-                      <div style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
-                      <strong style={{fontSize:19,color:C.text}}>{ac.name}</strong>
-                      {hw.length>0&&<span style={{marginLeft:"auto",fontSize:13,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:6,padding:"2px 8px"}}>{allDone?"✓ 완료":`${doneCnt}/${hw.length}`}</span>}
-                    </div>
-                    <p style={{fontSize:17,color:C.sub,margin:"0 0 6px"}}>⏰ {sc?.time} / {sc?.duration}분 수업</p>
-                    {shuttleText&&<p style={{fontSize:16,color:C.sub,margin:"0 0 8px"}}>🚌 {shuttleText}</p>}
-
-                    {/* 준비물 */}
-                    <div style={{marginTop:10}}>
-                      <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>🎒 준비물</p>
-                      <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                        {(ac.baseSupplies||[]).map((s,i)=><span key={`b${i}`} style={{fontSize:15,padding:"4px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:700}}>{s}</span>)}
-                        {sup.map((s,i)=><span key={`s${i}`} style={{fontSize:15,padding:"4px 10px",borderRadius:20,background:`${C.orange}18`,color:C.orange,fontWeight:700}}>+ {s}</span>)}
-                        {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:15,color:"#BBB"}}>없음</span>}
-                      </div>
-                    </div>
-
-                    {/* 숙제 */}
-                    <div style={{marginTop:12}}>
-                      <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>📝 숙제 미션</p>
-                      {hw.length===0?<p style={{fontSize:15,color:"#BBB",margin:0}}>숙제 없음 🎉</p>:(
-                        hw.map(h=>(
-                          <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:10,background:h.done?`${C.green}10`:"#fff",border:`1px solid ${h.done?C.green+"30":C.border}`,marginBottom:6}}>
-                            <button onClick={()=>{
-                              const e=getDailyEntry(childId,ac.id,TODAY);
-                              setDailyEntry(childId,ac.id,TODAY,{...e,homeworks:(e.homeworks||[]).map(x=>x.id===h.id?{...x,done:!x.done}:x)});
-                            }} style={{width:26,height:26,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0,fontSize:13}}>
-                              {h.done?"✓":""}
-                            </button>
-                            <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.text}</span>
+          {/* ── 오늘 탭 ── */}
+          {childTab==="today"&&(
+            <>
+              <div style={{background:C.card,borderRadius:18,padding:"18px",marginBottom:14,border:`1px solid ${C.border}`}}>
+                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px"}}>📅 오늘 일정</p>
+                {childTodayAc.length===0?(
+                  <div style={{textAlign:"center",padding:"24px 10px",color:C.sub}}>
+                    <p style={{fontSize:34,margin:0}}>😴</p>
+                    <p style={{fontSize:17,margin:"8px 0 0"}}>오늘은 학원이 없어요</p>
+                  </div>
+                ):(
+                  childTodayAc.map(ac=>{
+                    const sc=getScheduleForDay(ac,childTodayDN);
+                    const entry=getDailyEntry(childId,ac.id,TODAY);
+                    const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
+                    const shuttleText=getShuttleText(ac,childTodayDN);
+                    const totalTodoCnt=hw.length+todos.length;
+                    const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
+                    const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
+                    return (
+                      <div key={ac.id} style={{border:`1.5px solid ${ac.color}30`,borderRadius:14,padding:"14px",marginBottom:10,background:`${ac.color}08`}}>
+                        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                          <div style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
+                          <strong style={{fontSize:19,color:C.text}}>{ac.name}</strong>
+                          {totalTodoCnt>0&&<span style={{marginLeft:"auto",fontSize:13,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:6,padding:"2px 8px"}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
+                        </div>
+                        <p style={{fontSize:17,color:C.sub,margin:"0 0 6px"}}>⏰ {sc?.time} / {sc?.duration}분 수업</p>
+                        {shuttleText&&<p style={{fontSize:16,color:C.sub,margin:"0 0 8px"}}>🚌 {shuttleText}</p>}
+                        {/* 준비물 */}
+                        <div style={{marginTop:10}}>
+                          <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>🎒 준비물</p>
+                          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                            {(ac.baseSupplies||[]).map((s,i)=><span key={`b${i}`} style={{fontSize:15,padding:"4px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:700}}>{s}</span>)}
+                            {sup.map((s,i)=><span key={`s${i}`} style={{fontSize:15,padding:"4px 10px",borderRadius:20,background:`${C.orange}18`,color:C.orange,fontWeight:700}}>+ {s}</span>)}
+                            {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:15,color:"#BBB"}}>없음</span>}
                           </div>
-                        ))
-                      )}
+                        </div>
+                        {/* Things to do */}
+                        <div style={{marginTop:12}}>
+                          <p style={{fontSize:16,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>✅ Things to do</p>
+                          {totalTodoCnt===0?(
+                            <p style={{fontSize:15,color:"#BBB",margin:0}}>할 일 없음</p>
+                          ):(
+                            <>
+                              {hw.map(h=>(
+                                <div key={`hw-${h.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:10,background:h.done?`${C.green}10`:"#fff",border:`1px solid ${h.done?C.green+"30":C.border}`,marginBottom:6}}>
+                                  <button onClick={()=>toggleHomeworkDone(childId,ac.id,TODAY,h.id)}
+                                    style={{width:25,height:25,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0}}>
+                                    {h.done?"✓":""}
+                                  </button>
+                                  <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
+                                  <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE}</span>
+                                </div>
+                              ))}
+                              {todos.map(t=>(
+                                <div key={`todo-${t.id}`} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:10,background:t.done?`${C.green}10`:"#fff",border:`1px solid ${t.done?C.green+"30":C.border}`,marginBottom:6}}>
+                                  <button onClick={()=>toggleTodoDone(childId,ac.id,TODAY,t.id)}
+                                    style={{width:25,height:25,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0}}>
+                                    {t.done?"✓":""}
+                                  </button>
+                                  <span style={{flex:1,fontSize:17,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
+                                  <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE}</span>
+                                </div>
+                              ))}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ── 성장 탭 ── */}
+          {childTab==="growth"&&(
+            <>
+              {/* 레벨 카드 */}
+              {(()=>{
+                const level=getChildLevel(childId);
+                const nextLevel=getNextLevel(childId);
+                const progress=getLevelProgress(childId);
+                const score=getChildScore(childId);
+                return (
+                  <div style={{background:C.card,borderRadius:18,padding:"16px 18px",marginBottom:14,border:`1px solid ${C.border}`,boxShadow:"0 3px 12px rgba(0,0,0,0.04)"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                      <div>
+                        <p style={{fontSize:15,color:C.sub,fontWeight:800,margin:"0 0 4px"}}>내 레벨</p>
+                        <p style={{fontSize:24,fontWeight:900,margin:0,color:C.text}}>{level.emoji} Lv.{level.level} {level.name}</p>
+                      </div>
+                      <div style={{background:th.light,color:th.main,padding:"9px 13px",borderRadius:14,fontSize:18,fontWeight:900}}>{score}점</div>
                     </div>
+                    <div style={{width:"100%",height:12,borderRadius:99,background:C.faint,overflow:"hidden",marginBottom:8}}>
+                      <div style={{width:`${progress}%`,height:"100%",borderRadius:99,background:th.grad,transition:"width 0.25s"}}/>
+                    </div>
+                    {nextLevel?(
+                      <p style={{fontSize:14,color:C.sub,margin:0,fontWeight:700}}>다음 레벨까지 {Math.max(0,nextLevel.minScore-score)}점 남았어요</p>
+                    ):(
+                      <p style={{fontSize:14,color:C.green,margin:0,fontWeight:800}}>🎉 최고 레벨 달성!</p>
+                    )}
                   </div>
                 );
-              })
-            )}
-          </div>
+              })()}
+
+              {/* 보상상점 카드 (접었다 펴기) */}
+              <div style={{background:C.card,borderRadius:18,padding:"16px 18px",marginBottom:14,border:`1px solid ${C.border}`,boxShadow:"0 3px 12px rgba(0,0,0,0.04)"}}>
+                <button onClick={()=>setShowChildRewards(v=>!v)}
+                  style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
+                  <div style={{textAlign:"left"}}>
+                    <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>🎁 보상상점</p>
+                    <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>받을 수 있는 보상을 확인해요</p>
+                  </div>
+                  <span style={{fontSize:14,color:th.main,fontWeight:900,background:th.light,padding:"6px 10px",borderRadius:20}}>
+                    {showChildRewards?"닫기 ▲":"열기 ▼"}
+                  </span>
+                </button>
+                {showChildRewards&&(
+                  <div style={{display:"flex",flexDirection:"column",gap:9,marginTop:14}}>
+                    {getChildRewards(childId).map(reward=>{
+                      const score=getChildScore(childId);
+                      const canGet=score>=reward.point;
+                      const remain=Math.max(0,reward.point-score);
+                      const progress=Math.min(100,Math.round((score/reward.point)*100));
+                      return (
+                        <div key={reward.id} style={{border:`1px solid ${canGet?C.green+"40":C.border}`,background:canGet?`${C.green}08`:C.faint,borderRadius:14,padding:"12px 13px"}}>
+                          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                            <div style={{display:"flex",alignItems:"center",gap:9}}>
+                              <span style={{fontSize:25}}>{reward.emoji}</span>
+                              <div>
+                                <p style={{fontSize:17,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
+                                <p style={{fontSize:13,fontWeight:700,margin:"2px 0 0",color:C.sub}}>{reward.point}점 필요</p>
+                              </div>
+                            </div>
+                            {hasPendingRewardRequest(childId,reward.id)?(
+                              <span style={{fontSize:13,fontWeight:900,color:C.purple,background:C.purpleL,padding:"5px 9px",borderRadius:20}}>요청 중</span>
+                            ):(
+                              <span style={{fontSize:13,fontWeight:900,color:canGet?C.green:C.orange,background:canGet?`${C.green}15`:`${C.orange}15`,padding:"5px 9px",borderRadius:20}}>
+                                {canGet?"받을 수 있어요!":`${remain}점 남음`}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{width:"100%",height:9,borderRadius:99,background:"#fff",overflow:"hidden"}}>
+                            <div style={{width:`${progress}%`,height:"100%",borderRadius:99,background:canGet?C.green:th.grad,transition:"width 0.25s"}}/>
+                          </div>
+                          <button onClick={()=>requestReward(reward)}
+                            disabled={!canGet||hasPendingRewardRequest(childId,reward.id)}
+                            style={{width:"100%",marginTop:10,padding:"10px 12px",borderRadius:11,border:"none",
+                              background:hasPendingRewardRequest(childId,reward.id)?C.purpleL:canGet?th.grad:C.border,
+                              color:hasPendingRewardRequest(childId,reward.id)?C.purple:canGet?"#fff":C.sub,
+                              fontSize:15,fontWeight:900,
+                              cursor:canGet&&!hasPendingRewardRequest(childId,reward.id)?"pointer":"not-allowed"}}>
+                            {hasPendingRewardRequest(childId,reward.id)?"엄마 승인 기다리는 중":canGet?"🎁 보상 요청하기":"점수가 더 필요해요"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* PIN 입력 모달 */}
@@ -518,10 +780,16 @@ export default function App() {
             <p style={{fontSize:11,color:"rgba(255,255,255,0.75)",margin:0,letterSpacing:2,fontWeight:600}}>ACADEMY PLANNER</p>
             <h1 style={{fontSize:22,fontWeight:900,margin:"3px 0 0",color:"#fff"}}>🎒 엄마 관리 모드</h1>
           </div>
-          <button onClick={exitParentMode}
-            style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"8px 10px",fontSize:12,fontWeight:800,cursor:"pointer"}}>
-            🎒 아이 모드
-          </button>
+          <div style={{display:"flex",gap:7}}>
+            <button onClick={()=>setShowPinChangeModal(true)}
+              style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"8px 10px",fontSize:12,fontWeight:800,cursor:"pointer"}}>
+              비번 변경
+            </button>
+            <button onClick={exitParentMode}
+              style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"8px 10px",fontSize:12,fontWeight:800,cursor:"pointer"}}>
+              🎒 아이 모드
+            </button>
+          </div>
         </div>
 
         {/* 아이 탭 + 아이 추가 버튼 */}
@@ -552,7 +820,7 @@ export default function App() {
 
       {/* ── 탭 바 ── */}
       <div style={{display:"flex",background:C.card,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:10,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
-        {[["home","🏠 홈"],["calendar","🗓 달력"],["fee","💰 학원비"],["absence","🏥 결석"],["sms","💬 문자"]].map(([k,l])=>(
+        {[["home","🏠 홈"],["calendar","🗓 달력"],["fee","💰 학원비"],["absence","🏥 결석"],["reward","🎁 보상"],["sms","💬 문자"]].map(([k,l])=>(
           <button key={k} onClick={()=>setTab(k)} style={{flex:1,padding:"13px 2px",border:"none",background:"transparent",fontSize:12,fontWeight:tab===k?800:400,color:tab===k?th.main:C.sub,borderBottom:tab===k?`2.5px solid ${th.main}`:"2.5px solid transparent",cursor:"pointer",whiteSpace:"nowrap",transition:"color 0.2s"}}>{l}</button>
         ))}
       </div>
@@ -597,6 +865,14 @@ export default function App() {
                   </div>
                   <button onClick={()=>setHomeDate(addDays(homeDate,1))}
                     style={{width:38,height:38,borderRadius:12,background:"rgba(255,255,255,0.2)",border:"1.5px solid rgba(255,255,255,0.35)",color:"#fff",fontSize:22,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>›</button>
+                </div>
+                {/* 레벨/점수 요약 */}
+                <div style={{background:"rgba(255,255,255,0.18)",border:"1px solid rgba(255,255,255,0.28)",borderRadius:12,padding:"10px 12px",marginBottom:10,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div>
+                    <p style={{fontSize:12,opacity:0.8,margin:"0 0 3px",fontWeight:700}}>현재 레벨</p>
+                    <p style={{fontSize:17,fontWeight:900,margin:0}}>{getChildLevel(childId).emoji} Lv.{getChildLevel(childId).level} {getChildLevel(childId).name}</p>
+                  </div>
+                  <p style={{fontSize:20,fontWeight:900,margin:0}}>{getChildScore(childId)}점</p>
                 </div>
                 {/* 요약 지표 */}
                 <div style={{display:"flex",gap:6}}>
@@ -663,9 +939,10 @@ export default function App() {
                 const tm=h*60+m+Number(sc?.duration||0);
                 const endT=`${String(Math.floor(tm/60)%24).padStart(2,"0")}:${String(tm%60).padStart(2,"0")}`;
                 const entry=getDailyEntry(childId,ac.id,homeDate);
-                const hw=entry.homeworks||[], sup=entry.supplies||[];
-                const doneCnt=hw.filter(h=>h.done).length;
-                const allDone=hw.length>0&&doneCnt===hw.length;
+                const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
+                const totalTodoCnt=hw.length+todos.length;
+                const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
+                const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
                 return (
                   <div key={ac.id} style={{background:C.card,borderRadius:18,marginBottom:14,border:`1.5px solid ${ac.color}30`,boxShadow:`0 4px 18px ${ac.color}12`,overflow:"hidden"}}>
                     <div style={{background:`${ac.color}10`,padding:"14px 16px",display:"flex",alignItems:"center",gap:12}}>
@@ -697,14 +974,14 @@ export default function App() {
                       {/* 숙제 */}
                       <div style={{marginBottom:12}}>
                         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:7}}>
-                          <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:0,letterSpacing:0.5}}>📝 숙제</p>
+                          <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:0,letterSpacing:0.5}}>✅ Things to do</p>
                           {hw.length>0&&<span style={{fontSize:17,fontWeight:700,color:allDone?C.green:C.orange}}>{allDone?"✓ 완료":`${doneCnt}/${hw.length} 완료`}</span>}
                         </div>
                         {hw.length===0?<p style={{fontSize:17,color:"#CCC",margin:0}}>등록된 숙제 없음</p>:(
                           <div style={{display:"flex",flexDirection:"column",gap:6}}>
                             {hw.map(h=>(
                               <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:10,background:h.done?`${C.green}08`:C.faint,border:`1px solid ${h.done?C.green+"25":C.faintB}`}}>
-                                <button onClick={()=>{ const e=getDailyEntry(childId,ac.id,homeDate); setDailyEntry(childId,ac.id,homeDate,{...e,homeworks:(e.homeworks||[]).map(x=>x.id===h.id?{...x,done:!x.done}:x)}); }}
+                                <button onClick={()=>toggleHomeworkDone(childId,ac.id,homeDate,h.id)}
                                   style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
                                 <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.text}</span>
                               </div>
@@ -712,9 +989,9 @@ export default function App() {
                           </div>
                         )}
                       </div>
-                      <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:homeDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); }}
+                      <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:homeDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); }}
                         style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
-                        ✏️ 숙제 · 준비물 편집
+                        ✏️ 할 일 · 준비물 편집
                       </button>
                     </div>
                   </div>
@@ -1016,12 +1293,12 @@ export default function App() {
                               </div>
                             </div>
                             <div style={{marginBottom:10}}>
-                              <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 6px"}}>📝 숙제</p>
+                              <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 6px"}}>✅ Things to do</p>
                               {hw.length===0?<p style={{fontSize:17,color:"#CCC",margin:0}}>없음</p>:(
                                 <div style={{display:"flex",flexDirection:"column",gap:5}}>
                                   {hw.map(h=>(
                                     <div key={h.id} style={{display:"flex",alignItems:"center",gap:9,padding:"8px 10px",borderRadius:9,background:h.done?`${C.green}08`:C.faint,border:`1px solid ${h.done?C.green+"25":C.faintB}`}}>
-                                      <button onClick={()=>{ const e=getDailyEntry(childId,ac.id,calSelDate); setDailyEntry(childId,ac.id,calSelDate,{...e,homeworks:e.homeworks.map(x=>x.id===h.id?{...x,done:!x.done}:x)}); }}
+                                      <button onClick={()=>toggleHomeworkDone(childId,ac.id,calSelDate,h.id)}
                                         style={{width:20,height:20,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
                                       <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.text}</span>
                                     </div>
@@ -1029,9 +1306,9 @@ export default function App() {
                                 </div>
                               )}
                             </div>
-                            <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); }}
+                            <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); }}
                               style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
-                              ✏️ 숙제 · 준비물 편집
+                              ✏️ 할 일 · 준비물 편집
                             </button>
                           </div>
                         </div>
@@ -1136,6 +1413,85 @@ export default function App() {
           </div>
         )}
 
+        {/* ════ 보상 탭 ════ */}
+        {tab==="reward"&&(
+          <div>
+            {getChildRewardRequests(childId).filter(r=>r.status==="pending").length>0&&(
+              <div style={{background:"#FFF8E1",border:"1.5px solid #F0A500",borderRadius:16,padding:"16px",marginBottom:14}}>
+                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:"#E65100"}}>🎁 보상 요청 대기</p>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {getChildRewardRequests(childId).filter(r=>r.status==="pending").map(req=>(
+                    <div key={req.id} style={{background:"#fff",borderRadius:12,padding:"12px",border:"1px solid #F0A500"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+                        <span style={{fontSize:25}}>{req.emoji}</span>
+                        <div style={{flex:1}}>
+                          <p style={{fontSize:16,fontWeight:900,margin:0,color:C.text}}>{req.title}</p>
+                          <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{req.point}점 사용 요청</p>
+                        </div>
+                      </div>
+                      <div style={{display:"flex",gap:8}}>
+                        <button onClick={()=>approveRewardRequest(req.id)}
+                          style={{flex:1,border:"none",background:C.green,color:"#fff",borderRadius:10,padding:"10px",fontSize:14,fontWeight:900,cursor:"pointer"}}>승인</button>
+                        <button onClick={()=>rejectRewardRequest(req.id)}
+                          style={{flex:1,border:`1px solid ${C.red}40`,background:`${C.red}0A`,color:C.red,borderRadius:10,padding:"10px",fontSize:14,fontWeight:900,cursor:"pointer"}}>거절</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{background:C.card,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${C.border}`}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                <div>
+                  <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상관리</p>
+                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{curChild?.name}의 보상 목록을 관리해요</p>
+                </div>
+                <button onClick={()=>setShowRewardModal(true)}
+                  style={{border:"none",background:th.grad,color:"#fff",borderRadius:10,padding:"8px 12px",fontSize:13,fontWeight:900,cursor:"pointer"}}>+ 보상</button>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {getChildRewards(childId).map(reward=>(
+                  <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:12,background:C.faint,border:`1px solid ${C.border}`}}>
+                    <span style={{fontSize:23}}>{reward.emoji}</span>
+                    <div style={{flex:1}}>
+                      <p style={{fontSize:16,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
+                      <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point}점 필요</p>
+                    </div>
+                    <button onClick={()=>deleteReward(reward.id)}
+                      style={{border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:8,padding:"5px 9px",fontSize:12,fontWeight:800,cursor:"pointer"}}>삭제</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {getChildRewardRequests(childId).filter(r=>r.status!=="pending").length>0&&(
+              <div style={{background:C.card,borderRadius:16,padding:"16px",marginBottom:14,border:`1px solid ${C.border}`}}>
+                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:C.text}}>📜 보상 요청 기록</p>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {getChildRewardRequests(childId).filter(r=>r.status!=="pending").slice().reverse().map(req=>{
+                    const approved=req.status==="approved";
+                    return (
+                      <div key={req.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:12,background:C.faint,border:`1px solid ${C.border}`}}>
+                        <span style={{fontSize:23}}>{req.emoji}</span>
+                        <div style={{flex:1}}>
+                          <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{req.title}</p>
+                          <p style={{fontSize:12,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{req.point}점 · {approved?"승인됨":"거절됨"}</p>
+                        </div>
+                        <span style={{fontSize:12,fontWeight:900,color:approved?C.green:C.red,background:approved?`${C.green}15`:`${C.red}0A`,padding:"5px 8px",borderRadius:20}}>
+                          {approved?"완료":"거절"}
+                        </span>
+                        <button onClick={()=>deleteRewardRequest(req.id)}
+                          style={{border:"none",background:"transparent",color:"#CCC",fontSize:16,cursor:"pointer"}}>✕</button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ════ 문자 탭 ════ */}
         {tab==="sms"&&(
           <div>
@@ -1166,6 +1522,71 @@ export default function App() {
       </div>
 
       {/* ════════ 모달들 ════════ */}
+
+      {/* ── 보상 추가 모달 ── */}
+      {showRewardModal&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowRewardModal(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+              <h3 style={{margin:0,fontSize:19,fontWeight:900,color:C.text}}>🎁 보상 추가</h3>
+              <button onClick={()=>setShowRewardModal(false)} style={{background:C.faint,border:"none",borderRadius:8,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:16}}>✕</button>
+            </div>
+            <label style={lbl}>보상 이모지</label>
+            <input value={rewardForm.emoji} onChange={e=>setRewardForm(p=>({...p,emoji:e.target.value}))}
+              placeholder="예: 🍦" maxLength={4}
+              style={{...inp,marginBottom:16,fontSize:26,textAlign:"center"}}/>
+            <label style={lbl}>보상 이름 *</label>
+            <input value={rewardForm.title} onChange={e=>setRewardForm(p=>({...p,title:e.target.value}))}
+              placeholder="예: 아이스크림, 게임 30분"
+              style={{...inp,marginBottom:16}}/>
+            <label style={lbl}>필요 점수 *</label>
+            <input type="number" value={rewardForm.point} onChange={e=>setRewardForm(p=>({...p,point:Number(e.target.value)}))}
+              placeholder="예: 300"
+              style={{...inp,marginBottom:20}}/>
+            <div style={{background:th.light,border:`1px solid ${th.main}30`,borderRadius:14,padding:"14px",marginBottom:20}}>
+              <p style={{fontSize:14,fontWeight:800,color:th.main,margin:"0 0 6px"}}>미리보기</p>
+              <p style={{fontSize:18,fontWeight:900,color:C.text,margin:0}}>{rewardForm.emoji||"🎁"} {rewardForm.title||"보상 이름"} · {rewardForm.point||0}점</p>
+            </div>
+            <button onClick={addReward}
+              style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",boxShadow:`0 4px 16px ${th.main}40`}}>
+              보상 추가하기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 비밀번호 변경 모달 ── */}
+      {showPinChangeModal&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>setShowPinChangeModal(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:22,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+              <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔐 엄마 비밀번호 변경</h3>
+              <button onClick={()=>setShowPinChangeModal(false)} style={{background:C.faint,border:"none",borderRadius:8,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:16}}>✕</button>
+            </div>
+            <label style={lbl}>기존 비밀번호</label>
+            <input type="password" inputMode="numeric" value={oldPinInput} onChange={e=>setOldPinInput(e.target.value)}
+              placeholder="현재 비밀번호"
+              style={{...inp,marginBottom:14,textAlign:"center",letterSpacing:4,fontSize:20}}/>
+            <label style={lbl}>새 비밀번호</label>
+            <input type="password" inputMode="numeric" value={newPinInput} onChange={e=>setNewPinInput(e.target.value)}
+              placeholder="새 비밀번호 4자리 이상"
+              style={{...inp,marginBottom:14,textAlign:"center",letterSpacing:4,fontSize:20}}/>
+            <label style={lbl}>새 비밀번호 확인</label>
+            <input type="password" inputMode="numeric" value={newPinConfirm} onChange={e=>setNewPinConfirm(e.target.value)}
+              onKeyDown={e=>e.key==="Enter"&&changeParentPin()}
+              placeholder="새 비밀번호 다시 입력"
+              style={{...inp,marginBottom:18,textAlign:"center",letterSpacing:4,fontSize:20}}/>
+            <button onClick={changeParentPin}
+              style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
+              변경 완료
+            </button>
+            <button onClick={()=>{ setShowPinChangeModal(false); setOldPinInput(""); setNewPinInput(""); setNewPinConfirm(""); }}
+              style={{width:"100%",padding:12,borderRadius:13,border:`1px solid ${C.border}`,background:C.faint,color:C.sub,fontSize:16,fontWeight:700,cursor:"pointer"}}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── 방학 설정 모달 ── */}
       {showVacModal&&(
@@ -1506,10 +1927,11 @@ export default function App() {
       {showDailyModal&&(()=>{
         const {academyId,date,acName,acColor,baseSupplies}=showDailyModal;
         const entry=getDailyEntry(childId,academyId,date);
-        const hw=entry.homeworks||[], sup=entry.supplies||[];
+        const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
         const upd=(ne)=>setDailyEntry(childId,academyId,date,ne);
-        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; upd({...entry,homeworks:[...hw,{id:Date.now(),text:v,done:false}]}); setDailyHwInput(""); };
+        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; upd({...entry,homeworks:[...hw,{id:Date.now(),text:v,done:false,point:DEFAULT_HOMEWORK_SCORE}]}); setDailyHwInput(""); };
         const addSup=()=>{ const v=dailySupInput.trim(); if(!v) return; upd({...entry,supplies:[...sup,v]}); setDailySupInput(""); };
+        const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; upd({...entry,todos:[...todos,{id:Date.now(),text:v,done:false,point:DEFAULT_HOMEWORK_SCORE}]}); setDailyTodoInput(""); };
         return (
           <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowDailyModal(null)}>
             <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"88vh",overflowY:"auto",boxSizing:"border-box"}}>
@@ -1529,20 +1951,33 @@ export default function App() {
                   </div>
                 </div>
               )}
-              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>📝 이번 수업 숙제</p>
-              {hw.length===0&&<p style={{fontSize:17,color:C.sub,marginBottom:10}}>등록된 숙제가 없어요</p>}
+              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>✅ Things to do</p>
+              {hw.length===0&&todos.length===0&&<p style={{fontSize:17,color:C.sub,marginBottom:10}}>등록된 할 일이 없어요</p>}
               <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:12}}>
                 {hw.map(h=>(
                   <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:h.done?`${C.green}08`:C.faint,border:`1.5px solid ${h.done?C.green+"30":C.faintB}`}}>
-                    <button onClick={()=>upd({...entry,homeworks:hw.map(x=>x.id===h.id?{...x,done:!x.done}:x)})} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
-                    <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.text}</span>
+                    <button onClick={()=>toggleHomeworkDone(childId,academyId,date,h.id)} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
+                    <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
+                    <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE}</span>
                     <button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id)})} style={{background:"none",border:"none",color:"#CCC",cursor:"pointer",fontSize:16}}>✕</button>
                   </div>
                 ))}
+                {todos.map(t=>(
+                  <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:t.done?`${C.green}08`:C.faint,border:`1.5px solid ${t.done?C.green+"30":C.faintB}`}}>
+                    <button onClick={()=>toggleTodoDone(childId,academyId,date,t.id)} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{t.done?"✓":""}</button>
+                    <span style={{flex:1,fontSize:17,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
+                    <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE}</span>
+                    <button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id)})} style={{background:"none",border:"none",color:"#CCC",cursor:"pointer",fontSize:16}}>✕</button>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:"flex",gap:8,marginBottom:10}}>
+                <input value={dailyHwInput} onChange={e=>setDailyHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addHw()} placeholder="숙제 입력 후 Enter" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"9px 12px"}}/>
+                <button onClick={addHw} style={{padding:"0 14px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>숙제</button>
               </div>
               <div style={{display:"flex",gap:8,marginBottom:20}}>
-                <input value={dailyHwInput} onChange={e=>setDailyHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addHw()} placeholder="숙제 입력 후 Enter" style={{...inp,flex:1,width:"auto",fontSize:17,padding:"10px 14px"}}/>
-                <button onClick={addHw} style={{padding:"0 18px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:17,cursor:"pointer"}}>추가</button>
+                <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="할 일 입력 후 Enter" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"9px 12px"}}/>
+                <button onClick={addTodo} style={{padding:"0 14px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>할 일</button>
               </div>
               <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>📦 이번 수업 추가 준비물</p>
               <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:10}}>
