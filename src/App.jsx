@@ -148,6 +148,10 @@ const getShuttleText = (academy, day) => {
 
 export default function App() {
   const [loaded,setLoaded] = useState(false);
+  const [appMode,setAppMode] = useState("child");
+  const [showParentPin,setShowParentPin] = useState(false);
+  const [parentPin,setParentPin] = useState("1234");
+  const [pinInput,setPinInput] = useState("");
 
   // 아이 목록 상태
   const [children,setChildren] = useState(DEFAULT_CHILDREN);
@@ -197,13 +201,15 @@ export default function App() {
     (async()=>{
       const ch=await load("v6_children"), ac=await load("v6_ac"), ab=await load("v6_abs"),
             p=await load("v6_paid"), dm=await load("v6_dm"), dd=await load("v6_daily"),
-            tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac");
+            tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac"),
+            pin=await load("v6_parent_pin");
       if(ch) setChildren(ch);
       if(ac) setAcademies(ac); if(ab) setAbsences(ab);
       if(p) setPaidStatus(p); if(dm) setDayMemos(dm); if(dd) setDailyData(dd);
       if(tmpl) setTemplates(tmpl);
       if(cid) setChildId(cid);
       if(vac) setVacations(vac);
+      if(pin) setParentPin(pin);
       setLoaded(true);
     })();
   },[]);
@@ -217,8 +223,22 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_tmpl",templates); },[templates,loaded]);
   useEffect(()=>{ if(loaded) save("v6_cid",childId); },[childId,loaded]);
   useEffect(()=>{ if(loaded) save("v6_vac",vacations); },[vacations,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_parent_pin",parentPin); },[parentPin,loaded]);
 
   const showToast=(msg="저장됨 ✓")=>{ setToast(msg); setTimeout(()=>setToast(""),1600); };
+
+  const enterParentMode=()=>{
+    if(pinInput===parentPin){
+      setAppMode("parent"); setShowParentPin(false); setPinInput("");
+      showToast("엄마 모드로 전환됨 🔓");
+    } else {
+      showToast("비밀번호가 달라요");
+    }
+  };
+  const exitParentMode=()=>{
+    setAppMode("child"); setPinInput("");
+    showToast("아이 모드로 전환됨 🎒");
+  };
 
   // 현재 아이 정보
   const curChild = children.find(c=>c.id===childId) || children[0];
@@ -375,6 +395,115 @@ export default function App() {
     </div>
   );
 
+  if(appMode==="child") {
+    const childTodayDN=todayDN();
+    const childTodayAc=curAc
+      .filter(a=>hasClassOnDay(a,childTodayDN)&&!isVacationDay(childId,a.id,TODAY))
+      .sort((a,b)=>getClassTime(a,childTodayDN).localeCompare(getClassTime(b,childTodayDN)));
+    return (
+      <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30}}>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+        {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
+
+        {/* 아이 모드 헤더 */}
+        <div style={{background:th.grad,padding:"24px 18px 22px",color:"#fff",borderRadius:"0 0 24px 24px",boxShadow:"0 4px 20px rgba(0,0,0,0.12)"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div>
+              <p style={{fontSize:13,opacity:0.8,margin:0,fontWeight:700}}>오늘의 미션</p>
+              <h1 style={{fontSize:26,fontWeight:900,margin:"4px 0 0"}}>{th.emoji} {curChild?.name}</h1>
+            </div>
+            <button onClick={()=>setShowParentPin(true)}
+              style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"9px 11px",fontSize:13,fontWeight:800,cursor:"pointer"}}>
+              🔒 엄마
+            </button>
+          </div>
+        </div>
+
+        <div style={{padding:"16px"}}>
+          <div style={{background:C.card,borderRadius:18,padding:"18px",marginBottom:14,border:`1px solid ${C.border}`}}>
+            <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px"}}>📅 오늘 일정</p>
+            {childTodayAc.length===0?(
+              <div style={{textAlign:"center",padding:"24px 10px",color:C.sub}}>
+                <p style={{fontSize:34,margin:0}}>😴</p>
+                <p style={{fontSize:17,margin:"8px 0 0"}}>오늘은 학원이 없어요</p>
+              </div>
+            ):(
+              childTodayAc.map(ac=>{
+                const sc=getScheduleForDay(ac,childTodayDN);
+                const entry=getDailyEntry(childId,ac.id,TODAY);
+                const hw=entry.homeworks||[], sup=entry.supplies||[];
+                const shuttleText=getShuttleText(ac,childTodayDN);
+                const doneCnt=hw.filter(h=>h.done).length;
+                const allDone=hw.length>0&&doneCnt===hw.length;
+                return (
+                  <div key={ac.id} style={{border:`1.5px solid ${ac.color}30`,borderRadius:14,padding:"14px",marginBottom:10,background:`${ac.color}08`}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                      <div style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
+                      <strong style={{fontSize:19,color:C.text}}>{ac.name}</strong>
+                      {hw.length>0&&<span style={{marginLeft:"auto",fontSize:13,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:6,padding:"2px 8px"}}>{allDone?"✓ 완료":`${doneCnt}/${hw.length}`}</span>}
+                    </div>
+                    <p style={{fontSize:17,color:C.sub,margin:"0 0 6px"}}>⏰ {sc?.time} / {sc?.duration}분 수업</p>
+                    {shuttleText&&<p style={{fontSize:16,color:C.sub,margin:"0 0 8px"}}>🚌 {shuttleText}</p>}
+
+                    {/* 준비물 */}
+                    <div style={{marginTop:10}}>
+                      <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>🎒 준비물</p>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                        {(ac.baseSupplies||[]).map((s,i)=><span key={`b${i}`} style={{fontSize:15,padding:"4px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:700}}>{s}</span>)}
+                        {sup.map((s,i)=><span key={`s${i}`} style={{fontSize:15,padding:"4px 10px",borderRadius:20,background:`${C.orange}18`,color:C.orange,fontWeight:700}}>+ {s}</span>)}
+                        {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:15,color:"#BBB"}}>없음</span>}
+                      </div>
+                    </div>
+
+                    {/* 숙제 */}
+                    <div style={{marginTop:12}}>
+                      <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>📝 숙제 미션</p>
+                      {hw.length===0?<p style={{fontSize:15,color:"#BBB",margin:0}}>숙제 없음 🎉</p>:(
+                        hw.map(h=>(
+                          <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:10,background:h.done?`${C.green}10`:"#fff",border:`1px solid ${h.done?C.green+"30":C.border}`,marginBottom:6}}>
+                            <button onClick={()=>{
+                              const e=getDailyEntry(childId,ac.id,TODAY);
+                              setDailyEntry(childId,ac.id,TODAY,{...e,homeworks:(e.homeworks||[]).map(x=>x.id===h.id?{...x,done:!x.done}:x)});
+                            }} style={{width:26,height:26,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",color:"#fff",fontWeight:900,cursor:"pointer",flexShrink:0,fontSize:13}}>
+                              {h.done?"✓":""}
+                            </button>
+                            <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.text}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* PIN 입력 모달 */}
+        {showParentPin&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,padding:20}}>
+            <div style={{background:"#fff",borderRadius:22,padding:28,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
+              <h3 style={{fontSize:20,fontWeight:900,margin:"0 0 16px",textAlign:"center"}}>🔒 엄마 모드</h3>
+              <input type="password" inputMode="numeric" value={pinInput}
+                onChange={e=>setPinInput(e.target.value)}
+                onKeyDown={e=>e.key==="Enter"&&enterParentMode()}
+                placeholder="비밀번호 4자리"
+                style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:12,border:`1.5px solid ${C.border}`,fontSize:22,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
+              <button onClick={enterParentMode}
+                style={{width:"100%",padding:14,borderRadius:13,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
+                들어가기
+              </button>
+              <button onClick={()=>{ setShowParentPin(false); setPinInput(""); }}
+                style={{width:"100%",padding:12,borderRadius:13,border:`1px solid ${C.border}`,background:C.faint,color:C.sub,fontSize:16,fontWeight:700,cursor:"pointer"}}>
+                취소
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:90}}>
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
@@ -387,8 +516,12 @@ export default function App() {
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
           <div>
             <p style={{fontSize:11,color:"rgba(255,255,255,0.75)",margin:0,letterSpacing:2,fontWeight:600}}>ACADEMY PLANNER</p>
-            <h1 style={{fontSize:22,fontWeight:900,margin:"3px 0 0",color:"#fff"}}>🎒 우리 아이 학원 관리</h1>
+            <h1 style={{fontSize:22,fontWeight:900,margin:"3px 0 0",color:"#fff"}}>🎒 엄마 관리 모드</h1>
           </div>
+          <button onClick={exitParentMode}
+            style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.18)",color:"#fff",borderRadius:12,padding:"8px 10px",fontSize:12,fontWeight:800,cursor:"pointer"}}>
+            🎒 아이 모드
+          </button>
         </div>
 
         {/* 아이 탭 + 아이 추가 버튼 */}
@@ -1435,7 +1568,8 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowSmsModal(null)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 44px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18}}>
-                           <div style={{width:12,height:12,borderRadius:"50%",background:showSmsModal.color}}/>              <div style={{flex:1}}>
+              <div style={{width:12,height:12,borderRadius:"50%",background:showSmsModal.color}}/>
+              <div style={{flex:1}}>
                 <p style={{fontWeight:800,fontSize:17,margin:0,color:C.text}}>{showSmsModal.name} 문자 보내기</p>
                 {showSmsModal.phone&&<p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>📞 {showSmsModal.phone}</p>}
               </div>
