@@ -891,6 +891,93 @@ export default function App() {
     showToast("비밀번호가 변경됐어요 🔐");
   };
 
+  const exportBackup=()=>{
+    const backup={
+      backupVersion:"1.0",
+      appName:"academy-schedule-rpg",
+      createdAt:new Date().toISOString(),
+
+      children,
+      childId,
+      academies,
+      absences,
+      paidStatus,
+      dayMemos,
+      dailyData,
+      scoreData,
+      rewardData,
+      rewardRequests,
+      unlockedBadgeIds,
+      badgeData,
+      lastLevelByChild,
+      selectedTitles,
+      treasureData,
+      seenBadges,
+      seenTitles,
+      specialTitles,
+      bestStreakData,
+      vacations,
+      templates,
+      parentPin
+    };
+
+    const blob=new Blob([JSON.stringify(backup,null,2)],{
+      type:"application/json"
+    });
+
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=`academy-backup-${TODAY}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showToast("데이터 백업 완료 💾");
+  };
+
+  const importBackup=(file)=>{
+    if(!file) return;
+
+    if(!window.confirm("현재 데이터를 백업 파일 내용으로 덮어쓸까요?")) return;
+
+    const reader=new FileReader();
+
+    reader.onload=(e)=>{
+      try{
+        const data=JSON.parse(e.target.result);
+
+        setChildren(data.children||DEFAULT_CHILDREN);
+        setChildId(data.childId||data.children?.[0]?.id||"child_1");
+        setAcademies(data.academies||{});
+        setAbsences(data.absences||{});
+        setPaidStatus(data.paidStatus||{});
+        setDayMemos(data.dayMemos||{});
+        setDailyData(data.dailyData||{});
+        setScoreData(data.scoreData||{});
+        setRewardData(data.rewardData||{});
+        setRewardRequests(data.rewardRequests||{});
+        setUnlockedBadgeIds(data.unlockedBadgeIds||[]);
+        setBadgeData(data.badgeData||{});
+        setLastLevelByChild(data.lastLevelByChild||{});
+        setSelectedTitles(data.selectedTitles||{});
+        setTreasureData(data.treasureData||{});
+        setSeenBadges(data.seenBadges||{});
+        setSeenTitles(data.seenTitles||{});
+        setSpecialTitles(data.specialTitles||{});
+        setBestStreakData(data.bestStreakData||{});
+        setVacations(data.vacations||{});
+        setTemplates(data.templates||SAMPLE_TMPL);
+        setParentPin(data.parentPin||"1234");
+
+        showToast("데이터 복원 완료 📂");
+      }catch(err){
+        showToast("복원 실패: 백업 파일을 확인해줘");
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
   // 현재 아이 정보
   const curChild = children.find(c=>c.id===childId) || children[0];
   const getChildTheme = (child) => {
@@ -2224,7 +2311,7 @@ export default function App() {
                               </button>
                               <div style={{flex:1,minWidth:0}}>
                                 <p style={{fontSize:16,fontWeight:900,color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",margin:"0 0 5px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                                  {item.label}
+                                  {item.kind==="homework"?`숙제 : ${item.label}`:item.label}
                                 </p>
                                 <p style={{fontSize:12,fontWeight:900,color:item.failed?C.red:GAME.gold,margin:0}}>
                                   {item.failed?"보상 없음":getQuestRewardText(item)}
@@ -3053,10 +3140,6 @@ export default function App() {
               style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.25)",color:"#fff",borderRadius:10,padding:"7px 12px",fontSize:12,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap"}}>
               🎒 아이 모드
             </button>
-            <button onClick={()=>setShowPinChangeModal(true)}
-              style={{border:"1px solid rgba(255,255,255,0.2)",background:"rgba(255,255,255,0.1)",color:"rgba(255,255,255,0.8)",borderRadius:10,padding:"5px 10px",fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
-              🔐 비번 변경
-            </button>
           </div>
         </div>
 
@@ -3088,7 +3171,7 @@ export default function App() {
 
       {/* ── 탭 바 ── */}
       <div style={{display:"flex",background:C.card,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:10,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
-        {[["home","🏠 홈"],["calendar","🗓 달력"],["fee","💰 학원비"],["absence","🏥 결석"],["reward","🎁 리워드"],["sms","💬 문자"]].map(([k,l])=>(
+        {[["home","🏠 홈"],["calendar","🗓 달력"],["fee","💰 학원비"],["absence","🏥 결석"],["reward","🎁 리워드"],["etc","⚙️ 기타"]].map(([k,l])=>(
           <button key={k} onClick={()=>setTab(k)} style={{flex:1,padding:"13px 2px",border:"none",background:"transparent",fontSize:12,fontWeight:tab===k?800:400,color:tab===k?th.main:C.sub,borderBottom:tab===k?`2.5px solid ${th.main}`:"2.5px solid transparent",cursor:"pointer",whiteSpace:"nowrap",transition:"color 0.2s"}}>{l}</button>
         ))}
       </div>
@@ -4409,8 +4492,44 @@ export default function App() {
         )}
 
         {/* ════ 문자 탭 ════ */}
-        {tab==="sms"&&(
+        {tab==="etc"&&(
           <div>
+            <div style={{...gameCard,padding:"18px",marginBottom:14}}>
+              <p style={{fontSize:20,fontWeight:900,margin:"0 0 4px",color:C.text}}>⚙️ 기타</p>
+              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>
+                문자관리, 데이터 백업, 복원, 비밀번호 변경을 관리해요
+              </p>
+            </div>
+
+            <div style={{...gameCard,padding:"16px",marginBottom:14}}>
+              <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:C.text}}>💾 데이터 관리</p>
+
+              <button onClick={exportBackup}
+                style={{width:"100%",padding:14,borderRadius:13,border:"none",background:th.grad,color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer",marginBottom:10}}>
+                💾 데이터 백업하기
+              </button>
+
+              <label style={{display:"block",width:"100%",padding:14,borderRadius:13,border:`1.5px solid ${th.main}35`,background:th.light,color:th.main,fontSize:16,fontWeight:900,textAlign:"center",boxSizing:"border-box",cursor:"pointer"}}>
+                📂 데이터 복원하기
+                <input
+                  type="file"
+                  accept="application/json"
+                  onChange={e=>importBackup(e.target.files?.[0])}
+                  style={{display:"none"}}
+                />
+              </label>
+            </div>
+
+            <div style={{...gameCard,padding:"16px",marginBottom:14}}>
+              <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:C.text}}>🔐 보안</p>
+              <button onClick={()=>setShowPinChangeModal(true)}
+                style={{width:"100%",padding:14,borderRadius:13,border:`1.5px solid ${C.border}`,background:C.faint,color:C.text,fontSize:16,fontWeight:900,cursor:"pointer"}}>
+                비밀번호 변경
+              </button>
+            </div>
+
+            <div style={{...gameCard,padding:"16px",marginBottom:14}}>
+              <p style={{fontSize:17,fontWeight:900,margin:"0 0 12px",color:C.text}}>💬 문자관리</p>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
               <p style={{fontSize:17,color:C.sub,fontWeight:700,margin:0}}>문자 템플릿 관리</p>
               <button onClick={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }} style={{padding:"7px 14px",borderRadius:8,border:"none",background:th.grad,color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ 새 템플릿</button>
@@ -4433,6 +4552,20 @@ export default function App() {
                 <p style={{fontSize:17,color:C.sub,margin:0,whiteSpace:"pre-wrap",background:C.faint,borderRadius:8,padding:"10px 12px"}}>{tmpl.body}</p>
               </div>
             ))}
+            </div>
+
+            <div style={{...gameCard,padding:"16px",textAlign:"center"}}>
+              <p style={{fontSize:17,fontWeight:900,margin:"0 0 6px",color:C.text}}>ℹ️ 앱 정보</p>
+              <p style={{fontSize:14,fontWeight:900,color:C.text,margin:"0 0 3px"}}>
+                Academy Planner RPG
+              </p>
+              <p style={{fontSize:12,fontWeight:700,color:C.sub,margin:"0 0 6px"}}>
+                버전 1.0
+              </p>
+              <p style={{fontSize:12,fontWeight:700,color:C.sub,margin:0,lineHeight:1.5}}>
+                학원 일정과 아이의 성장을 게임처럼 관리하는 플래너
+              </p>
+            </div>
           </div>
         )}
 
