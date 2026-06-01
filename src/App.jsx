@@ -213,7 +213,7 @@ const getRandomTreasureCoin=(boxType)=>{
 };
 
 const DEFAULT_BADGES = [
-  { id:"first_quest",  title:"첫 미션 완료",      desc:"첫 미션(숙제·퀘스트)을 완료했어요", emoji:"🏅" },
+  { id:"first_quest",  title:"첫 미션 완료",      desc:"첫 미션(숙제·미션)을 완료했어요", emoji:"🏅" },
   { id:"quest_10",     title:"미션 입문자",        desc:"미션을 10개 완료했어요",       emoji:"🎯" },
   { id:"quest_50",     title:"미션 헌터",          desc:"미션을 50개 완료했어요",       emoji:"🏹" },
   { id:"quest_100",    title:"미션 마스터",        desc:"미션을 100개 완료했어요",      emoji:"🏆" },
@@ -239,22 +239,22 @@ const DEFAULT_BADGES = [
   { id:"level_10",     title:"챔피언 등급 달성",   desc:"Lv.10에 도달했어요",           emoji:"🥇" },
   { id:"level_15",     title:"그랜드마스터 달성",  desc:"Lv.15에 도달했어요",           emoji:"💎" },
   { id:"level_20",     title:"월드클래스 달성",    desc:"Lv.20에 도달했어요",           emoji:"🌟" },
-  { id:"first_reward", title:"첫 리워드 구매",     desc:"리워드를 처음 구매했어요",     emoji:"🛒" },
-  { id:"reward_3",     title:"리워드 수집가",      desc:"리워드를 3번 구매했어요",      emoji:"🎁" },
-  { id:"reward_5",     title:"리워드 애호가",      desc:"리워드를 5번 구매했어요",      emoji:"🎀" },
-  { id:"reward_20",    title:"리워드 큰손",        desc:"리워드를 20번 구매했어요",     emoji:"👜" },
+  { id:"first_reward", title:"첫 보상 구매",     desc:"보상을 처음 구매했어요",     emoji:"🛒" },
+  { id:"reward_3",     title:"보상 수집가",      desc:"보상을 3번 구매했어요",      emoji:"🎁" },
+  { id:"reward_5",     title:"보상 애호가",      desc:"보상을 5번 구매했어요",      emoji:"🎀" },
+  { id:"reward_20",    title:"보상 큰손",        desc:"보상을 20번 구매했어요",     emoji:"👜" },
 ];
 
 const UI_TEXT = {
   tabs:{
-    quest:"⚔️ 퀘스트",
+    quest:"⚔️ 미션",
     character:"🧙 내 캐릭터",
   },
   section:{
     heroStatus:"HERO STATUS",
     dailyDungeon:"TODAY DUNGEON",
-    todayQuest:"⚔️ 오늘의 퀘스트",
-    questList:"📜 퀘스트 목록",
+    todayQuest:"⚔️ 오늘의 미션",
+    questList:"📜 미션 목록",
     itemShop:"🛒 아이템 상점",
     achievementBook:"🏆 업적 도감",
     titleBook:"👑 칭호",
@@ -286,8 +286,8 @@ const UI_TEXT = {
     cancelFail:"실패 취소",
   },
   message:{
-    noQuest:"등록된 퀘스트가 없어요",
-    restDay:"오늘은 퀘스트가 없어요!",
+    noQuest:"등록된 미션이 없어요",
+    restDay:"오늘은 미션이 없어요!",
     needMoreCoin:"코인이 더 필요해요",
     waitingApproval:"엄마의 구매 승인을 기다리는 중이에요",
   }
@@ -318,13 +318,13 @@ const DEFAULT_TITLES = [
   { id:"homework_master", name:"숙제왕", emoji:"📚", condition:"숙제 30개 완료", rarity:"rare" },
   { id:"streak_3_title", name:"꾸준한 아이", emoji:"🔥", condition:"3일 연속 달성", rarity:"rare" },
   { id:"xp_500_title", name:"성실 수련생", emoji:"📘", condition:"500 XP 달성", rarity:"rare" },
-  { id:"reward_1_title", name:"첫 쇼핑러", emoji:"🛒", condition:"첫 리워드 구매", rarity:"rare" },
+  { id:"reward_1_title", name:"첫 쇼핑러", emoji:"🛒", condition:"첫 보상 구매", rarity:"rare" },
 
   { id:"streak_master", name:"불꽃 루틴러", emoji:"🔥", condition:"7일 연속 달성", rarity:"epic" },
   { id:"quest_100_title", name:"집중의 신", emoji:"🧠", condition:"미션 100개 완료", rarity:"epic" },
   { id:"champion", name:"챔피언", emoji:"🥇", condition:"Lv.10 달성", rarity:"epic" },
   { id:"xp_3000_title", name:"빛나는 성장러", emoji:"🌟", condition:"3000 XP 달성", rarity:"epic" },
-  { id:"reward_3_title", name:"보상 수집가", emoji:"🎁", condition:"리워드 3번 구매", rarity:"epic" },
+  { id:"reward_3_title", name:"보상 수집가", emoji:"🎁", condition:"보상 3번 구매", rarity:"epic" },
 
   { id:"legend", name:"전설의 모험가", emoji:"👑", condition:"Lv.20 달성", rarity:"legendary" },
   { id:"streak_30_title", name:"30일 전설", emoji:"🔥", condition:"30일 연속 달성", rarity:"legendary" },
@@ -397,8 +397,24 @@ const getCalDays = (y,m) => {
 const getDN = (y,m,d) => ["일","월","화","수","목","금","토"][new Date(y,m,d).getDay()];
 
 // ── 저장 ─────────────────────────────────
-const save = async (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
-const load = async (k) => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch (e) { return null; } };
+// 배포 환경: localStorage 사용
+const save = async (k, v) => {
+  try {
+    localStorage.setItem(k, JSON.stringify(v));
+  } catch (e) {
+    console.error("save error", e);
+  }
+};
+
+const load = async (k) => {
+  try {
+    const raw = localStorage.getItem(k);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.error("load error", e);
+    return null;
+  }
+};
 
 // ── SMS ─────────────────────────────────
 const smsLink=(phone,body="")=>{ const enc=encodeURIComponent(body); const ios=/iPad|iPhone|iPod/.test(navigator.userAgent); return `sms:${phone}${body?(ios?`&body=${enc}`:`?body=${enc}`):""}` };
@@ -415,10 +431,10 @@ const buildSampleData = () => {
   const children = [{ id:cid, name:"아이1(예시)", gender:"boy" }];
   const academies = {
     [cid]: [
-      { ...EMPTY_AC, id:acSample, name:"피아노 학원", days:["월","화","수","목","금","토","일"], time:"16:00", duration:60, color:"#6C63FF", teacher:"김선생님", baseSupplies:["악보","연습장"], memo:"예시 학원이에요. 길게 눌러 수정·삭제할 수 있어요." },
+      { ...EMPTY_AC, id:acSample, name:"피아노 학원", days:["월","화","수","목","금","토","일"], time:"16:00", duration:60, color:"#6C63FF", teacher:"김선생님", baseSupplies:["악보"], memo:"예시 학원이에요. 길게 눌러 수정·삭제할 수 있어요." },
     ]
   };
-  // 오늘 날짜에 숙제 1개 · 퀘스트 1개 (직접 눌러서 XP·코인이 오르는 걸 체험)
+  // 오늘 날짜에 숙제 1개 · 미션 1개 (직접 눌러서 XP·코인이 오르는 걸 체험)
   const dailyData = {
     [`${cid}-${acSample}-${TODAY}`]: {
       homeworks:[
@@ -427,7 +443,7 @@ const buildSampleData = () => {
       todos:[
         { id:1002, text:"메트로놈 60에 맞춰 치기", done:false, point:10 },
       ],
-      supplies:["악보","연습장"]
+      supplies:["연습장"]
     },
   };
   return { children, academies, dailyData };
@@ -445,7 +461,7 @@ const EMPTY_AC = {
   useCustomSchedule:false, schedules:[],
   shuttleInfo:"", useCustomShuttle:false, shuttleSchedules:[],
   fee:0, payDay:1, color:"#FF6B6B",
-  baseSupplies:[], phone:"", teacher:"", address:"", memo:""
+  baseSupplies:[], baseHomeworks:[], phone:"", teacher:"", address:"", memo:""
 };
 const EMPTY_ABS = { academyId:"", date:TODAY, reason:"", makeupDate:"", makeupDone:false };
 
@@ -515,19 +531,19 @@ function GuideModal({type="guide",th,onClose}){
 
   const steps=isFirst
     ? [
-        "① 엄마모드 접속(1234)",
-        "② 아이 등록, 학원 등록",
-        "③ 퀘스트(숙제,할일) 추가",
-        "④ 아이가 체크",
-        "⑤ XP와 코인 획득"
+        "엄마모드 접속 (비밀번호 1234)",
+        "아이 등록하고 학원 등록",
+        "미션(숙제·할일) 추가",
+        "완수하면 아이가 직접 체크!",
+        "XP와 코인 획득 🎉"
       ]
     : [
-        "① 아이 등록",
-        "② 학원 등록",
-        "③ 퀘스트(숙제,할일) 등록",
-        "④ 아이가 체크",
-        "⑤ XP, 코인 획득",
-        "⑥ 코인 사용"
+        "아이 등록",
+        "학원 등록",
+        "미션(숙제·할일) 등록",
+        "완수하면 아이가 직접 체크!",
+        "XP와 코인 획득",
+        "코인으로 보상 받기 🎁"
       ];
 
   return (
@@ -545,51 +561,92 @@ function GuideModal({type="guide",th,onClose}){
         onClick={e=>e.stopPropagation()}
         style={{
           background:"#fff",
-          borderRadius:22,
-          padding:24,
+          borderRadius:24,
+          padding:0,
           width:"100%",
-          maxWidth:360,
+          maxWidth:370,
           boxSizing:"border-box",
-          boxShadow:"0 20px 60px rgba(0,0,0,0.18)"
+          overflow:"hidden",
+          boxShadow:"0 20px 60px rgba(0,0,0,0.22)"
         }}
       >
-        <h3 style={{fontSize:21,fontWeight:900,margin:"0 0 14px",color:C.text}}>
-          {isFirst?"📖 처음 사용하는 방법":"📖 아이 성장 퀘스트 시작하기"}
-        </h3>
-
-        <div style={{fontSize:16,fontWeight:800,color:C.text,lineHeight:1.9}}>
-          {steps.map(s=>(
-            <p key={s} style={{margin:"0 0 3px"}}>{s}</p>
-          ))}
+        {/* 소개 헤더 (맨 위, 테마 그라데이션) */}
+        <div style={{
+          background:th.grad,
+          padding:"26px 24px 22px",
+          color:"#fff",
+          textAlign:"center"
+        }}>
+          <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>HARANG</p>
+          <h2 style={{fontSize:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>아이 성장 미션</h2>
+          <div style={{width:38,height:3,borderRadius:99,background:"rgba(255,255,255,0.6)",margin:"12px auto 16px"}}/>
+          <p style={{fontSize:13.5,fontWeight:700,lineHeight:1.85,margin:0,opacity:0.97}}>
+            동기부여가 고민이었던 엄마도,<br/>
+            숙제 때문에 힘들었던 아이도.<br/>
+            아이 성장 미션으로<br/>
+            매일의 작은 습관을 만들어보세요.<br/>
+            작은 미션이 쌓여 아이의 큰 성장을 만듭니다.
+          </p>
         </div>
 
-        <p style={{
-          fontSize:12,
-          fontWeight:700,
-          color:C.sub,
-          lineHeight:1.5,
-          margin:"12px 0 0"
-        }}>
-          퀘스트를 완료하면 XP와 코인을 받고, 코인으로 원하는 보상을 요청할 수 있어요.
-        </p>
+        {/* 사용 방법 */}
+        <div style={{padding:"22px 24px 24px"}}>
+          <p style={{fontSize:13,fontWeight:900,letterSpacing:0.5,color:th.main,margin:"0 0 14px"}}>
+            🚀 이렇게 시작해요
+          </p>
 
-        <button
-          onClick={onClose}
-          style={{
-            width:"100%",
-            padding:14,
-            borderRadius:13,
-            border:"none",
-            background:th.grad,
-            color:"#fff",
-            fontSize:16,
-            fontWeight:900,
-            cursor:"pointer",
-            marginTop:16
-          }}
-        >
-          {isFirst?"시작하기":"닫기"}
-        </button>
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {steps.map((s,i)=>(
+              <div key={s} style={{display:"flex",alignItems:"center",gap:11}}>
+                <span style={{
+                  flexShrink:0,
+                  width:26,height:26,
+                  borderRadius:999,
+                  background:th.grad,
+                  color:"#fff",
+                  fontSize:13,fontWeight:900,
+                  display:"flex",alignItems:"center",justifyContent:"center"
+                }}>{i+1}</span>
+                <span style={{fontSize:14.5,fontWeight:800,color:C.text}}>{s}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{
+            background:`${th.main}0E`,
+            borderRadius:12,
+            padding:"11px 13px",
+            margin:"16px 0 0",
+            fontSize:12,fontWeight:700,color:C.sub,lineHeight:1.55
+          }}>
+            💎 미션을 완료하면 XP와 코인을 받고, 코인으로 원하는 보상을 받을 수 있어요!
+          </div>
+
+          {isFirst&&(
+            <p style={{marginTop:12,fontSize:12,color:C.sub,lineHeight:1.55,fontWeight:600}}>
+              ※ 처음에는 예시 데이터가 포함되어 있어요. 우리 아이 정보로 수정하거나 삭제해서 사용하세요.
+            </p>
+          )}
+
+          <button
+            onClick={onClose}
+            style={{
+              width:"100%",
+              padding:15,
+              borderRadius:14,
+              border:"none",
+              background:th.grad,
+              color:"#fff",
+              fontSize:16,
+              fontWeight:900,
+              cursor:"pointer",
+              marginTop:18,
+              boxShadow:`0 6px 18px ${th.main}40`
+            }}
+          >
+            {isFirst?"시작하기 🎈":"닫기"}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -658,6 +715,7 @@ export default function App() {
   const [paidStatus,setPaidStatus] = useState({});
   const [dayMemos,setDayMemos] = useState({});
   const [dailyData,setDailyData] = useState({});
+  const [baseSeededKeys,setBaseSeededKeys] = useState({}); // 기본숙제 자동추가 완료한 학원-날짜 기록 {key:true}
   const [scoreData,setScoreData] = useState({});
   const [rewardData,setRewardData] = useState({});
   const [rewardRequests,setRewardRequests] = useState({});
@@ -691,6 +749,7 @@ export default function App() {
   const [newAc,setNewAc] = useState(EMPTY_AC);
   const [newAbs,setNewAbs] = useState(EMPTY_ABS);
   const [supplyInput,setSupplyInput] = useState("");
+  const [baseHwInput,setBaseHwInput] = useState("");
   const [dailyHwInput,setDailyHwInput] = useState("");
   const [dailySupInput,setDailySupInput] = useState("");
   const [dailyTodoInput,setDailyTodoInput] = useState("");
@@ -713,6 +772,7 @@ export default function App() {
     (async()=>{
       const ch=await load("v6_children"), ac=await load("v6_ac"), ab=await load("v6_abs"),
             p=await load("v6_paid"), dm=await load("v6_dm"), dd=await load("v6_daily"),
+            bsk=await load("v6_base_seeded"),
             tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac"),
             pin=await load("v6_parent_pin"), score=await load("v6_score"),
             reward=await load("v6_reward"), rewardReq=await load("v6_reward_requests"),
@@ -741,6 +801,7 @@ export default function App() {
       if(ch) setChildren(ch);
       if(ac) setAcademies(ac); if(ab) setAbsences(ab);
       if(p) setPaidStatus(p); if(dm) setDayMemos(dm); if(dd) setDailyData(dd);
+      if(bsk) setBaseSeededKeys(bsk);
       if(tmpl) setTemplates(tmpl);
       if(cid) setChildId(cid);
       if(vac) setVacations(vac);
@@ -770,6 +831,7 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_paid",paidStatus); },[paidStatus,loaded]);
   useEffect(()=>{ if(loaded) save("v6_dm",dayMemos); },[dayMemos,loaded]);
   useEffect(()=>{ if(loaded) save("v6_daily",dailyData); },[dailyData,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_base_seeded",baseSeededKeys); },[baseSeededKeys,loaded]);
   useEffect(()=>{ if(loaded) save("v6_tmpl",templates); },[templates,loaded]);
   useEffect(()=>{ if(loaded) save("v6_cid",childId); },[childId,loaded]);
   useEffect(()=>{ if(loaded) save("v6_vac",vacations); },[vacations,loaded]);
@@ -941,7 +1003,9 @@ export default function App() {
   };
 
   const resetGameData=(cid)=>{
-    if(!window.confirm("현재 아이의 게임 데이터를 초기화할까요?")) return;
+    const nm=(children.find(c=>c.id===cid)?.name)||"이 아이";
+    if(!window.confirm(`${nm}의 모든 기록이 삭제됩니다.\n정말 초기화할까요?`)) return;
+    if(!window.confirm("초기화 후 복구할 수 없습니다.\n정말 진행할까요?")) return;
     setScoreData(prev=>({...prev,[cid]:{xp:0,coin:0,history:[]}}));
     setTreasureData(prev=>({...prev,[cid]:{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0}}));
     setSelectedTitles(prev=>({...prev,[cid]:"rookie"}));
@@ -955,11 +1019,39 @@ export default function App() {
 
   const resetAllAppData=()=>{
     if(!window.confirm("정말 앱 전체를 초기화할까요?")) return;
-    if(!window.confirm("아이/학원/퀘스트/설정이 모두 삭제돼요. 정말 삭제할까요?")) return;
-    try { localStorage.clear(); } catch (e) {}
+    if(!window.confirm("아이/학원/미션/설정이 모두 삭제돼요. 정말 삭제할까요?")) return;
+    [
+  "v6_children",
+  "v6_ac",
+  "v6_abs",
+  "v6_paid",
+  "v6_dm",
+  "v6_daily",
+  "v6_base_seeded",
+  "v6_tmpl",
+  "v6_cid",
+  "v6_vac",
+  "v6_parent_pin",
+  "v6_score",
+  "v6_reward",
+  "v6_reward_requests",
+  "v6_unlocked_badges",
+  "v6_badge_data",
+  "v6_last_level",
+  "v6_selected_titles",
+  "v6_treasure",
+  "v6_seen_badges",
+  "v6_seen_titles",
+  "v6_earned_titles",
+  "v6_special_titles",
+  "v6_best_streak",
+  "v6_sample_seeded",
+  "v6_first_guide_seen"
+].forEach(k => localStorage.removeItem(k));
     setChildren(DEFAULT_CHILDREN); setChildId("child_1");
     setAcademies({}); setAbsences({}); setPaidStatus({}); setDayMemos({});
     setDailyData({}); setScoreData({}); setRewardData({}); setRewardRequests({});
+    setBaseSeededKeys({});
     setUnlockedBadgeIds([]); setBadgeData({}); setLastLevelByChild({});
     setSelectedTitles({}); setTreasureData({}); setSeenBadges({}); setSeenTitles({});
     setEarnedTitleIds({});
@@ -1071,6 +1163,7 @@ export default function App() {
       seenBadges,
       seenTitles,
       earnedTitleIds,
+      baseSeededKeys,
       specialTitles,
       bestStreakData,
       vacations,
@@ -1121,6 +1214,7 @@ export default function App() {
         setSeenBadges(data.seenBadges||{});
         setSeenTitles(data.seenTitles||{});
         setEarnedTitleIds(data.earnedTitleIds||{});
+        setBaseSeededKeys(data.baseSeededKeys||{});
         setSpecialTitles(data.specialTitles||{});
         setBestStreakData(data.bestStreakData||{});
         setVacations(data.vacations||{});
@@ -1200,6 +1294,30 @@ export default function App() {
   const getDailyEntry=(cid,aId,date)=>dailyData[dKey(cid,aId,date)]||{homeworks:[],supplies:[],todos:[]};
   const setDailyEntry=(cid,aId,date,entry)=>setDailyData(p=>({...p,[dKey(cid,aId,date)]:entry}));
 
+  // ── 기본 숙제 자동 추가: 수업 있는 날, 학원의 baseHomeworks를 그날 미션으로 1회 시딩 ──
+  const seedBaseHomeworks=(cid,date)=>{
+    if(!cid||!date) return;
+    const dn=["일","월","화","수","목","금","토"][new Date(date+"T00:00:00").getDay()];
+    const list=academies[cid]||[];
+    list.forEach(ac=>{
+      const base=ac.baseHomeworks||[];
+      if(base.length===0) return;
+      if(!hasClassOnDay(ac,dn)) return;            // 수업 있는 날만
+      const seedKey=`${cid}-${ac.id}-${date}`;
+      if(baseSeededKeys[seedKey]) return;          // 이미 시딩한 학원-날짜면 skip (지워도 재생성 안 함)
+      setDailyData(prev=>{
+        const k=dKey(cid,ac.id,date);
+        const cur=prev[k]||{homeworks:[],supplies:[],todos:[]};
+        const newHws=base.map((t,i)=>({id:Date.now()+i+Math.floor(Math.random()*1000),text:t,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}));
+        return {...prev,[k]:{...cur,homeworks:[...(cur.homeworks||[]),...newHws]}};
+      });
+      setBaseSeededKeys(prev=>({...prev,[seedKey]:true}));
+    });
+  };
+  // 아이 모드 날짜·부모 모드 날짜가 바뀔 때 각각 시딩
+  useEffect(()=>{ if(loaded&&childId) seedBaseHomeworks(childId,childDate); },[loaded,childId,childDate,academies]);
+  useEffect(()=>{ if(loaded&&childId) seedBaseHomeworks(childId,homeDate); },[loaded,childId,homeDate,academies]);
+
   const getAcademyById=(cid,academyId)=>{
     if(String(academyId)===String(EXTRA_QUEST_ID)){
       const child=children.find(c=>c.id===cid);
@@ -1266,7 +1384,7 @@ export default function App() {
     switch(item.type){
       case "homework":
       case "todo":
-      case "quest":   return {icon:"⚔️",title:"퀘스트 클리어"};
+      case "quest":   return {icon:"⚔️",title:"미션 클리어"};
       case "treasure":return {icon:"🎁",title:"보물상자 오픈"};
       case "reward":  return {icon:"🛒",title:"아이템 구매"};
       case "level_bonus": return {icon:"✨",title:"레벨업 보너스"};
@@ -1279,7 +1397,7 @@ export default function App() {
   const getDungeonMessage=(percent,total)=>{
     if(total===0) return "오늘은 쉬어가는 날이야 😴";
     if(percent===0) return "오늘의 모험을 시작해볼까?";
-    if(percent<50) return "아직 퀘스트가 남아있어!";
+    if(percent<50) return "아직 미션이 남아있어!";
     if(percent<100) return "거의 다 왔어!";
     return "오늘 던전 클리어 완료!";
   };
@@ -1462,7 +1580,7 @@ export default function App() {
 
       const rewardedQuestKeys=cur.rewardedQuestKeys||[];
 
-      // 이미 이 퀘스트로 보물상자 카운트 반영했으면 다시 지급 안 함
+      // 이미 이 미션으로 보물상자 카운트 반영했으면 다시 지급 안 함
       if(rewardedQuestKeys.includes(questKey)){
         return prev;
       }
@@ -1624,8 +1742,8 @@ export default function App() {
     if(item.memo) return item.memo;
     if(item.label) return item.label;
     if(item.type==="reward") return "보상샵 구매";
-    if(item.type==="homework") return item.point>=0?"퀘스트 완료":"퀘스트 체크 취소";
-    if(item.type==="todo") return item.point>=0?"퀘스트 완료":"퀘스트 체크 취소";
+    if(item.type==="homework") return item.point>=0?"미션 완료":"미션 체크 취소";
+    if(item.type==="todo") return item.point>=0?"미션 완료":"미션 체크 취소";
     if(item.type==="manual") return "엄마 XP 조정";
     if(item.type==="treasure") return "보물상자 획득";
     if(item.type==="level_bonus") return "레벨업 보너스";
@@ -1665,13 +1783,13 @@ export default function App() {
     let count=0;
     Object.entries(dailyData).forEach(([key,entry])=>{
       if(!key.startsWith(`${cid}-`)) return;
-      // 순수 퀘스트(todo)만 카운트 — 숙제는 getCompletedHomeworkCount에서 별도 집계
+      // 순수 미션(todo)만 카운트 — 숙제는 getCompletedHomeworkCount에서 별도 집계
       count+=(entry.todos||[]).filter(t=>t.done).length;
     });
     return count;
   };
 
-  // 전체 활동(숙제+퀘스트) 누적 — 미션 계열 업적/칭호 진척용 (운영 패턴과 무관하게 고르게 적립)
+  // 전체 활동(숙제+미션) 누적 — 미션 계열 업적/칭호 진척용 (운영 패턴과 무관하게 고르게 적립)
   const getTotalActivityCount=(cid)=>getCompletedHomeworkCount(cid)+getCompletedQuestCount(cid);
 
   const getApprovedRewardCount=(cid)=>getChildRewardRequests(cid).filter(r=>r.status==="approved").length;
@@ -1979,7 +2097,7 @@ export default function App() {
     });
   };
 
-  // addReward = XP/코인 지급 (퀘스트/보물상자용)
+  // addReward = XP/코인 지급 (미션/보물상자용)
   const addReward=(cid,point,reason="quest")=>addChildScore(cid,point,"",reason);
   // spendCoin = 코인만 차감 (구매용)
   const spendCoin=(cid,amount,memo="")=>spendChildScore(cid,amount,memo);
@@ -2032,7 +2150,7 @@ export default function App() {
     const willFail=target?!target.failed:true;
     setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:false,failed:!h.failed}:h)});
     if(willFail){
-      showQuestResult({type:"failed",xp:0,title:target?.text||"퀘스트"});
+      showQuestResult({type:"failed",xp:0,title:target?.text||"미션"});
     } else {
       showToast("실패 취소");
     }
@@ -2045,7 +2163,7 @@ export default function App() {
     const willFail=target?!target.failed:true;
     setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:false,failed:!t.failed}:t)});
     if(willFail){
-      showQuestResult({type:"failed",xp:0,title:target?.text||"퀘스트"});
+      showQuestResult({type:"failed",xp:0,title:target?.text||"미션"});
     } else {
       showToast("실패 취소");
     }
@@ -2060,20 +2178,20 @@ export default function App() {
   const todayAc=curAc.filter(a=>hasClassOnDay(a,todayDN())).sort((a,b)=>getClassTime(a,todayDN()).localeCompare(getClassTime(b,todayDN())));
 
   // 학원 CRUD
-  const openAdd=()=>{ setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[]}); setSupplyInput(""); setShowAddAcModal(true); };
-  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setShowDetailModal(null); setShowAddAcModal(true); };
+  const openAdd=()=>{ setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[],baseHomeworks:[]}); setSupplyInput(""); setBaseHwInput(""); setShowAddAcModal(true); };
+  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowDetailModal(null); setShowAddAcModal(true); };
   const saveAcademy=()=>{
     if(!newAc.name.trim()||(newAc.useCustomSchedule?(newAc.schedules||[]).length===0:(newAc.days||[]).length===0)){
       showToast("학원명과 수업 요일을 입력해줘"); return;
     }
-    const cleaned={...newAc,name:newAc.name.trim(),fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),baseSupplies:newAc.baseSupplies||[],schedules:newAc.schedules||[]};
+    const cleaned={...newAc,name:newAc.name.trim(),fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:newAc.schedules||[]};
     setAcademies(prev=>{
       const list=prev[childId]||[];
       return editTarget!==null
         ? {...prev,[childId]:list.map(a=>a.id===editTarget?{...cleaned,id:editTarget}:a)}
         : {...prev,[childId]:[...list,{...cleaned,id:Date.now()}]};
     });
-    setShowAddAcModal(false); setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[]});
+    setShowAddAcModal(false); setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[],baseHomeworks:[]});
     showToast(editTarget?"수정됨 ✓":"추가됨 ✓");
   };
   const deleteAcademy=(id)=>{
@@ -2093,6 +2211,8 @@ export default function App() {
   };
   const toggleDay=(day)=>setNewAc(p=>({...p,days:p.days.includes(day)?p.days.filter(d=>d!==day):[...p.days,day]}));
   const addBaseSupply=()=>{ const v=supplyInput.trim(); if(!v) return; setNewAc(p=>({...p,baseSupplies:[...(p.baseSupplies||[]),v]})); setSupplyInput(""); };
+  const addBaseHomework=()=>{ const v=baseHwInput.trim(); if(!v) return; setNewAc(p=>({...p,baseHomeworks:[...(p.baseHomeworks||[]),v]})); setBaseHwInput(""); };
+  const removeBaseHomework=(i)=>setNewAc(p=>({...p,baseHomeworks:(p.baseHomeworks||[]).filter((_,idx)=>idx!==i)}));
 
   // 학원비
   const pKey=(cid,aId)=>`${cid}-${feeMonth}-${aId}`;
@@ -2428,7 +2548,7 @@ export default function App() {
                             🏰
                           </div>
                           <div style={{flex:1}}>
-                            <p style={{fontSize:11,fontWeight:900,color:ac.color,margin:"0 0 2px",letterSpacing:1}}>QUEST AREA</p>
+                            <p style={{fontSize:11,fontWeight:900,color:ac.color,margin:"0 0 2px",letterSpacing:1}}>MISSION AREA</p>
                             <p style={{fontSize:18,fontWeight:900,margin:0,color:C.text}}>{ac.name}</p>
                           </div>
                           {totalTodoCnt>0&&<span style={{fontSize:12,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:6,padding:"4px 9px",flexShrink:0}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
@@ -2446,20 +2566,23 @@ export default function App() {
                             {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:13,color:"#BBB"}}>없음</span>}
                           </div>
                         </div>
-                        {/* 퀘스트 요약 */}
+                        {/* 미션 요약 */}
                         <div style={{marginTop:10}}>
                           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,background:CT.faint,border:`1px solid ${C.border}`,borderRadius:12,padding:"10px 12px"}}>
                             <div style={{minWidth:0}}>
-                              <p style={{fontSize:13,fontWeight:900,color:C.sub,margin:"0 0 3px"}}>⚔️ 퀘스트</p>
-                              <p style={{fontSize:12,fontWeight:700,color:C.sub,margin:0,lineHeight:1.35}}>아래 오늘의 퀘스트에서 완료할 수 있어요</p>
+                              <p style={{fontSize:13,fontWeight:900,color:C.sub,margin:0}}>⚔️ 남은 미션</p>
                             </div>
                             {totalTodoCnt===0?(
                               <span style={{fontSize:13,fontWeight:900,color:"#BBB",background:"#fff",border:`1px solid ${C.border}`,borderRadius:999,padding:"6px 10px",whiteSpace:"nowrap",flexShrink:0}}>
                                 0 / 0
                               </span>
+                            ):allDone?(
+                              <span style={{fontSize:14,fontWeight:900,color:C.green,background:`${C.green}14`,border:`1px solid ${C.green}35`,borderRadius:999,padding:"6px 11px",whiteSpace:"nowrap",flexShrink:0}}>
+                                🎉 클리어!
+                              </span>
                             ):(
-                              <span style={{fontSize:14,fontWeight:900,color:allDone?C.green:C.orange,background:allDone?`${C.green}14`:`${C.orange}14`,border:`1px solid ${allDone?C.green+"35":C.orange+"35"}`,borderRadius:999,padding:"6px 11px",whiteSpace:"nowrap",flexShrink:0}}>
-                                남은 {totalTodoCnt-doneCnt} / 전체 {totalTodoCnt}
+                              <span style={{fontSize:14,fontWeight:900,color:C.orange,background:`${C.orange}14`,border:`1px solid ${C.orange}35`,borderRadius:999,padding:"6px 11px",whiteSpace:"nowrap",flexShrink:0}}>
+                                미완료 {totalTodoCnt-doneCnt} / 전체 {totalTodoCnt}
                               </span>
                             )}
                           </div>
@@ -2480,14 +2603,14 @@ export default function App() {
                 )}
               </div>
 
-              {/* 퀘스트 전체 카드 - 항상 오늘 기준 */}
+              {/* 미션 전체 카드 - 항상 오늘 기준 */}
               {(()=>{
                 const allTodayTodos=getChildQuestBoardItems(childId,childDate);
                 if(allTodayTodos.length===0) return (
                   <div style={{...gameCardT,padding:"28px 16px",textAlign:"center",marginBottom:14}}>
                     <p style={{fontSize:38,margin:"0 0 8px"}}>😴</p>
-                    <p style={{fontSize:17,fontWeight:900,color:C.text,margin:"0 0 4px"}}>오늘은 퀘스트가 없어요!</p>
-                    <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>등록된 퀘스트가 없어요</p>
+                    <p style={{fontSize:17,fontWeight:900,color:C.text,margin:"0 0 4px"}}>오늘은 미션이 없어요!</p>
+                    <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>등록된 미션이 없어요</p>
                   </div>
                 );
                 const q=getTodayQuestProgress(childId,childDate);
@@ -2497,7 +2620,7 @@ export default function App() {
                     <div style={{background:`linear-gradient(135deg, ${mixWhite(th.main,0.70)}, ${mixWhite(th.main,0.56)})`,borderRadius:18,padding:"16px",marginBottom:10,color:GAME.dark,border:`1px solid ${th.main}44`,boxShadow:`0 6px 22px ${th.main}1c`}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                         <div>
-                          <p style={{fontSize:12,margin:0,fontWeight:900,letterSpacing:1.2,color:th.main}}>DAILY QUEST</p>
+                          <p style={{fontSize:12,margin:0,fontWeight:900,letterSpacing:1.2,color:th.main}}>TODAY'S MISSION</p>
                           <p style={{fontSize:21,fontWeight:900,margin:"3px 0 0"}}>{UI_TEXT.section.todayQuest}</p>
                         </div>
                         <div style={{background:"#fff",border:`1px solid ${th.main}33`,borderRadius:14,padding:"8px 11px",textAlign:"center",boxShadow:`0 2px 8px ${th.main}14`}}>
@@ -2512,7 +2635,7 @@ export default function App() {
                         완료 {q.done}개 · 실패 {q.failed}개 · 전체 {q.total}개
                       </p>
                     </div>
-                    {/* 퀘스트 아이템 목록 */}
+                    {/* 미션 아이템 목록 */}
                     <div style={{display:"flex",flexDirection:"column",gap:8}}>
                       {allTodayTodos.map(item=>{
                         const status=getQuestStatus(item);
@@ -2522,7 +2645,7 @@ export default function App() {
                             <div style={{padding:"10px 13px",background:item.done?`${C.green}10`:item.failed?`${C.red}08`:"linear-gradient(135deg,#FFF4D8,#FFFDF8)",borderBottom:"1px solid #F0E0C0",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                               <div>
                                 <p style={{fontSize:11,fontWeight:900,color:item.academyColor,margin:"0 0 2px",letterSpacing:0.8}}>
-                                  {item.kind==="homework"?"📜 DUNGEON SCROLL":"📜 DAILY SCROLL"}
+                                  📜 MISSION SCROLL
                                   {item.carried&&<span style={{color:C.orange}}> · CARRY OVER</span>}
                                 </p>
                                 <p style={{fontSize:13,fontWeight:900,color:C.text,margin:0}}>{item.academyName}</p>
@@ -2543,6 +2666,7 @@ export default function App() {
                               <div style={{flex:1,minWidth:0}}>
                                 <p style={{fontSize:16,fontWeight:900,color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",margin:"0 0 5px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                                   {item.kind==="homework"?`숙제 : ${item.label}`:item.label}
+                                  {item.carried&&<span style={{fontSize:12,fontWeight:800,color:C.orange,marginLeft:6,textDecoration:"none"}}>({(()=>{const d=parseLocal(item.date);return `${d.getMonth()+1}월${d.getDate()}일`;})()})</span>}
                                 </p>
                                 <p style={{fontSize:12,fontWeight:900,color:item.failed?C.red:GAME.gold,margin:0}}>
                                   {item.failed?"보상 없음":getQuestRewardText(item)}
@@ -2921,7 +3045,7 @@ export default function App() {
                   icon="🎁" title="보물창고"
                   subtitle={getTotalTreasureCount(childId)>0
                     ?`📦 ${getChildTreasure(childId).normalBox}  🎁 ${getChildTreasure(childId).rareBox}  👑 ${getChildTreasure(childId).legendBox}  ← 탭해서 열기!`
-                    :`퀘스트 완료 시 상자를 획득해요 · ${getChildTreasure(childId).completedQuestCount} CLEAR`}
+                    :`미션 완료 시 상자를 획득해요 · ${getChildTreasure(childId).completedQuestCount} CLEAR`}
                   open={openTreasure} onToggle={()=>setOpenTreasure(v=>!v)}
                 />
                 {openTreasure&&(
@@ -3101,7 +3225,7 @@ export default function App() {
               <div style={characterCardT}>
                 <CharacterSectionHeader
                   icon="📖" title="모험 기록"
-                  subtitle="최근 퀘스트·보상·아이템 활동 기록"
+                  subtitle="최근 미션·보상·아이템 활동 기록"
                   open={openHistory} onToggle={()=>setOpenHistory(v=>!v)}
                 />
                 {openHistory&&(
@@ -3110,7 +3234,7 @@ export default function App() {
                       <div style={{textAlign:"center",padding:"24px 10px"}}>
                         <p style={{fontSize:42,marginBottom:8}}>📖</p>
                         <p style={{fontSize:16,fontWeight:900,color:C.text,margin:"0 0 6px"}}>아직 모험 기록이 없어요</p>
-                        <p style={{fontSize:12,color:C.sub,margin:0}}>퀘스트를 완료하면 기록이 쌓여요</p>
+                        <p style={{fontSize:12,color:C.sub,margin:0}}>미션을 완료하면 기록이 쌓여요</p>
                       </div>
                     ):(
                       <div>
@@ -3274,13 +3398,13 @@ export default function App() {
         </div>
       )}
 
-      {/* ── 퀘스트 결과 모달 ── */}
+      {/* ── 미션 결과 모달 ── */}
       {questResultModal&&(
         <div style={{...GAME_MODAL_STYLE.overlay,pointerEvents:"none",zIndex:1300}}>
           <div style={GAME_MODAL_STYLE.card}>
             <GameModalHeader
               emoji={questResultModal.type==="clear"?"⚔️":"💥"}
-              title={questResultModal.type==="clear"?"퀘스트 클리어!":"퀘스트 실패"}
+              title={questResultModal.type==="clear"?"미션 클리어!":"미션 실패"}
               color={questResultModal.type==="clear"
                 ?`linear-gradient(135deg, ${GAME.green}, ${GAME.gold})`
                 :`linear-gradient(135deg, ${C.red}, #FF8A80)`}
@@ -3567,11 +3691,11 @@ export default function App() {
                       {/* 학원별 할 일 요약 */}
                       <div style={{marginBottom:12}}>
                         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:7}}>
-                          <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0}}>🎯 퀘스트 요약</p>
+                          <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0}}>🎯 미션 요약</p>
                           {totalTodoCnt>0&&<span style={{fontSize:13,fontWeight:800,color:allDone?C.green:C.orange}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
                         </div>
                         {totalTodoCnt===0?(
-                          <p style={{fontSize:14,color:"#CCC",margin:0}}>등록된 퀘스트 없음</p>
+                          <p style={{fontSize:14,color:"#CCC",margin:0}}>등록된 미션 없음</p>
                         ):(
                           <div style={{display:"flex",flexDirection:"column",gap:5,background:CT.faint,border:`1px solid ${C.border}`,borderRadius:10,padding:"9px 10px"}}>
                             {hw.map(h=>(
@@ -3593,7 +3717,7 @@ export default function App() {
                       </div>
                       <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:homeDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
                         style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
-                        🎯 퀘스트 · 준비물 편집
+                        🎯 미션 · 준비물 편집
                       </button>
                     </div>
                   </div>
@@ -3868,7 +3992,7 @@ export default function App() {
                             </div>
                             <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
                               style={{width:"100%",padding:"7px 10px",borderRadius:9,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
-                              🎯 퀘스트 · 준비물 편집
+                              🎯 미션 · 준비물 편집
                             </button>
                           </div>
                         </div>
@@ -4019,7 +4143,7 @@ export default function App() {
         {/* ════ 보상 탭 ════ */}
         {tab==="reward"&&(
           <div>
-            {/* 오늘의 퀘스트 카드 */}
+            {/* 오늘의 미션 카드 */}
             {(()=>{
               const rewardTodayTodos=getQuestItemsForDate(childId,TODAY);
               const doneCnt=rewardTodayTodos.filter(i=>i.done).length;
@@ -4029,8 +4153,8 @@ export default function App() {
                   <button onClick={()=>setShowParentTodayQuest(v=>!v)}
                     style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
                     <div style={{textAlign:"left"}}>
-                      <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎯 오늘의 퀘스트</p>
-                      <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{doneCnt}/{rewardTodayTodos.length} 완료 · 오늘 퀘스트 관리</p>
+                      <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎯 오늘의 미션</p>
+                      <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{doneCnt}/{rewardTodayTodos.length} 완료 · 오늘 미션 관리</p>
                     </div>
                     <span style={{fontSize:12,fontWeight:900,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,padding:"6px 9px",borderRadius:14}}>
                       {showParentTodayQuest?"접기 ▲":"열기 ▼"}
@@ -4040,12 +4164,12 @@ export default function App() {
                     <div style={{marginTop:14}}>
                       <button onClick={()=>setShowTodoPickerModal(TODAY)}
                         style={{width:"100%",padding:"9px 10px",borderRadius:10,border:`1px dashed ${th.main}50`,background:`${th.main}08`,color:th.main,fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10}}>
-                        ✏️ 퀘스트 수정
+                        ✏️ 미션 수정
                       </button>
                       {rewardTodayTodos.length===0?(
                         <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
                           <p style={{fontSize:26,margin:0}}>🌿</p>
-                          <p style={{fontSize:14,margin:"6px 0 0"}}>등록된 퀘스트가 없어요</p>
+                          <p style={{fontSize:14,margin:"6px 0 0"}}>등록된 미션이 없어요</p>
                         </div>
                       ):(
                         <div style={{display:"flex",flexDirection:"column",gap:7}}>
@@ -4060,7 +4184,7 @@ export default function App() {
                               </button>
                               <div style={{flex:1,minWidth:0}}>
                                 <p style={{fontSize:11,color:item.academyColor,margin:"0 0 1px",fontWeight:800}}>
-                                  {item.kind==="homework"?"📚":"✅"} {item.academyName}{item.kind==="homework"?" 퀘스트":""}
+                                  {item.kind==="homework"?"📚":"✅"} {item.academyName}{item.kind==="homework"?" 미션":""}
                                 </p>
                                 <p style={{fontSize:15,fontWeight:700,margin:0,color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</p>
                               </div>
@@ -4300,7 +4424,7 @@ export default function App() {
                         <div style={parentInnerCard}>
                           <p style={parentInnerTitle}>🎁 보물창고</p>
                           <p style={parentInnerSub}>
-                            퀘스트 완료 누적 {treasure.completedQuestCount||0}개 · 상자 총 {getTotalTreasureCount(childId)}개 보유
+                            미션 완료 누적 {treasure.completedQuestCount||0}개 · 상자 총 {getTotalTreasureCount(childId)}개 보유
                           </p>
 
                           <div style={{
@@ -4339,7 +4463,7 @@ export default function App() {
                         {/* 연속 달성 */}
                         <div style={parentInnerCard}>
                           <p style={parentInnerTitle}>🔥 연속 달성</p>
-                          <p style={parentInnerSub}>퀘스트를 빠짐없이 완료한 기록이에요.</p>
+                          <p style={parentInnerSub}>미션을 빠짐없이 완료한 기록이에요.</p>
 
                           <div style={{
                             display:"grid",
@@ -4617,7 +4741,7 @@ export default function App() {
                         <div style={parentInnerCard}>
                           <p style={parentInnerTitle}>📖 모험기록</p>
                           <p style={parentInnerSub}>
-                            최근 퀘스트 완료, 보물상자, 보상 구매 기록이에요.
+                            최근 미션 완료, 보물상자, 보상 구매 기록이에요.
                           </p>
 
                           <div style={{marginTop:10}}>
@@ -4770,6 +4894,10 @@ export default function App() {
                   style={{display:"none"}}
                 />
               </label>
+
+              <p style={{fontSize:12,fontWeight:600,color:C.sub,lineHeight:1.5,margin:"10px 0 0"}}>
+                ※ 다른 기기에서도 복원하여 사용할 수 있습니다.
+              </p>
             </div>
 
             <div style={{...gameCard,padding:"16px",marginBottom:14}}>
@@ -4865,7 +4993,7 @@ export default function App() {
             <div style={{...gameCard,padding:"16px",marginTop:14,textAlign:"center"}}>
               <p style={{fontSize:15,fontWeight:900,margin:"0 0 6px",color:C.text}}>ℹ️ 앱 정보</p>
               <p style={{fontSize:13,fontWeight:900,color:C.text,margin:"0 0 3px"}}>
-                HARANG 아이 성장 퀘스트
+                HARANG 아이 성장 미션
               </p>
               <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:"0 0 6px"}}>
                 버전 1.0
@@ -4881,15 +5009,15 @@ export default function App() {
 
       {/* ════════ 모달들 ════════ */}
 
-      {/* ── 퀘스트 수정 학원 선택 피커 ── */}
+      {/* ── 미션 수정 학원 선택 피커 ── */}
       {showTodoPickerModal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowTodoPickerModal(null)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 18px 44px",width:"100%",maxWidth:430,boxSizing:"border-box",maxHeight:"80vh",overflowY:"auto"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>✏️ 퀘스트 수정</h3>
+              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>✏️ 미션 수정</h3>
               <button onClick={()=>setShowTodoPickerModal(null)} style={{background:CT.faint,border:"none",borderRadius:8,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
-            <p style={{fontSize:12,color:C.sub,fontWeight:600,margin:"0 0 14px"}}>수정할 학원을 선택하거나, 기타 퀘스트를 추가하세요</p>
+            <p style={{fontSize:12,color:C.sub,fontWeight:600,margin:"0 0 14px"}}>수정할 학원을 선택하거나, 기타 미션을 추가하세요</p>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {curAc.map(ac=>(
                 <button key={ac.id} onClick={()=>{
@@ -4906,16 +5034,16 @@ export default function App() {
                   <span style={{fontSize:12,color:ac.color,fontWeight:700}}>선택 →</span>
                 </button>
               ))}
-              {/* 기타 퀘스트 */}
+              {/* 기타 미션 */}
               <button onClick={()=>{
-                setShowDailyModal({academyId:EXTRA_QUEST_ID,date:showTodoPickerModal,acName:"기타 퀘스트",acColor:th.main,baseSupplies:[]});
+                setShowDailyModal({academyId:EXTRA_QUEST_ID,date:showTodoPickerModal,acName:"기타 미션",acColor:th.main,baseSupplies:[]});
                 setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
                 setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
                 setShowTodoPickerModal(null);
               }} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",borderRadius:13,border:`1.5px dashed ${th.main}40`,background:`${th.main}06`,cursor:"pointer",textAlign:"left"}}>
                 <div style={{width:9,height:9,borderRadius:"50%",background:th.main,flexShrink:0}}/>
                 <div style={{flex:1}}>
-                  <p style={{fontSize:15,fontWeight:900,margin:0,color:th.main}}>기타 퀘스트</p>
+                  <p style={{fontSize:15,fontWeight:900,margin:0,color:th.main}}>기타 미션</p>
                   <p style={{fontSize:11,color:C.sub,margin:"2px 0 0",fontWeight:600}}>학원 관련 없는 할 일을 추가해요</p>
                 </div>
                 <span style={{fontSize:12,color:th.main,fontWeight:700}}>선택 →</span>
@@ -5316,6 +5444,18 @@ export default function App() {
               <input value={supplyInput} onChange={e=>setSupplyInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseSupply()} placeholder="예: 교재, 필통" style={{...inp,flex:1,width:"auto"}}/>
               <button onClick={addBaseSupply} style={{padding:"0 18px",borderRadius:10,border:"none",background:newAc.color,color:"#fff",fontWeight:700,fontSize:17,cursor:"pointer"}}>추가</button>
             </div>
+            <label style={lbl}>📚 항상 해야 할 숙제 <span style={{fontSize:13,color:C.sub,fontWeight:400}}>(수업일 미션에 자동 추가)</span></label>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
+              {(newAc.baseHomeworks||[]).map((s,i)=>(
+                <span key={i} style={{fontSize:17,padding:"5px 12px",borderRadius:20,background:`${newAc.color}18`,color:newAc.color,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
+                  {s}<button onClick={()=>removeBaseHomework(i)} style={{background:"none",border:"none",color:newAc.color,cursor:"pointer",fontSize:17,padding:0}}>✕</button>
+                </span>
+              ))}
+            </div>
+            <div style={{display:"flex",gap:8,marginBottom:16}}>
+              <input value={baseHwInput} onChange={e=>setBaseHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseHomework()} placeholder="예: 문제집 2쪽, 단어 10개" style={{...inp,flex:1,width:"auto"}}/>
+              <button onClick={addBaseHomework} style={{padding:"0 18px",borderRadius:10,border:"none",background:newAc.color,color:"#fff",fontWeight:700,fontSize:17,cursor:"pointer"}}>추가</button>
+            </div>
             <div style={{borderTop:`1px solid ${C.border}`,paddingTop:16,marginBottom:16}}>
               <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 14px"}}>📋 연락처 정보 <span style={{fontSize:17,color:C.sub,fontWeight:400}}>(선택)</span></p>
               <label style={lbl}>👩‍🏫 담당 선생님</label>
@@ -5460,8 +5600,8 @@ export default function App() {
                   </div>
                 </div>
               )}
-              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>🎯 오늘의 퀘스트</p>
-              {hw.length===0&&todos.length===0&&<p style={{fontSize:17,color:C.sub,marginBottom:10}}>등록된 퀘스트가 없어요</p>}
+              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>🎯 오늘의 미션</p>
+              {hw.length===0&&todos.length===0&&<p style={{fontSize:17,color:C.sub,marginBottom:10}}>등록된 미션이 없어요</p>}
               <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:12}}>
                 {hw.map(h=>(
                   <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:h.done?`${C.green}08`:CT.faint,border:`1.5px solid ${h.done?C.green+"30":CT.faintB}`}}>
@@ -5487,10 +5627,10 @@ export default function App() {
                 <button onClick={addHw} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",flexShrink:0}}>숙제</button>
               </div>
               <div style={{display:"flex",gap:6,marginBottom:20,alignItems:"center"}}>
-                <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="퀘스트 입력" style={{...inp,flex:3,width:"auto",fontSize:14,padding:"9px 10px"}}/>
+                <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="미션 입력" style={{...inp,flex:3,width:"auto",fontSize:14,padding:"9px 10px"}}/>
                 <input type="number" value={dailyTodoPoint} onChange={e=>setDailyTodoPoint(e.target.value)} style={{...inp,width:52,fontSize:14,padding:"9px 6px",textAlign:"center"}} min="1"/>
                 <span style={{fontSize:12,color:C.sub,flexShrink:0}}>점</span>
-                <button onClick={addTodo} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",flexShrink:0}}>퀘스트</button>
+                <button onClick={addTodo} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",flexShrink:0}}>미션</button>
               </div>
               <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>📦 이번 수업 추가 준비물</p>
               <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:10}}>
