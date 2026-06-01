@@ -6,16 +6,16 @@ const DAY_COLORS = { 월:"#FF6B6B", 화:"#FF9F43", 수:"#4A90E2", 목:"#9B59B6",
 
 // 성별별 테마
 const GENDER_THEME = {
-  boy:  { emoji:"👦", main:"#4A90E2", light:"#DEEBFA", lightTop:"#F4F8FD", grad:"linear-gradient(135deg,#4A90E2,#6EC6F5)" },
-  girl: { emoji:"👧", main:"#EFA6B8", light:"#FCEFF2", lightTop:"#FEFAFB", grad:"linear-gradient(135deg,#EFA6B8,#F7C7D4)" },
+  boy:  { emoji:"👦", main:"#3B7ECD", light:"#E4EDF8", lightTop:"#F5F9FC", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" },
+  girl: { emoji:"👧", main:"#DE869C", light:"#FAEEF1", lightTop:"#FDF9FA", grad:"linear-gradient(135deg,#DE869C,#EEC8D1)" },
 };
 
 const CHILD_THEME_COLORS = [
-  { name:"하늘",   main:"#4A90E2", light:"#DEEBFA", lightTop:"#F4F8FD", grad:"linear-gradient(135deg,#4A90E2,#6EC6F5)" },
-  { name:"연분홍", main:"#EFA6B8", light:"#FCEFF2", lightTop:"#FEFAFB", grad:"linear-gradient(135deg,#EFA6B8,#F7C7D4)" },
-  { name:"라벤더", main:"#A99BEF", light:"#F0EDFC", lightTop:"#FAF9FE", grad:"linear-gradient(135deg,#A99BEF,#C9BFFF)" },
-  { name:"민트",   main:"#6BCBB8", light:"#E4F6F2", lightTop:"#F6FCFB", grad:"linear-gradient(135deg,#6BCBB8,#A5E7DA)" },
-  { name:"살구",   main:"#F3B27A", light:"#FDF1E7", lightTop:"#FEFAF7", grad:"linear-gradient(135deg,#F3B27A,#FFD0A3)" },
+  { name:"하늘", main:"#3B7ECD", light:"#E4EDF8", lightTop:"#F5F9FC", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" },
+  { name:"연분홍", main:"#DE869C", light:"#FAEEF1", lightTop:"#FDF9FA", grad:"linear-gradient(135deg,#DE869C,#EEC8D1)" },
+  { name:"라벤더", main:"#8D7DDE", light:"#EFEDFA", lightTop:"#F9F8FD", grad:"linear-gradient(135deg,#8D7DDE,#C7C0ED)" },
+  { name:"민트", main:"#5AB7A5", light:"#E8F5F2", lightTop:"#F7FBFA", grad:"linear-gradient(135deg,#5AB7A5,#95CDC2)" },
+  { name:"살구", main:"#E19C60", light:"#FBF1E9", lightTop:"#FEFAF7", grad:"linear-gradient(135deg,#E19C60,#EBC7A8)" },
 ];
 
 const C = {
@@ -397,24 +397,8 @@ const getCalDays = (y,m) => {
 const getDN = (y,m,d) => ["일","월","화","수","목","금","토"][new Date(y,m,d).getDay()];
 
 // ── 저장 ─────────────────────────────────
-// 배포 환경: localStorage 사용
-const save = async (k, v) => {
-  try {
-    localStorage.setItem(k, JSON.stringify(v));
-  } catch (e) {
-    console.error("save error", e);
-  }
-};
-
-const load = async (k) => {
-  try {
-    const raw = localStorage.getItem(k);
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    console.error("load error", e);
-    return null;
-  }
-};
+const save = async (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const load = async (k) => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch (e) { return null; } };
 
 // ── SMS ─────────────────────────────────
 const smsLink=(phone,body="")=>{ const enc=encodeURIComponent(body); const ios=/iPad|iPhone|iPod/.test(navigator.userAgent); return `sms:${phone}${body?(ios?`&body=${enc}`:`?body=${enc}`):""}` };
@@ -431,7 +415,7 @@ const buildSampleData = () => {
   const children = [{ id:cid, name:"아이1(예시)", gender:"boy" }];
   const academies = {
     [cid]: [
-      { ...EMPTY_AC, id:acSample, name:"피아노 학원", days:["월","화","수","목","금","토","일"], time:"16:00", duration:60, color:"#6C63FF", teacher:"김선생님", baseSupplies:["악보"], memo:"예시 학원이에요. 길게 눌러 수정·삭제할 수 있어요." },
+      { ...EMPTY_AC, id:acSample, name:"피아노 학원 (예시)", days:["월","화","수","목","금","토","일"], time:"16:00", duration:60, color:"#6C63FF", teacher:"김선생님", baseSupplies:["악보"], memo:"" },
     ]
   };
   // 오늘 날짜에 숙제 1개 · 미션 1개 (직접 눌러서 XP·코인이 오르는 걸 체험)
@@ -1007,7 +991,21 @@ export default function App() {
     if(!window.confirm(`${nm}의 모든 기록이 삭제됩니다.\n정말 초기화할까요?`)) return;
     if(!window.confirm("초기화 후 복구할 수 없습니다.\n정말 진행할까요?")) return;
     setScoreData(prev=>({...prev,[cid]:{xp:0,coin:0,history:[]}}));
-    setTreasureData(prev=>({...prev,[cid]:{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0}}));
+    // 등록한 학원·미션은 유지하되, 완료 표시(done/failed)만 해제 → 업적·칭호가 다시 해금되지 않도록
+    setDailyData(prev=>{
+      const next={...prev};
+      Object.keys(next).forEach(key=>{
+        if(!key.startsWith(`${cid}-`)) return;
+        const e=next[key];
+        next[key]={
+          ...e,
+          homeworks:(e.homeworks||[]).map(h=>({...h,done:false,failed:false})),
+          todos:(e.todos||[]).map(t=>({...t,done:false,failed:false})),
+        };
+      });
+      return next;
+    });
+    setTreasureData(prev=>({...prev,[cid]:{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0,rewardedQuestKeys:[]}}));
     setSelectedTitles(prev=>({...prev,[cid]:"rookie"}));
     setSpecialTitles(prev=>({...prev,[cid]:[]}));
     setSeenBadges(prev=>({...prev,[cid]:[]}));
@@ -1020,34 +1018,7 @@ export default function App() {
   const resetAllAppData=()=>{
     if(!window.confirm("정말 앱 전체를 초기화할까요?")) return;
     if(!window.confirm("아이/학원/미션/설정이 모두 삭제돼요. 정말 삭제할까요?")) return;
-    [
-  "v6_children",
-  "v6_ac",
-  "v6_abs",
-  "v6_paid",
-  "v6_dm",
-  "v6_daily",
-  "v6_base_seeded",
-  "v6_tmpl",
-  "v6_cid",
-  "v6_vac",
-  "v6_parent_pin",
-  "v6_score",
-  "v6_reward",
-  "v6_reward_requests",
-  "v6_unlocked_badges",
-  "v6_badge_data",
-  "v6_last_level",
-  "v6_selected_titles",
-  "v6_treasure",
-  "v6_seen_badges",
-  "v6_seen_titles",
-  "v6_earned_titles",
-  "v6_special_titles",
-  "v6_best_streak",
-  "v6_sample_seeded",
-  "v6_first_guide_seen"
-].forEach(k => localStorage.removeItem(k));
+    try { localStorage.clear(); } catch (e) {}
     setChildren(DEFAULT_CHILDREN); setChildId("child_1");
     setAcademies({}); setAbsences({}); setPaidStatus({}); setDayMemos({});
     setDailyData({}); setScoreData({}); setRewardData({}); setRewardRequests({});
@@ -1294,29 +1265,7 @@ export default function App() {
   const getDailyEntry=(cid,aId,date)=>dailyData[dKey(cid,aId,date)]||{homeworks:[],supplies:[],todos:[]};
   const setDailyEntry=(cid,aId,date,entry)=>setDailyData(p=>({...p,[dKey(cid,aId,date)]:entry}));
 
-  // ── 기본 숙제 자동 추가: 수업 있는 날, 학원의 baseHomeworks를 그날 미션으로 1회 시딩 ──
-  const seedBaseHomeworks=(cid,date)=>{
-    if(!cid||!date) return;
-    const dn=["일","월","화","수","목","금","토"][new Date(date+"T00:00:00").getDay()];
-    const list=academies[cid]||[];
-    list.forEach(ac=>{
-      const base=ac.baseHomeworks||[];
-      if(base.length===0) return;
-      if(!hasClassOnDay(ac,dn)) return;            // 수업 있는 날만
-      const seedKey=`${cid}-${ac.id}-${date}`;
-      if(baseSeededKeys[seedKey]) return;          // 이미 시딩한 학원-날짜면 skip (지워도 재생성 안 함)
-      setDailyData(prev=>{
-        const k=dKey(cid,ac.id,date);
-        const cur=prev[k]||{homeworks:[],supplies:[],todos:[]};
-        const newHws=base.map((t,i)=>({id:Date.now()+i+Math.floor(Math.random()*1000),text:t,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}));
-        return {...prev,[k]:{...cur,homeworks:[...(cur.homeworks||[]),...newHws]}};
-      });
-      setBaseSeededKeys(prev=>({...prev,[seedKey]:true}));
-    });
-  };
-  // 아이 모드 날짜·부모 모드 날짜가 바뀔 때 각각 시딩
-  useEffect(()=>{ if(loaded&&childId) seedBaseHomeworks(childId,childDate); },[loaded,childId,childDate,academies]);
-  useEffect(()=>{ if(loaded&&childId) seedBaseHomeworks(childId,homeDate); },[loaded,childId,homeDate,academies]);
+  // ── 상시 숙제: 자동 추가하지 않음. 미션 모달의 '미션에 추가' 버튼으로만 반영 ──
 
   const getAcademyById=(cid,academyId)=>{
     if(String(academyId)===String(EXTRA_QUEST_ID)){
@@ -3650,6 +3599,9 @@ export default function App() {
               )}
 
               {/* 학원 카드 */}
+              {homeAc.length>0&&(
+                <p style={{fontSize:17,color:C.sub,fontWeight:700,margin:"0 0 10px",letterSpacing:0.5}}>📍 오늘의 학원 ({homeAc.length})</p>
+              )}
               {homeAc.map(ac=>{
                 const sc=getScheduleForDay(ac,hDN);
                 const [h,m]=(sc?.time||"00:00").split(":").map(Number);
@@ -3675,7 +3627,7 @@ export default function App() {
                       </div>
                       <div style={{display:"flex",gap:8}}>
                         {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:38,height:38,borderRadius:10,background:`${C.green}15`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,textDecoration:"none"}}>📞</a>}
-                        {ac.phone&&<a href={smsLink(ac.phone)} style={{width:38,height:38,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,textDecoration:"none"}}>💬</a>}
+                        {ac.phone&&<button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:38,height:38,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,cursor:"pointer"}}>💬</button>}
                       </div>
                     </div>
                     <div style={{padding:"14px 16px"}}>
@@ -3725,9 +3677,10 @@ export default function App() {
               })}
 
               {/* 등록 학원 목록 */}
+              <div style={{borderTop:`2px solid ${C.border}`,margin:"24px 0 0",paddingTop:18}}>
               <div style={{marginBottom:8}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                  <p style={{fontSize:17,color:C.sub,fontWeight:700,margin:0,letterSpacing:0.5}}>📋 등록 학원 ({curAc.length})</p>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,background:CT.faint,border:`1px solid ${C.border}`,borderRadius:12,padding:"10px 14px"}}>
+                  <p style={{fontSize:16,color:C.text,fontWeight:900,margin:0,letterSpacing:0.3}}>📋 등록 학원 <span style={{color:C.sub,fontWeight:700}}>({curAc.length})</span></p>
                   <button onClick={openAdd} style={{fontSize:13,padding:"5px 12px",borderRadius:8,border:"none",background:th.grad,color:"#fff",fontWeight:700,cursor:"pointer"}}>+ 학원 추가</button>
                   {children.filter(c=>c.id!==childId).length>0&&(
                     <button onClick={()=>{ setCopySourceChildId(children.find(c=>c.id!==childId)?.id||""); setCopySelectedAcademyIds([]); setShowAcademyCopyModal(true); }}
@@ -3771,6 +3724,7 @@ export default function App() {
                     ))}
                   </div>
                 )}
+              </div>
               </div>
             </div>
           );
@@ -4029,12 +3983,6 @@ export default function App() {
                                       ⏰ {ac.classTime} · {ac.duration}분{ac.shuttle?` · 🚌 ${ac.shuttle}`:""}
                                     </p>
                                   </div>
-                                  {ac.phone&&(
-                                    <div style={{display:"flex",gap:5}}>
-                                      <a href={`tel:${ac.phone}`} style={{width:30,height:30,borderRadius:9,background:`${C.green}14`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",fontSize:15}}>📞</a>
-                                      <a href={smsLink(ac.phone)} style={{width:30,height:30,borderRadius:9,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",fontSize:15}}>💬</a>
-                                    </div>
-                                  )}
                                 </div>
                               ))}
                             </div>
@@ -4921,27 +4869,27 @@ export default function App() {
               </button>
 
               {openSmsManage&&(
-                <div style={{marginTop:16}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-              <p style={{fontSize:17,color:C.sub,fontWeight:700,margin:0}}>문자 템플릿 관리</p>
-              <button onClick={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }} style={{padding:"7px 14px",borderRadius:8,border:"none",background:th.grad,color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ 새 템플릿</button>
+                <div style={{marginTop:14}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+              <p style={{fontSize:14,color:C.sub,fontWeight:700,margin:0}}>문자 템플릿 관리</p>
+              <button onClick={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }} style={{padding:"6px 12px",borderRadius:8,border:"none",background:th.grad,color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}}>+ 새 템플릿</button>
             </div>
-            <div style={{background:`${C.purple}08`,border:`1px solid ${C.purple}25`,borderRadius:12,padding:"12px 16px",marginBottom:16}}>
-              <p style={{fontSize:17,color:C.purple,fontWeight:700,margin:"0 0 6px"}}>📌 사용 가능한 변수</p>
+            <div style={{background:`${C.purple}08`,border:`1px solid ${C.purple}25`,borderRadius:10,padding:"10px 13px",marginBottom:13}}>
+              <p style={{fontSize:13,color:C.purple,fontWeight:700,margin:"0 0 6px"}}>📌 사용 가능한 변수</p>
               <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                {["{아이이름}","{학원명}","{날짜}","{시간}"].map(v=><span key={v} style={{fontSize:17,padding:"3px 10px",borderRadius:6,background:C.purpleL,color:C.purple,fontWeight:600}}>{v}</span>)}
+                {["{아이이름}","{학원명}","{날짜}","{시간}"].map(v=><span key={v} style={{fontSize:12,padding:"3px 9px",borderRadius:6,background:C.purpleL,color:C.purple,fontWeight:600}}>{v}</span>)}
               </div>
             </div>
             {templates.map(tmpl=>(
-              <div key={tmpl.id} style={{background:CT.card,borderRadius:14,padding:"16px 18px",marginBottom:12,border:`1px solid ${C.border}`}}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-                  <span style={{fontWeight:700,fontSize:17,color:C.text}}>💬 {tmpl.title}</span>
+              <div key={tmpl.id} style={{background:CT.card,borderRadius:12,padding:"13px 15px",marginBottom:10,border:`1px solid ${C.border}`}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                  <span style={{fontWeight:700,fontSize:14,color:C.text}}>💬 {tmpl.title}</span>
                   <div style={{display:"flex",gap:6}}>
                     <button onClick={()=>{ setShowTmplEdit(tmpl.id); setEditTmpl({title:tmpl.title,body:tmpl.body}); }} style={{padding:"4px 10px",borderRadius:6,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:12,cursor:"pointer"}}>수정</button>
                     <button onClick={()=>{ setTemplates(p=>p.filter(t=>t.id!==tmpl.id)); showToast("삭제됨"); }} style={{padding:"4px 10px",borderRadius:6,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,fontSize:12,cursor:"pointer"}}>삭제</button>
                   </div>
                 </div>
-                <p style={{fontSize:17,color:C.sub,margin:0,whiteSpace:"pre-wrap",background:CT.faint,borderRadius:8,padding:"10px 12px"}}>{tmpl.body}</p>
+                <p style={{fontSize:13,color:C.sub,margin:0,whiteSpace:"pre-wrap",background:CT.faint,borderRadius:8,padding:"9px 11px",lineHeight:1.5}}>{tmpl.body}</p>
               </div>
             ))}
                 </div>
@@ -5444,7 +5392,7 @@ export default function App() {
               <input value={supplyInput} onChange={e=>setSupplyInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseSupply()} placeholder="예: 교재, 필통" style={{...inp,flex:1,width:"auto"}}/>
               <button onClick={addBaseSupply} style={{padding:"0 18px",borderRadius:10,border:"none",background:newAc.color,color:"#fff",fontWeight:700,fontSize:17,cursor:"pointer"}}>추가</button>
             </div>
-            <label style={lbl}>📚 항상 해야 할 숙제 <span style={{fontSize:13,color:C.sub,fontWeight:400}}>(수업일 미션에 자동 추가)</span></label>
+            <label style={lbl}>📚 항상 해야 할 숙제 <span style={{fontSize:13,color:C.sub,fontWeight:400}}>(미션에서 버튼으로 추가)</span></label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseHomeworks||[]).map((s,i)=>(
                 <span key={i} style={{fontSize:17,padding:"5px 12px",borderRadius:20,background:`${newAc.color}18`,color:newAc.color,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
@@ -5632,6 +5580,37 @@ export default function App() {
                 <span style={{fontSize:12,color:C.sub,flexShrink:0}}>점</span>
                 <button onClick={addTodo} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",flexShrink:0}}>미션</button>
               </div>
+              {(()=>{
+                const acObj=getAcademyById(childId,academyId);
+                const base=acObj?.baseHomeworks||[];
+                if(base.length===0) return null;
+                const existing=hw.map(h=>h.text);
+                const addOne=(t)=>{
+                  if(existing.includes(t)){ showToast("이미 추가된 숙제예요"); return; }
+                  upd({...entry,homeworks:[...hw,{id:Date.now(),text:t,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
+                  showToast("상시 숙제를 추가했어요 📚");
+                };
+                return (
+                  <div style={{marginBottom:20}}>
+                    <p style={{fontSize:14,fontWeight:800,color:acColor,margin:"0 0 8px"}}>📌 상시 숙제</p>
+                    <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                      {base.map((s,i)=>{
+                        const added=existing.includes(s);
+                        return (
+                          <div key={i} style={{display:"flex",gap:6,alignItems:"center"}}>
+                            <div style={{...inp,flex:3,width:"auto",fontSize:14,padding:"9px 10px",display:"flex",alignItems:"center",color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
+                              {added&&<span style={{color:C.green,marginRight:5,fontWeight:900}}>✓</span>}{s}
+                            </div>
+                            <button onClick={()=>addOne(s)} disabled={added} style={{padding:"9px 12px",borderRadius:10,border:"none",background:added?CT.faintB:acColor,color:added?C.sub:"#fff",fontWeight:700,fontSize:14,cursor:added?"default":"pointer",flexShrink:0}}>
+                              {added?"추가됨":"추가"}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>📦 이번 수업 추가 준비물</p>
               <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:10}}>
                 {sup.map((s,i)=>(
