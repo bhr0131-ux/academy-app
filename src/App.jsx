@@ -1006,6 +1006,7 @@ export default function App() {
       return next;
     });
     setTreasureData(prev=>({...prev,[cid]:{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0,rewardedQuestKeys:[]}}));
+    setRewardRequests(prev=>({...prev,[cid]:[]}));
     setSelectedTitles(prev=>({...prev,[cid]:"rookie"}));
     setSpecialTitles(prev=>({...prev,[cid]:[]}));
     setSeenBadges(prev=>({...prev,[cid]:[]}));
