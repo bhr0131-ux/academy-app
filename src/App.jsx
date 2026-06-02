@@ -132,6 +132,15 @@ const CHARACTER_EVOLUTIONS = [
   { minLevel:17, name:"전설의 수호자", avatar:{boy:"🧙‍♂️",girl:"🧙‍♀️"}, badge:"👑", bg:"linear-gradient(135deg,#FFF7ED,#FEF3C7)" },
 ];
 
+// 진화 단계별 격려 문구
+const EVOLUTION_MESSAGES = {
+  "새싹 모험가":   "모든 위대한 모험은 작은 한 걸음에서 시작돼요.",
+  "견습 용사":     "매일의 작은 노력이 강한 용사를 만들고 있어요.",
+  "숙련 헌터":     "해야 할 일을 스스로 찾아 해결하는 힘이 생겼어요.",
+  "영웅 기사":     "책임감과 용기를 갖춘 진정한 영웅으로 성장하고 있어요.",
+  "전설의 수호자": "자신의 길을 스스로 만들어가는 전설적인 수호자예요.",
+};
+
 const LEVEL_UP_REWARDS = {
   5:20, 10:40, 15:80, 20:150
 };
@@ -734,6 +743,7 @@ export default function App() {
   const [newAbs,setNewAbs] = useState(EMPTY_ABS);
   const [supplyInput,setSupplyInput] = useState("");
   const [baseHwInput,setBaseHwInput] = useState("");
+  const [showAcMore,setShowAcMore] = useState(false); // 학원폼 상세 정보 펼침
   const [dailyHwInput,setDailyHwInput] = useState("");
   const [dailySupInput,setDailySupInput] = useState("");
   const [dailyTodoInput,setDailyTodoInput] = useState("");
@@ -2128,8 +2138,8 @@ export default function App() {
   const todayAc=curAc.filter(a=>hasClassOnDay(a,todayDN())).sort((a,b)=>getClassTime(a,todayDN()).localeCompare(getClassTime(b,todayDN())));
 
   // 학원 CRUD
-  const openAdd=()=>{ setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[],baseHomeworks:[]}); setSupplyInput(""); setBaseHwInput(""); setShowAddAcModal(true); };
-  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowDetailModal(null); setShowAddAcModal(true); };
+  const openAdd=()=>{ setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[],baseHomeworks:[]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(false); setShowAddAcModal(true); };
+  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setShowDetailModal(null); setShowAddAcModal(true); };
   const saveAcademy=()=>{
     if(!newAc.name.trim()||(newAc.useCustomSchedule?(newAc.schedules||[]).length===0:(newAc.days||[]).length===0)){
       showToast("학원명과 수업 요일을 입력해줘"); return;
@@ -2378,7 +2388,7 @@ export default function App() {
                 const q=getTodayQuestProgress(childId,childDate||TODAY);
                 const ready=q.total-q.done-q.failed;
                 return (
-                  <div style={{background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,borderRadius:20,padding:"16px",marginBottom:14,color:"#fff",boxShadow:`0 8px 26px ${th.main}35`}}>
+                  <div style={{background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,borderRadius:20,padding:"16px",marginBottom:14,color:"#fff",boxShadow:`0 8px 26px ${th.main}35`,minHeight:232,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
                       <div>
                         <p style={{fontSize:12,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.2}}>{UI_TEXT.section.dailyDungeon}</p>
@@ -2670,7 +2680,12 @@ export default function App() {
                     padding:"16px",
                     marginBottom:14,
                     color:"#fff",
-                    boxShadow:`0 8px 26px ${th.main}35`
+                    boxShadow:`0 8px 26px ${th.main}35`,
+                    minHeight:232,
+                    boxSizing:"border-box",
+                    display:"flex",
+                    flexDirection:"column",
+                    justifyContent:"space-between"
                   }}>
                     <div style={{
                       display:"flex",
@@ -2682,103 +2697,34 @@ export default function App() {
                       {/* 왼쪽 정보 */}
                       <div style={{flex:1,minWidth:0}}>
                         <p style={{
-                          fontSize:12,
-                          opacity:0.75,
-                          margin:0,
-                          fontWeight:900,
-                          letterSpacing:1.2
+                          fontSize:11,
+                          opacity:0.7,
+                          margin:"0 0 4px",
+                          fontWeight:800,
+                          letterSpacing:1
                         }}>
-                          CHARACTER GROWTH
+                          내 캐릭터 · Lv.{level.level}
                         </p>
 
                         <p style={{
-                          fontSize:22,
+                          fontSize:21,
                           fontWeight:900,
-                          margin:"3px 0 6px",
+                          margin:0,
                           color:"#fff",
-                          lineHeight:1.15
+                          lineHeight:1.2
                         }}>
-                          🧙 캐릭터 성장
+                          {evo.badge} {evo.name}
                         </p>
 
-                        {nextEvo ? (
-                          <div style={{
-                            display:"flex",
-                            alignItems:"center",
-                            gap:8,
-                            marginTop:2
+                        {!nextEvo&&(
+                          <p style={{
+                            fontSize:12,
+                            fontWeight:800,
+                            color:GAME.gold,
+                            margin:"6px 0 0"
                           }}>
-                            <div style={{minWidth:0}}>
-                              <p style={{
-                                fontSize:10,
-                                fontWeight:800,
-                                color:"rgba(255,255,255,0.6)",
-                                margin:"0 0 2px",
-                                letterSpacing:0.5
-                              }}>
-                                현재
-                              </p>
-                              <p style={{
-                                fontSize:13,
-                                fontWeight:900,
-                                color:"#fff",
-                                margin:0,
-                                whiteSpace:"nowrap"
-                              }}>
-                                {evo.badge} {evo.name}
-                              </p>
-                            </div>
-
-                            <span style={{
-                              fontSize:14,
-                              fontWeight:900,
-                              color:GAME.gold,
-                              flexShrink:0
-                            }}>
-                              →
-                            </span>
-
-                            <div style={{minWidth:0}}>
-                              <p style={{
-                                fontSize:10,
-                                fontWeight:800,
-                                color:"rgba(255,255,255,0.6)",
-                                margin:"0 0 2px",
-                                letterSpacing:0.5
-                              }}>
-                                다음 진화
-                              </p>
-                              <p style={{
-                                fontSize:13,
-                                fontWeight:900,
-                                color:GAME.gold,
-                                margin:0,
-                                whiteSpace:"nowrap"
-                              }}>
-                                {nextEvo.badge} {nextEvo.name}
-                              </p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div style={{marginTop:2}}>
-                            <p style={{
-                              fontSize:10,
-                              fontWeight:800,
-                              color:"rgba(255,255,255,0.6)",
-                              margin:"0 0 2px",
-                              letterSpacing:0.5
-                            }}>
-                              현재
-                            </p>
-                            <p style={{
-                              fontSize:13,
-                              fontWeight:900,
-                              color:GAME.gold,
-                              margin:0
-                            }}>
-                              {evo.badge} {evo.name} · 최종 단계
-                            </p>
-                          </div>
+                            🌟 최종 단계 달성!
+                          </p>
                         )}
                       </div>
 
@@ -2842,7 +2788,7 @@ export default function App() {
                             fontWeight:900,
                             color:"rgba(255,255,255,0.82)"
                           }}>
-                            다음 진화까지
+                            다음: {nextEvo.badge} {nextEvo.name}
                           </span>
 
                           <span style={{
@@ -2911,6 +2857,12 @@ export default function App() {
                         🌟 최고의 캐릭터 단계에 도달했어요
                       </p>
                     )}
+
+                    <div style={{borderTop:"1px solid rgba(255,255,255,0.18)",margin:"13px 0 0",paddingTop:11}}>
+                      <p style={{fontSize:12.5,fontWeight:700,lineHeight:1.55,margin:0,color:"rgba(255,255,255,0.9)",textAlign:"center"}}>
+                        💬 {EVOLUTION_MESSAGES[evo.name]||""}
+                      </p>
+                    </div>
                   </div>
                 );
               })()}
@@ -5373,6 +5325,10 @@ export default function App() {
                 {(newAc.schedules||[]).length===0&&<p style={{fontSize:13,color:C.sub,margin:0,textAlign:"center"}}>위에서 요일을 먼저 선택해주세요</p>}
               </div>
             )}
+            <button type="button" onClick={()=>setShowAcMore(v=>!v)} style={{width:"100%",padding:"12px",borderRadius:12,border:`1.5px dashed ${C.border}`,background:CT.faint,color:C.sub,fontSize:14,fontWeight:800,cursor:"pointer",marginBottom:16}}>
+              {showAcMore?"▲ 상세 정보 접기":"▼ 상세 정보 추가 (학원비·준비물·연락처 등)"}
+            </button>
+            {showAcMore&&(<>
             <div style={{display:"flex",gap:10,marginBottom:16}}>
               <div style={{flex:1}}><label style={lbl}>월 학원비(원)</label><input type="number" value={newAc.fee===""?"":newAc.fee} onFocus={e=>{ if(Number(newAc.fee)===0) setNewAc(p=>({...p,fee:""})); }} onChange={e=>setNewAc(p=>({...p,fee:e.target.value===""?"":Number(e.target.value)}))} placeholder="0" style={inp}/></div>
               <div style={{flex:1}}><label style={lbl}>납부일</label><input type="number" min="1" max="31" value={newAc.payDay} onFocus={e=>e.target.select&&e.target.select()} onChange={e=>setNewAc(p=>({...p,payDay:e.target.value===""?"":Number(e.target.value)}))} style={inp}/></div>
@@ -5471,6 +5427,7 @@ export default function App() {
               <label style={lbl}>📝 학원 메모</label>
               <input value={newAc.memo} onChange={e=>setNewAc(p=>({...p,memo:e.target.value}))} placeholder="특이사항, 레벨 등" style={inp}/>
             </div>
+            </>)}
             <button onClick={saveAcademy} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer",boxShadow:`0 4px 16px ${th.main}40`}}>
               {editTarget?"수정 완료 ✓":"추가하기"}
             </button>
