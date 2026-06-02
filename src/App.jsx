@@ -884,19 +884,19 @@ export default function App() {
     }
   };
   const addDevXP=(amount)=>{
-    addChildScore(childId,amount,`개발자 도구 XP +${amount}`,"dev_xp");
-    showToast(`⭐ XP +${amount}`);
+    addChildScore(childId,amount,`개발자 도구 XP ${amount>=0?"+":""}${amount}`,"dev_xp");
+    showToast(`⭐ XP ${amount>=0?"+":""}${amount}`);
   };
 
   const addDevCoin=(amount)=>{
     setScoreData(prev=>{
       const cur=prev[childId]||{xp:0,coin:0,history:[]};
       return {...prev,[childId]:{...cur,
-        coin:Number(cur.coin??cur.balance??cur.total??0)+amount,
-        history:[...(cur.history||[]),{id:Date.now(),point:amount,xp:0,coin:amount,date:TODAY,type:"dev_coin",memo:`개발자 도구 코인 +${amount}`}]
+        coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+amount),
+        history:[...(cur.history||[]),{id:Date.now(),point:amount,xp:0,coin:amount,date:TODAY,type:"dev_coin",memo:`개발자 도구 코인 ${amount>=0?"+":""}${amount}`}]
       }};
     });
-    showToast(`💎 코인 +${amount}`);
+    showToast(`💎 코인 ${amount>=0?"+":""}${amount}`);
   };
 
   const giveDevBox=(boxType)=>{
@@ -2847,15 +2847,22 @@ export default function App() {
                         </div>
                       </>
                     ) : (
-                      <p style={{
-                        fontSize:14,
-                        fontWeight:900,
-                        color:GAME.gold,
+                      <div style={{
+                        background:"linear-gradient(135deg, rgba(255,209,102,0.28), rgba(255,255,255,0.12))",
+                        border:"1.5px solid rgba(255,209,102,0.55)",
+                        borderRadius:16,
+                        padding:"14px 12px",
                         textAlign:"center",
-                        margin:"8px 0 0"
+                        margin:"4px 0 0"
                       }}>
-                        🌟 최고의 캐릭터 단계에 도달했어요
-                      </p>
+                        <p style={{fontSize:26,margin:0,letterSpacing:3,lineHeight:1}}>👑</p>
+                        <p style={{fontSize:16,fontWeight:900,color:GAME.gold,margin:"8px 0 3px",textShadow:"0 2px 6px rgba(0,0,0,0.25)"}}>
+                          최종 진화 완료!
+                        </p>
+                        <p style={{fontSize:12.5,fontWeight:800,color:"#fff",margin:0,lineHeight:1.5}}>
+                          모든 단계를 거쳐<br/>전설의 수호자가 되었어요 ✨
+                        </p>
+                      </div>
                     )}
 
                     <div style={{borderTop:"1px solid rgba(255,255,255,0.18)",margin:"13px 0 0",paddingTop:11}}>
@@ -3207,6 +3214,11 @@ export default function App() {
                     <button onClick={()=>addDevXP(50)} style={devMiniBtn(C.green)}>+50</button>
                     <button onClick={()=>addDevXP(100)} style={devMiniBtn(C.green)}>+100</button>
                   </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:8}}>
+                    <button onClick={()=>addDevXP(-10)} style={devMiniBtn(C.red)}>-10</button>
+                    <button onClick={()=>addDevXP(-50)} style={devMiniBtn(C.red)}>-50</button>
+                    <button onClick={()=>addDevXP(-100)} style={devMiniBtn(C.red)}>-100</button>
+                  </div>
                 </div>
 
                 <div style={devGroup}>
@@ -3215,6 +3227,11 @@ export default function App() {
                     <button onClick={()=>addDevCoin(100)} style={devMiniBtn(GAME.gold)}>+100</button>
                     <button onClick={()=>addDevCoin(500)} style={devMiniBtn(GAME.gold)}>+500</button>
                     <button onClick={()=>addDevCoin(1000)} style={devMiniBtn(GAME.gold)}>+1000</button>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:8}}>
+                    <button onClick={()=>addDevCoin(-10)} style={devMiniBtn(C.red)}>-10</button>
+                    <button onClick={()=>addDevCoin(-50)} style={devMiniBtn(C.red)}>-50</button>
+                    <button onClick={()=>addDevCoin(-100)} style={devMiniBtn(C.red)}>-100</button>
                   </div>
                 </div>
 
@@ -3534,7 +3551,7 @@ export default function App() {
                 <div style={{background:`${C.red}08`,border:`1px solid ${C.red}25`,borderRadius:14,padding:"12px 16px",marginBottom:12}}>
                   <p style={{fontSize:17,fontWeight:700,color:C.red,margin:"0 0 6px"}}>🏥 결석</p>
                   {absOnHome.map(ab=>{
-                    const ac=curAc.find(a=>a.id===Number(ab.academyId)); if(!ac) return null;
+                    const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
                     return <p key={ab.id} style={{fontSize:17,color:C.text,margin:"2px 0"}}>{ac.name}{ab.reason&&` · ${ab.reason}`}</p>;
                   })}
                 </div>
@@ -3545,7 +3562,7 @@ export default function App() {
                 <div style={{background:`${C.orange}08`,border:`1px solid ${C.orange}25`,borderRadius:14,padding:"12px 16px",marginBottom:12}}>
                   <p style={{fontSize:17,fontWeight:700,color:C.orange,margin:"0 0 6px"}}>📚 보충수업</p>
                   {makeupOnHome.map(ab=>{
-                    const ac=curAc.find(a=>a.id===Number(ab.academyId)); if(!ac) return null;
+                    const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
                     return <p key={ab.id} style={{fontSize:17,color:C.text,margin:"2px 0"}}>{ac.name} (결석일: {ab.date})</p>;
                   })}
                 </div>
@@ -3811,7 +3828,7 @@ export default function App() {
                       <div style={{background:`${C.red}08`,border:`1px solid ${C.red}25`,borderRadius:12,padding:"12px 14px",marginBottom:12}}>
                         <p style={{fontSize:17,fontWeight:700,color:C.red,margin:"0 0 8px"}}>🏥 결석</p>
                         {selInfo.absOnDay.map(ab=>{
-                          const ac=curAc.find(a=>a.id===Number(ab.academyId)); if(!ac) return null;
+                          const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
                           return (
                             <div key={ab.id} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderTop:`1px solid ${C.red}15`}}>
                               <div style={{width:8,height:8,borderRadius:"50%",background:ac.color}}/>
@@ -3830,7 +3847,7 @@ export default function App() {
                       <div style={{background:`${C.orange}08`,border:`1px solid ${C.orange}30`,borderRadius:12,padding:"12px 14px",marginBottom:12}}>
                         <p style={{fontSize:17,fontWeight:700,color:C.orange,margin:"0 0 8px"}}>📚 보충수업</p>
                         {selInfo.makeupOnDay.map(ab=>{
-                          const ac=curAc.find(a=>a.id===Number(ab.academyId)); if(!ac) return null;
+                          const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
                           return (
                             <div key={ab.id} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderTop:`1px solid ${C.orange}15`}}>
                               <div style={{width:8,height:8,borderRadius:"50%",background:ac.color}}/>
@@ -4007,7 +4024,7 @@ export default function App() {
             </div>
             <button onClick={()=>setShowAbsModal(true)} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px dashed ${C.red}40`,background:`${C.red}06`,color:C.red,fontSize:13,fontWeight:700,cursor:"pointer",marginBottom:16}}>+ 결석 기록 추가</button>
             {[...curAbs].sort((a,b)=>b.date.localeCompare(a.date)).map(ab=>{
-              const ac=curAc.find(a=>a.id===Number(ab.academyId)); if(!ac) return null;
+              const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
               const past=ab.makeupDate&&ab.makeupDate<TODAY;
               return (
                 <div key={ab.id} style={{background:CT.card,borderRadius:14,padding:"16px 18px",marginBottom:12,border:`1px solid ${ab.makeupDone?C.green+"33":C.border}`}}>
