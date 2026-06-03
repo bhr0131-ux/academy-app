@@ -2671,13 +2671,25 @@ export default function App() {
         )}
 
         {/* 아이 모드 헤더 - RPG 상태창 */}
-        <div style={{background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,padding:"24px 18px 22px",color:"#fff",borderRadius:"0 0 26px 26px",boxShadow:`0 8px 28px ${th.main}55`}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <div style={{background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,padding:"16px 18px 16px",color:"#fff",borderRadius:"0 0 24px 24px",boxShadow:`0 8px 28px ${th.main}55`}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div>
               <p style={{fontSize:12,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.5}}>PLAYER STATUS</p>
               <h1 style={{fontSize:27,fontWeight:900,margin:"4px 0 0"}}>{th.emoji} {curChild?.name}</h1>
             </div>
-            <div style={{display:"flex",gap:7,alignItems:"center"}}>
+            <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
+              <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
+                <button onClick={()=>setShowParentPin(true)}
+                  style={{flex:children.length>1?1:"none",border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.16)",color:"#fff",borderRadius:12,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap"}}>
+                  🔒 엄마모드
+                </button>
+                {children.length<=1&&(
+                  <button onClick={()=>setShowKidCoachmark(true)}
+                    style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.16)",color:"#fff",borderRadius:12,padding:"9px 12px",fontSize:14,fontWeight:900,cursor:"pointer"}}>
+                    ❓
+                  </button>
+                )}
+              </div>
               {children.length>1&&(
                 <select value={childId} onChange={e=>{
                   setChildId(e.target.value);
@@ -2687,20 +2699,12 @@ export default function App() {
                   setShowChildXP(false);
                   setShowChildBadges(false);
                   setOpenRewardId(null);
-                }} style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.16)",color:"#fff",borderRadius:12,padding:"8px 8px",fontSize:13,fontWeight:900,outline:"none"}}>
+                }} style={{width:"100%",boxSizing:"border-box",border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.16)",color:"#fff",borderRadius:12,padding:"9px 10px",fontSize:13,fontWeight:900,outline:"none"}}>
                   {children.map(c=>(
                     <option key={c.id} value={c.id} style={{color:C.text}}>{getChildTheme(c).emoji} {c.name}</option>
                   ))}
                 </select>
               )}
-              <button onClick={()=>setShowKidCoachmark(true)}
-                style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.16)",color:"#fff",borderRadius:12,padding:"9px 11px",fontSize:13,fontWeight:900,cursor:"pointer"}}>
-                ❓
-              </button>
-              <button onClick={()=>setShowParentPin(true)}
-                style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.16)",color:"#fff",borderRadius:12,padding:"9px 11px",fontSize:13,fontWeight:900,cursor:"pointer"}}>
-                🔒 엄마모드
-              </button>
             </div>
           </div>
         </div>
