@@ -2996,6 +2996,7 @@ export default function App() {
             <>
               {childHud}
 
+              <p style={{fontSize:13,fontWeight:900,color:C.sub,letterSpacing:0.5,margin:"6px 4px 2px"}}>🎮 즐기기</p>
 
               <div style={characterCardT}>
                 <CharacterSectionHeader
@@ -3142,6 +3143,8 @@ export default function App() {
                   </div>
                 );
               })()}
+
+              <p style={{fontSize:13,fontWeight:900,color:C.sub,letterSpacing:0.5,margin:"24px 4px 2px"}}>📜 내 기록</p>
 
               {/* 칭호 카드 */}
               <div style={characterCardT}>
@@ -4861,55 +4864,55 @@ export default function App() {
                             )}
                           </div>
                         </div>
+
+                        {/* 수동 XP 조정 - 기록 관리 맨 아래 */}
+                        <div style={parentInnerCard}>
+                          <button onClick={()=>setShowParentXpAdjust(v=>!v)}
+                            style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
+                            <div style={{textAlign:"left"}}>
+                              <p style={parentInnerTitle}>✍️ 수동 XP 조정</p>
+                              <p style={{...parentInnerSub,margin:0}}>보너스 지급 / XP 차감</p>
+                            </div>
+                            <span style={{fontSize:12,fontWeight:900,color:th.main,background:th.light,padding:"5px 9px",borderRadius:12}}>
+                              {showParentXpAdjust?"닫기 ▲":"열기 ▼"}
+                            </span>
+                          </button>
+                          {showParentXpAdjust&&(
+                            <div style={{marginTop:12}}>
+                              <div style={{display:"flex",gap:6,marginBottom:8}}>
+                                <button onClick={()=>setXpAdjustSign("+")}
+                                  style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="+"?C.green:C.border}`,background:xpAdjustSign==="+"?`${C.green}15`:"#fff",color:xpAdjustSign==="+"?C.green:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
+                                  + 지급
+                                </button>
+                                <button onClick={()=>setXpAdjustSign("-")}
+                                  style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="-"?C.red:C.border}`,background:xpAdjustSign==="-"?`${C.red}10`:"#fff",color:xpAdjustSign==="-"?C.red:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
+                                  - 차감
+                                </button>
+                              </div>
+                              <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                                <input value={xpAdjustLabel} onChange={e=>setXpAdjustLabel(e.target.value)}
+                                  placeholder="사유"
+                                  style={{flex:1,padding:"9px 10px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",minWidth:0}}/>
+                                <input type="number" value={xpAdjustInput} onChange={e=>setXpAdjustInput(e.target.value)}
+                                  placeholder="XP"
+                                  style={{width:58,padding:"9px 6px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:14,outline:"none",background:"#fff",textAlign:"center",flexShrink:0}}/>
+                                <button onClick={()=>{
+                                  const v=Number(xpAdjustInput);
+                                  if(!v||v<=0){ showToast("XP 값을 입력해줘"); return; }
+                                  const point=xpAdjustSign==="+"?v:-v;
+                                  addChildScore(childId,point,xpAdjustLabel||"수동 조정","manual");
+                                  setXpAdjustInput(""); setXpAdjustLabel("");
+                                  showToast(xpAdjustSign==="+"?`+${v} XP 지급 완료`:`-${v} XP 차감 완료`);
+                                }} style={{padding:"9px 14px",borderRadius:9,border:"none",background:xpAdjustSign==="+"?C.green:C.red,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",flexShrink:0}}>
+                                  {xpAdjustSign==="+"?"지급":"차감"}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </>
                     );
                   })()}
-                </div>
-              )}
-            </div>
-
-            {/* 수동 XP 조정 - 맨 아래 */}
-            <div style={{background:CT.card,borderRadius:16,padding:"14px 16px",marginBottom:12,border:`1px solid ${C.border}`}}>
-              <button onClick={()=>setShowParentXpAdjust(v=>!v)}
-                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
-                <div style={{textAlign:"left"}}>
-                  <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 3px"}}>✍️ 수동 XP 조정</p>
-                  <p style={{fontSize:12,color:C.sub,fontWeight:700,margin:0}}>보너스 지급 / XP 차감</p>
-                </div>
-                <span style={{fontSize:12,fontWeight:900,color:th.main,background:th.light,padding:"5px 9px",borderRadius:12}}>
-                  {showParentXpAdjust?"닫기 ▲":"열기 ▼"}
-                </span>
-              </button>
-              {showParentXpAdjust&&(
-                <div style={{marginTop:12}}>
-                  <div style={{display:"flex",gap:6,marginBottom:8}}>
-                    <button onClick={()=>setXpAdjustSign("+")}
-                      style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="+"?C.green:C.border}`,background:xpAdjustSign==="+"?`${C.green}15`:"#fff",color:xpAdjustSign==="+"?C.green:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
-                      + 지급
-                    </button>
-                    <button onClick={()=>setXpAdjustSign("-")}
-                      style={{flex:1,padding:"8px 0",borderRadius:9,border:`1.5px solid ${xpAdjustSign==="-"?C.red:C.border}`,background:xpAdjustSign==="-"?`${C.red}10`:"#fff",color:xpAdjustSign==="-"?C.red:C.sub,fontSize:14,fontWeight:900,cursor:"pointer"}}>
-                      - 차감
-                    </button>
-                  </div>
-                  <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                    <input value={xpAdjustLabel} onChange={e=>setXpAdjustLabel(e.target.value)}
-                      placeholder="사유"
-                      style={{flex:1,padding:"9px 10px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",minWidth:0}}/>
-                    <input type="number" value={xpAdjustInput} onChange={e=>setXpAdjustInput(e.target.value)}
-                      placeholder="XP"
-                      style={{width:58,padding:"9px 6px",borderRadius:9,border:`1px solid ${C.border}`,fontSize:14,outline:"none",background:"#fff",textAlign:"center",flexShrink:0}}/>
-                    <button onClick={()=>{
-                      const v=Number(xpAdjustInput);
-                      if(!v||v<=0){ showToast("XP 값을 입력해줘"); return; }
-                      const point=xpAdjustSign==="+"?v:-v;
-                      addChildScore(childId,point,xpAdjustLabel||"수동 조정","manual");
-                      setXpAdjustInput(""); setXpAdjustLabel("");
-                      showToast(xpAdjustSign==="+"?`+${v} XP 지급 완료`:`-${v} XP 차감 완료`);
-                    }} style={{padding:"9px 14px",borderRadius:9,border:"none",background:xpAdjustSign==="+"?C.green:C.red,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",flexShrink:0}}>
-                      {xpAdjustSign==="+"?"지급":"차감"}
-                    </button>
-                  </div>
                 </div>
               )}
             </div>
