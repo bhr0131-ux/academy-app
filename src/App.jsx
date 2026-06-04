@@ -198,7 +198,7 @@ const REWARD_GRADES = [
 const getRewardGrade=(reward)=>REWARD_GRADES.find(g=>g.id===(reward.grade||"common"))||REWARD_GRADES[0];
 
 const DEFAULT_REWARDS = [
-  { id:1,  title:"사탕 하나",              point:100,   emoji:"🍬", grade:"common"    },
+  { id:1,  title:"사탕 하나",              point:10,    emoji:"🍬", grade:"common"    },
   { id:2,  title:"작은 과자",              point:200,   emoji:"🍪", grade:"common"    },
   { id:3,  title:"엄마랑 보드게임 15분",   point:300,   emoji:"🎲", grade:"common"    },
   { id:4,  title:"아이스크림",             point:600,   emoji:"🍦", grade:"rare"      },
@@ -728,8 +728,15 @@ function OnboardingFlow({ onFinish }){
 
 function GuideModal({type="guide",th,onClose}){
   const isFirst=type==="first";
+  const isReward=type==="reward";
 
-  const steps=isFirst
+  const steps=isReward
+    ? [
+        { ic:"🎁", t:"보상 탭 열기", d:"'확인 필요한 구매 요청'이 보여요" },
+        { ic:"✅", t:"구매 승인", d:"승인하면 코인이 차감돼요" },
+        { ic:"🥰", t:"보상 전해주기", d:"아이에게 직접 보상을 주세요!" },
+      ]
+    : isFirst
     ? [
         { ic:"🔑", t:"엄마모드 접속", d:"비밀번호 1234" },
         { ic:"🏫", t:"아이·학원 등록", d:"우리 아이와 다니는 학원을" },
@@ -777,18 +784,18 @@ function GuideModal({type="guide",th,onClose}){
           color:"#fff",
           textAlign:"center"
         }}>
-          <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>HARANG</p>
-          <h2 style={{fontSize:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>아이 성장 미션</h2>
+          <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>{isReward?"REWARD":"HARANG"}</p>
+          <h2 style={{fontSize:isReward?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isReward?"구매 요청이 왔어요! 🛒":"아이 성장 미션"}</h2>
           <div style={{width:38,height:3,borderRadius:99,background:"rgba(255,255,255,0.6)",margin:"12px auto 14px"}}/>
           <p style={{fontSize:14.5,fontWeight:800,lineHeight:1.6,margin:0}}>
-            매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨
+            {isReward?<>아이가 모은 코인으로<br/>첫 보상을 신청했어요 🎉</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨</>}
           </p>
         </div>
 
         {/* 사용 방법 */}
         <div style={{padding:"22px 24px 24px"}}>
           <p style={{fontSize:13,fontWeight:900,letterSpacing:0.5,color:th.main,margin:"0 0 14px"}}>
-            🚀 이렇게 시작해요
+            {isReward?"🎁 이렇게 보상을 전해주세요":"🚀 이렇게 시작해요"}
           </p>
 
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -812,6 +819,7 @@ function GuideModal({type="guide",th,onClose}){
             ))}
           </div>
 
+          {!isReward&&(
           <div style={{
             background:`${th.main}0E`,
             borderRadius:12,
@@ -821,6 +829,7 @@ function GuideModal({type="guide",th,onClose}){
           }}>
             💎 미션을 완료하면 XP와 코인을 받고, 코인으로 원하는 보상을 받을 수 있어요!
           </div>
+          )}
 
           {isFirst&&(
             <p style={{marginTop:12,fontSize:12,color:C.sub,lineHeight:1.55,fontWeight:600}}>
@@ -844,7 +853,7 @@ function GuideModal({type="guide",th,onClose}){
               boxShadow:`0 6px 18px ${th.main}40`
             }}
           >
-            {isFirst?"시작하기 🎈":"닫기"}
+            {isFirst?"시작하기 🎈":isReward?"보상 탭으로 가기 🎁":"닫기"}
           </button>
         </div>
       </div>
@@ -902,6 +911,11 @@ export default function App() {
   const [copySelectedAcademyIds,setCopySelectedAcademyIds] = useState([]);
   const [eventModal,setEventModal] = useState(null);
   const [eventQueue,setEventQueue] = useState([]);
+  const [firstTipPending,setFirstTipPending] = useState(false); // 첫 미션 안내창 대기
+  const [showFirstMissionTip,setShowFirstMissionTip] = useState(false);
+  const [firstTipSeen,setFirstTipSeen] = useState(false); // 안내창 1회만
+  const [showParentRewardGuide,setShowParentRewardGuide] = useState(false); // 첫 구매요청 후 엄마모드 안내
+  const [parentRewardGuideSeen,setParentRewardGuideSeen] = useState(false);
   const [seenBadges,setSeenBadges] = useState({});
   const [seenTitles,setSeenTitles] = useState({});
   const [earnedTitleIds,setEarnedTitleIds] = useState({}); // 한 번 획득한 칭호 영구 보존 {cid:[titleId]}
@@ -1039,6 +1053,10 @@ export default function App() {
       if(bestStreak) setBestStreakData(bestStreak);
       const guideSeen=await load("v6_first_guide_seen");
       if(!guideSeen) setShowFirstGuide(true);
+      const tipSeen=await load("v6_first_mission_tip_seen");
+      if(tipSeen) setFirstTipSeen(true);
+      const prGuideSeen=await load("v6_parent_reward_guide_seen");
+      if(prGuideSeen) setParentRewardGuideSeen(true);
       setLoaded(true);
     })();
   },[]);
@@ -1136,6 +1154,15 @@ export default function App() {
     if(pinInput===parentPin){
       setAppMode("parent"); setShowParentPin(false); setPinInput("");
       showToast("엄마 모드로 전환됨 🔓");
+      // 첫 구매요청이 있는데 아직 안내 안 봤으면 1회 안내
+      if(!parentRewardGuideSeen){
+        const anyPending=Object.values(rewardRequests).some(list=>(list||[]).some(r=>r.status==="pending"));
+        if(anyPending){
+          setParentRewardGuideSeen(true);
+          save("v6_parent_reward_guide_seen","1");
+          setTimeout(()=>setShowParentRewardGuide(true),450);
+        }
+      }
     } else {
       showToast("비밀번호가 달라요");
     }
@@ -2223,6 +2250,20 @@ export default function App() {
     setEventQueue(prev=>prev.slice(1));
   },[eventQueue,eventModal]);
 
+  // 첫 미션 안내창 - 다른 모달(미션결과·레벨업·보물·이벤트)이 모두 닫힌 뒤 1회 표시
+  useEffect(()=>{
+    if(!firstTipPending) return;
+    if(eventModal||eventQueue.length>0) return;
+    if(questResultModal||treasureModal||levelUpModal) return;
+    const t=setTimeout(()=>{
+      setFirstTipPending(false);
+      setFirstTipSeen(true);
+      save("v6_first_mission_tip_seen","1");
+      setShowFirstMissionTip(true);
+    },400);
+    return ()=>clearTimeout(t);
+  },[firstTipPending,eventModal,eventQueue,questResultModal,treasureModal,levelUpModal]);
+
   const getChildLevel=(cid)=>{
     const score=getChildXP(cid);
     return [...DEFAULT_LEVELS].sort((a,b)=>b.minScore-a.minScore).find(lv=>score>=lv.minScore)||DEFAULT_LEVELS[0];
@@ -2393,9 +2434,11 @@ export default function App() {
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
     const acName=(academies[cid]||[]).find(a=>a.id===academyId)?.name||"학원";
+    const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:nextDone,failed:false}:h)});
     addReward(cid,nextDone?point:-point,"homework");
     if(nextDone){
+      if(isFirstEver) setFirstTipPending(true);
       giveTreasureForQuestOnce(
         cid,
         getQuestTreasureKey("homework",academyId,date,homeworkId)
@@ -2414,9 +2457,11 @@ export default function App() {
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
     const acName=(academies[cid]||[]).find(a=>a.id===academyId)?.name||(academyId===EXTRA_QUEST_ID?"기타":"학원");
+    const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:nextDone,failed:false}:t)});
     addReward(cid,nextDone?point:-point,"todo");
     if(nextDone){
+      if(isFirstEver) setFirstTipPending(true);
       giveTreasureForQuestOnce(
         cid,
         getQuestTreasureKey("todo",academyId,date,todoId)
@@ -2592,7 +2637,8 @@ export default function App() {
             const xp=getChildXP(childId);
             const treasureCount=getTotalTreasureCount(childId);
             return (
-              <div style={{background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,borderRadius:20,padding:"16px",boxShadow:`0 8px 24px ${th.main}30`,color:"#fff",marginBottom:14}}>
+              <>
+              <div style={{background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,borderRadius:20,padding:"16px",boxShadow:`0 8px 24px ${th.main}30`,color:"#fff",marginBottom:12}}>
                 {/* 레벨 + 칭호 + 아바타 */}
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:13}}>
                   <div>
@@ -2618,8 +2664,25 @@ export default function App() {
                     })()}
                   </div>
                 </div>
+                {/* 코인 + XP (가장 중요) */}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:12}}>
+                  <div style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.16)",borderRadius:13,padding:"8px 11px",display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontSize:20}}>💎</span>
+                    <div style={{minWidth:0}}>
+                      <p style={{fontSize:10,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>{UI_TEXT.label.coin}</p>
+                      <p style={{fontSize:17,fontWeight:900,margin:"1px 0 0",lineHeight:1}}>{coin}</p>
+                    </div>
+                  </div>
+                  <div style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.16)",borderRadius:13,padding:"8px 11px",display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontSize:20}}>⭐</span>
+                    <div style={{minWidth:0}}>
+                      <p style={{fontSize:10,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>누적 XP</p>
+                      <p style={{fontSize:17,fontWeight:900,margin:"1px 0 0",lineHeight:1}}>{xp}</p>
+                    </div>
+                  </div>
+                </div>
                 {/* NEXT LEVEL 진행바 */}
-                <div style={{marginBottom:12}}>
+                <div>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
                     <span style={{fontSize:11,fontWeight:900,opacity:0.72}}>{UI_TEXT.label.nextLevel}</span>
                     <span style={{fontSize:11,fontWeight:900,opacity:0.86}}>{nextLevel?`${progress.remainXp} XP 남음`:"MAX LEVEL"}</span>
@@ -2627,27 +2690,27 @@ export default function App() {
                   <div style={{height:13,background:"rgba(255,255,255,0.18)",borderRadius:99,overflow:"hidden"}}>
                     <div style={{width:`${progress.percent}%`,height:"100%",borderRadius:99,background:`linear-gradient(90deg, ${GAME.gold}, ${GAME.green})`,transition:"width 0.25s"}}/>
                   </div>
-                  <div style={{display:"flex",justifyContent:"space-between",marginTop:5,fontSize:11,fontWeight:800,opacity:0.8}}>
-                    <span>⭐ 누적 XP {xp}</span>
-                    <span>{progress.currentXp}/{progress.needXp}</span>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6,fontSize:11.5,fontWeight:800,opacity:0.88}}>
+                    <span>{nextLevel?<>다음 레벨 : {nextLevel.emoji} Lv.{nextLevel.level} {nextLevel.name}</>:"🏆 최고 레벨 달성!"}</span>
+                    <span style={{opacity:0.78}}>{progress.currentXp}/{progress.needXp}</span>
                   </div>
                 </div>
-                {/* 하단 4칸 스탯 */}
-                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7}}>
-                  {[
-                    {icon:"💎",label:UI_TEXT.label.coin,value:coin},
-                    {icon:"🏆",label:"연속달성\n최고기록",value:`${getBestStreak(childId)}일`},
-                    {icon:"🎁",label:UI_TEXT.label.box,value:treasureCount},
-                    {icon:"🏅",label:UI_TEXT.label.badge,value:getUnlockedBadges(childId).length},
-                  ].map((s,i)=>(
-                    <div key={i} style={{background:"rgba(255,255,255,0.13)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:13,padding:"8px 5px",textAlign:"center"}}>
-                      <p style={{fontSize:18,margin:0}}>{s.icon}</p>
-                      <p style={{fontSize:13,fontWeight:900,margin:"2px 0 0"}}>{s.value}</p>
-                      <p style={{fontSize:9,fontWeight:800,opacity:0.65,margin:0,whiteSpace:"pre-line",lineHeight:1.25}}>{s.label}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
+              {/* 나머지 정보 - 칸 밖 */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>
+                {[
+                  {icon:"🎁",label:UI_TEXT.label.box,value:treasureCount},
+                  {icon:"🏅",label:"업적",value:getUnlockedBadges(childId).length},
+                  {icon:"🏆",label:"연속달성 최고기록",value:`${getBestStreak(childId)}일`},
+                ].map((s,i)=>(
+                  <div key={i} style={{background:`${th.main}1A`,border:`1.5px solid ${th.main}33`,borderRadius:13,padding:"10px 5px",textAlign:"center"}}>
+                    <p style={{fontSize:18,margin:0}}>{s.icon}</p>
+                    <p style={{fontSize:15,fontWeight:900,margin:"2px 0 0",color:th.main}}>{s.value}</p>
+                    <p style={{fontSize:10,fontWeight:800,color:C.sub,margin:"1px 0 0",lineHeight:1.25}}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+              </>
             );
     })();
     return (
@@ -2728,7 +2791,7 @@ export default function App() {
                 const q=getTodayQuestProgress(childId,childDate||TODAY);
                 const ready=q.total-q.done-q.failed;
                 return (
-                  <div style={{background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,borderRadius:20,padding:"16px",marginBottom:14,color:"#fff",boxShadow:`0 8px 26px ${th.main}35`,minHeight:232,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
+                  <div style={{background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,borderRadius:20,padding:"16px",marginBottom:14,color:"#fff",boxShadow:`0 8px 26px ${th.main}35`,minHeight:210,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
                       <div>
                         <p style={{fontSize:12,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.2}}>{UI_TEXT.section.dailyDungeon}</p>
@@ -2743,20 +2806,20 @@ export default function App() {
                       <div style={{width:`${q.percent}%`,height:"100%",borderRadius:99,background:`linear-gradient(90deg, ${GAME.gold}, ${GAME.green})`,transition:"width 0.25s"}}/>
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
-                      <div style={{background:"rgba(255,255,255,0.14)",borderRadius:13,padding:"9px 6px",textAlign:"center"}}>
-                        <p style={{fontSize:18,margin:0}}>✅</p>
-                        <p style={{fontSize:16,fontWeight:900,margin:"2px 0 0"}}>{q.done}</p>
-                        <p style={{fontSize:10,opacity:0.75,margin:0}}>CLEAR</p>
+                      <div style={{background:"rgba(255,255,255,0.14)",borderRadius:12,padding:"6px 6px",textAlign:"center"}}>
+                        <p style={{fontSize:15,margin:0}}>✅</p>
+                        <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{q.done}</p>
+                        <p style={{fontSize:9,opacity:0.75,margin:0}}>CLEAR</p>
                       </div>
-                      <div style={{background:"rgba(255,255,255,0.14)",borderRadius:13,padding:"9px 6px",textAlign:"center"}}>
-                        <p style={{fontSize:18,margin:0}}>⚔️</p>
-                        <p style={{fontSize:16,fontWeight:900,margin:"2px 0 0"}}>{ready}</p>
-                        <p style={{fontSize:10,opacity:0.75,margin:0}}>READY</p>
+                      <div style={{background:"rgba(255,255,255,0.14)",borderRadius:12,padding:"6px 6px",textAlign:"center"}}>
+                        <p style={{fontSize:15,margin:0}}>⚔️</p>
+                        <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{ready}</p>
+                        <p style={{fontSize:9,opacity:0.75,margin:0}}>READY</p>
                       </div>
-                      <div style={{background:"rgba(255,255,255,0.14)",borderRadius:13,padding:"9px 6px",textAlign:"center"}}>
-                        <p style={{fontSize:18,margin:0}}>❌</p>
-                        <p style={{fontSize:16,fontWeight:900,margin:"2px 0 0"}}>{q.failed}</p>
-                        <p style={{fontSize:10,opacity:0.75,margin:0}}>FAILED</p>
+                      <div style={{background:"rgba(255,255,255,0.14)",borderRadius:12,padding:"6px 6px",textAlign:"center"}}>
+                        <p style={{fontSize:15,margin:0}}>❌</p>
+                        <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{q.failed}</p>
+                        <p style={{fontSize:9,opacity:0.75,margin:0}}>FAILED</p>
                       </div>
                     </div>
                     <p style={{fontSize:14,fontWeight:900,margin:0,textAlign:"center",color:q.percent===100?GAME.gold:"#fff"}}>
@@ -2858,30 +2921,30 @@ export default function App() {
                         <p style={{fontSize:15,color:C.sub,margin:"0 0 6px"}}>⏰ {sc?.time} / {sc?.duration}분 수업</p>
                         {shuttleText&&<p style={{fontSize:14,color:C.sub,margin:"0 0 8px"}}>🚌 {shuttleText}</p>}
                         {/* 준비물 */}
-                        <div style={{marginTop:8}}>
-                          <p style={{fontSize:13,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>🎒 준비물</p>
-                          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                            {(ac.baseSupplies||[]).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"4px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:700}}>{s}</span>)}
-                            {sup.map((s,i)=><span key={`s${i}`} style={{fontSize:13,padding:"4px 10px",borderRadius:20,background:`${C.orange}18`,color:C.orange,fontWeight:700}}>+ {s}</span>)}
-                            {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:13,color:"#BBB"}}>없음</span>}
+                        <div style={{marginTop:8,display:"flex",alignItems:"baseline",flexWrap:"wrap",gap:"6px 8px"}}>
+                          <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0,flexShrink:0}}>🎒 준비물</p>
+                          <div style={{display:"flex",flexWrap:"wrap",gap:6,flex:1,minWidth:0}}>
+                            {(ac.baseSupplies||[]).map((s,i)=><span key={`b${i}`} style={{fontSize:14,padding:"4px 11px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:700}}>{s}</span>)}
+                            {sup.map((s,i)=><span key={`s${i}`} style={{fontSize:14,padding:"4px 11px",borderRadius:20,background:`${C.orange}18`,color:C.orange,fontWeight:700}}>+ {s}</span>)}
+                            {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:14,color:"#BBB"}}>없음</span>}
                           </div>
                         </div>
                         {/* 미션 요약 */}
-                        <div style={{marginTop:10}}>
-                          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,background:CT.faint,border:`1px solid ${C.border}`,borderRadius:12,padding:"10px 12px"}}>
+                        <div style={{marginTop:8}}>
+                          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,background:CT.faint,border:`1px solid ${C.border}`,borderRadius:12,padding:"7px 12px"}}>
                             <div style={{minWidth:0}}>
                               <p style={{fontSize:13,fontWeight:900,color:C.sub,margin:0}}>⚔️ 남은 미션</p>
                             </div>
                             {totalTodoCnt===0?(
-                              <span style={{fontSize:13,fontWeight:900,color:"#BBB",background:"#fff",border:`1px solid ${C.border}`,borderRadius:999,padding:"6px 10px",whiteSpace:"nowrap",flexShrink:0}}>
+                              <span style={{fontSize:13,fontWeight:900,color:"#BBB",background:"#fff",border:`1px solid ${C.border}`,borderRadius:999,padding:"5px 10px",whiteSpace:"nowrap",flexShrink:0}}>
                                 0 / 0
                               </span>
                             ):allDone?(
-                              <span style={{fontSize:14,fontWeight:900,color:C.green,background:`${C.green}14`,border:`1px solid ${C.green}35`,borderRadius:999,padding:"6px 11px",whiteSpace:"nowrap",flexShrink:0}}>
+                              <span style={{fontSize:14,fontWeight:900,color:C.green,background:`${C.green}14`,border:`1px solid ${C.green}35`,borderRadius:999,padding:"5px 11px",whiteSpace:"nowrap",flexShrink:0}}>
                                 🎉 클리어!
                               </span>
                             ):(
-                              <span style={{fontSize:14,fontWeight:900,color:C.orange,background:`${C.orange}14`,border:`1px solid ${C.orange}35`,borderRadius:999,padding:"6px 11px",whiteSpace:"nowrap",flexShrink:0}}>
+                              <span style={{fontSize:14,fontWeight:900,color:C.orange,background:`${C.orange}14`,border:`1px solid ${C.orange}35`,borderRadius:999,padding:"5px 11px",whiteSpace:"nowrap",flexShrink:0}}>
                                 미완료 {totalTodoCnt-doneCnt} / 전체 {totalTodoCnt}
                               </span>
                             )}
@@ -2889,11 +2952,11 @@ export default function App() {
                         </div>
                         {/* 진행도 바 */}
                         {totalTodoCnt>0&&(
-                          <div style={{marginTop:10}}>
-                            <div style={{width:"100%",height:8,background:"#EAEAEA",borderRadius:99,overflow:"hidden"}}>
+                          <div style={{marginTop:6}}>
+                            <div style={{width:"100%",height:7,background:"#EAEAEA",borderRadius:99,overflow:"hidden"}}>
                               <div style={{width:`${(doneCnt/totalTodoCnt)*100}%`,height:"100%",background:th.grad,borderRadius:99}}/>
                             </div>
-                            <p style={{fontSize:11,fontWeight:800,color:C.sub,margin:"4px 0 0"}}>진행도 {doneCnt}/{totalTodoCnt}</p>
+                            <p style={{fontSize:11,fontWeight:800,color:C.sub,margin:"3px 0 0"}}>진행도 {doneCnt}/{totalTodoCnt}</p>
                           </div>
                         )}
                         </div>{/* 상세 정보 end */}
@@ -3425,6 +3488,11 @@ export default function App() {
                 onKeyDown={e=>e.key==="Enter"&&enterParentMode()}
                 placeholder="비밀번호 4자리"
                 style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:12,border:`1.5px solid ${C.border}`,fontSize:22,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
+              {parentPin==="1234"&&(
+                <p style={{fontSize:13,fontWeight:700,color:th.main,background:`${th.main}12`,borderRadius:10,padding:"9px 12px",margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
+                  💡 처음 비밀번호는 <b>1234</b> 예요.<br/>설정 &gt; 비밀번호 변경에서 바꿀 수 있어요.
+                </p>
+              )}
               <button onClick={enterParentMode}
                 style={{width:"100%",padding:14,borderRadius:13,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
                 들어가기
@@ -3551,6 +3619,20 @@ export default function App() {
         </div>
       )}
 
+      {/* ── 첫 미션 완료 후 상점 안내창 (아이모드 설명 디자인) ── */}
+      {showFirstMissionTip&&(
+        <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.8)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px"}} onClick={()=>setShowFirstMissionTip(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:26,padding:"32px 24px 24px",width:"100%",maxWidth:340,textAlign:"center",boxShadow:"0 24px 70px rgba(0,0,0,0.32)"}}>
+            <div style={{fontSize:64,marginBottom:16}}>🍬</div>
+            <p style={{fontSize:21,fontWeight:900,color:"#1A1A35",margin:"0 0 12px",lineHeight:1.3}}>코인으로 사탕을 받아요!</p>
+            <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:"0 0 22px",whiteSpace:"pre-line"}}>{"내 캐릭터 탭 → 아이템 상점에서\n사탕 하나를 구매 요청해요.\n엄마가 승인하면 사탕은 내 손에! 🙆"}</p>
+            <button onClick={()=>setShowFirstMissionTip(false)} style={{width:"100%",padding:16,borderRadius:15,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",boxShadow:`0 6px 18px ${th.main}45`}}>
+              알겠어요! 🎉
+            </button>
+          </div>
+        </div>
+      )}
+
       </div>
     );
   }
@@ -3568,6 +3650,10 @@ export default function App() {
 
       {showCoachmark&&(
         <CoachmarkOverlay th={th} onFinish={()=>setShowCoachmark(false)} />
+      )}
+
+      {showParentRewardGuide&&(
+        <GuideModal type="reward" th={th} onClose={()=>{ setShowParentRewardGuide(false); setTab("reward"); }} />
       )}
 
       {/* ── 헤더 ── */}
