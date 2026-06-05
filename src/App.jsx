@@ -1315,7 +1315,7 @@ export default function App() {
     if(type==="achievement"){ showGameEvent({type:"achievement",emoji:"🏆",title:"업적 달성!",name:"테스트 업적",desc:"업적 팝업 테스트",reward:"🏆 업적 도감에 등록됨"}); return; }
     if(type==="title"){ showGameEvent({type:"title",emoji:"👑",title:"칭호 획득!",name:"황금 테스트러",desc:"칭호 팝업 테스트",reward:"칭호 장착 가능"}); return; }
     if(type==="box"){ showGameEvent({type:"box",emoji:"📦",title:"보물상자 획득!",name:"일반상자",desc:"미션 10개 달성 보상이에요!",reward:"🎁 보물창고에서 열어보세요"}); return; }
-    if(type==="treasure"){ setTreasureModal({emoji:"👑",boxName:"전설상자",rewardCoin:777,titleReward:{id:"dev_title",name:"황금 테스트러",emoji:"👑",rarity:"legendary"},headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"}); }
+    if(type==="treasure"){ setTreasureModal({emoji:"👑",boxName:"전설상자",rewardCoin:777,titleReward:{id:"dev_title",name:"황금 테스트러",emoji:"👑",rarity:"legendary"},headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"}); return; }
   };
 
   // ── 개발자: 미션 10개 / 숙제 10개 일괄 추가 ──
