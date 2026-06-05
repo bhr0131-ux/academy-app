@@ -80,9 +80,6 @@ const GAME_MODAL_STYLE = {
     padding:"24px"
   }
 };
-const gameSectionTitle = {fontSize:18,fontWeight:900,margin:0,color:C.text};
-const gameSubText = {fontSize:13,color:C.sub,fontWeight:700,margin:"3px 0 0"};
-const gameMiniLabel = {fontSize:11,fontWeight:900,letterSpacing:1.1,opacity:0.75,margin:0};
 const PALETTE = ["#FF6B6B","#FF9F43","#FFC312","#26de81","#4A90E2","#45AAF2","#9B59B6","#FF6B9D","#1ABC9C","#E91E8C"];
 const DEFAULT_HOMEWORK_SCORE = 10;
 const EXTRA_QUEST_ID = "extra_quest";
@@ -150,7 +147,7 @@ const PET_STAGES = [
   { stage:4, emoji:"🐉", name:"전설의 드래곤", desc:"전설로 남을 위대한 존재" },
 ];
 // 상자 등급별 펫 진화 확률
-const PET_EVOLVE_CHANCE = { normal:0.05, rare:0.15, legend:0.40 };
+const PET_EVOLVE_CHANCE = { normal:0.03, rare:0.06, legend:0.12 };
 
 // 진화 단계별 격려 문구
 const EVOLUTION_MESSAGES = {
@@ -199,17 +196,17 @@ const getRewardGrade=(reward)=>REWARD_GRADES.find(g=>g.id===(reward.grade||"comm
 
 const DEFAULT_REWARDS = [
   { id:1,  title:"사탕 하나",              point:10,    emoji:"🍬", grade:"common"    },
-  { id:2,  title:"작은 과자",              point:200,   emoji:"🍪", grade:"common"    },
-  { id:3,  title:"엄마랑 보드게임 15분",   point:300,   emoji:"🎲", grade:"common"    },
-  { id:4,  title:"아이스크림",             point:600,   emoji:"🍦", grade:"rare"      },
-  { id:5,  title:"영상 20분",              point:800,   emoji:"📺", grade:"rare"      },
-  { id:6,  title:"편의점 간식 고르기",     point:1000,  emoji:"🏪", grade:"rare"      },
-  { id:7,  title:"게임 30분",              point:1500,  emoji:"🎮", grade:"epic"      },
-  { id:8,  title:"주말 특별 디저트",       point:2000,  emoji:"🧁", grade:"epic"      },
-  { id:9,  title:"문구점 쇼핑",            point:3000,  emoji:"✏️", grade:"epic"      },
-  { id:10, title:"작은 장난감",            point:5000,  emoji:"🧸", grade:"legendary" },
-  { id:11, title:"키즈카페/놀이터 데이트", point:8000,  emoji:"🎡", grade:"legendary" },
-  { id:12, title:"큰 선물 도전권",         point:15000, emoji:"🎁", grade:"legendary" },
+  { id:2,  title:"작은 과자",              point:50,    emoji:"🍪", grade:"common"    },
+  { id:3,  title:"엄마랑 보드게임 15분",   point:100,   emoji:"🎲", grade:"common"    },
+  { id:4,  title:"아이스크림",             point:300,   emoji:"🍦", grade:"rare"      },
+  { id:5,  title:"영상 20분",              point:450,   emoji:"📺", grade:"rare"      },
+  { id:6,  title:"편의점 간식 고르기",     point:600,   emoji:"🏪", grade:"rare"      },
+  { id:7,  title:"게임 30분",              point:900,   emoji:"🎮", grade:"epic"      },
+  { id:8,  title:"주말 특별 디저트",       point:1200,  emoji:"🧁", grade:"epic"      },
+  { id:9,  title:"문구점 쇼핑",            point:1700,  emoji:"✏️", grade:"epic"      },
+  { id:10, title:"작은 장난감",            point:2500,  emoji:"🧸", grade:"legendary" },
+  { id:11, title:"키즈카페/놀이터 데이트", point:3800,  emoji:"🎡", grade:"legendary" },
+  { id:12, title:"큰 선물 도전권",         point:5500,  emoji:"🎁", grade:"legendary" },
 ];
 
 const TREASURE_REWARD_TABLE = {
@@ -223,15 +220,15 @@ const TREASURE_REWARD_TABLE = {
   rare:{
     name:"희귀상자",
     emoji:"🎁",
-    min:60,
-    max:120,
+    min:40,
+    max:80,
     headerGrad:"linear-gradient(135deg,#3B82F6,#60A5FA)"
   },
   legend:{
     name:"전설상자",
     emoji:"👑",
-    min:150,
-    max:300,
+    min:100,
+    max:160,
     headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"
   }
 };
@@ -247,6 +244,8 @@ const DEFAULT_BADGES = [
   { id:"quest_50",     title:"미션 헌터",          desc:"미션을 50개 완료했어요",       emoji:"🏹" },
   { id:"quest_100",    title:"미션 마스터",        desc:"미션을 100개 완료했어요",      emoji:"🏆" },
   { id:"quest_300",    title:"미션 레전드",        desc:"미션을 300개 완료했어요",      emoji:"⚔️" },
+  { id:"quest_500",    title:"미션 그랜드마스터",  desc:"미션을 500개 완료했어요",      emoji:"🗡️" },
+  { id:"quest_700",    title:"미션 신화",          desc:"미션을 700개 완료했어요",      emoji:"🐉" },
   { id:"homework_10",  title:"숙제 헌터",          desc:"숙제를 10개 완료했어요",       emoji:"📚" },
   { id:"homework_30",  title:"숙제 마스터",        desc:"숙제를 30개 완료했어요",       emoji:"📖" },
   { id:"streak_3",     title:"3일 연속 달성",      desc:"3일 연속 미션을 완료했어요",   emoji:"🔥" },
@@ -257,7 +256,7 @@ const DEFAULT_BADGES = [
   { id:"treasure_1",   title:"첫 보물상자",        desc:"보물상자를 처음 열었어요",     emoji:"🎁" },
   { id:"treasure_10",  title:"보물 사냥꾼",        desc:"보물상자를 10개 열었어요",     emoji:"🗝️" },
   { id:"treasure_30",  title:"보물 수집가",        desc:"보물상자를 30개 열었어요",     emoji:"💰" },
-  { id:"treasure_100", title:"보물의 제왕",        desc:"보물상자를 100개 열었어요",    emoji:"🏰" },
+  { id:"treasure_50",  title:"보물의 제왕",        desc:"보물상자를 50개 열었어요",     emoji:"🏰" },
   { id:"xp_100",       title:"100 XP 달성",        desc:"100 XP를 모았어요",            emoji:"💯" },
   { id:"xp_500",       title:"500 XP 달성",        desc:"500 XP를 모았어요",            emoji:"🔥" },
   { id:"xp_1000",      title:"1000 XP 달성",       desc:"1000 XP를 모았어요",           emoji:"💎" },
@@ -269,9 +268,9 @@ const DEFAULT_BADGES = [
   { id:"level_15",     title:"그랜드마스터 달성",  desc:"Lv.15에 도달했어요",           emoji:"💎" },
   { id:"level_20",     title:"월드클래스 달성",    desc:"Lv.20에 도달했어요",           emoji:"🌟" },
   { id:"first_reward", title:"첫 보상 구매",     desc:"보상을 처음 구매했어요",     emoji:"🛒" },
-  { id:"reward_3",     title:"보상 수집가",      desc:"보상을 3번 구매했어요",      emoji:"🎁" },
-  { id:"reward_5",     title:"보상 애호가",      desc:"보상을 5번 구매했어요",      emoji:"🎀" },
-  { id:"reward_20",    title:"보상 큰손",        desc:"보상을 20번 구매했어요",     emoji:"👜" },
+  { id:"reward_3",     title:"보상 수집가",      desc:"보상을 5번 구매했어요",      emoji:"🎁" },
+  { id:"reward_5",     title:"보상 애호가",      desc:"보상을 15번 구매했어요",     emoji:"🎀" },
+  { id:"reward_20",    title:"보상 큰손",        desc:"보상을 30번 구매했어요",     emoji:"👜" },
 ];
 
 const UI_TEXT = {
@@ -342,23 +341,25 @@ const DEFAULT_TITLES = [
   { id:"first_quest", name:"첫걸음 용사", emoji:"👣", condition:"첫 미션 완료", rarity:"common" },
   { id:"quest_10_title", name:"미션 입문자", emoji:"🎯", condition:"미션 10개 완료", rarity:"common" },
   { id:"xp_100_title", name:"반짝 새싹", emoji:"🌱", condition:"100 XP 달성", rarity:"common" },
+  { id:"reward_1_title", name:"첫 쇼핑러", emoji:"🛒", condition:"첫 보상 구매", rarity:"common" },
 
   { id:"quest_hunter", name:"미션 헌터", emoji:"🏹", condition:"미션 50개 완료", rarity:"rare" },
   { id:"homework_master", name:"숙제왕", emoji:"📚", condition:"숙제 30개 완료", rarity:"rare" },
-  { id:"streak_3_title", name:"꾸준한 아이", emoji:"🔥", condition:"3일 연속 달성", rarity:"rare" },
+  { id:"streak_3_title", name:"꾸준한 아이", emoji:"🔥", condition:"5일 연속 달성", rarity:"rare" },
   { id:"xp_500_title", name:"성실 수련생", emoji:"📘", condition:"500 XP 달성", rarity:"rare" },
-  { id:"reward_1_title", name:"첫 쇼핑러", emoji:"🛒", condition:"첫 보상 구매", rarity:"rare" },
+  { id:"reward_3_title", name:"알뜰 쇼핑러", emoji:"🎀", condition:"보상 5번 구매", rarity:"rare" },
 
-  { id:"streak_master", name:"불꽃 루틴러", emoji:"🔥", condition:"7일 연속 달성", rarity:"epic" },
+  { id:"streak_master", name:"불꽃 루틴러", emoji:"🔥", condition:"10일 연속 달성", rarity:"epic" },
   { id:"quest_100_title", name:"집중의 신", emoji:"🧠", condition:"미션 100개 완료", rarity:"epic" },
   { id:"champion", name:"챔피언", emoji:"🥇", condition:"Lv.10 달성", rarity:"epic" },
   { id:"xp_3000_title", name:"빛나는 성장러", emoji:"🌟", condition:"3000 XP 달성", rarity:"epic" },
-  { id:"reward_3_title", name:"보상 수집가", emoji:"🎁", condition:"보상 3번 구매", rarity:"epic" },
+  { id:"reward_30_title", name:"쇼핑 마스터", emoji:"👜", condition:"보상 30번 구매", rarity:"epic" },
 
   { id:"legend", name:"전설의 모험가", emoji:"👑", condition:"Lv.20 달성", rarity:"legendary" },
   { id:"streak_30_title", name:"30일 전설", emoji:"🔥", condition:"30일 연속 달성", rarity:"legendary" },
-  { id:"treasure_master", name:"보물 사냥꾼", emoji:"💰", condition:"보물상자 10개 오픈", rarity:"legendary" },
+  { id:"treasure_master", name:"보물 사냥꾼", emoji:"💰", condition:"보물상자 50개 오픈", rarity:"legendary" },
   { id:"world_class", name:"월드클래스", emoji:"🌍", condition:"12000 XP 달성", rarity:"legendary" },
+  { id:"quest_700_title", name:"미션의 신화", emoji:"🐉", condition:"미션 700개 완료", rarity:"legendary" },
 ];
 
 // ── 한국 공휴일 (2025~2026) ──────────────────
@@ -444,17 +445,35 @@ const buildSampleData = () => {
   const children = [{ id:cid, name:"아이1(예시)", gender:"boy" }];
   const academies = {
     [cid]: [
-      { ...EMPTY_AC, id:acSample, name:"피아노 학원 (예시)", days:["월","화","수","목","금","토","일"], time:"16:00", duration:60, color:"#6C63FF", teacher:"김선생님", baseSupplies:["악보"], memo:"" },
+      {
+        ...EMPTY_AC,
+        id:acSample,
+        name:"피아노 학원 (예시)",
+        days:["월","화","수","목","금","토","일"],
+        time:"16:00",
+        duration:60,
+        color:"#6C63FF",
+        teacher:"김선생님",
+        phone:"010-1234-5678",
+        address:"행복아파트 상가 3층",
+        fee:150000,
+        payDay:5,
+        baseSupplies:["악보","연필"],
+        shuttleInfo:"학원 차량 16:00 아파트 정문",
+        memo:"매주 토요일 연주회 준비",
+      },
     ]
   };
-  // 오늘 날짜에 숙제 1개 · 미션 1개 (직접 눌러서 XP·코인이 오르는 걸 체험)
+  // 오늘 날짜에 숙제 2개 · 미션(할 일) 2개 (직접 눌러서 XP·코인 체험)
   const dailyData = {
     [`${cid}-${acSample}-${TODAY}`]: {
       homeworks:[
         { id:1001, text:"바이엘 20번 5회 연습", done:false, point:10 },
+        { id:1002, text:"체르니 3번 양손 연습", done:false, point:10 },
       ],
       todos:[
-        { id:1002, text:"메트로놈 60에 맞춰 치기", done:false, point:10 },
+        { id:1003, text:"메트로놈 60에 맞춰 치기", done:false, point:10 },
+        { id:1004, text:"악보 한 곡 외워오기", done:false, point:10 },
       ],
       supplies:["연습장"]
     },
@@ -544,18 +563,22 @@ function KidCoachmark({ th, onFinish }){
   const cards=[
     { emoji:"📝", title:"오늘의 미션을 체크해요", desc:"미션 탭에서 오늘 할 일과 숙제를\n동그라미를 눌러 완료해요!" },
     { emoji:"💎", title:"코인과 XP가 쌓여요", desc:"미션을 해내면 코인과 XP(별)을 받아요.\n모은 코인으로 멋진 보상을 받을 수 있어요!" },
-    { emoji:"🐉", title:"캐릭터와 펫이 자라요", desc:"내 캐릭터 탭에서 레벨이 오르고\n펫도 점점 자라나는 걸 볼 수 있어요!" },
+    { emoji:"🧒🐣", title:"캐릭터와 펫이 자라요", desc:"내 캐릭터 탭에서 레벨이 오르고\n펫도 점점 자라나는 걸 볼 수 있어요!" },
   ];
   const [i,setI]=useState(0);
   const last=i===cards.length-1;
   const c=cards[i];
   return (
     <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.8)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px"}}>
-      <div style={{background:"#fff",borderRadius:26,padding:"32px 24px 24px",width:"100%",maxWidth:340,textAlign:"center",boxShadow:"0 24px 70px rgba(0,0,0,0.32)"}}>
-        <div style={{fontSize:64,marginBottom:16}}>{c.emoji}</div>
-        <p style={{fontSize:21,fontWeight:900,color:"#1A1A35",margin:"0 0 12px",lineHeight:1.3}}>{c.title}</p>
-        <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:"0 0 22px",whiteSpace:"pre-line"}}>{c.desc}</p>
-        <div style={{display:"flex",gap:6,justifyContent:"center",marginBottom:20}}>
+      <div style={{background:"#fff",borderRadius:26,padding:"32px 24px 24px",width:"100%",maxWidth:340,minHeight:380,boxSizing:"border-box",textAlign:"center",boxShadow:"0 24px 70px rgba(0,0,0,0.32)",display:"flex",flexDirection:"column"}}>
+        <div style={{height:74,display:"flex",alignItems:"center",justifyContent:"center",fontSize:c.emoji.length>3?46:64,letterSpacing:4,marginBottom:14}}>{c.emoji}</div>
+        <div style={{height:34,display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <p style={{fontSize:21,fontWeight:900,color:"#1A1A35",margin:0,lineHeight:1.3}}>{c.title}</p>
+        </div>
+        <div style={{height:60,display:"flex",alignItems:"center",justifyContent:"center",margin:"10px 0 0"}}>
+          <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:0,whiteSpace:"pre-line"}}>{c.desc}</p>
+        </div>
+        <div style={{display:"flex",gap:6,justifyContent:"center",margin:"auto 0 20px"}}>
           {cards.map((_,idx)=>(<span key={idx} style={{width:idx===i?22:8,height:8,borderRadius:99,background:idx===i?TH.main:"#D9DEE8",transition:"all .25s"}}/>))}
         </div>
         <button onClick={()=>last?onFinish():setI(i+1)} style={{width:"100%",padding:16,borderRadius:15,border:"none",background:TH.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",boxShadow:`0 6px 18px ${TH.main}45`}}>
@@ -575,7 +598,7 @@ function CoachmarkOverlay({ th, onFinish }){
     { icon:"💰", name:"학원비", desc:"학원별 수강료와 납부 현황을 관리해요." },
     { icon:"🏥", name:"결석", desc:"결석을 기록하고 보충 일정을 챙겨요." },
     { icon:"⚙️", name:"기타", desc:"데이터 백업·복원, 비밀번호, 사용 가이드를 볼 수 있어요." },
-    { icon:"🎒", name:"아이 모드", desc:"오른쪽 위 '🎒 아이 모드' 버튼을 누르면\n아이 화면으로 바뀌어요.\n\n아이가 직접 미션을 체크하면\nXP·코인을 모으고,\n캐릭터와 펫이 무럭무럭 성장해요!" },
+    { icon:"🎒", name:"아이 모드", desc:"오른쪽 위 '🎒 아이 모드' 버튼을 누르면\n아이 화면으로 바뀌어요." },
   ];
   const [i,setI]=useState(0);
   const last=i===items.length-1;
@@ -591,7 +614,9 @@ function CoachmarkOverlay({ th, onFinish }){
           <div style={{width:48,height:48,borderRadius:14,background:`${TH.main}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0}}>{it.icon}</div>
           <p style={{fontSize:20,fontWeight:900,color:"#1A1A35",margin:0}}>{it.name}</p>
         </div>
-        <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:"0 0 20px",whiteSpace:"pre-line"}}>{it.desc}</p>
+        <div style={{minHeight:54,marginBottom:20}}>
+          <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:0,whiteSpace:"pre-line"}}>{it.desc}</p>
+        </div>
         <div style={{display:"flex",gap:5,justifyContent:"center",marginBottom:18}}>
           {items.map((_,idx)=>(<span key={idx} style={{width:idx===i?20:7,height:7,borderRadius:99,background:idx===i?TH.main:"#D9DEE8",transition:"all .25s"}}/>))}
         </div>
@@ -1190,6 +1215,18 @@ export default function App() {
     showToast(boxType==="legend"?"👑 전설상자 +1":boxType==="rare"?"🎁 희귀상자 +1":"📦 일반상자 +1");
   };
 
+  const loadSampleData=()=>{
+    const sample=buildSampleData();
+    const cid=sample.children[0].id;
+    setChildren(sample.children);
+    setChildId(cid);
+    setAcademies(sample.academies);
+    setDailyData(prev=>({...prev,...sample.dailyData}));
+    setChildDate(TODAY);
+    setShowDevTools(false);
+    showToast("🌱 샘플 데이터 완료! 아이 모드에서 확인하세요");
+  };
+
   const generateTestData=(cid)=>{
     setScoreData(prev=>({
       ...prev,
@@ -1274,10 +1311,44 @@ export default function App() {
   };
 
   const showDevEvent=(type)=>{
-    if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 챔피언",desc:"레벨업 팝업 테스트",reward:"🎁 보너스 ⭐ +100 XP · 💎 +100 코인"}); return; }
+    if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 챔피언",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100 XP · 💎 +100 코인"}); return; }
     if(type==="achievement"){ showGameEvent({type:"achievement",emoji:"🏆",title:"업적 달성!",name:"테스트 업적",desc:"업적 팝업 테스트",reward:"🏆 업적 도감에 등록됨"}); return; }
     if(type==="title"){ showGameEvent({type:"title",emoji:"👑",title:"칭호 획득!",name:"황금 테스트러",desc:"칭호 팝업 테스트",reward:"칭호 장착 가능"}); return; }
+    if(type==="box"){ showGameEvent({type:"box",emoji:"📦",title:"보물상자 획득!",name:"일반상자",desc:"미션 10개 달성 보상이에요!",reward:"🎁 보물창고에서 열어보세요"}); return; }
     if(type==="treasure"){ setTreasureModal({emoji:"👑",boxName:"전설상자",rewardCoin:777,titleReward:{id:"dev_title",name:"황금 테스트러",emoji:"👑",rarity:"legendary"},headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"}); }
+  };
+
+  // ── 개발자: 미션 10개 / 숙제 10개 일괄 추가 ──
+  const addDevQuests=(cid,count=10)=>{
+    const date=childDate||TODAY;
+    const entry=getDailyEntry(cid,EXTRA_QUEST_ID,date);
+    const base=Date.now();
+    const newTodos=Array.from({length:count},(_,i)=>({
+      id:base+i,
+      text:`미션 ${i+1}`,
+      done:false,
+      point:DEFAULT_HOMEWORK_SCORE
+    }));
+    setDailyEntry(cid,EXTRA_QUEST_ID,date,{...entry,todos:[...(entry.todos||[]),...newTodos]});
+    showToast(`📝 미션 ${count}개 추가 완료! (기타 미션)`);
+  };
+
+  const addDevHomeworks=(cid,count=10)=>{
+    const date=childDate||TODAY;
+    // 첫 번째 등록된 학원에 추가 (없으면 기타 미션에 추가)
+    const firstAcademy=(academies[cid]||[])[0];
+    const targetId=firstAcademy?firstAcademy.id:EXTRA_QUEST_ID;
+    const targetName=firstAcademy?firstAcademy.name:"기타 미션";
+    const entry=getDailyEntry(cid,targetId,date);
+    const base=Date.now();
+    const newHws=Array.from({length:count},(_,i)=>({
+      id:base+i,
+      text:`숙제 ${i+1}`,
+      done:false,
+      point:DEFAULT_HOMEWORK_SCORE
+    }));
+    setDailyEntry(cid,targetId,date,{...entry,homeworks:[...(entry.homeworks||[]),...newHws]});
+    showToast(`📚 숙제 ${count}개 추가 완료! (${targetName})`);
   };
 
   const resetGameData=(cid)=>{
@@ -1718,42 +1789,29 @@ export default function App() {
     return {total,unlocked,percent:total?Math.round((unlocked/total)*100):0};
   };
 
+  const BADGE_RARITY_MAP={
+    // common (입문/첫 단계)
+    first_quest:"common", first_reward:"common", treasure_1:"common",
+    quest_10:"common", homework_10:"common", xp_100:"common", streak_3:"common",
+    // rare (초중반)
+    quest_50:"rare", homework_30:"rare", xp_500:"rare", streak_7:"rare",
+    treasure_10:"rare", reward_3:"rare", level_5:"rare",
+    // epic (중반)
+    quest_100:"epic", xp_1000:"epic", xp_3000:"epic", streak_14:"epic",
+    treasure_30:"epic", reward_5:"epic", level_10:"epic", level_15:"epic",
+    // legendary (후반/끝판)
+    quest_300:"legendary", quest_500:"legendary", quest_700:"legendary",
+    xp_5000:"legendary", xp_10000:"legendary",
+    streak_30:"legendary", streak_100:"legendary",
+    treasure_50:"legendary", reward_20:"legendary", level_20:"legendary",
+  };
+
   const getBadgeRarity=(badge)=>{
     const id=badge.id||"";
-
-    if(
-      id.includes("100")||
-      id.includes("300")||
-      id.includes("10000")||
-      id.includes("level_20")||
-      id.includes("reward_20")
-    ){
-      return TITLE_RARITY.legendary;
-    }
-
-    if(
-      id.includes("50")||
-      id.includes("5000")||
-      id.includes("level_15")||
-      id.includes("streak_30")||
-      id.includes("treasure_30")||
-      id.includes("reward_5")
-    ){
-      return TITLE_RARITY.epic;
-    }
-
-    if(
-      id.includes("10")||
-      id.includes("500")||
-      id.includes("level_10")||
-      id.includes("streak_7")||
-      id.includes("streak_14")||
-      id.includes("treasure_10")||
-      id.includes("reward_3")
-    ){
-      return TITLE_RARITY.rare;
-    }
-
+    const r=BADGE_RARITY_MAP[id];
+    if(r==="legendary") return TITLE_RARITY.legendary;
+    if(r==="epic") return TITLE_RARITY.epic;
+    if(r==="rare") return TITLE_RARITY.rare;
     return TITLE_RARITY.common;
   };
 
@@ -1761,7 +1819,7 @@ export default function App() {
     const rarity=getBadgeRarity(badge);
 
     if(rarity===TITLE_RARITY.legendary){
-      return {xp:300,coin:100,label:"전설 업적 보상"};
+      return {xp:200,coin:100,label:"전설 업적 보상"};
     }
 
     if(rarity===TITLE_RARITY.epic){
@@ -1796,19 +1854,21 @@ export default function App() {
     if(titleId==="first_quest") return isBadgeUnlocked(cid,"first_quest");
     if(titleId==="quest_hunter") return questCount>=50;
     if(titleId==="homework_master") return homeworkCount>=30;
-    if(titleId==="streak_master") return streak>=7;
+    if(titleId==="streak_master") return streak>=10;
     if(titleId==="champion") return level>=10;
     if(titleId==="legend") return level>=20;
     if(titleId==="quest_10_title") return questCount>=10;
     if(titleId==="xp_100_title") return getChildXP(cid)>=100;
-    if(titleId==="streak_3_title") return streak>=3;
+    if(titleId==="streak_3_title") return streak>=5;
     if(titleId==="xp_500_title") return getChildXP(cid)>=500;
     if(titleId==="reward_1_title") return rewardCount>=1;
     if(titleId==="quest_100_title") return questCount>=100;
+    if(titleId==="quest_700_title") return questCount>=700;
     if(titleId==="xp_3000_title") return getChildXP(cid)>=3000;
-    if(titleId==="reward_3_title") return rewardCount>=3;
+    if(titleId==="reward_3_title") return rewardCount>=5;
+    if(titleId==="reward_30_title") return rewardCount>=30;
     if(titleId==="streak_30_title") return streak>=30;
-    if(titleId==="treasure_master") return treasureOpenCount>=10;
+    if(titleId==="treasure_master") return treasureOpenCount>=50;
     if(titleId==="world_class") return getChildXP(cid)>=12000;
     return false;
   };
@@ -1838,20 +1898,6 @@ export default function App() {
   const getPetStage=(cid)=>Math.max(0,Math.min(PET_STAGES.length-1,Number(petData[cid]??0)));
   const getPet=(cid)=>PET_STAGES[getPetStage(cid)];
 
-  const giveTreasureByQuestComplete=(cid)=>{
-    setTreasureData(prev=>{
-      const cur=prev[cid]||{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0};
-      const nextCount=Number(cur.completedQuestCount||0)+1;
-      let normalBox=Number(cur.normalBox||0);
-      let rareBox=Number(cur.rareBox||0);
-      let legendBox=Number(cur.legendBox||0);
-      if(nextCount%30===0){ legendBox+=1; showToast("👑 전설상자 획득!"); }
-      else if(nextCount%15===0){ rareBox+=1; showToast("🎁 희귀상자 획득!"); }
-      else if(nextCount%5===0){ normalBox+=1; showToast("📦 일반상자 획득!"); }
-      return {...prev,[cid]:{...cur,completedQuestCount:nextCount,normalBox,rareBox,legendBox}};
-    });
-  };
-
   const getQuestTreasureKey=(kind,academyId,date,questId)=>{
     return `${kind}-${academyId}-${date}-${questId}`;
   };
@@ -1859,50 +1905,62 @@ export default function App() {
   const giveTreasureForQuestOnce=(cid,questKey)=>{
     if(!questKey) return;
 
+    const cur=treasureData[cid]||{
+      completedQuestCount:0,
+      normalBox:0,
+      rareBox:0,
+      legendBox:0,
+      rewardedQuestKeys:[]
+    };
+    const rewardedQuestKeys=cur.rewardedQuestKeys||[];
+
+    // 이미 이 미션으로 보물상자 카운트 반영했으면 다시 지급 안 함
+    if(rewardedQuestKeys.includes(questKey)) return;
+
+    const nextCount=Number(cur.completedQuestCount||0)+1;
+    let normalBox=Number(cur.normalBox||0);
+    let rareBox=Number(cur.rareBox||0);
+    let legendBox=Number(cur.legendBox||0);
+
+    // 이번 미션으로 받은 상자 (겹치면 더 높은 등급 하나)
+    let earned=null;
+    if(nextCount%50===0){ legendBox+=1; earned="legend"; }
+    else if(nextCount%30===0){ rareBox+=1; earned="rare"; }
+    else if(nextCount%10===0){ normalBox+=1; earned="normal"; }
+
     setTreasureData(prev=>{
-      const cur=prev[cid]||{
-        completedQuestCount:0,
-        normalBox:0,
-        rareBox:0,
-        legendBox:0,
-        rewardedQuestKeys:[]
-      };
-
-      const rewardedQuestKeys=cur.rewardedQuestKeys||[];
-
-      // 이미 이 미션으로 보물상자 카운트 반영했으면 다시 지급 안 함
-      if(rewardedQuestKeys.includes(questKey)){
-        return prev;
-      }
-
-      const nextCount=Number(cur.completedQuestCount||0)+1;
-      let normalBox=Number(cur.normalBox||0);
-      let rareBox=Number(cur.rareBox||0);
-      let legendBox=Number(cur.legendBox||0);
-
-      if(nextCount%30===0){
-        legendBox+=1;
-        showToast("👑 전설상자 획득!");
-      } else if(nextCount%15===0){
-        rareBox+=1;
-        showToast("🎁 희귀상자 획득!");
-      } else if(nextCount%5===0){
-        normalBox+=1;
-        showToast("📦 일반상자 획득!");
-      }
-
+      const p=prev[cid]||cur;
+      const keys=p.rewardedQuestKeys||[];
+      if(keys.includes(questKey)) return prev;
       return {
         ...prev,
         [cid]:{
-          ...cur,
-          completedQuestCount:nextCount,
-          normalBox,
-          rareBox,
-          legendBox,
-          rewardedQuestKeys:[...rewardedQuestKeys,questKey]
+          ...p,
+          completedQuestCount:Number(p.completedQuestCount||0)+1,
+          normalBox:Number(p.normalBox||0)+(earned==="normal"?1:0),
+          rareBox:Number(p.rareBox||0)+(earned==="rare"?1:0),
+          legendBox:Number(p.legendBox||0)+(earned==="legend"?1:0),
+          rewardedQuestKeys:[...keys,questKey]
         }
       };
     });
+
+    // 상자를 받았으면 가운데 팝업으로 크게 알림 (레벨업·업적과 같은 큐)
+    if(earned){
+      const info=earned==="legend"
+        ? {emoji:"👑",name:"전설상자",desc:`미션 ${nextCount}개 달성 보상이에요!`}
+        : earned==="rare"
+          ? {emoji:"🎁",name:"희귀상자",desc:`미션 ${nextCount}개 달성 보상이에요!`}
+          : {emoji:"📦",name:"일반상자",desc:`미션 ${nextCount}개 달성 보상이에요!`};
+      showGameEvent({
+        type:"box",
+        emoji:info.emoji,
+        title:"보물상자 획득!",
+        name:info.name,
+        desc:info.desc,
+        reward:"🎁 보물창고에서 열어보세요"
+      });
+    }
   };
 
   const openTreasureBox=(boxType)=>{
@@ -2028,7 +2086,7 @@ export default function App() {
         title:"레벨업!",
         name:`Lv.${L.level} ${L.name}`,
         desc,
-        reward:bonus>0?`🎁 레벨업 보너스 ⭐ +${bonus} XP · 💎 +${bonus} 코인`:"새로운 레벨 달성!"
+        reward:bonus>0?`🎁 레벨업 보너스\n⭐ +${bonus} XP · 💎 +${bonus} 코인`:"새로운 레벨 달성!"
       });
       prevName=L.name;
     });
@@ -2122,6 +2180,8 @@ export default function App() {
     if(badgeId==="quest_50") return questCount>=50;
     if(badgeId==="quest_100") return questCount>=100;
     if(badgeId==="quest_300") return questCount>=300;
+    if(badgeId==="quest_500") return questCount>=500;
+    if(badgeId==="quest_700") return questCount>=700;
     if(badgeId==="homework_10") return homeworkCount>=10;
     if(badgeId==="homework_30") return homeworkCount>=30;
     if(badgeId==="streak_3") return streak>=3;
@@ -2132,7 +2192,7 @@ export default function App() {
     if(badgeId==="treasure_1") return treasureOpenCount>=1;
     if(badgeId==="treasure_10") return treasureOpenCount>=10;
     if(badgeId==="treasure_30") return treasureOpenCount>=30;
-    if(badgeId==="treasure_100") return treasureOpenCount>=100;
+    if(badgeId==="treasure_50") return treasureOpenCount>=50;
     if(badgeId==="xp_100") return score>=100;
     if(badgeId==="xp_500") return score>=500;
     if(badgeId==="xp_1000") return score>=1000;
@@ -2144,9 +2204,9 @@ export default function App() {
     if(badgeId==="level_15") return level>=15;
     if(badgeId==="level_20") return level>=20;
     if(badgeId==="first_reward") return rewardCount>=1;
-    if(badgeId==="reward_3") return rewardCount>=3;
-    if(badgeId==="reward_5") return rewardCount>=5;
-    if(badgeId==="reward_20") return rewardCount>=20;
+    if(badgeId==="reward_3") return rewardCount>=5;
+    if(badgeId==="reward_5") return rewardCount>=15;
+    if(badgeId==="reward_20") return rewardCount>=30;
     return unlockedBadgeIds.includes(`${cid}-${badgeId}`);
   };
   const getUnlockedBadges=(cid)=>getChildBadges(cid).filter(b=>isBadgeUnlocked(cid,b.id));
@@ -2217,7 +2277,7 @@ export default function App() {
         name:unseen.title,
         desc:unseen.desc||"새로운 업적을 달성했어요!",
         reward:willPayReward
-          ? `🏆 업적 도감 등록 · ⭐ +${badgeReward.xp} XP · 💎 +${badgeReward.coin} 코인`
+          ? `🏆 업적 도감 등록\n⭐ +${badgeReward.xp} XP · 💎 +${badgeReward.coin} 코인`
           : `🏆 업적 도감 등록`
       });
     } else {
@@ -2651,7 +2711,7 @@ export default function App() {
                   <div style={{display:"flex",alignItems:"flex-end",gap:6,flexShrink:0,marginTop:8,marginRight:6}}>
                     <div style={{position:"relative",width:66,height:66,borderRadius:22,background:evo.bg,border:"1.5px solid rgba(255,255,255,0.45)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:40,boxShadow:"0 6px 18px rgba(0,0,0,0.16)"}}>
                       <span style={{display:"block",transform:"translateY(1px)",lineHeight:1}}>{getCharacterAvatar(childId)}</span>
-                      <span style={{position:"absolute",right:-5,bottom:-5,width:25,height:25,borderRadius:"50%",background:"#fff",border:`2px solid ${GAME.gold}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,boxShadow:"0 3px 8px rgba(0,0,0,0.18)"}}>{evo.badge}</span>
+                      <span style={{position:"absolute",right:-5,bottom:-5,width:25,height:25,borderRadius:"50%",background:"#fff",border:`2px solid ${GAME.gold}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,boxShadow:"0 3px 8px rgba(0,0,0,0.18)"}}>{level.emoji}</span>
                     </div>
                     {(()=>{
                       const pet=getPet(childId);
@@ -2665,7 +2725,7 @@ export default function App() {
                   </div>
                 </div>
                 {/* 코인 + XP (가장 중요) */}
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:12}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginTop:14,marginBottom:6}}>
                   <div style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.16)",borderRadius:13,padding:"8px 11px",display:"flex",alignItems:"center",gap:8}}>
                     <span style={{fontSize:20}}>💎</span>
                     <div style={{minWidth:0}}>
@@ -2683,16 +2743,15 @@ export default function App() {
                 </div>
                 {/* NEXT LEVEL 진행바 */}
                 <div>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-                    <span style={{fontSize:11,fontWeight:900,opacity:0.72}}>{UI_TEXT.label.nextLevel}</span>
-                    <span style={{fontSize:11,fontWeight:900,opacity:0.86}}>{nextLevel?`${progress.remainXp} XP 남음`:"MAX LEVEL"}</span>
+                  <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",marginBottom:6}}>
+                    <span style={{fontSize:11,fontWeight:900,opacity:0.86}}>{nextLevel?`${progress.currentXp}/${progress.needXp}`:"MAX LEVEL"}</span>
                   </div>
                   <div style={{height:13,background:"rgba(255,255,255,0.18)",borderRadius:99,overflow:"hidden"}}>
                     <div style={{width:`${progress.percent}%`,height:"100%",borderRadius:99,background:`linear-gradient(90deg, ${GAME.gold}, ${GAME.green})`,transition:"width 0.25s"}}/>
                   </div>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6,fontSize:11.5,fontWeight:800,opacity:0.88}}>
                     <span>{nextLevel?<>다음 레벨 : {nextLevel.emoji} Lv.{nextLevel.level} {nextLevel.name}</>:"🏆 최고 레벨 달성!"}</span>
-                    <span style={{opacity:0.78}}>{progress.currentXp}/{progress.needXp}</span>
+                    <span style={{opacity:0.78}}>{nextLevel?`${progress.remainXp} XP 남음`:""}</span>
                   </div>
                 </div>
               </div>
@@ -2703,7 +2762,7 @@ export default function App() {
                   {icon:"🏅",label:"업적",value:getUnlockedBadges(childId).length},
                   {icon:"🏆",label:"연속달성 최고기록",value:`${getBestStreak(childId)}일`},
                 ].map((s,i)=>(
-                  <div key={i} style={{background:`${th.main}1A`,border:`1.5px solid ${th.main}33`,borderRadius:13,padding:"10px 5px",textAlign:"center"}}>
+                  <div key={i} style={{background:`${th.main}2E`,border:`1.5px solid ${th.main}59`,borderRadius:13,padding:"10px 5px",textAlign:"center"}}>
                     <p style={{fontSize:18,margin:0}}>{s.icon}</p>
                     <p style={{fontSize:15,fontWeight:900,margin:"2px 0 0",color:th.main}}>{s.value}</p>
                     <p style={{fontSize:10,fontWeight:800,color:C.sub,margin:"1px 0 0",lineHeight:1.25}}>{s.label}</p>
@@ -3168,7 +3227,7 @@ export default function App() {
                       })}
                     </div>
                     <p style={{fontSize:11,color:C.sub,fontWeight:700,margin:"12px 0 0",lineHeight:1.4}}>
-                      📦 5개마다 일반 · 🎁 15개마다 희귀 · 👑 30개마다 전설
+                      미션을 모으면 상자를 받아요! 📦 10개 → 일반 · 🎁 30개 → 희귀 · 👑 50개 → 전설 (겹칠 땐 더 좋은 상자로 받아요!)
                     </p>
                   </div>
                 )}
@@ -3418,8 +3477,17 @@ export default function App() {
               </div>
 
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                <button onClick={loadSampleData} style={devBtn(C.green)}>🌱 샘플 데이터 채우기 (아이·학원·미션)</button>
                 <button onClick={()=>generateTestData(childId)} style={devBtn(C.purple)}>🧪 테스트 데이터 생성</button>
                 <button onClick={()=>generateLegendTestData(childId)} style={devBtn(GAME.gold)}>👑 전설 테스트 모드</button>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>미션 · 숙제 일괄 추가 ({fmt(childDate)})</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
+                    <button onClick={()=>addDevQuests(childId,10)} style={devMiniBtn(C.blue||"#3B82F6")}>📝 미션 10개</button>
+                    <button onClick={()=>addDevHomeworks(childId,10)} style={devMiniBtn(C.orange)}>📚 숙제 10개</button>
+                  </div>
+                </div>
 
                 <div style={devGroup}>
                   <p style={devGroupTitle}>상자 지급</p>
@@ -3467,7 +3535,8 @@ export default function App() {
                     <button onClick={()=>showDevEvent("level")} style={devMiniBtn(th.main)}>🎉 레벨업</button>
                     <button onClick={()=>showDevEvent("achievement")} style={devMiniBtn(C.purple)}>🏆 업적</button>
                     <button onClick={()=>showDevEvent("title")} style={devMiniBtn("#F59E0B")}>👑 칭호</button>
-                    <button onClick={()=>showDevEvent("treasure")} style={devMiniBtn(C.orange)}>🎁 상자</button>
+                    <button onClick={()=>showDevEvent("box")} style={devMiniBtn("#FBBF24")}>📦 상자획득</button>
+                    <button onClick={()=>showDevEvent("treasure")} style={devMiniBtn(C.orange)}>🎁 상자열기</button>
                   </div>
                 </div>
 
@@ -3594,7 +3663,9 @@ export default function App() {
                   ?"linear-gradient(135deg,#F59E0B,#FDE68A)"
                   :eventModal.type==="achievement"
                     ?"linear-gradient(135deg,#9333EA,#C084FC)"
-                    :`linear-gradient(135deg, ${GAME.dark}, ${th.main})`
+                    :eventModal.type==="box"
+                      ?"linear-gradient(135deg,#F59E0B,#FBBF24)"
+                      :`linear-gradient(135deg, ${GAME.dark}, ${th.main})`
             }}>
               {/* shine 효과 */}
               <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent)",animation:"shineMove 1.4s ease-in-out infinite"}}/>
@@ -3606,8 +3677,10 @@ export default function App() {
               <p style={{fontSize:22,fontWeight:900,color:C.text,margin:"0 0 8px"}}>{eventModal.name}</p>
               <p style={{fontSize:14,fontWeight:800,color:C.sub,margin:"0 0 14px",lineHeight:1.45}}>{eventModal.desc}</p>
               {eventModal.reward&&(
-                <div style={{background:GAME.dark,color:GAME.gold,borderRadius:16,padding:"11px 12px",fontSize:14,fontWeight:900,marginBottom:16}}>
-                  {eventModal.reward}
+                <div style={{background:GAME.dark,color:GAME.gold,borderRadius:16,padding:"11px 12px",fontSize:14,fontWeight:900,marginBottom:16,lineHeight:1.5}}>
+                  {String(eventModal.reward).split("\n").map((line,i)=>(
+                    <div key={i}>{line}</div>
+                  ))}
                 </div>
               )}
               <button onClick={()=>setEventModal(null)}
@@ -3698,9 +3771,9 @@ export default function App() {
       </div>
 
       {/* ── 탭 바 ── */}
-      <div style={{display:"flex",background:CT.card,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:10,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
+      <div style={{display:"flex",justifyContent:"space-between",gap:2,padding:"0 10px",background:CT.card,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:10,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
         {[["home","🏠 홈"],["reward","🎁 보상"],["calendar","🗓 달력"],["fee","💰 학원비"],["absence","🏥 결석"],["etc","⚙️ 기타"]].map(([k,l])=>(
-          <button key={k} onClick={()=>setTab(k)} style={{flex:1,padding:"13px 2px",border:"none",background:"transparent",fontSize:12,fontWeight:tab===k?800:400,color:tab===k?th.main:C.sub,borderBottom:tab===k?`2.5px solid ${th.main}`:"2.5px solid transparent",cursor:"pointer",whiteSpace:"nowrap",transition:"color 0.2s"}}>{l}</button>
+          <button key={k} onClick={()=>setTab(k)} style={{flex:1,padding:"13px 4px",border:"none",background:"transparent",fontSize:12,fontWeight:tab===k?800:400,color:tab===k?th.main:C.sub,borderBottom:tab===k?`2.5px solid ${th.main}`:"2.5px solid transparent",cursor:"pointer",whiteSpace:"nowrap",textAlign:"center",transition:"color 0.2s"}}>{l}</button>
         ))}
       </div>
 
@@ -4505,7 +4578,7 @@ export default function App() {
                                 justifyContent:"center",
                                 fontSize:13
                               }}>
-                                {evo.badge}
+                                {level.emoji}
                               </span>
                             </div>
 
@@ -4540,8 +4613,8 @@ export default function App() {
                           }}>
                             {[
                               {label:"일반",emoji:"📦",count:treasure.normalBox||0,range:"20~40",color:C.sub},
-                              {label:"희귀",emoji:"🎁",count:treasure.rareBox||0,range:"60~120",color:C.purple},
-                              {label:"전설",emoji:"👑",count:treasure.legendBox||0,range:"150~300",color:GAME.gold},
+                              {label:"희귀",emoji:"🎁",count:treasure.rareBox||0,range:"40~80",color:C.purple},
+                              {label:"전설",emoji:"👑",count:treasure.legendBox||0,range:"100~160",color:GAME.gold},
                             ].map(box=>(
                               <div key={box.label} style={{
                                 background:"#fff",
@@ -5111,9 +5184,9 @@ export default function App() {
                   width:"100%",
                   padding:11,
                   borderRadius:11,
-                  border:"none",
-                  background:"#f97316",
-                  color:"#fff",
+                  border:"1.5px solid #fca5a5",
+                  background:"#fff",
+                  color:"#ea580c",
                   fontSize:14,
                   fontWeight:900,
                   cursor:"pointer",
@@ -5129,9 +5202,9 @@ export default function App() {
                   width:"100%",
                   padding:11,
                   borderRadius:11,
-                  border:"none",
-                  background:"#dc2626",
-                  color:"#fff",
+                  border:"1.5px solid #f4a0a0",
+                  background:"#fef2f2",
+                  color:"#dc2626",
                   fontSize:14,
                   fontWeight:900,
                   cursor:"pointer"
