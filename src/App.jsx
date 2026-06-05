@@ -439,43 +439,58 @@ const DEFAULT_CHILDREN = [
 ];
 
 // ── 최초 실행 시 한 번만 주입되는 샘플 데이터 (처음 쓰는 사람 참고용) ──
-const buildSampleData = () => {
+const buildSampleData = (seq=1) => {
+  const uniq = `${Date.now()}_${seq}`;
   const cid = "child_1";
-  const acSample = "sample_ac_1";
+  const acSample = `sample_ac_${uniq}`;
   const children = [{ id:cid, name:"아이1(예시)", gender:"boy" }];
+  const PRESETS = [
+    { name:"피아노 학원 (예시)", color:"#6C63FF", time:"16:00", teacher:"김선생님", fee:150000,
+      baseSupplies:["악보","연필"], baseHomeworks:["하농 1번 연습","오늘 배운 곡 1회 복습"],
+      shuttleInfo:"학원 차량 16:00 아파트 정문", memo:"매주 토요일 연주회 준비",
+      homeworks:["바이엘 20번 5회 연습","체르니 3번 양손 연습"], todos:["메트로놈 60에 맞춰 치기","악보 한 곡 외워오기"], supplies:["연습장"] },
+    { name:"수학 학원 (예시)", color:"#FF6B6B", time:"17:00", teacher:"이선생님", fee:200000,
+      baseSupplies:["교재","공책","연필"], baseHomeworks:["연산 문제 2장 풀기","오답 노트 정리"],
+      shuttleInfo:"", memo:"매월 모의고사 응시",
+      homeworks:["단원평가 1회분 풀기","틀린 문제 다시 풀기"], todos:["구구단 외우기"], supplies:["계산기"] },
+    { name:"영어 학원 (예시)", color:"#34C759", time:"18:00", teacher:"박선생님", fee:180000,
+      baseSupplies:["단어장","워크북"], baseHomeworks:["단어 20개 암기","리딩 1지문 읽기"],
+      shuttleInfo:"학원 차량 18:00 아파트 후문", memo:"매주 금요일 단어 시험",
+      homeworks:["단어 시험 대비 복습","듣기 1회 풀기"], todos:["영어 일기 3줄 쓰기"], supplies:["이어폰"] },
+    { name:"태권도 (예시)", color:"#FF9500", time:"15:00", teacher:"최사범님", fee:120000,
+      baseSupplies:["도복","띠"], baseHomeworks:["품새 1회 연습","스트레칭 10분"],
+      shuttleInfo:"학원 차량 15:00 아파트 정문", memo:"다음 달 승급 심사",
+      homeworks:["발차기 50회","팔굽혀펴기 20회"], todos:["오늘 배운 동작 복습"], supplies:["물통"] },
+  ];
+  const p = PRESETS[(seq-1) % PRESETS.length];
   const academies = {
     [cid]: [
       {
         ...EMPTY_AC,
         id:acSample,
-        name:"피아노 학원 (예시)",
+        name:p.name,
         days:["월","화","수","목","금","토","일"],
-        time:"16:00",
+        time:p.time,
         duration:60,
-        color:"#6C63FF",
-        teacher:"김선생님",
+        color:p.color,
+        teacher:p.teacher,
         phone:"010-1234-5678",
         address:"행복아파트 상가 3층",
-        fee:150000,
+        fee:p.fee,
         payDay:5,
-        baseSupplies:["악보","연필"],
-        shuttleInfo:"학원 차량 16:00 아파트 정문",
-        memo:"매주 토요일 연주회 준비",
+        baseSupplies:p.baseSupplies,
+        baseHomeworks:p.baseHomeworks,
+        shuttleInfo:p.shuttleInfo,
+        memo:p.memo,
       },
     ]
   };
-  // 오늘 날짜에 숙제 2개 · 미션(할 일) 2개 (직접 눌러서 XP·코인 체험)
+  // 오늘 날짜에 숙제·미션 (직접 눌러서 XP·코인 체험)
   const dailyData = {
     [`${cid}-${acSample}-${TODAY}`]: {
-      homeworks:[
-        { id:1001, text:"바이엘 20번 5회 연습", done:false, point:10 },
-        { id:1002, text:"체르니 3번 양손 연습", done:false, point:10 },
-      ],
-      todos:[
-        { id:1003, text:"메트로놈 60에 맞춰 치기", done:false, point:10 },
-        { id:1004, text:"악보 한 곡 외워오기", done:false, point:10 },
-      ],
-      supplies:["연습장"]
+      homeworks:p.homeworks.map((t,i)=>({ id:Date.now()+i, text:t, done:false, point:10 })),
+      todos:p.todos.map((t,i)=>({ id:Date.now()+100+i, text:t, done:false, point:10 })),
+      supplies:p.supplies
     },
   };
   return { children, academies, dailyData };
@@ -1216,15 +1231,18 @@ export default function App() {
   };
 
   const loadSampleData=()=>{
-    const sample=buildSampleData();
-    const cid=sample.children[0].id;
-    setChildren(sample.children);
+    const cid="child_1";
+    const existingAcs=academies[cid]||[];
+    const seq=existingAcs.filter(a=>/\(예시\)$/.test(a.name)).length+1;
+    const sample=buildSampleData(seq);
+    const newAc=sample.academies[cid][0];
+    setChildren(prev=>prev.some(c=>c.id===cid)?prev:[...prev,...sample.children]);
     setChildId(cid);
-    setAcademies(sample.academies);
+    setAcademies(prev=>({...prev,[cid]:[...(prev[cid]||[]),newAc]}));
     setDailyData(prev=>({...prev,...sample.dailyData}));
     setChildDate(TODAY);
     setShowDevTools(false);
-    showToast("🌱 샘플 데이터 완료! 아이 모드에서 확인하세요");
+    showToast(`🌱 샘플 학원 추가! (${newAc.name}) 아이 모드에서 확인하세요`);
   };
 
   const generateTestData=(cid)=>{
@@ -2211,6 +2229,43 @@ export default function App() {
   };
   const getUnlockedBadges=(cid)=>getChildBadges(cid).filter(b=>isBadgeUnlocked(cid,b.id));
 
+  // ── 업적 진행도: {cur,goal} 반환 (목표형 업적만). 알 수 없으면 null ──
+  const getBadgeProgress=(cid,badgeId)=>{
+    const score=getChildXP(cid);
+    const level=getChildLevel(cid).level;
+    const streak=getQuestStreak(cid);
+    const questCount=getTotalActivityCount(cid);
+    const homeworkCount=getCompletedHomeworkCount(cid);
+    const rewardCount=getApprovedRewardCount(cid);
+    const treasureOpenCount=getScoreHistory(cid).filter(h=>h.type==="treasure").length;
+    const M={
+      quest_10:[questCount,10],quest_50:[questCount,50],quest_100:[questCount,100],
+      quest_300:[questCount,300],quest_500:[questCount,500],quest_700:[questCount,700],
+      homework_10:[homeworkCount,10],homework_30:[homeworkCount,30],
+      streak_3:[streak,3],streak_7:[streak,7],streak_14:[streak,14],streak_30:[streak,30],streak_100:[streak,100],
+      treasure_1:[treasureOpenCount,1],treasure_10:[treasureOpenCount,10],treasure_30:[treasureOpenCount,30],treasure_50:[treasureOpenCount,50],
+      xp_100:[score,100],xp_500:[score,500],xp_1000:[score,1000],xp_3000:[score,3000],xp_5000:[score,5000],xp_10000:[score,10000],
+      level_5:[level,5],level_10:[level,10],level_15:[level,15],level_20:[level,20],
+      first_reward:[rewardCount,1],reward_3:[rewardCount,5],reward_5:[rewardCount,15],reward_20:[rewardCount,30],
+    };
+    const p=M[badgeId];
+    if(!p) return null;
+    return {cur:Math.min(p[0],p[1]),goal:p[1]};
+  };
+
+  // ── 다음에 달성 가능한 가장 가까운 업적 id (진행 중인 것 중 달성률 최고) ──
+  const getNextBadgeId=(cid)=>{
+    let best=null,bestRatio=-1;
+    getChildBadges(cid).forEach(b=>{
+      if(isBadgeUnlocked(cid,b.id)) return;
+      const pr=getBadgeProgress(cid,b.id);
+      if(!pr||pr.goal<=0) return;
+      const ratio=pr.cur/pr.goal;
+      if(pr.cur>0&&ratio>bestRatio){ bestRatio=ratio; best=b.id; }
+    });
+    return best;
+  };
+
   const getQuestItemsOnDateForStreak=(cid,date)=>getQuestItemsForDate(cid,date);
 
   const isQuestSuccessDay=(cid,date)=>{
@@ -2983,9 +3038,9 @@ export default function App() {
                         <div style={{marginTop:8,display:"flex",alignItems:"baseline",flexWrap:"wrap",gap:"6px 8px"}}>
                           <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0,flexShrink:0}}>🎒 준비물</p>
                           <div style={{display:"flex",flexWrap:"wrap",gap:6,flex:1,minWidth:0}}>
-                            {(ac.baseSupplies||[]).map((s,i)=><span key={`b${i}`} style={{fontSize:14,padding:"4px 11px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:700}}>{s}</span>)}
+                            {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:14,padding:"4px 11px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:700}}>{s}</span>)}
                             {sup.map((s,i)=><span key={`s${i}`} style={{fontSize:14,padding:"4px 11px",borderRadius:20,background:`${C.orange}18`,color:C.orange,fontWeight:700}}>+ {s}</span>)}
-                            {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:14,color:"#BBB"}}>없음</span>}
+                            {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:14,color:"#BBB"}}>없음</span>}
                           </div>
                         </div>
                         {/* 미션 요약 */}
@@ -3283,16 +3338,20 @@ export default function App() {
                       const rarity=TITLE_RARITY[title.rarity||"common"];
                       return (
                         <button key={title.id} onClick={()=>selectTitle(title.id)} disabled={!unlocked}
-                          style={{borderRadius:15,padding:"12px 10px",
+                          style={{borderRadius:15,padding:"12px 10px",position:"relative",
                           background:selected?`linear-gradient(135deg, ${rarity.color}22, #fff)`:unlocked&&title.rarity==="legendary"?"linear-gradient(135deg,#FFF7ED,#FFFBEB)":unlocked?rarity.bg:CT.faint,
-                          border:`${title.rarity==="legendary"?"2px":"1.7px"} solid ${selected?rarity.color:unlocked?rarity.color+(title.rarity==="legendary"?"":"55"):C.border}`,
+                          border:`${selected?"2.5px":title.rarity==="legendary"?"2px":"1.7px"} solid ${selected?rarity.color:unlocked?rarity.color+(title.rarity==="legendary"?"":"55"):C.border}`,
+                          boxShadow:selected?`0 4px 16px ${rarity.color}55`:"none",
                           opacity:unlocked?1:0.5,cursor:unlocked?"pointer":"not-allowed",textAlign:"center"}}>
+                          {selected&&(
+                            <span style={{position:"absolute",top:7,right:7,width:20,height:20,borderRadius:"50%",background:rarity.color,color:"#fff",fontSize:12,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 2px 6px ${rarity.color}66`}}>✓</span>
+                          )}
                           <p style={{fontSize:26,margin:"0 0 5px"}}>{unlocked?title.emoji:"🔒"}</p>
                           <p style={{fontSize:11,fontWeight:900,color:rarity.color,margin:"0 0 3px"}}>{rarity.icon} {rarity.name}</p>
-                          <p style={{fontSize:14,fontWeight:900,margin:"0 0 3px",color:selected?rarity.color:unlocked?C.text:C.sub}}>{unlocked?title.name:"잠긴 칭호"}</p>
+                          <p style={{fontSize:14,fontWeight:900,margin:"0 0 3px",color:selected?rarity.color:unlocked?C.text:C.sub}}>{title.name}</p>
                           <p style={{fontSize:11,color:C.sub,margin:0,fontWeight:700,lineHeight:1.3}}>{title.condition}</p>
                           {selected
-                            ? <p style={{fontSize:10,fontWeight:900,color:"#fff",background:rarity.color,borderRadius:20,padding:"3px 9px",display:"inline-block",margin:"7px 0 0"}}>선택됨</p>
+                            ? <p style={{fontSize:10,fontWeight:900,color:"#fff",background:rarity.color,borderRadius:20,padding:"3px 9px",display:"inline-block",margin:"7px 0 0"}}>✓ 선택됨</p>
                             : unlocked&&<p style={{fontSize:10,fontWeight:900,color:rarity.color,background:"#fff",border:`1px solid ${rarity.color}55`,borderRadius:20,padding:"3px 9px",display:"inline-block",margin:"7px 0 0"}}>선택</p>}
                         </button>
                       );
@@ -3314,9 +3373,11 @@ export default function App() {
                       <div style={{width:`${getAchievementProgress(childId).percent}%`,height:"100%",background:`linear-gradient(90deg, ${GAME.gold}, ${GAME.green})`}}/>
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-                      {getChildBadges(childId).map(badge=>{
+                      {(()=>{ const nextBadgeId=getNextBadgeId(childId); return getChildBadges(childId).map(badge=>{
                         const unlocked=unlockedBadgeIds.includes(`${childId}-${badge.id}`)||isBadgeUnlocked(childId,badge.id);
                         const rarity=getBadgeRarity(badge);
+                        const isNext=!unlocked&&badge.id===nextBadgeId;
+                        const prog=!unlocked?getBadgeProgress(childId,badge.id):null;
 
                         return (
                           <div
@@ -3347,7 +3408,7 @@ export default function App() {
                               color:unlocked?rarity.color:C.sub,
                               margin:"0 0 4px"
                             }}>
-                              {unlocked ? `${rarity.icon} ${rarity.name}` : "LOCKED"}
+                              {unlocked ? `${rarity.icon} ${rarity.name}` : isNext ? "⭐ 거의 다 왔어요!" : "LOCKED"}
                             </p>
 
                             <div style={{
@@ -3357,7 +3418,7 @@ export default function App() {
                               color:unlocked?C.text:C.sub,
                               lineHeight:1.25
                             }}>
-                              {unlocked?badge.title:"?????"}
+                              {badge.title}
                             </div>
 
                             <div style={{
@@ -3366,8 +3427,17 @@ export default function App() {
                               fontWeight:700,
                               lineHeight:1.35
                             }}>
-                              {unlocked?badge.desc:"아직 달성하지 못했어요"}
+                              {badge.desc}
                             </div>
+
+                            {!unlocked&&prog&&(
+                              <div style={{margin:"7px 0 0"}}>
+                                <div style={{height:7,borderRadius:99,background:CT.faintB,overflow:"hidden"}}>
+                                  <div style={{width:`${Math.round(prog.cur/prog.goal*100)}%`,height:"100%",background:C.sub}}/>
+                                </div>
+                                <p style={{fontSize:10,fontWeight:900,color:C.sub,margin:"4px 0 0"}}>{prog.cur} / {prog.goal}</p>
+                              </div>
+                            )}
 
                             {unlocked&&(
                               <p style={{
@@ -3385,7 +3455,7 @@ export default function App() {
                             )}
                           </div>
                         );
-                      })}
+                      }); })()}
                     </div>
                   </div>
                 )}
@@ -3793,53 +3863,85 @@ export default function App() {
           const absOnHome=curAbs.filter(a=>a.date===homeDate);
           const makeupOnHome=curAbs.filter(a=>a.makeupDate===homeDate);
           const homePendingHw=homeAc.reduce((n,ac)=>n+(getDailyEntry(childId,ac.id,homeDate).homeworks||[]).filter(h=>!h.done).length,0);
+          const homePendingTodo=getQuestItemsForDate(childId,homeDate).filter(it=>it.kind==="todo"&&!it.done&&!it.failed).length;
+          const homeSupplyCount=homeAc.reduce((n,ac)=>{
+            const entry=getDailyEntry(childId,ac.id,homeDate);
+            const hidden=entry.hiddenBase||[];
+            const base=(ac.baseSupplies||[]).filter(s=>!hidden.includes(s)).length;
+            const day=(entry.supplies||[]).length;
+            return n+base+day;
+          },0);
           const pendingHw=pendingHwTotal();
           return (
             <div>
-              {/* 날짜 이동 헤더 카드 */}
+              {/* 날짜 이동 (카드 밖 별도 줄) */}
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+                <button onClick={()=>setHomeDate(addDays(homeDate,-1))}
+                  style={{width:38,height:38,borderRadius:12,background:CT.card,border:`1.5px solid ${C.border}`,color:th.main,fontSize:22,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>‹</button>
+                <div style={{flex:1,textAlign:"center"}}>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+                    <span style={{fontSize:18,fontWeight:900,color:C.text}}>{fullLabel}</span>
+                    {dayTag&&<span style={{fontSize:13,background:th.main,color:"#fff",borderRadius:6,padding:"2px 9px",fontWeight:700,flexShrink:0}}>{dayTag}</span>}
+                  </div>
+                  {!isToday&&(
+                    <button onClick={()=>setHomeDate(TODAY)}
+                      style={{marginTop:5,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:6,color:th.main,fontSize:14,cursor:"pointer",padding:"2px 12px",fontWeight:700}}>
+                      ↩ 오늘로
+                    </button>
+                  )}
+                </div>
+                <button onClick={()=>setHomeDate(addDays(homeDate,1))}
+                  style={{width:38,height:38,borderRadius:12,background:CT.card,border:`1.5px solid ${C.border}`,color:th.main,fontSize:22,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>›</button>
+              </div>
+
+              {/* 현황 카드 */}
               <div style={{background:th.grad,borderRadius:16,padding:"16px 18px",marginBottom:16,color:"#fff",boxShadow:`0 4px 18px ${th.main}30`}}>
-                <p style={{fontSize:17,opacity:0.85,margin:"0 0 10px",fontWeight:600}}>{th.emoji} {curChild?.name}</p>
-                {/* 날짜 이동 행 */}
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-                  <button onClick={()=>setHomeDate(addDays(homeDate,-1))}
-                    style={{width:38,height:38,borderRadius:12,background:"rgba(255,255,255,0.2)",border:"1.5px solid rgba(255,255,255,0.35)",color:"#fff",fontSize:22,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>‹</button>
-                  <div style={{flex:1,textAlign:"center"}}>
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
-                      <span style={{fontSize:18,fontWeight:900}}>{fullLabel}</span>
-                      {dayTag&&<span style={{fontSize:17,background:"rgba(255,255,255,0.3)",borderRadius:6,padding:"2px 9px",fontWeight:700,flexShrink:0}}>{dayTag}</span>}
+                {/* 이름 + 레벨/코인 한 줄 */}
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,gap:8}}>
+                  <p style={{fontSize:16,fontWeight:900,margin:0}}>{th.emoji} {curChild?.name}</p>
+                  <p style={{fontSize:12,fontWeight:800,margin:0,background:"rgba(255,255,255,0.18)",border:"1px solid rgba(255,255,255,0.28)",borderRadius:20,padding:"4px 11px",whiteSpace:"nowrap"}}>
+                    {getChildLevel(childId).emoji} Lv.{getChildLevel(childId).level} · {getChildXP(childId)} XP · {getChildCoin(childId)} 💎
+                  </p>
+                </div>
+
+                {/* 오늘 챙길 일 알림 */}
+                {(()=>{
+                  const alerts=[];
+                  if(homeSupplyCount>0) alerts.push(`🎒 준비물 ${homeSupplyCount}개`);
+                  if(homePendingHw>0) alerts.push(`📝 미완료 숙제 ${homePendingHw}개`);
+                  if(homePendingTodo>0) alerts.push(`🎯 미완료 미션 ${homePendingTodo}개`);
+                  if(absOnHome.length>0) alerts.push(`🏥 결석 ${absOnHome.length}개`);
+                  if(makeupOnHome.length>0) alerts.push(`📚 보충수업 ${makeupOnHome.length}개`);
+                  const hasAlert=alerts.length>0;
+                  return (
+                    <div style={{background:"rgba(255,255,255,0.18)",border:"1px solid rgba(255,255,255,0.3)",borderRadius:13,padding:"13px 14px",marginBottom:10,display:"flex",alignItems:hasAlert?"flex-start":"center",gap:12}}>
+                      <div style={{fontSize:28,flexShrink:0}}>{hasAlert?"🔔":"✅"}</div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <p style={{fontSize:12,fontWeight:700,margin:"0 0 6px",opacity:0.9}}>{dayTag?`${dayTag} 챙길 일`:"이 날 챙길 일"}</p>
+                        {hasAlert?(
+                          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                            {alerts.map((a,i)=>(
+                              <span key={i} style={{fontSize:13,fontWeight:900,color:th.main,background:"rgba(255,255,255,0.92)",borderRadius:8,padding:"4px 10px",whiteSpace:"nowrap"}}>{a}</span>
+                            ))}
+                          </div>
+                        ):(
+                          <p style={{fontSize:15,fontWeight:900,margin:0,lineHeight:1.35}}>챙길 일이 없어요!</p>
+                        )}
+                      </div>
                     </div>
-                    {!isToday&&(
-                      <button onClick={()=>setHomeDate(TODAY)}
-                        style={{marginTop:5,background:"rgba(255,255,255,0.18)",border:"1px solid rgba(255,255,255,0.3)",borderRadius:6,color:"#fff",fontSize:17,cursor:"pointer",padding:"2px 12px",fontWeight:600}}>
-                        ↩ 오늘로
-                      </button>
-                    )}
-                  </div>
-                  <button onClick={()=>setHomeDate(addDays(homeDate,1))}
-                    style={{width:38,height:38,borderRadius:12,background:"rgba(255,255,255,0.2)",border:"1.5px solid rgba(255,255,255,0.35)",color:"#fff",fontSize:22,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>›</button>
-                </div>
-                {/* 레벨/점수 요약 */}
-                <div style={{background:"rgba(255,255,255,0.18)",border:"1px solid rgba(255,255,255,0.28)",borderRadius:12,padding:"10px 12px",marginBottom:10,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                  <div>
-                    <p style={{fontSize:12,opacity:0.8,margin:"0 0 3px",fontWeight:700}}>현재 레벨</p>
-                    <p style={{fontSize:17,fontWeight:900,margin:0}}>{getChildLevel(childId).emoji} Lv.{getChildLevel(childId).level} {getChildLevel(childId).name}</p>
-                  </div>
-                  <div style={{textAlign:"right"}}>
-                    <p style={{fontSize:14,fontWeight:900,margin:"0 0 2px",opacity:0.95}}>누적 {getChildXP(childId)} XP</p>
-                    <p style={{fontSize:12,fontWeight:800,margin:0,opacity:0.8}}>보유 {getChildCoin(childId)} 💎 코인</p>
-                  </div>
-                </div>
-                {/* 요약 지표 */}
-                <div style={{display:"flex",gap:6}}>
+                  );
+                })()}
+
+                {/* 요약 지표 3칸 */}
+                <div style={{display:"flex",gap:7}}>
                   {[
-                    {label:"학원",              value:`${homeAc.length}개`,           alert:false},
-                    {label:"미완\n숙제",         value:`${homePendingHw}개`,            alert:homePendingHw>0},
-                    {label:"결석",              value:`${absOnHome.length}개`,         alert:absOnHome.length>0},
-                    {label:"보충\n수업",         value:`${makeupOnHome.length}개`,      alert:makeupOnHome.length>0},
+                    {label:"학원",     value:`${homeAc.length}개`,      alert:false},
+                    {label:"결석",     value:`${absOnHome.length}개`,   alert:absOnHome.length>0},
+                    {label:"보충수업", value:`${makeupOnHome.length}개`,alert:makeupOnHome.length>0},
                   ].map((s,i)=>(
-                    <div key={i} style={{flex:1,background:s.alert?"rgba(255,80,80,0.25)":"rgba(255,255,255,0.2)",borderRadius:10,padding:"9px 4px",textAlign:"center",border:s.alert?"1px solid rgba(255,120,120,0.4)":"1px solid transparent"}}>
-                      <p style={{fontSize:10,color:"rgba(255,255,255,0.82)",margin:0,fontWeight:600,whiteSpace:"pre-line",lineHeight:1.3}}>{s.label}</p>
-                      <p style={{fontSize:15,fontWeight:800,margin:"3px 0 0",color:s.alert?"#FFE066":"#fff"}}>{s.value}</p>
+                    <div key={i} style={{flex:1,background:s.alert?"rgba(255,80,80,0.25)":"rgba(255,255,255,0.2)",borderRadius:11,padding:"10px 6px",textAlign:"center",border:s.alert?"1px solid rgba(255,120,120,0.4)":"1px solid transparent"}}>
+                      <p style={{fontSize:11,color:"rgba(255,255,255,0.85)",margin:0,fontWeight:600}}>{s.label}</p>
+                      <p style={{fontSize:16,fontWeight:900,margin:"3px 0 0",color:s.alert?"#FFE066":"#fff"}}>{s.value}</p>
                     </div>
                   ))}
                 </div>
@@ -3924,9 +4026,9 @@ export default function App() {
                       <div style={{marginBottom:12}}>
                         <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 7px",letterSpacing:0.5}}>🎒 준비물</p>
                         <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                          {(ac.baseSupplies||[]).map((s,i)=><span key={`b${i}`} style={{fontSize:17,padding:"4px 11px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
+                          {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:17,padding:"4px 11px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
                           {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:17,padding:"4px 11px",borderRadius:20,background:`${C.orange}15`,color:C.orange,fontWeight:600}}>+{s}</span>)}
-                          {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:17,color:"#CCC"}}>없음</span>}
+                          {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:17,color:"#CCC"}}>없음</span>}
                         </div>
                       </div>
                       {/* 학원별 할 일 요약 */}
@@ -4227,9 +4329,9 @@ export default function App() {
                             <div style={{marginBottom:10}}>
                               <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 6px"}}>🎒 준비물</p>
                               <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                                {(ac.baseSupplies||[]).map((s,i)=><span key={`b${i}`} style={{fontSize:17,padding:"3px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
+                                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:17,padding:"3px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
                                 {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:17,padding:"3px 10px",borderRadius:20,background:`${C.orange}15`,color:C.orange,fontWeight:600}}>+{s}</span>)}
-                                {(ac.baseSupplies||[]).length===0&&sup.length===0&&<span style={{fontSize:17,color:"#CCC"}}>없음</span>}
+                                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:17,color:"#CCC"}}>없음</span>}
                               </div>
                             </div>
                             <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
@@ -4304,16 +4406,16 @@ export default function App() {
                   <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:11}}>
                     <div style={{width:9,height:9,borderRadius:"50%",background:a.color,flexShrink:0}}/>
                     <p style={{fontSize:15,fontWeight:800,margin:0,flex:1,color:C.text}}>{a.name}</p>
-                    <button onClick={()=>togglePaid(a.id)} style={{padding:"5px 12px",borderRadius:8,border:"none",cursor:"pointer",fontSize:12.5,fontWeight:800,background:isPaid(a.id)?`${C.green}18`:CT.faint,color:isPaid(a.id)?C.green:C.sub}}>
+                    <button onClick={()=>togglePaid(a.id)} style={{padding:"5px 12px",borderRadius:8,border:"none",cursor:"pointer",fontSize:13.5,fontWeight:800,background:isPaid(a.id)?`${C.green}18`:CT.faint,color:isPaid(a.id)?C.green:C.sub}}>
                       {isPaid(a.id)?"✓ 납부완료":"미납"}
                     </button>
                   </div>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
                     <div style={{display:"flex",gap:22}}>
-                      <div><p style={{fontSize:11.5,color:C.sub,margin:0,fontWeight:600}}>월 학원비</p><p style={{fontSize:15,fontWeight:800,margin:"2px 0 0",color:C.text}}>{Number(a.fee).toLocaleString()}원</p></div>
-                      <div><p style={{fontSize:11.5,color:C.sub,margin:0,fontWeight:600}}>납부일</p><p style={{fontSize:15,fontWeight:800,margin:"2px 0 0",color:C.text}}>매월 {a.payDay}일</p></div>
+                      <div><p style={{fontSize:12.5,color:C.sub,margin:0,fontWeight:600}}>월 학원비</p><p style={{fontSize:16,fontWeight:800,margin:"2px 0 0",color:C.text}}>{Number(a.fee).toLocaleString()}원</p></div>
+                      <div><p style={{fontSize:12.5,color:C.sub,margin:0,fontWeight:600}}>납부일</p><p style={{fontSize:16,fontWeight:800,margin:"2px 0 0",color:C.text}}>매월 {a.payDay}일</p></div>
                     </div>
-                    <span style={{fontSize:12,fontWeight:700,padding:"4px 10px",borderRadius:8,background:`${st.color}15`,color:st.color}}>{st.label}</span>
+                    <span style={{fontSize:13,fontWeight:700,padding:"4px 10px",borderRadius:8,background:`${st.color}15`,color:st.color}}>{st.label}</span>
                   </div>
                 </div>
               );
@@ -4536,9 +4638,6 @@ export default function App() {
                         {/* 캐릭터 성장 현황 */}
                         <div style={parentInnerCard}>
                           <p style={parentInnerTitle}>🧬 캐릭터 성장</p>
-                          <p style={parentInnerSub}>
-                            Lv.{level.level} {level.name}
-                          </p>
 
                           <div style={{
                             display:"flex",
@@ -4583,14 +4682,14 @@ export default function App() {
                             </div>
 
                             <div style={{flex:1,minWidth:0}}>
-                              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 3px"}}>
-                                {curChild?.name} · {level.emoji} Lv.{level.level}
+                              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 4px"}}>
+                                {curChild?.name} · {level.emoji} Lv.{level.level} {level.name}
                               </p>
-                              <p style={{fontSize:12,fontWeight:800,color:C.sub,margin:0}}>
+                              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:0}}>
                                 ⭐ {getChildXP(childId)} XP · 💎 {getChildCoin(childId)} 코인
                               </p>
                               {getNextLevel(childId)&&(
-                                <p style={{fontSize:12,fontWeight:800,color:th.main,margin:"5px 0 0"}}>
+                                <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:"4px 0 0"}}>
                                   다음 레벨까지 {getLevelProgressInfo(childId).remainXp} XP 남음
                                 </p>
                               )}
@@ -5834,29 +5933,21 @@ export default function App() {
                 </div>
                 <button onClick={()=>setShowDailyModal(null)} style={{background:CT.faint,border:"none",borderRadius:8,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:14}}>✕</button>
               </div>
-              {(baseSupplies||[]).length>0&&(
-                <div style={{background:`${acColor}08`,borderRadius:10,padding:"10px 14px",marginBottom:16}}>
-                  <p style={{fontSize:17,color:acColor,margin:"0 0 6px",fontWeight:700}}>🎒 항상 챙길 준비물</p>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                    {baseSupplies.map((s,i)=><span key={i} style={{fontSize:17,padding:"3px 10px",borderRadius:20,background:acColor,color:"#fff",fontWeight:600}}>{s}</span>)}
-                  </div>
-                </div>
-              )}
               <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>🎯 오늘의 미션</p>
               {hw.length===0&&todos.length===0&&<p style={{fontSize:17,color:C.sub,marginBottom:10}}>등록된 미션이 없어요</p>}
               <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:12}}>
                 {hw.map(h=>(
                   <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:h.done?`${C.green}08`:CT.faint,border:`1.5px solid ${h.done?C.green+"30":CT.faintB}`}}>
-                    <button onClick={()=>toggleHomeworkDone(childId,academyId,date,h.id)} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
-                    <span style={{flex:1,fontSize:17,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
+                    <button onClick={()=>toggleHomeworkDone(childId,academyId,date,h.id)} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
+                    <span style={{flex:1,fontSize:14,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
                     <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE} XP</span>
                     <button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id)})} style={{background:"none",border:"none",color:"#CCC",cursor:"pointer",fontSize:16}}>✕</button>
                   </div>
                 ))}
                 {todos.map(t=>(
                   <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:t.done?`${C.green}08`:CT.faint,border:`1.5px solid ${t.done?C.green+"30":CT.faintB}`}}>
-                    <button onClick={()=>toggleTodoDone(childId,academyId,date,t.id)} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",fontWeight:700}}>{t.done?"✓":""}</button>
-                    <span style={{flex:1,fontSize:17,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
+                    <button onClick={()=>toggleTodoDone(childId,academyId,date,t.id)} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700}}>{t.done?"✓":""}</button>
+                    <span style={{flex:1,fontSize:14,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
                     <span style={{fontSize:12,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE} XP</span>
                     <button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id)})} style={{background:"none",border:"none",color:"#CCC",cursor:"pointer",fontSize:16}}>✕</button>
                   </div>
@@ -5908,21 +5999,44 @@ export default function App() {
                   </div>
                 );
               })()}
-              {!isExtra&&(<>
-              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>📦 이번 수업 추가 준비물</p>
-              <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:10}}>
-                {sup.map((s,i)=>(
-                  <span key={i} style={{fontSize:17,padding:"5px 14px",borderRadius:20,background:`${acColor}15`,color:acColor,display:"flex",alignItems:"center",gap:5,fontWeight:600}}>
-                    {s}<button onClick={()=>upd({...entry,supplies:sup.filter((_,j)=>j!==i)})} style={{background:"none",border:"none",color:acColor,cursor:"pointer",fontSize:17,padding:0}}>✕</button>
+              {!isExtra&&(()=>{
+              const hiddenBase=entry.hiddenBase||[];
+              const visibleBase=(baseSupplies||[]).filter(s=>!hiddenBase.includes(s));
+              const hideBase=(s)=>upd({...entry,hiddenBase:[...hiddenBase,s]});
+              const restoreBase=(s)=>upd({...entry,hiddenBase:hiddenBase.filter(x=>x!==s)});
+              return (<>
+              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>🎒 오늘의 준비물</p>
+              {visibleBase.length===0&&sup.length===0&&<p style={{fontSize:15,color:C.sub,marginBottom:10}}>등록된 준비물이 없어요</p>}
+              <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:hiddenBase.length>0?8:10}}>
+                {visibleBase.map((s,i)=>(
+                  <span key={`base${i}`} style={{fontSize:15,padding:"5px 12px",borderRadius:20,background:acColor,color:"#fff",display:"flex",alignItems:"center",gap:6,fontWeight:600}}>
+                    📌 {s}<button onClick={()=>hideBase(s)} style={{background:"none",border:"none",color:"rgba(255,255,255,0.85)",cursor:"pointer",fontSize:14,padding:0,lineHeight:1}}>✕</button>
                   </span>
                 ))}
-                {sup.length===0&&<p style={{fontSize:17,color:C.sub,margin:0}}>추가 준비물 없음</p>}
+                {sup.map((s,i)=>(
+                  <span key={`day${i}`} style={{fontSize:15,padding:"5px 12px",borderRadius:20,background:`${acColor}15`,color:acColor,display:"flex",alignItems:"center",gap:6,fontWeight:600}}>
+                    {s}<button onClick={()=>upd({...entry,supplies:sup.filter((_,j)=>j!==i)})} style={{background:"none",border:"none",color:acColor,cursor:"pointer",fontSize:14,padding:0,lineHeight:1}}>✕</button>
+                  </span>
+                ))}
               </div>
+              {hiddenBase.length>0&&(
+                <div style={{marginBottom:10}}>
+                  <p style={{fontSize:12,color:C.sub,margin:"0 0 5px"}}>오늘 제외한 준비물 (눌러서 되돌리기)</p>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                    {hiddenBase.map((s,i)=>(
+                      <button key={`hb${i}`} onClick={()=>restoreBase(s)} style={{fontSize:13,padding:"4px 11px",borderRadius:20,background:CT.faint,color:C.sub,border:`1px dashed ${CT.faintB}`,cursor:"pointer",textDecoration:"line-through",fontWeight:600}}>
+                        {s} ↩
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div style={{display:"flex",gap:8,marginBottom:22}}>
-                <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="추가 준비물 입력 후 Enter" style={{...inp,flex:1,width:"auto",fontSize:17,padding:"10px 14px"}}/>
-                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:17,cursor:"pointer"}}>추가</button>
+                <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="준비물 입력 후 Enter" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"10px 14px"}}/>
+                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>추가</button>
               </div>
-              </>)}
+              </>);
+              })()}
               <button onClick={()=>{ setShowDailyModal(null); showToast(); }} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>저장 & 닫기</button>
             </div>
           </div>
