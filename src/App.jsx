@@ -454,10 +454,8 @@ const getCalDays = (y,m) => {
 const getDN = (y,m,d) => ["일","월","화","수","목","금","토"][new Date(y,m,d).getDay()];
 
 // ── 저장 ─────────────────────────────────
-// 아티팩트 환경: localStorage 미지원 → 인메모리 저장소로 대체 (세션 동안만 유지)
-const __MEM_STORE = {};
-const save = async (k, v) => { try { __MEM_STORE[k] = JSON.parse(JSON.stringify(v)); } catch (e) {} };
-const load = async (k) => { try { return k in __MEM_STORE ? __MEM_STORE[k] : null; } catch (e) { return null; } };
+const save = async (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const load = async (k) => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch (e) { return null; } };
 
 // ── SMS ─────────────────────────────────
 const smsLink=(phone,body="")=>{ const enc=encodeURIComponent(body); const ios=/iPad|iPhone|iPod/.test(navigator.userAgent); return `sms:${phone}${body?(ios?`&body=${enc}`:`?body=${enc}`):""}` };
@@ -1430,7 +1428,7 @@ export default function App() {
   const resetAllAppData=()=>{
     if(!window.confirm("정말 앱 전체를 초기화할까요?")) return;
     if(!window.confirm("아이/학원/미션/설정이 모두 삭제돼요. 정말 삭제할까요?")) return;
-    Object.keys(__MEM_STORE).forEach(k=>delete __MEM_STORE[k]);
+    try { localStorage.clear(); } catch (e) {}
     setChildren(DEFAULT_CHILDREN); setChildId("child_1");
     setAcademies({}); setAbsences({}); setPaidStatus({}); setDayMemos({});
     setDailyData({}); setScoreData({}); setRewardData({}); setRewardRequests({});
