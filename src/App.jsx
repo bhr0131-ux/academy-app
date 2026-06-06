@@ -2915,7 +2915,7 @@ export default function App() {
           <div style={{position:"absolute",bottom:-24,left:-10,width:70,height:70,borderRadius:"50%",background:"rgba(255,255,255,0.06)",pointerEvents:"none"}}/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",position:"relative"}}>
             <div style={{display:"flex",alignItems:"center",gap:11}}>
-              <div style={{width:52,height:52,borderRadius:"50%",background:"rgba(255,255,255,0.18)",border:"2.5px solid rgba(255,255,255,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,flexShrink:0,animation:"floatBob 3s ease-in-out infinite",boxShadow:"0 4px 14px rgba(0,0,0,0.18)"}}>{th.emoji}</div>
+              <div style={{width:52,height:52,borderRadius:"50%",background:"rgba(255,255,255,0.18)",border:"2.5px solid rgba(255,255,255,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,flexShrink:0,animation:"floatBob 3s ease-in-out infinite",boxShadow:"0 4px 14px rgba(0,0,0,0.18)"}}>{getGenderEmoji(curChild)}</div>
               <div>
                 <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.5}}>PLAYER STATUS</p>
                 <h1 style={{fontSize:24,fontWeight:900,margin:"3px 0 0"}}>{curChild?.name}</h1>
@@ -3983,7 +3983,7 @@ export default function App() {
               <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.95)} 0%, ${mixWhite(th.main,0.76)} 100%)`,borderRadius:20,padding:"16px 18px",marginBottom:16,color:C.text,boxShadow:`0 4px 16px ${th.main}1F`,border:`1px solid ${th.main}45`}}>
                 {/* 이름 + 레벨/코인 한 줄 */}
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,gap:8}}>
-                  <p style={{fontSize:16,fontWeight:900,margin:0,color:mixWhite(th.main,0.1)}}>{th.emoji} {curChild?.name}</p>
+                  <p style={{fontSize:16,fontWeight:900,margin:0,color:mixWhite(th.main,0.1)}}>{getGenderEmoji(curChild)} {curChild?.name}</p>
                   <p style={{fontSize:13,fontWeight:800,margin:0,color:th.main,background:mixWhite(th.main,0.86),border:`1px solid ${th.main}33`,borderRadius:20,padding:"4px 11px",whiteSpace:"nowrap"}}>
                     {getChildLevel(childId).emoji} Lv.{getChildLevel(childId).level} · {getChildXP(childId)} XP · {getChildCoin(childId)} 💎
                   </p>
@@ -4480,7 +4480,7 @@ export default function App() {
               <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:10,width:34,height:34,fontSize:15,cursor:"pointer",color:C.text}}>›</button>
             </div>
             <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.95)} 0%, ${mixWhite(th.main,0.72)} 100%)`,borderRadius:20,padding:"18px 20px",marginBottom:16,color:C.text,textAlign:"center",boxShadow:SHADOW.md,border:`1px solid ${th.main}33`}}>
-              <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{th.emoji} {curChild?.name} 총 학원비</p>
+              <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{getGenderEmoji(curChild)} {curChild?.name} 총 학원비</p>
               <p style={{fontSize:26,fontWeight:900,margin:"5px 0 3px",color:mixWhite(th.main,0.08)}}>{totalFee(childId).toLocaleString()}원</p>
               <p style={{fontSize:13,color:th.main,margin:0,fontWeight:800}}>납부 {curAc.filter(a=>isPaid(a.id)).length}/{curAc.length}개 완료</p>
             </div>
@@ -5772,7 +5772,7 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:200}} onClick={()=>setShowAddAcModal(false)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"93vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-              <h3 style={{margin:0,fontSize:17,fontWeight:800,color:C.text}}>{editTarget?"✏️ 학원 수정":"➕ 학원 추가"} ({th.emoji} {curChild?.name})</h3>
+              <h3 style={{margin:0,fontSize:17,fontWeight:800,color:C.text}}>{editTarget?"✏️ 학원 수정":"➕ 학원 추가"} ({getGenderEmoji(curChild)} {curChild?.name})</h3>
               <button onClick={()=>setShowAddAcModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
             <label style={lbl}>학원 이름 *</label>
@@ -6191,7 +6191,7 @@ export default function App() {
       {showAbsModal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:200}} onClick={()=>setShowAbsModal(false)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,boxSizing:"border-box"}}>
-            <h3 style={{margin:"0 0 20px",fontSize:17,fontWeight:800,color:C.text}}>결석 기록 추가 ({th.emoji} {curChild?.name})</h3>
+            <h3 style={{margin:"0 0 20px",fontSize:17,fontWeight:800,color:C.text}}>결석 기록 추가 ({getGenderEmoji(curChild)} {curChild?.name})</h3>
             <label style={lbl}>학원 선택</label>
             <select value={newAbs.academyId} onChange={e=>setNewAbs(p=>({...p,academyId:e.target.value}))} style={{...inp,marginBottom:14}}>
               <option value="">학원을 선택하세요</option>
