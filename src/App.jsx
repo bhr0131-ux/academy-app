@@ -177,25 +177,25 @@ const FREE_THEME_COUNT = 2;
 
 const DEFAULT_LEVELS = [
   { level:1,  name:"루키",         minScore:0,     emoji:"⚔️" },
-  { level:2,  name:"탐험가",       minScore:50,    emoji:"🧭" },
+  { level:2,  name:"탐험가",       minScore:40,    emoji:"🧭" },
   { level:3,  name:"수련생",       minScore:120,   emoji:"📘" },
-  { level:4,  name:"어드벤처",     minScore:220,   emoji:"🗺️" },
-  { level:5,  name:"헌터",         minScore:350,   emoji:"🏹" },
-  { level:6,  name:"에이스",       minScore:520,   emoji:"⭐" },
-  { level:7,  name:"가디언",       minScore:730,   emoji:"🛡️" },
-  { level:8,  name:"챌린저",       minScore:980,   emoji:"🚀" },
-  { level:9,  name:"마스터",       minScore:1280,  emoji:"🏆" },
-  { level:10, name:"챔피언",       minScore:1650,  emoji:"🥇" },
-  { level:11, name:"히어로",       minScore:2100,  emoji:"🦸" },
-  { level:12, name:"레인저",       minScore:2650,  emoji:"🌲" },
-  { level:13, name:"워리어",       minScore:3300,  emoji:"🗡️" },
-  { level:14, name:"커맨더",       minScore:4050,  emoji:"🎖️" },
-  { level:15, name:"그랜드마스터", minScore:4900,  emoji:"💎" },
-  { level:16, name:"레전드",       minScore:5900,  emoji:"👑" },
-  { level:17, name:"미스틱",       minScore:7100,  emoji:"🔮" },
-  { level:18, name:"타이탄",       minScore:8500,  emoji:"🗿" },
-  { level:19, name:"불멸자",       minScore:10100, emoji:"🌌" },
-  { level:20, name:"월드클래스",   minScore:12000, emoji:"🌟" },
+  { level:4,  name:"어드벤처",     minScore:240,   emoji:"🗺️" },
+  { level:5,  name:"헌터",         minScore:400,   emoji:"🏹" },
+  { level:6,  name:"에이스",       minScore:600,   emoji:"⭐" },
+  { level:7,  name:"가디언",       minScore:840,   emoji:"🛡️" },
+  { level:8,  name:"챌린저",       minScore:1120,  emoji:"🚀" },
+  { level:9,  name:"마스터",       minScore:1440,  emoji:"🏆" },
+  { level:10, name:"챔피언",       minScore:1800,  emoji:"🥇" },
+  { level:11, name:"히어로",       minScore:2200,  emoji:"🦸" },
+  { level:12, name:"레인저",       minScore:2640,  emoji:"🌲" },
+  { level:13, name:"워리어",       minScore:3120,  emoji:"🗡️" },
+  { level:14, name:"커맨더",       minScore:3640,  emoji:"🎖️" },
+  { level:15, name:"그랜드마스터", minScore:4200,  emoji:"💎" },
+  { level:16, name:"레전드",       minScore:4800,  emoji:"👑" },
+  { level:17, name:"미스틱",       minScore:5440,  emoji:"🔮" },
+  { level:18, name:"타이탄",       minScore:6120,  emoji:"🗿" },
+  { level:19, name:"불멸자",       minScore:6840,  emoji:"🌌" },
+  { level:20, name:"월드클래스",   minScore:7600,  emoji:"🌟" },
 ];
 
 // 베이커리(cute) 모드 레벨 — 던전과 동일한 minScore 임계값을 공유하고
@@ -205,8 +205,8 @@ const BAKERY_LEVELS = [
   { level:2,  name:"반죽 요정",       emoji:"🥣" },
   { level:3,  name:"쿠키 요정",       emoji:"🍪" },
   { level:4,  name:"컵케이크 요정",   emoji:"🧁" },
-  { level:5,  name:"초보 제빵사",     emoji:"👧" },
-  { level:6,  name:"견습 파티시에",   emoji:"👩‍🍳" },
+  { level:5,  name:"초보 제빵사",     emoji:"👧", emojiByGender:{boy:"👦",girl:"👧"} },
+  { level:6,  name:"견습 파티시에",   emoji:"👩‍🍳", emojiByGender:{boy:"👨‍🍳",girl:"👩‍🍳"} },
   { level:7,  name:"달콤한 제빵사",   emoji:"🍰" },
   { level:8,  name:"케이크 전문가",   emoji:"🎂" },
   { level:9,  name:"인기 파티시에",   emoji:"🌸" },
@@ -225,11 +225,14 @@ const BAKERY_LEVELS = [
 
 // 레벨 객체(=DEFAULT_LEVELS 항목)를 현재 스킨에 맞춰 이름/이모지만 치환해 반환.
 // minScore 등 나머지 필드는 그대로 유지하므로 점수 계산 로직은 영향 없음.
-const levelView = (lv, skin) => {
+const levelView = (lv, skin, gender) => {
   if(!lv) return lv;
   if(skin==="cute"){
     const b = BAKERY_LEVELS.find(x=>x.level===lv.level);
-    if(b) return { ...lv, name:b.name, emoji:b.emoji };
+    if(b){
+      const emoji = (b.emojiByGender && gender && b.emojiByGender[gender]) || b.emoji;
+      return { ...lv, name:b.name, emoji };
+    }
   }
   return lv;
 };
@@ -736,12 +739,12 @@ const DEFAULT_BADGES = [
   { id:"first_quest",  title:"첫 미션 완료",      desc:"첫 미션(숙제·미션)을 완료했어요", emoji:"🏅" },
   { id:"quest_10",     title:"미션 입문자",        desc:"미션을 10개 완료했어요",       emoji:"🎯" },
   { id:"quest_50",     title:"미션 헌터",          desc:"미션을 50개 완료했어요",       emoji:"🏹" },
-  { id:"quest_100",    title:"미션 마스터",        desc:"미션을 100개 완료했어요",      emoji:"🏆" },
+  { id:"quest_100",    title:"미션 마스터",        desc:"미션을 100개 완료했어요",      emoji:"🗡️" },
   { id:"quest_300",    title:"미션 레전드",        desc:"미션을 300개 완료했어요",      emoji:"⚔️" },
-  { id:"quest_500",    title:"미션 그랜드마스터",  desc:"미션을 500개 완료했어요",      emoji:"🗡️" },
-  { id:"quest_700",    title:"미션 신화",          desc:"미션을 700개 완료했어요",      emoji:"🐉" },
-  { id:"homework_10",  title:"숙제 헌터",          desc:"숙제를 10개 완료했어요",       emoji:"📚" },
-  { id:"homework_30",  title:"숙제 마스터",        desc:"숙제를 30개 완료했어요",       emoji:"📖" },
+  { id:"quest_500",    title:"미션 그랜드마스터",  desc:"미션을 500개 완료했어요",      emoji:"🏆" },
+  { id:"quest_700",    title:"미션 신화",          desc:"미션을 700개 완료했어요",      emoji:"☄️" },
+  { id:"homework_10",  title:"숙제 헌터",          desc:"숙제를 10개 완료했어요",       emoji:"📖" },
+  { id:"homework_30",  title:"숙제 마스터",        desc:"숙제를 30개 완료했어요",       emoji:"📚" },
   { id:"streak_3",     title:"3일 연속 달성",      desc:"3일 연속 미션을 완료했어요",   emoji:"🔥" },
   { id:"streak_7",     title:"7일 연속 달성",      desc:"7일 연속 미션을 완료했어요",   emoji:"⚡" },
   { id:"streak_14",    title:"14일 연속 달성",     desc:"14일 연속 미션을 완료했어요",  emoji:"🌈" },
@@ -756,15 +759,15 @@ const DEFAULT_BADGES = [
   { id:"xp_1000",      title:"1000 XP 달성",       desc:"1000 XP를 모았어요",           emoji:"💎" },
   { id:"xp_3000",      title:"3000 XP 달성",       desc:"3000 XP를 모았어요",           emoji:"🌟" },
   { id:"xp_5000",      title:"5000 XP 달성",       desc:"5000 XP를 모았어요",           emoji:"✨" },
-  { id:"xp_10000",     title:"10000 XP 전설",      desc:"10000 XP를 모았어요",          emoji:"🌌" },
-  { id:"level_5",      title:"헌터 등급 달성",     desc:"Lv.5에 도달했어요",            emoji:"🎖️" },
-  { id:"level_10",     title:"챔피언 등급 달성",   desc:"Lv.10에 도달했어요",           emoji:"🥇" },
-  { id:"level_15",     title:"그랜드마스터 달성",  desc:"Lv.15에 도달했어요",           emoji:"🥈" },
-  { id:"level_20",     title:"월드클래스 달성",    desc:"Lv.20에 도달했어요",           emoji:"🎗️" },
+  { id:"xp_10000",     title:"10000 XP 신화",      desc:"10000 XP를 모았어요",          emoji:"🌌" },
+  { id:"level_5",      title:"헌터 등급 달성",     desc:"Lv.5에 도달했어요",            emoji:"🥉" },
+  { id:"level_10",     title:"챔피언 등급 달성",   desc:"Lv.10에 도달했어요",           emoji:"🥈" },
+  { id:"level_15",     title:"그랜드마스터 달성",  desc:"Lv.15에 도달했어요",           emoji:"🥇" },
+  { id:"level_20",     title:"월드클래스 달성",    desc:"Lv.20에 도달했어요",           emoji:"🎖️" },
   { id:"first_reward", title:"첫 보상 구매",     desc:"보상을 처음 구매했어요",     emoji:"🛒" },
   { id:"reward_3",     title:"보상 수집가",      desc:"보상을 5번 구매했어요",      emoji:"🛍️" },
-  { id:"reward_5",     title:"보상 애호가",      desc:"보상을 15번 구매했어요",     emoji:"🎀" },
-  { id:"reward_20",    title:"보상 큰손",        desc:"보상을 30번 구매했어요",     emoji:"👜" },
+  { id:"reward_5",     title:"보상 애호가",      desc:"보상을 15번 구매했어요",     emoji:"👜" },
+  { id:"reward_20",    title:"보상 큰손",        desc:"보상을 30번 구매했어요",     emoji:"💳" },
 ];
 
 const UI_TEXT = {
@@ -816,7 +819,7 @@ const UI_TEXT = {
 };
 
 const LEGENDARY_TITLES = [
-  { id:"gold_hunter",      name:"황금 사냥꾼",   emoji:"💠", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
+  { id:"gold_hunter",      name:"황금 사냥꾼",   emoji:"🥇", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
   { id:"dragon_knight",    name:"드래곤 기사",   emoji:"🛡️", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
   { id:"treasure_king",    name:"보물왕",        emoji:"💎", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
   { id:"starlight_wizard", name:"별빛 마법사",   emoji:"✨", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
@@ -841,19 +844,19 @@ const DEFAULT_TITLES = [
   { id:"homework_master", name:"숙제왕", emoji:"📚", condition:"숙제 30개 완료", rarity:"rare" },
   { id:"streak_3_title", name:"꾸준한 아이", emoji:"🔥", condition:"5일 연속 달성", rarity:"rare" },
   { id:"xp_500_title", name:"성실 수련생", emoji:"📘", condition:"500 XP 달성", rarity:"rare" },
-  { id:"reward_3_title", name:"알뜰 쇼핑러", emoji:"🎀", condition:"보상 5번 구매", rarity:"rare" },
+  { id:"reward_3_title", name:"알뜰 쇼핑러", emoji:"🏷️", condition:"보상 5번 구매", rarity:"rare" },
 
   { id:"streak_master", name:"불꽃 루틴러", emoji:"⚡", condition:"10일 연속 달성", rarity:"epic" },
   { id:"quest_100_title", name:"집중의 신", emoji:"🧠", condition:"미션 100개 완료", rarity:"epic" },
-  { id:"champion", name:"챔피언", emoji:"🥇", condition:"Lv.10 달성", rarity:"epic" },
+  { id:"champion", name:"챔피언", emoji:"🏅", condition:"Lv.10 달성", rarity:"epic" },
   { id:"xp_3000_title", name:"빛나는 성장러", emoji:"🌟", condition:"3000 XP 달성", rarity:"epic" },
-  { id:"reward_30_title", name:"쇼핑 마스터", emoji:"👜", condition:"보상 30번 구매", rarity:"epic" },
+  { id:"reward_30_title", name:"쇼핑 마스터", emoji:"💳", condition:"보상 30번 구매", rarity:"epic" },
 
   { id:"legend", name:"전설의 모험가", emoji:"👑", condition:"Lv.20 달성", rarity:"legendary" },
   { id:"streak_30_title", name:"30일 전설", emoji:"☄️", condition:"30일 연속 달성", rarity:"legendary" },
   { id:"treasure_master", name:"보물 사냥꾼", emoji:"💰", condition:"보물상자 50개 오픈", rarity:"legendary" },
   { id:"world_class", name:"월드클래스", emoji:"🌍", condition:"12000 XP 달성", rarity:"legendary" },
-  { id:"quest_700_title", name:"미션의 신화", emoji:"🐉", condition:"미션 700개 완료", rarity:"legendary" },
+  { id:"quest_700_title", name:"미션의 신화", emoji:"🌌", condition:"미션 700개 완료", rarity:"legendary" },
 ];
 
 // ── 베이커리(cute) 칭호 치환 — 던전 칭호 id 와 1:1 매칭 ──
@@ -870,7 +873,7 @@ const BAKERY_TITLE_MAP = {
   homework_master:  { name:"디저트 장인",     emoji:"🎀" },
   streak_3_title:   { name:"베이커리 스타",   emoji:"🌸" },
   xp_500_title:     { name:"성실한 제빵사",   emoji:"📖", condition:"경험치 500 달성" },
-  reward_3_title:   { name:"알뜰 단골손님",   emoji:"🎟️" },
+  reward_3_title:   { name:"알뜰 단골손님",   emoji:"🏷️" },
   // epic
   streak_master:    { name:"꾸준한 제빵사",   emoji:"🥐" },
   quest_100_title:  { name:"케이크 마스터",   emoji:"🎂" },
@@ -910,31 +913,31 @@ const BAKERY_BADGE_MAP = {
   quest_300:   { title:"디저트 레전드",      desc:"미션을 300개 완료했어요",      emoji:"🧁" },
   quest_500:   { title:"케이크 그랜드마스터",desc:"미션을 500개 완료했어요",      emoji:"🎂" },
   quest_700:   { title:"신화의 제빵사",      desc:"미션을 700개 완료했어요",      emoji:"👑" },
-  homework_10: { title:"숙제 헌터",          desc:"숙제를 10개 완료했어요",       emoji:"📚" },
-  homework_30: { title:"숙제 마스터",        desc:"숙제를 30개 완료했어요",       emoji:"📖" },
+  homework_10: { title:"숙제 헌터",          desc:"숙제를 10개 완료했어요",       emoji:"📖" },
+  homework_30: { title:"숙제 마스터",        desc:"숙제를 30개 완료했어요",       emoji:"📚" },
   streak_3:    { title:"3일 연속 달성",      desc:"3일 연속 미션을 완료했어요",   emoji:"🔥" },
   streak_7:    { title:"7일 연속 달성",      desc:"7일 연속 미션을 완료했어요",   emoji:"⚡" },
   streak_14:   { title:"14일 연속 달성",     desc:"14일 연속 미션을 완료했어요",  emoji:"🌈" },
   streak_30:   { title:"30일 연속 전설",     desc:"30일 연속 미션을 완료했어요",  emoji:"🏵️" },
   streak_100:  { title:"100일 연속 신화",    desc:"100일 연속 미션을 완료했어요", emoji:"🌠" },
   treasure_1:  { title:"첫 디저트상자",      desc:"디저트상자를 처음 열었어요",   emoji:"🎁" },
-  treasure_10: { title:"디저트상자 수집가",  desc:"디저트상자를 10개 열었어요",   emoji:"🎀" },
-  treasure_30: { title:"디저트 컬렉터",      desc:"디저트상자를 30개 열었어요",   emoji:"🍬" },
+  treasure_10: { title:"디저트상자 수집가",  desc:"디저트상자를 10개 열었어요",   emoji:"🍬" },
+  treasure_30: { title:"디저트 컬렉터",      desc:"디저트상자를 30개 열었어요",   emoji:"🎀" },
   treasure_50: { title:"디저트 상자왕",      desc:"디저트상자를 50개 열었어요",   emoji:"💝" },
   xp_100:      { title:"100 경험치 달성",      desc:"경험치를 100 모았어요",        emoji:"💯" },
   xp_500:      { title:"500 경험치 달성",      desc:"경험치를 500 모았어요",        emoji:"🔆" },
   xp_1000:     { title:"1000 경험치 달성",     desc:"경험치를 1000 모았어요",       emoji:"🍭" },
   xp_3000:     { title:"3000 경험치 달성",     desc:"경험치를 3000 모았어요",       emoji:"🌟" },
   xp_5000:     { title:"5000 경험치 달성",     desc:"경험치를 5000 모았어요",       emoji:"✨" },
-  xp_10000:    { title:"10000 경험치 전설",    desc:"경험치를 10000 모았어요",      emoji:"🌌" },
-  level_5:     { title:"견습 제빵사",        desc:"Lv.5에 도달했어요",            emoji:"🥐" },
-  level_10:    { title:"왕실 파티시에",      desc:"Lv.10에 도달했어요",           emoji:"🥇" },
-  level_15:    { title:"케이크 마스터",      desc:"Lv.15에 도달했어요",           emoji:"🥈" },
-  level_20:    { title:"전설의 파티시에",    desc:"Lv.20에 도달했어요",           emoji:"🎗️" },
-  first_reward:{ title:"첫 쇼핑",           desc:"보상을 처음 구매했어요",     emoji:"🛍️" },
-  reward_3:    { title:"단골 손님",         desc:"보상을 5번 구매했어요",      emoji:"🛒" },
-  reward_5:    { title:"쇼핑 애호가",       desc:"보상을 15번 구매했어요",     emoji:"👛" },
-  reward_20:   { title:"쇼핑 큰손",         desc:"보상을 30번 구매했어요",     emoji:"👜" },
+  xp_10000:    { title:"10000 경험치 신화",    desc:"경험치를 10000 모았어요",      emoji:"🌌" },
+  level_5:     { title:"견습 제빵사",        desc:"Lv.5에 도달했어요",            emoji:"🥉" },
+  level_10:    { title:"솜씨 좋은 제빵사",   desc:"Lv.10에 도달했어요",           emoji:"🥈" },
+  level_15:    { title:"케이크 마스터",      desc:"Lv.15에 도달했어요",           emoji:"🥇" },
+  level_20:    { title:"전설의 파티시에",    desc:"Lv.20에 도달했어요",           emoji:"🎖️" },
+  first_reward:{ title:"첫 쇼핑",           desc:"보상을 처음 구매했어요",     emoji:"🛒" },
+  reward_3:    { title:"단골 손님",         desc:"보상을 5번 구매했어요",      emoji:"🛍️" },
+  reward_5:    { title:"쇼핑 애호가",       desc:"보상을 15번 구매했어요",     emoji:"👜" },
+  reward_20:   { title:"쇼핑 큰손",         desc:"보상을 30번 구매했어요",     emoji:"💳" },
 };
 // 업적 객체를 현재 스킨에 맞춰 title/desc/emoji 치환
 const badgeView = (b, skin) => {
@@ -1187,7 +1190,7 @@ function KidCoachmark({ th, onFinish, skin="dungeon" }){
     : [
         { emoji:"📝", title:"오늘의 미션을 체크해요", desc:"미션 탭에서 오늘 할 일과 숙제를\n동그라미를 눌러 완료해요!" },
         { emoji:"💎", title:"코인과 XP가 쌓여요", desc:"미션을 해내면 코인과 XP(별)을 받아요.\n모은 코인으로 멋진 보상을 받을 수 있어요!" },
-        { emoji:"🧒🐣", title:"캐릭터와 펫이 자라요", desc:"내 캐릭터 탭에서 레벨이 오르고\n펫도 점점 자라나는 걸 볼 수 있어요!" },
+        { emoji:"🧙‍♀️🐲", title:"캐릭터와 펫이 자라요", desc:"내 캐릭터 탭에서 레벨이 오르고\n펫도 점점 자라나는 걸 볼 수 있어요!" },
       ];
   const [i,setI]=useState(0);
   const last=i===cards.length-1;
@@ -2877,9 +2880,10 @@ export default function App() {
     }
 
     // 통과한 각 레벨마다 팝업 (낮은 레벨 → 높은 레벨 순)
-    let prevName=levelView(beforeLevel,kidSkin).name;
+    const _g=children.find(c=>c.id===cid)?.gender;
+    let prevName=levelView(beforeLevel,kidSkin,_g).name;
     passedLevels.forEach(L=>{
-      const LV=levelView(L,kidSkin);
+      const LV=levelView(L,kidSkin,_g);
       const bonus=LEVEL_UP_REWARDS?.[L.level]||0;
       const desc=LEVEL_DESCRIPTION[L.level]
         ? LEVEL_DESCRIPTION[L.level]
@@ -3168,12 +3172,12 @@ export default function App() {
   const getChildLevel=(cid)=>{
     const score=getChildXP(cid);
     const lv=[...DEFAULT_LEVELS].sort((a,b)=>b.minScore-a.minScore).find(lv=>score>=lv.minScore)||DEFAULT_LEVELS[0];
-    return levelView(lv,kidSkin);
+    return levelView(lv,kidSkin,children.find(c=>c.id===cid)?.gender);
   };
   const getNextLevel=(cid)=>{
     const score=getChildXP(cid);
     const lv=[...DEFAULT_LEVELS].sort((a,b)=>a.minScore-b.minScore).find(lv=>score<lv.minScore)||null;
-    return levelView(lv,kidSkin);
+    return levelView(lv,kidSkin,children.find(c=>c.id===cid)?.gender);
   };
   const getLevelProgress=(cid)=>{
     const score=getChildXP(cid);
@@ -3574,7 +3578,7 @@ export default function App() {
                   <div style={{display:"flex",alignItems:"flex-end",gap:6,flexShrink:0,marginRight:kidSkin==="cute"?2:6,marginTop:kidSkin==="cute"?0:8}}>
                     <div style={{position:"relative",width:66,height:66,borderRadius:20,background:evo.bg,border:`1.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:40,boxShadow:"0 6px 18px rgba(0,0,0,0.16)"}}>
                       <span style={{display:"block",transform:"translateY(1px)",lineHeight:1}}>{getCharacterAvatar(childId)}</span>
-                      <span style={{position:"absolute",right:-5,bottom:-5,width:25,height:25,borderRadius:"50%",background:"#fff",border:`2px solid ${GP.gold}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,boxShadow:"0 3px 8px rgba(0,0,0,0.18)"}}>{level.emoji}</span>
+                      <span style={{position:"absolute",right:-6,bottom:-6,width:30,height:30,borderRadius:"50%",background:"#fff",border:`2px solid ${GP.gold}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,boxShadow:"0 3px 8px rgba(0,0,0,0.18)"}}>{level.emoji}</span>
                     </div>
                     {(()=>{
                       const pet=getPet(childId);
