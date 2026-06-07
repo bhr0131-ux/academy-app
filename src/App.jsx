@@ -41,6 +41,60 @@ const mixBlack = (hex, bf) => {
   const hx = (v)=>v.toString(16).padStart(2,"0").toUpperCase();
   return `#${hx(m(r))}${hx(m(g))}${hx(m(b))}`;
 };
+// 맑고 따뜻한 그림책 파스텔: 따뜻한 크림 화이트(#FFF9F2)와 섞고,
+// 채도를 살짝 낮춰(부스트가 아니라 감소) 형광기 없는 부드러운 마카롱 톤을 만든다.
+// 파랑~보라는 더 연하게, 파랑은 맑은 하늘색으로 살짝 끌어올린다.
+const softTint = (hex, wf, satBoost=0.92) => {
+  const CREAM = [255,249,242];
+  const h0 = (hex||"#FFFFFF").replace("#","");
+  let r0 = parseInt(h0.slice(0,2),16), g0 = parseInt(h0.slice(2,4),16), b0 = parseInt(h0.slice(4,6),16);
+  // 원본 색상(hue) 파악 → 파랑/보라면 보정
+  let _skyLift = 0;  // 파랑 계열을 맑은 하늘색으로 끌어올리는 양
+  {
+    const rr=r0/255, gg=g0/255, bb=b0/255;
+    const mx=Math.max(rr,gg,bb), mn=Math.min(rr,gg,bb); let H=0;
+    if(mx!==mn){ const d=mx-mn;
+      if(mx===rr) H=((gg-bb)/d+(gg<bb?6:0)); else if(mx===gg) H=((bb-rr)/d+2); else H=((rr-gg)/d+4); H*=60; }
+    // 파랑~보라(약 205°~290°)면 더 연하게, 채도 더 낮춤
+    if(H>=205 && H<=292){
+      wf = wf + (1-wf)*0.20;       // 크림을 더 섞어 연하게
+      satBoost = satBoost*0.95;    // 채도 더 낮춤 → 부드럽게
+      // 파랑(하늘색 영역)은 진한 코발트라, 맑은 하늘색으로 끌어올린다
+      if(H>=200 && H<=242) _skyLift = 0.16;
+    }
+    // 분홍~빨강~주황~노랑(따뜻한 색)은 크림을 살짝 더
+    else if(H>=330 || H<=55){
+      wf = wf + (1-wf)*0.06;
+    }
+  }
+  // 하늘색 이동: 크림과 섞기 전에 원색을 명도↑·채도↓·색조를 청록 쪽으로 살짝 틀어 맑은 하늘색으로
+  if(_skyLift>0){
+    let rr=r0/255, gg=g0/255, bb=b0/255;
+    const mx=Math.max(rr,gg,bb), mn=Math.min(rr,gg,bb); let H=0,S=0; const L0=(mx+mn)/2;
+    if(mx!==mn){ const d=mx-mn; S=L0>0.5?d/(2-mx-mn):d/(mx+mn);
+      if(mx===rr) H=((gg-bb)/d+(gg<bb?6:0)); else if(mx===gg) H=((bb-rr)/d+2); else H=((rr-gg)/d+4); H/=6; }
+    H = (H + 10/360) % 1.0;   // 색조를 청록(하늘색) 쪽으로 +10°
+    const L1=Math.min(1,L0+_skyLift); const S1=Math.max(0,S-_skyLift*0.5);
+    const hue2=(p,q,t)=>{ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+    let xr,xg,xb;
+    if(S1===0){ xr=xg=xb=L1; } else { const q=L1<0.5?L1*(1+S1):L1+S1-L1*S1; const p=2*L1-q; xr=hue2(p,q,H+1/3); xg=hue2(p,q,H); xb=hue2(p,q,H-1/3); }
+    r0=xr*255; g0=xg*255; b0=xb*255;
+  }
+  // 1) 크림과 섞기
+  let r = r0*(1-wf)+CREAM[0]*wf, g = g0*(1-wf)+CREAM[1]*wf, b = b0*(1-wf)+CREAM[2]*wf;
+  // 2) RGB→HSL, 채도 부스트
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b); let H=0,S=0; const L=(max+min)/2;
+  if(max!==min){ const d=max-min; S=L>0.5?d/(2-max-min):d/(max+min);
+    if(max===r) H=((g-b)/d+(g<b?6:0)); else if(max===g) H=((b-r)/d+2); else H=((r-g)/d+4); H/=6; }
+  S=Math.min(1,S*satBoost);
+  // 3) HSL→RGB
+  const hue=(p,q,t)=>{ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+  let nr,ng,nb;
+  if(S===0){ nr=ng=nb=L; } else { const q=L<0.5?L*(1+S):L+S-L*S; const p=2*L-q; nr=hue(p,q,H+1/3); ng=hue(p,q,H); nb=hue(p,q,H-1/3); }
+  const HX=(v)=>Math.max(0,Math.min(255,Math.round(v*255))).toString(16).padStart(2,"0").toUpperCase();
+  return `#${HX(nr)}${HX(ng)}${HX(nb)}`;
+};
 // 현재 테마(main)에 맞춰 흰색 계열 박스색을 같은 계열로 물들인 색 세트 생성
 const makeThemeColors = (main) => ({
   ...C,
@@ -144,6 +198,42 @@ const DEFAULT_LEVELS = [
   { level:20, name:"월드클래스",   minScore:12000, emoji:"🌟" },
 ];
 
+// 베이커리(cute) 모드 레벨 — 던전과 동일한 minScore 임계값을 공유하고
+// 이름/이모지만 갈아끼운다. (level 번호로 매칭)
+const BAKERY_LEVELS = [
+  { level:1,  name:"밀가루 요정",     emoji:"🌾" },
+  { level:2,  name:"반죽 요정",       emoji:"🥣" },
+  { level:3,  name:"쿠키 요정",       emoji:"🍪" },
+  { level:4,  name:"컵케이크 요정",   emoji:"🧁" },
+  { level:5,  name:"초보 제빵사",     emoji:"👧" },
+  { level:6,  name:"견습 파티시에",   emoji:"👩‍🍳" },
+  { level:7,  name:"달콤한 제빵사",   emoji:"🍰" },
+  { level:8,  name:"케이크 전문가",   emoji:"🎂" },
+  { level:9,  name:"인기 파티시에",   emoji:"🌸" },
+  { level:10, name:"베이커리 스타",   emoji:"🌟" },
+  { level:11, name:"마카롱 장인",     emoji:"🎀" },
+  { level:12, name:"디저트 연구원",   emoji:"📖" },
+  { level:13, name:"무지개 파티시에", emoji:"🌈" },
+  { level:14, name:"왕실 파티시에",   emoji:"🍮" },
+  { level:15, name:"디저트 수호자",   emoji:"💎" },
+  { level:16, name:"황금 제빵사",     emoji:"🥇" },
+  { level:17, name:"꿈의 파티시에",   emoji:"🍭" },
+  { level:18, name:"별빛 파티시에",   emoji:"⭐" },
+  { level:19, name:"디저트 여왕",     emoji:"👑" },
+  { level:20, name:"전설의 파티시에", emoji:"✨" },
+];
+
+// 레벨 객체(=DEFAULT_LEVELS 항목)를 현재 스킨에 맞춰 이름/이모지만 치환해 반환.
+// minScore 등 나머지 필드는 그대로 유지하므로 점수 계산 로직은 영향 없음.
+const levelView = (lv, skin) => {
+  if(!lv) return lv;
+  if(skin==="cute"){
+    const b = BAKERY_LEVELS.find(x=>x.level===lv.level);
+    if(b) return { ...lv, name:b.name, emoji:b.emoji };
+  }
+  return lv;
+};
+
 const GAME = {
   dark:"#15162E",
   dark2:"#20224A",
@@ -155,6 +245,305 @@ const GAME = {
   neon:"#6C63FF",
   green:"#22C9A0",
   red:"#FF5C7A",
+};
+
+// ════════════════════════════════════════════════════════════
+// 스킨 시스템 — 모든 모드별 디자인/텍스트/세계관을 한곳에 모음
+// 구조는 동일, 값만 모드별로 다름. 렌더부는 SKINS[mode] 를 참조.
+// ════════════════════════════════════════════════════════════
+const SKINS = {
+  // ── 던전 모드 (기존) ──────────────────────────────────────
+  dungeon: {
+    id:"dungeon",
+    name:"던전 게임",
+    selectEmoji:"⚔️",
+    selectDesc:"용사가 되어 던전을 클리어하자!",
+    // 팔레트
+    palette:{
+      dark:"#15162E", dark2:"#20224A",
+      gold:"#FFD166", coin:"#F4C542", xp:"#6C63FF",
+      streak:"#FF6B6B", accent:"#6C63FF",
+      green:"#22C9A0", neon:"#6C63FF", red:"#FF5C7A",
+      panelBg:"linear-gradient(160deg,#1B1D3A,#15162E)",
+      panelText:"#FFFFFF", panelSub:"#A8AED0",
+      // 헤더(dark 배경) 위에 올라가는 요소 토큰 — 던전은 기존 흰색 룩 유지
+      headerBg:"linear-gradient(135deg, #15162E, #20224A)", // dark→th.main 은 렌더부에서 합성, 여기는 폴백용
+      onDark:"#FFFFFF", onDarkSub:"rgba(255,255,255,0.75)",
+      chipBg:"rgba(255,255,255,0.16)", chipBorder:"rgba(255,255,255,0.35)",
+      chipText:"#FFFFFF",
+      bubble:"rgba(255,255,255,0.08)", divider:"rgba(255,255,255,0.1)",
+      // 던전식 '어두운 박스' 토큰 — 던전은 기존 어두운 룩 유지
+      boxBg:"linear-gradient(135deg, #15162E, #20224A)",
+      boxSolid:"#15162E",
+      boxText:"#FFFFFF", boxSub:"rgba(255,255,255,0.72)",
+      boxBorder:"rgba(255,255,255,0.1)",
+      boxShadowCol:"rgba(20,22,46,0.33)",
+      // 화면 전체 바탕 — 던전은 기존 차가운 톤 유지
+      appBg:null,
+      // 학원카드 내부 미션 강조박스 — 던전은 어두운(테마색 어둡게) 그대로
+      missionDark:true,
+      radCard:20, radMid:18, radSmall:14,
+    },
+    // 세계관 텍스트
+    text:{
+      tabs:{ quest:"⚔️ 미션", character:"🧙 내 캐릭터" },
+      heroStatus:"HERO STATUS",
+      dailyArea:"TODAY MISSION",
+      todayQuest:"오늘의 미션",
+      questList:"📜 미션 목록",
+      missionEmoji:"🎯",
+      missionTag:"⚔️ TODAY'S MISSION",
+      remainMission:"⚔️ 남은 미션",
+      doneIcon:"🏆", failIcon:"💥", clearShort:"CLEAR",
+      ready:"READY", clear:"CLEAR", failed:"FAILED",
+      readyEmoji:"⚔️",
+      restDay:"오늘은 미션이 없어요!",
+      noQuest:"등록된 미션이 없어요",
+      completeWord:"클리어",
+      // 모험 장소(학원 일정) 섹션
+      areaTag:"🗺️ ADVENTURE MAP",
+      todayArea:"오늘의 모험 장소",
+      dateAreaSuffix:"모험 장소",   // "{날짜} 모험 장소"
+      noArea:"오늘은 모험 장소가 없어요",
+      noAreaEmoji:"😴",
+      areaCountIcon:"🏰",
+      // 진행도별 응원 메시지
+      progress:{
+        rest:"오늘은 쉬어가는 날이야 😴",
+        start:"오늘의 모험을 시작해볼까?",
+        low:"아직 미션이 남아있어!",
+        high:"거의 다 왔어!",
+        done:"오늘 미션 클리어 완료!",
+      },
+      // 활동 기록(모험 기록) 라벨
+      logName:"모험 기록",
+      log:{
+        quest:{icon:"⚔️",title:"미션 클리어"},
+        treasure:{icon:"🎁",title:"보물상자 오픈"},
+        reward:{icon:"🛒",title:"아이템 구매"},
+        level_bonus:{icon:"✨",title:"레벨업 보너스"},
+        badge_reward:{icon:"🏆",title:"업적 보상"},
+        manual:{icon:"✍️",title:"엄마 XP 조정"},
+        default:{icon:"📜",title:"모험 기록"},
+      },
+    },
+    // 완료 표시 = 기존 체크(던전은 도장 모티프 OFF)
+    stamp:{ on:false },
+    // 학원명 → 아이콘/라벨 매칭 (기존 던전 규칙)
+    academyRules:[
+      { kw:["영어","english","어학","파닉스","토익","토플"], icon:"📖", label:"마법 언어의 탑" },
+      { kw:["수학","math","산수","연산","사고력"],            icon:"🔢", label:"숫자 미궁" },
+      { kw:["국어","논술","독서","글쓰기","문해"],            icon:"✍️", label:"고대 문헌의 방" },
+      { kw:["과학","science","코딩","로봇","컴퓨터","sw","stem"], icon:"🔬", label:"연금술 실험실" },
+      { kw:["태권","태권도","검도","합기도","유도","무술","주짓수"], icon:"🥋", label:"용사의 도장" },
+      { kw:["피아노","바이올린","음악","첼로","기타","드럼","악기"], icon:"🎹", label:"선율의 신전" },
+      { kw:["미술","그림","드로잉","아트","art","디자인"],     icon:"🎨", label:"색채의 화방" },
+      { kw:["발레","무용","댄스","dance","방송댄스"],          icon:"🩰", label:"춤추는 무대" },
+      { kw:["수영","swim","스포츠","축구","농구","체육","운동"], icon:"🏊", label:"물의 시련장" },
+      { kw:["바둑","장기","체스","보드"],                      icon:"♟️", label:"전략의 방" },
+      { kw:["한자","중국어","일본어","제2외국어","스페인어"],  icon:"🀄", label:"동방 문자의 길" },
+      { kw:["요리","쿠킹","베이킹"],                           icon:"🍳", label:"마녀의 부엌" },
+    ],
+    academyDefault:{ icon:"🏰", label:"미지의 던전" },
+    // 완료 연출 타입
+    clearEffect:"slash", // 검 베기 느낌
+  },
+
+  // ── 귀여운 모드 (베이커리/디저트 가게 🧁) ─────────────────
+  cute: {
+    id:"cute",
+    name:"베이커리 게임",
+    selectEmoji:"🧁",
+    selectDesc:"달콤한 가게의 주인이 되어 도장을 모으자!",
+    // 팔레트 — 맑고 부드러운 톤 (연한 핑크·크림빛으로 화면 전반을 감싼다)
+    palette:{
+      // dark/dark2 는 던전에선 어두운 배경이지만, 베이커리에선
+      // '맑은 박스 위 진한 글씨색'으로만 의미를 가진다 (박스 배경은 boxBg 가 담당).
+      dark:"#6B4A5C", dark2:"#A23E63",          // 코코아 / 진베리 (글씨·포인트)
+      gold:"#F7A8C4", coin:"#FFC98A", xp:"#C3A0E6",
+      streak:"#FF9DBE", accent:"#F7A8C4",
+      green:"#7FCBBC", neon:"#C3A0E6", red:"#FF8FB0",
+      panelBg:"linear-gradient(160deg,#FFF6FA,#FBF1F7)",
+      panelText:"#6B4A5C", panelSub:"#B392A4",
+      // 헤더 — 연한 핑크/크림 그라데이션 + 진한 코코아 글씨
+      headerBg:"linear-gradient(135deg, #FFEAF1, #FBEFF6)",
+      onDark:"#6B4A5C", onDarkSub:"rgba(107,74,92,0.62)",
+      chipBg:"rgba(255,255,255,0.7)", chipBorder:"rgba(107,74,92,0.18)",
+      chipText:"#6B4A5C",
+      bubble:"rgba(255,255,255,0.5)", divider:"rgba(107,74,92,0.12)",
+      // 던전식 '어두운 박스'들이 참조하는 토큰 — 베이커리는 맑은 크림박스
+      boxBg:"linear-gradient(135deg, #FFF3F8, #FBEDF4)",
+      boxSolid:"#FFF3F8",
+      boxText:"#6B4A5C", boxSub:"rgba(107,74,92,0.6)",
+      boxBorder:"rgba(107,74,92,0.14)",
+      boxShadowCol:"rgba(214,160,184,0.30)",
+      // 화면 전체 바탕 — 연한 핑크·크림빛으로 감싼다
+      appBg:"linear-gradient(180deg, #FFF0F6 0%, #FFF6F2 45%, #FDF4F8 100%)",
+      // 학원카드 내부 미션 강조박스 — 베이커리는 맑은 박스
+      missionDark:false,
+      radCard:28, radMid:22, radSmall:16,
+    },
+    // 테마색 적용 팔레트 — '진한 마카롱 카드 + 연한 크림 내용칸' 구조.
+    // 카드(박스) 배경을 진하게 깔고, 그 안의 작은 칸을 연하게 해서
+    // 진한 액자 안에 보송한 카드가 담긴 마카롱 디저트 박스 느낌을 낸다.
+    // 글씨는 진코코아로 통일(진한 카드/연한 칸 양쪽 다 또렷).
+    paletteFn:(main)=>{
+      const m = main || "#DE869C";
+      const tint = (wf)=>softTint(m, wf);   // 크림빛+채도부스트(맑고 따뜻하게)
+      const COCOA = "#5A3A4A";
+      const COCOA_SUB = "rgba(90,58,74,0.62)";
+      // ── 농도 (역전): 카드가 진하고, 내용칸이 연하다. 전반적으로 크림화이트를 더 섞음 ──
+      const L_app   = tint(0.88);  // 바탕 (크림에 가깝게, 햇살 가득)
+      const L_card  = tint(0.62);  // 카드/박스 (부드러운 마카롱)  ← 액자
+      const L_inner = tint(0.93);  // 내용칸/칩 (거의 크림)        ← 보송한 알맹이
+      const L_innerD= tint(0.88);  // 내용칸 살짝 진한 변형
+      const L_deep  = tint(0.42);  // 강조 포인트(가장 진한 칸도 부드럽게)
+      return {
+        dark:COCOA, dark2:"#A23E63",
+        gold:L_deep, coin:"#F7B85C", xp:L_deep,
+        streak:L_deep, accent:L_deep,
+        green:"#5FC2AE", neon:L_deep, red:"#FF7DA0",
+        themePop:L_deep, themePopD:tint(0.16),
+        tabActive:`linear-gradient(135deg, ${mixBlack(m,0.20)}, ${mixBlack(m,0.04)})`,
+        accentBar:`linear-gradient(135deg, ${tint(0.16)}, ${L_deep})`,
+        panelBg:`linear-gradient(160deg, ${L_card}, ${tint(0.34)})`,
+        panelText:COCOA, panelSub:COCOA_SUB,
+        // 헤더 — 진한 마카롱 카드 톤 (바탕보다 진하게 떠 보임)
+        headerBg:`linear-gradient(135deg, ${tint(0.54)}, ${tint(0.66)})`,
+        onDark:COCOA, onDarkSub:COCOA_SUB,
+        // 칩/내용칸 — 연한 크림 (진한 카드 위에서 보송하게 떠 보임)
+        chipBg:L_inner, chipBorder:"rgba(255,255,255,0.55)", chipText:COCOA,
+        bubble:"rgba(255,255,255,0.35)", divider:"rgba(90,58,74,0.18)",
+        // 박스/카드 — 진한 마카롱 (액자)
+        boxBg:`linear-gradient(135deg, ${L_card}, ${tint(0.34)})`,
+        boxSolid:L_card,
+        boxText:COCOA, boxSub:COCOA_SUB,
+        boxBorder:"rgba(90,58,74,0.18)",
+        boxShadowCol:"rgba(190,150,165,0.22)",
+        // 내용칸 토큰 (진한 카드 안에 들어가는 연한 칸)
+        innerBg:L_inner, innerBgD:L_innerD, innerText:COCOA, innerBorder:"rgba(255,255,255,0.6)",
+        // 강조 포인트 칸 (가장 진한 마카롱) — 특별히 띄울 때
+        popBox:L_deep, popBoxText:COCOA, popBoxBorder:"rgba(90,58,74,0.24)",
+        appBg:`linear-gradient(180deg, ${L_app} 0%, ${tint(0.76)} 45%, ${tint(0.73)} 100%)`,
+        missionDark:false,
+        // 둥글기 — 베이커리는 더 말랑하게(큰 카드 28, 중간 22, 작은 16)
+        radCard:28, radMid:22, radSmall:16,
+        // 배경 스프링클 점무늬(포장지 느낌) — appBg 위에 겹친다
+        appPattern:`radial-gradient(${tint(0.40)} 1.5px, transparent 1.6px), radial-gradient(${tint(0.40)} 1.5px, transparent 1.6px)`,
+        appPatternSize:"22px 22px", appPatternPos:"0 0, 11px 11px",
+      };
+    },
+    // 세계관 텍스트 — 베이커리/도장
+    text:{
+      tabs:{ quest:"🎀 오늘 할 일", character:"🧸 내 캐릭터" },
+      heroStatus:"오늘의 나",
+      dailyArea:"오늘의 가게",
+      todayQuest:"오늘의 미션",
+      questList:"🧾 미션 목록",
+      missionEmoji:"🧁",
+      missionTag:"🧁 오늘의 베이킹",
+      remainMission:"🍰 남은 미션",
+      doneIcon:"🎀", failIcon:"🥲", clearShort:"완료",
+      ready:"준비!", clear:"참 잘했어요", failed:"아쉬워요",
+      readyEmoji:"🧁",
+      restDay:"오늘은 쉬는 날이에요! 🍪",
+      noQuest:"아직 할 일이 없어요",
+      completeWord:"도장 꾹",
+      // 모험 장소(학원 일정) 섹션 → 베이커리 톤
+      areaTag:"TODAY'S STREET",
+      todayArea:"🏡 오늘의 거리",
+      dateAreaSuffix:"들를 가게",   // "{날짜} 들를 가게"
+      noArea:"오늘은 들를 가게가 없어요",
+      noAreaEmoji:"🍪",
+      areaCountIcon:"🏡",
+      // 진행도별 응원 메시지 → 베이커리 톤
+      progress:{
+        rest:"오늘은 가게 문을 닫고 쉬는 날이에요 🍪",
+        start:"오늘도 달콤하게 시작해볼까요? 🧁",
+        low:"아직 만들 게 남았어요!",
+        high:"거의 다 구웠어요! 🍞",
+        done:"오늘 가게 일 끝! 참 잘했어요 🎀",
+      },
+      // 활동 기록(베이커리 일기) 라벨
+      logName:"베이커리 일기",
+      log:{
+        quest:{icon:"🧁",title:"미션 완료"},
+        treasure:{icon:"🎀",title:"디저트상자 오픈"},
+        reward:{icon:"🛍️",title:"아이템 구매"},
+        level_bonus:{icon:"✨",title:"레벨업 보너스"},
+        badge_reward:{icon:"🏆",title:"업적 보상"},
+        manual:{icon:"✍️",title:"엄마 XP 조정"},
+        default:{icon:"📖",title:"베이커리 일기"},
+      },
+    },
+    // 완료 표시 = 도장 찍기 (베이커리 핵심 모티프)
+    stamp:{
+      on:true,
+      color:"#D6455A",        // 도장 잉크색(빨강)
+      face:"🎀",              // 도장 안에 찍히는 것 (이모지 또는 글자)
+      ringText:"참잘했어요",   // 도장 테두리 문구(원형)
+      anim:"stampDrop .5s cubic-bezier(.3,1.5,.5,1) both",
+    },
+    // 학원명 → 베이커리/디저트 아이콘·라벨 (던전과 같은 12개 카테고리)
+    academyRules:[
+      { kw:["영어","english","어학","파닉스","토익","토플"], icon:"🍓", label:"딸기 알파벳 카페" },
+      { kw:["수학","math","산수","연산","사고력"],            icon:"🍩", label:"도넛 숫자 가게" },
+      { kw:["국어","논술","독서","글쓰기","문해"],            icon:"📕", label:"책읽는 북카페" },
+      { kw:["과학","science","코딩","로봇","컴퓨터","sw","stem"], icon:"🧪", label:"보글보글 실험실" },
+      { kw:["태권","태권도","검도","합기도","유도","무술","주짓수"], icon:"🥋", label:"씩씩한 도장" },
+      { kw:["피아노","바이올린","음악","첼로","기타","드럼","악기"], icon:"🎵", label:"멜로디 음악방" },
+      { kw:["미술","그림","드로잉","아트","art","디자인"],     icon:"🎨", label:"알록달록 그림방" },
+      { kw:["발레","무용","댄스","dance","방송댄스"],          icon:"🩰", label:"반짝 무대" },
+      { kw:["수영","swim","스포츠","축구","농구","체육","운동"], icon:"⛹️", label:"신나는 운동장" },
+      { kw:["바둑","장기","체스","보드"],                      icon:"🧩", label:"생각하는 놀이방" },
+      { kw:["한자","중국어","일본어","제2외국어","스페인어"],  icon:"🌏", label:"세계 친구들" },
+      { kw:["요리","쿠킹","베이킹"],                           icon:"🧁", label:"달콤 베이커리" },
+    ],
+    academyDefault:{ icon:"🏡", label:"포근한 우리 가게" },
+    // 완료 연출 타입
+    clearEffect:"stamp", // 도장 꾹 찍기
+  },
+};
+const DEFAULT_SKIN = "dungeon";
+const getSkin = (mode) => SKINS[mode] || SKINS[DEFAULT_SKIN];
+
+// ── 학원명 → 던전 아이콘/테마 자동 매칭 ─────────────────────
+// 학원 이름 속 키워드로 RPG 던전 느낌의 아이콘과 라벨을 자동 부여한다.
+const ACADEMY_DUNGEON_RULES = [
+  { kw:["영어","english","어학","파닉스","토익","토플"],            icon:"📖", label:"마법 언어의 탑" },
+  { kw:["수학","math","산수","연산","사고력"],                       icon:"🔢", label:"숫자 미궁" },
+  { kw:["국어","논술","독서","글쓰기","문해"],                       icon:"✍️", label:"고대 문헌의 방" },
+  { kw:["과학","science","코딩","로봇","컴퓨터","sw","stem"],        icon:"🔬", label:"연금술 실험실" },
+  { kw:["태권","태권도","검도","합기도","유도","무술","주짓수"],     icon:"🥋", label:"용사의 도장" },
+  { kw:["피아노","바이올린","음악","첼로","기타","드럼","악기"],     icon:"🎹", label:"선율의 신전" },
+  { kw:["미술","그림","드로잉","아트","art","디자인"],               icon:"🎨", label:"색채의 화방" },
+  { kw:["발레","무용","댄스","dance","방송댄스"],                    icon:"🩰", label:"춤추는 무대" },
+  { kw:["수영","swim","스포츠","축구","농구","체육","운동"],         icon:"🏊", label:"물의 시련장" },
+  { kw:["바둑","장기","체스","보드"],                                icon:"♟️", label:"전략의 방" },
+  { kw:["한자","중국어","일본어","제2외국어","스페인어"],            icon:"🀄", label:"동방 문자의 길" },
+  { kw:["요리","쿠킹","베이킹"],                                     icon:"🍳", label:"마녀의 부엌" },
+];
+const getAcademyDungeon = (name="") => {
+  const n = String(name).toLowerCase();
+  for(const r of ACADEMY_DUNGEON_RULES){
+    if(r.kw.some(k=>n.includes(k.toLowerCase()))) return r;
+  }
+  return { icon:"🏰", label:"미지의 던전" };
+};
+
+// ── 스킨별 학원 아이콘/라벨 매칭 ───────────────────────────
+// 베이커리(cute) 모드는 SKINS.cute.academyRules/academyDefault 를 사용하고,
+// 그 외(던전 등)는 기존 getAcademyDungeon 규칙을 그대로 사용한다.
+const getAcademyTheme = (name="", skin=DEFAULT_SKIN) => {
+  const s = SKINS[skin];
+  if(s && s.academyRules){
+    const n = String(name).toLowerCase();
+    for(const r of s.academyRules){
+      if(r.kw.some(k=>n.includes(k.toLowerCase()))) return r;
+    }
+    return s.academyDefault || { icon:"🏡", label:"우리 가게" };
+  }
+  return getAcademyDungeon(name);
 };
 
 const CHARACTER_EVOLUTIONS = [
@@ -183,6 +572,67 @@ const EVOLUTION_MESSAGES = {
   "숙련 헌터":     "해야 할 일을 스스로 찾아 해결하는 힘이 생겼어요.",
   "영웅 기사":     "책임감과 용기를 갖춘 진정한 영웅으로 성장하고 있어요.",
   "전설의 수호자": "자신의 길을 스스로 만들어가는 전설적인 수호자예요.",
+};
+
+// ════════════════════════════════════════════════════════════
+// 베이커리(cute) 모드 — 성장체 / 펫 / 설명 치환 데이터
+// 던전 구조(단계 수·minLevel·stage)는 그대로 두고 이름·이모지만 교체.
+// ════════════════════════════════════════════════════════════
+// 성장체 5단계 (CHARACTER_EVOLUTIONS 와 1:1 매칭, 남녀 공통 이모지)
+const BAKERY_EVOLUTIONS = [
+  // 파티시에 성장 4단계 (Lv.1 / 5 / 9 / 13~17). 마지막 두 칸은 같은 "전설" 단계.
+  { name:"꼬마 제빵사",     avatar:{boy:"👦",girl:"👧"},      bg:"linear-gradient(135deg,#FFF1F6,#FFFBF8)" },
+  { name:"씩씩한 견습",     avatar:{boy:"🙋‍♂️",girl:"🙋‍♀️"},  bg:"linear-gradient(135deg,#FFE8F1,#FFFBF8)" },
+  { name:"베이커리 요리사", avatar:{boy:"👨‍🍳",girl:"👩‍🍳"},  bg:"linear-gradient(135deg,#FCE7F3,#FFFBF8)" },
+  { name:"전설의 파티시에", avatar:{boy:"🤴",girl:"👸"},      bg:"linear-gradient(135deg,#F5E1FF,#FFF1F6)" },
+  { name:"전설의 파티시에", avatar:{boy:"🤴",girl:"👸"},      bg:"linear-gradient(135deg,#FFF7ED,#FCE7F3)" },
+];
+// 성장체별 격려 문구 (베이커리)
+const BAKERY_DESCRIPTION = {
+  "꼬마 제빵사":     "모든 달콤한 꿈은 작은 첫걸음에서 시작돼요.",
+  "씩씩한 견습":     "하나씩 해내는 미션이 멋진 성장을 만들고 있어요.",
+  "베이커리 요리사": "꾸준한 노력으로 어엿한 요리사가 되었어요.",
+  "전설의 파티시에": "모두가 인정하는 최고의 파티시에가 되었어요.",
+};
+// 펫 = 별→유니콘 성장 라인 (PET_STAGES 5단계와 1:1 매칭, 아바타 디저트와 구분)
+const BAKERY_PET_DESCRIPTION = {
+  "반짝이는 별":   "모든 꿈은 작은 반짝임에서 시작돼요.",
+  "꿈꾸는 무지개": "매일의 도전이 아름다운 색을 만들어가고 있어요.",
+  "별빛 조랑말":   "꾸준한 노력으로 조금씩 성장하고 있어요.",
+  "무지개 준마":   "용기와 자신감을 갖춘 멋진 친구가 되었어요.",
+  "전설의 유니콘": "꿈을 이루고 희망을 전하는 전설적인 존재예요.",
+};
+const BAKERY_PETS = [
+  { emoji:"✨", name:"반짝이는 별" },
+  { emoji:"🌈", name:"꿈꾸는 무지개" },
+  { emoji:"🐴", name:"별빛 조랑말" },
+  { emoji:"🐎", name:"무지개 준마" },
+  { emoji:"🦄", name:"전설의 유니콘" },
+].map(p=>({ ...p, desc:BAKERY_PET_DESCRIPTION[p.name] }));
+
+// 성장체 객체를 현재 스킨에 맞춰 치환 (idx = 단계 순서)
+const evoView = (evo, idx, skin) => {
+  if(!evo) return evo;
+  if(skin==="cute"){
+    const b = BAKERY_EVOLUTIONS[idx];
+    if(b) return { ...evo, name:b.name, emoji:b.avatar?.girl||b.avatar?.boy, bg:b.bg,
+                   avatar:{ boy:b.avatar?.boy, girl:b.avatar?.girl } };
+  }
+  return evo;
+};
+// 펫 객체를 현재 스킨에 맞춰 치환 (stage = 단계 순서)
+const petView = (pet, stage, skin) => {
+  if(!pet) return pet;
+  if(skin==="cute"){
+    const b = BAKERY_PETS[stage];
+    if(b) return { ...pet, emoji:b.emoji, name:b.name, desc:b.desc };
+  }
+  return pet;
+};
+// 성장체 격려 문구를 현재 스킨에 맞춰 반환
+const evoMsgView = (evoName, skin) => {
+  if(skin==="cute") return BAKERY_DESCRIPTION[evoName] || EVOLUTION_MESSAGES[evoName] || "";
+  return EVOLUTION_MESSAGES[evoName] || "";
 };
 
 const LEVEL_UP_REWARDS = {
@@ -260,6 +710,23 @@ const TREASURE_REWARD_TABLE = {
   }
 };
 
+// 베이커리(cute) 모드: 보물창고 → 디저트상자 컨셉에 맞춘 상자 이름/이모지.
+// (등급 구조·보상 수치는 그대로, 표시용 name/emoji 만 교체)
+const BAKERY_BOX_MAP = {
+  normal:{ name:"기본 상자", emoji:"📦", headerGrad:"linear-gradient(135deg,#F9C5D6,#FDE7EF)" },
+  rare:  { name:"달콤 상자", emoji:"🎁", headerGrad:"linear-gradient(135deg,#F78FB3,#FAD0C4)" },
+  legend:{ name:"스페셜 상자", emoji:"💝", headerGrad:"linear-gradient(135deg,#F5B301,#FFD98E)" },
+};
+// 상자 종류(normal/rare/legend)의 표시 정보를 현재 스킨에 맞춰 반환.
+const getBoxInfo = (boxType, skin=DEFAULT_SKIN) => {
+  const base = TREASURE_REWARD_TABLE[boxType] || TREASURE_REWARD_TABLE.normal;
+  if(skin==="cute"){
+    const b = BAKERY_BOX_MAP[boxType];
+    if(b) return { ...base, name:b.name, emoji:b.emoji, ...(b.headerGrad?{headerGrad:b.headerGrad}:{}) };
+  }
+  return base;
+};
+
 const getRandomTreasureCoin=(boxType)=>{
   const table=TREASURE_REWARD_TABLE[boxType]||TREASURE_REWARD_TABLE.normal;
   return Math.floor(Math.random()*(table.max-table.min+1))+table.min;
@@ -285,17 +752,17 @@ const DEFAULT_BADGES = [
   { id:"treasure_30",  title:"보물 수집가",        desc:"보물상자를 30개 열었어요",     emoji:"💰" },
   { id:"treasure_50",  title:"보물의 제왕",        desc:"보물상자를 50개 열었어요",     emoji:"🏰" },
   { id:"xp_100",       title:"100 XP 달성",        desc:"100 XP를 모았어요",            emoji:"💯" },
-  { id:"xp_500",       title:"500 XP 달성",        desc:"500 XP를 모았어요",            emoji:"🔥" },
+  { id:"xp_500",       title:"500 XP 달성",        desc:"500 XP를 모았어요",            emoji:"🔆" },
   { id:"xp_1000",      title:"1000 XP 달성",       desc:"1000 XP를 모았어요",           emoji:"💎" },
   { id:"xp_3000",      title:"3000 XP 달성",       desc:"3000 XP를 모았어요",           emoji:"🌟" },
   { id:"xp_5000",      title:"5000 XP 달성",       desc:"5000 XP를 모았어요",           emoji:"✨" },
   { id:"xp_10000",     title:"10000 XP 전설",      desc:"10000 XP를 모았어요",          emoji:"🌌" },
-  { id:"level_5",      title:"헌터 등급 달성",     desc:"Lv.5에 도달했어요",            emoji:"🏹" },
+  { id:"level_5",      title:"헌터 등급 달성",     desc:"Lv.5에 도달했어요",            emoji:"🎖️" },
   { id:"level_10",     title:"챔피언 등급 달성",   desc:"Lv.10에 도달했어요",           emoji:"🥇" },
-  { id:"level_15",     title:"그랜드마스터 달성",  desc:"Lv.15에 도달했어요",           emoji:"💎" },
-  { id:"level_20",     title:"월드클래스 달성",    desc:"Lv.20에 도달했어요",           emoji:"🌟" },
+  { id:"level_15",     title:"그랜드마스터 달성",  desc:"Lv.15에 도달했어요",           emoji:"🥈" },
+  { id:"level_20",     title:"월드클래스 달성",    desc:"Lv.20에 도달했어요",           emoji:"🎗️" },
   { id:"first_reward", title:"첫 보상 구매",     desc:"보상을 처음 구매했어요",     emoji:"🛒" },
-  { id:"reward_3",     title:"보상 수집가",      desc:"보상을 5번 구매했어요",      emoji:"🎁" },
+  { id:"reward_3",     title:"보상 수집가",      desc:"보상을 5번 구매했어요",      emoji:"🛍️" },
   { id:"reward_5",     title:"보상 애호가",      desc:"보상을 15번 구매했어요",     emoji:"🎀" },
   { id:"reward_20",    title:"보상 큰손",        desc:"보상을 30번 구매했어요",     emoji:"👜" },
 ];
@@ -349,9 +816,9 @@ const UI_TEXT = {
 };
 
 const LEGENDARY_TITLES = [
-  { id:"gold_hunter",      name:"황금 사냥꾼",   emoji:"👑", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
-  { id:"dragon_knight",    name:"드래곤 기사",   emoji:"🐉", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
-  { id:"treasure_king",    name:"보물왕",        emoji:"💰", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
+  { id:"gold_hunter",      name:"황금 사냥꾼",   emoji:"💠", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
+  { id:"dragon_knight",    name:"드래곤 기사",   emoji:"🛡️", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
+  { id:"treasure_king",    name:"보물왕",        emoji:"💎", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
   { id:"starlight_wizard", name:"별빛 마법사",   emoji:"✨", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
   { id:"shadow_assassin",  name:"그림자 암살자", emoji:"🌙", rarity:"legendary", condition:"전설상자 드롭", description:"전설상자에서만 획득 가능" },
 ];
@@ -376,20 +843,127 @@ const DEFAULT_TITLES = [
   { id:"xp_500_title", name:"성실 수련생", emoji:"📘", condition:"500 XP 달성", rarity:"rare" },
   { id:"reward_3_title", name:"알뜰 쇼핑러", emoji:"🎀", condition:"보상 5번 구매", rarity:"rare" },
 
-  { id:"streak_master", name:"불꽃 루틴러", emoji:"🔥", condition:"10일 연속 달성", rarity:"epic" },
+  { id:"streak_master", name:"불꽃 루틴러", emoji:"⚡", condition:"10일 연속 달성", rarity:"epic" },
   { id:"quest_100_title", name:"집중의 신", emoji:"🧠", condition:"미션 100개 완료", rarity:"epic" },
   { id:"champion", name:"챔피언", emoji:"🥇", condition:"Lv.10 달성", rarity:"epic" },
   { id:"xp_3000_title", name:"빛나는 성장러", emoji:"🌟", condition:"3000 XP 달성", rarity:"epic" },
   { id:"reward_30_title", name:"쇼핑 마스터", emoji:"👜", condition:"보상 30번 구매", rarity:"epic" },
 
   { id:"legend", name:"전설의 모험가", emoji:"👑", condition:"Lv.20 달성", rarity:"legendary" },
-  { id:"streak_30_title", name:"30일 전설", emoji:"🔥", condition:"30일 연속 달성", rarity:"legendary" },
+  { id:"streak_30_title", name:"30일 전설", emoji:"☄️", condition:"30일 연속 달성", rarity:"legendary" },
   { id:"treasure_master", name:"보물 사냥꾼", emoji:"💰", condition:"보물상자 50개 오픈", rarity:"legendary" },
   { id:"world_class", name:"월드클래스", emoji:"🌍", condition:"12000 XP 달성", rarity:"legendary" },
   { id:"quest_700_title", name:"미션의 신화", emoji:"🐉", condition:"미션 700개 완료", rarity:"legendary" },
 ];
 
-// ── 한국 공휴일 (2025~2026) ──────────────────
+// ── 베이커리(cute) 칭호 치환 — 던전 칭호 id 와 1:1 매칭 ──
+// 등급·획득조건(condition은 표시용)·rarity는 그대로, 이름/이모지만 교체.
+const BAKERY_TITLE_MAP = {
+  // common
+  rookie:           { name:"반죽 도우미",     emoji:"🥄" },
+  first_quest:      { name:"쿠키 굽기 초보",  emoji:"🍪" },
+  quest_10_title:   { name:"달콤한 제빵사",   emoji:"🧁" },
+  xp_100_title:     { name:"첫 반죽 친구",    emoji:"🌱", condition:"경험치 100 달성" },
+  reward_1_title:   { name:"첫 쿠키 손님",    emoji:"🛒" },
+  // rare
+  quest_hunter:     { name:"인기 파티시에",   emoji:"🍰" },
+  homework_master:  { name:"디저트 장인",     emoji:"🎀" },
+  streak_3_title:   { name:"베이커리 스타",   emoji:"🌸" },
+  xp_500_title:     { name:"성실한 제빵사",   emoji:"📖", condition:"경험치 500 달성" },
+  reward_3_title:   { name:"알뜰 단골손님",   emoji:"🎟️" },
+  // epic
+  streak_master:    { name:"꾸준한 제빵사",   emoji:"🥐" },
+  quest_100_title:  { name:"케이크 마스터",   emoji:"🎂" },
+  champion:         { name:"왕실 파티시에",   emoji:"🎖️" },
+  xp_3000_title:    { name:"무지개 제빵사",   emoji:"🌈", condition:"경험치 3000 달성" },
+  reward_30_title:  { name:"쿠키 수집가",     emoji:"🛍️" },
+  // legendary (default)
+  legend:           { name:"디저트 왕국의 주인", emoji:"👑" },
+  streak_30_title:  { name:"디저트 여왕",     emoji:"🌹" },
+  treasure_master:  { name:"베이커리 사장님", emoji:"💰", condition:"디저트상자 50개 오픈" },
+  world_class:      { name:"전설의 파티시에", emoji:"✨", condition:"경험치 12000 달성" },
+  quest_700_title:  { name:"신화의 레시피",   emoji:"📜" },
+  // legendary (보물상자 전용)
+  gold_hunter:      { name:"황금 크루아상",   emoji:"🥨", condition:"스페셜 상자에서 획득", description:"스페셜 상자에서만 획득 가능" },
+  dragon_knight:    { name:"전설의 오븐 기사", emoji:"🔥", condition:"스페셜 상자에서 획득", description:"스페셜 상자에서만 획득 가능" },
+  treasure_king:    { name:"디저트 상자왕",   emoji:"💝", condition:"스페셜 상자에서 획득", description:"스페셜 상자에서만 획득 가능" },
+  starlight_wizard: { name:"별빛 파티시에",   emoji:"💫", condition:"스페셜 상자에서 획득", description:"스페셜 상자에서만 획득 가능" },
+  shadow_assassin:  { name:"한밤의 제빵 요정", emoji:"🌙", condition:"스페셜 상자에서 획득", description:"스페셜 상자에서만 획득 가능" },
+};
+// 칭호 객체를 현재 스킨에 맞춰 이름/이모지만 치환
+const titleView = (t, skin) => {
+  if(!t) return t;
+  if(skin==="cute"){
+    const b = BAKERY_TITLE_MAP[t.id];
+    if(b) return { ...t, name:b.name, emoji:b.emoji, ...(b.condition?{condition:b.condition}:{}), ...(b.description?{description:b.description}:{}) };
+  }
+  return t;
+};
+
+// ── 베이커리(cute) 업적 치환 — 던전 업적 id 와 1:1 매칭 ──
+// 달성 조건/구조는 그대로, 표시용 title·desc·emoji 만 베이커리 톤으로 교체.
+const BAKERY_BADGE_MAP = {
+  first_quest: { title:"첫 미션 완료",      desc:"첫 미션(숙제·미션)을 완료했어요", emoji:"🏅" },
+  quest_10:    { title:"미션 입문자",        desc:"미션을 10개 완료했어요",       emoji:"🎯" },
+  quest_50:    { title:"인기 파티시에",      desc:"미션을 50개 완료했어요",       emoji:"🍰" },
+  quest_100:   { title:"미션 마스터",        desc:"미션을 100개 완료했어요",      emoji:"🏆" },
+  quest_300:   { title:"디저트 레전드",      desc:"미션을 300개 완료했어요",      emoji:"🧁" },
+  quest_500:   { title:"케이크 그랜드마스터",desc:"미션을 500개 완료했어요",      emoji:"🎂" },
+  quest_700:   { title:"신화의 제빵사",      desc:"미션을 700개 완료했어요",      emoji:"👑" },
+  homework_10: { title:"숙제 헌터",          desc:"숙제를 10개 완료했어요",       emoji:"📚" },
+  homework_30: { title:"숙제 마스터",        desc:"숙제를 30개 완료했어요",       emoji:"📖" },
+  streak_3:    { title:"3일 연속 달성",      desc:"3일 연속 미션을 완료했어요",   emoji:"🔥" },
+  streak_7:    { title:"7일 연속 달성",      desc:"7일 연속 미션을 완료했어요",   emoji:"⚡" },
+  streak_14:   { title:"14일 연속 달성",     desc:"14일 연속 미션을 완료했어요",  emoji:"🌈" },
+  streak_30:   { title:"30일 연속 전설",     desc:"30일 연속 미션을 완료했어요",  emoji:"🏵️" },
+  streak_100:  { title:"100일 연속 신화",    desc:"100일 연속 미션을 완료했어요", emoji:"🌠" },
+  treasure_1:  { title:"첫 디저트상자",      desc:"디저트상자를 처음 열었어요",   emoji:"🎁" },
+  treasure_10: { title:"디저트상자 수집가",  desc:"디저트상자를 10개 열었어요",   emoji:"🎀" },
+  treasure_30: { title:"디저트 컬렉터",      desc:"디저트상자를 30개 열었어요",   emoji:"🍬" },
+  treasure_50: { title:"디저트 상자왕",      desc:"디저트상자를 50개 열었어요",   emoji:"💝" },
+  xp_100:      { title:"100 경험치 달성",      desc:"경험치를 100 모았어요",        emoji:"💯" },
+  xp_500:      { title:"500 경험치 달성",      desc:"경험치를 500 모았어요",        emoji:"🔆" },
+  xp_1000:     { title:"1000 경험치 달성",     desc:"경험치를 1000 모았어요",       emoji:"🍭" },
+  xp_3000:     { title:"3000 경험치 달성",     desc:"경험치를 3000 모았어요",       emoji:"🌟" },
+  xp_5000:     { title:"5000 경험치 달성",     desc:"경험치를 5000 모았어요",       emoji:"✨" },
+  xp_10000:    { title:"10000 경험치 전설",    desc:"경험치를 10000 모았어요",      emoji:"🌌" },
+  level_5:     { title:"견습 제빵사",        desc:"Lv.5에 도달했어요",            emoji:"🥐" },
+  level_10:    { title:"왕실 파티시에",      desc:"Lv.10에 도달했어요",           emoji:"🥇" },
+  level_15:    { title:"케이크 마스터",      desc:"Lv.15에 도달했어요",           emoji:"🥈" },
+  level_20:    { title:"전설의 파티시에",    desc:"Lv.20에 도달했어요",           emoji:"🎗️" },
+  first_reward:{ title:"첫 쇼핑",           desc:"보상을 처음 구매했어요",     emoji:"🛍️" },
+  reward_3:    { title:"단골 손님",         desc:"보상을 5번 구매했어요",      emoji:"🛒" },
+  reward_5:    { title:"쇼핑 애호가",       desc:"보상을 15번 구매했어요",     emoji:"👛" },
+  reward_20:   { title:"쇼핑 큰손",         desc:"보상을 30번 구매했어요",     emoji:"👜" },
+};
+// 업적 객체를 현재 스킨에 맞춰 title/desc/emoji 치환
+const badgeView = (b, skin) => {
+  if(!b) return b;
+  if(skin==="cute"){
+    const c = BAKERY_BADGE_MAP[b.id];
+    if(c) return { ...b, title:c.title, desc:c.desc, emoji:c.emoji };
+  }
+  return b;
+};
+
+// ── 모드별 용어(재화·아이콘) ─────────────────────────────
+// 던전: ⭐ XP / 💎 코인 / 🎁 보물상자
+// 베이커리: ⭐ 경험치 / 🍪 쿠키 / 🎀 디저트상자 / 🎁 디저트 보관함
+const TERMS = {
+  dungeon: {
+    xp:"XP", xpEmoji:"⭐",
+    coin:"코인", coinEmoji:"💎",
+    box:"보물상자", boxEmoji:"🎁",
+    book:"보물창고", bookEmoji:"🎁",
+  },
+  cute: {
+    xp:"경험치", xpEmoji:"⭐",
+    coin:"쿠키", coinEmoji:"🍪",
+    box:"디저트상자", boxEmoji:"🎀",
+    book:"디저트 보관함", bookEmoji:"🧁",
+  },
+};
+const getTerms = (skin) => TERMS[skin] || TERMS.dungeon;
 const HOLIDAYS = {
   // 2025
   "2025-01-01":"신정",
@@ -582,31 +1156,39 @@ function CharacterSectionHeader({icon,title,subtitle,open,onToggle}){
   );
 }
 
-function GameModalHeader({emoji,title,color}){
+function GameModalHeader({emoji,title,color,cute=false}){
   return (
-    <div style={{padding:"26px 20px",textAlign:"center",color:"#fff",background:color}}>
-      <p style={{fontSize:56,margin:"0 0 10px"}}>{emoji}</p>
-      <p style={{margin:0,fontSize:24,fontWeight:900}}>{title}</p>
+    <div style={{padding:"26px 20px",textAlign:"center",color:cute?"#6B4A5C":"#fff",background:color,position:"relative",overflow:"hidden"}}>
+      {cute&&<div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent)",animation:"shineMove 1.6s ease-in-out infinite"}}/>}
+      <p style={{fontSize:56,margin:"0 0 10px",position:"relative"}}>{emoji}</p>
+      <p style={{margin:0,fontSize:cute?22:24,fontWeight:900,letterSpacing:cute?0:undefined,position:"relative"}}>{title}</p>
     </div>
   );
 }
 
-function GameModalButton({onClick,grad,label="확인"}){
+function GameModalButton({onClick,grad,label="확인",cute=false}){
   return (
     <button onClick={onClick}
-      style={{width:"100%",border:"none",borderRadius:14,padding:"14px",background:grad,color:"#fff",fontWeight:900,fontSize:16,cursor:"pointer"}}>
+      style={{width:"100%",border:"none",borderRadius:cute?16:14,padding:"14px",background:grad,color:"#fff",fontWeight:900,fontSize:16,cursor:"pointer",boxShadow:cute?"0 6px 18px rgba(0,0,0,.12)":"none"}}>
       {label}
     </button>
   );
 }
 
-function KidCoachmark({ th, onFinish }){
+function KidCoachmark({ th, onFinish, skin="dungeon" }){
   const TH=th||{ main:"#3B7ECD", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" };
-  const cards=[
-    { emoji:"📝", title:"오늘의 미션을 체크해요", desc:"미션 탭에서 오늘 할 일과 숙제를\n동그라미를 눌러 완료해요!" },
-    { emoji:"💎", title:"코인과 XP가 쌓여요", desc:"미션을 해내면 코인과 XP(별)을 받아요.\n모은 코인으로 멋진 보상을 받을 수 있어요!" },
-    { emoji:"🧒🐣", title:"캐릭터와 펫이 자라요", desc:"내 캐릭터 탭에서 레벨이 오르고\n펫도 점점 자라나는 걸 볼 수 있어요!" },
-  ];
+  const cute=skin==="cute";
+  const cards = cute
+    ? [
+        { emoji:"📝", title:"오늘의 미션을 체크해요", desc:"오늘 할 일 탭에서 미션과 숙제를\n동그라미를 눌러 완료해요!" },
+        { emoji:"🍪", title:"쿠키와 경험치가 쌓여요", desc:"미션을 해내면 쿠키와 경험치(⭐)를 받아요.\n모은 쿠키로 멋진 보상을 받을 수 있어요!" },
+        { emoji:"🧑‍🍳🦄", title:"파티시에와 친구가 자라요", desc:"내 캐릭터 탭에서 레벨이 오르고\n친구도 점점 자라나는 걸 볼 수 있어요!" },
+      ]
+    : [
+        { emoji:"📝", title:"오늘의 미션을 체크해요", desc:"미션 탭에서 오늘 할 일과 숙제를\n동그라미를 눌러 완료해요!" },
+        { emoji:"💎", title:"코인과 XP가 쌓여요", desc:"미션을 해내면 코인과 XP(별)을 받아요.\n모은 코인으로 멋진 보상을 받을 수 있어요!" },
+        { emoji:"🧒🐣", title:"캐릭터와 펫이 자라요", desc:"내 캐릭터 탭에서 레벨이 오르고\n펫도 점점 자라나는 걸 볼 수 있어요!" },
+      ];
   const [i,setI]=useState(0);
   const last=i===cards.length-1;
   const c=cards[i];
@@ -631,6 +1213,53 @@ function KidCoachmark({ th, onFinish }){
   );
 }
 
+// ── 아이모드 모드(스킨) 선택 화면 ──────────────────────────
+// 코치마크 직후 1회, 또는 설정에서 호출. onPick(skinId) 으로 선택 전달.
+function ModeSelect({ onPick }){
+  const dgSel=SKINS.dungeon, ckSel=SKINS.cute;
+  const wrap={position:"fixed",inset:0,zIndex:9998,background:"linear-gradient(160deg,#F3EEF7,#FBF1F3)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px"};
+  const panel={width:"100%",maxWidth:360,background:"linear-gradient(170deg,#FBF8FC,#F7EFF4)",borderRadius:30,padding:"30px 18px 30px",boxSizing:"border-box",boxShadow:"0 18px 50px rgba(60,52,90,0.2)"};
+  const pill={fontSize:13,fontWeight:800,color:"#9A8FA8",background:"#fff",padding:"6px 16px",borderRadius:999,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"};
+  const card=(bg,shadow)=>({flex:1,minWidth:0,borderRadius:24,padding:"20px 14px 18px",cursor:"pointer",background:bg,boxShadow:shadow,display:"flex",flexDirection:"column",border:"3px solid transparent"});
+  const chip=(bg,col)=>({fontSize:11,fontWeight:700,padding:"5px 10px",borderRadius:999,textAlign:"center",background:bg,color:col});
+  return (
+    <div style={wrap}>
+      <div style={panel}>
+        <div style={{display:"flex",justifyContent:"center",marginBottom:22}}><span style={pill}>🎒 아이용 · 처음 왔어요!</span></div>
+        <div style={{textAlign:"center",marginBottom:24,paddingTop:8}}>
+          <p style={{fontSize:23,fontWeight:900,color:"#2D2536",margin:0,letterSpacing:"-0.5px"}}>어떤 게임이 좋아요?</p>
+          <p style={{fontSize:13.5,fontWeight:600,color:"#9A8FA8",margin:"8px 0 0",lineHeight:1.55}}>마음에 드는 세계를 골라주세요.<br/>나중에 설정에서 언제든 바꿀 수 있어요.</p>
+        </div>
+        <div style={{display:"flex",gap:13}}>
+          {/* 던전 게임 */}
+          <div style={card("linear-gradient(155deg,#3A3470,#2E2F5C)","0 10px 24px rgba(58,52,112,0.32)")} onClick={()=>onPick("dungeon")}>
+            <div style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#FFD166",marginBottom:6}}>1번</div>
+            <div style={{fontSize:40,lineHeight:1,marginBottom:8}}>⚔️</div>
+            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>던전 게임</div>
+            <div style={{fontSize:12.5,fontWeight:600,color:"#C5C8E8",marginTop:9,lineHeight:1.5,flex:1}}>용사가 되어 던전을 클리어해요!</div>
+            <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:14}}>
+              <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>⚔️ 미션</span>
+              <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>🏰 던전 클리어</span>
+            </div>
+          </div>
+          {/* 베이커리 게임 */}
+          <div style={card("linear-gradient(155deg,#E85A77,#D6455A)","0 10px 24px rgba(214,69,90,0.32)")} onClick={()=>onPick("cute")}>
+            <div style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#FFE3EC",marginBottom:6}}>2번</div>
+            <div style={{fontSize:40,lineHeight:1,marginBottom:8}}>🧁</div>
+            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>베이커리 게임</div>
+            <div style={{fontSize:12.5,fontWeight:600,color:"#FFE3EC",marginTop:9,lineHeight:1.5,flex:1}}>달콤한 가게에서<br/>도장을 모아요!</div>
+            <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:14}}>
+              <span style={chip("rgba(255,255,255,0.22)","#FFFFFF")}>🎀 오늘 할 일</span>
+              <span style={chip("rgba(255,255,255,0.22)","#FFFFFF")}>⭐ 도장 꾹</span>
+            </div>
+          </div>
+        </div>
+        <div style={{textAlign:"center",fontSize:12,color:"#A0A6C0",marginTop:22,fontWeight:600}}>탭하면 그 모드로 시작해요</div>
+      </div>
+    </div>
+  );
+}
+
 function CoachmarkOverlay({ th, onFinish }){
   const TH=th||{ main:"#3B7ECD", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" };
   const items=[
@@ -640,7 +1269,7 @@ function CoachmarkOverlay({ th, onFinish }){
     { icon:"💰", name:"학원비", desc:"학원별 수강료와 납부 현황을 관리해요." },
     { icon:"🏥", name:"결석", desc:"결석을 기록하고 보충 일정을 챙겨요." },
     { icon:"⚙️", name:"기타", desc:"데이터 백업·복원, 비밀번호, 사용 가이드를 볼 수 있어요." },
-    { icon:"🎒", name:"아이 모드", desc:"오른쪽 위 '🎒 아이 모드' 버튼을 누르면\n아이 화면으로 바뀌어요." },
+    { icon:"🎒", name:"아이용", desc:"오른쪽 위 '🎒 아이용' 버튼을 누르면\n아이 화면으로 바뀌어요." },
   ];
   const [i,setI]=useState(0);
   const last=i===items.length-1;
@@ -722,7 +1351,7 @@ function OnboardingFlow({ onFinish }){
             <h2 style={{fontSize:25,fontWeight:900,color:"#1A1A35",margin:"0 0 32px",lineHeight:1.3}}>아이 성장 미션에<br/>오신 걸 환영해요</h2>
             <p style={{fontSize:15,fontWeight:600,color:"#8890B0",lineHeight:1.8,margin:0}}>
               동기부여가 고민이었던 엄마도,<br/>
-              울면서 숙제하던 아이도,<br/>
+              숙제가 재미없던 아이도,<br/>
               아이 성장 미션과 함께해요.<br/><br/>
               미션(숙제)을 완료하면 코인을 얻고,<br/>
               원하는 보상으로 바꾸며 즐겁게 성장해봐요.<br/><br/>
@@ -793,31 +1422,25 @@ function OnboardingFlow({ onFinish }){
   );
 }
 
-function GuideModal({type="guide",th,onClose}){
-  const isFirst=type==="first";
+function GuideModal({type="guide",th,onClose,skin="dungeon"}){
   const isReward=type==="reward";
+  const isCute=skin==="cute";
+  const xpW=isCute?"경험치":"XP";
+  const coinW=isCute?"쿠키":"코인";
 
   const steps=isReward
     ? [
         { ic:"🎁", t:"보상 탭 열기", d:"'확인 필요한 구매 요청'이 보여요" },
-        { ic:"✅", t:"구매 승인", d:"승인하면 코인이 차감돼요" },
+        { ic:"✅", t:"구매 승인", d:`승인하면 ${coinW}이 차감돼요` },
         { ic:"🥰", t:"보상 전해주기", d:"아이에게 직접 보상을 주세요!" },
-      ]
-    : isFirst
-    ? [
-        { ic:"🔑", t:"엄마모드 접속", d:"비밀번호 1234" },
-        { ic:"🏫", t:"아이·학원 등록", d:"우리 아이와 다니는 학원을" },
-        { ic:"📝", t:"미션 추가", d:"숙제·할 일을 미션으로" },
-        { ic:"✅", t:"아이가 직접 체크", d:"완수하면 스스로 체크!" },
-        { ic:"🎁", t:"XP·코인 획득", d:"모아서 원하는 보상으로" },
       ]
     : [
         { ic:"🧒", t:"아이 등록", d:"" },
         { ic:"🏫", t:"학원 등록", d:"" },
         { ic:"📝", t:"미션 추가", d:"숙제·할 일을 미션으로" },
         { ic:"✅", t:"아이가 직접 체크", d:"완수하면 스스로 체크!" },
-        { ic:"⭐", t:"XP·코인 획득", d:"" },
-        { ic:"🎁", t:"보상 받기", d:"코인으로 원하는 보상을" },
+        { ic:"⭐", t:`${xpW}·${coinW} 획득`, d:"" },
+        { ic:"🎁", t:"보상 받기", d:`${coinW}으로 원하는 보상을` },
       ];
 
   return (
@@ -855,7 +1478,7 @@ function GuideModal({type="guide",th,onClose}){
           <h2 style={{fontSize:isReward?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isReward?"구매 요청이 왔어요! 🛒":"아이 성장 미션"}</h2>
           <div style={{width:38,height:3,borderRadius:99,background:"rgba(255,255,255,0.6)",margin:"12px auto 14px"}}/>
           <p style={{fontSize:14.5,fontWeight:800,lineHeight:1.6,margin:0}}>
-            {isReward?<>아이가 모은 코인으로<br/>첫 보상을 신청했어요 🎉</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨</>}
+            {isReward?<>아이가 모은 {coinW}으로<br/>첫 보상을 신청했어요 🎉</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨</>}
           </p>
         </div>
 
@@ -894,14 +1517,8 @@ function GuideModal({type="guide",th,onClose}){
             margin:"16px 0 0",
             fontSize:12,fontWeight:700,color:C.sub,lineHeight:1.55
           }}>
-            💎 미션을 완료하면 XP와 코인을 받고, 코인으로 원하는 보상을 받을 수 있어요!
+            {isCute?"🍪":"💎"} 미션을 완료하면 {xpW}와 {coinW}을 받고, {coinW}으로 원하는 보상을 받을 수 있어요!
           </div>
-          )}
-
-          {isFirst&&(
-            <p style={{marginTop:12,fontSize:12,color:C.sub,lineHeight:1.55,fontWeight:600}}>
-              ※ 처음에는 예시 데이터가 포함되어 있어요. 우리 아이 정보로 수정하거나 삭제해서 사용하세요.
-            </p>
           )}
 
           <button
@@ -920,7 +1537,7 @@ function GuideModal({type="guide",th,onClose}){
               boxShadow:`0 6px 18px ${th.main}40`
             }}
           >
-            {isFirst?"시작하기 🎈":isReward?"보상 탭으로 가기 🎁":"닫기"}
+            {isReward?"보상 탭으로 가기 🎁":"닫기"}
           </button>
         </div>
       </div>
@@ -956,6 +1573,8 @@ export default function App() {
   const [showOnboarding,setShowOnboarding] = useState(false); // 첫 진입 온보딩
   const [showCoachmark,setShowCoachmark] = useState(false);   // 온보딩 후 탭 설명 코치마크
   const [showKidCoachmark,setShowKidCoachmark] = useState(false); // 아이모드 첫 진입 설명
+  const [skinByChild,setSkinByChild] = useState({});             // 아이별 디자인 스킨 {cid: "dungeon"|"cute"}
+  const [showModeSelect,setShowModeSelect] = useState(false);     // 모드 선택 화면 표시
   const [openPet,setOpenPet] = useState(false);
   const [openAchievement,setOpenAchievement] = useState(false);
   const [openHistory,setOpenHistory] = useState(false);
@@ -967,6 +1586,7 @@ export default function App() {
   const [lastLevelByChild,setLastLevelByChild] = useState({});
   const [levelUpModal,setLevelUpModal] = useState(null);
   const [questResultModal,setQuestResultModal] = useState(null);
+  const [charCheer,setCharCheer] = useState(null); // 완료 시 캐릭터 점프+말풍선 {msg, key}
   const [selectedTitles,setSelectedTitles] = useState({});
   const [treasureData,setTreasureData] = useState({});
   const [treasureModal,setTreasureModal] = useState(null);
@@ -981,6 +1601,7 @@ export default function App() {
   const [firstTipPending,setFirstTipPending] = useState(false); // 첫 미션 안내창 대기
   const [showFirstMissionTip,setShowFirstMissionTip] = useState(false);
   const [firstTipSeen,setFirstTipSeen] = useState(false); // 안내창 1회만
+  const [pinHintSeen,setPinHintSeen] = useState(false); // 엄마모드 비번 안내 1회만
   const [showParentRewardGuide,setShowParentRewardGuide] = useState(false); // 첫 구매요청 후 엄마모드 안내
   const [parentRewardGuideSeen,setParentRewardGuideSeen] = useState(false);
   const [seenBadges,setSeenBadges] = useState({});
@@ -993,6 +1614,10 @@ export default function App() {
   // 아이 목록 상태
   const [children,setChildren] = useState(DEFAULT_CHILDREN);
   const [childId,setChildId] = useState("child_1");
+  // 현재 선택된 아이의 스킨 (아이별로 다름). 미설정이면 기본 스킨.
+  const kidSkin = (skinByChild[childId] && SKINS[skinByChild[childId]]) ? skinByChild[childId] : DEFAULT_SKIN;
+  // 현재 아이의 스킨을 바꾸는 헬퍼 (모드 선택 시 사용)
+  const setKidSkin = (skin)=> setSkinByChild(prev=>({...prev,[childId]:skin}));
 
   const [tab,setTab] = useState("home");
   const [academies,setAcademies] = useState({});
@@ -1032,7 +1657,6 @@ export default function App() {
   const [showSmsModal,setShowSmsModal] = useState(null);
   const [showTmplEdit,setShowTmplEdit] = useState(null);
   const [showGuideModal,setShowGuideModal] = useState(false);
-  const [showFirstGuide,setShowFirstGuide] = useState(false);
   const [openSmsManage,setOpenSmsManage] = useState(false);
   const [smsDraft,setSmsDraft] = useState("");
   const [editTmpl,setEditTmpl] = useState({title:"",body:""});
@@ -1076,6 +1700,8 @@ export default function App() {
             earnedTitlesData=await load("v6_earned_titles"),
             specialTitleData=await load("v6_special_titles"),
             bestStreak=await load("v6_best_streak");
+      const savedSkinMap=await load("v6_kid_skin_map"); // 아이별 스킨 맵 (신규)
+      const savedSkin=await load("v6_kid_skin");         // 단일 스킨 (구버전, 마이그레이션용)
       const sampleSeeded=await load("v6_sample_seeded");
       // ── 설치 정보 기록: 한 번도 기록된 적 없으면 최초 1회 저장 (향후 유료 전환 분기용) ──
       // installDate = 첫 실행일, isFoundingUser = 초기(무료 시작) 사용자 표식
@@ -1101,6 +1727,14 @@ export default function App() {
       if(p) setPaidStatus(p); if(dm) setDayMemos(dm); if(dd) setDailyData(dd);
       if(bsk) setBaseSeededKeys(bsk);
       if(petD) setPetData(petD);
+      if(savedSkinMap && typeof savedSkinMap==="object"){
+        setSkinByChild(savedSkinMap);
+      } else if(savedSkin && SKINS[savedSkin] && ch){
+        // 구버전(단일 스킨) → 기존 모든 아이에 적용해 마이그레이션
+        const migrated={}; ch.forEach(c=>{ migrated[c.id]=savedSkin; });
+        setSkinByChild(migrated);
+        save("v6_kid_skin_map",migrated);
+      }
       if(tmpl) setTemplates(tmpl);
       if(cid) setChildId(cid);
       if(vac) setVacations(vac);
@@ -1118,11 +1752,10 @@ export default function App() {
       if(earnedTitlesData) setEarnedTitleIds(earnedTitlesData);
       if(specialTitleData) setSpecialTitles(specialTitleData);
       if(bestStreak) setBestStreakData(bestStreak);
-      const guideSeen=await load("v6_first_guide_seen");
-      // 첫 실행 가이드는 비활성화 (어떤 상황에서도 노출 안 함)
-      void guideSeen;
       const tipSeen=await load("v6_first_mission_tip_seen");
       if(tipSeen) setFirstTipSeen(true);
+      const pinHint=await load("v6_pin_hint_seen");
+      if(pinHint) setPinHintSeen(true);
       const prGuideSeen=await load("v6_parent_reward_guide_seen");
       if(prGuideSeen) setParentRewardGuideSeen(true);
       setLoaded(true);
@@ -1130,6 +1763,7 @@ export default function App() {
   },[]);
 
   useEffect(()=>{ if(loaded) save("v6_children",children); },[children,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_kid_skin_map",skinByChild); },[skinByChild,loaded]);
   useEffect(()=>{ if(loaded) save("v6_ac",academies); },[academies,loaded]);
   useEffect(()=>{ if(loaded) save("v6_abs",absences); },[absences,loaded]);
   useEffect(()=>{ if(loaded) save("v6_paid",paidStatus); },[paidStatus,loaded]);
@@ -1141,6 +1775,10 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_cid",childId); },[childId,loaded]);
   useEffect(()=>{ if(loaded) save("v6_vac",vacations); },[vacations,loaded]);
   useEffect(()=>{ if(loaded) save("v6_parent_pin",parentPin); },[parentPin,loaded]);
+  // 엄마모드 비번 안내를 본 것으로 기록 (다음부터 숨김)
+  const markPinHintSeen=()=>{
+    if(!pinHintSeen){ setPinHintSeen(true); save("v6_pin_hint_seen","1"); }
+  };
   useEffect(()=>{ if(loaded) save("v6_score",scoreData); },[scoreData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_reward",rewardData); },[rewardData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_reward_requests",rewardRequests); },[rewardRequests,loaded]);
@@ -1156,10 +1794,6 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_best_streak",bestStreakData); },[bestStreakData,loaded]);
 
   const showToast=(msg="저장됨 ✓")=>{ setToast(msg); setTimeout(()=>setToast(""),1600); };
-  const closeFirstGuide=()=>{
-    save("v6_first_guide_seen",true);
-    setShowFirstGuide(false);
-  };
 
   // 온보딩 완료: 입력값을 실제 데이터에 반영 → 홈 진입 → 코치마크
   const finishOnboarding=(data)=>{
@@ -1207,8 +1841,19 @@ export default function App() {
   };
 
   const showQuestResult=({type="clear",xp=0,title=""})=>{
+    // 미션 클리어는 화면을 가리는 팝업 대신 그 자리에서 이펙트로 피드백 (캐릭터 점프·코인 튀기·떠오르는 숫자)
+    // 미션 실패만 명확한 인지를 위해 팝업으로 안내
+    if(type==="clear") return;
     setQuestResultModal({type,xp,title});
     setTimeout(()=>setQuestResultModal(null),1300);
+  };
+
+  // 완료 순간 화면 중앙에 큰 보상 연출을 띄운다 (스크롤 위치와 무관하게 항상 보임, 아이 모드 전용)
+  const CHEER_MSGS = ["대단해! 🎉","최고야! ⭐","멋지다! 💪","해냈어! 🔥","굿잡! 👍","완벽해! ✨","좋았어! 😆","척척박사! 🧠"];
+  const cheerCharacter=(xp=DEFAULT_HOMEWORK_SCORE)=>{
+    const msg=CHEER_MSGS[Math.floor(Math.random()*CHEER_MSGS.length)];
+    setCharCheer({msg,xp,key:Date.now()});
+    setTimeout(()=>setCharCheer(null),1300);
   };
 
   const enterParentMode=()=>{
@@ -1221,7 +1866,8 @@ export default function App() {
     }
     if(pinInput===parentPin){
       setAppMode("parent"); setShowParentPin(false); setPinInput("");
-      showToast("엄마 모드로 전환됨 🔓");
+      markPinHintSeen();
+      showToast("엄마용으로 전환됨 🔓");
       // 첫 구매요청이 있는데 아직 안내 안 봤으면 1회 안내
       if(!parentRewardGuideSeen){
         const anyPending=Object.values(rewardRequests).some(list=>(list||[]).some(r=>r.status==="pending"));
@@ -1434,6 +2080,7 @@ export default function App() {
     setDailyData({}); setScoreData({}); setRewardData({}); setRewardRequests({});
     setBaseSeededKeys({});
     setPetData({});
+    setSkinByChild({});
     setUnlockedBadgeIds([]); setBadgeData({}); setLastLevelByChild({});
     setSelectedTitles({}); setTreasureData({}); setSeenBadges({}); setSeenTitles({});
     setEarnedTitleIds({});
@@ -1445,17 +2092,23 @@ export default function App() {
 
   const exitParentMode=()=>{
     setAppMode("child"); setPinInput("");
-    showToast("아이 모드로 전환됨 🎒");
-    // 아이모드 첫 진입이면 설명 1회
+    showToast("아이용으로 전환됨 🎒");
+    // 아이모드 첫 진입 흐름: 모드선택 먼저 → (모드 고르면) 코치마크를 그 모드에 맞춰 노출.
+    // 가이드는 봤지만 모드를 아직 안 골랐으면 모드선택만 띄운다.
     (async()=>{
       const seen=await load("v6_kid_guide_seen");
-      if(!seen){ save("v6_kid_guide_seen","1"); setTimeout(()=>setShowKidCoachmark(true),400); }
+      const skinPicked=!!skinByChild[childId];   // 현재 아이가 모드를 골랐는지
+      if(!skinPicked){
+        setTimeout(()=>setShowModeSelect(true),400);      // 모드 먼저 선택 → onPick에서 코치마크 연결
+      } else if(!seen){
+        setTimeout(()=>setShowKidCoachmark(true),400);    // 모드는 골랐는데 가이드 미시청(구버전 사용자)
+      }
     })();
     // 보물상자 있으면 알림
     const treasure=getChildTreasure(childId);
     const total=getTotalTreasureCount(childId);
     if(total>0){
-      setTimeout(()=>showToast(`🎁 보물상자 ${total}개가 기다리고 있어요!`),800);
+      setTimeout(()=>showToast(`${TM.boxEmoji} ${TM.box} ${total}개가 기다리고 있어요!`),800);
     }
   };
 
@@ -1565,6 +2218,7 @@ export default function App() {
       earnedTitleIds,
       baseSeededKeys,
       petData,
+      skinByChild,
       specialTitles,
       bestStreakData,
       vacations,
@@ -1618,6 +2272,7 @@ export default function App() {
         setEarnedTitleIds(data.earnedTitleIds||{});
         setBaseSeededKeys(data.baseSeededKeys||{});
         setPetData(data.petData||{});
+        setSkinByChild(data.skinByChild||{});
         setSpecialTitles(data.specialTitles||{});
         setBestStreakData(data.bestStreakData||{});
         setVacations(data.vacations||{});
@@ -1663,8 +2318,72 @@ export default function App() {
   const getGenderEmoji = (child) => GENDER_THEME[child?.gender]?.emoji || GENDER_THEME.boy.emoji;
 
   const th = getChildTheme(curChild);
+  const T = getSkin(kidSkin).text;       // 현재 아이모드 스킨의 텍스트 세트(던전/베이커리)
+  const TM = getTerms(kidSkin);          // 현재 아이모드 재화/아이콘 용어(던전/베이커리)
+  const _skin = getSkin(kidSkin);
+  const GP = _skin.paletteFn ? _skin.paletteFn(th.main) : _skin.palette;   // 테마색 적용 팔레트(없으면 정적)
+  const ST = _skin.stamp || {on:false};  // 완료 도장(베이커리) 설정
   const thTop = th.lightTop || "#FFFFFF"; // 구버전 테마 폴백
   const CT = makeThemeColors(th.main);   // 현재 테마색에 맞춘 박스색 세트
+  // ── 젤리 스타일 헬퍼 (베이커리 전용) ─────────────────────────
+  // 색은 기존 톤(흰빛+테마 틴트) 유지, 형태만 말랑한 젤리로 통일.
+  const jellyBox = (fallback={}, {radius=22}={}) => kidSkin==="cute"
+    ? { position:"relative", borderRadius:radius,
+        background:`linear-gradient(160deg, ${mixWhite(th.main,0.92)}, ${mixWhite(th.main,0.78)})`,
+        border:"2px solid #fff",
+        boxShadow:`0 10px 24px ${th.main}28, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -7px 14px ${th.main}1c` }
+    : fallback;
+  const jellyChip = (fallback={}, {radius=16}={}) => kidSkin==="cute"
+    ? { borderRadius:radius,
+        background:"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.8))",
+        border:"2px solid #fff",
+        boxShadow:`0 5px 13px ${th.main}28, inset 0 1.5px 3px rgba(255,255,255,0.95)` }
+    : fallback;
+  // 통일된 젤리 진행바 (베이커리). fallbackFill 로 던전/기타 색 유지.
+  // ── 던전 카드 '빛나는' 배경/오버레이 (던전 전용) ───────────
+  // 단조로운 남색 카드에 테마색 글로우 + 대각 광택을 더해 RPG 느낌으로.
+  const dungeonShinyBg = `radial-gradient(120% 90% at 15% 0%, ${th.main}4d 0%, transparent 55%), radial-gradient(110% 80% at 100% 100%, ${mixBlack(th.main,0.1)}55 0%, transparent 50%), linear-gradient(135deg, ${GP.dark}, ${GP.dark2})`;
+  const DungeonCardGlow = ()=> kidSkin==="cute" ? null : (
+    <>
+      {/* 대각 광택 스윕 */}
+      <div style={{position:"absolute",top:0,left:"-30%",width:"55%",height:"100%",background:"linear-gradient(105deg, transparent, rgba(255,255,255,0.10), transparent)",transform:"skewX(-18deg)",pointerEvents:"none",animation:"shineMove 4.5s ease-in-out infinite"}}/>
+      {/* 상단 모서리 골드 글로우 */}
+      <div style={{position:"absolute",top:-30,right:-20,width:120,height:120,borderRadius:"50%",background:`radial-gradient(circle, ${GP.gold}26, transparent 70%)`,pointerEvents:"none"}}/>
+      {/* 미세한 별빛 */}
+      <div style={{position:"absolute",inset:0,pointerEvents:"none",opacity:0.5,backgroundImage:`radial-gradient(1.4px 1.4px at 22% 28%, rgba(255,255,255,0.5), transparent), radial-gradient(1.2px 1.2px at 68% 18%, ${GP.gold}aa, transparent), radial-gradient(1.3px 1.3px at 82% 62%, rgba(255,255,255,0.4), transparent), radial-gradient(1.2px 1.2px at 40% 78%, ${GP.neon}88, transparent)`}}/>
+    </>
+  );
+  const JellyBar = ({percent=0, height=14, fallbackTrack, fallbackFill, fallbackBorder, fallbackGlow})=>{
+    const cute = kidSkin==="cute";
+    const h = cute ? Math.max(height,14) : height;
+    const fill = cute
+      ? `linear-gradient(90deg, ${mixBlack(th.main,0.08)}, ${mixWhite(th.main,0.15)})`
+      : (fallbackFill||`linear-gradient(90deg, ${GP.gold}, ${mixWhite(th.main,0.25)} 55%, ${th.main})`);
+    return (
+      <div style={{height:h,borderRadius:999,overflow:"hidden",position:"relative",
+        background:cute?`${th.main}2b`:(fallbackTrack||"rgba(0,0,0,0.34)"),
+        border:cute?"none":(fallbackBorder||`1px solid ${th.main}55`),
+        boxShadow:cute?`inset 0 2px 5px ${th.main}33`:"inset 0 2px 6px rgba(0,0,0,0.5)"}}>
+        <div style={{width:`${percent}%`,height:"100%",borderRadius:999,position:"relative",overflow:"hidden",
+          background:fill,
+          transition:"width 0.6s cubic-bezier(.34,1.4,.64,1)",
+          boxShadow:cute?"inset 0 2px 3px rgba(255,255,255,0.6)":(fallbackGlow||`0 0 12px ${th.main}, inset 0 1px 2px rgba(255,255,255,0.4)`)}}>
+          {cute
+            ?<div style={{position:"absolute",top:1.5,left:6,right:6,height:4,borderRadius:999,background:"rgba(255,255,255,0.6)"}}/>
+            :<>
+              {/* 상단 하이라이트 줄 */}
+              <div style={{position:"absolute",top:1,left:4,right:4,height:Math.max(2,h*0.3),borderRadius:999,background:"linear-gradient(180deg, rgba(255,255,255,0.5), transparent)"}}/>
+              {/* 에너지 빗살 패턴 (충전 느낌) */}
+              <div style={{position:"absolute",inset:0,opacity:0.45,backgroundImage:"linear-gradient(115deg, rgba(255,255,255,0.35) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.35) 75%, transparent 75%)",backgroundSize:"24px 100%",animation:"barStripeMove 0.7s linear infinite"}}/>
+              {/* 흐르는 광택 */}
+              <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent)",backgroundSize:"40px 100%",animation:"gaugeShine 1.1s linear infinite"}}/>
+              {/* 진행 끝 펄스 발광 */}
+              {percent>3&&percent<100&&<div style={{position:"absolute",top:-1,bottom:-1,right:0,width:Math.max(7,h*0.8),background:"#fff",filter:"blur(3.5px)",animation:"barPulse 1.3s ease-in-out infinite"}}/>}
+            </>}
+        </div>
+      </div>
+    );
+  };
   // 테마 연동 카드 스타일 (상단도 살짝 테마톤 → light로 자연스러운 계단, 톤 점프 완화)
   const gameCardT = {
     ...gameCard,
@@ -1672,12 +2391,21 @@ export default function App() {
     border:`1px solid ${th.main}22`,
     boxShadow:`0 8px 24px ${th.main}14`
   };
-  const characterCardT = {
-    ...CHARACTER_CARD,
-    background:`linear-gradient(180deg, ${thTop} 0%, ${th.light} 100%)`,
-    border:`1px solid ${th.main}22`,
-    boxShadow:`0 8px 24px ${th.main}14`
-  };
+  const characterCardT = kidSkin==="cute"
+    ? {
+        ...CHARACTER_CARD,
+        position:"relative",
+        borderRadius:28,
+        background:`linear-gradient(160deg, ${mixWhite(th.main,0.92)}, ${mixWhite(th.main,0.78)})`,
+        border:"2px solid #fff",
+        boxShadow:`0 12px 26px ${th.main}30, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -7px 15px ${th.main}1f`
+      }
+    : {
+        ...CHARACTER_CARD,
+        background:`linear-gradient(180deg, ${thTop} 0%, ${th.light} 100%)`,
+        border:`1px solid ${th.main}22`,
+        boxShadow:`0 8px 24px ${th.main}14`
+      };
   const curAc = academies[childId]||[];
   const curAbs = absences[childId]||[];
   const totalFee=(cid)=>(academies[cid]||[]).reduce((s,a)=>s+Number(a.fee||0),0);
@@ -1773,36 +2501,41 @@ export default function App() {
   };
 
   const getQuestStatus=(item)=>{
-    if(item.done) return {label:UI_TEXT.status.clear,emoji:"✅",color:C.green,bg:`${C.green}12`};
-    if(item.failed) return {label:UI_TEXT.status.failed,emoji:"❌",color:C.red,bg:`${C.red}10`};
-    return {label:UI_TEXT.status.ready,emoji:"⚔️",color:C.orange,bg:`${C.orange}12`};
+    if(item.done) return {label:T.clear,emoji:"✅",color:C.green,bg:`${C.green}12`};
+    if(item.failed) return {label:T.failed,emoji:"❌",color:C.red,bg:`${C.red}10`};
+    return {label:T.ready,emoji:T.readyEmoji||"⚔️",color:C.orange,bg:`${C.orange}12`};
   };
 
   const getQuestRewardText=(item)=>{
     const point=item.point||DEFAULT_HOMEWORK_SCORE;
-    return `⭐ +${point} XP  ·  💎 +${point} 코인`;
+    return `${TM.xpEmoji} +${point} ${TM.xp}  ·  ${TM.coinEmoji} +${point} ${TM.coin}`;
   };
 
   const getAdventureLogInfo=(item)=>{
-    switch(item.type){
-      case "homework":
-      case "todo":
-      case "quest":   return {icon:"⚔️",title:"미션 클리어"};
-      case "treasure":return {icon:"🎁",title:"보물상자 오픈"};
-      case "reward":  return {icon:"🛒",title:"아이템 구매"};
-      case "level_bonus": return {icon:"✨",title:"레벨업 보너스"};
-      case "badge_reward": return {icon:"🏆",title:"업적 보상"};
-      case "manual":  return {icon:"✍️",title:"엄마 XP 조정"};
-      default:        return {icon:"📜",title:"모험 기록"};
+    const L = T.log;
+    if(!L) {
+      // 안전망(구버전 스킨): 기존 던전 라벨
+      switch(item.type){
+        case "homework": case "todo": case "quest": return {icon:"⚔️",title:"미션 클리어"};
+        case "treasure": return {icon:"🎁",title:"보물상자 오픈"};
+        case "reward":   return {icon:"🛒",title:"아이템 구매"};
+        case "level_bonus": return {icon:"✨",title:"레벨업 보너스"};
+        case "badge_reward": return {icon:"🏆",title:"업적 보상"};
+        case "manual":   return {icon:"✍️",title:"엄마 XP 조정"};
+        default:         return {icon:"📜",title:"모험 기록"};
+      }
     }
+    const key = (item.type==="homework"||item.type==="todo") ? "quest" : item.type;
+    return L[key] || L.default;
   };
 
-  const getDungeonMessage=(percent,total)=>{
-    if(total===0) return "오늘은 쉬어가는 날이야 😴";
-    if(percent===0) return "오늘의 모험을 시작해볼까?";
-    if(percent<50) return "아직 미션이 남아있어!";
-    if(percent<100) return "거의 다 왔어!";
-    return "오늘 미션 클리어 완료!";
+  const getProgressMessage=(percent,total)=>{
+    const p = T.progress;
+    if(total===0) return p.rest;
+    if(percent===0) return p.start;
+    if(percent<50) return p.low;
+    if(percent<100) return p.high;
+    return p.done;
   };
 
   const getAchievementCount=(cid)=>getUnlockedBadges(cid).length;
@@ -1919,12 +2652,12 @@ export default function App() {
   const getAllTitles=(cid)=>{
     const owned=specialTitles[cid]||[];
     const legendUnlocked=LEGENDARY_TITLES.filter(t=>owned.includes(t.id));
-    return [...DEFAULT_TITLES,...legendUnlocked];
+    return [...DEFAULT_TITLES,...legendUnlocked].map(t=>titleView(t,kidSkin));
   };
   const getUnlockedTitles=(cid)=>getAllTitles(cid).filter(t=>isTitleUnlocked(cid,t.id));
   const getSelectedTitle=(cid)=>{
     const selectedId=selectedTitles[cid]||"rookie";
-    return getAllTitles(cid).find(t=>t.id===selectedId)||DEFAULT_TITLES[0];
+    return getAllTitles(cid).find(t=>t.id===selectedId)||titleView(DEFAULT_TITLES[0],kidSkin);
   };
   const selectTitle=(titleId)=>{
     if(!isTitleUnlocked(childId,titleId)){ showToast("아직 잠긴 칭호예요 🔒"); return; }
@@ -1940,7 +2673,7 @@ export default function App() {
 
   const getChildTreasure=(cid)=>treasureData[cid]||{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0};
   const getPetStage=(cid)=>Math.max(0,Math.min(PET_STAGES.length-1,Number(petData[cid]??0)));
-  const getPet=(cid)=>PET_STAGES[getPetStage(cid)];
+  const getPet=(cid)=>{ const st=getPetStage(cid); return petView(PET_STAGES[st],st,kidSkin); };
 
   const getQuestTreasureKey=(kind,academyId,date,questId)=>{
     return `${kind}-${academyId}-${date}-${questId}`;
@@ -1991,18 +2724,15 @@ export default function App() {
 
     // 상자를 받았으면 가운데 팝업으로 크게 알림 (레벨업·업적과 같은 큐)
     if(earned){
-      const info=earned==="legend"
-        ? {emoji:"👑",name:"전설상자",desc:`미션 ${nextCount}개 달성 보상이에요!`}
-        : earned==="rare"
-          ? {emoji:"🎁",name:"희귀상자",desc:`미션 ${nextCount}개 달성 보상이에요!`}
-          : {emoji:"📦",name:"일반상자",desc:`미션 ${nextCount}개 달성 보상이에요!`};
+      const bi=getBoxInfo(earned,kidSkin);
+      const info={emoji:bi.emoji,name:bi.name,desc:`미션 ${nextCount}개 달성 보상이에요!`};
       showGameEvent({
         type:"box",
         emoji:info.emoji,
-        title:"보물상자 획득!",
+        title:kidSkin==="cute"?`새 ${TM.box} 획득!`:"보물상자 획득!",
         name:info.name,
         desc:info.desc,
-        reward:"🎁 보물창고에서 열어보세요"
+        reward:`${TM.bookEmoji} ${TM.book}에서 열어보세요`
       });
     }
   };
@@ -2011,7 +2741,7 @@ export default function App() {
     const cur=getChildTreasure(childId);
     const boxKey=boxType==="legend"?"legendBox":boxType==="rare"?"rareBox":"normalBox";
     if(Number(cur[boxKey]||0)<=0){ showToast("열 수 있는 상자가 없어요"); return; }
-    const rewardInfo=TREASURE_REWARD_TABLE[boxType]||TREASURE_REWARD_TABLE.normal;
+    const rewardInfo=getBoxInfo(boxType,kidSkin);
     const rewardCoin=getRandomTreasureCoin(boxType);
     const boxName=rewardInfo.name;
     const emoji=rewardInfo.emoji;
@@ -2027,14 +2757,29 @@ export default function App() {
       const pity=Number(cur.legendPity||0)+1; // 이번 오픈 포함 미획득 연속 횟수
       const hit=availableNow.length>0 && (Math.random()<0.20 || pity>=5);
       if(hit){
-        const roll=Math.random(); // 후보 선택용 난수(콜백 안에서 최신 풀에 적용)
+        // 후보를 동기적으로 먼저 선택 (dropResult를 같은 턴에 안전하게 읽기 위함)
+        const pickedNow=availableNow[Math.floor(Math.random()*availableNow.length)];
         setSpecialTitles(prev=>{
           const owned=prev[childId]||[];
-          const available=LEGENDARY_TITLES.filter(t=>!owned.includes(t.id));
-          if(available.length===0) return prev; // 직전 오픈으로 이미 다 채워짐 → 드롭 취소
-          const picked=available[Math.floor(roll*available.length)];
-          dropResult.title=picked;
-          return {...prev,[childId]:[...owned,picked.id]};
+          // 연타로 빠르게 열어 이미 보유했으면 중복 추가하지 않음
+          if(owned.includes(pickedNow.id)) return prev;
+          return {...prev,[childId]:[...owned,pickedNow.id]};
+        });
+        dropResult.title=pickedNow;
+      }
+      // 칭호 획득 팝업 중복 방지: 상자 결과 모달이 칭호를 함께 보여주므로
+      // 칭호 감지 useEffect가 같은 칭호로 팝업을 다시 띄우지 않도록 '본 칭호'로 미리 등록
+      if(dropResult.title){
+        const picked=dropResult.title;
+        setSeenTitles(sp=>{
+          const seen=sp[childId]||[];
+          if(seen.includes(picked.id)) return sp;
+          return {...sp,[childId]:[...seen,picked.id]};
+        });
+        setEarnedTitleIds(ep=>{
+          const curIds=ep[childId]||[];
+          if(curIds.includes(picked.id)) return ep;
+          return {...ep,[childId]:[...curIds,picked.id]};
         });
       }
       // 천장 카운트: 실제 드롭 성공 여부에 맞춰 보정 (성공=0, 미획득=누적)
@@ -2048,7 +2793,7 @@ export default function App() {
     const curStage=Math.max(0,Math.min(PET_STAGES.length-1,Number(petData[childId]??0)));
     if(curStage<PET_STAGES.length-1 && Math.random()<(PET_EVOLVE_CHANCE[boxType]||0)){
       const nextStage=curStage+1;
-      petEvolved={ from:PET_STAGES[curStage], to:PET_STAGES[nextStage] };
+      petEvolved={ from:petView(PET_STAGES[curStage],curStage,kidSkin), to:petView(PET_STAGES[nextStage],nextStage,kidSkin) };
       setPetData(prev=>({...prev,[childId]:nextStage}));
     }
     setScoreData(prev=>{
@@ -2069,10 +2814,10 @@ export default function App() {
         setTimeout(()=>showGameEvent({
           type:"title",
           emoji:petEvolved.to.emoji,
-          title:"펫 진화!",
+          title:kidSkin==="cute"?"친구가 자랐어요!":"펫 진화!",
           name:petEvolved.to.name,
           desc:petEvolved.to.desc,
-          reward:`${petEvolved.from.emoji} → ${petEvolved.to.emoji} 펫이 성장했어요!`
+          reward:`${petEvolved.from.emoji} → ${petEvolved.to.emoji} ${kidSkin==="cute"?"친구가 한 단계 자랐어요!":"펫이 성장했어요!"}`
         }),500);
       }
     },1200);
@@ -2132,21 +2877,22 @@ export default function App() {
     }
 
     // 통과한 각 레벨마다 팝업 (낮은 레벨 → 높은 레벨 순)
-    let prevName=beforeLevel.name;
+    let prevName=levelView(beforeLevel,kidSkin).name;
     passedLevels.forEach(L=>{
+      const LV=levelView(L,kidSkin);
       const bonus=LEVEL_UP_REWARDS?.[L.level]||0;
       const desc=LEVEL_DESCRIPTION[L.level]
         ? LEVEL_DESCRIPTION[L.level]
-        : `${prevName}에서 ${L.name}으로 성장했어요!`;
+        : `${prevName}에서 ${LV.name}으로 성장했어요!`;
       showGameEvent({
         type:"level",
-        emoji:L.emoji||"🎉",
+        emoji:LV.emoji||"🎉",
         title:"레벨업!",
-        name:`Lv.${L.level} ${L.name}`,
+        name:`Lv.${LV.level} ${LV.name}`,
         desc,
-        reward:bonus>0?`🎁 레벨업 보너스\n⭐ +${bonus} XP · 💎 +${bonus} 코인`:"새로운 레벨 달성!"
+        reward:bonus>0?`🎁 레벨업 보너스\n${TM.xpEmoji} +${bonus} ${TM.xp} · ${TM.coinEmoji} +${bonus} ${TM.coin}`:"새로운 레벨 달성!"
       });
-      prevName=L.name;
+      prevName=LV.name;
     });
   };
 
@@ -2171,10 +2917,10 @@ export default function App() {
     if(item.type==="reward") return "보상샵 구매";
     if(item.type==="homework") return item.point>=0?"미션 완료":"미션 체크 취소";
     if(item.type==="todo") return item.point>=0?"미션 완료":"미션 체크 취소";
-    if(item.type==="manual") return "엄마 XP 조정";
-    if(item.type==="treasure") return "보물상자 획득";
+    if(item.type==="manual") return kidSkin==="cute"?`엄마 ${TM.xp} 조정`:"엄마 XP 조정";
+    if(item.type==="treasure") return kidSkin==="cute"?`${TM.box} 획득`:"보물상자 획득";
     if(item.type==="level_bonus") return "레벨업 보너스";
-    return "XP 변동";
+    return kidSkin==="cute"?`${TM.xp} 변동`:"XP 변동";
   };
 
   const getScoreHistoryAmountText=(item)=>{
@@ -2182,7 +2928,7 @@ export default function App() {
     return `${Math.abs(item.xp??item.point)} ⭐XP`;
   };
 
-  const getChildBadges=(cid)=>[...DEFAULT_BADGES,...(badgeData[cid]||[])];
+  const getChildBadges=(cid)=>[...DEFAULT_BADGES.map(b=>badgeView(b,kidSkin)),...(badgeData[cid]||[])];
 
   const addBadge=()=>{
     if(!badgeForm.title.trim()){ showToast("업적 이름을 입력해줘"); return; }
@@ -2372,7 +3118,7 @@ export default function App() {
         name:unseen.title,
         desc:unseen.desc||"새로운 업적을 달성했어요!",
         reward:willPayReward
-          ? `🏆 업적 도감 등록\n⭐ +${badgeReward.xp} XP · 💎 +${badgeReward.coin} 코인`
+          ? `🏆 업적 도감 등록\n${TM.xpEmoji} +${badgeReward.xp} ${TM.xp} · ${TM.coinEmoji} +${badgeReward.coin} ${TM.coin}`
           : `🏆 업적 도감 등록`
       });
     } else {
@@ -2421,11 +3167,13 @@ export default function App() {
 
   const getChildLevel=(cid)=>{
     const score=getChildXP(cid);
-    return [...DEFAULT_LEVELS].sort((a,b)=>b.minScore-a.minScore).find(lv=>score>=lv.minScore)||DEFAULT_LEVELS[0];
+    const lv=[...DEFAULT_LEVELS].sort((a,b)=>b.minScore-a.minScore).find(lv=>score>=lv.minScore)||DEFAULT_LEVELS[0];
+    return levelView(lv,kidSkin);
   };
   const getNextLevel=(cid)=>{
     const score=getChildXP(cid);
-    return [...DEFAULT_LEVELS].sort((a,b)=>a.minScore-b.minScore).find(lv=>score<lv.minScore)||null;
+    const lv=[...DEFAULT_LEVELS].sort((a,b)=>a.minScore-b.minScore).find(lv=>score<lv.minScore)||null;
+    return levelView(lv,kidSkin);
   };
   const getLevelProgress=(cid)=>{
     const score=getChildXP(cid);
@@ -2441,7 +3189,9 @@ export default function App() {
 
   const getCharacterEvolution=(cid)=>{
     const level=getChildLevel(cid).level;
-    return [...CHARACTER_EVOLUTIONS].sort((a,b)=>b.minLevel-a.minLevel).find(e=>level>=e.minLevel)||CHARACTER_EVOLUTIONS[0];
+    const evo=[...CHARACTER_EVOLUTIONS].sort((a,b)=>b.minLevel-a.minLevel).find(e=>level>=e.minLevel)||CHARACTER_EVOLUTIONS[0];
+    const idx=CHARACTER_EVOLUTIONS.findIndex(e=>e.minLevel===evo.minLevel);
+    return evoView(evo,idx<0?0:idx,kidSkin);
   };
   const getCharacterAvatar=(cid)=>{
     const child=children.find(c=>c.id===cid);
@@ -2455,7 +3205,7 @@ export default function App() {
 
   const requestReward=(reward)=>{
     const coin=getChildCoin(childId);
-    if(coin<reward.point){ showToast("보유 코인이 부족해요 💎"); return; }
+    if(coin<reward.point){ showToast(`보유 ${TM.coin}이 부족해요 ${TM.coinEmoji}`); return; }
     if(hasPendingRewardRequest(childId,reward.id)){ showToast("이미 요청한 보상이에요"); return; }
     const newRequest={id:Date.now(),rewardId:reward.id,title:reward.title,point:reward.point,emoji:reward.emoji,status:"pending",requestedAt:new Date().toISOString()};
     setRewardRequests(prev=>({...prev,[childId]:[...getChildRewardRequests(childId),newRequest]}));
@@ -2464,7 +3214,7 @@ export default function App() {
   const approveRewardRequest=(requestId)=>{
     const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
     if(!request) return;
-    if(getChildCoin(childId)<request.point){ showToast("보유 코인이 부족해서 승인할 수 없어요"); return; }
+    if(getChildCoin(childId)<request.point){ showToast(`보유 ${TM.coin}이 부족해서 승인할 수 없어요`); return; }
     spendCoin(childId,request.point,`${request.title} 구매 승인`);
     setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"approved",approvedAt:new Date().toISOString()}:r)}));
     showToast("구매 승인 완료! 🎉");
@@ -2599,8 +3349,9 @@ export default function App() {
         getQuestTreasureKey("homework",academyId,date,homeworkId)
       );
       showQuestResult({type:"clear",xp:point,title:target.text});
+      if(appMode==="child") cheerCharacter(point);
     } else {
-      showToast(`체크 취소 -${point} XP / -${point} 코인`);
+      showToast(`체크 취소 -${point} ${TM.xp} / -${point} ${TM.coin}`);
     }
   };
 
@@ -2622,8 +3373,9 @@ export default function App() {
         getQuestTreasureKey("todo",academyId,date,todoId)
       );
       showQuestResult({type:"clear",xp:point,title:target.text});
+      if(appMode==="child") cheerCharacter(point);
     } else {
-      showToast(`체크 취소 -${point} XP / -${point} 코인`);
+      showToast(`체크 취소 -${point} ${TM.xp} / -${point} ${TM.coin}`);
     }
   };
 
@@ -2758,7 +3510,7 @@ export default function App() {
   // 공통 스타일
   const inp={ width:"100%",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"12px 14px",color:C.text,fontSize:17,outline:"none",fontFamily:"inherit" };
   const lbl={ fontSize:17,color:C.sub,display:"block",marginBottom:7,fontWeight:700 };
-  const gamePrimaryButton={width:"100%",padding:"12px",borderRadius:13,border:"none",background:`linear-gradient(135deg, ${GAME.gold}, ${GAME.neon})`,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer",boxShadow:`0 4px 14px ${GAME.neon}30`};
+  const gamePrimaryButton={width:"100%",padding:"12px",borderRadius:13,border:"none",background:`linear-gradient(135deg, ${GP.gold}, ${GP.neon})`,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer",boxShadow:`0 4px 14px ${GP.neon}30`};
   const gameGhostButton={padding:"8px 11px",borderRadius:11,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:12,fontWeight:900,cursor:"pointer"};
   const devBtn=(bg)=>({width:"100%",border:"none",borderRadius:12,padding:"13px",background:bg,color:"#fff",fontSize:14,fontWeight:900,cursor:"pointer"});
   const devMiniBtn=(bg)=>({border:"none",borderRadius:10,padding:"10px 8px",background:bg,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer"});
@@ -2798,45 +3550,56 @@ export default function App() {
             const treasureCount=getTotalTreasureCount(childId);
             return (
               <>
-              <div style={{background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,borderRadius:20,padding:"16px",boxShadow:`0 8px 24px ${th.main}30`,color:"#fff",marginBottom:12}}>
+              <div style={kidSkin==="cute"
+                ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,borderRadius:34,padding:"16px",boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,color:GP.boxText,border:"2px solid #fff",marginBottom:12,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
+                :{position:"relative",overflow:"hidden",background:dungeonShinyBg,borderRadius:GP.radCard,padding:"16px",boxShadow:`0 10px 28px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.08)`,color:GP.boxText,border:`1px solid ${th.main}55`,marginBottom:12}}>
+                {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"42%",background:"linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
+                <DungeonCardGlow/>
                 {/* 레벨 + 칭호 + 아바타 */}
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:13}}>
-                  <div>
-                    <p style={{fontSize:11,fontWeight:900,letterSpacing:1.3,opacity:0.72,margin:"0 0 4px"}}>{UI_TEXT.section.heroStatus}</p>
-                    <p style={{fontSize:20,fontWeight:900,margin:"0 0 5px",color:"#fff"}}>{level.emoji} Lv.{level.level} {level.name}</p>
-                    <p style={{display:"inline-block",fontSize:13,fontWeight:900,color:GAME.gold,background:"rgba(0,0,0,0.24)",border:"1px solid rgba(255,209,102,0.35)",borderRadius:20,padding:"4px 10px",margin:0}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:kidSkin==="cute"?"center":"flex-start",marginBottom:14,position:"relative",zIndex:1}}>
+                  <div style={{minWidth:0,flex:1,paddingRight:10}}>
+                    {kidSkin==="cute"
+                      ?<>
+                        <p style={{fontSize:14,fontWeight:900,margin:"0 0 2px",color:GP.boxSub,letterSpacing:0.3}}>{level.emoji} Lv.{level.level}</p>
+                        <p style={{fontSize:20,fontWeight:900,margin:"0 0 8px",color:GP.boxText,lineHeight:1.2,wordBreak:"keep-all"}}>{level.name}</p>
+                      </>
+                      :<>
+                        <p style={{fontSize:11,fontWeight:900,letterSpacing:1.3,opacity:0.72,margin:"0 0 4px",color:GP.boxSub}}>{T.heroStatus}</p>
+                        <p style={{fontSize:20,fontWeight:900,margin:"0 0 5px",color:GP.boxText}}>{level.emoji} Lv.{level.level} {level.name}</p>
+                      </>}
+                    <p style={{display:"inline-block",...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:20},{radius:20}),fontSize:13,fontWeight:900,color:kidSkin==="cute"?GP.dark2:GP.boxText,padding:"4px 10px",margin:0,maxWidth:"100%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                       {title.emoji} {title.name}
                     </p>
                   </div>
-                  <div style={{display:"flex",alignItems:"flex-end",gap:6,flexShrink:0,marginTop:8,marginRight:6}}>
-                    <div style={{position:"relative",width:66,height:66,borderRadius:20,background:evo.bg,border:"1.5px solid rgba(255,255,255,0.45)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:40,boxShadow:"0 6px 18px rgba(0,0,0,0.16)"}}>
+                  <div style={{display:"flex",alignItems:"flex-end",gap:6,flexShrink:0,marginRight:kidSkin==="cute"?2:6,marginTop:kidSkin==="cute"?0:8}}>
+                    <div style={{position:"relative",width:66,height:66,borderRadius:20,background:evo.bg,border:`1.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:40,boxShadow:"0 6px 18px rgba(0,0,0,0.16)"}}>
                       <span style={{display:"block",transform:"translateY(1px)",lineHeight:1}}>{getCharacterAvatar(childId)}</span>
-                      <span style={{position:"absolute",right:-5,bottom:-5,width:25,height:25,borderRadius:"50%",background:"#fff",border:`2px solid ${GAME.gold}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,boxShadow:"0 3px 8px rgba(0,0,0,0.18)"}}>{level.emoji}</span>
+                      <span style={{position:"absolute",right:-5,bottom:-5,width:25,height:25,borderRadius:"50%",background:"#fff",border:`2px solid ${GP.gold}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,boxShadow:"0 3px 8px rgba(0,0,0,0.18)"}}>{level.emoji}</span>
                     </div>
                     {(()=>{
                       const pet=getPet(childId);
                       return (
                         <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,marginBottom:2}} title={pet.name}>
-                          <div style={{width:36,height:36,borderRadius:14,background:"rgba(255,255,255,0.16)",border:"1.5px solid rgba(255,255,255,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>{pet.emoji}</div>
-                          <span style={{fontSize:11.5,fontWeight:800,opacity:0.7}}>펫</span>
+                          <div style={{width:36,height:36,borderRadius:14,background:GP.chipBg,border:`1.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>{pet.emoji}</div>
+                          <span style={{fontSize:11.5,fontWeight:800,opacity:0.7}}>{kidSkin==="cute"?"친구":"펫"}</span>
                         </div>
                       );
                     })()}
                   </div>
                 </div>
-                {/* 코인 + XP (가장 중요) */}
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginTop:14,marginBottom:6}}>
-                  <div style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.16)",borderRadius:14,padding:"8px 11px",display:"flex",alignItems:"center",gap:8}}>
-                    <span style={{fontSize:20}}>💎</span>
+                {/* 코인/쿠키 + XP/경험치 (가장 중요) */}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginTop:14,marginBottom:6,position:"relative",zIndex:1}}>
+                  <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.8))":(GP.innerBg||GP.chipBg),border:kidSkin==="cute"?"2px solid #fff":`1px solid ${GP.innerBorder||GP.chipBorder}`,borderRadius:kidSkin==="cute"?16:14,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}28, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
+                    <span style={{fontSize:20}}>{TM.coinEmoji}</span>
                     <div style={{minWidth:0}}>
-                      <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>{UI_TEXT.label.coin}</p>
+                      <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>보유 {TM.coin}</p>
                       <p style={{fontSize:17,fontWeight:900,margin:"1px 0 0",lineHeight:1}}>{coin}</p>
                     </div>
                   </div>
-                  <div style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.16)",borderRadius:14,padding:"8px 11px",display:"flex",alignItems:"center",gap:8}}>
-                    <span style={{fontSize:20}}>⭐</span>
+                  <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.8))":(GP.innerBg||GP.chipBg),border:kidSkin==="cute"?"2px solid #fff":`1px solid ${GP.innerBorder||GP.chipBorder}`,borderRadius:kidSkin==="cute"?16:14,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}28, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
+                    <span style={{fontSize:20}}>{TM.xpEmoji}</span>
                     <div style={{minWidth:0}}>
-                      <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>누적 XP</p>
+                      <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>누적 {TM.xp}</p>
                       <p style={{fontSize:17,fontWeight:900,margin:"1px 0 0",lineHeight:1}}>{xp}</p>
                     </div>
                   </div>
@@ -2846,26 +3609,24 @@ export default function App() {
                   <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",marginBottom:6}}>
                     <span style={{fontSize:11,fontWeight:900,opacity:0.86}}>{nextLevel?`${progress.currentXp}/${progress.needXp}`:"MAX LEVEL"}</span>
                   </div>
-                  <div style={{height:13,background:"rgba(255,255,255,0.18)",borderRadius:999,overflow:"hidden"}}>
-                    <div style={{width:`${progress.percent}%`,height:"100%",borderRadius:999,background:`linear-gradient(90deg, ${GAME.gold}, ${GAME.green})`,transition:"width 0.25s"}}/>
-                  </div>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6,fontSize:11.5,fontWeight:800,opacity:0.88}}>
-                    <span>{nextLevel?<>다음 레벨 : {nextLevel.emoji} Lv.{nextLevel.level} {nextLevel.name}</>:"🏆 최고 레벨 달성!"}</span>
-                    <span style={{opacity:0.78}}>{nextLevel?`${progress.remainXp} XP 남음`:""}</span>
+                  <JellyBar percent={progress.percent} height={14} />
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginTop:6,fontSize:11.5,fontWeight:800,opacity:0.88}}>
+                    <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nextLevel?<>다음 레벨 : {nextLevel.emoji} Lv.{nextLevel.level} {nextLevel.name}</>:"🏆 최고 레벨 달성!"}</span>
+                    <span style={{opacity:0.78,flexShrink:0}}>{nextLevel?`${progress.remainXp} ${TM.xp} 남음`:""}</span>
                   </div>
                 </div>
               </div>
               {/* 나머지 정보 - 칸 밖 */}
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>
                 {[
-                  {icon:"🎁",label:UI_TEXT.label.box,value:treasureCount},
+                  {icon:TM.boxEmoji,label:TM.box,value:treasureCount},
                   {icon:"🏅",label:"업적",value:getUnlockedBadges(childId).length},
                   {icon:"🏆",label:"연속달성 최고기록",value:`${getBestStreak(childId)}일`},
                 ].map((s,i)=>(
-                  <div key={i} style={{background:`${th.main}2E`,border:`1.5px solid ${th.main}59`,borderRadius:14,padding:"10px 5px",textAlign:"center"}}>
+                  <div key={i} style={{...jellyChip({background:GP.innerBg||`${th.main}2E`,border:`1.5px solid ${GP.innerBorder||th.main+"59"}`,borderRadius:14}),padding:"10px 5px",textAlign:"center"}}>
                     <p style={{fontSize:17,margin:0}}>{s.icon}</p>
-                    <p style={{fontSize:15,fontWeight:900,margin:"2px 0 0",color:th.main}}>{s.value}</p>
-                    <p style={{fontSize:11,fontWeight:800,color:C.sub,margin:"1px 0 0",lineHeight:1.25}}>{s.label}</p>
+                    <p style={{fontSize:15,fontWeight:900,margin:"2px 0 0",color:GP.innerText||th.main}}>{s.value}</p>
+                    <p style={{fontSize:11,fontWeight:800,color:GP.innerText?GP.boxSub:C.sub,margin:"1px 0 0",lineHeight:1.25}}>{s.label}</p>
                   </div>
                 ))}
               </div>
@@ -2873,10 +3634,10 @@ export default function App() {
             );
     })();
     return (
-      <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden"}}>
+      <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`),backgroundSize:GP.appPattern?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden"}}>
         {/* 말랑한 배경 블롭 */}
         <div style={{position:"absolute",top:-40,right:-50,width:170,height:170,borderRadius:"50%",background:`radial-gradient(circle at 35% 35%, ${th.main}26, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 11s ease-in-out infinite",pointerEvents:"none",zIndex:0}}/>
-        <div style={{position:"absolute",top:240,left:-60,width:150,height:150,borderRadius:"50%",background:`radial-gradient(circle at 50% 50%, ${GAME.gold}24, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 14s ease-in-out infinite 1.5s",pointerEvents:"none",zIndex:0}}/>
+        <div style={{position:"absolute",top:240,left:-60,width:150,height:150,borderRadius:"50%",background:`radial-gradient(circle at 50% 50%, ${GP.gold}24, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 14s ease-in-out infinite 1.5s",pointerEvents:"none",zIndex:0}}/>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
         <style dangerouslySetInnerHTML={{__html:`
           @keyframes boxBounce{0%{transform:scale(1) rotate(-3deg)}40%{transform:scale(1.18) rotate(3deg)}70%{transform:scale(1.08) rotate(-2deg)}100%{transform:scale(1) rotate(0deg)}}
@@ -2887,6 +3648,15 @@ export default function App() {
           /* ── 말랑(젤리) 모션 ── */
           @keyframes jellyIn{0%{transform:scale(0.5);opacity:0}55%{transform:scale(1.15)}75%{transform:scale(0.94)}100%{transform:scale(1);opacity:1}}
           @keyframes checkPop{0%{transform:scale(0)}45%{transform:scale(1.45)}68%{transform:scale(0.85)}84%{transform:scale(1.1)}100%{transform:scale(1)}}
+          /* ── 도장 찍기(베이커리) ── */
+          @keyframes stampDrop{
+            0%{transform:translateY(-22px) scale(2.1) rotate(-14deg);opacity:0}
+            55%{transform:translateY(0) scale(0.82) rotate(-8deg);opacity:1}
+            70%{transform:translateY(0) scale(1.12) rotate(-11deg)}
+            85%{transform:translateY(0) scale(0.96) rotate(-9deg)}
+            100%{transform:translateY(0) scale(1) rotate(-10deg);opacity:1}
+          }
+          @keyframes stampInk{0%{box-shadow:0 0 0 0 rgba(214,69,90,0.5)}100%{box-shadow:0 0 0 14px rgba(214,69,90,0)}}
           @keyframes squishCard{0%{transform:scale(1)}30%{transform:scale(1.04,0.96)}55%{transform:scale(0.97,1.03)}78%{transform:scale(1.01,0.99)}100%{transform:scale(1)}}
           @keyframes burstPop{0%{transform:translate(0,0) scale(0.2);opacity:1}100%{transform:translate(var(--bx),var(--by)) scale(1.1);opacity:0}}
           @keyframes floatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
@@ -2895,41 +3665,52 @@ export default function App() {
           @keyframes barStripe{0%{background-position:0 0}100%{background-position:28px 0}}
           @keyframes popInUp{0%{transform:translateY(14px) scale(0.96);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
           @keyframes tabBounce{0%{transform:scale(1)}40%{transform:scale(1.12)}70%{transform:scale(0.96)}100%{transform:scale(1)}}
+          /* ── 즉각 피드백 모션 ── */
+          @keyframes floatUpFade{0%{transform:translate(-50%,0) scale(0.7);opacity:0}20%{transform:translate(-50%,-10px) scale(1.15);opacity:1}100%{transform:translate(-50%,-58px) scale(1);opacity:0}}
+          @keyframes coinPop{0%{transform:translate(-50%,-50%) translate(0,0) scale(0.3) rotate(0deg);opacity:1}100%{transform:translate(-50%,-50%) translate(var(--cx),var(--cy)) scale(1.1) rotate(var(--cr));opacity:0}}
+          @keyframes charJump{0%{transform:translateY(0) scale(1)}25%{transform:translateY(-16px) scale(1.12,0.92)}45%{transform:translateY(-22px) scale(0.94,1.08)}65%{transform:translateY(0) scale(1.08,0.92)}82%{transform:translateY(0) scale(0.98,1.02)}100%{transform:translateY(0) scale(1)}}
+          @keyframes bubblePop{0%{transform:translateX(-50%) scale(0);opacity:0}20%{transform:translateX(-50%) scale(1.15);opacity:1}80%{transform:translateX(-50%) scale(1);opacity:1}100%{transform:translateX(-50%) scale(0.9);opacity:0}}
+          @keyframes gaugeShine{0%{background-position:0 0}100%{background-position:32px 0}}
+          @keyframes barPulse{0%,100%{opacity:0.55}50%{opacity:1}}
+          @keyframes barStripeMove{0%{background-position:0 0}100%{background-position:24px 0}}
+          /* ── 중앙 보상 연출 ── */
+          @keyframes cheerTextIn{0%{transform:scale(0.3);opacity:0}40%{transform:scale(1.25);opacity:1}60%{transform:scale(0.92)}80%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+          @keyframes cheerTextOut{0%{opacity:1}100%{opacity:0;transform:scale(0.9) translateY(-10px)}}
+          @keyframes bigCoinBurst{0%{transform:translate(-50%,-50%) scale(0.4);opacity:1}100%{transform:translate(calc(-50% + var(--bcx)),calc(-50% + var(--bcy))) scale(1.2) rotate(var(--bcr));opacity:0}}
           .jelly-tap{transition:transform .12s cubic-bezier(.34,1.56,.64,1)}
           .jelly-tap:active{transform:scale(0.9)}
         `}}/>
         {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
 
-        {showFirstGuide&&(
-          <GuideModal type="first" th={th} onClose={closeFirstGuide} />
-        )}
-
         {showKidCoachmark&&(
-          <KidCoachmark th={th} onFinish={()=>setShowKidCoachmark(false)} />
+          <KidCoachmark th={th} skin={kidSkin} onFinish={()=>{ setShowKidCoachmark(false); save("v6_kid_guide_seen","1"); }} />
+        )}
+        {showModeSelect&&(
+          <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임 시작!":"⚔️ 던전 게임 시작!"); load("v6_kid_guide_seen").then(seen=>{ if(!seen) setTimeout(()=>setShowKidCoachmark(true),350); }); }} />
         )}
 
-        {/* 아이 모드 헤더 - RPG 상태창 */}
-        <div style={{position:"relative",zIndex:1,background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,padding:"18px 18px 20px",color:"#fff",borderRadius:"0 0 32px 32px",boxShadow:`0 10px 32px ${th.main}55`,overflow:"hidden"}}>
+        {/* 아이용 헤더 - RPG 상태창 */}
+        <div style={{position:"relative",zIndex:1,background:GP.headerBg,padding:"18px 18px 20px",color:GP.onDark,borderRadius:"0 0 32px 32px",boxShadow:`0 10px 32px ${th.main}33`,overflow:"hidden"}}>
           {/* 헤더 장식 버블 */}
-          <div style={{position:"absolute",top:-30,right:30,width:90,height:90,borderRadius:"50%",background:"rgba(255,255,255,0.08)",pointerEvents:"none"}}/>
-          <div style={{position:"absolute",bottom:-24,left:-10,width:70,height:70,borderRadius:"50%",background:"rgba(255,255,255,0.06)",pointerEvents:"none"}}/>
+          <div style={{position:"absolute",top:-30,right:30,width:90,height:90,borderRadius:"50%",background:GP.bubble,pointerEvents:"none"}}/>
+          <div style={{position:"absolute",bottom:-24,left:-10,width:70,height:70,borderRadius:"50%",background:GP.bubble,pointerEvents:"none"}}/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",position:"relative"}}>
             <div style={{display:"flex",alignItems:"center",gap:11}}>
-              <div style={{width:52,height:52,borderRadius:"50%",background:"rgba(255,255,255,0.18)",border:"2.5px solid rgba(255,255,255,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,flexShrink:0,animation:"floatBob 3s ease-in-out infinite",boxShadow:"0 4px 14px rgba(0,0,0,0.18)"}}>{getGenderEmoji(curChild)}</div>
+              <div style={{width:52,height:52,borderRadius:"50%",background:GP.chipBg,border:`2.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,flexShrink:0,animation:"floatBob 3s ease-in-out infinite",boxShadow:"0 4px 14px rgba(0,0,0,0.10)"}}>{getGenderEmoji(curChild)}</div>
               <div>
-                <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.5}}>PLAYER STATUS</p>
-                <h1 style={{fontSize:24,fontWeight:900,margin:"3px 0 0"}}>{curChild?.name}</h1>
+                <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.5,color:GP.onDarkSub}}>PLAYER STATUS</p>
+                <h1 style={{fontSize:24,fontWeight:900,margin:"3px 0 0",color:GP.onDark}}>{curChild?.name}</h1>
               </div>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
                 <button onClick={()=>setShowParentPin(true)}
-                  style={{flex:children.length>1?1:"none",border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.16)",color:"#fff",borderRadius:14,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap"}}>
-                  🔒 엄마모드
+                  style={{...jellyChip({border:`1px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),flex:children.length>1?1:"none",color:GP.chipText,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap"}}>
+                  🔒 엄마용
                 </button>
                 {children.length<=1&&(
                   <button onClick={()=>setShowKidCoachmark(true)}
-                    style={{border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.16)",color:"#fff",borderRadius:14,padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer"}}>
+                    style={{...jellyChip({border:`1px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),color:GP.chipText,padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer"}}>
                     ❓
                   </button>
                 )}
@@ -2943,7 +3724,7 @@ export default function App() {
                   setShowChildXP(false);
                   setShowChildBadges(false);
                   setOpenRewardId(null);
-                }} style={{width:"100%",boxSizing:"border-box",border:"1px solid rgba(255,255,255,0.35)",background:"rgba(255,255,255,0.16)",color:"#fff",borderRadius:14,padding:"9px 10px",fontSize:13,fontWeight:900,outline:"none"}}>
+                }} style={{...jellyChip({border:`1px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),width:"100%",boxSizing:"border-box",color:GP.chipText,padding:"9px 10px",fontSize:13,fontWeight:900,outline:"none"}}>
                   {children.map(c=>(
                     <option key={c.id} value={c.id} style={{color:C.text}}>{getGenderEmoji(c)} {c.name}</option>
                   ))}
@@ -2953,11 +3734,11 @@ export default function App() {
           </div>
         </div>
 
-        {/* 아이 모드 탭 */}
-        <div style={{position:"relative",zIndex:1,display:"flex",background:GAME.dark,margin:"16px 16px 0",borderRadius:18,padding:6,border:"1px solid rgba(255,255,255,0.08)",boxShadow:SHADOW.md,gap:4}}>
-          {[["today",UI_TEXT.tabs.quest],["growth",UI_TEXT.tabs.character]].map(([k,label])=>(
+        {/* 아이용 탭 */}
+        <div style={{position:"relative",zIndex:1,display:"flex",background:GP.boxSolid,margin:"16px 16px 0",borderRadius:18,padding:6,border:`1px solid ${GP.boxBorder}`,boxShadow:SHADOW.md,gap:4}}>
+          {[["today",T.tabs.quest],["growth",T.tabs.character]].map(([k,label])=>(
             <button key={k} onClick={()=>setChildTab(k)} className="jelly-tap"
-              style={{flex:1,border:"none",borderRadius:14,padding:"13px 8px",background:childTab===k?`linear-gradient(135deg, ${GAME.gold}, ${th.main})`:"transparent",color:childTab===k?"#fff":"rgba(255,255,255,0.6)",fontSize:15,fontWeight:900,cursor:"pointer",boxShadow:childTab===k?`0 5px 16px ${th.main}55`:"none",animation:childTab===k?"tabBounce .4s ease-out":"none",transition:"color .2s"}}>
+              style={{flex:1,border:"none",borderRadius:14,padding:"13px 8px",background:childTab===k?(GP.tabActive||`linear-gradient(135deg, ${GP.gold}, ${th.main})`):"transparent",color:childTab===k?"#fff":GP.boxSub,fontSize:15,fontWeight:900,cursor:"pointer",boxShadow:childTab===k?`0 5px 16px ${th.main}44`:"none",animation:childTab===k?"tabBounce .4s ease-out":"none",transition:"color .2s"}}>
               {label}
             </button>
           ))}
@@ -2967,116 +3748,90 @@ export default function App() {
           {/* ── 오늘 탭 ── */}
           {childTab==="today"&&(
             <>
-              {/* 오늘의 던전 요약 카드 */}
+              {/* 오늘의 진행 요약 카드(스킨 공용) */}
               {(()=>{
                 const q=getTodayQuestProgress(childId,childDate||TODAY);
                 const ready=q.total-q.done-q.failed;
                 return (
-                  <div style={{position:"relative",overflow:"hidden",background:`linear-gradient(135deg, ${GAME.dark}, ${th.main})`,borderRadius:26,padding:"16px",marginBottom:14,color:"#fff",boxShadow:`0 10px 30px ${th.main}40`,minHeight:210,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
+                  <div style={kidSkin==="cute"
+                    ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,minHeight:210,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
+                    :{position:"relative",overflow:"hidden",background:dungeonShinyBg,border:`1px solid ${th.main}55`,borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 10px 30px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.08)`,minHeight:210,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
+                    <DungeonCardGlow/>
+                    {/* 젤리 광택 */}
+                    {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
                     <div style={{position:"absolute",top:-26,right:-20,width:90,height:90,borderRadius:"50%",background:"rgba(255,255,255,0.07)",pointerEvents:"none"}}/>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,position:"relative"}}>
                       <div>
-                        <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.2}}>{UI_TEXT.section.dailyDungeon}</p>
-                        <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0"}}><span style={{display:"inline-block",animation:"floatBob 2.6s ease-in-out infinite"}}>🎯</span> 오늘의 미션</p>
+                        <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.2}}>{T.dailyArea}</p>
+                        <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0"}}><span style={{display:"inline-block",animation:"floatBob 2.6s ease-in-out infinite"}}>{T.missionEmoji}</span> {T.todayQuest}</p>
                       </div>
-                      <div style={{width:62,height:62,borderRadius:"50%",background:"rgba(255,255,255,0.16)",border:"2px solid rgba(255,255,255,0.3)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
-                        <p style={{fontSize:17,fontWeight:900,margin:0,color:GAME.gold}}>{q.percent}%</p>
-                        <p style={{fontSize:11,fontWeight:900,margin:0,opacity:0.8}}>CLEAR</p>
+                      <div style={{width:62,height:62,borderRadius:"50%",background:kidSkin==="cute"?`radial-gradient(circle at 38% 30%, #fff, ${mixWhite(th.main,0.55)})`:(GP.innerBg||GP.chipBg),border:`${kidSkin==="cute"?"3px":"2px"} solid ${kidSkin==="cute"?"#fff":(GP.innerBorder||GP.chipBorder)}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",boxShadow:kidSkin==="cute"?`0 5px 14px ${th.main}4a, inset 0 2px 4px rgba(255,255,255,0.9)`:"none"}}>
+                        <p style={{fontSize:17,fontWeight:900,margin:0,color:kidSkin==="cute"?th.main:GP.gold}}>{q.percent}%</p>
+                        <p style={{fontSize:11,fontWeight:900,margin:0,opacity:0.8}}>{T.clearShort}</p>
                       </div>
                     </div>
-                    <div style={{height:14,background:"rgba(255,255,255,0.22)",borderRadius:999,overflow:"hidden",marginBottom:12,position:"relative"}}>
-                      <div style={{width:`${q.percent}%`,height:"100%",borderRadius:999,background:`linear-gradient(90deg, ${GAME.gold}, ${GAME.green})`,transition:"width 0.5s cubic-bezier(.34,1.4,.64,1)",position:"relative",overflow:"hidden"}}>
-                        <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(45deg,rgba(255,255,255,0.25) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.25) 50%,rgba(255,255,255,0.25) 75%,transparent 75%)",backgroundSize:"28px 28px",animation:"barStripe 0.8s linear infinite"}}/>
-                      </div>
+                    <div style={{marginBottom:12}}>
+                      <JellyBar percent={q.percent} height={14} />
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12,position:"relative"}}>
-                      <div style={{background:"rgba(255,255,255,0.14)",borderRadius:18,padding:"8px 6px",textAlign:"center"}}>
+                      <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.78))":GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?"2px solid #fff":"none",boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}30, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>✅</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{q.done}</p>
-                        <p style={{fontSize:11,opacity:0.75,margin:0}}>CLEAR</p>
+                        <p style={{fontSize:11,opacity:0.75,margin:0}}>{T.clearShort}</p>
                       </div>
-                      <div style={{background:"rgba(255,255,255,0.14)",borderRadius:18,padding:"8px 6px",textAlign:"center"}}>
-                        <p style={{fontSize:16,margin:0}}>⚔️</p>
+                      <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.78))":GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?"2px solid #fff":"none",boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}30, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
+                        <p style={{fontSize:16,margin:0}}>{T.missionEmoji}</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{ready}</p>
                         <p style={{fontSize:11,opacity:0.75,margin:0}}>READY</p>
                       </div>
-                      <div style={{background:"rgba(255,255,255,0.14)",borderRadius:18,padding:"8px 6px",textAlign:"center"}}>
+                      <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.78))":GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?"2px solid #fff":"none",boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}30, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>❌</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{q.failed}</p>
                         <p style={{fontSize:11,opacity:0.75,margin:0}}>FAILED</p>
                       </div>
                     </div>
-                    <p style={{fontSize:13,fontWeight:900,margin:0,textAlign:"center",color:q.percent===100?GAME.gold:"#fff"}}>
-                      {getDungeonMessage(q.percent,q.total)}
+                    <p style={{fontSize:13,fontWeight:900,margin:0,textAlign:"center",color:q.percent===100?GP.dark2:GP.boxText}}>
+                      {getProgressMessage(q.percent,q.total)}
                     </p>
                   </div>
                 );
               })()}
 
-              {/* 날짜 이동 (밝은 톤) */}
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#fff",border:`1px solid ${C.border}`,borderRadius:14,padding:"10px 14px",marginBottom:14,boxShadow:`0 4px 14px ${th.main}10`}}>
+              {/* 날짜 이동 (다크 톤 통일) */}
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:GP.boxBg,border:`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"10px 12px",marginBottom:14}}>
                 <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
-                  style={{background:th.light,border:`1px solid ${th.main}25`,color:th.main,borderRadius:10,width:32,height:32,fontSize:17,cursor:"pointer",fontWeight:700}}>‹</button>
+                  style={{...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>‹</button>
                 <div style={{textAlign:"center"}}>
-                  <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
-                  {!isChildToday&&<p style={{fontSize:11,color:th.main,margin:"2px 0 0",fontWeight:700}}>오늘과 다른 날짜예요</p>}
+                  <p style={{fontSize:15,fontWeight:900,margin:0,color:GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
+                  {!isChildToday&&<p style={{fontSize:11,color:GP.gold,margin:"2px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
                 </div>
                 <div style={{display:"flex",gap:6,alignItems:"center"}}>
                   {!isChildToday&&<button onClick={()=>setChildDate(TODAY)}
-                    style={{background:th.main,border:"none",color:"#fff",borderRadius:10,padding:"4px 8px",fontSize:11,cursor:"pointer",fontWeight:800}}>오늘</button>}
+                    style={{background:`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:"#fff",borderRadius:10,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
                   <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()+1);setChildDate(toStr(d));}}
-                    style={{background:th.light,border:`1px solid ${th.main}25`,color:th.main,borderRadius:10,width:32,height:32,fontSize:17,cursor:"pointer",fontWeight:700}}>›</button>
+                    style={{...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>›</button>
                 </div>
               </div>
 
-              {/* 오늘 학원 일정 카드 */}
-              <div style={{...gameCardT,padding:"18px",marginBottom:14}}>
-                <div style={{
-                  display:"flex",
-                  alignItems:"center",
-                  justifyContent:"space-between",
-                  gap:10,
-                  marginBottom:14
-                }}>
+              {/* 오늘 학원 일정 섹션 */}
+              <div style={{marginBottom:14}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:12,padding:"0 4px"}}>
                   <div>
-                    <p style={{
-                      fontSize:13,
-                      fontWeight:900,
-                      letterSpacing:1.2,
-                      color:th.main,
-                      margin:"0 0 3px"
-                    }}>
-                      ADVENTURE MAP
+                    <p style={{fontSize:12,fontWeight:900,letterSpacing:1.5,color:th.main,margin:"0 0 3px"}}>
+                      {T.areaTag}
                     </p>
-
-                    <p style={{
-                      fontSize:20,
-                      fontWeight:900,
-                      margin:0,
-                      color:C.text
-                    }}>
-                      🏫 {isChildToday?"오늘의 모험 장소":`${childDt.getMonth()+1}/${childDt.getDate()} 모험 장소`}
+                    <p style={{fontSize:19,fontWeight:900,margin:0,color:C.text}}>
+                      {isChildToday?T.todayArea:`${childDt.getMonth()+1}/${childDt.getDate()} ${T.dateAreaSuffix}`}
                     </p>
                   </div>
-
-                  <span style={{
-                    fontSize:13,
-                    fontWeight:900,
-                    color:th.main,
-                    background:th.light,
-                    border:`1px solid ${th.main}22`,
-                    borderRadius:999,
-                    padding:"6px 10px",
-                    whiteSpace:"nowrap",
-                    flexShrink:0
-                  }}>
-                    {childTodayAc.length}곳
+                  <span style={{fontSize:13,fontWeight:900,color:"#fff",background:`linear-gradient(135deg, ${GP.dark2}, ${th.main})`,borderRadius:999,padding:"7px 13px",whiteSpace:"nowrap",flexShrink:0,boxShadow:`0 3px 10px ${th.main}44`}}>
+                    {T.areaCountIcon} {childTodayAc.length}곳
                   </span>
                 </div>
                 {childTodayAc.length===0?(
-                  <div style={{textAlign:"center",padding:"24px 10px",color:C.sub}}>
-                    <p style={{fontSize:34,margin:0}}>😴</p>
-                    <p style={{fontSize:17,margin:"8px 0 0"}}>오늘은 학원이 없어요</p>
+                  <div style={{textAlign:"center",padding:"28px 10px",color:C.sub,background:"#fff",borderRadius:20,border:`1px dashed ${C.border}`}}>
+                    <p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>
+                    <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
                   </div>
                 ):(
                   childTodayAc.map(ac=>{
@@ -3087,29 +3842,33 @@ export default function App() {
                     const totalTodoCnt=hw.length+todos.length;
                     const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
                     const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
+                    const dungeon=getAcademyTheme(ac.name,kidSkin);
                     return (
-                      <div key={ac.id} style={{...gameCardT,overflow:"hidden",marginBottom:12,border:`1.7px solid ${ac.color}35`,boxShadow:`0 4px 16px ${ac.color}14`}}>
-                        {/* 던전 헤더 */}
-                        <div style={{background:`linear-gradient(135deg, ${ac.color}18, #fff)`,padding:"13px 14px",display:"flex",alignItems:"center",gap:10}}>
-                          <div style={{width:42,height:42,borderRadius:14,background:`${ac.color}15`,border:`1.5px solid ${ac.color}40`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>
-                            🏰
+                      <div key={ac.id} style={{borderRadius:ST.on?(GP.radMid||22):22,overflow:"hidden",marginBottom:14,background:"#fff",border:`2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`,boxShadow:ST.on?`0 6px 18px ${GP.boxShadowCol}`:`0 8px 26px ${ac.color}26, 0 2px 6px rgba(0,0,0,0.06)`}}>
+                        {/* 헤더 - 던전:진한 그라데이션 / 베이커리:부드러운 학원색 파스텔 */}
+                        <div style={{position:"relative",overflow:"hidden",background:ST.on?`linear-gradient(135deg, ${softTint(ac.color,0.50)}, ${softTint(ac.color,0.62)})`:`linear-gradient(135deg, ${mixBlack(ac.color,0.30)}, ${ac.color})`,padding:"15px 15px",display:"flex",alignItems:"center",gap:12}}>
+                          {/* 헤더 장식 빛무리/버블 */}
+                          <div style={{position:"absolute",top:-30,right:-20,width:110,height:110,borderRadius:"50%",background:ST.on?"rgba(255,255,255,0.45)":"rgba(255,255,255,0.14)",pointerEvents:"none"}}/>
+                          <div style={{position:"absolute",bottom:-26,left:30,width:70,height:70,borderRadius:"50%",background:ST.on?"rgba(255,255,255,0.35)":"rgba(255,255,255,0.08)",pointerEvents:"none"}}/>
+                          <div style={{position:"relative",width:50,height:50,borderRadius:16,background:ST.on?"rgba(255,255,255,0.7)":"rgba(255,255,255,0.22)",border:ST.on?`2px solid rgba(255,255,255,0.85)`:"2px solid rgba(255,255,255,0.45)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,boxShadow:ST.on?"0 3px 9px rgba(150,110,120,0.18)":"0 4px 12px rgba(0,0,0,0.22)"}}>
+                            {dungeon.icon}
                           </div>
-                          <div style={{flex:1}}>
-                            <p style={{fontSize:11,fontWeight:900,color:ac.color,margin:"0 0 2px",letterSpacing:1}}>MISSION AREA</p>
-                            <p style={{fontSize:17,fontWeight:900,margin:0,color:C.text}}>{ac.name}</p>
+                          <div style={{flex:1,minWidth:0,position:"relative"}}>
+                            <p style={{fontSize:11,fontWeight:900,color:ST.on?GP.boxSub:"rgba(255,255,255,0.85)",margin:"0 0 3px",letterSpacing:1.2}}>{T.missionEmoji} {dungeon.label}</p>
+                            <p style={{fontSize:18,fontWeight:900,margin:0,color:ST.on?GP.boxText:"#fff",textShadow:ST.on?"none":"0 1px 3px rgba(0,0,0,0.25)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
                           </div>
-                          {totalTodoCnt>0&&<span style={{fontSize:13,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:10,padding:"4px 9px",flexShrink:0}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
+                          {totalTodoCnt>0&&<span style={{position:"relative",fontSize:13,fontWeight:900,color:allDone?(ST.on?ST.color:ac.color):GP.dark,background:allDone&&ST.on?`${ST.color}16`:ST.on?"rgba(255,255,255,0.85)":"rgba(255,255,255,0.95)",border:allDone&&ST.on?`1.5px solid ${ST.color}`:"none",borderRadius:12,padding:"6px 11px",flexShrink:0,boxShadow:allDone&&ST.on?`0 2px 8px ${ST.color}33`:ST.on?`0 2px 8px ${GP.boxShadowCol}`:"0 2px 8px rgba(0,0,0,0.18)"}}>{allDone?(ST.on?`${ST.face} ${ST.ringText}`:"✓ 클리어"):`${doneCnt}/${totalTodoCnt}`}</span>}
                         </div>
                         {/* 상세 정보 */}
-                        <div style={{padding:"12px 14px"}}>
-                        <p style={{fontSize:15,color:C.sub,margin:"0 0 6px"}}>⏰ {sc?.time} / {sc?.duration}분 수업</p>
+                        <div style={{padding:"13px 15px"}}>
+                        <p style={{fontSize:15,fontWeight:800,color:C.text,margin:"0 0 6px"}}>⏰ {sc?.time} / {sc?.duration}분 수업</p>
                         {shuttleText&&<p style={{fontSize:13,color:C.sub,margin:"0 0 8px"}}>🚌 {shuttleText}</p>}
                         {/* 준비물 */}
                         <div style={{marginTop:8,display:"flex",alignItems:"baseline",flexWrap:"wrap",gap:"6px 8px"}}>
                           <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0,flexShrink:0}}>🎒 준비물</p>
                           <div style={{display:"flex",flexWrap:"wrap",gap:6,flex:1,minWidth:0}}>
-                            {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"4px 11px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:700}}>{s}</span>)}
-                            {sup.map((s,i)=><span key={`s${i}`} style={{fontSize:13,padding:"4px 11px",borderRadius:20,background:`${C.orange}18`,color:C.orange,fontWeight:700}}>+ {s}</span>)}
+                            {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"4px 11px",borderRadius:20,background:ST.on?softTint(ac.color,0.72):`${ac.color}18`,color:ST.on?GP.boxText:ac.color,fontWeight:700}}>{s}</span>)}
+                            {sup.map((s,i)=><span key={`s${i}`} style={{fontSize:13,padding:"4px 11px",borderRadius:20,background:ST.on?softTint(C.orange,0.72):`${C.orange}18`,color:ST.on?GP.boxText:C.orange,fontWeight:700}}>+ {s}</span>)}
                             {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:13,color:"#BBB"}}>없음</span>}
                           </div>
                         </div>
@@ -3117,7 +3876,7 @@ export default function App() {
                         <div style={{marginTop:8}}>
                           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,background:CT.faint,border:`1px solid ${C.border}`,borderRadius:14,padding:"7px 12px"}}>
                             <div style={{minWidth:0}}>
-                              <p style={{fontSize:13,fontWeight:900,color:C.sub,margin:0}}>⚔️ 남은 미션</p>
+                              <p style={{fontSize:13,fontWeight:900,color:C.sub,margin:0}}>{T.remainMission}</p>
                             </div>
                             {totalTodoCnt===0?(
                               <span style={{fontSize:13,fontWeight:900,color:"#BBB",background:"#fff",border:`1px solid ${C.border}`,borderRadius:999,padding:"5px 10px",whiteSpace:"nowrap",flexShrink:0}}>
@@ -3134,15 +3893,6 @@ export default function App() {
                             )}
                           </div>
                         </div>
-                        {/* 진행도 바 */}
-                        {totalTodoCnt>0&&(
-                          <div style={{marginTop:6}}>
-                            <div style={{width:"100%",height:7,background:"#EAEAEA",borderRadius:999,overflow:"hidden"}}>
-                              <div style={{width:`${(doneCnt/totalTodoCnt)*100}%`,height:"100%",background:th.grad,borderRadius:999}}/>
-                            </div>
-                            <p style={{fontSize:11,fontWeight:800,color:C.sub,margin:"3px 0 0"}}>진행도 {doneCnt}/{totalTodoCnt}</p>
-                          </div>
-                        )}
                         </div>{/* 상세 정보 end */}
                       </div>
                     );
@@ -3154,32 +3904,48 @@ export default function App() {
               {(()=>{
                 const allTodayTodos=getChildQuestBoardItems(childId,childDate);
                 if(allTodayTodos.length===0) return (
-                  <div style={{...gameCardT,padding:"28px 16px",textAlign:"center",marginBottom:14,borderRadius:24}}>
-                    <p style={{fontSize:40,margin:"0 0 8px",animation:"wiggle 2.4s ease-in-out infinite"}}>😴</p>
-                    <p style={{fontSize:17,fontWeight:900,color:C.text,margin:"0 0 4px"}}>오늘은 미션이 없어요!</p>
-                    <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>등록된 미션이 없어요</p>
+                  <div style={{padding:"30px 16px",textAlign:"center",marginBottom:14,borderRadius:22,background:"#fff",border:`1px dashed ${C.border}`}}>
+                    <p style={{fontSize:42,margin:"0 0 8px",animation:"wiggle 2.4s ease-in-out infinite"}}>🗒️</p>
+                    <p style={{fontSize:17,fontWeight:900,color:C.text,margin:"0 0 4px"}}>{T.restDay}</p>
+                    <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>푹 쉬어도 좋아요 😌</p>
                   </div>
                 );
                 const q=getTodayQuestProgress(childId,childDate);
+                // 미션 강조박스 색 — 던전:어두운 톤 / 베이커리:맑은 박스
+                const mD = GP.missionDark;
+                const mBg = mD ? dungeonShinyBg : GP.boxBg;
+                const mTx = mD ? "#fff" : GP.boxText;
+                const mSub = mD ? "rgba(255,255,255,0.78)" : GP.boxSub;
+                const mTrack = mD ? "rgba(0,0,0,0.3)" : GP.divider;
+                const mChip = mD ? "rgba(255,255,255,0.14)" : GP.chipBg;
+                const mBorder = mD ? `${th.main}66` : GP.boxBorder;
+                const mShadow = mD ? `${mixBlack(th.main,0.4)}55` : GP.boxShadowCol;
+                const mAccent = mD ? GP.gold : GP.dark2;
                 return (
                   <div style={{marginBottom:14}}>
-                    {/* 게임식 헤더 */}
-                    <div style={{background:`linear-gradient(135deg, ${mixWhite(th.main,0.70)}, ${mixWhite(th.main,0.56)})`,borderRadius:20,padding:"16px",marginBottom:10,color:GAME.dark,border:`1px solid ${th.main}44`,boxShadow:`0 6px 22px ${th.main}1c`}}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                    {/* 게임식 헤더 - 테마 톤 RPG (위 카드들과 자연스럽게 연결) */}
+                    <div style={kidSkin==="cute"
+                      ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.5)}, ${mixWhite(th.main,0.28)})`,borderRadius:32,padding:"17px",marginBottom:12,color:mTx,border:"2px solid #fff",boxShadow:`0 14px 28px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 16px ${th.main}22`,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
+                      :{position:"relative",overflow:"hidden",background:mBg,borderRadius:GP.radCard,padding:"17px",marginBottom:12,color:mTx,border:`1px solid ${mBorder}`,boxShadow:`0 10px 28px ${mShadow}`}}>
+                      {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"32px 32px 50% 50%",pointerEvents:"none"}}/>}
+                      {kidSkin==="cute"
+                        ?<div style={{position:"absolute",top:-30,right:-10,width:120,height:120,borderRadius:"50%",background:`radial-gradient(circle, ${GP.gold}33, transparent 70%)`,pointerEvents:"none"}}/>
+                        :<DungeonCardGlow/>}
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:13,position:"relative"}}>
                         <div>
-                          <p style={{fontSize:13,margin:0,fontWeight:900,letterSpacing:1.2,color:th.main}}>TODAY'S MISSION</p>
-                          <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0"}}>{UI_TEXT.section.todayQuest}</p>
+                          <p style={{fontSize:12,margin:0,fontWeight:900,letterSpacing:1.5,color:mAccent}}>{T.missionTag}</p>
+                          <p style={{fontSize:21,fontWeight:900,margin:"3px 0 0",color:mTx}}>{T.todayQuest}</p>
                         </div>
-                        <div style={{background:"#fff",border:`1px solid ${th.main}33`,borderRadius:14,padding:"8px 11px",textAlign:"center",boxShadow:`0 2px 8px ${th.main}14`}}>
-                          <p style={{fontSize:17,fontWeight:900,margin:0,color:th.main}}>{q.percent}%</p>
-                          <p style={{fontSize:11,margin:0,color:C.sub,fontWeight:800}}>CLEAR</p>
+                        <div style={{background:kidSkin==="cute"?`radial-gradient(circle at 40% 28%, #fff, ${mixWhite(th.main,0.5)})`:mChip,border:`${kidSkin==="cute"?"2.5px":"1.5px"} solid ${kidSkin==="cute"?"#fff":(mD?GP.gold+"66":GP.chipBorder)}`,borderRadius:kidSkin==="cute"?18:14,padding:"8px 12px",textAlign:"center",boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}40, inset 0 1.5px 3px rgba(255,255,255,0.9)`:(mD?"0 2px 10px rgba(0,0,0,0.25)":"none")}}>
+                          <p style={{fontSize:19,fontWeight:900,margin:0,color:kidSkin==="cute"?th.main:mAccent}}>{q.percent}%</p>
+                          <p style={{fontSize:10,margin:0,color:mSub,fontWeight:800,letterSpacing:1}}>{T.clearShort}</p>
                         </div>
                       </div>
-                      <div style={{height:12,background:"#fff",borderRadius:999,overflow:"hidden",marginBottom:8,border:`1px solid ${th.main}22`}}>
-                        <div style={{width:`${q.percent}%`,height:"100%",background:`linear-gradient(90deg, ${GAME.gold}, ${GAME.green})`,borderRadius:999}}/>
+                      <div style={{marginBottom:9}}>
+                        <JellyBar percent={q.percent} height={13} fallbackTrack={mTrack} fallbackBorder={`1px solid ${mD?"rgba(255,255,255,0.12)":GP.boxBorder}`} />
                       </div>
-                      <p style={{fontSize:13,fontWeight:800,margin:0,color:C.sub}}>
-                        완료 {q.done}개 · 실패 {q.failed}개 · 전체 {q.total}개
+                      <p style={{fontSize:13,fontWeight:800,margin:0,color:mSub,position:"relative"}}>
+                        {T.doneIcon} 완료 {q.done} · {T.failIcon} 실패 {q.failed} · 전체 {q.total}
                       </p>
                     </div>
                     {/* 미션 아이템 목록 */}
@@ -3187,18 +3953,18 @@ export default function App() {
                       {allTodayTodos.map((item,idx)=>{
                         const status=getQuestStatus(item);
                         return (
-                          <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{borderRadius:24,overflow:"hidden",background:"#FFFDF8",border:`2.5px solid ${item.done?C.green+"66":item.failed?C.red+"50":"#EAD9B9"}`,boxShadow:item.done?`0 6px 20px ${C.green}1f`:SHADOW.md,marginBottom:12,animation:`jellyIn .4s cubic-bezier(.34,1.56,.64,1) ${idx*0.05}s both`}}>
-                            {/* 스크롤 헤더 */}
-                            <div style={{padding:"10px 13px",background:item.done?`${C.green}10`:item.failed?`${C.red}08`:"linear-gradient(135deg,#FFF4D8,#FFFDF8)",borderBottom:"1px solid #F0E0C0",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                              <div>
-                                <p style={{fontSize:11,fontWeight:900,color:item.academyColor,margin:"0 0 2px",letterSpacing:0.8}}>
-                                  📜 MISSION SCROLL
-                                  {item.carried&&<span style={{color:C.orange}}> · CARRY OVER</span>}
+                          <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{borderRadius:GP.radMid||22,overflow:"hidden",background:item.done?"#F7F8FB":"#fff",border:`2px solid ${item.done?"#D8DCE6":item.failed?C.red+"45":(item.academyColor||th.main)+"40"}`,boxShadow:item.done?"0 3px 12px rgba(20,24,60,0.06)":`0 8px 24px ${(item.academyColor||th.main)}1a, 0 2px 6px rgba(0,0,0,0.05)`,opacity:item.done?0.82:1,marginBottom:12,animation:item.done?`squishCard .5s ease-out`:`jellyIn .4s cubic-bezier(.34,1.56,.64,1) ${idx*0.05}s both`}}>
+                            {/* 스크롤 헤더 - 학원 색 띠 (클리어 시 회색) */}
+                            <div style={{padding:"10px 13px",background:item.done?"#EDEFF4":item.failed?`${C.red}0A`:`linear-gradient(135deg, ${(item.academyColor||th.main)}1c, ${(item.academyColor||th.main)}08)`,borderBottom:`1px solid ${item.done?"#DFE3EC":item.failed?C.red+"20":(item.academyColor||th.main)+"22"}`,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                              <div style={{display:"flex",alignItems:"center",gap:9,minWidth:0}}>
+                                <span style={{fontSize:20,flexShrink:0}}>{getAcademyTheme(item.academyName,kidSkin).icon}</span>
+                                <p style={{fontSize:14,fontWeight:900,color:C.text,margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                                  {item.academyName}
+                                  {item.carried&&<span style={{fontSize:11,fontWeight:800,color:C.orange,marginLeft:6}}>· 이어하기</span>}
                                 </p>
-                                <p style={{fontSize:13,fontWeight:900,color:C.text,margin:0}}>{item.academyName}</p>
                               </div>
-                              <span style={{fontSize:11,fontWeight:900,color:status.color,background:status.bg,border:`1px solid ${status.color}30`,padding:"4px 8px",borderRadius:20}}>
-                                {status.emoji} {status.label}
+                              <span style={{fontSize:11,fontWeight:900,color:item.done?"#7C8398":status.color,background:item.done?"#E6E9F0":status.bg,border:`1px solid ${item.done?"#D2D7E2":status.color+"30"}`,padding:"4px 8px",borderRadius:20,flexShrink:0}}>
+                                {item.done?(ST.on?ST.face:"✓"):status.emoji} {status.label}
                               </span>
                             </div>
                             {/* 스크롤 본문 */}
@@ -3207,18 +3973,25 @@ export default function App() {
                                 if(item.failed) return;
                                 if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id);
                                 else toggleTodoDone(childId,item.academyId,item.date,item.id);
-                              }} style={{position:"relative",width:38,height:38,borderRadius:"50%",border:`2.5px solid ${item.done?C.green:item.failed?C.red:"#C89F5A"}`,background:item.done?`linear-gradient(135deg,${C.green},${mixWhite(C.green,0.2)})`:item.failed?C.red:"#FFF8E8",color:"#fff",fontWeight:900,cursor:item.failed?"default":"pointer",flexShrink:0,fontSize:18,boxShadow:item.done?`0 4px 14px ${C.green}55`:item.failed?"none":"0 3px 10px rgba(200,159,90,0.35)"}}>
-                                <span style={{display:"inline-block",animation:item.done?"checkPop .45s cubic-bezier(.34,1.56,.64,1)":"none"}}>{item.done?"✓":item.failed?"×":""}</span>
-                                {item.done&&[...Array(6)].map((_,si)=>(
-                                  <span key={si} style={{position:"absolute",left:"50%",top:"50%",fontSize:11,pointerEvents:"none","--bx":`${Math.cos(si/6*6.28)*26}px`,"--by":`${Math.sin(si/6*6.28)*26}px`,animation:"burstPop .55s ease-out forwards",animationDelay:".05s"}}>✨</span>
-                                ))}
+                              }} style={ST.on&&item.done?{
+                                // ── 베이커리 도장(완료) ──
+                                position:"relative",width:40,height:40,borderRadius:"50%",
+                                border:`2.5px solid ${ST.color}`,boxShadow:`0 0 0 2px #fff, 0 0 0 4px ${ST.color}, 0 3px 9px ${ST.color}44`,
+                                background:`${ST.color}14`,color:ST.color,fontWeight:900,cursor:"pointer",flexShrink:0,fontSize:13,
+                                display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1.0,letterSpacing:-0.5,
+                                animation:ST.anim
+                              }:{
+                                position:"relative",width:38,height:38,borderRadius:"50%",border:`2.5px solid ${item.done?"#AEB4C2":item.failed?C.red:(item.academyColor||th.main)}`,background:item.done?`linear-gradient(135deg,#B4BAC8,#C9CDD8)`:item.failed?C.red:"#fff",color:item.done||item.failed?"#fff":(item.academyColor||th.main),fontWeight:900,cursor:item.failed?"default":"pointer",flexShrink:0,fontSize:18,boxShadow:item.done?"0 3px 10px rgba(120,128,150,0.35)":item.failed?"none":`0 3px 10px ${(item.academyColor||th.main)}33`}}>
+                                {ST.on&&item.done
+                                  ? <span style={{fontSize:17,lineHeight:1}}>{ST.face}</span>
+                                  : <span style={{display:"inline-block",animation:item.done?"checkPop .45s cubic-bezier(.34,1.56,.64,1)":"none"}}>{item.done?"✓":item.failed?"×":""}</span>}
                               </button>
                               <div style={{flex:1,minWidth:0}}>
                                 <p style={{fontSize:15,fontWeight:900,color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",margin:"0 0 5px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                                   {item.kind==="homework"?`숙제 : ${item.label}`:item.label}
                                   {item.carried&&<span style={{fontSize:13,fontWeight:800,color:C.orange,marginLeft:6,textDecoration:"none"}}>({(()=>{const d=parseLocal(item.date);return `${d.getMonth()+1}월${d.getDate()}일`;})()})</span>}
                                 </p>
-                                <p style={{fontSize:13,fontWeight:900,color:item.failed?C.red:GAME.gold,margin:0}}>
+                                <p style={{fontSize:13,fontWeight:900,color:item.failed?C.red:GP.gold,margin:0}}>
                                   {item.failed?"보상 없음":getQuestRewardText(item)}
                                 </p>
                               </div>
@@ -3226,7 +3999,7 @@ export default function App() {
                                 <button onClick={()=>{
                                   if(item.kind==="homework") failHomeworkQuest(childId,item.academyId,item.date,item.id);
                                   else failTodoQuest(childId,item.academyId,item.date,item.id);
-                                }} style={{border:"none",background:item.failed?`${C.red}16`:"#F4E7CF",color:item.failed?C.red:"#9A6B2F",borderRadius:10,padding:"7px 9px",fontSize:11,fontWeight:900,cursor:"pointer",flexShrink:0}}>
+                                }} style={{border:"none",background:item.failed?`${C.red}16`:`${C.sub}14`,color:item.failed?C.red:C.sub,borderRadius:10,padding:"7px 9px",fontSize:11,fontWeight:900,cursor:"pointer",flexShrink:0}}>
                                   {item.failed?UI_TEXT.button.cancelFail:UI_TEXT.button.fail}
                                 </button>
                               )}
@@ -3251,17 +4024,17 @@ export default function App() {
               <div style={characterCardT}>
                 <CharacterSectionHeader
                   icon="🛒" title="아이템 상점"
-                  subtitle={`코인으로 원하는 보상을 살 수 있어요\n💎 ${getChildCoin(childId)} 코인 보유`}
+                  subtitle={`${TM.coin}으로 원하는 보상을 살 수 있어요\n${TM.coinEmoji} ${getChildCoin(childId)} ${TM.coin} 보유`}
                   open={openRewardShop} onToggle={()=>setOpenRewardShop(v=>!v)}
                 />
                 {openRewardShop&&(
                   <div style={{marginTop:14}}>
                     {/* 지갑 카드 */}
-                    <div style={{background:`linear-gradient(135deg, ${mixWhite(th.main,0.80)}, ${mixWhite(th.main,0.68)})`,borderRadius:14,padding:"13px 14px",color:GAME.dark,marginBottom:12,border:`1px solid ${th.main}33`,boxShadow:`0 4px 16px ${th.main}14`}}>
+                    <div style={{background:`linear-gradient(135deg, ${mixWhite(th.main,0.80)}, ${mixWhite(th.main,0.68)})`,borderRadius:14,padding:"13px 14px",color:GP.dark,marginBottom:12,border:`1px solid ${th.main}33`,boxShadow:`0 4px 16px ${th.main}14`}}>
                       <p style={{fontSize:13,fontWeight:900,letterSpacing:1,margin:"0 0 4px",color:th.main}}>WALLET</p>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                        <p style={{fontSize:17,fontWeight:900,margin:0}}>보유 코인</p>
-                        <p style={{fontSize:24,fontWeight:900,margin:0,color:"#E09A00"}}>{getChildCoin(childId)} 💎 코인</p>
+                        <p style={{fontSize:17,fontWeight:900,margin:0}}>보유 {TM.coin}</p>
+                        <p style={{fontSize:24,fontWeight:900,margin:0,color:"#E09A00"}}>{getChildCoin(childId)} {TM.coinEmoji} {TM.coin}</p>
                       </div>
                     </div>
                     {/* 아이템 목록 */}
@@ -3287,7 +4060,7 @@ export default function App() {
                                     <p style={{fontSize:17,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
                                     <span style={{fontSize:11,fontWeight:900,color:grade.color,background:`${grade.color}18`,padding:"2px 7px",borderRadius:20}}>{grade.name}</span>
                                   </div>
-                                  <p style={{fontSize:13,fontWeight:800,margin:0,color:C.sub}}>{reward.point} 💎 코인 필요</p>
+                                  <p style={{fontSize:13,fontWeight:800,margin:0,color:C.sub}}>{reward.point} {TM.coinEmoji} {TM.coin} 필요</p>
                                 </div>
                               </div>
                               <span style={{fontSize:13,fontWeight:900,color:pending?C.purple:canGet?C.green:C.orange,background:pending?C.purpleL:canGet?`${C.green}15`:`${C.orange}15`,padding:"5px 8px",borderRadius:20}}>
@@ -3300,12 +4073,10 @@ export default function App() {
                                   <div style={{display:"flex",justifyContent:"space-between",fontSize:13,fontWeight:900,color:C.sub,marginBottom:6}}>
                                     <span>모으는 중</span><span>{progress}%</span>
                                   </div>
-                                  <div style={{width:"100%",height:10,borderRadius:999,background:"#fff",overflow:"hidden"}}>
-                                    <div style={{width:`${progress}%`,height:"100%",borderRadius:999,background:canGet?`linear-gradient(90deg, ${grade.color}, ${GAME.gold})`:`linear-gradient(90deg, ${th.main}, ${GAME.gold})`,transition:"width 0.25s"}}/>
-                                  </div>
+                                  <JellyBar percent={progress} height={10} fallbackTrack="#fff" fallbackBorder={`1px solid ${C.border}`} fallbackGlow="none" fallbackFill={canGet?`linear-gradient(90deg, ${grade.color}, ${GP.gold})`:`linear-gradient(90deg, ${th.main}, ${GP.gold})`} />
                                 </div>
                                 <p style={{fontSize:13,fontWeight:800,color:pending?C.purple:canGet?C.green:C.orange,margin:"0 0 10px"}}>
-                                  {pending?UI_TEXT.message.waitingApproval:canGet?"지금 살 수 있어요!":`${remain} 💎 코인 더 모으면 살 수 있어요`}
+                                  {pending?UI_TEXT.message.waitingApproval:canGet?"지금 살 수 있어요!":`${remain} ${TM.coinEmoji} ${TM.coin} 더 모으면 살 수 있어요`}
                                 </p>
                                 <button onClick={()=>requestReward(reward)} disabled={!canGet||pending}
                                   style={{width:"100%",padding:"11px 12px",borderRadius:14,border:"none",background:pending?C.purpleL:canGet?`linear-gradient(135deg, ${grade.color}, ${th.main})`:C.border,color:pending?C.purple:canGet?"#fff":C.sub,fontSize:15,fontWeight:900,cursor:canGet&&!pending?"pointer":"not-allowed",boxShadow:canGet&&!pending?`0 4px 14px ${grade.color}28`:"none"}}>
@@ -3321,33 +4092,35 @@ export default function App() {
                 )}
               </div>
 
-              {/* 보물창고 카드 */}
-              <div style={{...characterCardT,border:getTotalTreasureCount(childId)>0?`2px solid ${GAME.gold}55`:characterCardT.border}}>
+              {/* 보물창고 / 디저트 보관함 카드 */}
+              <div style={kidSkin==="cute"
+                ? {...characterCardT, boxShadow:getTotalTreasureCount(childId)>0?`0 12px 26px ${th.main}30, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -7px 15px ${th.main}1f, 0 0 0 2px #F5B30166`:characterCardT.boxShadow}
+                : {...characterCardT,border:getTotalTreasureCount(childId)>0?`2px solid ${GP.gold}55`:characterCardT.border}}>
                 <CharacterSectionHeader
-                  icon="🎁" title="보물창고"
+                  icon={TM.bookEmoji} title={TM.book}
                   subtitle={getTotalTreasureCount(childId)>0
-                    ?`📦 ${getChildTreasure(childId).normalBox}  🎁 ${getChildTreasure(childId).rareBox}  👑 ${getChildTreasure(childId).legendBox}  ← 탭해서 열기!`
-                    :`미션 완료 시 상자를 획득해요 · ${getChildTreasure(childId).completedQuestCount} CLEAR`}
+                    ?`${getBoxInfo("normal",kidSkin).emoji} ${getChildTreasure(childId).normalBox}  ${getBoxInfo("rare",kidSkin).emoji} ${getChildTreasure(childId).rareBox}  ${getBoxInfo("legend",kidSkin).emoji} ${getChildTreasure(childId).legendBox}  ← 탭해서 열기!`
+                    :`미션을 완료하면 ${kidSkin==="cute"?TM.box:"상자"}를 받아요 · ${getChildTreasure(childId).completedQuestCount} CLEAR`}
                   open={openTreasure} onToggle={()=>setOpenTreasure(v=>!v)}
                 />
                 {openTreasure&&(
                   <div style={{marginTop:14}}>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
                       {[
-                        {type:"normal",key:"normalBox",emoji:"📦",name:"일반",color:C.sub},
-                        {type:"rare",key:"rareBox",emoji:"🎁",name:"희귀",color:C.purple},
-                        {type:"legend",key:"legendBox",emoji:"👑",name:"전설",color:GAME.gold},
+                        {type:"normal",key:"normalBox",emoji:getBoxInfo("normal",kidSkin).emoji,name:getBoxInfo("normal",kidSkin).name,color:C.sub},
+                        {type:"rare",key:"rareBox",emoji:getBoxInfo("rare",kidSkin).emoji,name:getBoxInfo("rare",kidSkin).name,color:C.purple},
+                        {type:"legend",key:"legendBox",emoji:getBoxInfo("legend",kidSkin).emoji,name:getBoxInfo("legend",kidSkin).name,color:"#F5B301"},
                       ].map(box=>{
                         const count=getChildTreasure(childId)[box.key]||0;
                         return (
                           <button key={box.type} onClick={()=>openTreasureBox(box.type)} disabled={count<=0}
                             style={{borderRadius:14,padding:"13px 8px",
-                              border:`${count>0?"2px":"1.5px"} solid ${count>0?box.color:C.border}`,
-                              background:count>0?`linear-gradient(135deg, ${box.color}22, #fff)`:CT.faint,
+                              border:`${count>0?(box.type==="legend"?"2.5px":"2px"):"1.5px"} solid ${count>0?box.color:C.border}`,
+                              background:count>0?(box.type==="legend"?`linear-gradient(135deg, ${box.color}33, #FFFDF5)`:`linear-gradient(135deg, ${box.color}22, #fff)`):CT.faint,
                               opacity:count>0?1:0.45,cursor:count>0?"pointer":"not-allowed",textAlign:"center",
-                              boxShadow:count>0?`0 4px 14px ${box.color}30`:"none"}}>
+                              boxShadow:count>0?(box.type==="legend"?`0 4px 16px ${box.color}66, 0 0 0 1px ${box.color}33`:`0 4px 14px ${box.color}30`):"none"}}>
                             <p style={{fontSize:28,margin:"0 0 5px"}}>{box.emoji}</p>
-                            <p style={{fontSize:13,fontWeight:900,color:count>0?C.text:C.sub,margin:"0 0 3px"}}>{box.name}상자</p>
+                            <p style={{fontSize:13,fontWeight:900,color:count>0?C.text:C.sub,margin:"0 0 3px"}}>{kidSkin==="cute"?box.name:`${box.name}상자`}</p>
                             <p style={{fontSize:13,fontWeight:900,color:count>0?box.color:C.sub,margin:"0 0 4px"}}>x {count}</p>
                             {count>0&&<p style={{fontSize:11,fontWeight:900,color:"#fff",background:box.color,borderRadius:20,padding:"2px 8px",display:"inline-block",margin:0}}>열기</p>}
                           </button>
@@ -3355,7 +4128,10 @@ export default function App() {
                       })}
                     </div>
                     <p style={{fontSize:11,color:C.sub,fontWeight:700,margin:"12px 0 0",lineHeight:1.4}}>
-                      미션을 모으면 상자를 받아요! 📦 10개 → 일반 · 🎁 30개 → 희귀 · 👑 50개 → 전설 (겹칠 땐 더 좋은 상자로 받아요!)
+                      {kidSkin==="cute"?`미션을 모으면 ${TM.box}를 받아요! (겹칠 땐 더 좋은 상자로 받아요)`:"미션을 모으면 상자를 받아요! (겹칠 땐 더 좋은 상자로 받아요)"}
+                    </p>
+                    <p style={{fontSize:11,color:C.sub,fontWeight:700,margin:"4px 0 0",lineHeight:1.4}}>
+                      {getBoxInfo("normal",kidSkin).emoji} 10개 → {getBoxInfo("normal",kidSkin).name} · {getBoxInfo("rare",kidSkin).emoji} 30개 → {getBoxInfo("rare",kidSkin).name} · {getBoxInfo("legend",kidSkin).emoji} 50개 → {getBoxInfo("legend",kidSkin).name}
                     </p>
                   </div>
                 )}
@@ -3364,13 +4140,13 @@ export default function App() {
               {/* 나의 펫 카드 (접이식) */}
               {(()=>{
                 const stage=getPetStage(childId);
-                const pet=PET_STAGES[stage];
+                const pet=petView(PET_STAGES[stage],stage,kidSkin);
                 const isMax=stage>=PET_STAGES.length-1;
                 return (
                   <div style={characterCardT}>
                     <CharacterSectionHeader
-                      icon="🐾" title="나의 펫"
-                      subtitle={`보물상자를 열면 펫이 조금씩 자라요\n${pet.emoji} ${pet.name}${isMax?" · 최종 진화 완료 🏆":""}`}
+                      icon={kidSkin==="cute"?"🦄":"🐾"} title={kidSkin==="cute"?"나의 친구":"나의 펫"}
+                      subtitle={`${TM.boxEmoji} ${TM.box}를 열면 ${kidSkin==="cute"?"친구가 조금씩 자라요":"펫이 조금씩 자라요"}\n${pet.emoji} ${pet.name}${isMax?" · 최종 성장 🏆":""}`}
                       open={openPet} onToggle={()=>setOpenPet(v=>!v)}
                     />
                     {openPet&&(
@@ -3379,14 +4155,17 @@ export default function App() {
                         <p style={{fontSize:17,fontWeight:900,color:C.text,margin:"0 0 3px"}}>{pet.name}</p>
                         <p style={{fontSize:13.5,fontWeight:700,color:C.sub,margin:"0 0 10px",lineHeight:1.45}}>{pet.desc}</p>
                         <div style={{display:"flex",justifyContent:"center",gap:7,marginBottom:10}}>
-                          {PET_STAGES.map((p,i)=>(
-                            <span key={i} style={{fontSize:17,opacity:i<=stage?1:0.25,filter:i<=stage?"none":"grayscale(1)"}}>{p.emoji}</span>
-                          ))}
+                          {PET_STAGES.map((p,i)=>{
+                            const pv=petView(p,i,kidSkin);
+                            return (
+                            <span key={i} style={{fontSize:17,opacity:i<=stage?1:0.25,filter:i<=stage?"none":"grayscale(1)"}}>{pv.emoji}</span>
+                            );
+                          })}
                         </div>
                         <div style={{background:"rgba(255,255,255,0.7)",borderRadius:10,padding:"8px 12px",fontSize:11.5,fontWeight:700,color:C.sub,lineHeight:1.5,border:`1px solid ${th.main}1A`}}>
                           {isMax
-                            ? "🏆 최종 진화 완료! 최고의 펫이에요"
-                            : "🎁 보물상자를 열면 가끔 펫이 진화해요"}
+                            ? (kidSkin==="cute"?"🏆 최종 성장 완료! 최고의 친구예요":"🏆 최종 진화 완료! 최고의 펫이에요")
+                            : `${TM.boxEmoji} ${TM.box}를 열면 가끔 ${kidSkin==="cute"?"친구가 자라요":"펫이 진화해요"}`}
                         </div>
                       </div>
                     )}
@@ -3442,8 +4221,8 @@ export default function App() {
                 />
                 {openAchievement&&(
                   <div style={{marginTop:14}}>
-                    <div style={{height:10,borderRadius:999,background:CT.faint,overflow:"hidden",marginBottom:14}}>
-                      <div style={{width:`${getAchievementProgress(childId).percent}%`,height:"100%",background:`linear-gradient(90deg, ${GAME.gold}, ${GAME.green})`}}/>
+                    <div style={{marginBottom:14}}>
+                      <JellyBar percent={getAchievementProgress(childId).percent} height={10} />
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
                       {(()=>{ const nextBadgeId=getNextBadgeId(childId); return getChildBadges(childId).map(badge=>{
@@ -3505,9 +4284,7 @@ export default function App() {
 
                             {!unlocked&&prog&&(
                               <div style={{margin:"7px 0 0"}}>
-                                <div style={{height:7,borderRadius:999,background:CT.faintB,overflow:"hidden"}}>
-                                  <div style={{width:`${Math.round(prog.cur/prog.goal*100)}%`,height:"100%",background:C.sub}}/>
-                                </div>
+                                <JellyBar percent={Math.round(prog.cur/prog.goal*100)} height={7} fallbackTrack={CT.faintB} fallbackFill={C.sub} fallbackBorder="none" fallbackGlow="none" />
                                 <p style={{fontSize:11,fontWeight:900,color:C.sub,margin:"4px 0 0"}}>{prog.cur} / {prog.goal}</p>
                               </div>
                             )}
@@ -3549,7 +4326,7 @@ export default function App() {
                     </div>
                     <div style={{background:CT.faint,borderRadius:14,padding:"10px",textAlign:"center",border:`1px solid ${C.border}`}}>
                       <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:"0 0 3px"}}>최고 기록</p>
-                      <p style={{fontSize:20,fontWeight:900,margin:0,color:GAME.gold}}>{getBestStreak(childId)}일</p>
+                      <p style={{fontSize:20,fontWeight:900,margin:0,color:GP.gold}}>{getBestStreak(childId)}일</p>
                     </div>
                   </div>
                 )}
@@ -3558,7 +4335,7 @@ export default function App() {
               {/* 모험 기록 카드 */}
               <div style={characterCardT}>
                 <CharacterSectionHeader
-                  icon="📖" title="모험 기록"
+                  icon="📖" title={T.logName||"활동 기록"}
                   subtitle="최근 미션·보상·아이템 활동 기록"
                   open={openHistory} onToggle={()=>setOpenHistory(v=>!v)}
                 />
@@ -3567,7 +4344,7 @@ export default function App() {
                     {getScoreHistory(childId).length===0?(
                       <div style={{textAlign:"center",padding:"24px 10px"}}>
                         <p style={{fontSize:42,marginBottom:8}}>📖</p>
-                        <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 6px"}}>아직 모험 기록이 없어요</p>
+                        <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 6px"}}>아직 {T.logName||"활동 기록"}이 없어요</p>
                         <p style={{fontSize:13,color:C.sub,margin:0}}>미션을 완료하면 기록이 쌓여요</p>
                       </div>
                     ):(
@@ -3586,8 +4363,8 @@ export default function App() {
                                 <p style={{marginTop:3,fontSize:13,color:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.memo||item.date||""}</p>
                               </div>
                               <div style={{textAlign:"right",flexShrink:0}}>
-                                {xp>0&&<p style={{margin:0,color:GAME.gold,fontWeight:900,fontSize:13}}>⭐ +{xp}</p>}
-                                {coin!==0&&<p style={{margin:"2px 0 0",color:coin>0?C.green:C.red,fontWeight:900,fontSize:13}}>💎 {coin>0?"+":""}{coin}</p>}
+                                {xp>0&&<p style={{margin:0,color:GP.gold,fontWeight:900,fontSize:13}}>{TM.xpEmoji} +{xp}</p>}
+                                {coin!==0&&<p style={{margin:"2px 0 0",color:coin>0?C.green:C.red,fontWeight:900,fontSize:13}}>{TM.coinEmoji} {coin>0?"+":""}{coin}</p>}
                               </div>
                             </div>
                           );
@@ -3614,7 +4391,7 @@ export default function App() {
               </div>
 
               {/* 현재 아이 상태 */}
-              <div style={{background:`linear-gradient(135deg, ${GAME.dark}, #2A2D5E)`,borderRadius:14,padding:"10px 14px",marginBottom:14,color:"#fff"}}>
+              <div style={{background:GP.boxBg,border:`1px solid ${GP.boxBorder}`,borderRadius:14,padding:"10px 14px",marginBottom:14,color:GP.boxText}}>
                 <p style={{fontSize:11,opacity:0.7,margin:"0 0 2px",fontWeight:900,letterSpacing:1}}>CURRENT PLAYER</p>
                 <p style={{fontSize:13,fontWeight:900,margin:0}}>{children.find(c=>c.id===childId)?.name||"없음"} · Lv.{getChildLevel(childId).level} · ⭐{getChildXP(childId)} · 💎{getChildCoin(childId)}</p>
               </div>
@@ -3622,7 +4399,7 @@ export default function App() {
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 <button onClick={loadSampleData} style={devBtn(C.green)}>🌱 샘플 데이터 채우기 (아이·학원·미션)</button>
                 <button onClick={()=>generateTestData(childId)} style={devBtn(C.purple)}>🧪 테스트 데이터 생성</button>
-                <button onClick={()=>generateLegendTestData(childId)} style={devBtn(GAME.gold)}>👑 전설 테스트 모드</button>
+                <button onClick={()=>generateLegendTestData(childId)} style={devBtn(GP.gold)}>👑 전설 테스트 모드</button>
 
                 <div style={devGroup}>
                   <p style={devGroupTitle}>미션 · 숙제 일괄 추가 ({fmt(childDate)})</p>
@@ -3637,7 +4414,7 @@ export default function App() {
                   <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
                     <button onClick={()=>giveDevBox("normal")} style={devMiniBtn("#94A3B8")}>📦 일반</button>
                     <button onClick={()=>giveDevBox("rare")} style={devMiniBtn(C.purple)}>🎁 희귀</button>
-                    <button onClick={()=>giveDevBox("legend")} style={devMiniBtn(GAME.gold)}>👑 전설</button>
+                    <button onClick={()=>giveDevBox("legend")} style={devMiniBtn(GP.gold)}>👑 전설</button>
                   </div>
                 </div>
 
@@ -3658,9 +4435,9 @@ export default function App() {
                 <div style={devGroup}>
                   <p style={devGroupTitle}>코인 지급</p>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-                    <button onClick={()=>addDevCoin(100)} style={devMiniBtn(GAME.gold)}>+100</button>
-                    <button onClick={()=>addDevCoin(500)} style={devMiniBtn(GAME.gold)}>+500</button>
-                    <button onClick={()=>addDevCoin(1000)} style={devMiniBtn(GAME.gold)}>+1000</button>
+                    <button onClick={()=>addDevCoin(100)} style={devMiniBtn(GP.gold)}>+100</button>
+                    <button onClick={()=>addDevCoin(500)} style={devMiniBtn(GP.gold)}>+500</button>
+                    <button onClick={()=>addDevCoin(1000)} style={devMiniBtn(GP.gold)}>+1000</button>
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:8}}>
                     <button onClick={()=>addDevCoin(-10)} style={devMiniBtn(C.red)}>-10</button>
@@ -3694,13 +4471,13 @@ export default function App() {
         {showParentPin&&(
           <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,padding:20}}>
             <div style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
-              <h3 style={{fontSize:20,fontWeight:900,margin:"0 0 16px",textAlign:"center"}}>🔒 엄마 모드</h3>
+              <h3 style={{fontSize:20,fontWeight:900,margin:"0 0 16px",textAlign:"center"}}>🔒 엄마용</h3>
               <input type="password" inputMode="numeric" value={pinInput}
                 onChange={e=>setPinInput(e.target.value)}
                 onKeyDown={e=>e.key==="Enter"&&enterParentMode()}
                 placeholder="비밀번호 4자리"
                 style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
-              {parentPin==="1234"&&(
+              {parentPin==="1234"&&!pinHintSeen&&(
                 <p style={{fontSize:13,fontWeight:700,color:th.main,background:`${th.main}12`,borderRadius:10,padding:"9px 12px",margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
                   💡 처음 비밀번호는 <b>1234</b> 예요.<br/>설정 &gt; 비밀번호 변경에서 바꿀 수 있어요.
                 </p>
@@ -3709,7 +4486,7 @@ export default function App() {
                 style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
                 들어가기
               </button>
-              <button onClick={()=>{ setShowParentPin(false); setPinInput(""); }}
+              <button onClick={()=>{ markPinHintSeen(); setShowParentPin(false); setPinInput(""); }}
                 style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
                 취소
               </button>
@@ -3721,8 +4498,8 @@ export default function App() {
       {openingTreasure&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.80)",zIndex:2500,display:"flex",justifyContent:"center",alignItems:"center"}}>
           <div style={{textAlign:"center",color:"#fff"}}>
-            <div style={{fontSize:82,animation:"boxBounce .7s ease-in-out infinite"}}>🎁</div>
-            <p style={{fontSize:24,fontWeight:900,marginTop:14,margin:"14px 0 6px"}}>보물상자 오픈 중...</p>
+            <div style={{fontSize:82,animation:"boxBounce .7s ease-in-out infinite"}}>{TM.boxEmoji}</div>
+            <p style={{fontSize:24,fontWeight:900,marginTop:14,margin:"14px 0 6px"}}>{kidSkin==="cute"?`${TM.box} 여는 중...`:`${TM.box} 오픈 중...`}</p>
             <p style={{fontSize:15,opacity:0.7,margin:0,animation:"shimmer 1s ease-in-out infinite"}}>두근두근...</p>
           </div>
         </div>
@@ -3731,55 +4508,71 @@ export default function App() {
       {/* ── 보물상자 오픈 결과 모달 ── */}
       {treasureModal&&(
         <div style={GAME_MODAL_STYLE.overlay}>
-          <div style={GAME_MODAL_STYLE.card}>
+          <div style={kidSkin==="cute"?{...GAME_MODAL_STYLE.card,borderRadius:32,border:`2px solid ${mixWhite(th.main,0.55)}`,boxShadow:`0 25px 90px ${th.main}44, 0 8px 28px rgba(0,0,0,.18)`}:GAME_MODAL_STYLE.card}>
             <GameModalHeader
+              cute={kidSkin==="cute"}
               emoji={treasureModal.emoji}
-              title="TREASURE OPEN"
-              color={treasureModal.headerGrad||`linear-gradient(135deg, ${GAME.gold}, ${th.main})`}
+              title={kidSkin==="cute"?"DESSERT BOX":"TREASURE OPEN"}
+              color={treasureModal.headerGrad||`linear-gradient(135deg, ${GP.gold}, ${th.main})`}
             />
             <div style={{...GAME_MODAL_STYLE.body,textAlign:"center"}}>
               <p style={{fontSize:15,fontWeight:900,color:C.sub,margin:"0 0 8px"}}>{treasureModal.boxName}</p>
-              <p style={{fontSize:30,fontWeight:900,color:GAME.gold,margin:"0 0 4px"}}>💎 +{treasureModal.rewardCoin}</p>
+              <p style={{fontSize:30,fontWeight:900,color:kidSkin==="cute"?th.main:GP.gold,margin:"0 0 4px"}}>{TM.coinEmoji} +{treasureModal.rewardCoin}</p>
               <p style={{fontSize:13,color:C.sub,fontWeight:800,margin:"0 0 16px"}}>
-                보물상자 보상을 획득했어요!
+                {kidSkin==="cute"?`${TM.box} 보상을 받았어요!`:`${TM.box} 보상을 획득했어요!`}
               </p>
               {treasureModal.titleReward&&(
-                <div style={{marginTop:18,padding:"14px",borderRadius:14,background:"#FFF7ED",border:"2px solid #F59E0B"}}>
-                  <p style={{margin:0,fontSize:13,fontWeight:900,color:"#F59E0B"}}>✨ NEW TITLE</p>
+                <div style={{marginTop:18,padding:"14px",borderRadius:14,background:kidSkin==="cute"?mixWhite(th.main,0.86):"#FFF7ED",border:`2px solid ${kidSkin==="cute"?"#F5B301":"#F59E0B"}`}}>
+                  <p style={{margin:0,fontSize:13,fontWeight:900,color:"#F5B301"}}>✨ 전설 칭호 획득</p>
                   <p style={{marginTop:6,fontSize:20,fontWeight:900,margin:"6px 0 0",color:C.text}}>
                     {treasureModal.titleReward.emoji} {treasureModal.titleReward.name}
                   </p>
                 </div>
               )}
-              <GameModalButton grad={th.grad} onClick={()=>setTreasureModal(null)}/>
+              <GameModalButton cute={kidSkin==="cute"} grad={th.grad} onClick={()=>setTreasureModal(null)}/>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── 미션 결과 모달 ── */}
-      {questResultModal&&(
+      {/* ── 미션 클리어 중앙 보상 연출 (화면을 가리지 않음, 스크롤 위치 무관하게 항상 중앙에 표시) ── */}
+      {charCheer&&(
+        <div key={charCheer.key} style={{position:"fixed",inset:0,zIndex:1250,pointerEvents:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+          {/* 사방으로 시원하게 튀는 코인/별 */}
+          {[...Array(14)].map((_,si)=>{
+            const emo=(kidSkin==="cute"?["🍪","⭐","✨","🧁","🍪","⭐","✨","🌟","🍪","⭐","✨","🎀","🍪","⭐"]:["💎","⭐","✨","🪙","💎","⭐","✨","🌟","💎","⭐","✨","🪙","💎","⭐"])[si];
+            const ang=si/14*6.28;
+            const dist=110+(si%3)*40;
+            return (
+              <span key={si} style={{position:"absolute",left:"50%",top:"50%",fontSize:34,"--bcx":`${Math.cos(ang)*dist}px`,"--bcy":`${Math.sin(ang)*dist}px`,"--bcr":`${(si%2?1:-1)*200}deg`,animation:"bigCoinBurst .8s ease-out forwards",animationDelay:`${(si%4)*0.03}s`}}>{emo}</span>
+            );
+          })}
+          {/* 응원 문구 */}
+          <div style={{background:"#fff",borderRadius:22,padding:"14px 24px",boxShadow:kidSkin==="cute"?`0 16px 50px ${th.main}3a`:"0 16px 50px rgba(0,0,0,0.28)",border:`3px solid ${kidSkin==="cute"?th.main:GP.gold}`,textAlign:"center",animation:"cheerTextIn .5s cubic-bezier(.34,1.56,.64,1) forwards, cheerTextOut .35s ease-in .95s forwards"}}>
+            <p style={{fontSize:26,fontWeight:900,color:GP.dark,margin:"0 0 6px",whiteSpace:"nowrap"}}>{charCheer.msg}</p>
+            <p style={{fontSize:19,fontWeight:900,margin:0,whiteSpace:"nowrap"}}>
+              <span style={{color:GP.gold}}>{TM.xpEmoji} +{charCheer.xp}</span>
+              <span style={{color:C.sub,margin:"0 8px"}}>·</span>
+              <span style={{color:C.green}}>{TM.coinEmoji} +{charCheer.xp}</span>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── 미션 실패 안내 모달 (클리어는 인라인 이펙트로 대체) ── */}
+      {questResultModal&&questResultModal.type==="failed"&&(
         <div style={{...GAME_MODAL_STYLE.overlay,pointerEvents:"none",zIndex:1300}}>
           <div style={GAME_MODAL_STYLE.card}>
             <GameModalHeader
-              emoji={questResultModal.type==="clear"?"⚔️":"💥"}
-              title={questResultModal.type==="clear"?"미션 클리어!":"미션 실패"}
-              color={questResultModal.type==="clear"
-                ?`linear-gradient(135deg, ${GAME.green}, ${GAME.gold})`
-                :`linear-gradient(135deg, ${C.red}, #FF8A80)`}
+              emoji="💥"
+              title="미션 실패"
+              color={`linear-gradient(135deg, ${C.red}, #FF8A80)`}
             />
             <div style={{...GAME_MODAL_STYLE.body,textAlign:"center"}}>
               <p style={{fontWeight:900,fontSize:17,margin:"0 0 10px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                 {questResultModal.title}
               </p>
-              {questResultModal.type==="clear"?(
-                <>
-                  <p style={{fontSize:24,fontWeight:900,color:GAME.gold,margin:"0 0 4px"}}>⭐ +{questResultModal.xp} XP</p>
-                  <p style={{fontSize:20,fontWeight:900,color:C.green,margin:0}}>💎 +{questResultModal.xp} 코인</p>
-                </>
-              ):(
-                <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0}}>다음에 다시 도전!</p>
-              )}
+              <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0}}>다음에 다시 도전!</p>
             </div>
           </div>
         </div>
@@ -3790,37 +4583,47 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.72)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3000,padding:20}}>
           {/* 반짝이 이펙트 */}
           <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
-            {["✨","⭐","✨","💫","⭐"].map((s,i)=>(
+            {(kidSkin==="cute"?["🧁","🍪","🎀","🌸","🧁"]:["✨","⭐","✨","💫","⭐"]).map((s,i)=>(
               <span key={i} style={{position:"absolute",left:`${18+i*16}%`,top:`${34+(i%2)*12}%`,fontSize:24,animation:`sparkleFloat ${0.9+i*0.12}s ease-out infinite`,animationDelay:`${i*0.12}s`}}>
                 {s}
               </span>
             ))}
           </div>
           {/* 모달 카드 */}
-          <div style={{width:"100%",maxWidth:350,borderRadius:28,overflow:"hidden",background:"#fff",textAlign:"center",boxShadow:"0 25px 90px rgba(0,0,0,.38)",animation:"gamePop .45s ease-out",position:"relative"}}>
+          <div style={{width:"100%",maxWidth:350,borderRadius:kidSkin==="cute"?32:28,overflow:"hidden",background:"#fff",textAlign:"center",boxShadow:kidSkin==="cute"?`0 25px 90px ${th.main}44, 0 8px 28px rgba(0,0,0,.18)`:"0 25px 90px rgba(0,0,0,.38)",animation:"gamePop .45s ease-out",position:"relative",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.55)}`:"none"}}>
             {/* 헤더 */}
-            <div style={{position:"relative",overflow:"hidden",padding:"28px 20px",color:"#fff",
-              background:eventModal.type==="level"
-                ?`linear-gradient(135deg, ${GAME.gold}, ${th.main})`
-                :eventModal.type==="title"
-                  ?"linear-gradient(135deg,#F59E0B,#FDE68A)"
-                  :eventModal.type==="achievement"
-                    ?"linear-gradient(135deg,#9333EA,#C084FC)"
-                    :eventModal.type==="box"
-                      ?"linear-gradient(135deg,#F59E0B,#FBBF24)"
-                      :`linear-gradient(135deg, ${GAME.dark}, ${th.main})`
+            <div style={{position:"relative",overflow:"hidden",padding:"28px 20px",color:kidSkin==="cute"?"#6B4A5C":"#fff",
+              background:kidSkin==="cute"
+                ?(eventModal.type==="level"
+                    ?`linear-gradient(135deg, ${th.main}, ${mixWhite(th.main,0.4)})`
+                    :eventModal.type==="title"
+                      ?"linear-gradient(135deg,#F5B301,#FFD98E)"
+                      :eventModal.type==="achievement"
+                        ?"linear-gradient(135deg,#F78FB3,#F8C8DC)"
+                        :eventModal.type==="box"
+                          ?"linear-gradient(135deg,#F8A5C2,#FAD0C4)"
+                          :`linear-gradient(135deg, ${th.main}, ${mixWhite(th.main,0.4)})`)
+                :(eventModal.type==="level"
+                  ?`linear-gradient(135deg, ${GP.gold}, ${th.main})`
+                  :eventModal.type==="title"
+                    ?"linear-gradient(135deg,#F59E0B,#FDE68A)"
+                    :eventModal.type==="achievement"
+                      ?"linear-gradient(135deg,#9333EA,#C084FC)"
+                      :eventModal.type==="box"
+                        ?"linear-gradient(135deg,#F59E0B,#FBBF24)"
+                        :`linear-gradient(135deg, ${GP.dark}, ${th.main})`)
             }}>
               {/* shine 효과 */}
               <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent)",animation:"shineMove 1.4s ease-in-out infinite"}}/>
               <p style={{fontSize:58,margin:"0 0 8px",position:"relative"}}>{eventModal.emoji}</p>
-              <p style={{fontSize:24,fontWeight:900,margin:0,letterSpacing:1,position:"relative"}}>{eventModal.title}</p>
+              <p style={{fontSize:kidSkin==="cute"?22:24,fontWeight:900,margin:0,letterSpacing:kidSkin==="cute"?0:1,position:"relative"}}>{eventModal.title}</p>
             </div>
             {/* 본문 */}
             <div style={{padding:"24px 22px"}}>
               <p style={{fontSize:20,fontWeight:900,color:C.text,margin:"0 0 8px"}}>{eventModal.name}</p>
               <p style={{fontSize:13,fontWeight:800,color:C.sub,margin:"0 0 14px",lineHeight:1.45}}>{eventModal.desc}</p>
               {eventModal.reward&&(
-                <div style={{background:GAME.dark,color:GAME.gold,borderRadius:14,padding:"11px 12px",fontSize:13,fontWeight:900,marginBottom:16,lineHeight:1.5}}>
+                <div style={{background:kidSkin==="cute"?mixWhite(th.main,0.86):GP.boxSolid,border:`1px solid ${kidSkin==="cute"?mixWhite(th.main,0.6):GP.boxBorder}`,color:kidSkin==="cute"?mixBlack(th.main,0.25):GP.boxText,borderRadius:14,padding:"11px 12px",fontSize:13,fontWeight:900,marginBottom:16,lineHeight:1.5}}>
                   {String(eventModal.reward).split("\n").map((line,i)=>(
                     <div key={i}>{line}</div>
                   ))}
@@ -3835,13 +4638,13 @@ export default function App() {
         </div>
       )}
 
-      {/* ── 첫 미션 완료 후 상점 안내창 (아이모드 설명 디자인) ── */}
+      {/* ── 첫 미션 완료 후 상점 안내창 (아이용 설명 디자인) ── */}
       {showFirstMissionTip&&(
         <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.8)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px"}} onClick={()=>setShowFirstMissionTip(false)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:26,padding:"32px 24px 24px",width:"100%",maxWidth:340,textAlign:"center",boxShadow:"0 24px 70px rgba(0,0,0,0.32)"}}>
-            <div style={{fontSize:64,marginBottom:16}}>💎</div>
-            <p style={{fontSize:20,fontWeight:900,color:"#1A1A35",margin:"0 0 12px",lineHeight:1.3}}>코인을 얻었네요! 🎉</p>
-            <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:"0 0 22px",whiteSpace:"pre-line"}}>{"미션을 해내고 코인을 모았어요!\n모은 코인으로 사탕을 받을 수 있어요 🍬\n\n내 캐릭터 탭 → 아이템 상점에서\n받고 싶은 사탕을 '받을래요!' 눌러요.\n엄마가 확인하면 사탕은 내 거! 🙆"}</p>
+            <div style={{fontSize:64,marginBottom:16}}>{TM.coinEmoji}</div>
+            <p style={{fontSize:20,fontWeight:900,color:"#1A1A35",margin:"0 0 12px",lineHeight:1.3}}>{TM.coin}을 얻었네요! 🎉</p>
+            <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:"0 0 22px",whiteSpace:"pre-line"}}>{"내 캐릭터 탭 → 아이템 상점에서\n받고 싶은 사탕을 '받을래요!' 눌러요.\n엄마가 확인하면 사탕은 내 거! 🙆"}</p>
             <button onClick={()=>setShowFirstMissionTip(false)} style={{width:"100%",padding:16,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",boxShadow:`0 6px 18px ${th.main}45`}}>
               알겠어요! 🎉
             </button>
@@ -3860,8 +4663,8 @@ export default function App() {
       {/* 토스트 */}
       {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
 
-      {showFirstGuide&&(
-        <GuideModal type="first" th={th} onClose={closeFirstGuide} />
+      {showModeSelect&&(
+        <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임으로 변경!":"⚔️ 던전 게임으로 변경!"); }} />
       )}
 
       {showCoachmark&&(
@@ -3869,7 +4672,7 @@ export default function App() {
       )}
 
       {showParentRewardGuide&&(
-        <GuideModal type="reward" th={th} onClose={()=>{ setShowParentRewardGuide(false); setTab("reward"); }} />
+        <GuideModal type="reward" th={th} skin={kidSkin} onClose={()=>{ setShowParentRewardGuide(false); setTab("reward"); }} />
       )}
 
       {/* ── 헤더 (소프트 파스텔) ── */}
@@ -3881,11 +4684,11 @@ export default function App() {
         <div style={{position:"relative",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
           <div>
             <p style={{fontSize:11,color:mixWhite(th.main,0.05),margin:0,letterSpacing:2.5,fontWeight:800,opacity:0.85}}>ACADEMY PLANNER</p>
-            <h1 style={{fontSize:23,fontWeight:900,margin:"4px 0 0",color:mixWhite(th.main,0)}}>🎒 엄마 관리 모드</h1>
+            <h1 style={{fontSize:23,fontWeight:900,margin:"4px 0 0",color:mixWhite(th.main,0)}}>🎒 엄마 관리</h1>
           </div>
           <button onClick={exitParentMode}
             style={{border:"none",background:"#fff",color:th.main,borderRadius:14,padding:"9px 14px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`}}>
-            🎒 아이 모드
+            🎒 아이용
           </button>
         </div>
       </div>
@@ -4076,7 +4879,7 @@ export default function App() {
 
               {/* 학원 카드 */}
               {homeAc.length>0&&(
-                <p style={{fontSize:17,color:C.sub,fontWeight:700,margin:"0 0 10px",letterSpacing:0.5}}>📍 오늘의 학원 ({homeAc.length})</p>
+                <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 10px",letterSpacing:0.3}}>📍 오늘의 학원 ({homeAc.length})</p>
               )}
               {homeAc.map(ac=>{
                 const sc=getScheduleForDay(ac,hDN);
@@ -4089,41 +4892,41 @@ export default function App() {
                 const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
                 const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
                 return (
-                  <div key={ac.id} style={{background:CT.card,borderRadius:20,marginBottom:14,border:`1px solid ${ac.color}45`,boxShadow:`0 4px 16px ${ac.color}18`,overflow:"hidden"}}>
-                    <div style={{background:`${ac.color}18`,padding:"14px 16px",display:"flex",alignItems:"center",gap:12}}>
-                      <div style={{width:5,height:52,borderRadius:10,background:ac.color,flexShrink:0}}/>
-                      <div style={{flex:1}}>
-                        <p style={{fontSize:17,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
-                        <p style={{fontSize:17,color:C.sub,margin:"3px 0 0"}}>{sc?.time} ~ {endT} &nbsp;·&nbsp; {sc?.duration}분</p>
+                  <div key={ac.id} style={{background:CT.card,borderRadius:16,marginBottom:10,border:`1px solid ${ac.color}2A`,boxShadow:SHADOW.sm,overflow:"hidden"}}>
+                    <div style={{background:`${ac.color}12`,padding:"11px 13px",display:"flex",alignItems:"center",gap:11}}>
+                      <div style={{width:4,height:40,borderRadius:10,background:ac.color,flexShrink:0}}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <p style={{fontSize:15,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
+                        <p style={{fontSize:13,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT} &nbsp;·&nbsp; {sc?.duration}분</p>
                         {(()=>{
                           const shuttleText=getShuttleText(ac,hDN);
                           if(!shuttleText) return null;
-                          return <p style={{fontSize:13,color:C.sub,margin:"4px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
+                          return <p style={{fontSize:12,color:C.sub,margin:"3px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
                         })()}
                       </div>
-                      <div style={{display:"flex",gap:8}}>
-                        {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:38,height:38,borderRadius:10,background:`${C.green}15`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,textDecoration:"none"}}>📞</a>}
-                        {ac.phone&&<button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:38,height:38,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,cursor:"pointer"}}>💬</button>}
+                      <div style={{display:"flex",gap:7}}>
+                        {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:34,height:34,borderRadius:10,background:`${C.green}15`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,textDecoration:"none"}}>📞</a>}
+                        {ac.phone&&<button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:34,height:34,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>💬</button>}
                       </div>
                     </div>
-                    <div style={{padding:"14px 16px"}}>
+                    <div style={{padding:"12px 13px"}}>
                       {/* 준비물 */}
-                      <div style={{marginBottom:12}}>
-                        <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 7px",letterSpacing:0.5}}>🎒 준비물</p>
+                      <div style={{marginBottom:10}}>
+                        <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 6px",letterSpacing:0.3}}>🎒 준비물</p>
                         <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                          {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:17,padding:"4px 11px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
-                          {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:17,padding:"4px 11px",borderRadius:20,background:`${C.orange}15`,color:C.orange,fontWeight:600}}>+{s}</span>)}
-                          {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:17,color:C.sub,opacity:0.6}}>없음</span>}
+                          {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
+                          {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${C.orange}15`,color:C.orange,fontWeight:600}}>+{s}</span>)}
+                          {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:13,color:C.sub,opacity:0.6}}>없음</span>}
                         </div>
                       </div>
                       {/* 학원별 할 일 요약 */}
-                      <div style={{marginBottom:12}}>
-                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:7}}>
-                          <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0}}>🎯 미션 요약</p>
-                          {totalTodoCnt>0&&<span style={{fontSize:13,fontWeight:800,color:allDone?C.green:C.orange}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
+                      <div style={{marginBottom:10}}>
+                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+                          <p style={{fontSize:13,fontWeight:800,color:C.sub,margin:0}}>🎯 미션 요약</p>
+                          {totalTodoCnt>0&&<span style={{fontSize:12,fontWeight:800,color:allDone?C.green:C.orange}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
                         </div>
                         {totalTodoCnt===0?(
-                          <p style={{fontSize:13,color:C.sub,opacity:0.7,margin:0}}>등록된 미션 없음</p>
+                          <p style={{fontSize:12,color:C.sub,opacity:0.7,margin:0}}>등록된 미션 없음</p>
                         ):(
                           <div style={{display:"flex",flexDirection:"column",gap:5,background:CT.faint,border:`1px solid ${C.border}`,borderRadius:10,padding:"9px 10px"}}>
                             {hw.map(h=>(
@@ -4172,8 +4975,8 @@ export default function App() {
                 ):(
                   <div style={{display:"flex",flexDirection:"column",gap:10}}>
                     {curAc.map(ac=>(
-                      <div key={ac.id} style={{background:CT.card,borderRadius:18,border:`1px solid ${ac.color}45`,overflow:"hidden",boxShadow:`0 4px 16px ${ac.color}18`}}>
-                        <div style={{background:`${ac.color}16`,padding:"10px 13px",display:"flex",alignItems:"center",gap:9,borderBottom:`1px solid ${ac.color}1A`}}>
+                      <div key={ac.id} style={{background:CT.card,borderRadius:16,border:`1px solid ${ac.color}2A`,overflow:"hidden",boxShadow:SHADOW.sm}}>
+                        <div style={{background:`${ac.color}12`,padding:"10px 13px",display:"flex",alignItems:"center",gap:9,borderBottom:`1px solid ${ac.color}14`}}>
                           <div style={{width:4,height:34,borderRadius:10,background:ac.color,flexShrink:0}}/>
                           <div style={{flex:1,minWidth:0}}>
                             <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{ac.name}</p>
@@ -4396,27 +5199,27 @@ export default function App() {
                       const tm=h*60+m+Number(sc?.duration||0);
                       const endT=`${String(Math.floor(tm/60)%24).padStart(2,"0")}:${String(tm%60).padStart(2,"0")}`;
                       return (
-                        <div key={ac.id} style={{marginBottom:12,borderRadius:14,border:`1.5px solid ${ac.color}25`,overflow:"hidden"}}>
-                          <div style={{background:`${ac.color}10`,padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}>
-                            <div style={{width:4,height:38,borderRadius:10,background:ac.color,flexShrink:0}}/>
-                            <div style={{flex:1}}>
-                              <p style={{fontSize:17,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
-                              <p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT} · {sc?.duration}분</p>
+                        <div key={ac.id} style={{marginBottom:10,borderRadius:16,border:`1px solid ${ac.color}2A`,overflow:"hidden",boxShadow:SHADOW.sm}}>
+                          <div style={{background:`${ac.color}12`,padding:"11px 13px",display:"flex",alignItems:"center",gap:11}}>
+                            <div style={{width:4,height:40,borderRadius:10,background:ac.color,flexShrink:0}}/>
+                            <div style={{flex:1,minWidth:0}}>
+                              <p style={{fontSize:15,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
+                              <p style={{fontSize:13,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT} · {sc?.duration}분</p>
                               {(()=>{
                                 const shuttleText=getShuttleText(ac,selInfo.dn);
                                 if(!shuttleText) return null;
-                                return <p style={{fontSize:13,color:C.sub,margin:"4px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
+                                return <p style={{fontSize:12,color:C.sub,margin:"3px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
                               })()}
                             </div>
-                            {totalTodoCnt>0&&<span style={{fontSize:17,fontWeight:700,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:10,padding:"3px 8px"}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
+                            {totalTodoCnt>0&&<span style={{fontSize:12,fontWeight:800,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:10,padding:"3px 9px",flexShrink:0}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
                           </div>
-                          <div style={{padding:"12px 14px"}}>
+                          <div style={{padding:"12px 13px"}}>
                             <div style={{marginBottom:10}}>
-                              <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 6px"}}>🎒 준비물</p>
-                              <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:17,padding:"3px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
-                                {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:17,padding:"3px 10px",borderRadius:20,background:`${C.orange}15`,color:C.orange,fontWeight:600}}>+{s}</span>)}
-                                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:17,color:C.sub,opacity:0.6}}>없음</span>}
+                              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 6px",letterSpacing:0.3}}>🎒 준비물</p>
+                              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
+                                {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${C.orange}15`,color:C.orange,fontWeight:600}}>+{s}</span>)}
+                                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:13,color:C.sub,opacity:0.6}}>없음</span>}
                               </div>
                             </div>
                             <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
@@ -4627,7 +5430,7 @@ export default function App() {
                         <span style={{fontSize:24}}>{req.emoji}</span>
                         <div style={{flex:1}}>
                           <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{req.title}</p>
-                          <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{req.point} XP 사용</p>
+                          <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{req.point} {TM.coin} 사용</p>
                         </div>
                       </div>
                       <div style={{display:"flex",gap:8}}>
@@ -4666,7 +5469,7 @@ export default function App() {
                         <span style={{fontSize:24}}>{reward.emoji}</span>
                         <div style={{flex:1}}>
                           <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
-                          <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point} 💎 코인 필요</p>
+                          <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point} {TM.coinEmoji} {TM.coin} 필요</p>
                         </div>
                         <div style={{display:"flex",flexDirection:"column",gap:5}}>
                           <button onClick={()=>openEditReward(reward)}
@@ -4691,7 +5494,7 @@ export default function App() {
                 style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
                 <div style={{textAlign:"left"}}>
                   <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎮 성장 관리</p>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>보물창고 · 연속 달성 · 칭호 · 업적</p>
+                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{TM.book} · 연속 달성 · 칭호 · 업적</p>
                 </div>
                 <span style={openClosePill(showParentGrowthManage)}>{openCloseLabel(showParentGrowthManage)}</span>
               </button>
@@ -4700,9 +5503,12 @@ export default function App() {
                   {(()=>{
                     const level=getChildLevel(childId);
                     const evo=getCharacterEvolution(childId);
-                    const nextEvo=[...CHARACTER_EVOLUTIONS]
+                    const nextEvoRaw=[...CHARACTER_EVOLUTIONS]
                       .sort((a,b)=>a.minLevel-b.minLevel)
                       .find(e=>e.minLevel>level.level);
+                    const nextEvo=nextEvoRaw
+                      ? evoView(nextEvoRaw,CHARACTER_EVOLUTIONS.findIndex(e=>e.minLevel===nextEvoRaw.minLevel),kidSkin)
+                      : null;
 
                     const achievement=getAchievementProgress(childId);
                     const treasure=getChildTreasure(childId);
@@ -4722,7 +5528,7 @@ export default function App() {
                       <>
                         {/* 캐릭터 성장 현황 */}
                         <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>🧬 캐릭터 성장</p>
+                          <p style={parentInnerTitle}>🧬 캐릭터 성장 : {curChild?.name}</p>
 
                           <div style={{
                             display:"flex",
@@ -4740,7 +5546,7 @@ export default function App() {
                               height:58,
                               borderRadius:20,
                               background:evo.bg,
-                              border:`2px solid ${GAME.gold}55`,
+                              border:`2px solid ${GP.gold}55`,
                               display:"flex",
                               alignItems:"center",
                               justifyContent:"center",
@@ -4756,7 +5562,7 @@ export default function App() {
                                 height:24,
                                 borderRadius:"50%",
                                 background:"#fff",
-                                border:`2px solid ${GAME.gold}`,
+                                border:`2px solid ${GP.gold}`,
                                 display:"flex",
                                 alignItems:"center",
                                 justifyContent:"center",
@@ -4767,26 +5573,34 @@ export default function App() {
                             </div>
 
                             <div style={{flex:1,minWidth:0}}>
-                              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 4px"}}>
-                                {curChild?.name} · {level.emoji} Lv.{level.level} {level.name}
-                              </p>
                               <p style={{fontSize:15,fontWeight:900,color:C.text,margin:0}}>
-                                ⭐ {getChildXP(childId)} XP · 💎 {getChildCoin(childId)} 코인
+                                {level.emoji} Lv.{level.level} {level.name}
+                              </p>
+                              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"4px 0 0"}}>
+                                {TM.xpEmoji} {getChildXP(childId)} {TM.xp}
+                              </p>
+                              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"4px 0 0"}}>
+                                {TM.coinEmoji} {getChildCoin(childId)} {TM.coin}
                               </p>
                               {getNextLevel(childId)&&(
-                                <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:"4px 0 0"}}>
-                                  다음 레벨까지 {getLevelProgressInfo(childId).remainXp} XP 남음
+                                <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:"8px 0 0"}}>
+                                  다음 레벨까지 {getLevelProgressInfo(childId).remainXp} {TM.xp} 남음
                                 </p>
                               )}
                             </div>
                           </div>
+                          {evoMsgView(evo.name,kidSkin)&&(
+                            <p style={{fontSize:12.5,fontWeight:700,color:C.sub,lineHeight:1.55,margin:"10px 2px 0"}}>
+                              {evo.emoji?`${evo.emoji} `:""}{evoMsgView(evo.name,kidSkin)}
+                            </p>
+                          )}
                         </div>
 
                         {/* 보물창고 */}
                         <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>🎁 보물창고</p>
+                          <p style={parentInnerTitle}>{TM.bookEmoji} {TM.book}</p>
                           <p style={parentInnerSub}>
-                            미션 완료 누적 {treasure.completedQuestCount||0}개 · 상자 총 {getTotalTreasureCount(childId)}개 보유
+                            미션 완료 누적 {treasure.completedQuestCount||0}개 · {kidSkin==="cute"?TM.box:"상자"} 총 {getTotalTreasureCount(childId)}개 보유
                           </p>
 
                           <div style={{
@@ -4796,9 +5610,9 @@ export default function App() {
                             marginTop:10
                           }}>
                             {[
-                              {label:"일반",emoji:"📦",count:treasure.normalBox||0,range:"20~40",color:C.sub},
-                              {label:"희귀",emoji:"🎁",count:treasure.rareBox||0,range:"40~80",color:C.purple},
-                              {label:"전설",emoji:"👑",count:treasure.legendBox||0,range:"100~160",color:GAME.gold},
+                              {label:getBoxInfo("normal",kidSkin).name,emoji:getBoxInfo("normal",kidSkin).emoji,count:treasure.normalBox||0,range:"20~40",color:C.sub},
+                              {label:getBoxInfo("rare",kidSkin).name,emoji:getBoxInfo("rare",kidSkin).emoji,count:treasure.rareBox||0,range:"40~80",color:C.purple},
+                              {label:getBoxInfo("legend",kidSkin).name,emoji:getBoxInfo("legend",kidSkin).emoji,count:treasure.legendBox||0,range:"100~160",color:"#F5B301"},
                             ].map(box=>(
                               <div key={box.label} style={{
                                 background:"#fff",
@@ -4815,7 +5629,7 @@ export default function App() {
                                   {box.label}
                                 </p>
                                 <p style={{fontSize:11,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>
-                                  💎 {box.range}
+                                  {TM.coinEmoji} {box.range}
                                 </p>
                               </div>
                             ))}
@@ -4854,7 +5668,7 @@ export default function App() {
                               textAlign:"center"
                             }}>
                               <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:"0 0 3px"}}>최고 기록</p>
-                              <p style={{fontSize:20,fontWeight:900,margin:0,color:GAME.gold}}>
+                              <p style={{fontSize:20,fontWeight:900,margin:0,color:GP.gold}}>
                                 {getBestStreak(childId)}일
                               </p>
                             </div>
@@ -4909,20 +5723,8 @@ export default function App() {
                             {achievement.unlocked}/{achievement.total}개 달성 · {achievement.percent}%
                           </p>
 
-                          <div style={{
-                            height:9,
-                            borderRadius:999,
-                            background:"#fff",
-                            border:`1px solid ${C.border}`,
-                            overflow:"hidden",
-                            marginTop:10
-                          }}>
-                            <div style={{
-                              width:`${achievement.percent}%`,
-                              height:"100%",
-                              background:`linear-gradient(90deg, ${GAME.gold}, ${GAME.green})`,
-                              borderRadius:999
-                            }}/>
+                          <div style={{marginTop:10}}>
+                            <JellyBar percent={achievement.percent} height={9} fallbackTrack="#fff" fallbackBorder={`1px solid ${C.border}`} fallbackGlow="none" />
                           </div>
 
                           <div style={{
@@ -4962,7 +5764,7 @@ export default function App() {
                 style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
                 <div style={{textAlign:"left"}}>
                   <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>📖 기록 관리</p>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>모험기록 · XP 통장</p>
+                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{T.logName||"활동 기록"} · {TM.xp} 통장</p>
                 </div>
                 <span style={openClosePill(showParentRecordManage)}>{openCloseLabel(showParentRecordManage)}</span>
               </button>
@@ -4986,9 +5788,9 @@ export default function App() {
                       <>
                         {/* XP 통장 요약 */}
                         <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>⭐ XP 통장</p>
+                          <p style={parentInnerTitle}>{TM.xpEmoji} {TM.xp} 통장</p>
                           <p style={parentInnerSub}>
-                            지금까지 쌓은 XP와 코인 흐름을 한눈에 확인해요.
+                            지금까지 쌓은 {TM.xp}와 {TM.coin} 흐름을 한눈에 확인해요.
                           </p>
 
                           <div style={{
@@ -5004,12 +5806,12 @@ export default function App() {
                               padding:"10px",
                               textAlign:"center"
                             }}>
-                              <p style={{fontSize:17,margin:0}}>⭐</p>
+                              <p style={{fontSize:17,margin:0}}>{TM.xpEmoji}</p>
                               <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0",color:C.text}}>
                                 {getChildXP(childId)}
                               </p>
                               <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:0}}>
-                                현재 XP
+                                현재 {TM.xp}
                               </p>
                             </div>
 
@@ -5020,12 +5822,12 @@ export default function App() {
                               padding:"10px",
                               textAlign:"center"
                             }}>
-                              <p style={{fontSize:17,margin:0}}>💎</p>
+                              <p style={{fontSize:17,margin:0}}>{TM.coinEmoji}</p>
                               <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0",color:C.green}}>
                                 {getChildCoin(childId)}
                               </p>
                               <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:0}}>
-                                보유 코인
+                                보유 {TM.coin}
                               </p>
                             </div>
 
@@ -5037,11 +5839,11 @@ export default function App() {
                               textAlign:"center"
                             }}>
                               <p style={{fontSize:17,margin:0}}>📈</p>
-                              <p style={{fontSize:17,fontWeight:900,margin:"3px 0 0",color:GAME.gold}}>
+                              <p style={{fontSize:17,fontWeight:900,margin:"3px 0 0",color:GP.gold}}>
                                 {earnedXp}
                               </p>
                               <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:0}}>
-                                총 획득 XP
+                                총 획득 {TM.xp}
                               </p>
                             </div>
 
@@ -5057,7 +5859,7 @@ export default function App() {
                                 {spentCoin}
                               </p>
                               <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:0}}>
-                                사용 코인
+                                사용 {TM.coin}
                               </p>
                             </div>
                           </div>
@@ -5076,34 +5878,22 @@ export default function App() {
                               marginBottom:6
                             }}>
                               <span style={{fontSize:13,fontWeight:900,color:C.sub}}>
-                                코인 흐름
+                                {TM.coin} 흐름
                               </span>
                               <span style={{fontSize:13,fontWeight:900,color:C.text}}>
                                 획득 {earnedCoin} · 사용 {spentCoin}
                               </span>
                             </div>
 
-                            <div style={{
-                              height:9,
-                              borderRadius:999,
-                              background:CT.faint,
-                              overflow:"hidden"
-                            }}>
-                              <div style={{
-                                width:`${earnedCoin+spentCoin===0?0:Math.min(100,Math.round((earnedCoin/(earnedCoin+spentCoin))*100))}%`,
-                                height:"100%",
-                                background:`linear-gradient(90deg, ${C.green}, ${GAME.gold})`,
-                                borderRadius:999
-                              }}/>
-                            </div>
+                            <JellyBar percent={earnedCoin+spentCoin===0?0:Math.min(100,Math.round((earnedCoin/(earnedCoin+spentCoin))*100))} height={9} fallbackTrack={CT.faint} fallbackFill={`linear-gradient(90deg, ${C.green}, ${GP.gold})`} fallbackBorder="none" fallbackGlow="none" />
                           </div>
                         </div>
 
                         {/* 모험기록 상세 */}
                         <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>📖 모험기록</p>
+                          <p style={parentInnerTitle}>📖 {T.logName||"활동 기록"}</p>
                           <p style={parentInnerSub}>
-                            최근 미션 완료, 보물상자, 보상 구매 기록이에요.
+                            최근 미션 완료, {kidSkin==="cute"?TM.box:"보물상자"}, 보상 구매 기록이에요.
                           </p>
 
                           <div style={{marginTop:10}}>
@@ -5184,9 +5974,9 @@ export default function App() {
                                           fontSize:13,
                                           fontWeight:900,
                                           margin:0,
-                                          color:xp>0?GAME.gold:C.red
+                                          color:xp>0?GP.gold:C.red
                                         }}>
-                                          ⭐ {xp>0?"+":""}{xp}
+                                          {TM.xpEmoji} {xp>0?"+":""}{xp}
                                         </p>
                                       )}
 
@@ -5197,7 +5987,7 @@ export default function App() {
                                           margin:"2px 0 0",
                                           color:coin>0?C.green:C.red
                                         }}>
-                                          💎 {coin>0?"+":""}{coin}
+                                          {TM.coinEmoji} {coin>0?"+":""}{coin}
                                         </p>
                                       )}
                                     </div>
@@ -5282,6 +6072,19 @@ export default function App() {
                   <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>홈부터 각 탭이 어떤 기능인지 다시 안내해요</p>
                 </div>
                 <span style={openClosePill(true)}>보기</span>
+              </button>
+            </div>
+
+            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
+              <button
+                onClick={()=>{ setShowSettingsModal(false); setShowModeSelect(true); }}
+                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",textAlign:"left"}}
+              >
+                <div>
+                  <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎨 {children.find(c=>c.id===childId)?.name||"아이"} 게임 디자인 변경</p>
+                  <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>현재: {getSkin(kidSkin).selectEmoji} {getSkin(kidSkin).name} · 이 아이에게만 적용돼요</p>
+                </div>
+                <span style={openClosePill(true)}>변경</span>
               </button>
             </div>
 
@@ -5513,13 +6316,13 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <label style={lbl}>필요 XP *</label>
+            <label style={lbl}>필요 {TM.coin} *</label>
             <input type="number" value={rewardForm.point} onChange={e=>setRewardForm(p=>({...p,point:Number(e.target.value)}))}
               placeholder="예: 300"
               style={{...inp,marginBottom:20}}/>
             <div style={{background:th.light,border:`1px solid ${th.main}30`,borderRadius:14,padding:"14px",marginBottom:20}}>
               <p style={{fontSize:13,fontWeight:800,color:th.main,margin:"0 0 6px"}}>미리보기</p>
-              <p style={{fontSize:17,fontWeight:900,color:C.text,margin:0}}>{rewardForm.emoji||"🎁"} {rewardForm.title||"보상 이름"} · {rewardForm.point||0} XP</p>
+              <p style={{fontSize:17,fontWeight:900,color:C.text,margin:0}}>{rewardForm.emoji||"🎁"} {rewardForm.title||"보상 이름"} · {rewardForm.point||0} {TM.coin}</p>
             </div>
             <button onClick={addRewardItem}
               style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",boxShadow:`0 4px 16px ${th.main}40`}}>
