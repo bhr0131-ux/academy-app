@@ -795,11 +795,11 @@ const PET_EVOLVE_LEGEND_PITY = 2;
 
 // 진화 단계별 격려 문구
 const EVOLUTION_MESSAGES = {
-  "새싹 모험가":   "모든 위대한 모험은 작은 한 걸음에서 시작돼요.",
-  "견습 용사":     "매일의 작은 노력이 강한 용사를 만들고 있어요.",
-  "숙련 헌터":     "해야 할 일을 스스로 찾아 해결하는 힘이 생겼어요.",
-  "영웅 기사":     "책임감과 용기를 갖춘 진정한 영웅으로 성장하고 있어요.",
-  "전설의 수호자": "자신의 길을 스스로 만들어가는 전설적인 수호자예요.",
+  "새싹 모험가":   "작은 한 걸음에서 모험이 시작돼요.",
+  "견습 용사":     "작은 노력이 강한 용사를 만들어요.",
+  "숙련 헌터":     "스스로 해내는 힘이 자라고 있어요.",
+  "영웅 기사":     "책임감과 용기로 성장하고 있어요.",
+  "전설의 수호자": "자신의 길을 만들어가는 수호자예요.",
 };
 
 // ════════════════════════════════════════════════════════════
@@ -4494,6 +4494,11 @@ export default function App() {
           const allDone=q.total>0&&q.percent===100;
           // 꾸미기(모자·테두리·배경·스킨) 중 하나라도 장착하면 둥실 효과 정지 — 초기 기본 상태에서만 둥실거려 생동감을 줌
           const hasAnyDecor=!!(stageHat||stageBorder||stageBgDeco||eqSkinActive);
+          // 무대 응원 말풍선 노출 규칙
+          //  - 무기 장착: 유지 / 테두리 장착: 유지
+          //  - 왕관(무기 아닌 머리장식) 장착: 숨김 / 배경 장착: 숨김
+          const crownEquipped=showHat&&!(stageHat.weapon&&!cute); // 던전 무기는 제외, 베이커리 머리장식·던전 왕관만 해당
+          const hideStageCheer=crownEquipped||!!stageBgDeco||eqSkinActive;
           const charAnim="floatHero 2.6s ease-in-out infinite -1.3s";
           // 무대 배경: 던전은 다크 샤이니, 베이커리는 따뜻한 크림 스포트라이트
           const stageBg=cute
@@ -4595,8 +4600,8 @@ export default function App() {
                   </>
                 );
               })()}
-              {/* 말풍선 — "오늘의 모험을 시작해볼까?" 등 진행도 멘트. 모자 장착 시엔 숨김. 던전·베이커리 공통. */}
-              {!showHat&&(
+              {/* 말풍선 — "오늘의 모험을 시작해볼까?" 등 진행도 멘트. 왕관·배경 장착 시엔 숨김(무기·테두리는 유지). 던전·베이커리 공통. */}
+              {!hideStageCheer&&(
               <div style={{position:"relative",zIndex:2,display:"flex",justifyContent:cute?"flex-start":"center",marginBottom:2,marginTop:2,paddingLeft:cute?6:0}}>
                 <div style={{position:"relative",background:cute?"#fff":"rgba(255,255,255,0.95)",color:cute?mixBlack(th.main,0.32):"#2A2A45",borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:"0 6px 16px rgba(0,0,0,0.16)",maxWidth:"82%",textAlign:"center",lineHeight:1.35,
                   animation:"bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both",border:cute?`2px solid ${mixWhite(th.main,0.6)}`:"none"}}>
@@ -5006,8 +5011,16 @@ export default function App() {
                       <p style={{fontSize:13,fontWeight:800,margin:0,color:mSub,position:"relative"}}>
                         {T.doneIcon} 완료 {q.done} · {T.failIcon} 실패 {q.failed} · 전체 {q.total}
                       </p>
-                      {/* ── 응원멘트 (모자 장착 시 무대 말풍선 대신 진행바 카드 안 맨 아래로 이동, 작게) ── */}
-                      {getEquipped(childId,"hat")&&(()=>{
+                      {/* ── 응원멘트 (왕관·배경 장착으로 무대 말풍선이 숨겨질 때만 진행바 카드 안에 작게 표시) ── */}
+                      {(()=>{
+                        const cute=kidSkin==="cute";
+                        const sHat=getEquipped(childId,"hat");
+                        const sBg=getEquipped(childId,"bg");
+                        const sSkin=!!getEquipped(childId,"skin")&&isMaxEvolution(childId);
+                        const sShowHat=sHat&&!sSkin;
+                        const sCrown=sShowHat&&!(sHat.weapon&&!cute);
+                        return sCrown||!!sBg||sSkin;
+                      })()&&(()=>{
                         const cheer=getProgressMessage(q.percent,q.total);
                         return (
                           <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginTop:11,paddingTop:10,borderTop:`1px solid ${mD?"rgba(255,255,255,0.12)":GP.divider}`,position:"relative"}}>
@@ -5104,7 +5117,12 @@ export default function App() {
             <>
               {childHud}
 
-              <p style={{fontSize:13,fontWeight:900,color:C.sub,letterSpacing:0.5,margin:"6px 4px 2px"}}>🎮 즐기기</p>
+              {/* 섹션 구분 — 즐기기 */}
+              <div style={{display:"flex",alignItems:"center",gap:12,margin:"30px 2px 16px"}}>
+                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}00, ${th.main}55)`:`linear-gradient(90deg, rgba(255,255,255,0) 10%, ${GP.gold}55)`}}/>
+                <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:kidSkin==="cute"?th.main:"#FFE6A6"}}>🎮 즐기기</span>
+                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:`linear-gradient(90deg, ${GP.gold}55, rgba(255,255,255,0) 90%)`}}/>
+              </div>
 
               <div style={characterCardT}>
                 <CharacterSectionHeader
@@ -5307,7 +5325,12 @@ export default function App() {
                 );
               })()}
 
-              <p style={{fontSize:13,fontWeight:900,color:C.sub,letterSpacing:0.5,margin:"24px 4px 2px"}}>📜 내 기록</p>
+              {/* 섹션 구분 — 내 기록 */}
+              <div style={{display:"flex",alignItems:"center",gap:12,margin:"30px 2px 16px"}}>
+                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}00, ${th.main}55)`:`linear-gradient(90deg, rgba(255,255,255,0) 10%, ${GP.gold}55)`}}/>
+                <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:kidSkin==="cute"?th.main:"#FFE6A6"}}>📜 내 기록</span>
+                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:`linear-gradient(90deg, ${GP.gold}55, rgba(255,255,255,0) 90%)`}}/>
+              </div>
 
               {/* 상장 카드 */}
               <div style={characterCardT}>
@@ -5375,16 +5398,16 @@ export default function App() {
                   return (
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:12}}>
                     <div style={dungeon
-                      ?{background:"linear-gradient(135deg, #2E2740 0%, #5A3A2A 100%)",borderRadius:14,padding:"13px 10px",textAlign:"center",border:"1px solid rgba(255,176,99,0.34)",boxShadow:"0 0 11px rgba(255,150,70,0.14) inset, 0 4px 12px rgba(8,16,40,0.4)"}
-                      :{background:CT.faint,borderRadius:14,padding:"10px",textAlign:"center",border:`1px solid ${C.border}`}}>
-                      <p style={{fontSize:11,color:dungeon?"rgba(255,205,160,0.9)":C.sub,fontWeight:800,margin:"0 0 5px"}}>🔥 현재</p>
-                      <p style={{fontSize:dungeon?32:20,fontWeight:900,margin:0,lineHeight:1,color:dungeon?"#FFAE63":C.text,textShadow:dungeon?"0 0 12px rgba(255,174,99,0.4)":"none"}}>{getQuestStreak(childId)}<span style={{fontSize:dungeon?15:20,marginLeft:2}}>일</span></p>
+                      ?{background:"linear-gradient(135deg, #2E2740 0%, #5A3A2A 100%)",borderRadius:12,padding:"9px 8px",textAlign:"center",border:"1px solid rgba(255,176,99,0.34)",boxShadow:"0 0 11px rgba(255,150,70,0.14) inset, 0 4px 12px rgba(8,16,40,0.4)"}
+                      :{background:CT.faint,borderRadius:12,padding:"7px 8px",textAlign:"center",border:`1px solid ${C.border}`}}>
+                      <p style={{fontSize:11,color:dungeon?"rgba(255,205,160,0.9)":C.sub,fontWeight:800,margin:"0 0 3px"}}>🔥 현재</p>
+                      <p style={{fontSize:dungeon?22:16,fontWeight:900,margin:0,lineHeight:1,color:dungeon?"#FFAE63":C.text,textShadow:dungeon?"0 0 12px rgba(255,174,99,0.4)":"none"}}>{getQuestStreak(childId)}<span style={{fontSize:dungeon?12:12,marginLeft:2}}>일</span></p>
                     </div>
                     <div style={dungeon
-                      ?{background:"linear-gradient(135deg, #2E2740 0%, #5E4E28 100%)",borderRadius:14,padding:"13px 10px",textAlign:"center",border:"1px solid rgba(255,216,107,0.34)",boxShadow:"0 0 12px rgba(255,216,107,0.15) inset, 0 4px 12px rgba(8,16,40,0.4)"}
-                      :{background:CT.faint,borderRadius:14,padding:"10px",textAlign:"center",border:`1px solid ${C.border}`}}>
-                      <p style={{fontSize:11,color:dungeon?"rgba(255,228,160,0.9)":C.sub,fontWeight:800,margin:"0 0 5px"}}>🏆 최고기록</p>
-                      <p style={{fontSize:dungeon?32:20,fontWeight:900,margin:0,lineHeight:1,color:dungeon?"#FFD86B":GP.gold,textShadow:dungeon?"0 0 12px rgba(255,216,107,0.4)":"none"}}>{getBestStreak(childId)}<span style={{fontSize:dungeon?15:20,marginLeft:2}}>일</span></p>
+                      ?{background:"linear-gradient(135deg, #2E2740 0%, #5E4E28 100%)",borderRadius:12,padding:"9px 8px",textAlign:"center",border:"1px solid rgba(255,216,107,0.34)",boxShadow:"0 0 12px rgba(255,216,107,0.15) inset, 0 4px 12px rgba(8,16,40,0.4)"}
+                      :{background:CT.faint,borderRadius:12,padding:"7px 8px",textAlign:"center",border:`1px solid ${C.border}`}}>
+                      <p style={{fontSize:11,color:dungeon?"rgba(255,228,160,0.9)":C.sub,fontWeight:800,margin:"0 0 3px"}}>🏆 최고기록</p>
+                      <p style={{fontSize:dungeon?22:16,fontWeight:900,margin:0,lineHeight:1,color:dungeon?"#FFD86B":GP.gold,textShadow:dungeon?"0 0 12px rgba(255,216,107,0.4)":"none"}}>{getBestStreak(childId)}<span style={{fontSize:dungeon?12:12,marginLeft:2}}>일</span></p>
                     </div>
                   </div>
                   );
