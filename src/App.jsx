@@ -789,10 +789,10 @@ const PET_STAGES = [
   { stage:3, emoji:"🐲", name:"늠름한 청룡",   desc:"용기와 책임감을 갖춘 수호자" },
   { stage:4, emoji:"🐉", name:"전설의 드래곤", desc:"전설로 남을 위대한 존재" },
 ];
-// 상자 등급별 펫 진화 확률
-const PET_EVOLVE_CHANCE = { normal:0.10, rare:0.18, legend:0.30 };
-// 전설상자 안전망: 전설상자 2개 열 때마다 1단계 진화 보장(확률 진화와 별개의 천장).
-const PET_EVOLVE_LEGEND_PITY = 2;
+// 상자 등급별 펫 진화 확률 (만렙까지 약 5개월 페이스로 조정)
+const PET_EVOLVE_CHANCE = { normal:0.03, rare:0.05, legend:0.08 };
+// 전설상자 안전망: 전설상자 7개 열 때마다 1단계 진화 보장(확률 진화와 별개의 천장).
+const PET_EVOLVE_LEGEND_PITY = 7;
 
 // 진화 단계별 격려 문구
 const EVOLUTION_MESSAGES = {
@@ -995,7 +995,7 @@ const UI_TEXT = {
     open:"열기 ▼",
     close:"닫기 ▲",
     requestBuy:"🎁 받을래요!",
-    pending:"엄마 기다리는 중",
+    pending:"기다리는 중...",
     needCoin:"코인이 더 필요해요",
     equip:"장착",
     equipped:"EQUIPPED",
@@ -1105,12 +1105,12 @@ const DECOR_RARITY = {
 };
 // 모자: 캐릭터 이모지 위(머리)에 겹쳐 표시
 const DECOR_HATS = [
-  { id:"hat_axe",     emoji:"🎒", name:"탐험가 배낭",  price:120,  rarity:"common",    weapon:true, bakery:{ emoji:"🎀", name:"리본" } },
+  { id:"hat_axe",     emoji:"🎒", name:"탐험가 배낭",  price:150,  rarity:"common",    weapon:true, bakery:{ emoji:"🎀", name:"리본" } },
   { id:"hat_tophat",  emoji:"🧭", name:"나침반",      price:380,  rarity:"rare",      weapon:true, bakery:{ emoji:"🍓", name:"딸기 모자" } },
-  { id:"hat_goggles", emoji:"📷", name:"카메라",      price:550,  rarity:"rare",      weapon:true, bakery:{ emoji:"💎", name:"보석 티아라" } },
-  { id:"hat_flame",   emoji:"🗺️", name:"보물 지도",    price:800,  rarity:"epic",      weapon:true, bakery:{ emoji:"👑", name:"공주 왕관" } },
-  { id:"hat_star",    emoji:"🚲", name:"자전거",      price:1000, rarity:"legendary", weapon:true, bakery:{ emoji:"🌸", name:"벚꽃 머리띠" } },
-  { id:"hat_crown",   emoji:"👑", name:"전설의 탐험가 왕관", price:1200, rarity:"legendary", bakery:{ emoji:"🌈", name:"무지개 왕관" } },
+  { id:"hat_goggles", emoji:"📷", name:"카메라",      price:550,  rarity:"rare",      weapon:true, bakery:{ emoji:"🌸", name:"벚꽃 머리띠" } },
+  { id:"hat_flame",   emoji:"🗺️", name:"보물 지도",    price:800,  rarity:"epic",      weapon:true, bakery:{ emoji:"💎", name:"보석 티아라" } },
+  { id:"hat_star",    emoji:"🚲", name:"자전거",      price:1000, rarity:"legendary", weapon:true, bakery:{ emoji:"🌈", name:"무지개 왕관" } },
+  { id:"hat_crown",   emoji:"👑", name:"전설의 탐험가 왕관", price:1200, rarity:"legendary", bakery:{ emoji:"👑", name:"공주 왕관" } },
 ];
 // ── 베이커리(cute) 전용 모자 진열 순서 & 자리기준 가격 ──
 // 모험 모드는 DECOR_HATS 원본 순서·가격 그대로. 베이커리만 아래 순서로 진열하고,
@@ -1123,8 +1123,8 @@ const BAKERY_HAT_RARITY = { hat_tophat:"common", hat_star:"rare", hat_axe:"rare"
 // 테두리: 프로필 액자 테두리 색/광택 (emoji 는 상점 표시용 아이콘)
 // glow 는 모험(다크 무대)용, glowCute 는 베이커리(밝은 크림 무대)용 — 모드별로 빛번짐 색을 다르게 둔다.
 const DECOR_BORDERS = [
-  { id:"bd_bronze",  emoji:"🥉", name:"브론즈",  price:100,  rarity:"common",    grad:"linear-gradient(135deg,#CD7F32,#E8B583)", glow:"rgba(205,127,50,0.5)",  glowCute:"rgba(205,127,50,0.28)" },
-  { id:"bd_silver",  emoji:"🥈", name:"실버",    price:350,  rarity:"rare",      shimmer:true, grad:"linear-gradient(115deg,#8A909C 0%,#C7CCD4 20%,#FFFFFF 38%,#D5D9E0 52%,#9CA3AF 70%,#EAECF0 86%,#B6BBC4 100%)", glow:"rgba(190,196,206,0.7)", glowCute:"rgba(150,156,168,0.35)" },
+  { id:"bd_bronze",  emoji:"🥉", name:"브론즈",  price:200,  rarity:"common",    grad:"linear-gradient(135deg,#CD7F32,#E8B583)", glow:"rgba(205,127,50,0.5)",  glowCute:"rgba(205,127,50,0.28)" },
+  { id:"bd_silver",  emoji:"🥈", name:"실버",    price:400,  rarity:"rare",      shimmer:true, grad:"linear-gradient(115deg,#8A909C 0%,#C7CCD4 20%,#FFFFFF 38%,#D5D9E0 52%,#9CA3AF 70%,#EAECF0 86%,#B6BBC4 100%)", glow:"rgba(190,196,206,0.7)", glowCute:"rgba(150,156,168,0.35)" },
   { id:"bd_gold",    emoji:"🥇", name:"골드",    price:750,  rarity:"epic",      shimmer:true, grad:"linear-gradient(115deg,#C8860B 0%,#F5C542 18%,#FFF6C9 36%,#FBD24E 52%,#E0A21A 70%,#FFE89B 86%,#D9A323 100%)", glow:"rgba(245,180,30,0.78)", glowCute:"rgba(232,165,40,0.4)" },
   { id:"bd_diamond", emoji:"💎", name:"다이아",  price:1000, rarity:"legendary", shimmer:true, grad:"linear-gradient(115deg,#22D3EE 0%,#A5F3FC 22%,#FFFFFF 40%,#7DD3FC 58%,#67E8F9 76%,#C7F9FF 92%,#38BDF8 100%)", glow:"rgba(34,211,238,0.72)", glowCute:"rgba(120,200,220,0.36)", bakery:{ emoji:"❤️", name:"루비", grad:"linear-gradient(115deg,#E11D48 0%,#FDA4AF 22%,#FFFFFF 40%,#FB7185 58%,#F43F5E 76%,#FFE4E6 92%,#BE123C 100%)", glow:"rgba(244,63,94,0.72)", glowCute:"rgba(244,114,128,0.4)" } },
   { id:"bd_legend",  emoji:"👑", name:"레전드",  price:1400, rarity:"legendary", rainbow:true, grad:"linear-gradient(115deg,#FF5E8A,#FF9F43,#FFE14D,#4ADE80,#38BDF8,#A78BFA,#FF5E8A)", glow:"rgba(167,139,250,0.75)", glowCute:"rgba(190,160,235,0.4)", bakery:{ emoji:"🌈", name:"무지개빛" } },
@@ -1132,11 +1132,11 @@ const DECOR_BORDERS = [
 // 배경: 프로필 카드 배경 장식 (장식 이모지 + 은은한 그라데이션 오버레이)
 // 기본(base) = 모험 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
 const DECOR_BGS = [
-  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:200,  rarity:"common",    deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
-  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:450,  rarity:"rare",      deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
-  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:600,  rarity:"rare",      deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
-  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:800,  rarity:"epic",      deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
-  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:900,  rarity:"epic",      deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
+  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:300,  rarity:"common",    deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
+  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:400,  rarity:"rare",      deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
+  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:950,  rarity:"rare",      deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
+  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:650,  rarity:"epic",      deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
+  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:750,  rarity:"epic",      deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
   { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:1200, rarity:"legendary", deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
 ];
 // 베이커리 전용 배경 6슬롯 (모험 4슬롯과 분리). deco[0]=메인(가장 자주 등장). 종류 4개↑면 무대카드 전체에 고르게 분산됨.
@@ -1145,28 +1145,31 @@ const BAKERY_BGS = [
   { id:"bbg_strawberry",emoji:"🍓", name:"딸기 농장",         price:450,  rarity:"common",    deco:["🍓","🏡","🌿","🍓"],          tint:"rgba(254,202,202,0.40)", bakeryOnly:true },
   { id:"bbg_starcandy", emoji:"🌟", name:"별사탕 왕국",       price:650,  rarity:"rare",      deco:["🌟","⭐","🍬","🍭"],          tint:"rgba(253,224,71,0.30)",  bakeryOnly:true },
   { id:"bbg_choco",     emoji:"🍫", name:"초콜릿 공장",       price:750,  rarity:"rare",      deco:["🍫","🍩","🍪","🍰"],          tint:"rgba(180,120,80,0.32)",  bakeryOnly:true },
-  { id:"bbg_heaven",    emoji:"👼", name:"천상의 베이커리",   price:900,  rarity:"epic",      deco:["👼","☁️","🧁","🍰","✨"],     tint:"rgba(224,231,255,0.40)", bakeryOnly:true },
+  { id:"bbg_heaven",    emoji:"👼", name:"천상의 베이커리",   price:950,  rarity:"epic",      deco:["👼","☁️","🧁","🍰","✨"],     tint:"rgba(224,231,255,0.40)", bakeryOnly:true },
   { id:"bbg_rainbow",   emoji:"🌈", name:"무지개 케이크 왕국",price:1200, rarity:"legendary", deco:["🌈","🎂","🧁","🍭","⭐"],     tint:"rgba(196,181,253,0.36)", bakeryOnly:true },
 ];
 // 캐릭터 스킨: 최종 성장체(Lv17) 달성 시 잠금 해제. 장착하면 성장체 대신 이 이모지로 보이고 모자는 숨겨짐(완성형).
 // locked:true → 최종 성장체 도달 전엔 상점에 자물쇠로 표시. emoji 는 성별 공통(없으면 단일).
 const DECOR_SKINS = [
-  { id:"sk_vampire", emoji:"🧛",   name:"뱀파이어",   price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"🧞",   name:"소원 요정" } },
-  { id:"sk_robot",   emoji:"🤖",   name:"로봇",       price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"👼",   name:"별빛 천사" } },
-  { id:"sk_astro",   emoji:"🧙",   name:"마법사",     price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"👩‍🎨", name:"케이크 아티스트" } },
-  { id:"sk_ninja",   emoji:"🥷",   name:"닌자",       price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"🧚",   name:"꽃요정" } },
-  { id:"sk_spy",     emoji:"🥸",   name:"변장 요원",  price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"🧜‍♀️", name:"인어공주" } },
+  { id:"sk_vampire", emoji:"🧛",   name:"뱀파이어",   price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"🧞",   name:"소원 요정" } },
+  { id:"sk_robot",   emoji:"🤖",   name:"로봇",       price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"👼",   name:"별빛 천사" } },
+  { id:"sk_astro",   emoji:"🧙",   name:"마법사",     price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"👩‍🎨", name:"케이크 아티스트" } },
+  { id:"sk_ninja",   emoji:"🥷",   name:"닌자",       price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"🧚",   name:"꽃요정" } },
+  { id:"sk_spy",     emoji:"🥸",   name:"변장 요원",  price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"🧜‍♀️", name:"인어공주" } },
 ];
 // 펫 스킨: 펫이 최종 진화(전설의 드래곤/유니콘) 했을 때 잠금 해제. 장착하면 펫 대신 이 동물 이모지로 보임(완성형).
 // 캐릭터 스킨과 동일한 구조 — petskin:true. 모험/베이커리 공용 이모지(동물은 두 모드 모두 자연스러움).
 const DECOR_PET_SKINS = [
-  { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:600, rarity:"epic",      petskin:true, bakery:{ name:"솜사탕 여우" } },
-  { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:800, rarity:"epic",      petskin:true, bakery:{ name:"마시멜로 판다" } },
-  { id:"pk_rabbit",    emoji:"🐰",   name:"질풍 토끼",     price:1000, rarity:"epic",      petskin:true, bakery:{ emoji:"🐦", name:"노래하는 새" } },
-  { id:"pk_butterfly", emoji:"🦋",   name:"신비한 나비",   price:1200, rarity:"legendary", petskin:true, bakery:{ emoji:"🐰", name:"딸기 토끼" } },
-  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:1600, rarity:"legendary", petskin:true, bakery:{ name:"꿀빛 사자" } },
-  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:1800, rarity:"legendary", petskin:true, bakery:{ emoji:"🦋", name:"반짝 나비" } },
+  { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:600, rarity:"rare",      petskin:true, bakery:{ name:"솜사탕 여우" } },
+  { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:600, rarity:"rare",      petskin:true, bakery:{ name:"마시멜로 판다" } },
+  { id:"pk_rabbit",    emoji:"🐰",   name:"질풍 토끼",     price:800, rarity:"epic",      petskin:true, bakery:{ emoji:"🐦", name:"노래하는 새" } },
+  { id:"pk_butterfly", emoji:"🦋",   name:"신비한 나비",   price:800, rarity:"epic",      petskin:true, bakery:{ emoji:"🐰", name:"딸기 토끼" } },
+  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:1000, rarity:"legendary", petskin:true, bakery:{ name:"꿀빛 사자" } },
+  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:1000, rarity:"legendary", petskin:true, bakery:{ emoji:"🦋", name:"반짝 나비" } },
 ];
+// 베이커리 모드 펫 스킨 표시 순서 (모험 순서와 분리). 가격·등급은 슬롯(모험) 값을 그대로 따름.
+// 순서: 솜사탕여우→마시멜로판다→노래하는새→반짝나비→딸기토끼→꿀빛사자
+const BAKERY_PETSKIN_ORDER = ["pk_fox","pk_panda","pk_rabbit","pk_dragon","pk_butterfly","pk_lion"];
 const DECOR_GROUPS = [
   { key:"hat",     label:"모자",     icon:"👑", items:DECOR_HATS },
   { key:"border",  label:"테두리",   icon:"💎", items:DECOR_BORDERS },
@@ -4063,7 +4066,7 @@ export default function App() {
     spendCoin(childId,reward.point,`${reward.title} 구매 요청`);
     const newRequest={id:Date.now(),rewardId:reward.id,title:reward.title,point:reward.point,emoji:reward.emoji,status:"pending",requestedAt:new Date().toISOString()};
     setRewardRequests(prev=>({...prev,[childId]:[...getChildRewardRequests(childId),newRequest]}));
-    showToast("엄마한테 말했어요 🛒");
+    showToast("구매 요청을 보냈어요 🛒");
   };
   const approveRewardRequest=(requestId)=>{
     const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
@@ -4630,6 +4633,10 @@ export default function App() {
                         if(kidSkin==="cute" && grp.key==="bg"){
                           items=BAKERY_BGS;
                         }
+                        // 베이커리 모드의 '펫'은 전용 순서로 재배열(가격·등급은 슬롯 값 유지)
+                        if(kidSkin==="cute" && grp.key==="petskin"){
+                          items=BAKERY_PETSKIN_ORDER.map(id=>grp.items.find(it=>it.id===id)).filter(Boolean);
+                        }
                         return items;
                       })().map(raw=>{
                         const it=decorView(raw,kidSkin);
@@ -4739,7 +4746,7 @@ export default function App() {
             <div style={{display:"flex",alignItems:"center",gap:11}}>
               <div style={{width:52,height:52,borderRadius:"50%",background:GP.chipBg,border:`2.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,boxShadow:"0 4px 14px rgba(0,0,0,0.10)"}}>{_skin.selectEmoji}</div>
               <div>
-                <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.5,color:GP.onDarkSub}}>PLAYER STATUS</p>
+                <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.5,color:GP.onDarkSub}}>{kidSkin==="cute"?"BAKER":"PLAYER"}</p>
                 <h1 style={{fontSize:24,fontWeight:900,margin:"3px 0 0",color:GP.onDark}}>{curChild?.name}</h1>
               </div>
             </div>
@@ -4993,11 +5000,11 @@ export default function App() {
               {/* 말풍선 — "오늘의 모험을 시작해볼까?" 등 진행도 멘트. 왕관·배경 장착 시엔 숨김(무기·테두리는 유지). 모험·베이커리 공통. */}
               {!hideStageCheer&&(
               <div style={{position:"relative",zIndex:2,display:"flex",justifyContent:"center",marginBottom:2,marginTop:2}}>
-                <div style={{position:"relative",background:cute?`linear-gradient(160deg, ${mixWhite(th.main,0.88)}, ${mixWhite(th.main,0.78)})`:GP.chipBg,color:cute?mixBlack(th.main,0.42):GP.chipText,borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:cute?`0 6px 14px ${th.main}26, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"0 4px 12px rgba(0,0,0,0.28)",maxWidth:"82%",textAlign:"center",lineHeight:1.35,
-                  animation:"bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both",border:cute?`2px solid ${mixWhite(th.main,0.7)}`:`1.5px solid ${GP.chipBorder}`,textShadow:cute?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
+                <div style={{position:"relative",background:cute?`linear-gradient(160deg, ${mixWhite(th.main,0.88)}, ${mixWhite(th.main,0.78)})`:"rgba(255,255,255,0.95)",color:cute?mixBlack(th.main,0.42):"#2A2A45",borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:cute?`0 6px 14px ${th.main}26, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"0 6px 16px rgba(0,0,0,0.16)",maxWidth:"82%",textAlign:"center",lineHeight:1.35,
+                  animation:"bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both",border:cute?`2px solid ${mixWhite(th.main,0.7)}`:"none"}}>
                   {msg}
                   {/* 말풍선 꼬리 — 모험·베이커리 모두 가운데 아래(캐릭터 머리 방향) */}
-                  <div style={{position:"absolute",bottom:-7,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"8px solid transparent",borderRight:"8px solid transparent",borderTop:`8px solid ${cute?mixWhite(th.main,0.8):mixHex("#1a2e52",GP.scenery||th.main,0.12)}`}}/>
+                  <div style={{position:"absolute",bottom:-7,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"8px solid transparent",borderRight:"8px solid transparent",borderTop:`8px solid ${cute?mixWhite(th.main,0.8):"rgba(255,255,255,0.95)"}`}}/>
                 </div>
               </div>
               )}
@@ -6000,7 +6007,7 @@ export default function App() {
                 {(()=>{const d=parseLocal(pastQuestBlockModal.date);return `${d.getMonth()+1}월 ${d.getDate()}일`;})()} · {pastQuestBlockModal.label}
               </p>
               <p style={{fontSize:14,fontWeight:800,color:C.sub,margin:"0 0 16px",lineHeight:1.5}}>
-                지난 미션은 여기서 완료할 수 없어요.<br/>엄마에게 부탁해서 처리해 달라고 하세요! 🙆
+                지난 미션은 여기서 완료할 수 없어요.<br/>보호자가 대신 처리할 수 있어요 🙆
               </p>
               <div style={{background:CT.faint,borderRadius:14,padding:"12px 14px",fontSize:13,fontWeight:800,color:C.sub,lineHeight:1.5}}>
                 엄마용 <span style={{color:C.orange,fontWeight:900}}>보상 탭 → 오늘의 미션 → 🕗 지난 미션 보기</span>에서 완료/실패할 수 있어요.
