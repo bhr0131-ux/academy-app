@@ -1017,7 +1017,7 @@ const LEGENDARY_TITLES = [
 ];
 
 const TITLE_RARITY = {
-  common:    { name:"일반", color:"#94A3B8", bg:"#F8FAFC",  icon:"⚪", grad:"linear-gradient(180deg,#F8F9FC 0%,#EEF1F7 100%)", borderClr:"#D9DEE8", dgrad:"linear-gradient(180deg,#D9DEE8 0%,#C9D0DD 100%)", glow:"0 0 10px rgba(217,222,232,0.30)" },
+  common:    { name:"일반", color:"#64748B", bg:"#F8FAFC",  icon:"⚪", grad:"linear-gradient(180deg,#F8F9FC 0%,#EEF1F7 100%)", borderClr:"#D9DEE8", dgrad:"linear-gradient(180deg,#D9DEE8 0%,#C9D0DD 100%)", glow:"0 0 10px rgba(217,222,232,0.30)" },
   rare:      { name:"희귀", color:"#3B82F6", bg:"#EFF6FF",  icon:"🔵", grad:"linear-gradient(180deg,#EEF5FF 0%,#DDEBFF 100%)", borderClr:"#6EA9FF", dgrad:"linear-gradient(180deg,#B8CAE8 0%,#9DB5DB 100%)", glow:"0 0 12px rgba(110,169,255,0.35)" },
   epic:      { name:"영웅", color:"#9333EA", bg:"#FAF5FF",  icon:"🟣", grad:"linear-gradient(180deg,#F3EEFF 0%,#E5DAFF 100%)", borderClr:"#A287FF", dgrad:"linear-gradient(180deg,#AFA7D9 0%,#978ED0 100%)", glow:"0 0 13px rgba(162,135,255,0.40)" },
   legendary: { name:"전설", color:"#F59E0B", bg:"#FFF7ED",  icon:"👑", grad:"linear-gradient(180deg,#FFF6D7 0%,#FFE7A2 100%)", borderClr:"#FFD86B", dgrad:"linear-gradient(180deg,#D7C38A 0%,#C8AF63 100%)", glow:"0 0 16px rgba(255,216,107,0.45)" },
@@ -5057,14 +5057,24 @@ export default function App() {
               {/* ── 하단: 레벨·상장 정보 줄 (모험·베이커리 공용 알약칩) ── */}
               {(()=>{
                 const tr = TITLE_RARITY[title.rarity] || TITLE_RARITY.common;
-                const lvCol = cute ? "#E8923C" : (GP.gold||"#FFD166"); // 베이커리=꿀빛 / 모험=골드
-                // 정보 칩: 동그란 이모지 + 라벨 (레벨/상장). 베이커리는 밝은 배경, 모험은 어두운 배경.
-                const InfoChip=({ring,emoji,text})=>(
-                  <div style={{display:"flex",alignItems:"center",gap:5,background:cute?`linear-gradient(160deg, ${mixWhite(th.main,0.86)}, ${mixWhite(th.main,0.76)})`:GP.chipBg,border:cute?`2px solid ${mixWhite(th.main,0.7)}`:`1.5px solid ${ring}88`,borderRadius:999,padding:"3px 10px 3px 4px",boxShadow:cute?`0 4px 11px ${th.main}26, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"0 2px 6px rgba(0,0,0,0.3)"}}>
+                const lvCol = cute ? mixBlack(th.main,0.22) : (GP.gold||"#FFD166"); // 베이커리=테마 진한색 / 모험=골드
+                // 배경 꾸미기를 장착하면 무대카드가 어둡거나 색이 들어가므로, 그때만 칩을 어두운 배경+흰 글자로.
+                const onScene = !!stageBgDeco;
+                // 정보 칩: 동그란 이모지 + 라벨 (레벨/상장).
+                const InfoChip=({ring,emoji,text})=>{
+                  // 모험은 원래 어두운 칩. 베이커리는 칩 색은 그대로 두되, 배경 꾸미기 장착(무대 어두움) 시 글자만 밝게.
+                  const darkChip = !cute;                  // 칩 배경 자체가 어두운 경우(모험)
+                  const lightText = !cute || onScene;      // 글자를 흰색으로 (모험 / 배경 꾸미기 장착한 베이커리)
+                  return (
+                  <div style={{display:"flex",alignItems:"center",gap:5,
+                    background: cute ? `linear-gradient(135deg, ${ring}26, ${ring}12)` : GP.chipBg,
+                    border:`1.5px solid ${ring}${darkChip?"88":"77"}`,borderRadius:999,padding:"3px 10px 3px 4px",
+                    boxShadow: cute ? `0 3px 9px ${ring}33` : "0 2px 6px rgba(0,0,0,0.3)"}}>
                     <span style={{width:24,height:24,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:cute?`radial-gradient(circle at 50% 35%, #fff, ${ring}22)`:`radial-gradient(circle at 50% 35%, ${ring}44, rgba(0,0,0,0.35))`,border:`1.5px solid ${ring}`,fontSize:13,flexShrink:0}}>{emoji}</span>
-                    <span style={{fontSize:10,fontWeight:900,color:cute?mixBlack(th.main,0.42):GP.chipText,whiteSpace:"nowrap",letterSpacing:0.2,textShadow:cute?"none":"0 1px 2px rgba(0,0,0,0.45)"}}>{text}</span>
+                    <span style={{fontSize:10,fontWeight:900,color:lightText?"#fff":mixBlack(ring,0.2),whiteSpace:"nowrap",letterSpacing:0.2,textShadow:lightText?"0 1px 2px rgba(0,0,0,0.55)":"none"}}>{text}</span>
                   </div>
-                );
+                  );
+                };
                 return (
                   <div style={{position:"relative",zIndex:2,marginTop:18,display:"flex",alignItems:"center",justifyContent:"center",gap:8,flexWrap:"wrap"}}>
                     <InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>
