@@ -1132,7 +1132,7 @@ const DECOR_BORDERS = [
 // 배경: 프로필 카드 배경 장식 (장식 이모지 + 은은한 그라데이션 오버레이)
 // 기본(base) = 모험 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
 const DECOR_BGS = [
-  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:200,  rarity:"common",    deco:["🌲","🌳","✨","🍄","🦋","🌲"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
+  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:200,  rarity:"common",    deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
   { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:450,  rarity:"rare",      deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
   { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:600,  rarity:"rare",      deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
   { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:800,  rarity:"epic",      deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
@@ -2551,6 +2551,13 @@ export default function App() {
     setSeenTitles(prev=>({...prev,[cid]:[]}));
     setEarnedTitleIds(prev=>({...prev,[cid]:[]}));
     setUnlockedBadgeIds(prev=>prev.filter(id=>!id.startsWith(`${cid}-`)));
+    // 꾸미기 구매내역(보유)·장착·스킨까지 싹 초기화
+    setOwnedDecor(prev=>({...prev,[cid]:[]}));
+    setEquippedDecor(prev=>({...prev,[cid]:{}}));
+    setSkinByChild(prev=>({...prev,[cid]:undefined}));
+    // 연속기록·마지막 레벨 기록도 초기화
+    setBestStreakData(prev=>({...prev,[cid]:0}));
+    setLastLevelByChild(prev=>({...prev,[cid]:undefined}));
     showToast("게임 데이터 초기화 완료");
   };
 
@@ -2564,6 +2571,7 @@ export default function App() {
     setBaseSeededKeys({});
     setPetData({});
     setSkinByChild({});
+    setOwnedDecor({}); setEquippedDecor({}); setDecorPrices({});
     setUnlockedBadgeIds([]); setLastLevelByChild({});
     setSelectedTitles({}); setTreasureData({}); setSeenTitles({});
     setEarnedTitleIds({});
@@ -3100,7 +3108,7 @@ export default function App() {
         <path d="M0,168 Q120,146 240,168 Q330,184 400,160 L400,240 L0,240 Z" fill="url(#bk_ch_hill)" opacity=".8"/>
         <path d="M0,206 Q120,196 240,208 Q330,216 400,202 L400,240 L0,240 Z" fill="url(#bk_ch_river)" opacity=".85"/>
         <g stroke="#B07A4E" strokeWidth="1.5" opacity=".4" fill="none"><path d="M30,216 q40,-4 80,0 t80,0"/></g>
-        <g>
+        <g opacity="0.55">
           <rect x="280" y="120" width="60" height="48" rx="3" fill="#7E5536"/>
           <rect x="292" y="100" width="10" height="22" fill="#5E3D24"/><rect x="318" y="104" width="10" height="18" fill="#5E3D24"/>
           <g fill="#EFE2D4" opacity=".7"><circle cx="297" cy="92" r="7"/><circle cx="305" cy="84" r="6"/><circle cx="323" cy="96" r="6"/></g>
@@ -4738,12 +4746,12 @@ export default function App() {
             <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
                 <button onClick={()=>setShowParentPin(true)}
-                  style={{...jellyChip({border:`1px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),flex:children.length>1?1:"none",color:GP.chipText,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap"}}>
+                  style={{...jellyChip({border:`1.5px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),flex:children.length>1?1:"none",color:GP.chipText,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 6px rgba(0,0,0,0.28)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
                   🔒 엄마용
                 </button>
                 {children.length<=1&&(
                   <button onClick={()=>setShowKidCoachmark(true)}
-                    style={{...jellyChip({border:`1px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),color:GP.chipText,padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer"}}>
+                    style={{...jellyChip({border:`1.5px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),color:GP.chipText,padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 6px rgba(0,0,0,0.28)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
                     ❓
                   </button>
                 )}
@@ -4756,7 +4764,7 @@ export default function App() {
                   setShowChildRewards(false);
                   setShowChildXP(false);
                   setOpenRewardId(null);
-                }} style={{...jellyChip({border:`1px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),width:"100%",boxSizing:"border-box",color:GP.chipText,padding:"9px 10px",fontSize:13,fontWeight:900,outline:"none"}}>
+                }} style={{...jellyChip({border:`1.5px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),width:"100%",boxSizing:"border-box",color:GP.chipText,padding:"9px 10px",fontSize:13,fontWeight:900,outline:"none",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 6px rgba(0,0,0,0.28)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
                   {children.map(c=>(
                     <option key={c.id} value={c.id} style={{color:C.text}}>{getGenderEmoji(c)} {c.name}</option>
                   ))}
@@ -4868,17 +4876,17 @@ export default function App() {
                     {e:"🍓",l:46,t:6,s:1.1,r:0,d:0.5},
                     {e:"🌿",l:72,t:72,s:0.9,r:-6,d:1.5},
                   ],
-                  bbg_starcandy: [   // 별사탕 왕국: 왼쪽=별, 오른쪽=사탕 (자리 스왑)
-                    {e:"⭐",l:10,t:10,s:1.0,r:-8,d:0},     // 왼쪽 별
-                    {e:"🌟",l:8,t:46,s:1.05,r:6,d:0.5},    // 왼쪽 별
-                    {e:"⭐",l:16,t:78,s:0.95,r:0,d:1.0},   // 왼쪽 별
-                    {e:"🍬",l:88,t:12,s:1.0,r:10,d:0.3},   // 오른쪽 사탕
-                    {e:"🍭",l:90,t:48,s:1.0,r:-10,d:0.8},  // 오른쪽 사탕
-                    {e:"🍬",l:84,t:80,s:0.95,r:6,d:1.2},   // 오른쪽 사탕
-                    {e:"🌟",l:46,t:6,s:1.0,r:0,d:0.6},
-                    {e:"🍭",l:64,t:30,s:1.0,r:-6,d:0.2},   // 펫 오른쪽 위 사탕
-                    {e:"⭐",l:30,t:24,s:0.9,r:8,d:1.4},
-                    {e:"🍬",l:72,t:70,s:0.95,r:-6,d:1.5},
+                  bbg_starcandy: [   // 별사탕 왕국: 별·사탕을 좌우 고르게 섞어 배치
+                    {e:"⭐",l:10,t:12,s:1.0,r:-8,d:0},      // 좌상
+                    {e:"🍬",l:30,t:8,s:0.95,r:8,d:0.6},     // 좌상
+                    {e:"🌟",l:48,t:5,s:1.0,r:0,d:0.3},      // 상단 중앙
+                    {e:"🍭",l:84,t:12,s:1.0,r:10,d:0.9},    // 우상
+                    {e:"🌟",l:8,t:46,s:1.05,r:6,d:0.5},     // 좌중
+                    {e:"🍭",l:64,t:30,s:1.0,r:-6,d:0.2},    // 펫 오른쪽 위
+                    {e:"🍬",l:90,t:48,s:0.95,r:-10,d:1.1},  // 우중
+                    {e:"🍬",l:16,t:78,s:0.95,r:0,d:1.0},    // 좌하
+                    {e:"⭐",l:46,t:82,s:0.9,r:8,d:1.4},      // 하단 중앙
+                    {e:"🌟",l:84,t:80,s:1.0,r:6,d:0.8},     // 우하
                   ],
                   bbg_choco: [   // 초콜릿 공장: 덜 빽빽하게(8칸), 초콜릿·도넛 약간 축소, 귀 위 이모지 하나를 펫 오른쪽 위로
                     {e:"🍫",l:10,t:12,s:0.92,r:-6,d:0},
@@ -4985,11 +4993,11 @@ export default function App() {
               {/* 말풍선 — "오늘의 모험을 시작해볼까?" 등 진행도 멘트. 왕관·배경 장착 시엔 숨김(무기·테두리는 유지). 모험·베이커리 공통. */}
               {!hideStageCheer&&(
               <div style={{position:"relative",zIndex:2,display:"flex",justifyContent:"center",marginBottom:2,marginTop:2}}>
-                <div style={{position:"relative",background:cute?"#fff":"rgba(255,255,255,0.95)",color:cute?mixBlack(th.main,0.32):"#2A2A45",borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:"0 6px 16px rgba(0,0,0,0.16)",maxWidth:"82%",textAlign:"center",lineHeight:1.35,
-                  animation:"bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both",border:cute?`2px solid ${mixWhite(th.main,0.6)}`:"none"}}>
+                <div style={{position:"relative",background:cute?`linear-gradient(160deg, ${mixWhite(th.main,0.88)}, ${mixWhite(th.main,0.78)})`:GP.chipBg,color:cute?mixBlack(th.main,0.42):GP.chipText,borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:cute?`0 6px 14px ${th.main}26, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"0 4px 12px rgba(0,0,0,0.28)",maxWidth:"82%",textAlign:"center",lineHeight:1.35,
+                  animation:"bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both",border:cute?`2px solid ${mixWhite(th.main,0.7)}`:`1.5px solid ${GP.chipBorder}`,textShadow:cute?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
                   {msg}
                   {/* 말풍선 꼬리 — 모험·베이커리 모두 가운데 아래(캐릭터 머리 방향) */}
-                  <div style={{position:"absolute",bottom:-7,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"8px solid transparent",borderRight:"8px solid transparent",borderTop:`8px solid ${cute?"#fff":"rgba(255,255,255,0.95)"}`}}/>
+                  <div style={{position:"absolute",bottom:-7,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"8px solid transparent",borderRight:"8px solid transparent",borderTop:`8px solid ${cute?mixWhite(th.main,0.8):mixHex("#1a2e52",GP.scenery||th.main,0.12)}`}}/>
                 </div>
               </div>
               )}
@@ -5052,9 +5060,9 @@ export default function App() {
                 const lvCol = cute ? "#E8923C" : (GP.gold||"#FFD166"); // 베이커리=꿀빛 / 모험=골드
                 // 정보 칩: 동그란 이모지 + 라벨 (레벨/상장). 베이커리는 밝은 배경, 모험은 어두운 배경.
                 const InfoChip=({ring,emoji,text})=>(
-                  <div style={{display:"flex",alignItems:"center",gap:5,background:cute?`linear-gradient(135deg, ${ring}26, ${ring}12)`:`linear-gradient(135deg, ${ring}22, ${ring}0d)`,border:`1.5px solid ${ring}${cute?"77":"66"}`,borderRadius:999,padding:"3px 10px 3px 4px",boxShadow:cute?`0 3px 9px ${ring}33`:"none"}}>
-                    <span style={{width:24,height:24,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:cute?`radial-gradient(circle at 50% 35%, #fff, ${ring}22)`:`radial-gradient(circle at 50% 35%, ${ring}33, rgba(0,0,0,0.25))`,border:`1.5px solid ${ring}`,fontSize:13,flexShrink:0}}>{emoji}</span>
-                    <span style={{fontSize:10,fontWeight:900,color:cute?mixBlack(ring,0.2):ring,whiteSpace:"nowrap",letterSpacing:0.2}}>{text}</span>
+                  <div style={{display:"flex",alignItems:"center",gap:5,background:cute?`linear-gradient(160deg, ${mixWhite(th.main,0.86)}, ${mixWhite(th.main,0.76)})`:GP.chipBg,border:cute?`2px solid ${mixWhite(th.main,0.7)}`:`1.5px solid ${ring}88`,borderRadius:999,padding:"3px 10px 3px 4px",boxShadow:cute?`0 4px 11px ${th.main}26, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"0 2px 6px rgba(0,0,0,0.3)"}}>
+                    <span style={{width:24,height:24,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:cute?`radial-gradient(circle at 50% 35%, #fff, ${ring}22)`:`radial-gradient(circle at 50% 35%, ${ring}44, rgba(0,0,0,0.35))`,border:`1.5px solid ${ring}`,fontSize:13,flexShrink:0}}>{emoji}</span>
+                    <span style={{fontSize:10,fontWeight:900,color:cute?mixBlack(th.main,0.42):GP.chipText,whiteSpace:"nowrap",letterSpacing:0.2,textShadow:cute?"none":"0 1px 2px rgba(0,0,0,0.45)"}}>{text}</span>
                   </div>
                 );
                 return (
