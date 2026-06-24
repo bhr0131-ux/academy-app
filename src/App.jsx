@@ -15,8 +15,8 @@ const GENDER_THEME = {
 };
 
 const CHILD_THEME_COLORS = [
-  // 던전/베이커리 공통 5가지 테마색.
-  // 던전모드는 이 색을 화면 전체에 칠하지 않고, 밤하늘 베이스 위에 포인트로만 입힌다.
+  // 모험/베이커리 공통 5가지 테마색.
+  // 모험모드는 이 색을 화면 전체에 칠하지 않고, 밤하늘 베이스 위에 포인트로만 입힌다.
   { name:"분홍", main:"#FF6FA3", light:"#FCE7F1", lightTop:"#FFF7FB", grad:"linear-gradient(135deg,#FF6FA3,#FFB6CC)" },
   { name:"살구", main:"#FFB66B", light:"#FFF0DF", lightTop:"#FFFBF6", grad:"linear-gradient(135deg,#FF9F5A,#FFD68A)" },
   { name:"연두", main:"#7BE0A6", light:"#E7F8ED", lightTop:"#F7FFF9", grad:"linear-gradient(135deg,#63CF88,#B9F0D2)" },
@@ -124,15 +124,15 @@ const softTint = (hex, wf, satBoost=0.92) => {
   const HX=(v)=>Math.max(0,Math.min(255,Math.round(v*255))).toString(16).padStart(2,"0").toUpperCase();
   return `#${HX(nr)}${HX(ng)}${HX(nb)}`;
 };
-// 던전 톤 생성: 남색 베이스(#1B1D2B)에 테마색을 은은히 섞어 '채도 낮은 차분한 다크'를 만든다.
-// 레퍼런스(배경 #1B1D2B~#3E4371)처럼 어느 테마색이든 던전 분위기를 유지하면서 색만 살짝 달라지게.
+// 모험 톤 생성: 남색 베이스(#1B1D2B)에 테마색을 은은히 섞어 '채도 낮은 차분한 다크'를 만든다.
+// 레퍼런스(배경 #1B1D2B~#3E4371)처럼 어느 테마색이든 모험 분위기를 유지하면서 색만 살짝 달라지게.
 // lift: 밝기 절대 가산(0=가장 깊은 배경, 클수록 밝은 카드). tf: 테마색 반영 강도(기본 0.16, 은은하게)
 /* ════════════════════════════════════════════════════════════════════════
-   SECTION 3. 테마/스킨 토큰 (던전·베이커리 팔레트)
+   SECTION 3. 테마/스킨 토큰 (모험·베이커리 팔레트)
    ════════════════════════════════════════════════════════════════════════ */
 
-const DUNGEON_BASE = [22, 24, 38]; // 베이스 (레퍼런스 #1B1D2B보다 살짝 깊게)
-const dungeonTone = (main, lift=0, tf=0.16) => {
+const DUNGEON_BASE = [42, 60, 96]; // 밝은 저녁하늘 베이스 (더 밝고 캐주얼하게)
+const dungeonTone = (main, lift=0, tf=0.22) => {
   const h = (main||"#6C63FF").replace("#","");
   const r0=parseInt(h.slice(0,2),16), g0=parseInt(h.slice(2,4),16), b0=parseInt(h.slice(4,6),16);
   // 1) 테마색의 채도를 낮춰(회색과 섞어) 탁하지 않은 차분한 색으로
@@ -145,11 +145,11 @@ const dungeonTone = (main, lift=0, tf=0.16) => {
   const HX=(v)=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0").toUpperCase();
   return `#${HX(r)}${HX(g)}${HX(b)}`;
 };
-// 던전모드 "보물상점" 전용 스타일 토큰 (아이템 상점 카드/지갑/아이콘) ----------
+// 모험모드 "보물상점" 전용 스타일 토큰 (아이템 상점 카드/지갑/아이콘) ----------
 const DUNGEON_SHOP = {
   walletBg: "linear-gradient(135deg, #243B6A 0%, #355490 100%)",
   walletBorder: "1px solid rgba(150, 190, 255, 0.28)",
-  // 목록 전체를 하나로 잇는 위→아래 그라데이션 (밝은 보물상자 블루 → 깊은 던전 네이비)
+  // 목록 전체를 하나로 잇는 위→아래 그라데이션 (밝은 보물상자 블루 → 깊은 모험 네이비)
   listBg: "linear-gradient(180deg, #6D82A8 0%, #4F6593 45%, #38507F 100%)",
   listBorder: "1px solid rgba(210, 230, 255, 0.24)",
   listShadow: "0 10px 24px rgba(15, 35, 75, 0.28), inset 0 1px 0 rgba(255,255,255,0.14)",
@@ -165,7 +165,7 @@ const DUNGEON_SHOP = {
   arrowBg: "rgba(255,255,255,0.14)",
   arrowColor: "#FFD166",
 };
-// 던전모드 아이템 상점 — 상태별 버튼/문구 톤 (반투명 다크 판타지 UI)
+// 모험모드 아이템 상점 — 상태별 버튼/문구 톤 (반투명 다크 판타지 UI)
 // 대기중=보라빛 / 구매가능=초록빛 / 코인부족=어두운 비활성
 const ITEM_ACTION_STYLE = {
   waiting: {
@@ -190,7 +190,7 @@ const ITEM_ACTION_STYLE = {
     buttonShadow: "none",
   },
 };
-// 던전모드 "꾸미기 상점" 카드 전용 — 카드 배경은 네이비로 통일하고
+// 모험모드 "꾸미기 상점" 카드 전용 — 카드 배경은 네이비로 통일하고
 // 등급은 테두리색 + glow 로만 구분 (WoW 인벤토리/장비창 느낌).
 // rarity 키: common(일반) / rare(희귀) / epic(영웅) / legendary(전설)
 const DUNGEON_DECOR_CARD = {
@@ -228,7 +228,7 @@ const getDungeonShopItemShadow = (grade="common") => {
   return "0 8px 18px rgba(20,40,85,0.3), inset 0 1.5px 0 rgba(255,255,255,0.24), inset 0 -8px 16px rgba(12,28,65,0.26)";
 };
 
-// 핵심 원칙: 던전은 항상 밤하늘/남색 베이스를 유지하고,
+// 핵심 원칙: 모험은 항상 밤하늘/남색 베이스를 유지하고,
 // 분홍·살구·연두·보라·파랑은 진행바/버튼/테두리/글로우에만 입힌다.
 const hexToRgb = (hex="#FFFFFF") => {
   const h = hex.replace("#","");
@@ -258,11 +258,12 @@ const getDungeonThemePreset = (main="#60A8FF") =>
   DUNGEON_THEME_PRESETS.reduce((best,p)=> colorDistance(main,p.match)<colorDistance(main,best.match)?p:best, DUNGEON_THEME_PRESETS[4]);
 const dungeonPalette = (main="#60A8FF") => {
   const d = getDungeonThemePreset(main);
-  const bg0 = "#0F1220";
-  const bg1 = mixHex("#11162A", d.deep, 0.34);
-  const bg2 = mixHex("#1B2140", d.deep, 0.42);
-  const card1 = mixHex("#18203A", d.deep, 0.38);
-  const card2 = mixHex("#11182E", d.deep, 0.48);
+  // 밝은 저녁하늘 톤: 베이스를 더 밝게 + 테마색(d.deep) 비중을 키워 캐주얼하고 컬러풀하게
+  const bg0 = "#1D3056";
+  const bg1 = mixHex("#22396A", d.deep, 0.42);
+  const bg2 = mixHex("#345E9C", d.deep, 0.46);
+  const card1 = mixHex("#365C8C", d.deep, 0.44);
+  const card2 = mixHex("#28426E", d.deep, 0.52);
   return {
     dark:bg0,
     dark2:bg2,
@@ -299,7 +300,7 @@ const dungeonPalette = (main="#60A8FF") => {
     boxSub:"rgba(246,247,251,0.68)",
     boxBorder:`${d.point}66`,
     boxShadowCol:"rgba(3,8,24,0.48)",
-    appBg:`linear-gradient(180deg, ${bg1} 0%, ${bg0} 48%, #090C18 100%)`,
+    appBg:`linear-gradient(180deg, ${bg1} 0%, ${bg0} 50%, #182C4E 100%)`,
     tabActive:`linear-gradient(135deg, ${d.point}, ${d.point2})`,
     accentBar:`linear-gradient(90deg, ${d.point}, ${d.point2})`,
     missionDark:true,
@@ -396,29 +397,29 @@ const FREE_THEME_COUNT = 2;
    ════════════════════════════════════════════════════════════════════════ */
 
 const DEFAULT_LEVELS = [
-  { level:1,  name:"루키",         minScore:0,     emoji:"🔰" },
-  { level:2,  name:"탐험가",       minScore:40,    emoji:"🧭" },
-  { level:3,  name:"수련생",       minScore:120,   emoji:"📘" },
-  { level:4,  name:"어드벤처",     minScore:240,   emoji:"🗺️" },
-  { level:5,  name:"헌터",         minScore:400,   emoji:"🏹" },
-  { level:6,  name:"에이스",       minScore:600,   emoji:"⭐" },
-  { level:7,  name:"가디언",       minScore:840,   emoji:"🛡️" },
-  { level:8,  name:"챌린저",       minScore:1120,  emoji:"🚀" },
-  { level:9,  name:"마스터",       minScore:1440,  emoji:"🏆" },
-  { level:10, name:"챔피언",       minScore:1800,  emoji:"🥇" },
-  { level:11, name:"히어로",       minScore:2200,  emoji:"🦸" },
-  { level:12, name:"레인저",       minScore:2640,  emoji:"🌲" },
-  { level:13, name:"워리어",       minScore:3120,  emoji:"🗡️" },
-  { level:14, name:"커맨더",       minScore:3640,  emoji:"🎖️" },
-  { level:15, name:"그랜드마스터", minScore:4200,  emoji:"💎" },
-  { level:16, name:"레전드",       minScore:4800,  emoji:"👑" },
-  { level:17, name:"미스틱",       minScore:5440,  emoji:"🔮" },
-  { level:18, name:"타이탄",       minScore:6120,  emoji:"🗿" },
-  { level:19, name:"불멸자",       minScore:6840,  emoji:"🌌" },
-  { level:20, name:"월드클래스",   minScore:7600,  emoji:"🌟" },
+  { level:1,  name:"새싹 탐험가",   minScore:0,     emoji:"🌱" },
+  { level:2,  name:"꼬마 탐험가",   minScore:40,    emoji:"🧭" },
+  { level:3,  name:"호기심 탐험가", minScore:120,   emoji:"🔍" },
+  { level:4,  name:"씩씩한 탐험가", minScore:240,   emoji:"🗺️" },
+  { level:5,  name:"숲 탐험가",     minScore:400,   emoji:"🌲" },
+  { level:6,  name:"들판 탐험가",   minScore:600,   emoji:"🌾" },
+  { level:7,  name:"동굴 탐험가",   minScore:840,   emoji:"🕯️" },
+  { level:8,  name:"강 탐험가",     minScore:1120,  emoji:"🛶" },
+  { level:9,  name:"바다 탐험가",   minScore:1440,  emoji:"🌊" },
+  { level:10, name:"섬 탐험가",     minScore:1800,  emoji:"🏝️" },
+  { level:11, name:"정글 원정대",   minScore:2200,  emoji:"🌴" },
+  { level:12, name:"사막 원정대",   minScore:2640,  emoji:"🏜️" },
+  { level:13, name:"설산 원정대",   minScore:3120,  emoji:"🏔️" },
+  { level:14, name:"하늘 탐험가",   minScore:3640,  emoji:"🎈" },
+  { level:15, name:"구름 탐험가",   minScore:4200,  emoji:"☁️" },
+  { level:16, name:"별빛 탐험가",   minScore:4800,  emoji:"🌟" },
+  { level:17, name:"은하 탐험가",   minScore:5440,  emoji:"🌌" },
+  { level:18, name:"우주 탐험가",   minScore:6120,  emoji:"🚀" },
+  { level:19, name:"행성 개척자",   minScore:6840,  emoji:"🪐" },
+  { level:20, name:"전설의 탐험가", minScore:7600,  emoji:"👑" },
 ];
 
-// 베이커리(cute) 모드 레벨 — 던전과 동일한 minScore 임계값을 공유하고
+// 베이커리(cute) 모드 레벨 — 모험과 동일한 minScore 임계값을 공유하고
 // 이름/이모지만 갈아끼운다. (level 번호로 매칭)
 const BAKERY_LEVELS = [
   { level:1,  name:"밀가루 요정",     emoji:"🌾" },
@@ -475,12 +476,12 @@ const GAME = {
 // 구조는 동일, 값만 모드별로 다름. 렌더부는 SKINS[mode] 를 참조.
 // ════════════════════════════════════════════════════════════
 const SKINS = {
-  // ── 던전 모드 (기존) ──────────────────────────────────────
+  // ── 모험 모드 (기존) ──────────────────────────────────────
   dungeon: {
     id:"dungeon",
-    name:"던전 게임",
-    selectEmoji:"⚔️",
-    selectDesc:"용사가 되어 던전을 클리어하자!",
+    name:"모험 게임",
+    selectEmoji:"🧭",
+    selectDesc:"탐험가가 되어 모험을 떠나자!",
     // 팔레트
     palette:{
       dark:"#15162E", dark2:"#20224A",
@@ -489,30 +490,30 @@ const SKINS = {
       green:"#22C9A0", neon:"#6C63FF", red:"#FF5C7A",
       panelBg:"linear-gradient(160deg,#1B1D3A,#15162E)",
       panelText:"#FFFFFF", panelSub:"#A8AED0",
-      // 헤더(dark 배경) 위에 올라가는 요소 토큰 — 던전은 기존 흰색 룩 유지
+      // 헤더(dark 배경) 위에 올라가는 요소 토큰 — 모험은 기존 흰색 룩 유지
       headerBg:"linear-gradient(135deg, #15162E, #20224A)", // dark→th.main 은 렌더부에서 합성, 여기는 폴백용
       onDark:"#FFFFFF", onDarkSub:"rgba(255,255,255,0.75)",
       chipBg:"rgba(255,255,255,0.16)", chipBorder:"rgba(255,255,255,0.35)",
       chipText:"#FFFFFF",
       bubble:"rgba(255,255,255,0.08)", divider:"rgba(255,255,255,0.1)",
-      // 던전식 '어두운 박스' 토큰 — 던전은 기존 어두운 룩 유지
+      // 모험식 '어두운 박스' 토큰 — 모험은 기존 어두운 룩 유지
       boxBg:"linear-gradient(135deg, #15162E, #20224A)",
       boxSolid:"#15162E",
       boxText:"#FFFFFF", boxSub:"rgba(255,255,255,0.72)",
       boxBorder:"rgba(255,255,255,0.1)",
       boxShadowCol:"rgba(20,22,46,0.33)",
-      // 화면 전체 바탕 — 던전은 기존 차가운 톤 유지
+      // 화면 전체 바탕 — 모험은 기존 차가운 톤 유지
       appBg:null,
-      // 학원카드 내부 미션 강조박스 — 던전은 어두운(테마색 어둡게) 그대로
+      // 학원카드 내부 미션 강조박스 — 모험은 어두운(테마색 어둡게) 그대로
       missionDark:true,
       radCard:20, radMid:18, radSmall:14,
     },
-    // 아이별 테마색(분홍·살구·연두·보라·파랑)을 던전 룩에 입히는 함수.
+    // 아이별 테마색(분홍·살구·연두·보라·파랑)을 모험 룩에 입히는 함수.
     // static palette는 폴백이고, 실제 렌더링은 이 paletteFn 결과를 사용한다.
     paletteFn:(main)=>dungeonPalette(main),
     // 세계관 텍스트
     text:{
-      tabs:{ quest:"⚔️ 미션", character:"🧙 내 캐릭터" },
+      tabs:{ area:"🗺️ 모험", quest:"🎯 미션", character:"🧒 내 캐릭터" },
       heroStatus:"HERO STATUS",
       dailyArea:"TODAY MISSION",
       todayQuest:"오늘의 미션",
@@ -532,7 +533,7 @@ const SKINS = {
       dateAreaSuffix:"모험 장소",   // "{날짜} 모험 장소"
       noArea:"오늘은 모험 장소가 없어요",
       noAreaEmoji:"😴",
-      areaCountIcon:"🏰",
+      areaCountIcon:"🗺️",
       // 진행도별 응원 메시지
       progress:{
         rest:"오늘은 쉬어가는 날이야 😴",
@@ -553,15 +554,15 @@ const SKINS = {
         default:{icon:"📜",title:"모험 기록"},
       },
     },
-    // 완료 표시 = 기존 체크(던전은 도장 모티프 OFF)
+    // 완료 표시 = 기존 체크(모험은 도장 모티프 OFF)
     stamp:{ on:false },
-    // 학원명 → 아이콘/라벨 매칭 (기존 던전 규칙)
+    // 학원명 → 아이콘/라벨 매칭 (기존 모험 규칙)
     academyRules:[
       { kw:["영어","english","어학","파닉스","토익","토플"], icon:"📖", label:"마법 언어의 탑" },
       { kw:["수학","math","산수","연산","사고력"],            icon:"🔢", label:"숫자 미궁" },
       { kw:["국어","논술","독서","글쓰기","문해"],            icon:"✍️", label:"고대 문헌의 방" },
       { kw:["과학","science","코딩","로봇","컴퓨터","sw","stem"], icon:"🔬", label:"연금술 실험실" },
-      { kw:["태권","태권도","검도","합기도","유도","무술","주짓수"], icon:"🥋", label:"용사의 도장" },
+      { kw:["태권","태권도","검도","합기도","유도","무술","주짓수"], icon:"🥋", label:"용감 도장" },
       { kw:["피아노","바이올린","음악","첼로","기타","드럼","악기"], icon:"🎹", label:"선율의 신전" },
       { kw:["미술","그림","드로잉","아트","art","디자인"],     icon:"🎨", label:"색채의 화방" },
       { kw:["발레","무용","댄스","dance","방송댄스"],          icon:"🩰", label:"춤추는 무대" },
@@ -570,7 +571,7 @@ const SKINS = {
       { kw:["한자","중국어","일본어","제2외국어","스페인어"],  icon:"🀄", label:"동방 문자의 길" },
       { kw:["요리","쿠킹","베이킹"],                           icon:"🍳", label:"마녀의 부엌" },
     ],
-    academyDefault:{ icon:"🏰", label:"미지의 던전" },
+    academyDefault:{ icon:"🏰", label:"미지의 모험" },
     // 완료 연출 타입
     clearEffect:"slash", // 검 베기 느낌
   },
@@ -583,7 +584,7 @@ const SKINS = {
     selectDesc:"달콤한 가게의 주인이 되어 도장을 모으자!",
     // 팔레트 — 맑고 부드러운 톤 (연한 핑크·크림빛으로 화면 전반을 감싼다)
     palette:{
-      // dark/dark2 는 던전에선 어두운 배경이지만, 베이커리에선
+      // dark/dark2 는 모험에선 어두운 배경이지만, 베이커리에선
       // '맑은 박스 위 진한 글씨색'으로만 의미를 가진다 (박스 배경은 boxBg 가 담당).
       dark:"#6B4A5C", dark2:"#A23E63",          // 코코아 / 진베리 (글씨·포인트)
       gold:"#F7A8C4", coin:"#FFC98A", xp:"#C3A0E6",
@@ -597,7 +598,7 @@ const SKINS = {
       chipBg:"rgba(255,255,255,0.7)", chipBorder:"rgba(107,74,92,0.18)",
       chipText:"#6B4A5C",
       bubble:"rgba(255,255,255,0.5)", divider:"rgba(107,74,92,0.12)",
-      // 던전식 '어두운 박스'들이 참조하는 토큰 — 베이커리는 맑은 크림박스
+      // 모험식 '어두운 박스'들이 참조하는 토큰 — 베이커리는 맑은 크림박스
       boxBg:"linear-gradient(135deg, #FFF3F8, #FBEDF4)",
       boxSolid:"#FFF3F8",
       boxText:"#6B4A5C", boxSub:"rgba(107,74,92,0.6)",
@@ -661,9 +662,9 @@ const SKINS = {
     },
     // 세계관 텍스트 — 베이커리/도장
     text:{
-      tabs:{ quest:"🎀 오늘 할 일", character:"🧸 내 캐릭터" },
-      heroStatus:"오늘의 나",
-      dailyArea:"오늘의 가게",
+      tabs:{ area:"🏡 거리", quest:"🎀 오늘 할 일", character:"🧸 내 캐릭터" },
+      heroStatus:"TODAY'S BAKER",
+      dailyArea:"TODAY MISSION",
       todayQuest:"오늘의 미션",
       questList:"🧾 미션 목록",
       missionEmoji:"🧁",
@@ -676,15 +677,15 @@ const SKINS = {
       noQuest:"아직 할 일이 없어요",
       completeWord:"도장 꾹",
       // 모험 장소(학원 일정) 섹션 → 베이커리 톤
-      areaTag:"TODAY'S STREET",
-      todayArea:"🏡 오늘의 거리",
+      areaTag:"",
+      todayArea:"오늘의 거리",
       dateAreaSuffix:"들를 가게",   // "{날짜} 들를 가게"
       noArea:"오늘은 들를 가게가 없어요",
       noAreaEmoji:"🍪",
       areaCountIcon:"🏡",
       // 진행도별 응원 메시지 → 베이커리 톤
       progress:{
-        rest:"오늘은 가게 문을 닫고 쉬는 날이에요 🍪",
+        rest:"오늘은 쉬는 날이에요 🍪",
         start:"오늘도 달콤하게 시작해볼까요? 🧁",
         low:"아직 만들 게 남았어요!",
         high:"거의 다 구웠어요! 🍞",
@@ -710,7 +711,7 @@ const SKINS = {
       ringText:"참잘했어요",   // 도장 테두리 문구(원형)
       anim:"stampDrop .5s cubic-bezier(.3,1.5,.5,1) both",
     },
-    // 학원명 → 베이커리/디저트 아이콘·라벨 (던전과 같은 12개 카테고리)
+    // 학원명 → 베이커리/디저트 아이콘·라벨 (모험과 같은 12개 카테고리)
     academyRules:[
       { kw:["영어","english","어학","파닉스","토익","토플"], icon:"🍓", label:"딸기 알파벳 카페" },
       { kw:["수학","math","산수","연산","사고력"],            icon:"🍩", label:"도넛 숫자 가게" },
@@ -733,14 +734,14 @@ const SKINS = {
 const DEFAULT_SKIN = "dungeon";
 const getSkin = (mode) => SKINS[mode] || SKINS[DEFAULT_SKIN];
 
-// ── 학원명 → 던전 아이콘/테마 자동 매칭 ─────────────────────
-// 학원 이름 속 키워드로 RPG 던전 느낌의 아이콘과 라벨을 자동 부여한다.
+// ── 학원명 → 모험 아이콘/테마 자동 매칭 ─────────────────────
+// 학원 이름 속 키워드로 RPG 모험 느낌의 아이콘과 라벨을 자동 부여한다.
 const ACADEMY_DUNGEON_RULES = [
   { kw:["영어","english","어학","파닉스","토익","토플"],            icon:"📖", label:"마법 언어의 탑" },
   { kw:["수학","math","산수","연산","사고력"],                       icon:"🔢", label:"숫자 미궁" },
   { kw:["국어","논술","독서","글쓰기","문해"],                       icon:"✍️", label:"고대 문헌의 방" },
   { kw:["과학","science","코딩","로봇","컴퓨터","sw","stem"],        icon:"🔬", label:"연금술 실험실" },
-  { kw:["태권","태권도","검도","합기도","유도","무술","주짓수"],     icon:"🥋", label:"용사의 도장" },
+  { kw:["태권","태권도","검도","합기도","유도","무술","주짓수"],     icon:"🥋", label:"용감 도장" },
   { kw:["피아노","바이올린","음악","첼로","기타","드럼","악기"],     icon:"🎹", label:"선율의 신전" },
   { kw:["미술","그림","드로잉","아트","art","디자인"],               icon:"🎨", label:"색채의 화방" },
   { kw:["발레","무용","댄스","dance","방송댄스"],                    icon:"🩰", label:"춤추는 무대" },
@@ -754,12 +755,12 @@ const getAcademyDungeon = (name="") => {
   for(const r of ACADEMY_DUNGEON_RULES){
     if(r.kw.some(k=>n.includes(k.toLowerCase()))) return r;
   }
-  return { icon:"🏰", label:"미지의 던전" };
+  return { icon:"🏰", label:"미지의 모험" };
 };
 
 // ── 스킨별 학원 아이콘/라벨 매칭 ───────────────────────────
 // 베이커리(cute) 모드는 SKINS.cute.academyRules/academyDefault 를 사용하고,
-// 그 외(던전 등)는 기존 getAcademyDungeon 규칙을 그대로 사용한다.
+// 그 외(모험 등)는 기존 getAcademyDungeon 규칙을 그대로 사용한다.
 const getAcademyTheme = (name="", skin=DEFAULT_SKIN) => {
   const s = SKINS[skin];
   if(s && s.academyRules){
@@ -773,11 +774,11 @@ const getAcademyTheme = (name="", skin=DEFAULT_SKIN) => {
 };
 
 const CHARACTER_EVOLUTIONS = [
-  { minLevel:1,  name:"새싹 모험가",   avatar:{boy:"🧒",girl:"👧"},  badge:"🔰", bg:"linear-gradient(135deg,#E0F2FE,#F8FAFC)" },
-  { minLevel:5,  name:"견습 용사",     avatar:{boy:"🧑",girl:"👩"},  badge:"🛡️", bg:"linear-gradient(135deg,#DCFCE7,#F8FAFC)" },
-  { minLevel:9,  name:"숙련 헌터",     avatar:{boy:"🧝‍♂️",girl:"🧝‍♀️"},  badge:"🏹", bg:"linear-gradient(135deg,#FEF3C7,#F8FAFC)" },
-  { minLevel:13, name:"영웅 기사",     avatar:{boy:"🦸‍♂️",girl:"🦸‍♀️"}, badge:"🗡️", bg:"linear-gradient(135deg,#EDE9FE,#F8FAFC)" },
-  { minLevel:17, name:"전설의 수호자", avatar:{boy:"🧙‍♂️",girl:"🧙‍♀️"}, badge:"👑", bg:"linear-gradient(135deg,#FFF7ED,#FEF3C7)" },
+  { minLevel:1,  name:"새싹 탐험가",   avatar:{boy:"🧒",girl:"👧"},  badge:"🌱", bg:"linear-gradient(135deg,#E0F2FE,#F8FAFC)" },
+  { minLevel:5,  name:"숲 탐험가",     avatar:{boy:"🧑",girl:"👩"},  badge:"🌲", bg:"linear-gradient(135deg,#DCFCE7,#F8FAFC)" },
+  { minLevel:9,  name:"바다 탐험가",   avatar:{boy:"🧑‍✈️",girl:"👩‍✈️"},  badge:"🌊", bg:"linear-gradient(135deg,#E0F2FE,#F8FAFC)" },
+  { minLevel:13, name:"탐험 히어로",   avatar:{boy:"🦸‍♂️",girl:"🦸‍♀️"}, badge:"🦸", bg:"linear-gradient(135deg,#EDE9FE,#F8FAFC)" },
+  { minLevel:17, name:"전설의 탐험가", avatar:{boy:"🧑‍🚀",girl:"👩‍🚀"}, badge:"🚀", bg:"linear-gradient(135deg,#FFF7ED,#FEF3C7)" },
 ];
 
 // ── 펫 진화 (한 길, 0→4단계). 보물상자에서 낮은 확률로 1단계씩 진화 ──
@@ -795,31 +796,31 @@ const PET_EVOLVE_LEGEND_PITY = 2;
 
 // 진화 단계별 격려 문구
 const EVOLUTION_MESSAGES = {
-  "새싹 모험가":   "작은 한 걸음에서 모험이 시작돼요.",
-  "견습 용사":     "작은 노력이 강한 용사를 만들어요.",
-  "숙련 헌터":     "스스로 해내는 힘이 자라고 있어요.",
-  "영웅 기사":     "책임감과 용기로 성장하고 있어요.",
-  "전설의 수호자": "자신의 길을 만들어가는 수호자예요.",
+  "새싹 탐험가":   "작은 한 걸음에서 모험이 시작돼요.",
+  "숲 탐험가":     "스스로 길을 찾는 힘이 자라고 있어요.",
+  "바다 탐험가":   "넓은 세상으로 용감하게 나아가고 있어요.",
+  "탐험 히어로":   "꿈을 향해 더 높이 날아오르고 있어요.",
+  "전설의 탐험가": "자신만의 길을 만들어가는 탐험가예요.",
 };
 
 // ════════════════════════════════════════════════════════════
 // 베이커리(cute) 모드 — 성장체 / 펫 / 설명 치환 데이터
-// 던전 구조(단계 수·minLevel·stage)는 그대로 두고 이름·이모지만 교체.
+// 모험 구조(단계 수·minLevel·stage)는 그대로 두고 이름·이모지만 교체.
 // ════════════════════════════════════════════════════════════
 // 성장체 5단계 (CHARACTER_EVOLUTIONS 와 1:1 매칭, 남녀 공통 이모지)
 const BAKERY_EVOLUTIONS = [
   // 파티시에 성장 4단계. 베이커리 전용 레벨 구간(minLevel): 1-6 / 7-11 / 12-16 / 17~
   { minLevel:1,  name:"꼬마 제빵사",     avatar:{boy:"👦",girl:"👧"},      bg:"linear-gradient(135deg,#FFF1F6,#FFFBF8)" },
-  { minLevel:7,  name:"씩씩한 견습",     avatar:{boy:"🧑",girl:"👩"},      bg:"linear-gradient(135deg,#FFE8F1,#FFFBF8)" },
-  { minLevel:12, name:"베이커리 요리사", avatar:{boy:"👨‍🍳",girl:"👩‍🍳"},  bg:"linear-gradient(135deg,#FCE7F3,#FFFBF8)" },
+  { minLevel:7,  name:"견습 파티시에",   avatar:{boy:"🧑",girl:"👩"},      bg:"linear-gradient(135deg,#FFE8F1,#FFFBF8)" },
+  { minLevel:12, name:"실력파 파티시에", avatar:{boy:"👨‍🍳",girl:"👩‍🍳"},  bg:"linear-gradient(135deg,#FCE7F3,#FFFBF8)" },
   { minLevel:17, name:"전설의 파티시에", avatar:{boy:"🤴",girl:"👸"},      bg:"linear-gradient(135deg,#FFF7ED,#FCE7F3)" },
 ];
 // 성장체별 격려 문구 (베이커리)
 const BAKERY_DESCRIPTION = {
-  "꼬마 제빵사":     "모든 달콤한 꿈은 작은 첫걸음에서 시작돼요.",
-  "씩씩한 견습":     "하나씩 해내는 미션이 멋진 성장을 만들고 있어요.",
-  "베이커리 요리사": "꾸준한 노력으로 어엿한 요리사가 되었어요.",
-  "전설의 파티시에": "모두가 인정하는 최고의 파티시에가 되었어요.",
+  "꼬마 제빵사":     "작은 첫걸음이 큰 꿈을 만들어요.",
+  "견습 파티시에":   "하나씩 해내며 쑥쑥 성장하고 있어요.",
+  "실력파 파티시에": "꾸준한 노력이 멋진 실력이 되었어요.",
+  "전설의 파티시에": "최고의 파티시에가 되었어요.",
 };
 // 펫 = 강아지→유니콘 성장 라인 (PET_STAGES 5단계와 1:1 매칭, 아바타 디저트와 구분)
 const BAKERY_PET_DESCRIPTION = {
@@ -841,7 +842,7 @@ const BAKERY_PETS = [
 const evoView = (evo, idx, skin) => {
   if(!evo) return evo;
   if(skin==="cute"){
-    // 베이커리는 4단계(던전은 5단계)라 idx가 범위를 넘으면 마지막(전설) 단계로 클램프
+    // 베이커리는 4단계(모험은 5단계)라 idx가 범위를 넘으면 마지막(전설) 단계로 클램프
     const bi = Math.min(idx, BAKERY_EVOLUTIONS.length-1);
     const b = BAKERY_EVOLUTIONS[bi];
     if(b) return { ...evo, name:b.name, emoji:b.avatar?.girl||b.avatar?.boy, bg:b.bg,
@@ -869,26 +870,26 @@ const LEVEL_UP_REWARDS = {
 };
 
 const LEVEL_DESCRIPTION = {
-  1:"모험을 시작한 새내기",
-  2:"세상을 탐험하기 시작했어요",
-  3:"꾸준히 성장하는 수련생",
-  4:"본격적인 모험가",
-  5:"숙제를 사냥하는 헌터",
-  6:"믿음직한 에이스",
-  7:"팀을 지키는 가디언",
-  8:"도전을 즐기는 챌린저",
-  9:"실력을 인정받는 마스터",
-  10:"최고 수준의 챔피언",
-  11:"모두가 인정하는 히어로",
-  12:"새로운 길을 개척하는 레인저",
-  13:"강인한 워리어",
-  14:"팀을 이끄는 커맨더",
-  15:"전설 직전의 그랜드마스터",
-  16:"살아있는 전설",
-  17:"신비로운 미스틱",
-  18:"거대한 힘의 타이탄",
-  19:"쓰러지지 않는 불멸자",
-  20:"최고의 월드클래스"
+  1:"모험을 시작한 새싹 탐험가",
+  2:"지도를 펼친 꼬마 탐험가",
+  3:"호기심으로 가득한 탐험가",
+  4:"척척 나아가는 씩씩한 탐험가",
+  5:"숲을 누비는 탐험가",
+  6:"넓은 들판을 가로지르는 탐험가",
+  7:"깜깜한 동굴도 두렵지 않아요",
+  8:"강을 건너는 용감한 탐험가",
+  9:"드넓은 바다로 떠난 탐험가",
+  10:"미지의 섬을 발견한 탐험가",
+  11:"정글을 헤치는 원정대장",
+  12:"뜨거운 사막을 건너는 원정대",
+  13:"눈 덮인 설산을 오르는 원정대",
+  14:"하늘 높이 떠오른 탐험가",
+  15:"구름 위를 여행하는 탐험가",
+  16:"별빛을 따라가는 탐험가",
+  17:"은하를 누비는 탐험가",
+  18:"우주로 떠난 탐험가",
+  19:"새 행성을 개척하는 탐험가",
+  20:"모두가 우러러보는 전설의 탐험가"
 };
 
 const REWARD_GRADES = [
@@ -963,6 +964,7 @@ const getRandomTreasureCoin=(boxType)=>{
 
 const UI_TEXT = {
   tabs:{
+    area:"🗺️ 모험",
     quest:"⚔️ 미션",
     character:"🧙 내 캐릭터",
   },
@@ -1009,9 +1011,9 @@ const UI_TEXT = {
 };
 
 const LEGENDARY_TITLES = [
-  { id:"gold_hunter",      name:"황금 사냥꾼",   emoji:"🥇", rarity:"legendary", condition:"전설상자 드롭", award:"전설상자에서 빛나는 보물을 찾아낸 행운의 모험가에게 이 상장을 드립니다 🥇", description:"전설상자에서만 획득 가능" },
-  { id:"dragon_knight",    name:"드래곤 기사",   emoji:"🛡️", rarity:"legendary", condition:"전설상자 드롭", award:"전설상자에서 용맹한 기사의 힘을 얻은 모험가에게 이 상장을 드립니다 🛡️", description:"전설상자에서만 획득 가능" },
-  { id:"shadow_assassin",  name:"그림자 암살자", emoji:"🌙", rarity:"legendary", condition:"전설상자 드롭", award:"전설상자에서 신비한 그림자의 힘을 만난 모험가에게 이 상장을 드립니다 🌙", description:"전설상자에서만 획득 가능" },
+  { id:"gold_hunter",      name:"황금 탐험가",   emoji:"🥇", rarity:"legendary", condition:"전설상자 드롭", award:"전설상자에서 빛나는 보물을 찾아낸 행운의 탐험가에게 이 상장을 드립니다 🥇", description:"전설상자에서만 획득 가능" },
+  { id:"dragon_knight",    name:"용감한 개척자", emoji:"🛡️", rarity:"legendary", condition:"전설상자 드롭", award:"전설상자에서 용기의 증표를 얻은 탐험가에게 이 상장을 드립니다 🛡️", description:"전설상자에서만 획득 가능" },
+  { id:"shadow_assassin",  name:"밤하늘 탐험가", emoji:"🌙", rarity:"legendary", condition:"전설상자 드롭", award:"전설상자에서 신비한 밤하늘의 비밀을 만난 탐험가에게 이 상장을 드립니다 🌙", description:"전설상자에서만 획득 가능" },
 ];
 
 const TITLE_RARITY = {
@@ -1023,12 +1025,12 @@ const TITLE_RARITY = {
 
 const DEFAULT_TITLES = [
   { id:"rookie", name:"꼬마 모험가", emoji:"🎗️", condition:"기본 상장", award:"드디어 모험의 첫걸음을 내디딘 꼬마 모험가에게 이 상장을 드립니다 🎗️", rarity:"common" },
-  { id:"first_quest", name:"첫걸음 용사", emoji:"👣", condition:"첫 미션 완료", award:"첫 번째 임무를 용감하게 해낸 모험가에게 이 상장을 드립니다 👣", rarity:"common" },
+  { id:"first_quest", name:"첫걸음 탐험가", emoji:"👣", condition:"첫 미션 완료", award:"첫 번째 임무를 용감하게 해낸 탐험가에게 이 상장을 드립니다 👣", rarity:"common" },
   { id:"quest_10_title", name:"미션 입문자", emoji:"🎯", condition:"미션 10개 완료", award:"임무를 10개나 완수한 멋진 모험가에게 이 상장을 드립니다 🎯", rarity:"common" },
   { id:"xp_100_title", name:"반짝 새싹", emoji:"🌱", condition:"100 XP 달성", award:"경험치 100을 모으며 쑥쑥 자라난 모험가에게 이 상장을 드립니다 🌱", rarity:"common" },
   { id:"reward_1_title", name:"첫 쇼핑러", emoji:"🛒", condition:"첫 보상 구매", award:"열심히 모은 코인으로 첫 보상을 받은 모험가에게 이 상장을 드립니다 🛒", rarity:"common" },
 
-  { id:"quest_hunter", name:"미션 헌터", emoji:"🏹", condition:"미션 50개 완료", award:"임무를 50개나 끝까지 해낸 멋진 모험가에게 이 상장을 드립니다 🏹", rarity:"rare" },
+  { id:"quest_hunter", name:"미션 탐험가", emoji:"🎯", condition:"미션 50개 완료", award:"임무를 50개나 끝까지 해낸 멋진 탐험가에게 이 상장을 드립니다 🎯", rarity:"rare" },
   { id:"homework_master", name:"숙제왕", emoji:"📚", condition:"숙제 30개 완료", award:"숙제를 30개나 완수한 성실한 모험가에게 이 상장을 드립니다 📚", rarity:"rare" },
   { id:"streak_3_title", name:"꾸준한 아이", emoji:"🔥", condition:"5일 연속 달성", award:"5일 연속 하루도 빠지지 않은 꾸준한 모험가에게 이 상장을 드립니다 🔥", rarity:"rare" },
   { id:"xp_500_title", name:"성실 수련생", emoji:"📘", condition:"500 XP 달성", award:"경험치 500을 모으며 꾸준히 성장한 모험가에게 이 상장을 드립니다 📘", rarity:"rare" },
@@ -1036,7 +1038,7 @@ const DEFAULT_TITLES = [
 
   { id:"streak_master", name:"불꽃 루틴러", emoji:"⚡", condition:"10일 연속 달성", award:"10일 연속 임무를 해낸 불꽃 같은 모험가에게 이 상장을 드립니다 ⚡", rarity:"epic" },
   { id:"quest_100_title", name:"집중의 신", emoji:"🧠", condition:"미션 100개 완료", award:"임무를 100개나 완수한 집중력 뛰어난 모험가에게 이 상장을 드립니다 🧠", rarity:"epic" },
-  { id:"champion", name:"챔피언", emoji:"🏅", condition:"Lv.10 달성", award:"마침내 10레벨에 도달한 자랑스러운 챔피언에게 이 상장을 드립니다 🏅", rarity:"epic" },
+  { id:"champion", name:"모험 대장", emoji:"🏅", condition:"Lv.10 달성", award:"마침내 10레벨에 도달한 자랑스러운 모험 대장에게 이 상장을 드립니다 🏅", rarity:"epic" },
   { id:"xp_3000_title", name:"빛나는 성장러", emoji:"🌟", condition:"3000 XP 달성", award:"경험치 3000을 모으며 눈부시게 성장한 모험가에게 이 상장을 드립니다 🌟", rarity:"epic" },
   { id:"reward_30_title", name:"쇼핑 마스터", emoji:"💳", condition:"보상 30번 구매", award:"보상을 30번이나 받은 진정한 쇼핑 마스터에게 이 상장을 드립니다 💳", rarity:"epic" },
 
@@ -1047,32 +1049,32 @@ const DEFAULT_TITLES = [
   { id:"quest_700_title", name:"미션의 신화", emoji:"🌌", condition:"미션 700개 완료", award:"임무를 700개나 완수하여 신화를 써낸 모험가에게 이 상장을 드립니다 🌌", rarity:"legendary" },
 ];
 
-// ── 베이커리(cute) 상장 치환 — 던전 상장 id 와 1:1 매칭 ──
+// ── 베이커리(cute) 상장 치환 — 모험 상장 id 와 1:1 매칭 ──
 // 등급·획득조건(condition은 표시용)·rarity는 그대로, 이름/이모지만 교체.
 const BAKERY_TITLE_MAP = {
   // common
   rookie:           { name:"반죽 도우미",     emoji:"🥄", condition:"기본 상장", award:"드디어 베이커리의 첫걸음을 내디딘 반죽 도우미에게 이 상장을 드립니다 🥄" },
   first_quest:      { name:"쿠키 굽기 초보",  emoji:"🍪", condition:"첫 미션 완료", award:"첫 번째 미션을 맛있게 해낸 꼬마 제빵사에게 이 상장을 드립니다 🍪" },
-  quest_10_title:   { name:"달콤한 제빵사",   emoji:"🧁", condition:"미션 10개 완료", award:"미션을 10개나 완성한 달콤한 제빵사에게 이 상장을 드립니다 🧁" },
+  quest_10_title:   { name:"첫 오븐 졸업",    emoji:"🧁", condition:"미션 10개 완료", award:"미션을 10개나 완성하며 첫 오븐을 멋지게 졸업한 제빵사에게 이 상장을 드립니다 🧁" },
   xp_100_title:     { name:"첫 반죽 친구",    emoji:"🌱", condition:"경험치 100 달성", award:"경험치 100을 모으며 쑥쑥 자라난 제빵사에게 이 상장을 드립니다 🌱" },
   reward_1_title:   { name:"첫 쿠키 손님",    emoji:"🛒", condition:"첫 보상 구매", award:"열심히 모은 코인으로 첫 보상을 받은 제빵사에게 이 상장을 드립니다 🛒" },
   // rare
-  quest_hunter:     { name:"인기 파티시에",   emoji:"🍰", condition:"미션 50개 완료", award:"미션을 50개나 완성한 솜씨 좋은 파티시에에게 이 상장을 드립니다 🍰" },
+  quest_hunter:     { name:"미션 사냥꾼",     emoji:"🍳", condition:"미션 50개 완료", award:"미션을 50개나 완성한 솜씨 좋은 미션 사냥꾼에게 이 상장을 드립니다 🍳" },
   homework_master:  { name:"디저트 장인",     emoji:"🎀", condition:"숙제 30개 완료", award:"숙제를 30개나 완수한 성실한 디저트 장인에게 이 상장을 드립니다 🎀" },
-  streak_3_title:   { name:"베이커리 스타",   emoji:"🌸", condition:"5일 연속 달성", award:"5일 연속 하루도 빠지지 않은 베이커리 스타에게 이 상장을 드립니다 🌸" },
+  streak_3_title:   { name:"개근 제빵사",     emoji:"🔥", condition:"5일 연속 달성", award:"5일 연속 하루도 빠지지 않은 개근 제빵사에게 이 상장을 드립니다 🔥" },
   xp_500_title:     { name:"성실한 제빵사",   emoji:"📖", condition:"경험치 500 달성", award:"경험치 500을 모으며 꾸준히 성장한 제빵사에게 이 상장을 드립니다 📖" },
   reward_3_title:   { name:"알뜰 단골손님",   emoji:"🏷️", condition:"보상 5번 구매", award:"코인을 알뜰하게 모아 보상을 5번 받은 단골손님에게 이 상장을 드립니다 🏷️" },
   // epic
   streak_master:    { name:"꾸준한 제빵사",   emoji:"🥐", condition:"10일 연속 달성", award:"10일 연속 미션을 해낸 따끈따끈한 제빵사에게 이 상장을 드립니다 🥐" },
   quest_100_title:  { name:"케이크 마스터",   emoji:"🎂", condition:"미션 100개 완료", award:"미션을 100개나 완성한 솜씨 뛰어난 케이크 마스터에게 이 상장을 드립니다 🎂" },
-  champion:         { name:"왕실 파티시에",   emoji:"🎖️", condition:"Lv.10 달성", award:"마침내 10레벨에 도달한 자랑스러운 왕실 파티시에에게 이 상장을 드립니다 🎖️" },
+  champion:         { name:"10레벨 챔피언",   emoji:"🎖️", condition:"Lv.10 달성", award:"마침내 10레벨에 도달한 자랑스러운 10레벨 챔피언에게 이 상장을 드립니다 🎖️" },
   xp_3000_title:    { name:"무지개 제빵사",   emoji:"🌈", condition:"경험치 3000 달성", award:"경험치 3000을 모으며 눈부시게 성장한 제빵사에게 이 상장을 드립니다 🌈" },
   reward_30_title:  { name:"쿠키 수집가",     emoji:"🛍️", condition:"보상 30번 구매", award:"보상을 30번이나 받은 진정한 쿠키 수집가에게 이 상장을 드립니다 🛍️" },
   // legendary (default)
   legend:           { name:"디저트 왕국의 주인", emoji:"👑", condition:"Lv.20 달성", award:"마침내 20레벨에 도달하여 모두가 사랑하는 디저트 왕국의 주인에게 이 상장을 드립니다 👑" },
-  streak_30_title:  { name:"디저트 여왕",     emoji:"🌹", condition:"30일 연속 달성", award:"30일 연속이라는 전설적인 기록을 세운 디저트 여왕에게 이 상장을 드립니다 🌹" },
+  streak_30_title:  { name:"한 달 개근왕",   emoji:"🌹", condition:"30일 연속 달성", award:"30일 연속이라는 전설적인 기록을 세운 한 달 개근왕에게 이 상장을 드립니다 🌹" },
   treasure_master:  { name:"베이커리 사장님", emoji:"💰", condition:"디저트상자 50개 오픈", award:"디저트상자를 50개나 열어본 어엿한 베이커리 사장님에게 이 상장을 드립니다 💰" },
-  world_class:      { name:"전설의 파티시에", emoji:"✨", condition:"경험치 12000 달성", award:"경험치 12000을 모은 세계 최고의 파티시에에게 이 상장을 드립니다 ✨" },
+  world_class:      { name:"월드클래스 셰프", emoji:"✨", condition:"경험치 12000 달성", award:"경험치 12000을 모은 세계 최고의 월드클래스 셰프에게 이 상장을 드립니다 ✨" },
   quest_700_title:  { name:"신화의 레시피",   emoji:"📜", condition:"미션 700개 완료", award:"미션을 700개나 완성하여 신화를 써낸 제빵사에게 이 상장을 드립니다 📜" },
   // legendary (보물상자 전용)
   gold_hunter:      { name:"황금 크루아상",   emoji:"🥨", condition:"스페셜 상자에서 획득", award:"스페셜 상자에서 황금 크루아상을 찾아낸 행운의 제빵사에게 이 상장을 드립니다 🥨", description:"스페셜 상자에서만 획득 가능" },
@@ -1103,41 +1105,60 @@ const DECOR_RARITY = {
 };
 // 모자: 캐릭터 이모지 위(머리)에 겹쳐 표시
 const DECOR_HATS = [
-  { id:"hat_axe",     emoji:"🪓", name:"전투 도끼",    price:120,  rarity:"common",    weapon:true, bakery:{ emoji:"🎀", name:"리본" } },
-  { id:"hat_tophat",  emoji:"⚔️", name:"용사의 검",    price:380,  rarity:"rare",      weapon:true, bakery:{ emoji:"🍓", name:"딸기 모자" } },
-  { id:"hat_goggles", emoji:"🛡️", name:"수호 방패",    price:550,  rarity:"rare",      weapon:true, bakery:{ emoji:"💎", name:"보석 티아라" } },
-  { id:"hat_flame",   emoji:"🔥", name:"용의 불꽃",    price:800,  rarity:"epic",      weapon:true, bakery:{ emoji:"👑", name:"공주 왕관" } },
-  { id:"hat_star",    emoji:"🔱", name:"삼지창",      price:1000, rarity:"legendary", weapon:true, bakery:{ emoji:"🌸", name:"벚꽃 머리띠" } },
-  { id:"hat_crown",   emoji:"👑", name:"군주의 왕관",  price:1200, rarity:"legendary", bakery:{ emoji:"🌈", name:"무지개 왕관" } },
+  { id:"hat_axe",     emoji:"🎒", name:"탐험가 배낭",  price:120,  rarity:"common",    weapon:true, bakery:{ emoji:"🎀", name:"리본" } },
+  { id:"hat_tophat",  emoji:"🧭", name:"나침반",      price:380,  rarity:"rare",      weapon:true, bakery:{ emoji:"🍓", name:"딸기 모자" } },
+  { id:"hat_goggles", emoji:"📷", name:"카메라",      price:550,  rarity:"rare",      weapon:true, bakery:{ emoji:"💎", name:"보석 티아라" } },
+  { id:"hat_flame",   emoji:"🗺️", name:"보물 지도",    price:800,  rarity:"epic",      weapon:true, bakery:{ emoji:"👑", name:"공주 왕관" } },
+  { id:"hat_star",    emoji:"🚲", name:"자전거",      price:1000, rarity:"legendary", weapon:true, bakery:{ emoji:"🌸", name:"벚꽃 머리띠" } },
+  { id:"hat_crown",   emoji:"👑", name:"전설의 탐험가 왕관", price:1200, rarity:"legendary", bakery:{ emoji:"🌈", name:"무지개 왕관" } },
 ];
+// ── 베이커리(cute) 전용 모자 진열 순서 & 자리기준 가격 ──
+// 모험 모드는 DECOR_HATS 원본 순서·가격 그대로. 베이커리만 아래 순서로 진열하고,
+// 각 '자리(슬롯)'에 모험 가격 120/380/550/800/1000/1200 을 그대로 입힌다.
+// 순서: 딸기 모자 → 벚꽃 머리띠 → 리본 → 보석 티아라 → 무지개 왕관 → 공주 왕관
+const BAKERY_HAT_ORDER = ["hat_tophat","hat_star","hat_axe","hat_goggles","hat_crown","hat_flame"];
+const BAKERY_HAT_PRICE = { hat_tophat:120, hat_star:380, hat_axe:550, hat_goggles:800, hat_crown:1000, hat_flame:1200 };
+// 자리(슬롯) 기준 등급도 모험 가격대와 동일하게: 120/380=common/rare, 550=rare, 800=epic, 1000/1200=legendary
+const BAKERY_HAT_RARITY = { hat_tophat:"common", hat_star:"rare", hat_axe:"rare", hat_goggles:"epic", hat_crown:"legendary", hat_flame:"legendary" };
 // 테두리: 프로필 액자 테두리 색/광택 (emoji 는 상점 표시용 아이콘)
-// glow 는 던전(다크 무대)용, glowCute 는 베이커리(밝은 크림 무대)용 — 모드별로 빛번짐 색을 다르게 둔다.
+// glow 는 모험(다크 무대)용, glowCute 는 베이커리(밝은 크림 무대)용 — 모드별로 빛번짐 색을 다르게 둔다.
 const DECOR_BORDERS = [
   { id:"bd_bronze",  emoji:"🥉", name:"브론즈",  price:100,  rarity:"common",    grad:"linear-gradient(135deg,#CD7F32,#E8B583)", glow:"rgba(205,127,50,0.5)",  glowCute:"rgba(205,127,50,0.28)" },
   { id:"bd_silver",  emoji:"🥈", name:"실버",    price:350,  rarity:"rare",      shimmer:true, grad:"linear-gradient(115deg,#8A909C 0%,#C7CCD4 20%,#FFFFFF 38%,#D5D9E0 52%,#9CA3AF 70%,#EAECF0 86%,#B6BBC4 100%)", glow:"rgba(190,196,206,0.7)", glowCute:"rgba(150,156,168,0.35)" },
   { id:"bd_gold",    emoji:"🥇", name:"골드",    price:750,  rarity:"epic",      shimmer:true, grad:"linear-gradient(115deg,#C8860B 0%,#F5C542 18%,#FFF6C9 36%,#FBD24E 52%,#E0A21A 70%,#FFE89B 86%,#D9A323 100%)", glow:"rgba(245,180,30,0.78)", glowCute:"rgba(232,165,40,0.4)" },
   { id:"bd_diamond", emoji:"💎", name:"다이아",  price:1000, rarity:"legendary", shimmer:true, grad:"linear-gradient(115deg,#22D3EE 0%,#A5F3FC 22%,#FFFFFF 40%,#7DD3FC 58%,#67E8F9 76%,#C7F9FF 92%,#38BDF8 100%)", glow:"rgba(34,211,238,0.72)", glowCute:"rgba(120,200,220,0.36)", bakery:{ emoji:"❤️", name:"루비", grad:"linear-gradient(115deg,#E11D48 0%,#FDA4AF 22%,#FFFFFF 40%,#FB7185 58%,#F43F5E 76%,#FFE4E6 92%,#BE123C 100%)", glow:"rgba(244,63,94,0.72)", glowCute:"rgba(244,114,128,0.4)" } },
-  { id:"bd_legend",  emoji:"👑", name:"레전드",  price:1400, rarity:"legendary", rainbow:true, grad:"linear-gradient(115deg,#FF5E8A,#FF9F43,#FFE14D,#4ADE80,#38BDF8,#A78BFA,#FF5E8A)", glow:"rgba(167,139,250,0.75)", glowCute:"rgba(190,160,235,0.4)" },
+  { id:"bd_legend",  emoji:"👑", name:"레전드",  price:1400, rarity:"legendary", rainbow:true, grad:"linear-gradient(115deg,#FF5E8A,#FF9F43,#FFE14D,#4ADE80,#38BDF8,#A78BFA,#FF5E8A)", glow:"rgba(167,139,250,0.75)", glowCute:"rgba(190,160,235,0.4)", bakery:{ emoji:"🌈", name:"무지개빛" } },
 ];
 // 배경: 프로필 카드 배경 장식 (장식 이모지 + 은은한 그라데이션 오버레이)
-// 기본(base) = 던전 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
+// 기본(base) = 모험 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
 const DECOR_BGS = [
-  { id:"bg_sakura",  emoji:"🔥", name:"화염 오라",   price:200,  rarity:"common",    deco:["🔥","🔥","✨"],    tint:"rgba(255,110,60,0.3)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
-  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:450,  rarity:"rare",      deco:["🌊","🐠","🐬","🐚","🦀","🫧","🐙","🫧"],    tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
-  { id:"bg_star",    emoji:"⭐", name:"별빛 성좌",   price:600,  rarity:"epic",      deco:["⭐","✨","🌟"],    tint:"rgba(120,150,230,0.3)",  bakery:{ emoji:"🍬", name:"별사탕 배경", deco:["🍬","🌟","🍭"], tint:"rgba(253,224,71,0.28)" } },
-  { id:"bg_cloud",   emoji:"🚀", name:"우주여행",     price:1000, rarity:"legendary", deco:["🚀","🛸","🪐","☄️","🛰️","🌎"],   tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
+  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:200,  rarity:"common",    deco:["🌲","🌳","✨","🍄","🦋","🌲"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
+  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:450,  rarity:"rare",      deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
+  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:600,  rarity:"rare",      deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
+  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:800,  rarity:"epic",      deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
+  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:900,  rarity:"epic",      deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
+  { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:1200, rarity:"legendary", deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
+];
+// 베이커리 전용 배경 6슬롯 (모험 4슬롯과 분리). deco[0]=메인(가장 자주 등장). 종류 4개↑면 무대카드 전체에 고르게 분산됨.
+const BAKERY_BGS = [
+  { id:"bbg_sakura",    emoji:"🌸", name:"벚꽃 마을",         price:200,  rarity:"common",    deco:["🌸","🏡","🌷","🌿"],          tint:"rgba(251,207,232,0.42)", bakeryOnly:true },
+  { id:"bbg_strawberry",emoji:"🍓", name:"딸기 농장",         price:450,  rarity:"common",    deco:["🍓","🏡","🌿","🍓"],          tint:"rgba(254,202,202,0.40)", bakeryOnly:true },
+  { id:"bbg_starcandy", emoji:"🌟", name:"별사탕 왕국",       price:650,  rarity:"rare",      deco:["🌟","⭐","🍬","🍭"],          tint:"rgba(253,224,71,0.30)",  bakeryOnly:true },
+  { id:"bbg_choco",     emoji:"🍫", name:"초콜릿 공장",       price:750,  rarity:"rare",      deco:["🍫","🍩","🍪","🍰"],          tint:"rgba(180,120,80,0.32)",  bakeryOnly:true },
+  { id:"bbg_heaven",    emoji:"👼", name:"천상의 베이커리",   price:900,  rarity:"epic",      deco:["👼","☁️","🧁","🍰","✨"],     tint:"rgba(224,231,255,0.40)", bakeryOnly:true },
+  { id:"bbg_rainbow",   emoji:"🌈", name:"무지개 케이크 왕국",price:1200, rarity:"legendary", deco:["🌈","🎂","🧁","🍭","⭐"],     tint:"rgba(196,181,253,0.36)", bakeryOnly:true },
 ];
 // 캐릭터 스킨: 최종 성장체(Lv17) 달성 시 잠금 해제. 장착하면 성장체 대신 이 이모지로 보이고 모자는 숨겨짐(완성형).
 // locked:true → 최종 성장체 도달 전엔 상점에 자물쇠로 표시. emoji 는 성별 공통(없으면 단일).
 const DECOR_SKINS = [
   { id:"sk_vampire", emoji:"🧛",   name:"뱀파이어",   price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"🧞",   name:"소원 요정" } },
   { id:"sk_robot",   emoji:"🤖",   name:"로봇",       price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"👼",   name:"별빛 천사" } },
-  { id:"sk_astro",   emoji:"👨‍🚀", name:"우주인",     price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"👩‍🎨", name:"케이크 아티스트" } },
+  { id:"sk_astro",   emoji:"🧙",   name:"마법사",     price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"👩‍🎨", name:"케이크 아티스트" } },
   { id:"sk_ninja",   emoji:"🥷",   name:"닌자",       price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"🧚",   name:"꽃요정" } },
   { id:"sk_spy",     emoji:"🥸",   name:"변장 요원",  price:1200, rarity:"legendary", skin:true, bakery:{ emoji:"🧜‍♀️", name:"인어공주" } },
 ];
 // 펫 스킨: 펫이 최종 진화(전설의 드래곤/유니콘) 했을 때 잠금 해제. 장착하면 펫 대신 이 동물 이모지로 보임(완성형).
-// 캐릭터 스킨과 동일한 구조 — petskin:true. 던전/베이커리 공용 이모지(동물은 두 모드 모두 자연스러움).
+// 캐릭터 스킨과 동일한 구조 — petskin:true. 모험/베이커리 공용 이모지(동물은 두 모드 모두 자연스러움).
 const DECOR_PET_SKINS = [
   { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:600, rarity:"epic",      petskin:true, bakery:{ name:"솜사탕 여우" } },
   { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:800, rarity:"epic",      petskin:true, bakery:{ name:"마시멜로 판다" } },
@@ -1150,10 +1171,10 @@ const DECOR_GROUPS = [
   { key:"hat",     label:"모자",     icon:"👑", items:DECOR_HATS },
   { key:"border",  label:"테두리",   icon:"💎", items:DECOR_BORDERS },
   { key:"bg",      label:"배경",     icon:"🌸", items:DECOR_BGS },
-  { key:"skin",    label:"캐릭터",   icon:"🦸", items:DECOR_SKINS,     lockUntilMaxEvo:true },
   { key:"petskin", label:"펫",       icon:"🐾", items:DECOR_PET_SKINS, lockUntilMaxPet:true },
+  { key:"skin",    label:"캐릭터",   icon:"🦸", items:DECOR_SKINS,     lockUntilMaxEvo:true },
 ];
-const ALL_DECOR = [...DECOR_HATS, ...DECOR_BORDERS, ...DECOR_BGS, ...DECOR_SKINS, ...DECOR_PET_SKINS];
+const ALL_DECOR = [...DECOR_HATS, ...DECOR_BORDERS, ...DECOR_BGS, ...BAKERY_BGS, ...DECOR_SKINS, ...DECOR_PET_SKINS];
 const getDecorById = (id) => ALL_DECOR.find(d=>d.id===id) || null;
 // 스킨에 맞춰 이름/이모지/장식 치환한 데코 객체 반환
 const decorView = (d, skin) => {
@@ -1165,7 +1186,7 @@ const decorView = (d, skin) => {
 };
 
 // ── 모드별 용어(재화·아이콘) ─────────────────────────────
-// 던전: ⭐ XP / 💎 코인 / 🎁 보물상자
+// 모험: ⭐ XP / 💎 코인 / 🎁 보물상자
 // 베이커리: ⭐ 경험치 / 🍪 쿠키 / 🎀 디저트상자 / 🎁 디저트 보관함
 const TERMS = {
   dungeon: {
@@ -1366,6 +1387,38 @@ const getShuttleText = (academy, day) => {
   return academy.shuttleInfo||"";
 };
 
+// ── 수업 시작까지 남은시간 계산 ─────────────────
+// "16:00" 형식 → 현재 시각 기준. 시작 전이면 '남음', 진행 중이면 '수업 중', 끝났으면 '종료'.
+const getRemainInfo = (timeStr) => {
+  if (!timeStr || !/^\d{1,2}:\d{2}$/.test(timeStr)) return null;
+  const [h, m] = timeStr.split(":").map(Number);
+  const now = new Date();
+  const startMin = h * 60 + m;
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  return { diff: startMin - nowMin, startMin, nowMin };
+};
+const getRemainLabel = (timeStr, duration=60) => {
+  const info = getRemainInfo(timeStr);
+  if (!info) return null;
+  const { diff, nowMin, startMin } = info;
+  if (diff > 0) {
+    const hh = Math.floor(diff / 60), mm = diff % 60;
+    const text = hh > 0 ? `${hh}시간 ${mm}분 남음` : `${mm}분 남음`;
+    return { text, tone: diff <= 30 ? "urgent" : "soon", icon: diff <= 30 ? "⏳" : "🕓" };
+  }
+  if (nowMin < startMin + duration) return { text: "수업 중", tone: "now", icon: "🎯" };
+  return { text: "수업 종료", tone: "done", icon: "✅" };
+};
+
+// "16:00" → "오후 2시 30분" 형식의 친근한 한글 시각
+const toKoreanTime = (timeStr) => {
+  if (!timeStr || !/^\d{1,2}:\d{2}$/.test(timeStr)) return timeStr || "";
+  let [h, m] = timeStr.split(":").map(Number);
+  const ap = h < 12 ? "오전" : "오후";
+  let h12 = h % 12; if (h12 === 0) h12 = 12;
+  return m === 0 ? `${ap} ${h12}시` : `${ap} ${h12}시 ${m}분`;
+};
+
 // ── 공통 UI 컴포넌트 ────────────────────────────
 /* ════════════════════════════════════════════════════════════════════════
    SECTION 7. 순수 뷰 헬퍼 & 작은 프레젠테이션 컴포넌트
@@ -1466,15 +1519,15 @@ function ModeSelect({ onPick }){
           <p style={{fontSize:13.5,fontWeight:600,color:"#9A8FA8",margin:"8px 0 0",lineHeight:1.55}}>마음에 드는 세계를 골라주세요.<br/>한 번 고르면 바꿀 수 없으니 신중하게!</p>
         </div>
         <div style={{display:"flex",gap:13}}>
-          {/* 던전 게임 */}
+          {/* 모험 게임 */}
           <div style={card("linear-gradient(155deg,#3A3470,#2E2F5C)","0 10px 24px rgba(58,52,112,0.32)")} onClick={()=>onPick("dungeon")}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#FFD166",marginBottom:6}}>1번</div>
-            <div style={{fontSize:40,lineHeight:1,marginBottom:8}}>⚔️</div>
-            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>던전 게임</div>
-            <div style={{fontSize:12.5,fontWeight:600,color:"#C5C8E8",marginTop:9,lineHeight:1.5,flex:1}}>용사가 되어 던전을 클리어해요!</div>
+            <div style={{fontSize:40,lineHeight:1,marginBottom:8}}>🧭</div>
+            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>모험 게임</div>
+            <div style={{fontSize:12.5,fontWeight:600,color:"#C5C8E8",marginTop:9,lineHeight:1.5,flex:1}}>탐험가가 되어 모험을 떠나요!</div>
             <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:14}}>
-              <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>⚔️ 미션</span>
-              <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>🏰 던전 클리어</span>
+              <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>🧭 미션</span>
+              <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>🗺️ 모험 떠나기</span>
             </div>
           </div>
           {/* 베이커리 게임 */}
@@ -1829,7 +1882,7 @@ const initDaily = {
   dailyData: {}, baseSeededKeys: {},
   dailyHwInput: "", dailySupInput: "", dailyTodoInput: "",
   dailyHwPoint: DEFAULT_HOMEWORK_SCORE, dailyTodoPoint: DEFAULT_HOMEWORK_SCORE,
-  showDailyModal: null, showTodoPickerModal: null,
+  showDailyModal: null, showTodoPickerModal: null, showPastMissionModal: null,
 };
 const initReward = {
   scoreData: {}, rewardData: {}, rewardRequests: {},
@@ -1861,7 +1914,7 @@ const initOnboarding = {
   pinHintSeen: false, showParentRewardGuide: false, parentRewardGuideSeen: false,
 };
 const initUi = {
-  childTab: "today",
+  childTab: "area",
   showChildRewards: false,
   showChildXP: false,
   showParentXP: false,
@@ -1876,6 +1929,7 @@ const initUi = {
   openHistory: false,
   openStreak: false,
   levelUpModal: null,
+  pastQuestBlockModal: null,
   questResultModal: null,
   charCheer: null,
   treasureModal: null,
@@ -1961,7 +2015,7 @@ export default function App() {
   // ── 도메인 C: daily (일별 숙제/준비물/할일 + 입력) ────────────────
   const [dlState, dlDispatch] = useReducer(dailyReducer, initDaily);
   const { dailyData, baseSeededKeys, dailyHwInput, dailySupInput, dailyTodoInput,
-          dailyHwPoint, dailyTodoPoint, showDailyModal, showTodoPickerModal } = dlState;
+          dailyHwPoint, dailyTodoPoint, showDailyModal, showTodoPickerModal, showPastMissionModal } = dlState;
   const _dlSet = (key) => (v) => dlDispatch({ type:"SET", key, value: typeof v==="function" ? v(dlState[key]) : v });
   const setDailyData          = _dlSet("dailyData");
   const setBaseSeededKeys     = _dlSet("baseSeededKeys");
@@ -1972,6 +2026,7 @@ export default function App() {
   const setDailyTodoPoint     = _dlSet("dailyTodoPoint");
   const setShowDailyModal     = _dlSet("showDailyModal");
   const setShowTodoPickerModal= _dlSet("showTodoPickerModal");
+  const setShowPastMissionModal= _dlSet("showPastMissionModal");
 
   // ── 도메인 D: reward (점수/보상/구매요청/XP조정) ──────────────────
   const [rwState, rwDispatch] = useReducer(rewardReducer, initReward);
@@ -2056,7 +2111,7 @@ export default function App() {
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [uiState, uiDispatch] = useReducer(uiReducer, initUi);
-  const { childTab, showChildRewards, showChildXP, showParentXP, showParentTodayQuest, showParentRewardManage, showParentXpAdjust, showParentGrowthManage, showParentRecordManage, openTitle, openTreasure, openPet, openHistory, openStreak, levelUpModal, questResultModal, charCheer, treasureModal, openingTreasure, showSettingsModal, showDevTools, showAcademyCopyModal, copySourceChildId, copySelectedAcademyIds, eventModal, eventQueue, childDate, showDecorShop, tab, dayMemos, feeMonth, calDate, calSelDate, homeDate, showAddAcModal, showDetailModal, showAbsModal, showGuideModal, newAbs, toast } = uiState;
+  const { childTab, showChildRewards, showChildXP, showParentXP, showParentTodayQuest, showParentRewardManage, showParentXpAdjust, showParentGrowthManage, showParentRecordManage, openTitle, openTreasure, openPet, openHistory, openStreak, levelUpModal, pastQuestBlockModal, questResultModal, charCheer, treasureModal, openingTreasure, showSettingsModal, showDevTools, showAcademyCopyModal, copySourceChildId, copySelectedAcademyIds, eventModal, eventQueue, childDate, showDecorShop, tab, dayMemos, feeMonth, calDate, calSelDate, homeDate, showAddAcModal, showDetailModal, showAbsModal, showGuideModal, newAbs, toast } = uiState;
   const _uiSet = (key) => (v) => uiDispatch({ type:"SET", key, value: typeof v==="function" ? v(uiState[key]) : v });
   const setChildTab               = _uiSet("childTab");
   const setShowChildRewards       = _uiSet("showChildRewards");
@@ -2073,6 +2128,7 @@ export default function App() {
   const setOpenHistory            = _uiSet("openHistory");
   const setOpenStreak             = _uiSet("openStreak");
   const setLevelUpModal           = _uiSet("levelUpModal");
+  const setPastQuestBlockModal    = _uiSet("pastQuestBlockModal");
   const setQuestResultModal       = _uiSet("questResultModal");
   const setCharCheer              = _uiSet("charCheer");
   const setTreasureModal          = _uiSet("treasureModal");
@@ -2429,7 +2485,7 @@ export default function App() {
   };
 
   const showDevEvent=(type)=>{
-    if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 챔피언",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100 XP · 💎 +100 코인"}); return; }
+    if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 모험 대장",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100 XP · 💎 +100 코인"}); return; }
     if(type==="title"){ showGameEvent({type:"title",cert:true,emoji:"👑",title:"상장을 받았어요!",name:"황금 테스트러",desc:"임무를 50개나 끝까지 해낸 멋진 모험가에게 이 상장을 드립니다",rarity:"epic",reward:"⭐ +100 XP · 💎 +100 코인"}); return; }
     if(type==="box"){ showGameEvent({type:"box",emoji:"📦",title:"보물상자 획득!",name:"일반상자",desc:"미션 10개 달성 보상이에요!",reward:"🎁 보물창고에서 열어보세요"}); return; }
     if(type==="treasure"){ setTreasureModal({emoji:"👑",boxName:"전설상자",rewardCoin:777,titleReward:{id:"dev_title",name:"황금 테스트러",emoji:"👑",rarity:"legendary"},headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"}); return; }
@@ -2524,7 +2580,7 @@ export default function App() {
     // 가이드는 봤지만 모드를 아직 안 골랐으면 모드선택만 띄운다.
     const skinPicked=!!skinByChild[childId];   // 현재 아이가 모드를 골랐는지 (동기 판단)
     if(!skinPicked){
-      setShowModeSelect(true);                 // 즉시 모드선택 노출 (던전 화면 깜빡임 방지)
+      setShowModeSelect(true);                 // 즉시 모드선택 노출 (모험 화면 깜빡임 방지)
     } else {
       (async()=>{
         const seen=await load("v6_kid_guide_seen");
@@ -2740,10 +2796,10 @@ export default function App() {
   };
   const getGenderEmoji = (child) => GENDER_THEME[child?.gender]?.emoji || GENDER_THEME.boy.emoji;
 
-  // 테마색은 던전·베이커리 모두 아이가 고른 색을 그대로 쓴다(아이 구분 유지).
+  // 테마색은 모험·베이커리 모두 아이가 고른 색을 그대로 쓴다(아이 구분 유지).
   const th = getChildTheme(curChild);
-  const T = getSkin(kidSkin).text;       // 현재 아이모드 스킨의 텍스트 세트(던전/베이커리)
-  const TM = getTerms(kidSkin);          // 현재 아이모드 재화/아이콘 용어(던전/베이커리)
+  const T = getSkin(kidSkin).text;       // 현재 아이모드 스킨의 텍스트 세트(모험/베이커리)
+  const TM = getTerms(kidSkin);          // 현재 아이모드 재화/아이콘 용어(모험/베이커리)
   const _skin = getSkin(kidSkin);
   const GP = _skin.paletteFn ? _skin.paletteFn(th.main) : _skin.palette;   // 테마색 적용 팔레트(없으면 정적)
   const ST = _skin.stamp || {on:false};  // 완료 도장(베이커리) 설정
@@ -2763,8 +2819,8 @@ export default function App() {
         border:"2px solid #fff",
         boxShadow:`0 5px 13px ${th.main}28, inset 0 1.5px 3px rgba(255,255,255,0.95)` }
     : fallback;
-  // 통일된 젤리 진행바 (베이커리). fallbackFill 로 던전/기타 색 유지.
-  // ── 던전 카드 '빛나는' 배경/오버레이 (던전 전용) ───────────
+  // 통일된 젤리 진행바 (베이커리). fallbackFill 로 모험/기타 색 유지.
+  // ── 모험 카드 '빛나는' 배경/오버레이 (모험 전용) ───────────
   // 단조로운 남색 카드에 테마색 글로우 + 대각 광택을 더해 RPG 느낌으로.
   const dungeonShinyBg = kidSkin==="cute"
     ? `radial-gradient(120% 90% at 15% 0%, ${th.main}3a 0%, transparent 55%), radial-gradient(110% 80% at 100% 100%, ${dungeonTone(th.main,0)}88 0%, transparent 50%), linear-gradient(135deg, ${dungeonTone(th.main,28)}, ${dungeonTone(th.main,16)})`
@@ -2779,112 +2835,316 @@ export default function App() {
       <div style={{position:"absolute",inset:0,pointerEvents:"none",opacity:0.5,backgroundImage:`radial-gradient(1.4px 1.4px at 22% 28%, rgba(255,255,255,0.5), transparent), radial-gradient(1.2px 1.2px at 68% 18%, ${GP.gold}aa, transparent), radial-gradient(1.3px 1.3px at 82% 62%, rgba(255,255,255,0.4), transparent), radial-gradient(1.2px 1.2px at 40% 78%, ${GP.neon}88, transparent)`}}/>
     </>
   );
-  // 던전 판타지 풍경: 그라데이션 하늘 + 달 + 구름 + 산 실루엣 (테마색 반영)
-  // 캐릭터 무대 카드 상단 배경으로 사용. 던전 전용.
+  // 밤·숲속 캠프 무대 배경 — 하나로 연결된 풍경(동물의 숲 / 드림라이트 밸리 톤).
+  // 구성: 밤하늘+작은 달+별 → 배경 전체에 깔린 둥근 숲 능선 2겹 → 부드러운 지면 → 캠핑 텐트+모닥불 → 캐릭터 발치 바닥빛(이전 대비 50%).
+  // 전부 한 SVG 좌표계(0~400 x 0~240)로 그려 요소들이 같은 장면처럼 연결됨. 모험 전용 / zIndex:0 / 캐릭터·텍스트는 위에 유지.
   const DungeonScenery = ()=> kidSkin==="cute" ? null : (()=>{
-    // 전체적으로 연한 밤 풍경: 2겹 산(높은 봉우리 포함) + 은은한 달 + 연한 별빛
-    const sky1 = mixHex(mixHex(GP.themeDeep||th.main, "#11162A", 0.4), GP.scenery||th.main, 0.14);  // 하늘 상단
-    const sky2 = mixHex(mixHex(GP.themeDeep||th.main, "#11162A", 0.55), GP.scenery||th.main, 0.24); // 하늘 하단
-    const farHill = mixHex(mixHex(GP.themeDeep||th.main, "#0F1220", 0.3), GP.scenery||th.main, 0.16);  // 먼 산 (연함)
-    const frontHill = mixHex("#0F1220", GP.scenery||th.main, 0.08); // 앞 산 (카드 베이스색에 가깝게)
+    const sc = GP.scenery||th.main;
+    // 밤 톤(테마색 아주 살짝만 반영해 아이별 미세 차이)
+    const skyTop = mixHex("#16294C", sc, 0.10);
+    const skyBot = mixHex("#1C3A63", sc, 0.10);
+    const forestBack = mixHex("#1B3A5A", sc, 0.12);  // 먼 숲(연하게)
+    const forestFront= mixHex("#16314F", sc, 0.10);  // 앞 숲(진하게)
+    const groundCol  = mixHex("#21425E", sc, 0.10);  // 캠프 지면(숲보다 한 톤 밝게 → 무대 바닥)
+    const moon = "#FBE9A8";
     return (
       <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none",zIndex:0,borderRadius:"inherit"}}>
-        {/* 하늘 — 카드 상단 ~ 약 52%까지만, 그 아래는 투명으로 두어 카드 배경이 그대로 비침 */}
-        <div style={{position:"absolute",top:0,left:0,right:0,height:"58%",background:`linear-gradient(180deg, ${sky1} 0%, ${sky2} 78%, transparent 100%)`}}/>
-        {/* 달 (은은하게) */}
-        <div style={{position:"absolute",top:"10%",right:"13%",width:30,height:30,borderRadius:"50%",background:`radial-gradient(circle at 38% 35%, ${GP.gold}80, ${GP.gold}3a 70%, transparent)`,boxShadow:`0 0 10px ${GP.gold}1f`,opacity:0.32,filter:"blur(0.6px)"}}/>
-        {/* 별빛 (연하게) */}
-        <div style={{position:"absolute",top:0,left:0,right:0,height:"50%",opacity:0.5,backgroundImage:`radial-gradient(1.4px 1.4px at 16% 20%, rgba(255,255,255,0.8), transparent), radial-gradient(1.2px 1.2px at 40% 13%, rgba(255,255,255,0.6), transparent), radial-gradient(1.3px 1.3px at 62% 24%, ${GP.gold}bb, transparent), radial-gradient(1.1px 1.1px at 82% 14%, rgba(255,255,255,0.5), transparent), radial-gradient(1.2px 1.2px at 90% 30%, rgba(255,255,255,0.7), transparent)`}}/>
-        {/* 산 SVG — 하늘이 끝나는 지점(약 52%)에 능선이 오게 배치. 산 아래는 카드 배경이 그대로 이어짐 */}
-        <svg viewBox="0 0 400 160" preserveAspectRatio="none" style={{position:"absolute",top:"30%",left:0,width:"100%",height:"30%"}}>
-          {/* 먼 산: 페이드로 능선 위는 진하고 아래로 갈수록 투명 → 하늘과 부드럽게 연결 */}
+        {/* 밤하늘 베이스 + 달무리 */}
+        <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 16% 17%, ${mixHex("#FFE9A8",sc,0.04)}40 0 38px, transparent 60px), linear-gradient(180deg, ${skyTop} 0%, ${mixHex(skyTop,skyBot,0.5)} 55%, ${skyBot} 100%)`}}/>
+        {/* 별 (상단, 은은) */}
+        <div style={{position:"absolute",top:0,left:0,right:0,height:"50%",opacity:0.5,backgroundImage:`radial-gradient(1.3px 1.3px at 14% 18%, #fff, transparent), radial-gradient(1.1px 1.1px at 30% 28%, #cfe0ff, transparent), radial-gradient(1.1px 1.1px at 46% 14%, #fff, transparent), radial-gradient(1.2px 1.2px at 62% 24%, #fff, transparent), radial-gradient(1px 1px at 76% 32%, #cfe0ff, transparent), radial-gradient(1px 1px at 24% 40%, #fff, transparent), radial-gradient(1px 1px at 56% 42%, #fff, transparent)`}}/>
+
+        {/* 하나로 연결된 풍경 SVG */}
+        <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMax slice" style={{position:"absolute",inset:0,width:"100%",height:"100%"}}>
           <defs>
-            <linearGradient id="farFade" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={farHill} stopOpacity="0.6"/>
-              <stop offset="100%" stopColor={farHill} stopOpacity="0"/>
+            <radialGradient id="dmoon" cx="40%" cy="38%" r="62%">
+              <stop offset="0%" stopColor="#FFF7DC"/><stop offset="60%" stopColor={moon}/><stop offset="100%" stopColor={mixHex(moon,"#1C3A63",0.45)}/>
+            </radialGradient>
+            <linearGradient id="dground" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={mixHex(groundCol,"#FFD98A",0.06)}/><stop offset="100%" stopColor={mixHex(groundCol,"#0F2238",0.25)}/>
             </linearGradient>
-            <linearGradient id="frontFade" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={frontHill} stopOpacity="1"/>
-              <stop offset="65%" stopColor={frontHill} stopOpacity="1"/>
-              <stop offset="100%" stopColor={frontHill} stopOpacity="0"/>
+            <radialGradient id="dfire" cx="50%" cy="60%" r="55%">
+              <stop offset="0%" stopColor="#FFC84D" stopOpacity="0.5"/><stop offset="100%" stopColor="#FF8A4D" stopOpacity="0"/>
+            </radialGradient>
+            <linearGradient id="dtent" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#F6B86A"/><stop offset="55%" stopColor="#D8893B"/><stop offset="100%" stopColor="#9C5A2C"/>
             </linearGradient>
           </defs>
-          <path d="M0,160 L0,88 L48,58 L96,24 L150,72 L210,40 L292,78 L356,50 L400,72 L400,160 Z" fill="url(#farFade)"/>
-          <path d="M0,160 L0,104 L70,82 L150,108 L230,84 L320,110 L400,90 L400,160 Z" fill="url(#frontFade)"/>
+
+          {/* (작은 달 삭제 — 상단 큰 달무리로 대체) */}
+
+          {/* 먼 숲 능선 — 배경 전체에 둥근 나무들이 가로로 이어짐 */}
+          <path d="M0,118
+            Q14,100 28,118 Q44,98 62,118 Q78,102 96,116 Q114,98 134,116
+            Q152,102 172,116 Q192,98 212,116 Q232,102 252,116 Q272,98 292,116
+            Q312,102 332,116 Q352,100 372,116 Q386,104 400,116 L400,150 L0,150 Z"
+            fill={forestBack} opacity="0.7"/>
+
+          {/* 앞 숲 능선 — 한 톤 진하게, 지면과 맞닿아 자연스럽게 연결 */}
+          <path d="M0,134
+            Q20,116 40,134 Q60,114 82,132 Q104,116 126,132 Q148,114 172,132
+            Q196,116 220,132 Q244,116 268,132 Q292,114 316,132 Q340,116 364,132
+            Q384,120 400,132 L400,180 L0,180 Z"
+            fill={forestFront} opacity="0.92"/>
+
+          {/* 캠프 지면 — 앞 숲 아래에서 부드럽게 융기, 무대 바닥처럼 */}
+          <path d="M0,170 Q120,156 210,166 Q320,177 400,162 L400,240 L0,240 Z" fill="url(#dground)"/>
+          {/* 지면 위 은은한 결(풀밭 느낌) */}
+          <path d="M0,176 Q120,163 210,172 Q320,182 400,168" fill="none" stroke={mixHex(groundCol,"#FFFFFF",0.12)} strokeWidth="1" opacity="0.3"/>
+
+          {/* ── 모닥불 글로우(지면에 번지는 빛) — 오른쪽, 아주 연하게 ── */}
+          <ellipse cx="300" cy="206" rx="54" ry="20" fill="url(#dfire)" opacity="0.22"/>
+
+          {/* ── 캠핑 텐트 — 오른쪽, 아주 연하게(달처럼) ── */}
+          <g transform="translate(286,168)" opacity="0.18">
+            {/* 그림자 */}
+            <ellipse cx="22" cy="40" rx="46" ry="8" fill="#0C1C30" opacity="0.35"/>
+            {/* 본체 (A형) */}
+            <path d="M22,-30 L52,38 L-8,38 Z" fill="url(#dtent)"/>
+            {/* 오른쪽 면 음영 (입체감) */}
+            <path d="M22,-30 L52,38 L30,38 L22,-12 Z" fill="#7D4826" opacity="0.45"/>
+            {/* 문 플랩(말려 올라간 입구) — 안쪽 어둡게 */}
+            <path d="M22,-12 L34,38 L10,38 Z" fill="#2A1A12" opacity="0.8"/>
+            <path d="M22,-12 L10,38 L4,36 L18,-8 Z" fill="#C9893F" opacity="0.7"/>
+            <path d="M22,-12 L34,38 L40,36 L26,-8 Z" fill="#A86A30" opacity="0.7"/>
+            {/* 마룻대 폴 + 정상 깃 */}
+            <line x1="22" y1="-34" x2="22" y2="-26" stroke="#8a6b4a" strokeWidth="1.6" strokeLinecap="round"/>
+            <circle cx="22" cy="-34" r="2" fill="#FFD77A"/>
+            {/* 펙(고정 줄) */}
+            <line x1="-8" y1="38" x2="-16" y2="40" stroke="#6b5236" strokeWidth="1.2"/>
+            <line x1="52" y1="38" x2="60" y2="40" stroke="#6b5236" strokeWidth="1.2"/>
+          </g>
+
+          {/* ── 모닥불 (장작 + 불꽃) — 오른쪽, 아주 연하게 ── */}
+          <g transform="translate(300,196)" opacity="0.2">
+            <path d="M0,8 l15,-4 M0,8 l-15,-4" stroke="#5a3b27" strokeWidth="3" strokeLinecap="round"/>
+            <path d="M0,6 C-5,-4 8,-8 1,-16 C10,-10 10,0 6,6 Z" fill="#FFB347"/>
+            <path d="M0,5 C-3,-2 4,-5 0,-11 C6,-6 5,1 2,5 Z" fill="#FFC84D"/>
+            <path d="M0,4 C-2,0 2,-2 0,-6 C3,-3 2,2 1,4 Z" fill="#FFE9A8"/>
+          </g>
         </svg>
+
+        {/* 캐릭터 발치 바닥빛 — 이전 대비 50% (떠 보임 방지용으로만 아주 은은하게) */}
+        <div style={{position:"absolute",bottom:"7%",left:"50%",transform:"translateX(-50%)",width:"52%",height:30,borderRadius:"50%",background:`radial-gradient(ellipse at 50% 50%, ${mixHex("#FFD978","#1C3A63",0.55)}, transparent 70%)`,opacity:0.25}}/>
       </div>
     );
   })();
-  // ════════════════════════════════════════════════════════════
-  // 레벨 구간별 무대 배경 연출 (던전 전용) — SVG 실루엣 + CSS 오라
-  // 큰 이모지 대신 등급을 상징하는 '윤곽 + 빛'으로 현재 단계를 은은하게 보여준다.
-  //  LV1-4 숲 / LV5-8 캠프 / LV9-12 성 / LV13-16 투기장 / LV17-20 황금 오라
-  // DungeonScenery(기본 하늘·산) 위에 얹는 레이어. 캐릭터(zIndex≥1)보다 뒤(zIndex:0).
-  // ════════════════════════════════════════════════════════════
-  const getStageTier = (lv) => lv>=17?"gold":lv>=13?"arena":lv>=9?"castle":lv>=5?"camp":"forest";
-  const StageTierBackdrop = ({lv})=>{
-    if(kidSkin==="cute") return null;
-    const tier=getStageTier(lv);
-    // 오라(빛) — 단계별 위치/색이 달라 성취감을 준다. 테마색·골드를 섞어 카드와 조화.
-    const aura={
-      forest:`radial-gradient(70% 46% at 50% 112%, ${mixHex(th.main,"#3CCB8C",0.55)}40, transparent 70%)`,
-      camp  :`radial-gradient(46% 40% at 50% 82%, #FFA64B5c, transparent 70%), radial-gradient(72% 56% at 50% 102%, #FF6E284a, transparent 72%)`,
-      castle:`radial-gradient(72% 60% at 50% 14%, ${mixHex(th.main,"#7B7BFF",0.5)}38, transparent 65%)`,
-      arena :`radial-gradient(56% 46% at 50% 50%, #DC465a3a, transparent 70%)`,
-      gold  :`radial-gradient(52% 46% at 50% 46%, ${GP.gold}55, transparent 68%)`,
-    }[tier];
-    // 실루엣 색 (테마색 머금은 반투명)
-    const sil = mixHex(GP.dark || dungeonTone(th.main,6), th.main, 0.30);
-    const sil2 = mixHex(GP.dark2 || dungeonTone(th.main,14), th.main, 0.42);
-    const SIL = {
-      forest:(
-        <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMax meet" style={{width:"100%",height:"100%"}}>
-          <path d="M0 60 L0 44 Q8 30 16 44 Q24 28 32 44 L32 60Z" fill={sil} opacity="0.7"/>
-          <path d="M60 60 L60 40 Q70 22 80 40 Q90 26 100 42 L100 60Z" fill={sil} opacity="0.7"/>
-          <path d="M30 60 L30 48 Q46 30 62 48 L62 60Z" fill={sil2} opacity="0.6"/>
-        </svg>),
-      camp:(
-        <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMax meet" style={{width:"100%",height:"100%"}}>
-          <path d="M50 18 L78 60 L22 60 Z" fill={sil} opacity="0.7"/>
-          <path d="M50 18 L50 60 L22 60 Z" fill={sil2} opacity="0.55"/>
-          <line x1="36" y1="20" x2="64" y2="20" stroke={mixHex(th.main,"#E0A060",0.5)} strokeWidth="2" opacity="0.6"/>
-        </svg>),
-      castle:(
-        <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMax meet" style={{width:"100%",height:"100%"}}>
-          <rect x="18" y="30" width="64" height="30" fill={sil} opacity="0.72"/>
-          <rect x="12" y="22" width="14" height="38" fill={sil} opacity="0.72"/>
-          <rect x="74" y="22" width="14" height="38" fill={sil} opacity="0.72"/>
-          <polygon points="19,22 12,12 26,12" fill={sil2} opacity="0.6"/>
-          <polygon points="81,22 74,12 88,12" fill={sil2} opacity="0.6"/>
-          <polygon points="50,30 42,18 58,18" fill={sil2} opacity="0.6"/>
-          <rect x="46" y="44" width="8" height="16" fill={GP.gold} opacity="0.35"/>
-        </svg>),
-      arena:(
-        <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMax meet" style={{width:"100%",height:"100%"}}>
-          <path d="M50 6 L54 30 L50 54 L46 30 Z" fill="#DC5A6e" opacity="0.5"/>
-          <path d="M30 54 Q50 40 70 54" fill="none" stroke={sil} strokeWidth="5" opacity="0.6"/>
-          <circle cx="50" cy="30" r="22" fill="none" stroke="#D2506499" strokeWidth="2" opacity="0.5"/>
-        </svg>),
-      gold:(
-        <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMax meet" style={{width:"100%",height:"100%"}}>
-          <polygon points="50,8 56,26 50,44 44,26" fill={GP.gold} opacity="0.42"/>
-          <polygon points="30,16 40,32 30,46 24,32" fill={GP.gold} opacity="0.3"/>
-          <polygon points="70,16 76,32 70,46 60,32" fill={GP.gold} opacity="0.3"/>
-        </svg>),
-    }[tier];
+
+  // 구매한 '모험 배경' 6종의 뒷배경 풍경(SVG). 기본 캠프 무대 톤(깊은 남색) 위에 테마별 풍경을 깐다.
+  // 떠다니는 이모지(아래 stageBgDeco 렌더)보다 뒤(zIndex:0), 캐릭터·텍스트보다 아래. 풍경은 은은하게(캐릭터가 주인공).
+  const AdventureBgScenery = ({bgId})=>{
+    const sc = GP.scenery||th.main;
+    // 배경별 하늘 그라데이션 + 풍경 inner SVG (모험=밤 톤 / 베이커리=파스텔 톤)
+    const SK = {
+      bg_sakura:  ["#16294C","#1C3A63"],
+      bg_rainbow: ["#0E2746","#0A3A63"],
+      bg_star:    ["#172A4D","#234A6E"],
+      bg_jungle:  ["#16314A","#1E4A3C"],
+      bg_dino:    ["#241E3A","#3A2A44"],
+      bg_cloud:   ["#10173A","#1B1147"],
+      // 베이커리(밝은 파스텔)
+      bbg_sakura:     ["#FFE9F2","#FFD3E4"],
+      bbg_strawberry: ["#FFEDE3","#FFD5CE"],
+      bbg_starcandy:  ["#E9E4FF","#CFC3F5"],
+      bbg_choco:      ["#F3E2D0","#E6C6A8"],
+      bbg_heaven:     ["#EAF2FF","#D6E6FF"],
+      bbg_rainbow:    ["#FFF0F7","#FBE3FF"],
+    };
+    const isBakery = bgId && bgId.startsWith("bbg_");
+    if(!isBakery && kidSkin==="cute") return null;   // 모험 풍경은 모험 모드만
+    const sky = SK[bgId];
+    if(!sky) return null; // 정의 안 된 배경은 풍경 없음
+    // 베이커리는 파스텔이라 테마색을 거의 안 섞고, 모험은 8%만 섞음
+    const mixF = isBakery ? 0.03 : 0.08;
+    const skyTop = mixHex(sky[0], sc, mixF), skyBot = mixHex(sky[1], sc, mixF);
+    const scenes = {
+      // 🌲 마법 숲 — 안개 낀 침엽수 실루엣 여러 겹 + 초록 글로우
+      bg_sakura:(<g>
+        <defs>
+          <linearGradient id="ab_s_far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#214a3a" stopOpacity=".5"/><stop offset="1" stopColor="#214a3a" stopOpacity="0"/></linearGradient>
+          <linearGradient id="ab_s_front" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#163826" stopOpacity=".9"/><stop offset="1" stopColor="#163826" stopOpacity=".15"/></linearGradient>
+          <radialGradient id="ab_s_glow" cx="50%" cy="30%" r="60%"><stop offset="0" stopColor="#7CFFB0" stopOpacity=".08"/><stop offset="1" stopColor="#7CFFB0" stopOpacity="0"/></radialGradient>
+        </defs>
+        <rect width="400" height="240" fill="url(#ab_s_glow)"/>
+        <g fill="url(#ab_s_far)">
+          <path d="M40,150 l22,80 l-44,0 Z M40,180 l26,55 l-52,0 Z"/>
+          <path d="M120,140 l24,90 l-48,0 Z M120,175 l28,60 l-56,0 Z"/>
+          <path d="M300,148 l22,82 l-44,0 Z M300,180 l26,55 l-52,0 Z"/>
+          <path d="M370,142 l24,88 l-48,0 Z"/>
+        </g>
+        <g fill="url(#ab_s_front)">
+          <path d="M0,170 l30,70 l-60,0 Z M0,200 l34,40 l-68,0 Z"/>
+          <path d="M210,160 l30,80 l-60,0 Z M210,195 l34,45 l-68,0 Z"/>
+          <path d="M400,165 l30,75 l-60,0 Z"/>
+        </g>
+        <path d="M0,205 Q200,193 400,202 L400,240 L0,240 Z" fill="#13422c" opacity=".55"/>
+      </g>),
+      // 🌊 깊은 바다 — 빛줄기 + 해저 + 해초/산호
+      bg_rainbow:(<g>
+        <defs>
+          <radialGradient id="ab_o_ray" cx="50%" cy="-10%" r="90%"><stop offset="0" stopColor="#9fe3ff" stopOpacity=".16"/><stop offset="1" stopColor="#9fe3ff" stopOpacity="0"/></radialGradient>
+          <linearGradient id="ab_o_floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0c2f52"/><stop offset="1" stopColor="#08243f"/></linearGradient>
+        </defs>
+        <rect width="400" height="240" fill="url(#ab_o_ray)"/>
+        <g fill="#bfe9ff" opacity=".05">
+          <path d="M60,0 L120,240 L90,240 L40,0 Z"/><path d="M200,0 L250,240 L228,240 L182,0 Z"/><path d="M330,0 L370,240 L350,240 L314,0 Z"/>
+        </g>
+        <path d="M0,206 Q120,196 220,204 Q320,210 400,200 L400,240 L0,240 Z" fill="url(#ab_o_floor)"/>
+        <g stroke="#1f8f7a" strokeWidth="5" strokeLinecap="round" fill="none" opacity=".45">
+          <path d="M30,238 Q22,205 34,182 Q42,168 36,150"/><path d="M52,238 Q60,210 50,190"/>
+          <path d="M360,238 Q352,206 364,184 Q372,170 366,154"/><path d="M382,238 Q390,212 380,192"/>
+        </g>
+        <g fill="#1c6f86" opacity=".45"><ellipse cx="120" cy="232" rx="34" ry="12"/><ellipse cx="290" cy="234" rx="30" ry="10"/></g>
+      </g>),
+      // 🏝️ 보물섬 — 달빛 바다 + 모래언덕 섬 + 야자수
+      bg_star:(<g>
+        <defs>
+          <radialGradient id="ab_t_moon" cx="80%" cy="22%" r="30%"><stop offset="0" stopColor="#ffe7b0" stopOpacity=".2"/><stop offset="1" stopColor="#ffe7b0" stopOpacity="0"/></radialGradient>
+          <linearGradient id="ab_t_sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2a6f8a"/><stop offset="1" stopColor="#1c4f68"/></linearGradient>
+          <linearGradient id="ab_t_sand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#d9b878"/><stop offset="1" stopColor="#a8814a"/></linearGradient>
+        </defs>
+        <rect width="400" height="240" fill="url(#ab_t_moon)"/>
+        <path d="M0,175 L400,175 L400,210 L0,210 Z" fill="url(#ab_t_sea)" opacity=".5"/>
+        <g stroke="#bfe6f0" strokeWidth="1.5" opacity=".22" fill="none"><path d="M20,188 q14,-5 28,0 t28,0 t28,0"/><path d="M250,196 q14,-5 28,0 t28,0 t28,0"/></g>
+        <path d="M0,202 Q120,178 250,196 Q330,206 400,190 L400,240 L0,240 Z" fill="url(#ab_t_sand)" opacity=".5"/>
+        <g stroke="#16324a" strokeWidth="6" strokeLinecap="round" fill="none" opacity=".45"><path d="M64,232 Q58,205 70,186"/></g>
+        <g fill="#16324a" opacity=".45"><path d="M70,184 q-26,-10 -40,2 q22,-2 40,6 q-14,-20 2,-34 q4,18 -2,26 q18,-14 36,-8 q-22,4 -36,8 Z"/></g>
+      </g>),
+      // 🌴 정글 원정대 — 잎사귀 캐노피 + 덤불 지면
+      bg_jungle:(<g>
+        <defs><radialGradient id="ab_j_ray" cx="30%" cy="-10%" r="80%"><stop offset="0" stopColor="#c6ff9e" stopOpacity=".1"/><stop offset="1" stopColor="#c6ff9e" stopOpacity="0"/></radialGradient></defs>
+        <rect width="400" height="240" fill="url(#ab_j_ray)"/>
+        <g fill="#1c5a3a" opacity=".65">
+          <path d="M-10,-10 Q60,40 30,90 Q10,55 -20,40 Z"/><path d="M70,-10 Q120,46 86,96 Q70,55 44,38 Z"/>
+          <path d="M410,-10 Q340,40 372,92 Q392,55 420,40 Z"/><path d="M330,-10 Q286,42 316,96 Q330,56 356,40 Z"/>
+        </g>
+        <g fill="#247a4c" opacity=".45">
+          <path d="M20,-10 Q66,30 44,72 Q30,44 6,34 Z"/><path d="M370,-10 Q330,30 354,74 Q368,44 392,34 Z"/>
+        </g>
+        <path d="M0,206 Q80,190 160,202 Q260,214 400,198 L400,240 L0,240 Z" fill="#143f2b" opacity=".65"/>
+        <g fill="#1c5a3a" opacity=".55"><ellipse cx="60" cy="232" rx="46" ry="16"/><ellipse cx="240" cy="236" rx="56" ry="16"/><ellipse cx="360" cy="232" rx="40" ry="14"/></g>
+      </g>),
+      // 🦕 공룡 섬 — 먼 능선 + 화산(용암빛) + 양치류
+      bg_dino:(<g>
+        <defs>
+          <radialGradient id="ab_d_volc" cx="72%" cy="55%" r="30%"><stop offset="0" stopColor="#ff7a3c" stopOpacity=".26"/><stop offset="1" stopColor="#ff7a3c" stopOpacity="0"/></radialGradient>
+          <linearGradient id="ab_d_mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#3a2f4a"/><stop offset="1" stopColor="#241d33"/></linearGradient>
+        </defs>
+        <path d="M0,160 L70,120 L140,158 L210,118 L300,160 L360,128 L400,156 L400,240 L0,240 Z" fill="url(#ab_d_mt)" opacity=".5"/>
+        <rect width="400" height="240" fill="url(#ab_d_volc)"/>
+        <path d="M250,200 L300,120 L350,200 Z" fill="#2b2238" opacity=".75"/>
+        <path d="M288,134 q12,8 24,0 q-4,14 -12,16 q-10,-4 -12,-16 Z" fill="#ff8a3c" opacity=".5"/>
+        <path d="M0,206 Q120,194 240,204 Q330,210 400,200 L400,240 L0,240 Z" fill="#2a2440" opacity=".65"/>
+        <g stroke="#3f7a52" strokeWidth="4" strokeLinecap="round" fill="none" opacity=".35"><path d="M40,238 Q34,212 46,196 M60,238 Q66,214 56,198"/></g>
+      </g>),
+      // 🚀 우주 탐사 — 성운 + 고리 행성 + 별먼지
+      bg_cloud:(<g>
+        <defs>
+          <radialGradient id="ab_u_neb" cx="30%" cy="35%" r="55%"><stop offset="0" stopColor="#7b5cff" stopOpacity=".2"/><stop offset="1" stopColor="#7b5cff" stopOpacity="0"/></radialGradient>
+          <radialGradient id="ab_u_neb2" cx="78%" cy="60%" r="50%"><stop offset="0" stopColor="#ff5ea8" stopOpacity=".14"/><stop offset="1" stopColor="#ff5ea8" stopOpacity="0"/></radialGradient>
+          <radialGradient id="ab_u_planet" cx="40%" cy="38%" r="62%"><stop offset="0" stopColor="#9fb8ff"/><stop offset="100%" stopColor="#37407a"/></radialGradient>
+        </defs>
+        <rect width="400" height="240" fill="url(#ab_u_neb)"/>
+        <rect width="400" height="240" fill="url(#ab_u_neb2)"/>
+        <g opacity=".45">
+          <ellipse cx="78" cy="206" rx="58" ry="16" fill="none" stroke="#9fb8ff" strokeWidth="3" transform="rotate(-18 78 206)"/>
+          <circle cx="78" cy="206" r="34" fill="url(#ab_u_planet)"/>
+          <ellipse cx="78" cy="206" rx="58" ry="16" fill="none" stroke="#cdd9ff" strokeWidth="1.5" opacity=".7" transform="rotate(-18 78 206)"/>
+        </g>
+        <g fill="#fff" opacity=".6">
+          <circle cx="120" cy="40" r="1.4"/><circle cx="220" cy="28" r="1.1"/><circle cx="300" cy="56" r="1.4"/><circle cx="350" cy="34" r="1.1"/><circle cx="180" cy="70" r="1.1"/><circle cx="60" cy="60" r="1.2"/><circle cx="270" cy="92" r="1.1"/>
+        </g>
+      </g>),
+      // 🌸 벚꽃 마을 — 둥근 동산 + 벚나무 + 작은 집 (연하게)
+      bbg_sakura:(<g opacity="0.6">
+        <defs>
+          <linearGradient id="bk_k_hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#CFEBC0"/><stop offset="1" stopColor="#A7D89A"/></linearGradient>
+          <linearGradient id="bk_k_hill2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#B9E0AE"/><stop offset="1" stopColor="#8FC788"/></linearGradient>
+        </defs>
+        <path d="M0,150 Q110,118 220,148 Q320,172 400,140 L400,240 L0,240 Z" fill="url(#bk_k_hill)" opacity=".7"/>
+        <path d="M0,182 Q120,158 240,182 Q330,200 400,176 L400,240 L0,240 Z" fill="url(#bk_k_hill2)" opacity=".8"/>
+        <g>
+          <rect x="70" y="150" width="7" height="26" rx="2" fill="#9a6b4a"/>
+          <g fill="#FFC1DC"><circle cx="73" cy="142" r="18"/><circle cx="58" cy="150" r="13"/><circle cx="90" cy="150" r="13"/></g>
+          <rect x="320" y="146" width="7" height="26" rx="2" fill="#9a6b4a"/>
+          <g fill="#FFB6D5"><circle cx="324" cy="138" r="16"/><circle cx="310" cy="146" r="11"/><circle cx="338" cy="146" r="11"/></g>
+        </g>
+        <g><rect x="180" y="150" width="40" height="26" rx="3" fill="#FFF3F8"/><polygon points="176,150 224,150 200,134" fill="#F2A6C2"/><rect x="194" y="160" width="12" height="16" rx="2" fill="#E58BB0"/></g>
+      </g>),
+      // 🍓 딸기 농장 — 들판 + 딸기밭 이랑 + 헛간 (연하게)
+      bbg_strawberry:(<g opacity="0.58">
+        <defs><linearGradient id="bk_b_field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#BFE3A8"/><stop offset="1" stopColor="#94CC82"/></linearGradient></defs>
+        <path d="M0,158 Q120,140 240,158 Q330,172 400,150 L400,240 L0,240 Z" fill="url(#bk_b_field)" opacity=".8"/>
+        <g stroke="#7FB56C" strokeWidth="3" opacity=".5"><path d="M0,200 L400,176"/><path d="M0,216 L400,192"/><path d="M0,232 L400,208"/></g>
+        <g fill="#FF6B7E" opacity=".7"><circle cx="60" cy="206" r="4"/><circle cx="150" cy="214" r="4"/><circle cx="250" cy="200" r="4"/><circle cx="330" cy="210" r="4"/><circle cx="110" cy="226" r="4"/><circle cx="300" cy="226" r="4"/></g>
+        <g><rect x="300" y="132" width="48" height="30" rx="2" fill="#E2685F"/><polygon points="296,132 352,132 324,116" fill="#C44C46"/><rect x="318" y="142" width="14" height="20" fill="#FBEAD7"/></g>
+      </g>),
+      // 🌟 별사탕 왕국 — 별가루 + 사탕 언덕 + 막대사탕 나무
+      bbg_starcandy:(<g>
+        <defs>
+          <radialGradient id="bk_c_glow" cx="50%" cy="22%" r="55%"><stop offset="0" stopColor="#FFF6C9" stopOpacity=".5"/><stop offset="1" stopColor="#FFF6C9" stopOpacity="0"/></radialGradient>
+          <linearGradient id="bk_c_hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F5C3E4"/><stop offset="1" stopColor="#D89AD0"/></linearGradient>
+        </defs>
+        <rect width="400" height="240" fill="url(#bk_c_glow)"/>
+        <g fill="#FFE9A0" opacity=".8"><circle cx="50" cy="50" r="2"/><circle cx="120" cy="34" r="1.5"/><circle cx="210" cy="46" r="2"/><circle cx="300" cy="32" r="1.5"/><circle cx="360" cy="56" r="2"/><circle cx="160" cy="66" r="1.5"/></g>
+        <path d="M0,176 Q110,150 230,176 Q330,196 400,168 L400,240 L0,240 Z" fill="url(#bk_c_hill)" opacity=".8"/>
+        <g opacity=".85"><rect x="72" y="160" width="5" height="24" fill="#fff"/><circle cx="74" cy="156" r="13" fill="#FF9ED2"/></g>
+        <g opacity=".85"><rect x="320" y="156" width="5" height="24" fill="#fff"/><circle cx="322" cy="152" r="12" fill="#9ED6FF"/></g>
+      </g>),
+      // 🍫 초콜릿 공장 — 쿠키 언덕 + 초콜릿 강 + 공장 굴뚝 (연하게)
+      bbg_choco:(<g opacity="0.55">
+        <defs>
+          <linearGradient id="bk_ch_river" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8A5A38"/><stop offset="1" stopColor="#6B4226"/></linearGradient>
+          <linearGradient id="bk_ch_hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#C99A6B"/><stop offset="1" stopColor="#A6764A"/></linearGradient>
+        </defs>
+        <path d="M0,168 Q120,146 240,168 Q330,184 400,160 L400,240 L0,240 Z" fill="url(#bk_ch_hill)" opacity=".8"/>
+        <path d="M0,206 Q120,196 240,208 Q330,216 400,202 L400,240 L0,240 Z" fill="url(#bk_ch_river)" opacity=".85"/>
+        <g stroke="#B07A4E" strokeWidth="1.5" opacity=".4" fill="none"><path d="M30,216 q40,-4 80,0 t80,0"/></g>
+        <g>
+          <rect x="280" y="120" width="60" height="48" rx="3" fill="#7E5536"/>
+          <rect x="292" y="100" width="10" height="22" fill="#5E3D24"/><rect x="318" y="104" width="10" height="18" fill="#5E3D24"/>
+          <g fill="#EFE2D4" opacity=".7"><circle cx="297" cy="92" r="7"/><circle cx="305" cy="84" r="6"/><circle cx="323" cy="96" r="6"/></g>
+          <rect x="298" y="138" width="12" height="14" fill="#FFD98A"/><rect x="318" y="138" width="12" height="14" fill="#FFD98A"/>
+        </g>
+      </g>),
+      // 👼 천상의 베이커리 — 빛기둥 + 솜구름 섬 + 구름 위 케이크
+      bbg_heaven:(<g>
+        <defs><radialGradient id="bk_h_light" cx="50%" cy="-10%" r="80%"><stop offset="0" stopColor="#FFF8D8" stopOpacity=".55"/><stop offset="1" stopColor="#FFF8D8" stopOpacity="0"/></radialGradient></defs>
+        <rect width="400" height="240" fill="url(#bk_h_light)"/>
+        <g fill="#FFF6D0" opacity=".22"><path d="M120,0 L160,240 L120,240 L90,0 Z"/><path d="M260,0 L300,240 L264,240 L228,0 Z"/></g>
+        <g fill="#FFFFFF" opacity=".9">
+          <ellipse cx="80" cy="180" rx="52" ry="22"/><ellipse cx="110" cy="172" rx="34" ry="20"/>
+          <ellipse cx="320" cy="166" rx="46" ry="20"/><ellipse cx="296" cy="160" rx="30" ry="18"/>
+          <ellipse cx="200" cy="210" rx="70" ry="24"/>
+        </g>
+        <g opacity=".85"><rect x="186" y="190" width="28" height="16" rx="3" fill="#FFE3EF"/><rect x="190" y="184" width="20" height="8" rx="3" fill="#FFC4DC"/><circle cx="200" cy="182" r="2.5" fill="#FF7DA8"/></g>
+      </g>),
+      // 🌈 무지개 케이크 왕국 — 무지개 아치 + 크림 언덕 + 케이크 성 (연하게)
+      bbg_rainbow:(<g opacity="0.58">
+        <defs><linearGradient id="bk_r_cream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFE9F4"/><stop offset="1" stopColor="#FAD0E8"/></linearGradient></defs>
+        <g fill="none" strokeWidth="7" opacity=".5">
+          <path d="M40,200 A160,160 0 0 1 360,200" stroke="#FF8FA8"/>
+          <path d="M40,200 A152,152 0 0 1 360,200" stroke="#FFC36E" transform="translate(0,8)"/>
+          <path d="M40,200 A144,144 0 0 1 360,200" stroke="#FFE879" transform="translate(0,16)"/>
+          <path d="M40,200 A136,136 0 0 1 360,200" stroke="#9BE6A0" transform="translate(0,24)"/>
+          <path d="M40,200 A128,128 0 0 1 360,200" stroke="#8FC8FF" transform="translate(0,32)"/>
+          <path d="M40,200 A120,120 0 0 1 360,200" stroke="#C9A8FF" transform="translate(0,40)"/>
+        </g>
+        <path d="M0,190 Q120,168 240,190 Q330,206 400,182 L400,240 L0,240 Z" fill="url(#bk_r_cream)" opacity=".85"/>
+        <g>
+          <rect x="174" y="150" width="56" height="20" rx="4" fill="#FFD0E6"/>
+          <rect x="184" y="134" width="36" height="18" rx="4" fill="#FFC0DC"/>
+          <rect x="192" y="120" width="20" height="16" rx="4" fill="#FFB0D2"/>
+          <circle cx="202" cy="116" r="3" fill="#FF7DA8"/>
+        </g>
+      </g>),
+    };
     return (
-      <div style={{position:"absolute",inset:0,zIndex:0,pointerEvents:"none",overflow:"hidden",borderRadius:"inherit",animation:"backdropFade .6s ease both"}}>
-        {/* 오라(빛) */}
-        <div style={{position:"absolute",inset:0,background:aura}}/>
-        {/* 황금 단계: 회전하는 금빛 후광 */}
-        {tier==="gold"&&(
-          <div style={{position:"absolute",left:"50%",top:"46%",width:"120%",height:"120%",transform:"translate(-50%,-50%)",
-            background:`conic-gradient(from 0deg, ${GP.gold}33, transparent 18%, ${GP.gold}26, transparent 42%, ${GP.gold}33, transparent 70%, ${GP.gold}26, transparent 95%)`,
-            animation:"spin 14s linear infinite"}}/>
-        )}
-        {/* 실루엣 (하단 정렬) */}
-        <div style={{position:"absolute",left:0,right:0,bottom:0,height:"60%",display:"flex",alignItems:"flex-end",justifyContent:"center",
-          filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.3))"}}>{SIL}</div>
+      <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none",zIndex:0,borderRadius:"inherit"}}>
+        <div style={{position:"absolute",inset:0,background:`linear-gradient(180deg, ${skyTop} 0%, ${skyBot} 100%)`}}/>
+        <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMax slice" style={{position:"absolute",inset:0,width:"100%",height:"100%"}}>
+          {scenes[bgId]}
+        </svg>
       </div>
     );
   };
@@ -2942,13 +3202,13 @@ export default function App() {
     const cute = kidSkin==="cute";
     const h = cute ? Math.max(height,14) : height;
     const fill = cute
-      ? `linear-gradient(90deg, ${mixBlack(th.main,0.08)}, ${mixWhite(th.main,0.15)})`
+      ? `linear-gradient(90deg, ${th.main}, ${mixWhite(th.main,0.22)})`
       : (fallbackFill||GP.accentBar||`linear-gradient(90deg, ${GP.gold}, ${mixWhite(th.main,0.25)} 55%, ${th.main})`);
     return (
       <div style={{height:h,borderRadius:999,overflow:"hidden",position:"relative",
-        background:cute?`${th.main}2b`:(fallbackTrack||"rgba(0,0,0,0.34)"),
-        border:cute?"none":(fallbackBorder||`1px solid ${th.main}55`),
-        boxShadow:cute?`inset 0 2px 5px ${th.main}33`:"inset 0 2px 6px rgba(0,0,0,0.5)"}}>
+        background:cute?`${th.main}33`:(fallbackTrack||"rgba(0,0,0,0.34)"),
+        border:cute?`1px solid ${th.main}3a`:(fallbackBorder||`1px solid ${th.main}55`),
+        boxShadow:cute?`inset 0 2px 5px ${th.main}3a`:"inset 0 2px 6px rgba(0,0,0,0.5)"}}>
         {/* 빈 트랙 활기: 은은한 사선 무늬 + 왼쪽 출발 글로우 (0%여도 죽지 않게) */}
         <div style={{position:"absolute",inset:0,pointerEvents:"none",opacity:cute?0.5:0.4,
           backgroundImage:cute
@@ -2961,9 +3221,15 @@ export default function App() {
         <div style={{width:`${percent}%`,height:"100%",borderRadius:999,position:"relative",overflow:"hidden",zIndex:1,
           background:fill,
           transition:"width 0.6s cubic-bezier(.34,1.4,.64,1)",
-          boxShadow:cute?"inset 0 2px 3px rgba(255,255,255,0.6)":(fallbackGlow||`0 0 12px ${th.main}, inset 0 1px 2px rgba(255,255,255,0.4)`)}}>
+          boxShadow:cute?`0 0 8px ${th.main}55, inset 0 2px 3px rgba(255,255,255,0.55)`:(fallbackGlow||`0 0 12px ${th.main}, inset 0 1px 2px rgba(255,255,255,0.4)`)}}>
           {cute
-            ?<div style={{position:"absolute",top:1.5,left:6,right:6,height:4,borderRadius:999,background:"rgba(255,255,255,0.6)"}}/>
+            ?<>
+              <div style={{position:"absolute",top:1.5,left:6,right:6,height:4,borderRadius:999,background:"rgba(255,255,255,0.6)"}}/>
+              {/* 흐르는 광택 */}
+              <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)",backgroundSize:"40px 100%",animation:"gaugeShine 1.4s linear infinite"}}/>
+              {/* 진행 끝 발광 */}
+              {percent>3&&percent<100&&<div style={{position:"absolute",top:-1,bottom:-1,right:0,width:Math.max(6,h*0.7),background:"#fff",filter:"blur(3px)",opacity:0.85,animation:"barPulse 1.4s ease-in-out infinite"}}/>}
+            </>
             :<>
               {/* 상단 하이라이트 줄 */}
               <div style={{position:"absolute",top:1,left:4,right:4,height:Math.max(2,h*0.3),borderRadius:999,background:"linear-gradient(180deg, rgba(255,255,255,0.5), transparent)"}}/>
@@ -3068,7 +3334,8 @@ export default function App() {
     return items;
   };
 
-  const getCarryOverQuestItems=(cid,date)=>{
+  // 지난 미션 후보: 해당 날짜(date) 이전의 미완료/미실패 미션 전체 (엄마용 '지난 미션 보기' 목록 소스)
+  const getPastQuestCandidates=(cid,date)=>{
     const prefix=`${cid}-`;
     const items=[];
     Object.entries(dailyData).forEach(([key,entry])=>{
@@ -3084,7 +3351,12 @@ export default function App() {
     return items;
   };
 
-  const getChildQuestBoardItems=(cid,date)=>[...getCarryOverQuestItems(cid,date),...getQuestItemsForDate(cid,date)];
+  // 지난 미션은 다음 날 보드로 넘어오지 않고 '원래 날짜'에만 남는다.
+  // 엄마용 '지난 미션 보기'에서 못한 지난 미션을 확인하고, 체크(완료)/실패로 마감만 한다.
+  const getChildQuestBoardItems=(cid,date)=>getQuestItemsForDate(cid,date);
+
+  // 지난 미션 목록 행 고유 키 (cid|academyId|원래날짜|kind|id) — 리스트 key 용
+  const carriedKeyOf=(cid,it)=>`${cid}|${it.academyId}|${it.date}|${it.kind}|${it.id}`;
 
   const getTodayQuestProgress=(cid,date)=>{
     const items=getChildQuestBoardItems(cid,date);
@@ -3109,7 +3381,7 @@ export default function App() {
   const getAdventureLogInfo=(item)=>{
     const L = T.log;
     if(!L) {
-      // 안전망(구버전 스킨): 기존 던전 라벨
+      // 안전망(구버전 스킨): 기존 모험 라벨
       switch(item.type){
         case "homework": case "todo": case "quest": return {icon:"⚔️",title:"미션 클리어"};
         case "treasure": return {icon:"🎁",title:"보물상자 오픈"};
@@ -3123,7 +3395,7 @@ export default function App() {
     const key = (item.type==="homework"||item.type==="todo") ? "quest" : item.type;
     return L[key] || L.default;
   };
-  // 던전 퀘스트 로그: 기록 종류별 왼쪽 컬러 바 색 (코인/XP/상자/펫진화/미션/업적 구분)
+  // 모험 퀘스트 로그: 기록 종류별 왼쪽 컬러 바 색 (코인/XP/상자/펫진화/미션/업적 구분)
   const getDungeonLogBar=(item)=>{
     switch(item.type){
       case "treasure":     return "#6D88D6"; // 상자 = 파랑
@@ -3268,8 +3540,13 @@ export default function App() {
   };
 
   // ── 꾸미기(데코) 헬퍼 ──
-  // 가격: 부모 오버라이드(decorPrices) 우선, 없으면 카탈로그 기본값
-  const getDecorPrice=(decor)=>{ const o=decorPrices[decor.id]; return (o===0||o>0)?Number(o):decor.price; };
+  // 가격: 부모 오버라이드(decorPrices) 우선, 없으면 — 베이커리 모드 모자는 자리기준 가격, 그 외엔 카탈로그 기본값
+  const getDecorPrice=(decor)=>{
+    const o=decorPrices[decor.id];
+    if(o===0||o>0) return Number(o);
+    if(kidSkin==="cute" && BAKERY_HAT_PRICE[decor.id]!=null) return BAKERY_HAT_PRICE[decor.id];
+    return decor.price;
+  };
   const isDecorOwned=(cid,decorId)=>(ownedDecor[cid]||[]).includes(decorId);
   // 보유 데코 구매 (아이가 코인으로 즉시 구매, 승인 불필요)
   const buyDecor=(decor)=>{
@@ -3280,7 +3557,9 @@ export default function App() {
     spendCoin(cid,price,`${decorView(decor,kidSkin).name} 꾸미기 구매`);
     setOwnedDecor(prev=>({...prev,[cid]:[...(prev[cid]||[]),decor.id]}));
     // 구매 즉시 자동 장착(성취감 즉시 반영)
-    const grp=DECOR_GROUPS.find(g=>g.items.some(it=>it.id===decor.id));
+    let grp=DECOR_GROUPS.find(g=>g.items.some(it=>it.id===decor.id));
+    // 베이커리 전용 배경(BAKERY_BGS)은 DECOR_GROUPS에 없으므로 bg 그룹으로 간주
+    if(!grp && BAKERY_BGS.some(b=>b.id===decor.id)) grp={key:"bg"};
     if(grp) setEquippedDecor(prev=>({...prev,[cid]:{...(prev[cid]||{}),[grp.key]:decor.id}}));
     showToast(`${decorView(decor,kidSkin).name} 획득! 🎉`);
   };
@@ -3421,7 +3700,7 @@ export default function App() {
       nextPetPity=Number(cur.legendPetPity||0)+1;
       if(nextPetPity>=PET_EVOLVE_LEGEND_PITY){ petGuaranteed=true; nextPetPity=0; }
     }
-    // ── 첫 상자 부화 보장 (던전 전용) ──
+    // ── 첫 상자 부화 보장 (모험 전용) ──
     // 이 아이가 상자를 처음 여는 거라면(petHatched 플래그 없음) 등급/확률과 무관하게
     // 무조건 1단계 진화(알→아기 드래곤)시켜 "부화 순간"을 첫 보상으로 확정한다.
     // 이미 최종단계인 예외 케이스를 빼면 사실상 알→1단계 전환을 보장.
@@ -3464,7 +3743,7 @@ export default function App() {
       // 상장 획득 팝업은 상장 감지 useEffect가 일원화해 처리 (중복 방지)
       if(petEvolved){
         // 첫 상자에서 알→1단계로 깨어난 경우 = "부화 순간". 전용 카피로 이벤트를 특별하게.
-        // (첫 부화 보장은 던전 전용이므로 isFirstHatch 는 던전에서만 true)
+        // (첫 부화 보장은 모험 전용이므로 isFirstHatch 는 모험에서만 true)
         const isFirstHatch = firstHatch && curStage===0;
         setTimeout(()=>showGameEvent({
           type:"title",
@@ -3733,7 +4012,7 @@ export default function App() {
     if(kidSkin==="cute"){
       // 베이커리 전용 구간: 1-6 / 7-11 / 12-16 / 17~
       const bIdx=[...BAKERY_EVOLUTIONS].map((e,i)=>({...e,i})).reverse().find(e=>level>=e.minLevel)?.i ?? 0;
-      // 던전 성장체 객체(badge 등) 위에 베이커리 외형을 덮어씌움
+      // 모험 성장체 객체(badge 등) 위에 베이커리 외형을 덮어씌움
       const baseEvo=CHARACTER_EVOLUTIONS[Math.min(bIdx,CHARACTER_EVOLUTIONS.length-1)];
       return evoView(baseEvo,bIdx,kidSkin);
     }
@@ -3880,6 +4159,14 @@ export default function App() {
       }};
     });
   };
+  // 준비물 챙김 체크 토글 (모험 카드 ✅/⬜ 칩) — 보상 없이 챙김 표시만
+  const toggleSupplyChecked=(cid,academyId,date,name)=>{
+    const entry=getDailyEntry(cid,academyId,date);
+    const cur=entry.checkedSupplies||[];
+    const next=cur.includes(name)?cur.filter(s=>s!==name):[...cur,name];
+    setDailyEntry(cid,academyId,date,{...entry,checkedSupplies:next});
+  };
+
   const toggleHomeworkDone=(cid,academyId,date,homeworkId)=>{
     const entry=getDailyEntry(cid,academyId,date);
     const homeworks=entry.homeworks||[];
@@ -4096,7 +4383,6 @@ export default function App() {
             const title=getSelectedTitle(childId);
             const coin=getChildCoin(childId);
             const xp=getChildXP(childId);
-            const treasureCount=getTotalTreasureCount(childId);
             return (
               <>
               <div style={kidSkin==="cute"
@@ -4104,53 +4390,37 @@ export default function App() {
                 :{position:"relative",overflow:"hidden",background:dungeonShinyBg,borderRadius:GP.radCard,padding:"17px",boxShadow:`0 10px 28px ${mixBlack(th.main,0.4)}55`,color:GP.boxText,border:`1px solid ${th.main}66`,marginBottom:12}}>
                 {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"42%",background:"linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
                 <DungeonCardGlow/>
-                {/* 레벨 + 상장 + 아바타 (cute: 아바타·펫 유지 / 던전: 아바타·펫 제거, 레벨·착용상장 양쪽 배치) */}
-                {kidSkin==="cute"
-                  ?<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,position:"relative",zIndex:1}}>
-                    <div style={{minWidth:0,flex:1,paddingRight:10}}>
-                      <p style={{fontSize:14,fontWeight:900,margin:"0 0 2px",color:GP.boxSub,letterSpacing:0.3}}>{level.emoji} Lv.{level.level}</p>
-                      <p style={{fontSize:20,fontWeight:900,margin:"0 0 8px",color:GP.boxText,lineHeight:1.2,wordBreak:"keep-all"}}>{level.name}</p>
-                      <p style={{display:"inline-block",...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:20},{radius:20}),fontSize:13,fontWeight:900,color:GP.dark2,padding:"4px 10px",margin:0,maxWidth:"100%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                        {title.emoji} {title.name}
-                      </p>
-                    </div>
-                    <div style={{display:"flex",alignItems:"flex-end",gap:6,flexShrink:0,marginRight:2}}>
-                      <div style={{position:"relative",width:66,height:66,borderRadius:20,background:evo.bg,border:`1.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:40,boxShadow:"0 6px 18px rgba(0,0,0,0.16)"}}>
-                        <span style={{display:"block",transform:"translateY(1px)",lineHeight:1}}>{getCharacterAvatar(childId)}</span>
-                      </div>
-                      {(()=>{
-                        const pet=getPet(childId);
-                        return (
-                          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,marginBottom:2}} title={pet.name}>
-                            <div style={{width:36,height:36,borderRadius:14,background:GP.chipBg,border:`1.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>{pet.emoji}</div>
-                            <span style={{fontSize:11.5,fontWeight:800,opacity:0.7}}>펫</span>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                  :<>
-                    <p style={{fontSize:12,fontWeight:900,letterSpacing:1.5,margin:0,color:GP.gold,position:"relative",zIndex:1}}>{T.heroStatus}</p>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:3,marginBottom:13,position:"relative",zIndex:1}}>
-                      <div style={{minWidth:0,flex:1}}>
-                        <p style={{fontSize:21,fontWeight:900,margin:0,color:GP.boxText,lineHeight:1.2,wordBreak:"keep-all"}}>{level.emoji} Lv.{level.level} {level.name}</p>
-                      </div>
-                      <p style={{display:"inline-block",...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:20},{radius:20}),fontSize:13,fontWeight:900,color:GP.boxText,padding:"5px 12px",margin:0,maxWidth:"58%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0}}>
-                        {title.emoji} {title.name}
-                      </p>
-                    </div>
-                  </>}
+                {/* 레벨 + 상장 — 윗줄(라벨+상장뱃지) / 아랫줄(레벨명 한 줄 전체)로 분리해 겹침 방지 */}
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,position:"relative",zIndex:1}}>
+                  <p style={{fontSize:12,fontWeight:900,letterSpacing:1.5,margin:0,color:kidSkin==="cute"?GP.boxSub:GP.gold}}>{T.heroStatus}</p>
+                  <p style={{display:"inline-block",...jellyChip({background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:`1px solid ${GP.chipBorder}`,borderRadius:20},{radius:20}),fontSize:13,fontWeight:900,color:GP.boxText,padding:"5px 12px",margin:0,maxWidth:"58%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
+                    {title.emoji} {title.name}
+                  </p>
+                </div>
+                <div style={{marginTop:5,marginBottom:13,position:"relative",zIndex:1,minWidth:0}}>
+                  {(()=>{
+                    // 레벨 이름이 길거나 레벨이 두 자리면 글씨를 단계적으로 줄여 한 줄에 맞춘다(말줄임 X)
+                    const rawName=level.name||"";
+                    const nameLen=rawName.length;
+                    const lvDigits=String(level.level).length;
+                    const longish=nameLen+lvDigits;
+                    const fs= longish>=8 ? 17 : longish>=7 ? 19 : 21;
+                    return (
+                      <p style={{fontSize:fs,fontWeight:900,margin:0,color:GP.boxText,lineHeight:1.2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{level.emoji} Lv.{level.level} {level.name}</p>
+                    );
+                  })()}
+                </div>
                 {(()=>{
                   const coinXpBlock=(
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginTop:14,marginBottom:6,position:"relative",zIndex:1}}>
-                      <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.8))":GP.chipBg,border:kidSkin==="cute"?"2px solid #fff":"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}28, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <span style={{fontSize:20}}>{TM.coinEmoji}</span>
                         <div style={{minWidth:0}}>
                           <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>보유 {TM.coin}</p>
                           <p style={{fontSize:17,fontWeight:900,margin:"1px 0 0",lineHeight:1}}>{coin}</p>
                         </div>
                       </div>
-                      <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.8))":GP.chipBg,border:kidSkin==="cute"?"2px solid #fff":"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}28, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <span style={{fontSize:20}}>{TM.xpEmoji}</span>
                         <div style={{minWidth:0}}>
                           <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>누적 {TM.xp}</p>
@@ -4173,13 +4443,11 @@ export default function App() {
                       </div>
                     </div>
                   );
-                  // 던전: 진행바 → 보유코인/누적XP / cute: 보유코인/누적XP → 진행바
-                  return kidSkin==="cute"
-                    ? <>{coinXpBlock}{progressBlock}</>
-                    : <>{progressBlock}{coinXpBlock}</>;
+                  // 모험 구조로 통일: 진행바 → 보유코인/누적XP
+                  return <>{progressBlock}{coinXpBlock}</>;
                 })()}
-                {/* 던전: 성장 단계별 격려 문구 */}
-                {kidSkin!=="cute"&&(()=>{
+                {/* 성장 단계별 격려 문구 (모험 구조로 통일 — 양쪽 표시) */}
+                {(()=>{
                   const msg=evoMsgView(evo.name,kidSkin)||EVOLUTION_MESSAGES["새싹 모험가"];
                   return (
                     <div style={{marginTop:16,marginBottom:4,position:"relative",zIndex:1}}>
@@ -4188,30 +4456,47 @@ export default function App() {
                   );
                 })()}
               </div>
-              {/* 나머지 정보 - 칸 밖 (cute 전용: 보물상자 / 상장 / 연속달성) */}
-              {kidSkin==="cute"&&(
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>
-                {[
-                    {icon:TM.boxEmoji,label:TM.box,value:treasureCount,bd:"rgba(110,169,255,.35)",gl:"0 0 12px rgba(110,169,255,.12)",num:"#8FC0FF"},
-                    {icon:"👑",label:"상장",value:`${getUnlockedTitles(childId).length}개`,bd:"rgba(162,135,255,.35)",gl:"0 0 12px rgba(162,135,255,.12)",num:"#BBA6FF"},
-                    {icon:"🏆",label:"연속달성 최고기록",value:`${getBestStreak(childId)}일`,bd:"rgba(255,216,107,.35)",gl:"0 0 12px rgba(255,216,107,.12)",num:"#D9BB6B"},
-                ].map((s,i)=>(
-                  <div key={i} style={{...jellyChip({background:GP.innerBg||`${th.main}2E`,border:`1.5px solid ${GP.innerBorder||th.main+"59"}`,borderRadius:14}),padding:"10px 5px",textAlign:"center"}}>
-                    <p style={{fontSize:17,margin:0}}>{s.icon}</p>
-                    <p style={{fontSize:15,fontWeight:900,margin:"2px 0 0",color:GP.innerText||th.main}}>{s.value}</p>
-                    <p style={{fontSize:11,fontWeight:800,color:GP.boxSub,margin:"1px 0 0",lineHeight:1.25}}>{s.label}</p>
-                  </div>
-                ))}
-              </div>
-              )}
               </>
             );
     })();
+    // 날짜 이동 바 — 모험장소/미션 탭 공용
+    const dateNav=(
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:GP.boxBg,border:`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"10px 12px",marginBottom:14}}>
+        <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
+          style={{...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>‹</button>
+        <div style={{textAlign:"center"}}>
+          <p style={{fontSize:15,fontWeight:900,margin:0,color:GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
+          {!isChildToday&&<p style={{fontSize:11,color:GP.gold,margin:"2px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
+        </div>
+        <div style={{display:"flex",gap:6,alignItems:"center"}}>
+          {!isChildToday&&<button onClick={()=>setChildDate(TODAY)}
+            style={{background:`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:"#fff",borderRadius:10,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
+          <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()+1);setChildDate(toStr(d));}}
+            style={{...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>›</button>
+        </div>
+      </div>
+    );
     return (
       <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||(kidSkin==="cute"?`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`:`radial-gradient(120% 55% at 50% 0%, ${th.main}3a 0%, transparent 52%), radial-gradient(100% 45% at 100% 26%, ${th.main}22 0%, transparent 55%), radial-gradient(100% 45% at 0% 74%, ${th.main}1e 0%, transparent 55%), linear-gradient(180deg, ${dungeonTone(th.main,4)} 0%, ${dungeonTone(th.main,0)} 50%, ${dungeonTone(th.main,10)} 100%)`)),backgroundSize:GP.appPattern?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden"}}>
         {/* 말랑한 배경 블롭 */}
         <div style={{position:"absolute",top:-40,right:-50,width:170,height:170,borderRadius:"50%",background:`radial-gradient(circle at 35% 35%, ${th.main}26, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 11s ease-in-out infinite",pointerEvents:"none",zIndex:0}}/>
         <div style={{position:"absolute",top:240,left:-60,width:150,height:150,borderRadius:"50%",background:`radial-gradient(circle at 50% 50%, ${GP.gold}24, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 14s ease-in-out infinite 1.5s",pointerEvents:"none",zIndex:0}}/>
+        {/* 동화책 모험 분위기: 아주 희미한 배경 데코 (모험모드 전용) */}
+        {kidSkin!=="cute"&&(()=>{
+          const deco=[
+            {e:"☁️",top:"6%",left:"8%",size:30,op:0.10},
+            {e:"✨",top:"11%",left:"82%",size:18,op:0.14},
+            {e:"🦋",top:"30%",left:"72%",size:20,op:0.12},
+            {e:"🌿",top:"48%",left:"5%",size:24,op:0.11},
+            {e:"☁️",top:"58%",left:"68%",size:26,op:0.09},
+            {e:"🌳",top:"74%",left:"10%",size:28,op:0.11},
+            {e:"✨",top:"80%",left:"86%",size:16,op:0.13},
+            {e:"🌿",top:"90%",left:"60%",size:22,op:0.10},
+          ];
+          return deco.map((d,i)=>(
+            <div key={`deco${i}`} style={{position:"absolute",top:d.top,left:d.left,fontSize:d.size,opacity:d.op,filter:"grayscale(0.2)",pointerEvents:"none",zIndex:0,userSelect:"none"}}>{d.e}</div>
+          ));
+        })()}
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
         <style dangerouslySetInnerHTML={{__html:`
           @keyframes boxBounce{0%{transform:scale(1) rotate(-3deg)}40%{transform:scale(1.18) rotate(3deg)}70%{transform:scale(1.08) rotate(-2deg)}100%{transform:scale(1) rotate(0deg)}}
@@ -4239,10 +4524,7 @@ export default function App() {
           @keyframes burstPop{0%{transform:translate(0,0) scale(0.2);opacity:1}100%{transform:translate(var(--bx),var(--by)) scale(1.1);opacity:0}}
           @keyframes floatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
           @keyframes floatHero{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-          @keyframes backdropFade{0%{opacity:0}100%{opacity:1}}
-          @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
           @keyframes floatHat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-10px)}}
-          @keyframes spotGlow{0%,100%{opacity:0.75}50%{opacity:1}}
           @keyframes wiggle{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
           @keyframes blobShift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(14px,-12px) scale(1.08)}66%{transform:translate(-10px,10px) scale(0.94)}}
           @keyframes barStripe{0%{background-position:0 0}100%{background-position:28px 0}}
@@ -4273,7 +4555,7 @@ export default function App() {
           <KidCoachmark th={th} skin={kidSkin} onFinish={()=>{ setShowKidCoachmark(false); save("v6_kid_guide_seen","1"); }} />
         )}
         {showModeSelect&&(
-          <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임 시작!":"⚔️ 던전 게임 시작!"); load("v6_kid_guide_seen").then(seen=>{ if(!seen) setTimeout(()=>setShowKidCoachmark(true),350); }); }} />
+          <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임 시작!":"🧭 모험 게임 시작!"); load("v6_kid_guide_seen").then(seen=>{ if(!seen) setTimeout(()=>setShowKidCoachmark(true),350); }); }} />
         )}
 
         {/* ── 아이용 꾸미기 상점 모달 ── */}
@@ -4295,7 +4577,7 @@ export default function App() {
                     <span style={{fontSize:14,fontWeight:900,color:GP.chipText}}>{coin} {TM.coin}</span>
                   </div>
                   <div style={{display:"inline-flex",alignItems:"center",gap:6,background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:14,padding:"5px 12px"}}>
-                    <span style={{fontSize:16}}>🔮</span>
+                    <span style={{fontSize:16}}>{kidSkin==="cute"?"🎀":"🔮"}</span>
                     <span style={{fontSize:14,fontWeight:900,color:GP.chipText}}>컬렉션 {getOwnedCount(childId)}개</span>
                   </div>
                 </div>
@@ -4326,14 +4608,29 @@ export default function App() {
                       </div>
                     ):(
                     <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
-                      {grp.items.map(raw=>{
+                      {(()=>{
+                        // 베이커리 모드의 '모자' 그룹만 지정 순서로 재정렬 + 자리기준 등급 적용. 그 외는 원본.
+                        let items=grp.items;
+                        if(kidSkin==="cute" && grp.key==="hat"){
+                          items=BAKERY_HAT_ORDER.map(id=>{
+                            const o=grp.items.find(it=>it.id===id);
+                            if(!o) return null;
+                            return BAKERY_HAT_RARITY[id]?{...o,rarity:BAKERY_HAT_RARITY[id]}:o;
+                          }).filter(Boolean);
+                        }
+                        // 베이커리 모드의 '배경'은 전용 6슬롯 배열을 사용(모험 4슬롯과 분리)
+                        if(kidSkin==="cute" && grp.key==="bg"){
+                          items=BAKERY_BGS;
+                        }
+                        return items;
+                      })().map(raw=>{
                         const it=decorView(raw,kidSkin);
                         const owned=isDecorOwned(childId,it.id);
                         const equipped=eq[grp.key]===it.id;
                         const price=getDecorPrice(it);
                         const rc=(DECOR_RARITY[it.rarity]||DECOR_RARITY.common).color;
                         const canBuy=coin>=price;
-                        // 던전모드: 카드 배경을 네이비로 통일하고 등급은 테두리+glow 로만 표현 (RPG 장비창 느낌)
+                        // 모험모드: 카드 배경을 네이비로 통일하고 등급은 테두리+glow 로만 표현 (RPG 장비창 느낌)
                         const dungeon = kidSkin!=="cute";
                         let dr = dungeonDecorRarity(it.rarity);
                         // 테두리(액자) 아이템은 자기 보석색이 곧 정체성 → 카드 오라도 그 색으로 통일.
@@ -4361,7 +4658,7 @@ export default function App() {
                               border:equipped?"2px solid #4FE3D0":(owned?"2px solid rgba(143,240,181,0.55)":`2px solid ${dr.border}`),borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 0 18px rgba(79,227,208,.28), 0 6px 18px rgba(8,16,40,0.5)`:`${dr.glow}, 0 6px 16px rgba(8,16,40,0.42), inset 0 1px 0 rgba(255,255,255,0.06)`,display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden",cursor:owned?"pointer":"default"}
                             :{background:equipped?`${th.main}14`:(owned?`${th.main}08`:C.card),border:`1.5px solid ${equipped?th.main:(owned?th.main+"66":rc+"44")}`,borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 6px 18px ${th.main}44`:`0 3px 10px ${rc}1f`,display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden"}}>
                             {(it.rarity==="legendary"||it.rarity==="epic")&&<div style={{position:"absolute",inset:0,background:dungeon?`radial-gradient(85% 55% at 50% 0%, ${dr.border}26, transparent 72%)`:`radial-gradient(80% 60% at 50% 0%, ${rc}1a, transparent 70%)`,pointerEvents:"none"}}/>}
-                            {/* 상태 뱃지 (우측 상단): 베이커리만 사용. 던전은 하단 액션 영역에서 표시 */}
+                            {/* 상태 뱃지 (우측 상단): 베이커리만 사용. 모험은 하단 액션 영역에서 표시 */}
                             {!dungeon&&equipped?(
                               <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#0F1220",background:th.main,borderRadius:999,padding:"2px 8px",boxShadow:"0 2px 6px rgba(0,0,0,0.3)"}}>✓ 착용중</span>
                             ):(!dungeon&&owned)?(
@@ -4455,7 +4752,7 @@ export default function App() {
                 <select value={childId} onChange={e=>{
                   setChildId(e.target.value);
                   setChildDate(TODAY);
-                  setChildTab("today");
+                  setChildTab("area");
                   setShowChildRewards(false);
                   setShowChildXP(false);
                   setOpenRewardId(null);
@@ -4476,9 +4773,9 @@ export default function App() {
           const evo=getCharacterEvolution(childId);
           const stageHat=getEquipped(childId,"hat");
           const eqSkinActive=!!getEquipped(childId,"skin")&&isMaxEvolution(childId);
-          // 스킨 장착 중엔 모자 숨김(스킨이 완성형)
-          const showHat=stageHat&&!eqSkinActive;
-          // 던전 무기(검·방패·활)는 머리에 쓰지 않으므로 아바타 맨머리 치환 대상에서 제외
+          // 스킨 장착 시 모자 숨김은 베이커리(완성형 캐릭터)에서만. 모험은 장비(무기·왕관)를 스킨과 함께 표시.
+          const showHat=stageHat&&!(eqSkinActive&&kidSkin==="cute");
+          // 모험 도구(쌍안경·나침반·지도 등)는 머리에 쓰지 않으므로 아바타 맨머리 치환 대상에서 제외
           const headHat=showHat&&!(stageHat.weapon&&kidSkin!=="cute");
           const avatar=getCharacterAvatar(childId,!!headHat);
           const pet=getPet(childId);
@@ -4486,7 +4783,6 @@ export default function App() {
           const cute=kidSkin==="cute";
           const stageBgDeco=getEquipped(childId,"bg");
           const stageBorder=getEquipped(childId,"border");
-          // (레벨 구간 배경 연출은 아래 StageTierBackdrop 컴포넌트가 level.level 기준으로 직접 처리)
           // 테두리 빛번짐(glow) — 베이커리(밝은 무대)에선 채도 낮은 glowCute 사용 + 번짐 약하게
           const bGlow=stageBorder?((cute&&stageBorder.glowCute)?stageBorder.glowCute:stageBorder.glow):null;
           // 진행도에 따른 말풍선 멘트 + 캐릭터 기분
@@ -4497,10 +4793,10 @@ export default function App() {
           // 무대 응원 말풍선 노출 규칙
           //  - 무기 장착: 유지 / 테두리 장착: 유지
           //  - 왕관(무기 아닌 머리장식) 장착: 숨김 / 배경 장착: 숨김
-          const crownEquipped=showHat&&!(stageHat.weapon&&!cute); // 던전 무기는 제외, 베이커리 머리장식·던전 왕관만 해당
+          const crownEquipped=showHat&&!(stageHat.weapon&&!cute); // 모험 무기는 제외, 베이커리 머리장식·모험 왕관만 해당
           const hideStageCheer=crownEquipped||!!stageBgDeco||eqSkinActive;
           const charAnim="floatHero 2.6s ease-in-out infinite -1.3s";
-          // 무대 배경: 던전은 다크 샤이니, 베이커리는 따뜻한 크림 스포트라이트
+          // 무대 배경: 모험은 다크 샤이니, 베이커리는 따뜻한 크림 스포트라이트
           const stageBg=cute
             ?`radial-gradient(120% 95% at 50% 5%, #ffffff, ${mixWhite(th.main,0.5)} 50%, ${mixWhite(th.main,0.38)})`
             :(stageBorder
@@ -4531,33 +4827,106 @@ export default function App() {
               background:stageBg,
               border:stageBorder?"none":(cute?"2px solid #fff":`1px solid ${th.main}66`),
               boxShadow:cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:`0 14px 34px ${GP.boxShadowCol||"rgba(0,0,0,0.35)"}, inset 0 1px 0 rgba(255,255,255,0.10)`}}>
-              {/* 던전 기본 풍경 (산·달·별) — 배경 꾸미기 미장착 시 기본 배경으로 */}
+              {/* 모험 기본 풍경 (밤·숲속 캠프) — 배경 꾸미기 미장착 시 기본 배경으로 */}
               {!cute&&!stageBgDeco&&<DungeonScenery/>}
               {/* 베이커리 기본 풍경 (하늘+해+구름+제과점) — 그대로 유지 */}
               {cute&&!stageBgDeco&&<BakeryScenery/>}
-              {/* {!cute&&!stageBgDeco&&<StageTierBackdrop lv={level.level}/>} */}
-              {/* 캐릭터 스포트라이트 — 던전/베이커리 공통이라 일단 유지 */}
+              {/* 캐릭터 스포트라이트 — 모험/베이커리 공통이라 일단 유지 */}
               <div style={{position:"absolute",inset:0,background:spotlight,pointerEvents:"none",zIndex:0}}/>
-              {/* ── 장착 배경 꾸미기 (은은한 tint + 떠다니는 장식) — 던전·베이커리 공통 ── */}
-              {/* 던전·베이커리 모두 구매한 배경 이모지를 흩뿌려 표시 */}
+              {/* ── 장착 배경 꾸미기 (은은한 tint + 떠다니는 장식) — 모험·베이커리 공통 ── */}
+              {/* 구매 배경의 테마 풍경(모험: 숲/바다/섬/정글/공룡/우주, 베이커리: 벚꽃/딸기/별사탕/초콜릿/천상/무지개) */}
+              {stageBgDeco&&<AdventureBgScenery bgId={stageBgDeco.id}/>}
+              {/* 모험·베이커리 모두 구매한 배경 이모지를 흩뿌려 표시 */}
               {stageBgDeco&&(()=>{
                 const own = (stageBgDeco.deco||[]).filter(Boolean);
                 if(own.length===0) return null;
+                // ── 베이커리 전용 배경: id별 고정 좌표 배치(자동 분산 대신) ──
+                // 좌표계: 무대카드 전체 기준 %. 캐릭터≈가로40%/세로37%(귀 위), 펫≈가로57%/세로42%(오른쪽 위).
+                // {e:이모지, l:left%, t:top%, s:크기배율, r:회전, d:애니딜레이}
+                const BAKERY_BG_LAYOUT = {
+                  bbg_sakura: [   // 벚꽃 마을: 집 둘을 떨어뜨림. 가까운 집(🏡)을 펫 오른쪽 위에.
+                    {e:"🏡",l:64,t:30,s:1.0,r:-6,d:0.2},  // 펫 오른쪽 위 (캐릭터와 가까운 집)
+                    {e:"🏡",l:8,t:14,s:0.95,r:4,d:0.8},   // 멀리 떨어진 집 (좌상단)
+                    {e:"🌸",l:24,t:8,s:1.1,r:-8,d:0},
+                    {e:"🌸",l:84,t:12,s:1.05,r:10,d:0.6},
+                    {e:"🌷",l:14,t:62,s:1.0,r:0,d:1.0},
+                    {e:"🌸",l:90,t:54,s:1.1,r:-10,d:0.4},
+                    {e:"🌿",l:6,t:40,s:0.9,r:8,d:1.3},
+                    {e:"🌷",l:88,t:80,s:0.95,r:6,d:0.9},
+                    {e:"🌸",l:46,t:6,s:1.05,r:0,d:0.5},
+                    {e:"🌿",l:72,t:72,s:0.9,r:-6,d:1.5},
+                  ],
+                  bbg_strawberry: [   // 딸기 농장: 집 둘을 떨어뜨림. 가까운 집을 펫 오른쪽 위에.
+                    {e:"🏡",l:64,t:30,s:1.0,r:-5,d:0.2},  // 펫 오른쪽 위
+                    {e:"🏡",l:8,t:14,s:0.95,r:5,d:0.8},   // 멀리 떨어진 집
+                    {e:"🍓",l:24,t:8,s:1.15,r:-8,d:0},
+                    {e:"🍓",l:84,t:12,s:1.1,r:10,d:0.6},
+                    {e:"🍓",l:14,t:62,s:1.1,r:0,d:1.0},
+                    {e:"🍓",l:90,t:54,s:1.15,r:-10,d:0.4},
+                    {e:"🌿",l:6,t:40,s:0.9,r:8,d:1.3},
+                    {e:"🍓",l:88,t:80,s:1.05,r:6,d:0.9},
+                    {e:"🍓",l:46,t:6,s:1.1,r:0,d:0.5},
+                    {e:"🌿",l:72,t:72,s:0.9,r:-6,d:1.5},
+                  ],
+                  bbg_starcandy: [   // 별사탕 왕국: 왼쪽=별, 오른쪽=사탕 (자리 스왑)
+                    {e:"⭐",l:10,t:10,s:1.0,r:-8,d:0},     // 왼쪽 별
+                    {e:"🌟",l:8,t:46,s:1.05,r:6,d:0.5},    // 왼쪽 별
+                    {e:"⭐",l:16,t:78,s:0.95,r:0,d:1.0},   // 왼쪽 별
+                    {e:"🍬",l:88,t:12,s:1.0,r:10,d:0.3},   // 오른쪽 사탕
+                    {e:"🍭",l:90,t:48,s:1.0,r:-10,d:0.8},  // 오른쪽 사탕
+                    {e:"🍬",l:84,t:80,s:0.95,r:6,d:1.2},   // 오른쪽 사탕
+                    {e:"🌟",l:46,t:6,s:1.0,r:0,d:0.6},
+                    {e:"🍭",l:64,t:30,s:1.0,r:-6,d:0.2},   // 펫 오른쪽 위 사탕
+                    {e:"⭐",l:30,t:24,s:0.9,r:8,d:1.4},
+                    {e:"🍬",l:72,t:70,s:0.95,r:-6,d:1.5},
+                  ],
+                  bbg_choco: [   // 초콜릿 공장: 덜 빽빽하게(8칸), 초콜릿·도넛 약간 축소, 귀 위 이모지 하나를 펫 오른쪽 위로
+                    {e:"🍫",l:10,t:12,s:0.92,r:-6,d:0},
+                    {e:"🍩",l:86,t:14,s:0.92,r:10,d:0.5},
+                    {e:"🍪",l:12,t:74,s:0.98,r:0,d:1.0},
+                    {e:"🍰",l:88,t:72,s:1.0,r:6,d:0.7},
+                    {e:"🍫",l:64,t:28,s:0.92,r:-5,d:0.2},  // 펫 오른쪽 위 (귀 위에서 옮겨온 것)
+                    {e:"🍩",l:6,t:44,s:0.92,r:8,d:1.3},
+                    {e:"🍪",l:90,t:46,s:0.98,r:-8,d:0.9},
+                    {e:"🍰",l:46,t:6,s:1.0,r:0,d:0.5},
+                  ],
+                  bbg_heaven: [   // 천상의 베이커리: 천사 2개로 늘리고 약간 키움(별 하나 빼고 천사로), 천사를 잘 보이게
+                    {e:"👼",l:62,t:24,s:1.25,r:-4,d:0.1},  // 펫 오른쪽 위 — 잘 보이는 천사
+                    {e:"👼",l:18,t:14,s:1.2,r:6,d:0.6},    // 좌상단 — 잘 보이는 천사
+                    {e:"☁️",l:8,t:44,s:1.1,r:0,d:1.0},
+                    {e:"☁️",l:88,t:50,s:1.1,r:0,d:0.4},
+                    {e:"🧁",l:14,t:78,s:1.05,r:-6,d:1.2},
+                    {e:"🍰",l:86,t:80,s:1.0,r:6,d:0.8},
+                    {e:"✨",l:44,t:6,s:0.9,r:0,d:0.5},
+                    {e:"✨",l:74,t:66,s:0.9,r:0,d:1.5},
+                    {e:"☁️",l:30,t:24,s:1.0,r:0,d:0.3},
+                    {e:"🧁",l:90,t:18,s:1.0,r:8,d:1.1},
+                  ],
+                  // bbg_rainbow(무지개 케이크 왕국)은 레이아웃 미지정 → 기존 자동 분산 유지
+                };
+                const fixedLayout = BAKERY_BG_LAYOUT[stageBgDeco.id];
                 // 첫 번째 이모지를 '주인공'으로 강조 — 더 자주, 더 크게 등장시킨다.
                 // (예: 솜사탕 구름은 ☁️ 가 deco[0] 이므로 구름이 화면을 채우고 나머지는 양념처럼)
                 const lead = own[0];
                 const manyDeco = own.length>=4;
                 let seq;
                 if(manyDeco){
-                  const rest = own.slice(1);              // 주인공 제외 나머지(각 1개씩, 중복 허용)
-                  const LEAD_COUNT = 2;                   // 주인공은 2칸 고정
-                  const base = [...Array(LEAD_COUNT).fill(lead), ...rest];
-                  // 주인공이 한쪽에 몰리지 않게 섞기 (인덱스 인터리브)
-                  const idx = base.map((_,i)=>i).sort((a,b)=>{
-                    const ra=(a*5+1)%base.length, rb=(b*5+1)%base.length;
+                  const rest = own.slice(1);              // 주인공 제외 나머지
+                  // 카드 전체를 고르게 채운다(spots 10칸 기준). 메인은 약 1/3 비율로 자주, 나머지는 순환 배치.
+                  const SLOTS = 10;
+                  const tmp = [];
+                  let ri = 0;
+                  for(let i=0;i<SLOTS;i++){
+                    // 3칸마다 메인을 끼워 넣어 메인이 골고루 자주 등장하게
+                    if(i%3===0){ tmp.push(lead); }
+                    else { tmp.push(rest[ri%rest.length]); ri++; }
+                  }
+                  // 같은 종류가 한쪽에 몰리지 않게 인덱스 인터리브로 섞기
+                  const idx = tmp.map((_,i)=>i).sort((a,b)=>{
+                    const ra=(a*7+3)%tmp.length, rb=(b*7+3)%tmp.length;
                     return ra-rb;
                   });
-                  seq = idx.map(i=> base[i]);
+                  seq = idx.map(i=> tmp[i]);
                 }else{
                   const N=8;
                   const leadSlots=[0,2,4,6];
@@ -4570,7 +4939,7 @@ export default function App() {
                 const N = seq.length;
                 const allDoneBg = allDone; // 미션 100% 완료 시 더 화려하게(축하)
                 // 이모지별 크기 보정 (지구·무지개는 작게, 번개·구름은 강조)
-                const emScale={"🌎":0.7,"🌍":0.7,"🌏":0.7,"⚡":1.3,"🐉":1.1,"🌈":0.8,"☁️":1.25,"🪐":1.15,"🛸":1.0,"☄️":0.95,"🛰️":0.9,"🚀":1.0,"🌊":1.2,"🐬":1.15,"🐠":1.0,"🐚":0.85,"🦀":0.95,"🫧":0.8};
+                const emScale={"🌎":0.7,"🌍":0.7,"🌏":0.7,"⚡":1.3,"🐉":1.1,"🌈":0.8,"☁️":1.25,"🪐":1.15,"🛸":1.0,"☄️":0.95,"🛰️":0.9,"🚀":1.0,"🌊":1.2,"🐬":1.15,"🐠":1.0,"🐚":0.85,"🦀":0.95,"🫧":0.8,"🍓":1.1,"🌸":1.1,"🏡":0.95,"🌷":0.95,"🌿":0.9,"🍫":1.1,"🍩":1.0,"🍪":1.0,"🍰":1.0,"🧁":1.05,"🎂":1.0,"🍭":0.95,"🍬":0.95,"👼":1.05,"✨":0.85,"⭐":0.9,"🌟":1.0};
                 // 카드 전체에 골고루 분산(최대 10칸). 중앙 캐릭터 영역은 비워 둠.
                 const spots=[
                   {l:12,t:7,r:-12,d:0},    {l:50,t:5,r:8,d:0.6},
@@ -4583,81 +4952,84 @@ export default function App() {
                   <>
                     <div style={{position:"absolute",inset:0,background:`radial-gradient(130% 100% at 50% 0%, ${stageBgDeco.tint}, transparent 72%)`,pointerEvents:"none",zIndex:0,animation:"bgTintIn .6s ease both"}}/>
                     <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden",zIndex:0}}>
-                      {seq.map((s,i)=>{
-                        const sp=spots[i % spots.length];
-                        const baseSize=allDoneBg?(i%2?17:21):(i%2?13:16);
-                        return (
-                        <span key={`bg${i}`} style={{position:"absolute",
-                          left:`${sp.l}%`,top:`${sp.t}%`,
-                          fontSize:Math.round(baseSize*(emScale[s]||1)),
-                          opacity:allDoneBg?0.92:(i%3===0?0.62:0.5),
-                          transform:`rotate(${sp.r}deg)`,
-                          filter:`drop-shadow(0 1px 3px rgba(0,0,0,0.12))${s==="⚡"?" drop-shadow(0 0 6px rgba(255,235,90,0.85))":""}`,
-                          animation:`sparkleFloat ${2.1+i*0.28}s ease-in-out ${sp.d}s infinite`}}>{s}</span>
-                        );
-                      })}
+                      {fixedLayout
+                        ? fixedLayout.map((it,i)=>{
+                            const baseSize=allDoneBg?(i%2?17:21):(i%2?13:16);
+                            return (
+                            <span key={`bg${i}`} style={{position:"absolute",
+                              left:`${it.l}%`,top:`${it.t}%`,
+                              fontSize:Math.round(baseSize*(it.s||1)),
+                              opacity:allDoneBg?0.95:0.6,
+                              transform:`rotate(${it.r||0}deg)`,
+                              filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.12))",
+                              animation:`sparkleFloat ${2.1+i*0.28}s ease-in-out ${it.d||0}s infinite`}}>{it.e}</span>
+                            );
+                          })
+                        : seq.map((s,i)=>{
+                            const sp=spots[i % spots.length];
+                            const baseSize=allDoneBg?(i%2?17:21):(i%2?13:16);
+                            return (
+                            <span key={`bg${i}`} style={{position:"absolute",
+                              left:`${sp.l}%`,top:`${sp.t}%`,
+                              fontSize:Math.round(baseSize*(emScale[s]||1)),
+                              opacity:allDoneBg?0.92:(i%3===0?0.62:0.5),
+                              transform:`rotate(${sp.r}deg)`,
+                              filter:`drop-shadow(0 1px 3px rgba(0,0,0,0.12))${s==="⚡"?" drop-shadow(0 0 6px rgba(255,235,90,0.85))":""}`,
+                              animation:`sparkleFloat ${2.1+i*0.28}s ease-in-out ${sp.d}s infinite`}}>{s}</span>
+                            );
+                          })}
                     </div>
                   </>
                 );
               })()}
-              {/* 말풍선 — "오늘의 모험을 시작해볼까?" 등 진행도 멘트. 왕관·배경 장착 시엔 숨김(무기·테두리는 유지). 던전·베이커리 공통. */}
+              {/* 말풍선 — "오늘의 모험을 시작해볼까?" 등 진행도 멘트. 왕관·배경 장착 시엔 숨김(무기·테두리는 유지). 모험·베이커리 공통. */}
               {!hideStageCheer&&(
-              <div style={{position:"relative",zIndex:2,display:"flex",justifyContent:cute?"flex-start":"center",marginBottom:2,marginTop:2,paddingLeft:cute?6:0}}>
+              <div style={{position:"relative",zIndex:2,display:"flex",justifyContent:"center",marginBottom:2,marginTop:2}}>
                 <div style={{position:"relative",background:cute?"#fff":"rgba(255,255,255,0.95)",color:cute?mixBlack(th.main,0.32):"#2A2A45",borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:"0 6px 16px rgba(0,0,0,0.16)",maxWidth:"82%",textAlign:"center",lineHeight:1.35,
                   animation:"bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both",border:cute?`2px solid ${mixWhite(th.main,0.6)}`:"none"}}>
                   {msg}
-                  {/* 말풍선 꼬리 — 던전은 가운데 아래(캐릭터 머리 방향), 베이커리는 왼쪽 */}
-                  <div style={{position:"absolute",bottom:-7,left:cute?34:"50%",transform:cute?"none":"translateX(-50%)",width:0,height:0,borderLeft:"8px solid transparent",borderRight:"8px solid transparent",borderTop:`8px solid ${cute?"#fff":"rgba(255,255,255,0.95)"}`}}/>
+                  {/* 말풍선 꼬리 — 모험·베이커리 모두 가운데 아래(캐릭터 머리 방향) */}
+                  <div style={{position:"absolute",bottom:-7,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"8px solid transparent",borderRight:"8px solid transparent",borderTop:`8px solid ${cute?"#fff":"rgba(255,255,255,0.95)"}`}}/>
                 </div>
               </div>
               )}
-              {/* 캐릭터 무대 — 던전: 중앙 캐릭터+펫 / 우측에 [장비 세로줄 | 레벨·상장·연속 뱃지 세로줄]. 베이커리: 좌 캐릭터·우 레벨/상장 */}
+              {/* 캐릭터 무대 — 모험·베이커리 공통: 중앙 캐릭터+펫 / 레벨·상장은 하단 알약칩 줄로 통일 */}
               <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?18:10,minHeight:104}}>
-                {/* ── 중앙(던전)·좌측(베이커리): 캐릭터 + 펫 ── */}
+                {/* ── 중앙(모험)·좌측(베이커리): 캐릭터 + 펫 ── */}
                 <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?6:0}}>
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center",paddingLeft:(showHat&&stageHat.weapon&&!cute)?32:0}}>
-                    {/* 황금 무대 조명(던전) — 일시 비활성화 */}
-                    {false&&!cute&&(
-                      <>
-                        <div style={{position:"absolute",left:"50%",top:-26,transform:"translateX(-50%)",width:170,height:"calc(100% + 30px)",pointerEvents:"none",zIndex:0,
-                          background:`linear-gradient(180deg, ${GP.gold||"#FFD166"}55, transparent 66%)`,
-                          filter:"blur(10px)",clipPath:"polygon(30% 0, 70% 0, 124% 100%, -24% 100%)",
-                          animation:"spotGlow 3s ease-in-out infinite"}}/>
-                        {/* 발밑 빛 웅덩이 */}
-                        <div style={{position:"absolute",left:"50%",bottom:6,transform:"translateX(-50%)",width:130,height:30,pointerEvents:"none",zIndex:0,
-                          background:`radial-gradient(ellipse 50% 100% at 50% 100%, ${GP.gold||"#FFD166"}55, transparent 70%)`,filter:"blur(6px)"}}/>
-                      </>
-                    )}
                     <div style={{position:"relative",zIndex:1}}>
                       {/* 캐릭터+무기를 한 컨테이너로 묶어 같은 둥실(floatHero)로 통째로 움직인다 → 타이밍 100% 일치 */}
                       <div style={{position:"relative",display:"inline-block",animation:charAnim}}>
                       <div style={{fontSize:cute?78:82,lineHeight:1,filter:cute?"drop-shadow(0 9px 11px rgba(0,0,0,0.24))":"drop-shadow(0 4px 6px rgba(0,0,0,0.18))"}}>{avatar}</div>
                       {showHat&&!(stageHat.weapon&&!cute)&&(()=>{
-                        // 전투 고글(던전)은 머리 꼭대기가 아니라 눈 위치에 와야 자연스러움 → 아래로 내림
+                        // 카메라(모험)는 머리 꼭대기가 아니라 눈 위치에 와야 자연스러움 → 아래로 내림
                         const isGoggles=stageHat.id==="hat_goggles"&&!cute;
-                        // 영웅 기사(🦸‍♂️/🦸‍♀️)는 머리가 작아 모자가 커보임 → 던전 모드에서만 모자 축소
+                        // 탐험 히어로(🦸, Lv13~16)는 머리가 작아 왕관이 커보임 → 모험 모드에서만 축소·하향
                         const isHero=!cute&&(avatar==="🦸‍♂️"||avatar==="🦸‍♀️");
                         return (
                           <span style={{position:"absolute",bottom:isGoggles?"calc(100% - 40px)":(isHero?"calc(100% - 14px)":"calc(100% - 18px)"),left:"50%",transform:"translateX(-50%)",fontSize:isHero?30:40,zIndex:3,pointerEvents:"none",filter:"drop-shadow(0 4px 5px rgba(0,0,0,0.25))"}}>{stageHat.emoji}</span>
                         );
                       })()}
-                      {/* 던전: 손에 드는 장비(무기·방패)는 캐릭터 좌측 약간 아래(손 높이)에 배치 */}
+                      {/* 모험: 손에 드는 도구(배낭·나침반·카메라·지도·자전거)는 캐릭터 좌측 약간 아래(손 높이)에 배치 */}
                       {showHat&&stageHat.weapon&&!cute&&(()=>{
-                        // 무기별 크기·위치·기울기 미세조정. 회전은 회전 전용 span에서 처리(둥실은 부모 컨테이너가 담당).
-                        let wSize=34, wLeft=-24, wRot=0;
-                        if(stageHat.id==="hat_tophat"){ wSize=28; wLeft=-26; }            // 용사의 검: 오른쪽으로 조금 더
-                        else if(stageHat.id==="hat_goggles"){ wSize=28; wLeft=-26; wRot=-12; } // 수호 방패: 오른쪽으로 + / 살짝 기울임
-                        else if(stageHat.id==="hat_star"){ wSize=30; wLeft=-30; wRot=-12; }    // 삼지창: / 살짝 기울임
-                        // 레벨13~16 히어로(🦸)는 캐릭터 폭이 넓어 무기가 붙어 보임 → 모든 무기 좌측으로 약간 이동
+                        // 도구별 크기·위치·기울기 미세조정. 회전은 회전 전용 span에서 처리(둥실은 부모 컨테이너가 담당).
+                        let wSize=32, wLeft=-24, wRot=0, wBottom=-8;
+                        if(stageHat.id==="hat_axe"){ wSize=38; wLeft=-34; }                   // 탐험가 배낭: 크게 + 얼굴 겹침 방지로 더 왼쪽
+                        else if(stageHat.id==="hat_tophat"){ wSize=28; wLeft=-26; wRot=-30; }  // 나침반: 고리가 좌측 위로 가게 회전
+                        else if(stageHat.id==="hat_goggles"){ wSize=28; wLeft=-26; wRot=-8; }  // 카메라: 오른쪽으로 + / 살짝 기울임
+                        else if(stageHat.id==="hat_flame"){ wSize=30; wLeft=-28; wRot=-10; }   // 보물 지도: / 살짝 기울임
+                        else if(stageHat.id==="hat_star"){ wSize=44; wLeft=-46; wBottom=-22; } // 자전거: 크게 + 더 왼쪽 + 아래로 내림
+                        // 레벨13~16 구간은 캐릭터 폭이 넓어 도구가 붙어 보임 → 모든 도구 좌측으로 약간 이동
                         if(level.level>=13&&level.level<17){ wLeft-=6; }
                         return (
-                          <span style={{position:"absolute",bottom:-8,left:wLeft,zIndex:2,pointerEvents:"none",display:"inline-block",fontSize:wSize,filter:"drop-shadow(0 5px 6px rgba(0,0,0,0.3))",transform:wRot?`rotate(${wRot}deg)`:"none"}}>{stageHat.emoji}</span>
+                          <span style={{position:"absolute",bottom:wBottom,left:wLeft,zIndex:2,pointerEvents:"none",display:"inline-block",fontSize:wSize,filter:"drop-shadow(0 5px 6px rgba(0,0,0,0.3))",transform:wRot?`rotate(${wRot}deg)`:"none"}}>{stageHat.emoji}</span>
                         );
                       })()}
                       </div>
                     </div>
-                    {/* 발밑 바닥 원 (던전) — 공중부양 방지용 라이트 원. 밝은 테마 포인트색. */}
+                    {/* 발밑 바닥 원 (모험) — 공중부양 방지용 라이트 원. 밝은 테마 포인트색. */}
                     {!cute&&(
                       <div style={{position:"absolute",left:"50%",bottom:-2,transform:"translateX(-50%)",width:116,height:38,pointerEvents:"none",zIndex:0,
                         background:`radial-gradient(ellipse 50% 50% at 50% 50%, ${GP.themePoint||th.main}80, ${GP.themePoint||th.main}33 45%, transparent 72%)`,filter:"blur(2px)"}}/>
@@ -4672,42 +5044,17 @@ export default function App() {
                     <span style={{position:"absolute",bottom:-14,fontSize:10.5,fontWeight:900,color:cute?mixBlack(th.main,0.3):"rgba(255,255,255,0.82)",whiteSpace:"nowrap"}}>🐾 펫</span>
                   </div>
                 </div>
-                {/* ── 우측: 레벨 / 상장 — 던전에서는 숨김, 베이커리(cute)만 노출 ── */}
-                {cute&&(()=>{
-                  const tr = TITLE_RARITY[title.rarity] || TITLE_RARITY.common;
-                  const lvCol = cute ? "#E8923C" : (GP.gold||"#FFC53D"); // 레벨=골드/꿀빛
-                  const chipW = cute ? 118 : 96; // 던전모드는 칩 폭을 줄여 캐릭터·펫에 공간을 더 준다
-                  return (
-                <div style={{flexShrink:0,display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}>
-                  {/* 레벨 행 — 골드/경험치 톤으로 통일 */}
-                  <div style={{display:"flex",alignItems:"center",gap:6,width:chipW,boxSizing:"border-box",background:cute?`linear-gradient(135deg, #FFF6E6, #FFEFD0)`:`linear-gradient(135deg, ${lvCol}26, ${lvCol}12)`,border:`1.5px solid ${lvCol}${cute?"":"66"}`,borderRadius:12,padding:"5px 9px",boxShadow:cute?`0 3px 9px ${lvCol}33`:"none"}}>
-                    <span style={{fontSize:14,flexShrink:0}}>{level.emoji}</span>
-                    <div style={{minWidth:0}}>
-                      <p style={{fontSize:8.5,fontWeight:900,margin:0,letterSpacing:0.2,color:lvCol,opacity:0.9,lineHeight:1.1}}>LV.{level.level}</p>
-                      <p style={{fontSize:11,fontWeight:900,margin:"1px 0 0",color:cute?mixBlack(lvCol,0.25):"#fff",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.15}}>{level.name}</p>
-                    </div>
-                  </div>
-                  {/* 상장 행 — 희귀도별 색으로 차등(등급이 높을수록 화려) · 베이커리는 레벨 칩과 통일감 있게 부드러운 마감 */}
-                  <div style={{display:"flex",alignItems:"center",gap:6,width:chipW,boxSizing:"border-box",background:cute?`linear-gradient(135deg, ${tr.color}30, ${tr.color}16)`:`linear-gradient(135deg, ${tr.color}26, ${tr.color}10)`,border:`1.5px solid ${tr.color}${cute?(title.rarity==="common"?"66":"aa"):(title.rarity==="common"?"55":"99")}`,borderRadius:12,padding:"5px 9px",boxShadow:cute?`0 3px 9px ${tr.color}33`:((title.rarity==="epic"||title.rarity==="legendary")?`0 3px 12px ${tr.color}55`:"none")}}>
-                    <span style={{fontSize:14,flexShrink:0}}>{title.emoji}</span>
-                    <div style={{minWidth:0}}>
-                      <p style={{fontSize:8.5,fontWeight:900,margin:0,letterSpacing:0.2,color:tr.color,opacity:0.9,lineHeight:1.1}}>{tr.icon} {tr.name}</p>
-                      <p style={{fontSize:11,fontWeight:900,margin:"1px 0 0",color:cute?mixBlack(tr.color,0.2):"#fff",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.15}}>{title.name}</p>
-                    </div>
-                  </div>
-                </div>
-                  );
-                })()}
+                {/* 우측 칩 제거 — 베이커리도 모험처럼 캐릭터 중앙 + 레벨/상장 하단 알약칩으로 통일 */}
               </div>
-              {/* ── 던전 하단: 레벨·상장 정보 줄 (장비는 캐릭터에 직접 장착하므로 하단 슬롯 제거) ── */}
-              {!cute&&(()=>{
+              {/* ── 하단: 레벨·상장 정보 줄 (모험·베이커리 공용 알약칩) ── */}
+              {(()=>{
                 const tr = TITLE_RARITY[title.rarity] || TITLE_RARITY.common;
-                const lvCol = GP.gold||"#FFD166";
-                // 정보 칩: 동그란 이모지 + 라벨 (레벨/상장)
+                const lvCol = cute ? "#E8923C" : (GP.gold||"#FFD166"); // 베이커리=꿀빛 / 모험=골드
+                // 정보 칩: 동그란 이모지 + 라벨 (레벨/상장). 베이커리는 밝은 배경, 모험은 어두운 배경.
                 const InfoChip=({ring,emoji,text})=>(
-                  <div style={{display:"flex",alignItems:"center",gap:5,background:`linear-gradient(135deg, ${ring}22, ${ring}0d)`,border:`1.5px solid ${ring}66`,borderRadius:999,padding:"3px 10px 3px 4px"}}>
-                    <span style={{width:24,height:24,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:`radial-gradient(circle at 50% 35%, ${ring}33, rgba(0,0,0,0.25))`,border:`1.5px solid ${ring}`,fontSize:13,flexShrink:0}}>{emoji}</span>
-                    <span style={{fontSize:10,fontWeight:900,color:ring,whiteSpace:"nowrap",letterSpacing:0.2}}>{text}</span>
+                  <div style={{display:"flex",alignItems:"center",gap:5,background:cute?`linear-gradient(135deg, ${ring}26, ${ring}12)`:`linear-gradient(135deg, ${ring}22, ${ring}0d)`,border:`1.5px solid ${ring}${cute?"77":"66"}`,borderRadius:999,padding:"3px 10px 3px 4px",boxShadow:cute?`0 3px 9px ${ring}33`:"none"}}>
+                    <span style={{width:24,height:24,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:cute?`radial-gradient(circle at 50% 35%, #fff, ${ring}22)`:`radial-gradient(circle at 50% 35%, ${ring}33, rgba(0,0,0,0.25))`,border:`1.5px solid ${ring}`,fontSize:13,flexShrink:0}}>{emoji}</span>
+                    <span style={{fontSize:10,fontWeight:900,color:cute?mixBlack(ring,0.2):ring,whiteSpace:"nowrap",letterSpacing:0.2}}>{text}</span>
                   </div>
                 );
                 return (
@@ -4717,65 +5064,15 @@ export default function App() {
                   </div>
                 );
               })()}
-              {/* ── 진화 스토리 (던전) — 일시 비활성화 ── */}
-              {false&&!cute&&EVOLUTION_MESSAGES[level.name]&&(
-                <div style={{position:"relative",zIndex:2,marginTop:14,borderRadius:16,background:`linear-gradient(150deg, ${th.main}1f, rgba(0,0,0,0.22))`,border:`1px solid ${th.main}33`,padding:"11px 14px"}}>
-                  <p style={{margin:0,fontSize:13,fontWeight:900,color:GP.themePoint,lineHeight:1.2}}>{level.emoji} {level.name}</p>
-                  <p style={{margin:"5px 0 0",fontSize:12,fontWeight:700,color:"rgba(255,255,255,0.78)",lineHeight:1.55}}>{EVOLUTION_MESSAGES[level.name]}</p>
-                </div>
-              )}
-              {/* ── 장착 장비 진열장 (던전 전용) ── */}
-              {/* 캐릭터에 덕지덕지 붙이는 대신, 무대 아래에 "장착 중인 장비"를 진열해 수집욕을 자극한다. */}
-              {/* 슬롯 4칸(모자/무기·테두리·배경·펫). 장착하면 이모지, 비어 있으면 흐린 자물쇠. */}
-              {/* 베이커리는 이 진열장을 쓰지 않으므로 !cute 로 던전에서만 노출 (베이커리 원래 동작 유지). */}
-              {/* ── 장착 장비 진열장 (던전) — 일시 비활성화 ── */}
-              {false&&!cute&&(()=>{
-                const slots=[
-                  {key:"hat",     deco:getEquipped(childId,"hat"),     fallIcon:"⚔️"},
-                  {key:"border",  deco:getEquipped(childId,"border"),  fallIcon:"💎"},
-                  {key:"bg",      deco:getEquipped(childId,"bg"),      fallIcon:"🏞️"},
-                  {key:"petskin", deco:getEquipped(childId,"petskin"), fallIcon:"🐾"},
-                ];
-                const ownedCnt=slots.filter(s=>s.deco).length;
-                const slotBg=`linear-gradient(150deg, ${th.main}14, rgba(0,0,0,0.26))`;
-                const slotBorder=`1px solid ${th.main}2e`;
-                const onCol="#EAF0FF";
-                const subCol="rgba(220,228,250,0.62)";
-                return (
-                  <div style={{position:"relative",zIndex:2,marginTop:12,borderRadius:16,
-                    background:`linear-gradient(150deg, ${th.main}1c, rgba(0,0,0,0.18))`,
-                    border:`1px solid ${th.main}30`,padding:"11px 13px"}}>
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:9}}>
-                      <span style={{fontSize:12,fontWeight:900,color:onCol,letterSpacing:0.2}}>🎒 장착 장비</span>
-                      <span style={{fontSize:10.5,fontWeight:800,color:subCol}}>{ownedCnt}/{slots.length}</span>
-                    </div>
-                    <div style={{display:"flex",gap:8}}>
-                      {slots.map(s=>(
-                        <div key={s.key} title={s.deco?s.deco.name:"아직 비어 있어요"}
-                          style={{flex:1,aspectRatio:"1/1",display:"flex",alignItems:"center",justifyContent:"center",
-                            borderRadius:13,background:slotBg,border:slotBorder,
-                            boxShadow:s.deco?"inset 0 1px 0 rgba(255,255,255,0.1)":"none",
-                            opacity:s.deco?1:0.5,position:"relative"}}>
-                          <span style={{fontSize:25,lineHeight:1,filter:s.deco?"drop-shadow(0 2px 3px rgba(0,0,0,0.2))":"grayscale(0.6)"}}>
-                            {s.deco?s.deco.emoji:s.fallIcon}
-                          </span>
-                          {!s.deco&&(
-                            <span style={{position:"absolute",right:4,bottom:3,fontSize:10,opacity:0.85}}>🔒</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
             </div>
             </div>
           );
         })()}
 
         {/* 아이용 탭 */}
-        <div style={{position:"relative",zIndex:1,display:"flex",background:GP.boxSolid,margin:"16px 16px 0",borderRadius:18,padding:6,border:`1px solid ${GP.boxBorder}`,boxShadow:SHADOW.md,gap:4}}>
-          {[["today",T.tabs.quest],["growth",T.tabs.character]].map(([k,label])=>{
+        <div style={{position:"relative",zIndex:1,display:"flex",background:GP.boxSolid,margin:"16px 16px 0",borderRadius:18,padding:6,border:`1px solid ${GP.boxBorder}`,boxShadow:SHADOW.md,gap:6}}>
+          {(()=>{ const charLabel = kidSkin==="cute" ? T.tabs.character : `${getGenderEmoji(curChild)} 내 캐릭터`;
+          return [["area",T.tabs.area],["today",T.tabs.quest],["growth",charLabel]].map(([k,label])=>{
             const on=childTab===k;
             // RPG 스킨: 선택 탭 = 테마별 판타지 3단 그라데이션 (진→중→밝).
             // 파랑=모험가 / 보라=마법사 / 연두=엘프 / 살구=힐러 / 분홍=요정.
@@ -4788,18 +5085,165 @@ export default function App() {
             <button key={k} onClick={()=>setChildTab(k)} className="jelly-tap"
               style={{flex:1,position:"relative",overflow:"hidden",
                 border:isCute?"none":(on?"1px solid rgba(255,255,255,.15)":"1px solid transparent"),
-                borderRadius:14,padding:"13px 8px",
+                borderRadius:14,padding:"12px 4px",
                 background:on?(isCute?(GP.tabActive||`linear-gradient(135deg, ${GP.gold}, ${th.main})`):rpgActiveBg):"transparent",
-                color:on?"#fff":GP.boxSub,fontSize:15,fontWeight:900,cursor:"pointer",
+                color:on?"#fff":GP.boxSub,fontSize:14.5,fontWeight:900,cursor:"pointer",letterSpacing:0.3,whiteSpace:"nowrap",
                 boxShadow:on?(isCute?`0 5px 16px ${th.main}44`:`0 0 18px rgba(255,255,255,.10), 0 0 30px ${tpBase}55, inset 0 1px 0 rgba(255,255,255,.18)`):"none",
                 textShadow:on&&!isCute?"0 1px 3px rgba(20,15,60,.4)":"none",
                 animation:on?"tabBounce .4s ease-out":"none",transition:"color .2s"}}>
               {label}
             </button>
-          );})}
+          );});})()}
         </div>
 
         <div key={childTab} style={{padding:"16px",position:"relative",zIndex:1,animation:"popInUp .35s ease-out"}}>
+          {/* ── 모험장소 탭 (학원카드) ── */}
+          {childTab==="area"&&(
+            <>
+              {/* 오늘의 모험 장소 요약 카드 (가는 학원 이름 + 총 곳 수) */}
+              {(()=>{
+                const total=childTodayAc.length;
+                return (
+                  <div style={kidSkin==="cute"
+                    ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
+                    :{position:"relative",overflow:"hidden",background:dungeonShinyBg,border:`1px solid ${th.main}55`,borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 10px 30px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.08)`,boxSizing:"border-box",display:"flex",flexDirection:"column"}}>
+                    <DungeonCardGlow/>
+                    {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
+                    <div style={{position:"absolute",top:-26,right:-20,width:90,height:90,borderRadius:"50%",background:"rgba(255,255,255,0.07)",pointerEvents:"none"}}/>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:total>0?14:0,position:"relative"}}>
+                      <div>
+                        {kidSkin==="cute"&&T.areaTag&&<p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.2}}>{T.areaTag}</p>}
+                        <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0"}}><span style={{display:"inline-block",animation:"floatBob 2.6s ease-in-out infinite"}}>{T.areaCountIcon}</span> {isChildToday?T.todayArea:`${childDt.getMonth()+1}/${childDt.getDate()} ${T.dateAreaSuffix}`}</p>
+                      </div>
+                      <div style={{borderRadius:999,padding:"7px 16px",background:kidSkin==="cute"?`radial-gradient(circle at 38% 30%, #fff, ${mixWhite(th.main,0.55)})`:(GP.innerBg||GP.chipBg),border:`${kidSkin==="cute"?"3px":"2px"} solid ${kidSkin==="cute"?"#fff":(GP.innerBorder||GP.chipBorder)}`,display:"flex",alignItems:"center",gap:5,boxShadow:kidSkin==="cute"?`0 5px 14px ${th.main}4a, inset 0 2px 4px rgba(255,255,255,0.9)`:"none",flexShrink:0,whiteSpace:"nowrap"}}>
+                        <span style={{fontSize:18,fontWeight:900,color:kidSkin==="cute"?th.main:GP.gold,lineHeight:1}}>{T.areaCountIcon} {total}</span>
+                        <span style={{fontSize:13,fontWeight:900,opacity:0.85,lineHeight:1}}>곳</span>
+                      </div>
+                    </div>
+                    {total>0&&(
+                    <div style={{display:"grid",gridTemplateColumns:`repeat(${total>=3?(total===4?2:3):2},1fr)`,gap:7,position:"relative",marginTop:4,marginBottom:4}}>
+                      {childTodayAc.map(ac=>(
+                        <div key={ac.id} style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:`${ac.color}26`,borderRadius:16,padding:"8px 5px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none",minWidth:0}}>
+                          <p style={{fontSize:18,margin:0}}>{getAcademyTheme(ac.name,kidSkin).icon}</p>
+                          <p style={{fontSize:12,fontWeight:900,margin:"2px 0 0",color:kidSkin==="cute"?GP.boxText:"#fff",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
+                        </div>
+                      ))}
+                    </div>
+                    )}
+                  </div>
+                );
+              })()}
+              {dateNav}
+              {/* 오늘 학원 일정 섹션 */}
+              <div style={{marginTop:2,marginBottom:14}}>
+                {childTodayAc.length===0?(
+                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)",background:kidSkin==="cute"?"#fff":`linear-gradient(160deg, ${dungeonTone(th.main,30)}, ${dungeonTone(th.main,20)})`,borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:`1px dashed rgba(255,255,255,0.18)`}}>
+                    <p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>
+                    <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
+                  </div>
+                ):(
+                  childTodayAc.map(ac=>{
+                    const sc=getScheduleForDay(ac,childTodayDN);
+                    const entry=getDailyEntry(childId,ac.id,childDate);
+                    const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
+                    const shuttleText=getShuttleText(ac,childTodayDN);
+                    const totalTodoCnt=hw.length+todos.length;
+                    const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
+                    const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
+                    const dungeon=getAcademyTheme(ac.name,kidSkin);
+                    // ── 모험 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ──
+                    const dk = kidSkin!=="cute";
+                    // 카드 본체: 테마색을 머금은 다크. 헤더는 학원색을 살린 진한 톤.
+                    const acCardBg = dk ? "linear-gradient(180deg, #2F3650 0%, #262D42 100%)" : "#fff";
+                    const acCardBorder = dk ? `${ac.color}3d` : `2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`;
+                    const acTx = dk ? "#FFFFFF" : C.text;
+                    const acSub = dk ? "rgba(255,255,255,0.66)" : C.sub;
+                    const acInner = dk ? "rgba(255,255,255,0.07)" : CT.faint;        // 내부 강조 박스
+                    const acInnerBorder = dk ? "rgba(255,255,255,0.12)" : C.border;
+                    const acChip = dk ? "rgba(255,255,255,0.08)" : null;             // 준비물 칩 등
+                    return (
+                      <div key={ac.id} style={{borderRadius:dk?26:(ST.on?(GP.radMid||22):22),overflow:"hidden",marginBottom:14,background:acCardBg,border:dk?"1px solid rgba(255,255,255,0.10)":`2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`,boxShadow:dk?"0 14px 32px rgba(0,0,0,0.25)":(ST.on?`0 6px 18px ${GP.boxShadowCol}`:`0 8px 26px ${ac.color}26, 0 2px 6px rgba(0,0,0,0.06)`)}}>
+                        {/* 헤더 - 모험:진한 그라데이션 / 베이커리:부드러운 학원색 파스텔 */}
+                        <div style={{position:"relative",overflow:"hidden",background:ST.on?`linear-gradient(135deg, ${softTint(ac.color,0.50)}, ${softTint(ac.color,0.62)})`:`linear-gradient(135deg, ${mixBlack(ac.color,0.42)}, ${mixBlack(ac.color,0.18)})`,padding:"11px 15px",display:"flex",alignItems:"center",gap:12}}>
+                          {/* 헤더 장식 빛무리/버블 (베이커리 모드에서만) */}
+                          {ST.on&&<>
+                          <div style={{position:"absolute",top:-30,right:-20,width:110,height:110,borderRadius:"50%",background:"rgba(255,255,255,0.45)",pointerEvents:"none"}}/>
+                          <div style={{position:"absolute",bottom:-26,left:30,width:70,height:70,borderRadius:"50%",background:"rgba(255,255,255,0.35)",pointerEvents:"none"}}/>
+                          </>}
+                          <div style={{position:"relative",width:50,height:50,borderRadius:16,background:ST.on?"rgba(255,255,255,0.7)":"rgba(255,255,255,0.22)",border:ST.on?`2px solid rgba(255,255,255,0.85)`:"2px solid rgba(255,255,255,0.45)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,boxShadow:ST.on?"0 3px 9px rgba(150,110,120,0.18)":"0 4px 12px rgba(0,0,0,0.22)"}}>
+                            {dungeon.icon}
+                          </div>
+                          <div style={{flex:1,minWidth:0,position:"relative"}}>
+                            {/* 모험 구조로 통일: 학원명(위) → 라벨(아래) + 남은시간 배지(우측 하단) */}
+                            <p style={{fontSize:dk?17:16,fontWeight:900,margin:0,color:dk?"#fff":GP.boxText,textShadow:dk?"0 1px 3px rgba(0,0,0,0.25)":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.1}}>{ac.name}</p>
+                            <p style={{fontSize:11.5,fontWeight:900,color:dk?"rgba(255,255,255,0.78)":GP.boxSub,margin:"3px 0 0",letterSpacing:1,paddingRight:96,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dungeon.label}</p>
+                            {isChildToday&&(()=>{
+                              const rl=getRemainLabel(sc?.time,sc?.duration||60);
+                              if(!rl) return null;
+                              const tx = dk
+                                ? (rl.tone==="urgent"?"#FFC089":rl.tone==="now"?"#A6F0CF":rl.tone==="soon"?"#FFFFFF":"rgba(255,255,255,0.6)")
+                                : (rl.tone==="urgent"?C.orange:rl.tone==="now"?C.green:rl.tone==="soon"?GP.boxText:GP.boxSub);
+                              return <span style={{position:"absolute",right:0,bottom:0,fontSize:10.5,fontWeight:900,color:tx,background:dk?mixBlack(ac.color,0.62):"rgba(255,255,255,0.9)",border:dk?`1px solid ${mixBlack(ac.color,0.35)}`:`1px solid ${ac.color}33`,borderRadius:999,padding:dk?"3px 9px":"5px 10px",whiteSpace:"nowrap",lineHeight:1.2,boxShadow:dk?"0 2px 6px rgba(0,0,0,0.3)":`0 2px 6px ${ac.color}22`}}>{rl.icon} {rl.text}</span>;
+                            })()}
+                          </div>
+                        </div>
+                        {/* 상세 정보 */}
+                        <div style={{padding:"15px 16px 16px",background:dk?"linear-gradient(180deg, rgba(27,33,52,0.96), rgba(35,42,62,0.96))":"transparent"}}>
+                        {/* 시간 (모험 구조로 통일: 시작 시각만 / 남은시간은 헤더 배지로) */}
+                        <p style={{fontSize:16,fontWeight:900,color:acTx,margin:"0 0 12px"}}>🕓 {toKoreanTime(sc?.time)} 시작</p>
+                        {shuttleText&&<p style={{fontSize:13,color:acSub,margin:"0 0 8px"}}>🚌 셔틀 · {shuttleText}</p>}
+                        {/* 준비물 (모험 구조로 통일: ✅/⬜ 토글 버튼으로 챙김 여부 체크) */}
+                        <div style={{marginTop:8,display:"flex",alignItems:"baseline",flexWrap:"wrap",gap:"6px 8px"}}>
+                          <p style={{fontSize:15,fontWeight:800,color:dk?"rgba(255,255,255,0.82)":acSub,margin:0,flexShrink:0}}>🎒 준비물</p>
+                          <div style={{display:"flex",flexWrap:"wrap",gap:6,flex:1,minWidth:0}}>
+                            {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=>{
+                              const checked=(entry.checkedSupplies||[]).includes(s);
+                              return <button key={`b${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,s)} style={{fontSize:13,padding:"5px 12px",borderRadius:999,cursor:"pointer",background:checked?(dk?`${ac.color}33`:softTint(ac.color,0.62)):(dk?"rgba(255,255,255,0.06)":`${ac.color}14`),border:checked?`1px solid ${dk?ac.color+"aa":ac.color+"88"}`:`1px solid ${dk?"rgba(255,255,255,0.1)":ac.color+"33"}`,color:checked?(dk?softTint(ac.color,0.78):GP.boxText):(dk?"rgba(255,255,255,0.92)":GP.boxText),fontWeight:800,transition:"all .15s"}}><span style={{fontSize:11,marginRight:1}}>{checked?"✅":"⬜"}</span> {s}</button>;
+                            })}
+                            {sup.map((s,i)=>{
+                              const key="+"+s; const checked=(entry.checkedSupplies||[]).includes(key);
+                              return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={{fontSize:13,padding:"5px 12px",borderRadius:999,cursor:"pointer",background:checked?(dk?`${ac.color}33`:softTint(ac.color,0.62)):(dk?`${C.orange}1f`:`${C.orange}14`),border:checked?`1px solid ${dk?ac.color+"aa":ac.color+"88"}`:`1px solid ${C.orange}33`,color:checked?(dk?softTint(ac.color,0.78):GP.boxText):(dk?"#FFD9A8":C.orange),fontWeight:800,transition:"all .15s"}}><span style={{fontSize:11,marginRight:1}}>{checked?"✅":"⬜"}</span> +{s}</button>;
+                            })}
+                            {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:13,color:acSub}}>없음</span>}
+                          </div>
+                        </div>
+                        {/* 미션 요약 */}
+                        <div style={{marginTop:16}}>
+                          {(()=>{
+                            const cellFilled=(i)=> dk ? i<doneCnt : i>=totalTodoCnt-doneCnt;
+                            const cellMark=(i)=>{const on=cellFilled(i);return <span key={i} style={{color:on?(dk?mixBlack(ac.color,0.1):ac.color):(dk?"rgba(255,255,255,0.26)":ac.color+"4d"),fontWeight:900}}>{on?(dk?"■":"●"):(dk?"□":"○")}</span>;};
+                            const cntText=<span style={{fontSize:13,fontWeight:900,color:allDone?(dk?"rgba(255,255,255,0.8)":C.green):(dk?"#FFB072":C.orange),whiteSpace:"nowrap"}}>{totalTodoCnt===0?"":allDone?"🎉 클리어!":`${doneCnt}/${totalTodoCnt}`}</span>;
+                            // 미션 6개 이상이면 칸을 라벨 아래로 펼쳐 두 줄까지 wrap
+                            const stacked=totalTodoCnt>=6;
+                            return (
+                              <div style={{background:dk?"rgba(255,255,255,0.045)":acInner,border:`1px solid ${dk?"rgba(255,255,255,0.10)":acInnerBorder}`,borderRadius:16,padding:"12px 15px"}}>
+                                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginBottom:stacked&&totalTodoCnt>0?9:0}}>
+                                  <p style={{fontSize:13,fontWeight:900,color:dk?"rgba(255,255,255,0.8)":acSub,margin:0}}>{T.remainMission}</p>
+                                  {totalTodoCnt===0?<span style={{fontSize:13,fontWeight:900,color:acSub}}>미션 없음</span>
+                                    :stacked?cntText
+                                    :<div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+                                       <div style={{display:"flex",gap:4,fontSize:15,lineHeight:1}}>{Array.from({length:totalTodoCnt}).map((_,i)=>cellMark(i))}</div>
+                                       {cntText}
+                                     </div>}
+                                </div>
+                                {stacked&&totalTodoCnt>0&&(
+                                  <div style={{display:"flex",flexWrap:"wrap",gap:5,fontSize:15,lineHeight:1.4}}>
+                                    {Array.from({length:totalTodoCnt}).map((_,i)=>cellMark(i))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                        </div>{/* 상세 정보 end */}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </>
+          )}
+
           {/* ── 오늘 탭 ── */}
           {childTab==="today"&&(
             <>
@@ -4809,8 +5253,8 @@ export default function App() {
                 const ready=q.total-q.done-q.failed;
                 return (
                   <div style={kidSkin==="cute"
-                    ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
-                    :{position:"relative",overflow:"hidden",background:dungeonShinyBg,border:`1px solid ${th.main}55`,borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 10px 30px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.08)`,boxSizing:"border-box",display:"flex",flexDirection:"column"}}>
+                    ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
+                    :{position:"relative",overflow:"hidden",background:dungeonShinyBg,border:`1px solid ${th.main}55`,borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 10px 30px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.08)`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
                     <DungeonCardGlow/>
                     {/* 젤리 광택 */}
                     {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
@@ -4829,153 +5273,40 @@ export default function App() {
                       <JellyBar percent={q.percent} height={14} />
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,position:"relative"}}>
-                      <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.78))":GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?"2px solid #fff":"none",boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}30, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>✅</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{q.done}</p>
                         <p style={{fontSize:11,opacity:0.75,margin:0}}>{T.clearShort}</p>
                       </div>
-                      <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.78))":GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?"2px solid #fff":"none",boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}30, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>{T.missionEmoji}</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{ready}</p>
-                        <p style={{fontSize:11,opacity:0.75,margin:0}}>READY</p>
+                        <p style={{fontSize:11,opacity:0.75,margin:0}}>{kidSkin==="cute"?"남음":"READY"}</p>
                       </div>
-                      <div style={{background:kidSkin==="cute"?"linear-gradient(160deg, #ffffff, rgba(255,255,255,0.78))":GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?"2px solid #fff":"none",boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}30, inset 0 1.5px 3px rgba(255,255,255,0.95)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>❌</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{q.failed}</p>
-                        <p style={{fontSize:11,opacity:0.75,margin:0}}>FAILED</p>
+                        <p style={{fontSize:11,opacity:0.75,margin:0}}>{kidSkin==="cute"?"실패":"FAILED"}</p>
                       </div>
                     </div>
                   </div>
                 );
               })()}
 
-              {/* 날짜 이동 (다크 톤 통일) */}
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:GP.boxBg,border:`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"10px 12px",marginBottom:14}}>
-                <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
-                  style={{...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>‹</button>
-                <div style={{textAlign:"center"}}>
-                  <p style={{fontSize:15,fontWeight:900,margin:0,color:GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
-                  {!isChildToday&&<p style={{fontSize:11,color:GP.gold,margin:"2px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
-                </div>
-                <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                  {!isChildToday&&<button onClick={()=>setChildDate(TODAY)}
-                    style={{background:`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:"#fff",borderRadius:10,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
-                  <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()+1);setChildDate(toStr(d));}}
-                    style={{...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>›</button>
-                </div>
-              </div>
-
-              {/* 오늘 학원 일정 섹션 */}
-              <div style={{marginBottom:14}}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:12,padding:"0 4px"}}>
-                  <div>
-                    <p style={{fontSize:12,fontWeight:900,letterSpacing:1.5,color:kidSkin==="cute"?th.main:(GP.themePoint||"#EAF0FF"),margin:"0 0 3px"}}>
-                      {T.areaTag}
-                    </p>
-                    <p style={{fontSize:19,fontWeight:900,margin:0,color:kidSkin==="cute"?C.text:GP.boxText}}>
-                      {isChildToday?T.todayArea:`${childDt.getMonth()+1}/${childDt.getDate()} ${T.dateAreaSuffix}`}
-                    </p>
-                  </div>
-                  <span style={{fontSize:13,fontWeight:900,color:"#fff",background:`linear-gradient(135deg, ${GP.dark2}, ${th.main})`,borderRadius:999,padding:"7px 13px",whiteSpace:"nowrap",flexShrink:0,boxShadow:`0 3px 10px ${th.main}44`}}>
-                    {T.areaCountIcon} {childTodayAc.length}곳
-                  </span>
-                </div>
-                {childTodayAc.length===0?(
-                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)",background:kidSkin==="cute"?"#fff":`linear-gradient(160deg, ${dungeonTone(th.main,30)}, ${dungeonTone(th.main,20)})`,borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:`1px dashed rgba(255,255,255,0.18)`}}>
-                    <p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>
-                    <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
-                  </div>
-                ):(
-                  childTodayAc.map(ac=>{
-                    const sc=getScheduleForDay(ac,childTodayDN);
-                    const entry=getDailyEntry(childId,ac.id,childDate);
-                    const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
-                    const shuttleText=getShuttleText(ac,childTodayDN);
-                    const totalTodoCnt=hw.length+todos.length;
-                    const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
-                    const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
-                    const dungeon=getAcademyTheme(ac.name,kidSkin);
-                    // ── 던전 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ──
-                    const dk = kidSkin!=="cute";
-                    // 카드 본체: 테마색을 머금은 다크. 헤더는 학원색을 살린 진한 톤.
-                    const acCardBg = dk ? "linear-gradient(180deg, #2F3650 0%, #262D42 100%)" : "#fff";
-                    const acCardBorder = dk ? `${ac.color}3d` : `2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`;
-                    const acTx = dk ? "#FFFFFF" : C.text;
-                    const acSub = dk ? "rgba(255,255,255,0.66)" : C.sub;
-                    const acInner = dk ? "rgba(255,255,255,0.07)" : CT.faint;        // 내부 강조 박스
-                    const acInnerBorder = dk ? "rgba(255,255,255,0.12)" : C.border;
-                    const acChip = dk ? "rgba(255,255,255,0.08)" : null;             // 준비물 칩 등
-                    return (
-                      <div key={ac.id} style={{borderRadius:dk?26:(ST.on?(GP.radMid||22):22),overflow:"hidden",marginBottom:14,background:acCardBg,border:dk?"1px solid rgba(255,255,255,0.10)":`2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`,boxShadow:dk?"0 14px 32px rgba(0,0,0,0.25)":(ST.on?`0 6px 18px ${GP.boxShadowCol}`:`0 8px 26px ${ac.color}26, 0 2px 6px rgba(0,0,0,0.06)`)}}>
-                        {/* 헤더 - 던전:진한 그라데이션 / 베이커리:부드러운 학원색 파스텔 */}
-                        <div style={{position:"relative",overflow:"hidden",background:ST.on?`linear-gradient(135deg, ${softTint(ac.color,0.50)}, ${softTint(ac.color,0.62)})`:`linear-gradient(135deg, ${mixBlack(ac.color,0.42)}, ${mixBlack(ac.color,0.18)})`,padding:"11px 15px",display:"flex",alignItems:"center",gap:12}}>
-                          {/* 헤더 장식 빛무리/버블 (베이커리 모드에서만) */}
-                          {ST.on&&<>
-                          <div style={{position:"absolute",top:-30,right:-20,width:110,height:110,borderRadius:"50%",background:"rgba(255,255,255,0.45)",pointerEvents:"none"}}/>
-                          <div style={{position:"absolute",bottom:-26,left:30,width:70,height:70,borderRadius:"50%",background:"rgba(255,255,255,0.35)",pointerEvents:"none"}}/>
-                          </>}
-                          <div style={{position:"relative",width:50,height:50,borderRadius:16,background:ST.on?"rgba(255,255,255,0.7)":"rgba(255,255,255,0.22)",border:ST.on?`2px solid rgba(255,255,255,0.85)`:"2px solid rgba(255,255,255,0.45)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,boxShadow:ST.on?"0 3px 9px rgba(150,110,120,0.18)":"0 4px 12px rgba(0,0,0,0.22)"}}>
-                            {dungeon.icon}
-                          </div>
-                          <div style={{flex:1,minWidth:0,position:"relative"}}>
-                            <p style={{fontSize:11,fontWeight:900,color:ST.on?GP.boxSub:"rgba(255,255,255,0.85)",margin:"0 0 3px",letterSpacing:1.2}}>{T.missionEmoji} {dungeon.label}</p>
-                            <p style={{fontSize:18,fontWeight:900,margin:0,color:ST.on?GP.boxText:"#fff",textShadow:ST.on?"none":"0 1px 3px rgba(0,0,0,0.25)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
-                          </div>
-                          {totalTodoCnt>0&&ST.on&&<span style={{position:"relative",fontSize:13,fontWeight:900,color:allDone?(ST.on?ST.color:ac.color):GP.dark,background:allDone&&ST.on?`${ST.color}16`:ST.on?"rgba(255,255,255,0.85)":"rgba(255,255,255,0.95)",border:allDone&&ST.on?`1.5px solid ${ST.color}`:"none",borderRadius:12,padding:"6px 11px",flexShrink:0,boxShadow:allDone&&ST.on?`0 2px 8px ${ST.color}33`:ST.on?`0 2px 8px ${GP.boxShadowCol}`:"0 2px 8px rgba(0,0,0,0.18)"}}>{allDone?(ST.on?`${ST.face} ${ST.ringText}`:"✓ 클리어"):`${doneCnt}/${totalTodoCnt}`}</span>}
-                        </div>
-                        {/* 상세 정보 */}
-                        <div style={{padding:"15px 16px 16px",background:dk?"linear-gradient(180deg, rgba(27,33,52,0.96), rgba(35,42,62,0.96))":"transparent"}}>
-                        <p style={{fontSize:15,fontWeight:800,color:acTx,margin:"0 0 6px"}}>⏰ {sc?.time} / {sc?.duration}분 수업</p>
-                        {shuttleText&&<p style={{fontSize:13,color:acSub,margin:"0 0 8px"}}>🚌 {shuttleText}</p>}
-                        {/* 준비물 */}
-                        <div style={{marginTop:8,display:"flex",alignItems:"baseline",flexWrap:"wrap",gap:"6px 8px"}}>
-                          <p style={{fontSize:15,fontWeight:800,color:acSub,margin:0,flexShrink:0}}>🎒 준비물</p>
-                          <div style={{display:"flex",flexWrap:"wrap",gap:6,flex:1,minWidth:0}}>
-                            {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"5px 13px",borderRadius:999,background:dk?acChip:(ST.on?softTint(ac.color,0.72):`${ac.color}18`),border:dk?"1px solid rgba(255,255,255,0.08)":"none",color:dk?"rgba(255,255,255,0.82)":(ST.on?GP.boxText:ac.color),fontWeight:dk?800:700}}>{s}</span>)}
-                            {sup.map((s,i)=><span key={`s${i}`} style={{fontSize:13,padding:"5px 13px",borderRadius:999,background:dk?`${C.orange}22`:(ST.on?softTint(C.orange,0.72):`${C.orange}18`),border:dk?`1px solid ${C.orange}30`:"none",color:dk?"#FFD9A8":(ST.on?GP.boxText:C.orange),fontWeight:dk?800:700}}>+ {s}</span>)}
-                            {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:13,color:acSub}}>없음</span>}
-                          </div>
-                        </div>
-                        {/* 미션 요약 */}
-                        <div style={{marginTop:16}}>
-                          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,background:dk?"rgba(255,255,255,0.045)":acInner,border:`1px solid ${dk?"rgba(255,255,255,0.10)":acInnerBorder}`,borderRadius:16,padding:dk?"12px 15px":"7px 12px"}}>
-                            <div style={{minWidth:0}}>
-                              <p style={{fontSize:13,fontWeight:900,color:dk?"rgba(255,255,255,0.8)":acSub,margin:0}}>{T.remainMission}</p>
-                            </div>
-                            {totalTodoCnt===0?(
-                              <span style={{fontSize:13,fontWeight:900,color:acSub,background:dk?"rgba(255,255,255,0.08)":"#fff",border:`1px solid ${dk?"rgba(255,255,255,0.1)":acInnerBorder}`,borderRadius:999,padding:"6px 12px",whiteSpace:"nowrap",flexShrink:0}}>
-                                0 / 0
-                              </span>
-                            ):allDone?(
-                              <span style={{fontSize:13,fontWeight:900,color:C.green,background:`${C.green}14`,border:`1px solid ${C.green}35`,borderRadius:999,padding:"6px 13px",whiteSpace:"nowrap",flexShrink:0}}>
-                                🎉 클리어!
-                              </span>
-                            ):(
-                              <span style={{fontSize:13,fontWeight:900,color:dk?"#FFB072":C.orange,background:dk?"rgba(255,156,84,0.12)":`${C.orange}14`,border:`1px solid ${dk?"rgba(255,156,84,0.25)":`${C.orange}35`}`,borderRadius:999,padding:"6px 13px",whiteSpace:"nowrap",flexShrink:0}}>
-                                미완료 {totalTodoCnt-doneCnt} / 전체 {totalTodoCnt}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        </div>{/* 상세 정보 end */}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+              {dateNav}
 
               {/* 미션 전체 카드 - 항상 오늘 기준 */}
               {(()=>{
                 const allTodayTodos=getChildQuestBoardItems(childId,childDate);
                 if(allTodayTodos.length===0) return (
-                  <div style={{padding:"30px 16px",textAlign:"center",marginBottom:14,borderRadius:22,background:kidSkin==="cute"?"#fff":`linear-gradient(160deg, ${dungeonTone(th.main,30)}, ${dungeonTone(th.main,20)})`,border:kidSkin==="cute"?`1px dashed ${C.border}`:`1px dashed rgba(255,255,255,0.18)`}}>
+                  <div style={{padding:"30px 16px",textAlign:"center",marginTop:2,marginBottom:14,borderRadius:22,background:kidSkin==="cute"?"#fff":`linear-gradient(160deg, ${dungeonTone(th.main,30)}, ${dungeonTone(th.main,20)})`,border:kidSkin==="cute"?`1px dashed ${C.border}`:`1px dashed rgba(255,255,255,0.18)`}}>
                     <p style={{fontSize:42,margin:"0 0 8px",animation:"wiggle 2.4s ease-in-out infinite"}}>🗒️</p>
                     <p style={{fontSize:17,fontWeight:900,color:kidSkin==="cute"?C.text:"#fff",margin:"0 0 4px"}}>{T.restDay}</p>
                     <p style={{fontSize:13,fontWeight:700,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)",margin:0}}>푹 쉬어도 좋아요 😌</p>
                   </div>
                 );
                 const q=getTodayQuestProgress(childId,childDate);
-                // 미션 강조박스 색 — 던전:어두운 톤 / 베이커리:맑은 박스
+                // 미션 강조박스 색 — 모험:어두운 톤 / 베이커리:맑은 박스
                 const mD = GP.missionDark;
                 const mBg = mD ? dungeonShinyBg : GP.boxBg;
                 const mTx = mD ? "#fff" : GP.boxText;
@@ -4986,50 +5317,7 @@ export default function App() {
                 const mShadow = mD ? `${mixBlack(th.main,0.4)}55` : GP.boxShadowCol;
                 const mAccent = mD ? GP.gold : GP.dark2;
                 return (
-                  <div style={{marginBottom:14}}>
-                    {/* 게임식 헤더 - 테마 톤 RPG (위 카드들과 자연스럽게 연결) */}
-                    <div style={kidSkin==="cute"
-                      ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.5)}, ${mixWhite(th.main,0.28)})`,borderRadius:32,padding:"17px",marginBottom:12,color:mTx,border:"2px solid #fff",boxShadow:`0 14px 28px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 16px ${th.main}22`,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
-                      :{position:"relative",overflow:"hidden",background:mBg,borderRadius:GP.radCard,padding:"17px",marginBottom:12,color:mTx,border:`1px solid ${mBorder}`,boxShadow:`0 10px 28px ${mShadow}`}}>
-                      {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"32px 32px 50% 50%",pointerEvents:"none"}}/>}
-                      {kidSkin==="cute"
-                        ?<div style={{position:"absolute",top:-30,right:-10,width:120,height:120,borderRadius:"50%",background:`radial-gradient(circle, ${GP.gold}33, transparent 70%)`,pointerEvents:"none"}}/>
-                        :<DungeonCardGlow/>}
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:13,position:"relative"}}>
-                        <div>
-                          <p style={{fontSize:12,margin:0,fontWeight:900,letterSpacing:1.5,color:mAccent}}>{T.missionTag}</p>
-                          <p style={{fontSize:21,fontWeight:900,margin:"3px 0 0",color:mTx}}>{T.todayQuest}</p>
-                        </div>
-                        <div style={{background:kidSkin==="cute"?`radial-gradient(circle at 40% 28%, #fff, ${mixWhite(th.main,0.5)})`:mChip,border:`${kidSkin==="cute"?"2.5px":"1.5px"} solid ${kidSkin==="cute"?"#fff":(mD?GP.gold+"66":GP.chipBorder)}`,borderRadius:kidSkin==="cute"?18:14,padding:"8px 12px",textAlign:"center",boxShadow:kidSkin==="cute"?`0 5px 13px ${th.main}40, inset 0 1.5px 3px rgba(255,255,255,0.9)`:(mD?"0 2px 10px rgba(0,0,0,0.25)":"none")}}>
-                          <p style={{fontSize:19,fontWeight:900,margin:0,color:kidSkin==="cute"?th.main:mAccent}}>{q.percent}%</p>
-                          <p style={{fontSize:10,margin:0,color:mSub,fontWeight:800,letterSpacing:1}}>{T.clearShort}</p>
-                        </div>
-                      </div>
-                      <div style={{marginBottom:9}}>
-                        <JellyBar percent={q.percent} height={13} fallbackTrack={mTrack} fallbackBorder={`1px solid ${mD?"rgba(255,255,255,0.12)":GP.boxBorder}`} />
-                      </div>
-                      <p style={{fontSize:13,fontWeight:800,margin:0,color:mSub,position:"relative"}}>
-                        {T.doneIcon} 완료 {q.done} · {T.failIcon} 실패 {q.failed} · 전체 {q.total}
-                      </p>
-                      {/* ── 응원멘트 (왕관·배경 장착으로 무대 말풍선이 숨겨질 때만 진행바 카드 안에 작게 표시) ── */}
-                      {(()=>{
-                        const cute=kidSkin==="cute";
-                        const sHat=getEquipped(childId,"hat");
-                        const sBg=getEquipped(childId,"bg");
-                        const sSkin=!!getEquipped(childId,"skin")&&isMaxEvolution(childId);
-                        const sShowHat=sHat&&!sSkin;
-                        const sCrown=sShowHat&&!(sHat.weapon&&!cute);
-                        return sCrown||!!sBg||sSkin;
-                      })()&&(()=>{
-                        const cheer=getProgressMessage(q.percent,q.total);
-                        return (
-                          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginTop:11,paddingTop:10,borderTop:`1px solid ${mD?"rgba(255,255,255,0.12)":GP.divider}`,position:"relative"}}>
-                            <span style={{fontSize:14,flexShrink:0,animation:"floatBob 2.8s ease-in-out infinite"}}>📣</span>
-                            <p style={{fontSize:12,fontWeight:800,margin:0,lineHeight:1.35,color:mSub,textAlign:"center"}}>{cheer}</p>
-                          </div>
-                        );
-                      })()}
-                    </div>
+                  <div style={{marginTop:2,marginBottom:14}}>
                     {/* 미션 아이템 목록 */}
                     <div style={{display:"flex",flexDirection:"column",gap:8}}>
                       {allTodayTodos.map((item,idx)=>{
@@ -5044,7 +5332,6 @@ export default function App() {
                                 <span style={{fontSize:20,flexShrink:0}}>{getAcademyTheme(item.academyName,kidSkin).icon}</span>
                                 <p style={{fontSize:14,fontWeight:900,color:C.text,margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                                   {item.academyName}
-                                  {item.carried&&<span style={{fontSize:11,fontWeight:800,color:C.orange,marginLeft:6}}>· {(()=>{const d=parseLocal(item.date);return `${d.getMonth()+1}월${d.getDate()}일`;})()}</span>}
                                 </p>
                               </div>
                               <span style={{fontSize:11,fontWeight:900,color:item.done?"#7C8398":item.failed?"#8A8A9A":"#fff",background:item.done?"#E6E9F0":item.failed?"#ECEAF3":acCol,border:`1px solid ${item.done?"#D2D7E2":item.failed?"#D8D7E5":"transparent"}`,padding:"5px 12px",borderRadius:999,flexShrink:0,boxShadow:item.done||item.failed?"none":`0 6px 16px ${acCol}40`}}>
@@ -5061,6 +5348,7 @@ export default function App() {
                                 </>)}
                                 <button className="jelly-tap" onClick={()=>{
                                 if(item.failed) return;
+                                if(item.date<TODAY){ setPastQuestBlockModal({label:item.label,date:item.date}); return; }
                                 if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id);
                                 else toggleTodoDone(childId,item.academyId,item.date,item.id);
                               }} style={ST.on&&item.done?{
@@ -5094,6 +5382,7 @@ export default function App() {
                               </div>
                               {!item.done&&(
                                 <button onClick={()=>{
+                                  if(item.date<TODAY){ setPastQuestBlockModal({label:item.label,date:item.date}); return; }
                                   if(item.kind==="homework") failHomeworkQuest(childId,item.academyId,item.date,item.id);
                                   else failTodoQuest(childId,item.academyId,item.date,item.id);
                                 }} style={{border:"none",background:item.failed?`${C.red}16`:`${C.sub}14`,color:item.failed?C.red:C.sub,borderRadius:10,padding:"7px 9px",fontSize:11,fontWeight:900,cursor:"pointer",flexShrink:0}}>
@@ -5266,7 +5555,7 @@ export default function App() {
                               <span style={{position:"absolute",top:8,right:10,fontSize:16,opacity:0.9}}>✨</span>
                             )}
                             <p style={{fontSize:kidSkin==="cute"?28:40,margin:"0 0 5px",filter:kidSkin!=="cute"&&count>0?"drop-shadow(0 0 10px rgba(255,255,255,0.35))":"none"}}>{box.emoji}</p>
-                            <p style={{fontSize:13,fontWeight:900,color:kidSkin==="cute"?(count>0?C.text:C.sub):(count>0?"#fff":"rgba(255,255,255,0.6)"),margin:"0 0 3px"}}>{kidSkin==="cute"?box.name:`${box.name}상자`}</p>
+                            <p style={{fontSize:13,fontWeight:900,color:kidSkin==="cute"?(count>0?C.text:C.sub):(count>0?"#fff":"rgba(255,255,255,0.6)"),margin:"0 0 3px"}}>{box.name}</p>
                             <p style={{fontSize:13,fontWeight:900,color:kidSkin==="cute"?(count>0?box.color:C.sub):(count>0?"#fff":"rgba(255,255,255,0.55)"),margin:"0 0 4px"}}>x {count}</p>
                             {count>0&&<p style={{fontSize:11,fontWeight:900,color:"#fff",background:kidSkin==="cute"?box.color:"rgba(255,255,255,0.18)",border:kidSkin==="cute"?"none":"1px solid rgba(255,255,255,0.25)",borderRadius:20,padding:"2px 8px",display:"inline-block",margin:0}}>열기</p>}
                           </button>
@@ -5348,7 +5637,7 @@ export default function App() {
                       const unlocked=isTitleUnlocked(childId,title.id);
                       const selected=getSelectedTitle(childId).id===title.id;
                       const rarity=TITLE_RARITY[title.rarity||"common"];
-                      // 던전: 어두운 카드 + 등급 테두리/오라 / 베이커리: 밝은 파스텔
+                      // 모험: 어두운 카드 + 등급 테두리/오라 / 베이커리: 밝은 파스텔
                       const cardBg   = dungeon ? (unlocked?rarity.dgrad:"linear-gradient(180deg,#2C3658 0%,#252E4C 100%)") : (unlocked?rarity.grad:CT.faint);
                       const cardBdr  = unlocked?rarity.borderClr:(dungeon?"#3E486B":C.border);
                       const restGlow = dungeon&&unlocked ? rarity.glow : "none";
@@ -5679,6 +5968,34 @@ export default function App() {
         </div>
       )}
 
+      {/* ── 지난 미션 완료 차단 안내 모달 (아이 모드: 날짜 지난 미션은 엄마가 처리) ── */}
+      {pastQuestBlockModal&&(
+        <div style={{...GAME_MODAL_STYLE.overlay}} onClick={()=>setPastQuestBlockModal(null)}>
+          <div style={GAME_MODAL_STYLE.card} onClick={e=>e.stopPropagation()}>
+            <GameModalHeader
+              emoji="⏰"
+              title="날짜가 지났어요"
+              color={`linear-gradient(135deg, ${C.orange}, #FFC36B)`}
+            />
+            <div style={{...GAME_MODAL_STYLE.body,textAlign:"center"}}>
+              <p style={{fontWeight:900,fontSize:16,margin:"0 0 8px",color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                {(()=>{const d=parseLocal(pastQuestBlockModal.date);return `${d.getMonth()+1}월 ${d.getDate()}일`;})()} · {pastQuestBlockModal.label}
+              </p>
+              <p style={{fontSize:14,fontWeight:800,color:C.sub,margin:"0 0 16px",lineHeight:1.5}}>
+                지난 미션은 여기서 완료할 수 없어요.<br/>엄마에게 부탁해서 처리해 달라고 하세요! 🙆
+              </p>
+              <div style={{background:CT.faint,borderRadius:14,padding:"12px 14px",fontSize:13,fontWeight:800,color:C.sub,lineHeight:1.5}}>
+                엄마용 <span style={{color:C.orange,fontWeight:900}}>보상 탭 → 오늘의 미션 → 🕗 지난 미션 보기</span>에서 완료/실패할 수 있어요.
+              </div>
+              <button onClick={()=>setPastQuestBlockModal(null)}
+                style={{marginTop:16,width:"100%",padding:"12px",borderRadius:14,border:"none",background:`linear-gradient(135deg, ${C.orange}, #FFC36B)`,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer"}}>
+                알겠어요
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── 통합 게임 이벤트 모달 ── */}
       {eventModal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.72)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3000,padding:20}}>
@@ -5717,7 +6034,6 @@ export default function App() {
             const cBtn     = cute?"linear-gradient(135deg,#f3a8c0,#f7c6d6)":"linear-gradient(135deg,#caa23a,#1e2547)";
             const cBtnTx   = cute?"#7a4257":"#fff";
             const sealMark = cute?"✿":"★";
-            const orgName  = cute?"하랑 베이커리":"하랑 모험단";
             return (
               <div style={{width:"100%",maxWidth:330,borderRadius:18,overflow:"hidden",background:cFrame,padding:9,animation:"gamePop .5s cubic-bezier(.18,.9,.32,1.2)",position:"relative",boxShadow:"0 25px 90px rgba(0,0,0,.45)"}}>
                 <div style={{position:"relative",borderRadius:10,padding:"30px 26px 26px",textAlign:"center",background:cPaper}}>
@@ -5735,22 +6051,18 @@ export default function App() {
                     <div style={{fontSize:21,fontWeight:900,color:cName,marginBottom:3}}>{eventModal.name}</div>
                     <div style={{fontSize:11,fontWeight:800,color:rar.color,marginBottom:16}}>{rar.icon} {rar.name}</div>
                     <div style={{fontSize:13.5,fontWeight:600,lineHeight:1.75,color:cReason,marginBottom:20,wordBreak:"keep-all",whiteSpace:"pre-line"}}>{eventModal.desc}</div>
-                    {eventModal.reward&&(
-                      <div style={{borderRadius:11,padding:"10px 12px",fontSize:13,fontWeight:900,marginBottom:20,background:cRewardBg,color:cRewardTx,border:`1px solid ${cRewardBd}`}}>
-                        {String(eventModal.reward).split("\n").map((line,i)=>(<div key={i}>{line}</div>))}
-                      </div>
-                    )}
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
-                      <div style={{textAlign:"left"}}>
-                        <div style={{fontSize:9,letterSpacing:2,fontWeight:700,color:cBy,opacity:.85}}>AWARDED BY</div>
-                        <div style={{fontSize:14,fontWeight:900,color:cSign,marginTop:2}}>{orgName}</div>
-                      </div>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:10,marginBottom:kidSkin==="cute"?24:20}}>
                       <div style={{width:50,height:50,borderRadius:"50%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:900,flexShrink:0,transform:"rotate(-12deg)",background:cSealBg,color:cSealTx,boxShadow:cSealSh}}>
                         <span style={{fontSize:17,lineHeight:1}}>{sealMark}</span>수여
                       </div>
                     </div>
+                    {eventModal.reward&&(
+                      <div style={{borderRadius:11,padding:"10px 12px",fontSize:13,fontWeight:900,marginBottom:kidSkin==="cute"?10:20,marginTop:kidSkin==="cute"?6:0,background:cRewardBg,color:cRewardTx,border:`1px solid ${cRewardBd}`}}>
+                        {String(eventModal.reward).split("\n").map((line,i)=>(<div key={i}>{line}</div>))}
+                      </div>
+                    )}
                     <button onClick={()=>setEventModal(null)}
-                      style={{marginTop:18,width:"100%",border:"none",borderRadius:13,padding:13,fontSize:15,fontWeight:900,cursor:"pointer",background:cBtn,color:cBtnTx}}>
+                      style={{marginTop:kidSkin==="cute"&&eventModal.reward?2:18,width:"100%",border:"none",borderRadius:13,padding:13,fontSize:15,fontWeight:900,cursor:"pointer",background:cBtn,color:cBtnTx}}>
                       확인 {eventQueue.length>0?`(${eventQueue.length}개 더)`:""}
                     </button>
                   </div>
@@ -5829,7 +6141,7 @@ export default function App() {
       {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
 
       {showModeSelect&&(
-        <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임으로 변경!":"⚔️ 던전 게임으로 변경!"); }} />
+        <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임으로 변경!":"🧭 모험 게임으로 변경!"); }} />
       )}
 
       {showCoachmark&&(
@@ -5953,7 +6265,7 @@ export default function App() {
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,gap:8}}>
                   <p style={{fontSize:16,fontWeight:900,margin:0,color:mixWhite(th.main,0.1)}}>{getGenderEmoji(curChild)} {curChild?.name}</p>
                   <p style={{fontSize:13,fontWeight:800,margin:0,color:th.main,background:mixWhite(th.main,0.86),border:`1px solid ${th.main}33`,borderRadius:20,padding:"4px 11px",whiteSpace:"nowrap"}}>
-                    {getChildLevel(childId).emoji} Lv.{getChildLevel(childId).level} · {getChildXP(childId)} {TM.xp} · {getChildCoin(childId)} {TM.coinEmoji}
+                    {getChildLevel(childId).emoji} Lv.{getChildLevel(childId).level}
                   </p>
                 </div>
 
@@ -6529,7 +6841,7 @@ export default function App() {
           <div>
             {/* 오늘의 미션 카드 */}
             {(()=>{
-              const rewardTodayTodos=getQuestItemsForDate(childId,TODAY);
+              const rewardTodayTodos=getChildQuestBoardItems(childId,TODAY);
               const doneCnt=rewardTodayTodos.filter(i=>i.done).length;
               const allDone=rewardTodayTodos.length>0&&doneCnt===rewardTodayTodos.length;
               return (
@@ -6550,6 +6862,16 @@ export default function App() {
                         style={{width:"100%",padding:"9px 10px",borderRadius:10,border:`1px dashed ${th.main}50`,background:`${th.main}08`,color:th.main,fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10}}>
                         ✏️ 미션 수정
                       </button>
+                      {(()=>{
+                        const pastCnt=getPastQuestCandidates(childId,TODAY).length;
+                        return (
+                          <button onClick={()=>setShowPastMissionModal(TODAY)}
+                            style={{width:"100%",padding:"9px 10px",borderRadius:10,border:`1px dashed ${C.orange}55`,background:`${C.orange}0D`,color:C.orange,fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                            <span>🕗 지난 미션 보기</span>
+                            {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
+                          </button>
+                        );
+                      })()}
                       {rewardTodayTodos.length===0?(
                         <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
                           <p style={{fontSize:24,margin:0}}>🌿</p>
@@ -7372,6 +7694,57 @@ export default function App() {
         </div>
       )}
 
+      {/* ── 지난 미션 보기 모달 (엄마용: 못한 지난 미션 확인 + 체크/실패로 마감) ── */}
+      {showPastMissionModal&&(()=>{
+        const date=showPastMissionModal;
+        const cands=getPastQuestCandidates(childId,date)
+          .slice()
+          .sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:0); // 최근 날짜 먼저
+        return (
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowPastMissionModal(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 18px 44px",width:"100%",maxWidth:430,boxSizing:"border-box",maxHeight:"82vh",overflowY:"auto"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🕗 지난 미션 보기</h3>
+              <button onClick={()=>setShowPastMissionModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+            </div>
+            <p style={{fontSize:13,color:C.sub,fontWeight:600,margin:"0 0 14px"}}>아직 안 한 지난 미션이에요. 원래 날짜 기준으로 <b>완료(✓)</b> 또는 <b>실패</b>로 마감할 수 있어요.</p>
+            {cands.length===0?(
+              <div style={{textAlign:"center",padding:"28px 10px",color:C.sub}}>
+                <p style={{fontSize:32,margin:0}}>🎉</p>
+                <p style={{fontSize:14,fontWeight:800,margin:"8px 0 0",color:C.text}}>밀린 지난 미션이 없어요</p>
+                <p style={{fontSize:12,margin:"4px 0 0"}}>모두 끝냈거나 처리됐어요</p>
+              </div>
+            ):(
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {cands.map(item=>{
+                  const d=parseLocal(item.date);
+                  const dateLabel=`${d.getMonth()+1}월 ${d.getDate()}일`;
+                  return (
+                    <div key={carriedKeyOf(childId,item)} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 13px",borderRadius:14,border:`1.5px solid ${C.border}`,background:CT.faint}}>
+                      <div style={{flex:1,minWidth:0}}>
+                        <p style={{fontSize:14,fontWeight:900,margin:0,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</p>
+                        <p style={{fontSize:11.5,color:C.sub,margin:"2px 0 0",fontWeight:700}}>{item.academyName} · <span style={{color:C.orange,fontWeight:800}}>{dateLabel}</span></p>
+                      </div>
+                      <button onClick={()=>{
+                        if(item.kind==="homework") failHomeworkQuest(childId,item.academyId,item.date,item.id);
+                        else failTodoQuest(childId,item.academyId,item.date,item.id);
+                      }} style={{flexShrink:0,padding:"7px 13px",borderRadius:20,border:`1px solid ${C.red}40`,background:`${C.red}0C`,color:C.red,fontSize:12.5,fontWeight:900,cursor:"pointer"}}
+                        title="실패 처리">실패</button>
+                      <button onClick={()=>{
+                        if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id);
+                        else toggleTodoDone(childId,item.academyId,item.date,item.id);
+                      }} style={{flexShrink:0,padding:"7px 13px",borderRadius:20,border:`1px solid ${C.green}`,background:"transparent",color:C.green,fontSize:12.5,fontWeight:900,cursor:"pointer"}}
+                        title="완료 처리">완료</button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+        );
+      })()}
+
       {/* ── 보상 추가 모달 ── */}
       {showRewardModal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowRewardModal(false)}>
@@ -7732,7 +8105,7 @@ export default function App() {
                 {(newAc.schedules||[]).length===0&&<p style={{fontSize:13,color:C.sub,margin:0,textAlign:"center"}}>위에서 요일을 먼저 선택해주세요</p>}
               </div>
             )}
-            <button type="button" onClick={()=>setShowAcMore(v=>!v)} style={{width:"100%",padding:"12px",borderRadius:14,border:`1.5px dashed ${C.border}`,background:CT.faint,color:C.sub,fontSize:13,fontWeight:800,cursor:"pointer",marginBottom:16}}>
+            <button type="button" onClick={()=>setShowAcMore(v=>!v)} style={{width:"100%",padding:"13px",borderRadius:14,border:`1.5px dashed ${th.main}80`,background:mixWhite(th.main,0.80),color:th.main,fontSize:14,fontWeight:900,cursor:"pointer",marginBottom:16}}>
               {showAcMore?"▲ 상세 정보 접기":"▼ 상세 정보 추가 (학원비·준비물·연락처 등)"}
             </button>
             {showAcMore&&(<>
