@@ -1,4 +1,16 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect } from "react";
+
+/* ════════════════════════════════════════════════════════════════════════
+   개발자 도구 플래그
+   ────────────────────────────────────────────────────────────────────────
+   DEV_MODE = true  → 설정에 개발용 치트 패널 노출(XP/코인/상자 무한 지급,
+                      테스트 데이터 생성 등). 개발·디버깅 중에만 켠다.
+   DEV_MODE = false → 치트 패널 숨김 + 치트 함수 진입 차단(이중 방어).
+                      ※ 배포 시 반드시 false 로 둘 것.
+   주의: 정식 "위험구역" 초기화(resetGameData/resetAllAppData)는 사용자 기능이라
+        이 플래그와 무관하게 항상 동작한다.
+   ════════════════════════════════════════════════════════════════════════ */
+const DEV_MODE = true;
 
 /* ════════════════════════════════════════════════════════════════════════
    SECTION 1. 디자인 토큰 (색상/사이즈/그림자 상수)
@@ -537,10 +549,10 @@ const SKINS = {
       // 진행도별 응원 메시지
       progress:{
         rest:"오늘은 쉬어가는 날이야 😴",
-        start:"오늘의 모험을 시작해볼까?",
-        low:"아직 미션이 남아있어!",
-        high:"거의 다 왔어!",
-        done:"오늘 미션 클리어 완료!",
+        start:"오늘도 신나는 모험을 시작해볼까? 🗺️",
+        low:"좋아, 하나씩 해보자! 💪",
+        high:"거의 다 왔어! 조금만 더 힘내! ✨",
+        done:"오늘 미션 전부 클리어! 최고야 ⭐",
       },
       // 활동 기록(모험 기록) 라벨
       logName:"모험 기록",
@@ -687,7 +699,7 @@ const SKINS = {
       progress:{
         rest:"오늘은 쉬는 날이에요 🍪",
         start:"오늘도 달콤하게 시작해볼까요? 🧁",
-        low:"아직 만들 게 남았어요!",
+        low:"좋아요, 하나씩 만들어봐요! 💪",
         high:"거의 다 구웠어요! 🍞",
         done:"오늘 가게 일 끝! 참 잘했어요 🎀",
       },
@@ -1177,8 +1189,61 @@ const DECOR_GROUPS = [
   { key:"petskin", label:"펫",       icon:"🐾", items:DECOR_PET_SKINS, lockUntilMaxPet:true },
   { key:"skin",    label:"캐릭터",   icon:"🦸", items:DECOR_SKINS,     lockUntilMaxEvo:true },
 ];
+/* ── 순수 규칙: 미션 누적 개수에 따른 보물상자 적립 계산 ──────────
+   입력: 현재 아이의 treasure 상태, 이번에 보상 처리할 questKey
+   출력: { next(=갱신된 treasure), earned(=이번에 받은 상자등급|null), nextCount }
+        이미 보상된 questKey면 changed:false로 알려 호출부가 조기 반환하게 한다.
+   적립 규칙(누적 10/30/50의 배수에서 상자 지급)을 한곳에 못박아, 화면 어디서
+   호출하든 동일하게 동작하고 단독 테스트가 가능하다. */
+const TREASURE_MILESTONE = { normal:10, rare:30, legend:50 };
+const computeQuestTreasure = (cur, questKey) => {
+  const base = cur || { completedQuestCount:0, normalBox:0, rareBox:0, legendBox:0, rewardedQuestKeys:[] };
+  const keys = base.rewardedQuestKeys || [];
+  if (!questKey || keys.includes(questKey)) {
+    return { changed:false, next:base, earned:null, nextCount:Number(base.completedQuestCount||0) };
+  }
+  const nextCount = Number(base.completedQuestCount||0) + 1;
+  let earned = null;
+  if (nextCount % TREASURE_MILESTONE.legend === 0) earned = "legend";
+  else if (nextCount % TREASURE_MILESTONE.rare === 0) earned = "rare";
+  else if (nextCount % TREASURE_MILESTONE.normal === 0) earned = "normal";
+  const next = {
+    ...base,
+    completedQuestCount: nextCount,
+    normalBox: Number(base.normalBox||0) + (earned==="normal"?1:0),
+    rareBox:   Number(base.rareBox||0)   + (earned==="rare"?1:0),
+    legendBox: Number(base.legendBox||0) + (earned==="legend"?1:0),
+    rewardedQuestKeys: [...keys, questKey],
+  };
+  return { changed:true, next, earned, nextCount };
+};
+
 const ALL_DECOR = [...DECOR_HATS, ...DECOR_BORDERS, ...DECOR_BGS, ...BAKERY_BGS, ...DECOR_SKINS, ...DECOR_PET_SKINS];
 const getDecorById = (id) => ALL_DECOR.find(d=>d.id===id) || null;
+
+/* ── 순수 규칙: 데코가 장착될 그룹 키 판정 ──────────────────────────
+   DECOR_GROUPS에 속하면 그 그룹 key, 베이커리 전용 배경(BAKERY_BGS)은 "bg"로 간주.
+   App 상태와 무관한 순수 함수라 단독 테스트·재사용 가능. */
+const getDecorGroupKey = (decorId) => {
+  const grp = DECOR_GROUPS.find(g=>g.items.some(it=>it.id===decorId));
+  if (grp) return grp.key;
+  if (BAKERY_BGS.some(b=>b.id===decorId)) return "bg";
+  return null;
+};
+
+/* ── 순수 규칙: 데코 구매 결과 계산 ────────────────────────────────
+   입력: 현재 보유목록/장착맵(해당 아이분), 살 데코id
+   출력: 다음 보유목록, 다음 장착맵, 장착된 그룹키
+   코인 차감·토스트 같은 부수효과는 호출부(App)가 담당. 여기선 "무엇이 어떻게
+   바뀌는가"라는 규칙만 한곳에 모은다. */
+const computeDecorPurchase = (ownedList = [], equippedMap = {}, decorId) => {
+  const nextOwned = [...ownedList, decorId];
+  const groupKey = getDecorGroupKey(decorId);
+  const nextEquipped = groupKey
+    ? { ...equippedMap, [groupKey]: decorId }   // 구매 즉시 자동 장착
+    : equippedMap;
+  return { nextOwned, nextEquipped, groupKey };
+};
 // 스킨에 맞춰 이름/이모지/장식 치환한 데코 객체 반환
 const decorView = (d, skin) => {
   if(!d) return d;
@@ -1321,7 +1386,7 @@ const buildSampleData = (seq=1, cid="child_1") => {
         name:p.name,
         days:["월","화","수","목","금","토","일"],
         time:p.time,
-        duration:60,
+        duration:40,
         color:p.color,
         teacher:p.teacher,
         phone:"010-1234-5678",
@@ -1354,7 +1419,7 @@ const SAMPLE_TMPL = [
 ];
 
 const EMPTY_AC = {
-  name:"", days:[], time:"15:00", duration:60,
+  name:"", days:[], time:"15:00", duration:40,
   useCustomSchedule:false, schedules:[],
   shuttleInfo:"", useCustomShuttle:false, shuttleSchedules:[],
   fee:0, payDay:1, color:"#FF6B6B",
@@ -1369,14 +1434,14 @@ const hasClassOnDay = (academy, day) => {
 };
 const getScheduleForDay = (academy, day) => {
   if (academy.useCustomSchedule) return (academy.schedules||[]).find(s=>s.day===day);
-  if ((academy.days||[]).includes(day)) return {day, time:academy.time||"", duration:academy.duration||60};
+  if ((academy.days||[]).includes(day)) return {day, time:academy.time||"", duration:academy.duration||40};
   return null;
 };
 const getClassTime = (academy, day) => getScheduleForDay(academy, day)?.time || "";
 const getClassDuration = (academy, day) => getScheduleForDay(academy, day)?.duration || 0;
 const getSchedules = (academy) => {
   if (academy.useCustomSchedule && (academy.schedules||[]).length>0) return academy.schedules;
-  return (academy.days||[]).map(day=>({day, time:academy.time||"", duration:academy.duration||60}));
+  return (academy.days||[]).map(day=>({day, time:academy.time||"", duration:academy.duration||40}));
 };
 
 // ── 셔틀 헬퍼 ──────────────────────────────
@@ -1400,7 +1465,7 @@ const getRemainInfo = (timeStr) => {
   const nowMin = now.getHours() * 60 + now.getMinutes();
   return { diff: startMin - nowMin, startMin, nowMin };
 };
-const getRemainLabel = (timeStr, duration=60) => {
+const getRemainLabel = (timeStr, duration=40) => {
   const info = getRemainInfo(timeStr);
   if (!info) return null;
   const { diff, nowMin, startMin } = info;
@@ -1480,7 +1545,7 @@ function KidCoachmark({ th, onFinish, skin="dungeon" }){
   const last=i===cards.length-1;
   const c=cards[i];
   return (
-    <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.8)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px"}}>
+    <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.8)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px",wordBreak:"keep-all"}}>
       <div style={{background:"#fff",borderRadius:26,padding:"32px 24px 24px",width:"100%",maxWidth:340,minHeight:380,boxSizing:"border-box",textAlign:"center",boxShadow:"0 24px 70px rgba(0,0,0,0.32)",display:"flex",flexDirection:"column"}}>
         <div style={{height:74,display:"flex",alignItems:"center",justifyContent:"center",fontSize:c.emoji.length>3?46:64,letterSpacing:4,marginBottom:14}}>{c.emoji}</div>
         <div style={{height:34,display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -1508,7 +1573,7 @@ function KidCoachmark({ th, onFinish, skin="dungeon" }){
 
 function ModeSelect({ onPick }){
   const dgSel=SKINS.dungeon, ckSel=SKINS.cute;
-  const wrap={position:"fixed",inset:0,zIndex:9998,background:"linear-gradient(160deg,#F3EEF7,#FBF1F3)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px"};
+  const wrap={position:"fixed",inset:0,zIndex:9998,background:"linear-gradient(160deg,#F3EEF7,#FBF1F3)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px",wordBreak:"keep-all"};
   const panel={width:"100%",maxWidth:360,background:"linear-gradient(170deg,#FBF8FC,#F7EFF4)",borderRadius:30,padding:"30px 18px 30px",boxSizing:"border-box",boxShadow:"0 18px 50px rgba(60,52,90,0.2)"};
   const pill={fontSize:13,fontWeight:800,color:"#9A8FA8",background:"#fff",padding:"6px 16px",borderRadius:999,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"};
   const card=(bg,shadow)=>({flex:1,minWidth:0,borderRadius:24,padding:"20px 14px 18px",cursor:"pointer",background:bg,boxShadow:shadow,display:"flex",flexDirection:"column",border:"3px solid transparent"});
@@ -1526,8 +1591,8 @@ function ModeSelect({ onPick }){
           <div style={card("linear-gradient(155deg,#3A3470,#2E2F5C)","0 10px 24px rgba(58,52,112,0.32)")} onClick={()=>onPick("dungeon")}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#FFD166",marginBottom:6}}>1번</div>
             <div style={{fontSize:40,lineHeight:1,marginBottom:8}}>🧭</div>
-            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>모험 게임</div>
-            <div style={{fontSize:12.5,fontWeight:600,color:"#C5C8E8",marginTop:9,lineHeight:1.5,flex:1}}>탐험가가 되어 모험을 떠나요!</div>
+            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>모험<br/>게임</div>
+            <div style={{fontSize:12.5,fontWeight:600,color:"#C5C8E8",marginTop:9,lineHeight:1.5,flex:1}}>탐험가가 되어<br/>모험을 떠나요</div>
             <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:14}}>
               <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>🧭 미션</span>
               <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>🗺️ 모험 떠나기</span>
@@ -1537,8 +1602,8 @@ function ModeSelect({ onPick }){
           <div style={card("linear-gradient(155deg,#E85A77,#D6455A)","0 10px 24px rgba(214,69,90,0.32)")} onClick={()=>onPick("cute")}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#FFE3EC",marginBottom:6}}>2번</div>
             <div style={{fontSize:40,lineHeight:1,marginBottom:8}}>🧁</div>
-            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>베이커리 게임</div>
-            <div style={{fontSize:12.5,fontWeight:600,color:"#FFE3EC",marginTop:9,lineHeight:1.5,flex:1}}>달콤한 가게에서<br/>도장을 모아요!</div>
+            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>베이커리<br/>게임</div>
+            <div style={{fontSize:12.5,fontWeight:600,color:"#FFE3EC",marginTop:9,lineHeight:1.5,flex:1}}>달콤한 가게에서<br/>도장을 모아요</div>
             <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:14}}>
               <span style={chip("rgba(255,255,255,0.22)","#FFFFFF")}>🎀 오늘 할 일</span>
               <span style={chip("rgba(255,255,255,0.22)","#FFFFFF")}>⭐ 도장 꾹</span>
@@ -1566,7 +1631,7 @@ function CoachmarkOverlay({ th, onFinish }){
   const last=i===items.length-1;
   const it=items[i];
   return (
-    <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.78)",display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:"24px"}}>
+    <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.78)",display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:"24px",wordBreak:"keep-all"}}>
       <div style={{textAlign:"center",marginBottom:"auto",marginTop:"22vh"}}>
         <p style={{color:"rgba(255,255,255,0.85)",fontSize:14,fontWeight:700,margin:0}}>화면 아래 탭을 눌러 이동해요</p>
         <p style={{color:"#fff",fontSize:22,fontWeight:900,margin:"8px 0 0"}}>{i+1} / {items.length}</p>
@@ -1615,17 +1680,18 @@ function OnboardingFlow({ onFinish }){
     { kind:"welcome" },
     { kind:"input", title:"아이의 이름이 무엇인가요?", sub:"아이 화면과 미션에 표시돼요.", canNext:()=>childName.trim().length>0 },
     { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>acName.trim().length>0 },
-    { kind:"homework", title:"오늘의 숙제가 있나요?", sub:"없으면 건너뛰어도 돼요.", canNext:()=>true },
-    { kind:"todo", title:"오늘의 미션(할 일)이 있나요?", sub:"숙제 외에 스스로 할 일이 있다면 적어주세요.", canNext:()=>true },
+    { kind:"homework", title:"오늘의 숙제가 있나요?", sub:"하나만 적어볼게요. 나중에 자유롭게 바꿀 수 있어요.", canNext:()=>homework.trim().length>0 },
+    { kind:"todo", title:"오늘의 미션(할 일)이 있나요?", sub:"숙제 외에 스스로 할 일을 하나 적어주세요.", canNext:()=>todo.trim().length>0 },
   ];
   const cur=steps[step];
   const isLast=step===steps.length-1;
 
   const next=()=>{ if(isLast){ finish(); } else setStep(s=>s+1); };
+  const prev=()=>setStep(s=>Math.max(0,s-1));
   const finish=()=>onFinish({ childName, gender, acName, acDays, acTime, homework, todo });
 
   return (
-    <div style={{position:"fixed",inset:0,zIndex:9999,background:"#fff",display:"flex",flexDirection:"column"}}>
+    <div style={{position:"fixed",inset:0,zIndex:9999,background:"#fff",display:"flex",flexDirection:"column",wordBreak:"keep-all"}}>
       {cur.kind!=="welcome"&&(
         <div style={{padding:"16px 22px 0"}}>
           <div style={{height:5,borderRadius:99,background:"#EEF1F6",overflow:"hidden"}}>
@@ -1655,7 +1721,7 @@ function OnboardingFlow({ onFinish }){
           <div>
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
-            <input autoFocus value={childName} onChange={e=>setChildName(e.target.value)} placeholder="예: 하랑" style={inp}
+            <input autoFocus value={childName} onChange={e=>setChildName(e.target.value)} placeholder="예: 연우" style={inp}
               onKeyDown={e=>e.key==="Enter"&&cur.canNext()&&next()}/>
             <div style={{display:"flex",gap:10,marginTop:16}}>
               {[{k:"boy",t:"👦 남자아이"},{k:"girl",t:"👧 여자아이"}].map(g=>(
@@ -1701,8 +1767,8 @@ function OnboardingFlow({ onFinish }){
       </div>
 
       <div style={{padding:"16px 24px 28px",display:"flex",gap:10}}>
-        {(cur.kind==="homework"||cur.kind==="todo")&&(
-          <button onClick={next} style={{flex:1,padding:16,borderRadius:14,border:"1.5px solid #E3E8F0",background:"#fff",color:"#8890B0",fontSize:16,fontWeight:800,cursor:"pointer"}}>없음</button>
+        {step>0&&(
+          <button onClick={prev} style={{flex:1,padding:16,borderRadius:14,border:"1.5px solid #E3E8F0",background:"#fff",color:"#8890B0",fontSize:16,fontWeight:800,cursor:"pointer"}}>← 뒤로</button>
         )}
         <button onClick={next} disabled={cur.canNext&&!cur.canNext()}
           style={{flex:2,padding:16,borderRadius:14,border:"none",background:(cur.canNext&&!cur.canNext())?"#C8D0DE":TH.grad,color:"#fff",fontSize:16,fontWeight:900,cursor:(cur.canNext&&!cur.canNext())?"default":"pointer",boxShadow:(cur.canNext&&!cur.canNext())?"none":`0 6px 18px ${TH.main}40`}}>
@@ -1837,35 +1903,21 @@ function GuideModal({type="guide",th,onClose,skin="dungeon"}){
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   SECTION 10. STATE LAYER (도메인별 useReducer)
+   SECTION 10. STATE LAYER (도메인별 초기값)
 
-   목적: App() 안에 흩어진 useState 127개를 9개 도메인 reducer로 묶어 정돈한다.
+   목적: App()의 useState 초기값을 도메인별 객체(initX)로 묶어 한곳에서 관리한다.
+         각 필드는 App 안에서 useState(initX.field) 형태로 개별 상태가 된다.
    원칙:
      - 저장 키(v6_*)·백업 포맷은 절대 바꾸지 않는다 (기존 데이터 호환).
-     - 도메인을 하나씩 점진 이행한다. 아직 미이행 도메인은 App 내부 useState 유지.
-     - reducer 액션은 { type, ... } 형태. payload는 평평하게 둔다.
+     - 초기값만 여기 모으고, 실제 로드된 값은 App 초기화 effect에서 setXxx로 주입.
 
-   이행 현황:
-     [x] A. children    [x] B. academy    [x] C. daily
-     [x] D. reward      [x] E. progress   [x] F. sms
-     [x] G. auth        [x] H. onboarding [x] I. ui
+   설계 메모: 과거 9개 useReducer로 묶었으나, "한 사건→여러 도메인 변경"
+   핸들러가 소수(8개)뿐이라 reducer의 이점 없이 보일러플레이트만 늘어
+   useState로 환원했다. 복합 게임 로직(보물상자·구매·레벨업 등)은 reducer가
+   아니라 App 밖 순수 함수(applyXxx)로 분리해 일관성·테스트성을 확보한다.
    ════════════════════════════════════════════════════════════════════════ */
 
-// 공용: 부분 갱신용 기본 reducer 생성기.
-// MERGE 액션으로 { ...state, ...payload } 패치, RESET으로 초기값 복원.
-// 도메인별 특수 액션은 각 reducer에서 분기하고, 정의 안 된 type은 MERGE로 폴백.
-const makeDomainReducer = (initial, handlers = {}) => (state, action) => {
-  if (handlers[action.type]) return handlers[action.type](state, action);
-  switch (action.type) {
-    case "MERGE": return { ...state, ...action.payload };
-    case "SET":   return { ...state, [action.key]: action.value };
-    case "RESET": return action.payload ? { ...initial, ...action.payload } : initial;
-    default:      return state;
-  }
-};
-
 // ── 도메인별 초기값 ───────────────────────────────────────────────
-// (실제 로드된 값은 App의 초기화 effect에서 dispatch RESET으로 주입)
 const initChildren = {
   children: DEFAULT_CHILDREN,
   childId: "child_1",
@@ -1960,16 +2012,7 @@ const initUi = {
   toast: "",
 };
 
-// ── 도메인 reducer (특수 액션은 점진적으로 채움) ──────────────────
-const childrenReducer   = makeDomainReducer(initChildren);
-const academyReducer    = makeDomainReducer(initAcademy);
-const dailyReducer      = makeDomainReducer(initDaily);
-const rewardReducer     = makeDomainReducer(initReward);
-const progressReducer   = makeDomainReducer(initProgress);
-const smsReducer        = makeDomainReducer(initSms);
-const authReducer       = makeDomainReducer(initAuth);
-const onboardingReducer = makeDomainReducer(initOnboarding);
-const uiReducer         = makeDomainReducer(initUi);
+
 
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -1984,179 +2027,141 @@ export default function App() {
 
   // 아이 목록 상태
   // 현재 선택된 아이의 스킨 (아이별로 다름). 미설정이면 기본 스킨.
-  // ── 도메인 A: children (useReducer 이행 완료) ──────────────────────
-  // 읽기 참조는 기존 변수명 그대로 유지(구조분해), 쓰기만 dispatch로 래핑.
-  const [chState, chDispatch] = useReducer(childrenReducer, initChildren);
-  const { children, childId, skinByChild, lastLevelByChild, childForm, editingChild, showChildMgr } = chState;
-  // 기존 setXxx 호출부를 그대로 살리기 위한 동일명 래퍼 (함수형 업데이트 지원)
-  const _chSet = (key) => (v) => chDispatch({ type:"SET", key, value: typeof v==="function" ? v(chState[key]) : v });
-  const setChildren        = _chSet("children");
-  const setChildId         = _chSet("childId");
-  const setSkinByChild     = _chSet("skinByChild");
-  const setLastLevelByChild= _chSet("lastLevelByChild");
-  const setChildForm       = _chSet("childForm");
-  const setEditingChild    = _chSet("editingChild");
-  const setShowChildMgr    = _chSet("showChildMgr");
+  // ── 도메인 A: children (아이 목록/선택/스킨/폼) ─────────────────────
+  const [children,         setChildren]         = useState(initChildren.children);
+  const [childId,          setChildId]          = useState(initChildren.childId);
+  const [skinByChild,      setSkinByChild]      = useState(initChildren.skinByChild);
+  const [lastLevelByChild, setLastLevelByChild] = useState(initChildren.lastLevelByChild);
+  const [childForm,        setChildForm]        = useState(initChildren.childForm);
+  const [editingChild,     setEditingChild]     = useState(initChildren.editingChild);
+  const [showChildMgr,     setShowChildMgr]     = useState(initChildren.showChildMgr);
 
   // ── 도메인 B: academy (학원/결석/결제/휴원/폼) ─────────────────────
-  const [acState, acDispatch] = useReducer(academyReducer, initAcademy);
-  const { academies, absences, paidStatus, vacations, newAc, editTarget,
-          supplyInput, baseHwInput, showAcMore, vacForm, showVacModal } = acState;
-  const _acSet = (key) => (v) => acDispatch({ type:"SET", key, value: typeof v==="function" ? v(acState[key]) : v });
-  const setAcademies   = _acSet("academies");
-  const setAbsences    = _acSet("absences");
-  const setPaidStatus  = _acSet("paidStatus");
-  const setVacations   = _acSet("vacations");
-  const setNewAc       = _acSet("newAc");
-  const setEditTarget  = _acSet("editTarget");
-  const setSupplyInput = _acSet("supplyInput");
-  const setBaseHwInput = _acSet("baseHwInput");
-  const setShowAcMore  = _acSet("showAcMore");
-  const setVacForm     = _acSet("vacForm");
-  const setShowVacModal= _acSet("showVacModal");
+  const [academies,   setAcademies]   = useState(initAcademy.academies);
+  const [absences,    setAbsences]    = useState(initAcademy.absences);
+  const [paidStatus,  setPaidStatus]  = useState(initAcademy.paidStatus);
+  const [vacations,   setVacations]   = useState(initAcademy.vacations);
+  const [newAc,       setNewAc]       = useState(initAcademy.newAc);
+  const [editTarget,  setEditTarget]  = useState(initAcademy.editTarget);
+  const [supplyInput, setSupplyInput] = useState(initAcademy.supplyInput);
+  const [baseHwInput, setBaseHwInput] = useState(initAcademy.baseHwInput);
+  const [showAcMore,  setShowAcMore]  = useState(initAcademy.showAcMore);
+  const [vacForm,     setVacForm]     = useState(initAcademy.vacForm);
+  const [showVacModal,setShowVacModal]= useState(initAcademy.showVacModal);
 
   // ── 도메인 C: daily (일별 숙제/준비물/할일 + 입력) ────────────────
-  const [dlState, dlDispatch] = useReducer(dailyReducer, initDaily);
-  const { dailyData, baseSeededKeys, dailyHwInput, dailySupInput, dailyTodoInput,
-          dailyHwPoint, dailyTodoPoint, showDailyModal, showTodoPickerModal, showPastMissionModal } = dlState;
-  const _dlSet = (key) => (v) => dlDispatch({ type:"SET", key, value: typeof v==="function" ? v(dlState[key]) : v });
-  const setDailyData          = _dlSet("dailyData");
-  const setBaseSeededKeys     = _dlSet("baseSeededKeys");
-  const setDailyHwInput       = _dlSet("dailyHwInput");
-  const setDailySupInput      = _dlSet("dailySupInput");
-  const setDailyTodoInput     = _dlSet("dailyTodoInput");
-  const setDailyHwPoint       = _dlSet("dailyHwPoint");
-  const setDailyTodoPoint     = _dlSet("dailyTodoPoint");
-  const setShowDailyModal     = _dlSet("showDailyModal");
-  const setShowTodoPickerModal= _dlSet("showTodoPickerModal");
-  const setShowPastMissionModal= _dlSet("showPastMissionModal");
+  const [dailyData,           setDailyData]           = useState(initDaily.dailyData);
+  const [baseSeededKeys,      setBaseSeededKeys]      = useState(initDaily.baseSeededKeys);
+  const [dailyHwInput,        setDailyHwInput]        = useState(initDaily.dailyHwInput);
+  const [dailySupInput,       setDailySupInput]       = useState(initDaily.dailySupInput);
+  const [dailyTodoInput,      setDailyTodoInput]      = useState(initDaily.dailyTodoInput);
+  const [dailyHwPoint,        setDailyHwPoint]        = useState(initDaily.dailyHwPoint);
+  const [dailyTodoPoint,      setDailyTodoPoint]      = useState(initDaily.dailyTodoPoint);
+  const [showDailyModal,      setShowDailyModal]      = useState(initDaily.showDailyModal);
+  const [showTodoPickerModal, setShowTodoPickerModal] = useState(initDaily.showTodoPickerModal);
+  const [showPastMissionModal,setShowPastMissionModal]= useState(initDaily.showPastMissionModal);
 
   // ── 도메인 D: reward (점수/보상/구매요청/XP조정) ──────────────────
-  const [rwState, rwDispatch] = useReducer(rewardReducer, initReward);
-  const { scoreData, rewardData, rewardRequests, rewardForm, editingRewardId,
-          showRewardModal, openRewardId, openRewardShop,
-          xpAdjustInput, xpAdjustLabel, xpAdjustSign } = rwState;
-  const _rwSet = (key) => (v) => rwDispatch({ type:"SET", key, value: typeof v==="function" ? v(rwState[key]) : v });
-  const setScoreData      = _rwSet("scoreData");
-  const setRewardData     = _rwSet("rewardData");
-  const setRewardRequests = _rwSet("rewardRequests");
-  const setRewardForm     = _rwSet("rewardForm");
-  const setEditingRewardId= _rwSet("editingRewardId");
-  const setShowRewardModal= _rwSet("showRewardModal");
-  const setOpenRewardId   = _rwSet("openRewardId");
-  const setOpenRewardShop = _rwSet("openRewardShop");
-  const setXpAdjustInput  = _rwSet("xpAdjustInput");
-  const setXpAdjustLabel  = _rwSet("xpAdjustLabel");
-  const setXpAdjustSign   = _rwSet("xpAdjustSign");
+  const [scoreData,      setScoreData]      = useState(initReward.scoreData);
+  const [rewardData,     setRewardData]     = useState(initReward.rewardData);
+  const [rewardRequests, setRewardRequests] = useState(initReward.rewardRequests);
+  const [rewardForm,     setRewardForm]     = useState(initReward.rewardForm);
+  const [editingRewardId,setEditingRewardId]= useState(initReward.editingRewardId);
+  const [showRewardModal,setShowRewardModal]= useState(initReward.showRewardModal);
+  const [openRewardId,   setOpenRewardId]   = useState(initReward.openRewardId);
+  const [openRewardShop, setOpenRewardShop] = useState(initReward.openRewardShop);
+  const [xpAdjustInput,  setXpAdjustInput]  = useState(initReward.xpAdjustInput);
+  const [xpAdjustLabel,  setXpAdjustLabel]  = useState(initReward.xpAdjustLabel);
+  const [xpAdjustSign,   setXpAdjustSign]   = useState(initReward.xpAdjustSign);
 
   // ── 도메인 E: progress (펫/칭호/보물/꾸미기/뱃지/기록) ────────────
-  const [pgState, pgDispatch] = useReducer(progressReducer, initProgress);
-  const { petData, selectedTitles, seenTitles, earnedTitleIds, specialTitles,
-          treasureData, ownedDecor, equippedDecor, decorPrices,
-          unlockedBadgeIds, bestStreakData } = pgState;
-  const _pgSet = (key) => (v) => pgDispatch({ type:"SET", key, value: typeof v==="function" ? v(pgState[key]) : v });
-  const setPetData         = _pgSet("petData");
-  const setSelectedTitles  = _pgSet("selectedTitles");
-  const setSeenTitles      = _pgSet("seenTitles");
-  const setEarnedTitleIds  = _pgSet("earnedTitleIds");
-  const setSpecialTitles   = _pgSet("specialTitles");
-  const setTreasureData    = _pgSet("treasureData");
-  const setOwnedDecor      = _pgSet("ownedDecor");
-  const setEquippedDecor   = _pgSet("equippedDecor");
-  const setDecorPrices     = _pgSet("decorPrices");
-  const setUnlockedBadgeIds= _pgSet("unlockedBadgeIds");
-  const setBestStreakData  = _pgSet("bestStreakData");
+  const [petData,          setPetData]          = useState(initProgress.petData);
+  const [selectedTitles,   setSelectedTitles]   = useState(initProgress.selectedTitles);
+  const [seenTitles,       setSeenTitles]       = useState(initProgress.seenTitles);
+  const [earnedTitleIds,   setEarnedTitleIds]   = useState(initProgress.earnedTitleIds);
+  const [specialTitles,    setSpecialTitles]    = useState(initProgress.specialTitles);
+  const [treasureData,     setTreasureData]     = useState(initProgress.treasureData);
+  const [ownedDecor,       setOwnedDecor]       = useState(initProgress.ownedDecor);
+  const [equippedDecor,    setEquippedDecor]    = useState(initProgress.equippedDecor);
+  const [decorPrices,      setDecorPrices]      = useState(initProgress.decorPrices);
+  const [unlockedBadgeIds, setUnlockedBadgeIds] = useState(initProgress.unlockedBadgeIds);
+  const [bestStreakData,   setBestStreakData]   = useState(initProgress.bestStreakData);
 
   // ── 도메인 F: sms (문자/템플릿) ──────────────────────────────────
-  const [smState, smDispatch] = useReducer(smsReducer, initSms);
-  const { templates, editTmpl, smsDraft, showSmsModal, openSmsManage, showTmplEdit } = smState;
-  const _smSet = (key) => (v) => smDispatch({ type:"SET", key, value: typeof v==="function" ? v(smState[key]) : v });
-  const setTemplates    = _smSet("templates");
-  const setEditTmpl     = _smSet("editTmpl");
-  const setSmsDraft     = _smSet("smsDraft");
-  const setShowSmsModal = _smSet("showSmsModal");
-  const setOpenSmsManage= _smSet("openSmsManage");
-  const setShowTmplEdit = _smSet("showTmplEdit");
+  const [templates,    setTemplates]    = useState(initSms.templates);
+  const [editTmpl,     setEditTmpl]     = useState(initSms.editTmpl);
+  const [smsDraft,     setSmsDraft]     = useState(initSms.smsDraft);
+  const [showSmsModal, setShowSmsModal] = useState(initSms.showSmsModal);
+  const [openSmsManage,setOpenSmsManage]= useState(initSms.openSmsManage);
+  const [showTmplEdit, setShowTmplEdit] = useState(initSms.showTmplEdit);
 
   // ── 도메인 G: auth (부모모드/PIN/프리미엄) ──────────────────────
-  const [auState, auDispatch] = useReducer(authReducer, initAuth);
-  const { appMode, parentPin, pinInput, showParentPin,
-          oldPinInput, newPinInput, newPinConfirm, showPinChangeModal,
-          isPaidPremium, installInfo } = auState;
-  const _auSet = (key) => (v) => auDispatch({ type:"SET", key, value: typeof v==="function" ? v(auState[key]) : v });
-  const setAppMode          = _auSet("appMode");
-  const setParentPin        = _auSet("parentPin");
-  const setPinInput         = _auSet("pinInput");
-  const setShowParentPin    = _auSet("showParentPin");
-  const setOldPinInput      = _auSet("oldPinInput");
-  const setNewPinInput      = _auSet("newPinInput");
-  const setNewPinConfirm    = _auSet("newPinConfirm");
-  const setShowPinChangeModal=_auSet("showPinChangeModal");
-  const setIsPaidPremium    = _auSet("isPaidPremium");
-  const setInstallInfo      = _auSet("installInfo");
+  const [appMode,           setAppMode]           = useState(initAuth.appMode);
+  const [parentPin,         setParentPin]         = useState(initAuth.parentPin);
+  const [pinInput,          setPinInput]          = useState(initAuth.pinInput);
+  const [showParentPin,     setShowParentPin]     = useState(initAuth.showParentPin);
+  const [oldPinInput,       setOldPinInput]       = useState(initAuth.oldPinInput);
+  const [newPinInput,       setNewPinInput]       = useState(initAuth.newPinInput);
+  const [newPinConfirm,     setNewPinConfirm]     = useState(initAuth.newPinConfirm);
+  const [showPinChangeModal,setShowPinChangeModal]= useState(initAuth.showPinChangeModal);
+  const [isPaidPremium,     setIsPaidPremium]     = useState(initAuth.isPaidPremium);
+  const [installInfo,       setInstallInfo]       = useState(initAuth.installInfo);
 
   // ── 도메인 H: onboarding (온보딩/코치마크/1회성 안내) ────────────
-  const [obState, obDispatch] = useReducer(onboardingReducer, initOnboarding);
-  const { showOnboarding, showCoachmark, showKidCoachmark, showModeSelect,
-          firstTipPending, showFirstMissionTip, firstTipSeen,
-          pinHintSeen, showParentRewardGuide, parentRewardGuideSeen } = obState;
-  const _obSet = (key) => (v) => obDispatch({ type:"SET", key, value: typeof v==="function" ? v(obState[key]) : v });
-  const setShowOnboarding        = _obSet("showOnboarding");
-  const setShowCoachmark         = _obSet("showCoachmark");
-  const setShowKidCoachmark      = _obSet("showKidCoachmark");
-  const setShowModeSelect        = _obSet("showModeSelect");
-  const setFirstTipPending       = _obSet("firstTipPending");
-  const setShowFirstMissionTip   = _obSet("showFirstMissionTip");
-  const setFirstTipSeen          = _obSet("firstTipSeen");
-  const setPinHintSeen           = _obSet("pinHintSeen");
-  const setShowParentRewardGuide = _obSet("showParentRewardGuide");
-  const setParentRewardGuideSeen = _obSet("parentRewardGuideSeen");
+  const [showOnboarding,        setShowOnboarding]        = useState(initOnboarding.showOnboarding);
+  const [showCoachmark,         setShowCoachmark]         = useState(initOnboarding.showCoachmark);
+  const [showKidCoachmark,      setShowKidCoachmark]      = useState(initOnboarding.showKidCoachmark);
+  const [showModeSelect,        setShowModeSelect]        = useState(initOnboarding.showModeSelect);
+  const [firstTipPending,       setFirstTipPending]       = useState(initOnboarding.firstTipPending);
+  const [showFirstMissionTip,   setShowFirstMissionTip]   = useState(initOnboarding.showFirstMissionTip);
+  const [firstTipSeen,          setFirstTipSeen]          = useState(initOnboarding.firstTipSeen);
+  // 온보딩 직후 첫 홈 화면에서 '학원 추가' → '미션·준비물 편집' 순서로 1회성 버튼 깜빡임 안내
+  const [pinHintSeen,           setPinHintSeen]           = useState(initOnboarding.pinHintSeen);
+  const [showParentRewardGuide, setShowParentRewardGuide] = useState(initOnboarding.showParentRewardGuide);
+  const [parentRewardGuideSeen, setParentRewardGuideSeen] = useState(initOnboarding.parentRewardGuideSeen);
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
-  const [uiState, uiDispatch] = useReducer(uiReducer, initUi);
-  const { childTab, showChildRewards, showChildXP, showParentXP, showParentTodayQuest, showParentRewardManage, showParentXpAdjust, showParentGrowthManage, showParentRecordManage, openTitle, openTreasure, openPet, openHistory, openStreak, levelUpModal, pastQuestBlockModal, questResultModal, charCheer, treasureModal, openingTreasure, showSettingsModal, showDevTools, showAcademyCopyModal, copySourceChildId, copySelectedAcademyIds, eventModal, eventQueue, childDate, showDecorShop, tab, dayMemos, feeMonth, calDate, calSelDate, homeDate, showAddAcModal, showDetailModal, showAbsModal, showGuideModal, newAbs, toast } = uiState;
-  const _uiSet = (key) => (v) => uiDispatch({ type:"SET", key, value: typeof v==="function" ? v(uiState[key]) : v });
-  const setChildTab               = _uiSet("childTab");
-  const setShowChildRewards       = _uiSet("showChildRewards");
-  const setShowChildXP            = _uiSet("showChildXP");
-  const setShowParentXP           = _uiSet("showParentXP");
-  const setShowParentTodayQuest   = _uiSet("showParentTodayQuest");
-  const setShowParentRewardManage = _uiSet("showParentRewardManage");
-  const setShowParentXpAdjust     = _uiSet("showParentXpAdjust");
-  const setShowParentGrowthManage = _uiSet("showParentGrowthManage");
-  const setShowParentRecordManage = _uiSet("showParentRecordManage");
-  const setOpenTitle              = _uiSet("openTitle");
-  const setOpenTreasure           = _uiSet("openTreasure");
-  const setOpenPet                = _uiSet("openPet");
-  const setOpenHistory            = _uiSet("openHistory");
-  const setOpenStreak             = _uiSet("openStreak");
-  const setLevelUpModal           = _uiSet("levelUpModal");
-  const setPastQuestBlockModal    = _uiSet("pastQuestBlockModal");
-  const setQuestResultModal       = _uiSet("questResultModal");
-  const setCharCheer              = _uiSet("charCheer");
-  const setTreasureModal          = _uiSet("treasureModal");
-  const setOpeningTreasure        = _uiSet("openingTreasure");
-  const setShowSettingsModal      = _uiSet("showSettingsModal");
-  const setShowDevTools           = _uiSet("showDevTools");
-  const setShowAcademyCopyModal   = _uiSet("showAcademyCopyModal");
-  const setCopySourceChildId      = _uiSet("copySourceChildId");
-  const setCopySelectedAcademyIds = _uiSet("copySelectedAcademyIds");
-  const setEventModal             = _uiSet("eventModal");
-  const setEventQueue             = _uiSet("eventQueue");
-  const setChildDate              = _uiSet("childDate");
-  const setShowDecorShop          = _uiSet("showDecorShop");
-  const setTab                    = _uiSet("tab");
-  const setDayMemos               = _uiSet("dayMemos");
-  const setFeeMonth               = _uiSet("feeMonth");
-  const setCalDate                = _uiSet("calDate");
-  const setCalSelDate             = _uiSet("calSelDate");
-  const setHomeDate               = _uiSet("homeDate");
-  const setShowAddAcModal         = _uiSet("showAddAcModal");
-  const setShowDetailModal        = _uiSet("showDetailModal");
-  const setShowAbsModal           = _uiSet("showAbsModal");
-  const setShowGuideModal         = _uiSet("showGuideModal");
-  const setNewAbs                 = _uiSet("newAbs");
-  const setToast                  = _uiSet("toast");
+  const [childTab,               setChildTab]               = useState(initUi.childTab);
+  const [showChildRewards,       setShowChildRewards]       = useState(initUi.showChildRewards);
+  const [showChildXP,            setShowChildXP]            = useState(initUi.showChildXP);
+  const [showParentXP,           setShowParentXP]           = useState(initUi.showParentXP);
+  const [showParentTodayQuest,   setShowParentTodayQuest]   = useState(initUi.showParentTodayQuest);
+  const [showParentRewardManage, setShowParentRewardManage] = useState(initUi.showParentRewardManage);
+  const [showParentXpAdjust,     setShowParentXpAdjust]     = useState(initUi.showParentXpAdjust);
+  const [showParentGrowthManage, setShowParentGrowthManage] = useState(initUi.showParentGrowthManage);
+  const [showParentRecordManage, setShowParentRecordManage] = useState(initUi.showParentRecordManage);
+  const [openTitle,              setOpenTitle]              = useState(initUi.openTitle);
+  const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
+  const [openPet,                setOpenPet]                = useState(initUi.openPet);
+  const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
+  const [openStreak,             setOpenStreak]             = useState(initUi.openStreak);
+  const [levelUpModal,           setLevelUpModal]           = useState(initUi.levelUpModal);
+  const [pastQuestBlockModal,    setPastQuestBlockModal]    = useState(initUi.pastQuestBlockModal);
+  const [questResultModal,       setQuestResultModal]       = useState(initUi.questResultModal);
+  const [charCheer,              setCharCheer]              = useState(initUi.charCheer);
+  const [treasureModal,          setTreasureModal]          = useState(initUi.treasureModal);
+  const [openingTreasure,        setOpeningTreasure]        = useState(initUi.openingTreasure);
+  const [showSettingsModal,      setShowSettingsModal]      = useState(initUi.showSettingsModal);
+  const [showDevTools,           setShowDevTools]           = useState(initUi.showDevTools);
+  const [showAcademyCopyModal,   setShowAcademyCopyModal]   = useState(initUi.showAcademyCopyModal);
+  const [copySourceChildId,      setCopySourceChildId]      = useState(initUi.copySourceChildId);
+  const [copySelectedAcademyIds, setCopySelectedAcademyIds] = useState(initUi.copySelectedAcademyIds);
+  const [eventModal,             setEventModal]             = useState(initUi.eventModal);
+  const [eventQueue,             setEventQueue]             = useState(initUi.eventQueue);
+  const [childDate,              setChildDate]              = useState(initUi.childDate);
+  const [showDecorShop,          setShowDecorShop]          = useState(initUi.showDecorShop);
+  const [tab,                    setTab]                    = useState(initUi.tab);
+  const [dayMemos,               setDayMemos]               = useState(initUi.dayMemos);
+  const [feeMonth,               setFeeMonth]               = useState(initUi.feeMonth);
+  const [calDate,                setCalDate]                = useState(initUi.calDate);
+  const [calSelDate,             setCalSelDate]             = useState(initUi.calSelDate);
+  const [homeDate,               setHomeDate]               = useState(initUi.homeDate);
+  const [showAddAcModal,         setShowAddAcModal]         = useState(initUi.showAddAcModal);
+  const [showDetailModal,        setShowDetailModal]        = useState(initUi.showDetailModal);
+  const [showAbsModal,           setShowAbsModal]           = useState(initUi.showAbsModal);
+  const [showGuideModal,         setShowGuideModal]         = useState(initUi.showGuideModal);
+  const [newAbs,                 setNewAbs]                 = useState(initUi.newAbs);
+  const [toast,                  setToast]                  = useState(initUi.toast);
 
   const kidSkin = (skinByChild[childId] && SKINS[skinByChild[childId]]) ? skinByChild[childId] : DEFAULT_SKIN;
   // 현재 아이의 스킨을 바꾸는 헬퍼 (모드 선택 시 사용)
@@ -2299,7 +2304,7 @@ export default function App() {
     if(data.acName && data.acName.trim()){
       acId="ac_"+Date.now();
       const newAcademy={ ...EMPTY_AC, id:acId, name:data.acName.trim(),
-        days:(data.acDays&&data.acDays.length)?data.acDays:[], time:data.acTime||"16:00", duration:60,
+        days:(data.acDays&&data.acDays.length)?data.acDays:[], time:data.acTime||"16:00", duration:40,
         color:"#6C63FF" };
       setAcademies({ [cid]:[newAcademy] });
 
@@ -2350,7 +2355,7 @@ export default function App() {
   };
 
   const enterParentMode=()=>{
-    if(pinInput===DEV_PIN){
+    if(DEV_MODE && pinInput===DEV_PIN){
       setShowParentPin(false);
       setPinInput("");
       setShowDevTools(true);
@@ -2375,11 +2380,13 @@ export default function App() {
     }
   };
   const addDevXP=(amount)=>{
+    if(!DEV_MODE) return;
     addChildScore(childId,amount,`개발자 도구 XP ${amount>=0?"+":""}${amount}`,"dev_xp");
     showToast(`⭐ XP ${amount>=0?"+":""}${amount}`);
   };
 
   const addDevCoin=(amount)=>{
+    if(!DEV_MODE) return;
     setScoreData(prev=>{
       const cur=prev[childId]||{xp:0,coin:0,history:[]};
       return {...prev,[childId]:{...cur,
@@ -2391,6 +2398,7 @@ export default function App() {
   };
 
   const giveDevBox=(boxType)=>{
+    if(!DEV_MODE) return;
     const cur=getChildTreasure(childId);
     const key=boxType==="legend"?"legendBox":boxType==="rare"?"rareBox":"normalBox";
     setTreasureData(prev=>({...prev,[childId]:{...cur,[key]:Number(cur[key]||0)+1}}));
@@ -2398,6 +2406,7 @@ export default function App() {
   };
 
   const loadSampleData=()=>{
+    if(!DEV_MODE) return;
     const cid=childId;  // 현재 선택된 아이에 적용
     const existingAcs=academies[cid]||[];
     const seq=existingAcs.filter(a=>/\(예시\)$/.test(a.name)).length+1;
@@ -2412,6 +2421,7 @@ export default function App() {
   };
 
   const generateTestData=(cid)=>{
+    if(!DEV_MODE) return;
     setScoreData(prev=>({
       ...prev,
       [cid]:{
@@ -2445,6 +2455,7 @@ export default function App() {
   };
 
   const generateLegendTestData=(cid)=>{
+    if(!DEV_MODE) return;
     setScoreData(prev=>({
       ...prev,
       [cid]:{
@@ -2478,6 +2489,7 @@ export default function App() {
   };
 
   const unlockAllTitlesForDev=(cid)=>{
+    if(!DEV_MODE) return;
     const allDefaultIds=DEFAULT_TITLES.map(t=>t.id);
     const allLegendaryIds=LEGENDARY_TITLES.map(t=>t.id);
     const allTitleIds=[...allDefaultIds,...allLegendaryIds];
@@ -2488,6 +2500,7 @@ export default function App() {
   };
 
   const showDevEvent=(type)=>{
+    if(!DEV_MODE) return;
     if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 모험 대장",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100 XP · 💎 +100 코인"}); return; }
     if(type==="title"){ showGameEvent({type:"title",cert:true,emoji:"👑",title:"상장을 받았어요!",name:"황금 테스트러",desc:"임무를 50개나 끝까지 해낸 멋진 모험가에게 이 상장을 드립니다",rarity:"epic",reward:"⭐ +100 XP · 💎 +100 코인"}); return; }
     if(type==="box"){ showGameEvent({type:"box",emoji:"📦",title:"보물상자 획득!",name:"일반상자",desc:"미션 10개 달성 보상이에요!",reward:"🎁 보물창고에서 열어보세요"}); return; }
@@ -2496,6 +2509,7 @@ export default function App() {
 
   // ── 개발자: 미션 10개 / 숙제 10개 일괄 추가 ──
   const addDevQuests=(cid,count=10)=>{
+    if(!DEV_MODE) return;
     const date=childDate||TODAY;
     const entry=getDailyEntry(cid,EXTRA_QUEST_ID,date);
     const base=Date.now();
@@ -2510,6 +2524,7 @@ export default function App() {
   };
 
   const addDevHomeworks=(cid,count=10)=>{
+    if(!DEV_MODE) return;
     const date=childDate||TODAY;
     // 첫 번째 등록된 학원에 추가 (없으면 기타 미션에 추가)
     const firstAcademy=(academies[cid]||[])[0];
@@ -2665,7 +2680,7 @@ export default function App() {
 
   const changeParentPin=()=>{
     if(oldPinInput!==parentPin){ showToast("기존 비밀번호가 달라요"); return; }
-    if(!newPinInput||newPinInput.length<4){ showToast("새 비밀번호는 4자리 이상으로 해줘"); return; }
+    if(!newPinInput||newPinInput.length!==4){ showToast("새 비밀번호는 숫자 4자리로 해줘"); return; }
     if(newPinInput!==newPinConfirm){ showToast("새 비밀번호 확인이 달라요"); return; }
     setParentPin(newPinInput);
     setOldPinInput(""); setNewPinInput(""); setNewPinConfirm("");
@@ -3560,18 +3575,18 @@ export default function App() {
   };
   const isDecorOwned=(cid,decorId)=>(ownedDecor[cid]||[]).includes(decorId);
   // 보유 데코 구매 (아이가 코인으로 즉시 구매, 승인 불필요)
+  // 구매 "규칙"(보유 추가·자동 장착)은 순수 함수 computeDecorPurchase가 담당하고,
+  // 여기서는 검증·코인 차감·토스트 같은 부수효과만 처리한다.
   const buyDecor=(decor)=>{
     const cid=childId;
     if(isDecorOwned(cid,decor.id)){ showToast("이미 가지고 있어요 ✨"); return; }
     const price=getDecorPrice(decor);
     if(getChildCoin(cid)<price){ showToast(`${TM.coin}이 부족해요 ${TM.coinEmoji}`); return; }
     spendCoin(cid,price,`${decorView(decor,kidSkin).name} 꾸미기 구매`);
-    setOwnedDecor(prev=>({...prev,[cid]:[...(prev[cid]||[]),decor.id]}));
-    // 구매 즉시 자동 장착(성취감 즉시 반영)
-    let grp=DECOR_GROUPS.find(g=>g.items.some(it=>it.id===decor.id));
-    // 베이커리 전용 배경(BAKERY_BGS)은 DECOR_GROUPS에 없으므로 bg 그룹으로 간주
-    if(!grp && BAKERY_BGS.some(b=>b.id===decor.id)) grp={key:"bg"};
-    if(grp) setEquippedDecor(prev=>({...prev,[cid]:{...(prev[cid]||{}),[grp.key]:decor.id}}));
+    const { nextOwned, nextEquipped, groupKey } =
+      computeDecorPurchase(ownedDecor[cid]||[], equippedDecor[cid]||{}, decor.id);
+    setOwnedDecor(prev=>({...prev,[cid]:nextOwned}));
+    if(groupKey) setEquippedDecor(prev=>({...prev,[cid]:nextEquipped}));
     showToast(`${decorView(decor,kidSkin).name} 획득! 🎉`);
   };
   // 장착/해제 토글 (이미 장착된 걸 다시 누르면 해제)
@@ -3597,45 +3612,16 @@ export default function App() {
 
   const giveTreasureForQuestOnce=(cid,questKey)=>{
     if(!questKey) return;
-
-    const cur=treasureData[cid]||{
-      completedQuestCount:0,
-      normalBox:0,
-      rareBox:0,
-      legendBox:0,
-      rewardedQuestKeys:[]
-    };
-    const rewardedQuestKeys=cur.rewardedQuestKeys||[];
-
-    // 이미 이 미션으로 보물상자 카운트 반영했으면 다시 지급 안 함
-    if(rewardedQuestKeys.includes(questKey)) return;
-
-    const nextCount=Number(cur.completedQuestCount||0)+1;
-    let normalBox=Number(cur.normalBox||0);
-    let rareBox=Number(cur.rareBox||0);
-    let legendBox=Number(cur.legendBox||0);
-
-    // 이번 미션으로 받은 상자 (겹치면 더 높은 등급 하나)
-    let earned=null;
-    if(nextCount%50===0){ legendBox+=1; earned="legend"; }
-    else if(nextCount%30===0){ rareBox+=1; earned="rare"; }
-    else if(nextCount%10===0){ normalBox+=1; earned="normal"; }
+    // 적립 "규칙"은 순수 함수가 계산. 여기선 상태 반영과 팝업 알림만.
+    const cur=treasureData[cid];
+    const { changed, earned, nextCount } = computeQuestTreasure(cur, questKey);
+    if(!changed) return; // 이미 이 미션으로 보상 처리됨
 
     setTreasureData(prev=>{
-      const p=prev[cid]||cur;
-      const keys=p.rewardedQuestKeys||[];
-      if(keys.includes(questKey)) return prev;
-      return {
-        ...prev,
-        [cid]:{
-          ...p,
-          completedQuestCount:Number(p.completedQuestCount||0)+1,
-          normalBox:Number(p.normalBox||0)+(earned==="normal"?1:0),
-          rareBox:Number(p.rareBox||0)+(earned==="rare"?1:0),
-          legendBox:Number(p.legendBox||0)+(earned==="legend"?1:0),
-          rewardedQuestKeys:[...keys,questKey]
-        }
-      };
+      // 최신 prev 기준으로 다시 계산(동시 갱신 안전)
+      const r=computeQuestTreasure(prev[cid], questKey);
+      if(!r.changed) return prev;
+      return {...prev,[cid]:r.next};
     });
 
     // 상자를 받았으면 가운데 팝업으로 크게 알림 (레벨업·업적과 같은 큐)
@@ -3725,7 +3711,7 @@ export default function App() {
     if(boxType==="legend" && willEvolve && !petGuaranteed) nextPetPity=0;
     // ── treasureData 단일 갱신 ──
     // 개수 감소 + 전설 천장(legendPity/legendPetPity) + 첫부화(petHatched)를 한 번의 set으로 처리.
-    // (set을 쪼개면 _pgSet의 prev가 stale이라 뒤 set이 앞 감소를 덮어써 개수가 안 줄던 버그를 방지)
+    // (함수형 업데이트 prev로 처리해 여러 필드를 원자적으로 패치 — 감소가 덮어써지지 않음)
     setTreasureData(prev=>{
       const t=prev[childId]||cur;
       const patch={...t,[boxKey]:Math.max(0,Number(t[boxKey]||0)-1)};
@@ -4259,6 +4245,7 @@ export default function App() {
   };
   const pendingAbsCnt=curAbs.filter(a=>a.makeupDate&&!a.makeupDone).length;
   const todayAc=curAc.filter(a=>hasClassOnDay(a,todayDN())).sort((a,b)=>getClassTime(a,todayDN()).localeCompare(getClassTime(b,todayDN())));
+  
 
   // 학원 CRUD
   const getNextAcademyColor=()=>{
@@ -4307,6 +4294,7 @@ export default function App() {
   const isPaid=(aId)=>!!paidStatus[pKey(childId,aId)];
   const togglePaid=(aId)=>{ const k=pKey(childId,aId); setPaidStatus(p=>({...p,[k]:!p[k]})); };
   const payStatus=(a)=>{
+    if(Number(a.fee||0)===0) return {label:"-",color:C.sub,free:true};
     const now=new Date(), d=new Date(now.getFullYear(),feeMonth-1,a.payDay);
     const diff=Math.ceil((d-now)/86400000);
     if(isPaid(a.id)) return {label:"납부완료",color:C.green};
@@ -4397,7 +4385,7 @@ export default function App() {
             return (
               <>
               <div style={kidSkin==="cute"
-                ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,borderRadius:34,padding:"17px",boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,color:GP.boxText,border:"2px solid #fff",marginBottom:12,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
+                ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,borderRadius:34,padding:"17px",boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,color:GP.boxText,border:"2px solid #fff",marginBottom:12}
                 :{position:"relative",overflow:"hidden",background:dungeonShinyBg,borderRadius:GP.radCard,padding:"17px",boxShadow:`0 10px 28px ${mixBlack(th.main,0.4)}55`,color:GP.boxText,border:`1px solid ${th.main}66`,marginBottom:12}}>
                 {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"42%",background:"linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
                 <DungeonCardGlow/>
@@ -4488,7 +4476,7 @@ export default function App() {
       </div>
     );
     return (
-      <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||(kidSkin==="cute"?`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`:`radial-gradient(120% 55% at 50% 0%, ${th.main}3a 0%, transparent 52%), radial-gradient(100% 45% at 100% 26%, ${th.main}22 0%, transparent 55%), radial-gradient(100% 45% at 0% 74%, ${th.main}1e 0%, transparent 55%), linear-gradient(180deg, ${dungeonTone(th.main,4)} 0%, ${dungeonTone(th.main,0)} 50%, ${dungeonTone(th.main,10)} 100%)`)),backgroundSize:GP.appPattern?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden"}}>
+      <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||(kidSkin==="cute"?`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`:`radial-gradient(120% 55% at 50% 0%, ${th.main}3a 0%, transparent 52%), radial-gradient(100% 45% at 100% 26%, ${th.main}22 0%, transparent 55%), radial-gradient(100% 45% at 0% 74%, ${th.main}1e 0%, transparent 55%), linear-gradient(180deg, ${dungeonTone(th.main,4)} 0%, ${dungeonTone(th.main,0)} 50%, ${dungeonTone(th.main,10)} 100%)`)),backgroundSize:GP.appPattern?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden",wordBreak:"keep-all"}}>
         {/* 말랑한 배경 블롭 */}
         <div style={{position:"absolute",top:-40,right:-50,width:170,height:170,borderRadius:"50%",background:`radial-gradient(circle at 35% 35%, ${th.main}26, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 11s ease-in-out infinite",pointerEvents:"none",zIndex:0}}/>
         <div style={{position:"absolute",top:240,left:-60,width:150,height:150,borderRadius:"50%",background:`radial-gradient(circle at 50% 50%, ${GP.gold}24, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 14s ease-in-out infinite 1.5s",pointerEvents:"none",zIndex:0}}/>
@@ -4548,6 +4536,7 @@ export default function App() {
           @keyframes bubblePop{0%{transform:translateX(-50%) scale(0);opacity:0}20%{transform:translateX(-50%) scale(1.15);opacity:1}80%{transform:translateX(-50%) scale(1);opacity:1}100%{transform:translateX(-50%) scale(0.9);opacity:0}}
           @keyframes bubbleIn{0%{transform:scale(0.3);opacity:0}55%{transform:scale(1.12);opacity:1}75%{transform:scale(0.96)}100%{transform:scale(1);opacity:1}}
           @keyframes bgTintIn{0%{opacity:0}100%{opacity:1}}
+          
           @keyframes metalShine{0%{background-position:0% 50%}100%{background-position:200% 50%}}
           @keyframes rainbowFlow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
           @keyframes gaugeShine{0%{background-position:0 0}100%{background-position:32px 0}}
@@ -4828,10 +4817,10 @@ export default function App() {
               backgroundSize:stageBorder&&(stageBorder.shimmer||stageBorder.rainbow)?"260% 260%":"100% 100%",
               boxShadow:stageBorder?(cute?`0 10px 26px ${bGlow}, 0 0 14px ${bGlow}`:`0 14px 36px ${bGlow}, 0 0 26px ${bGlow}`):"none",
               animation:stageBorder&&stageBorder.rainbow
-                ?"rainbowFlow 4s linear infinite, jellyIn .55s cubic-bezier(.34,1.56,.64,1) both"
+                ?"rainbowFlow 4s linear infinite"
                 :stageBorder&&stageBorder.shimmer
-                  ?"metalShine 4s linear infinite, jellyIn .55s cubic-bezier(.34,1.56,.64,1) both"
-                  :"jellyIn .55s cubic-bezier(.34,1.56,.64,1) both"}}>
+                  ?"metalShine 4s linear infinite"
+                  :"none"}}>
               {/* 반짝이 프레임 광택 스윕 (실버/골드/루비/레전드) */}
               {stageBorder&&(stageBorder.shimmer||stageBorder.rainbow)&&(
                 <div style={{position:"absolute",inset:0,borderRadius:"inherit",pointerEvents:"none",zIndex:0,overflow:"hidden"}}>
@@ -5031,7 +5020,7 @@ export default function App() {
                       {showHat&&stageHat.weapon&&!cute&&(()=>{
                         // 도구별 크기·위치·기울기 미세조정. 회전은 회전 전용 span에서 처리(둥실은 부모 컨테이너가 담당).
                         let wSize=32, wLeft=-24, wRot=0, wBottom=-8;
-                        if(stageHat.id==="hat_axe"){ wSize=38; wLeft=-34; }                   // 탐험가 배낭: 크게 + 얼굴 겹침 방지로 더 왼쪽
+                        if(stageHat.id==="hat_axe"){ wSize=38; wLeft=-40; }                   // 탐험가 배낭: 크게 + 캐릭터와 간격 확보(얼굴 겹침 방지)
                         else if(stageHat.id==="hat_tophat"){ wSize=28; wLeft=-26; wRot=-30; }  // 나침반: 고리가 좌측 위로 가게 회전
                         else if(stageHat.id==="hat_goggles"){ wSize=28; wLeft=-26; wRot=-8; }  // 카메라: 오른쪽으로 + / 살짝 기울임
                         else if(stageHat.id==="hat_flame"){ wSize=30; wLeft=-28; wRot=-10; }   // 보물 지도: / 살짝 기울임
@@ -5203,7 +5192,7 @@ export default function App() {
                             <p style={{fontSize:dk?17:16,fontWeight:900,margin:0,color:dk?"#fff":GP.boxText,textShadow:dk?"0 1px 3px rgba(0,0,0,0.25)":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.1}}>{ac.name}</p>
                             <p style={{fontSize:11.5,fontWeight:900,color:dk?"rgba(255,255,255,0.78)":GP.boxSub,margin:"3px 0 0",letterSpacing:1,paddingRight:96,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dungeon.label}</p>
                             {isChildToday&&(()=>{
-                              const rl=getRemainLabel(sc?.time,sc?.duration||60);
+                              const rl=getRemainLabel(sc?.time,sc?.duration||40);
                               if(!rl) return null;
                               const tx = dk
                                 ? (rl.tone==="urgent"?"#FFC089":rl.tone==="now"?"#A6F0CF":rl.tone==="soon"?"#FFFFFF":"rgba(255,255,255,0.6)")
@@ -5781,8 +5770,8 @@ export default function App() {
           )}
         </div>
 
-        {/* 개발자 도구 모달 */}
-        {showDevTools&&(
+        {/* 개발자 도구 모달 (DEV_MODE=false 시 완전히 렌더 안 됨) */}
+        {DEV_MODE && showDevTools&&(
           <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.6)",display:"flex",alignItems:"flex-end",zIndex:3000}} onClick={()=>setShowDevTools(false)}>
             <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 44px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
@@ -5874,7 +5863,8 @@ export default function App() {
             <div style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
               <h3 style={{fontSize:20,fontWeight:900,margin:"0 0 16px",textAlign:"center"}}>🔒 엄마용</h3>
               <input type="password" inputMode="numeric" value={pinInput}
-                onChange={e=>setPinInput(e.target.value)}
+                onChange={e=>setPinInput(e.target.value.replace(/\D/g,"").slice(0,4))}
+                maxLength={4}
                 onKeyDown={e=>e.key==="Enter"&&enterParentMode()}
                 placeholder="비밀번호 4자리"
                 style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
@@ -6159,7 +6149,7 @@ export default function App() {
   }
 
   return (
-    <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:90}}>
+    <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:90,wordBreak:"keep-all"}}>
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
 
       {/* 토스트 */}
@@ -6170,7 +6160,11 @@ export default function App() {
       )}
 
       {showCoachmark&&(
-        <CoachmarkOverlay th={th} onFinish={()=>setShowCoachmark(false)} />
+        <CoachmarkOverlay th={th} onFinish={()=>{
+          setShowCoachmark(false);
+          setTab("home");
+          // 버튼 깜빡임 안내 비활성화 (학원 추가/미션 깜빡임 미사용)
+        }} />
       )}
 
       {showParentRewardGuide&&(
@@ -6381,9 +6375,12 @@ export default function App() {
 
               {/* 학원 카드 */}
               {homeAc.length>0&&(
-                <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 10px",letterSpacing:0.3}}>📍 오늘의 학원 ({homeAc.length})</p>
+                <div style={{display:"flex",alignItems:"center",gap:8,margin:"4px 0 12px"}}>
+                  <span style={{fontSize:15,fontWeight:900,color:C.text,letterSpacing:0.3}}>📍 오늘의 학원</span>
+                  <div style={{flex:1,height:1,background:C.border}}/>
+                </div>
               )}
-              {homeAc.map(ac=>{
+              {homeAc.map((ac,hi)=>{
                 const sc=getScheduleForDay(ac,hDN);
                 const [h,m]=(sc?.time||"00:00").split(":").map(Number);
                 const tm=h*60+m+Number(sc?.duration||0);
@@ -6449,7 +6446,7 @@ export default function App() {
                         )}
                       </div>
                       <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:homeDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
-                        style={{width:"100%",padding:"7px 10px",borderRadius:10,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
+                        style={{width:"100%",padding:"7px 10px",borderRadius:10,border:`1.5px solid ${ac.color}66`,background:`${ac.color}14`,color:ac.color,fontSize:13,fontWeight:700,cursor:"pointer"}}>
                         🎯 미션 · 준비물 편집
                       </button>
                     </div>
@@ -6458,11 +6455,11 @@ export default function App() {
               })}
 
               {/* 등록 학원 목록 */}
-              <div style={{borderTop:`2px solid ${C.border}`,margin:"24px 0 0",paddingTop:18}}>
+              <div style={{borderTop:`3px solid ${th.main}`,margin:"28px 0 0",paddingTop:8}}>
               <div style={{marginBottom:8}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,background:CT.faint,border:`1px solid ${C.border}`,borderRadius:14,padding:"10px 14px"}}>
-                  <p style={{fontSize:15,color:C.text,fontWeight:900,margin:0,letterSpacing:0.3}}>📋 등록 학원 <span style={{color:C.sub,fontWeight:700}}>({curAc.length})</span></p>
-                  <button onClick={openAdd} style={{fontSize:13,padding:"5px 12px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:700,cursor:"pointer"}}>+ 학원 추가</button>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,background:th.light,border:`1.5px solid ${th.main}35`,borderRadius:14,padding:"12px 14px"}}>
+                  <p style={{fontSize:16,color:th.main,fontWeight:900,margin:0,letterSpacing:0.3}}>📋 등록 학원</p>
+                  <button onClick={()=>{ openAdd(); }} style={{fontSize:13,padding:"5px 12px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:700,cursor:"pointer"}}>+ 학원 추가</button>
                   {children.filter(c=>c.id!==childId).length>0&&(
                     <button onClick={()=>{ setCopySourceChildId(children.find(c=>c.id!==childId)?.id||""); setCopySelectedAcademyIds([]); setShowAcademyCopyModal(true); }}
                       style={{fontSize:13,padding:"5px 12px",borderRadius:10,border:`1px solid ${th.main}35`,background:th.light,color:th.main,fontWeight:700,cursor:"pointer"}}>
@@ -6725,7 +6722,7 @@ export default function App() {
                               </div>
                             </div>
                             <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:calSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
-                              style={{width:"100%",padding:"7px 10px",borderRadius:10,border:`1px dashed ${ac.color}40`,background:`${ac.color}06`,color:ac.color,fontSize:13,fontWeight:600,cursor:"pointer"}}>
+                              style={{width:"100%",padding:"7px 10px",borderRadius:10,border:`1.5px solid ${ac.color}66`,background:`${ac.color}14`,color:ac.color,fontSize:13,fontWeight:700,cursor:"pointer"}}>
                               🎯 미션 · 준비물 편집
                             </button>
                           </div>
@@ -6787,7 +6784,7 @@ export default function App() {
             <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.95)} 0%, ${mixWhite(th.main,0.72)} 100%)`,borderRadius:20,padding:"18px 20px",marginBottom:16,color:C.text,textAlign:"center",boxShadow:SHADOW.md,border:`1px solid ${th.main}33`}}>
               <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{getGenderEmoji(curChild)} {curChild?.name} 총 학원비</p>
               <p style={{fontSize:26,fontWeight:900,margin:"5px 0 3px",color:(()=>{const hx=(th.main||"").replace("#","");const r=parseInt(hx.slice(0,2),16),g=parseInt(hx.slice(2,4),16),b=parseInt(hx.slice(4,6),16);const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;let hue=0;if(d!==0){if(mx===r)hue=60*(((g-b)/d)%6);else if(mx===g)hue=60*((b-r)/d+2);else hue=60*((r-g)/d+4);}hue=(hue+360)%360;const dim=(hue>=20&&hue<=50)||(hue>=90&&hue<=160)||(hue>=230&&hue<=275);return dim?mixBlack(th.main,0.5):mixWhite(th.main,0.08);})()}}>{totalFee(childId).toLocaleString()}원</p>
-              <p style={{fontSize:13,color:th.main,margin:0,fontWeight:800}}>납부 {curAc.filter(a=>isPaid(a.id)).length}/{curAc.length}개 완료</p>
+              <p style={{fontSize:13,color:th.main,margin:0,fontWeight:800}}>{curAc.filter(a=>Number(a.fee||0)>0).length===0?"납부할 학원비가 없어요":`납부 ${curAc.filter(a=>Number(a.fee||0)>0&&isPaid(a.id)).length}/${curAc.filter(a=>Number(a.fee||0)>0).length}개 완료`}</p>
             </div>
             {curAc.map(a=>{
               const st=payStatus(a);
@@ -6796,16 +6793,20 @@ export default function App() {
                   <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:11}}>
                     <div style={{width:9,height:9,borderRadius:"50%",background:a.color,flexShrink:0}}/>
                     <p style={{fontSize:15,fontWeight:800,margin:0,flex:1,color:C.text}}>{a.name}</p>
-                    <button onClick={()=>togglePaid(a.id)} style={{padding:"5px 12px",borderRadius:10,border:"none",cursor:"pointer",fontSize:13.5,fontWeight:800,background:isPaid(a.id)?`${C.green}18`:CT.faint,color:isPaid(a.id)?C.green:C.sub}}>
-                      {isPaid(a.id)?"✓ 납부완료":"미납"}
-                    </button>
+                    {Number(a.fee||0)===0?(
+                      <span style={{padding:"5px 12px",borderRadius:10,fontSize:13.5,fontWeight:800,background:CT.faint,color:C.sub}}>-</span>
+                    ):(
+                      <button onClick={()=>togglePaid(a.id)} style={{padding:"5px 12px",borderRadius:10,border:"none",cursor:"pointer",fontSize:13.5,fontWeight:800,background:isPaid(a.id)?`${C.green}18`:CT.faint,color:isPaid(a.id)?C.green:C.sub}}>
+                        {isPaid(a.id)?"✓ 납부완료":"미납"}
+                      </button>
+                    )}
                   </div>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
                     <div style={{display:"flex",gap:22}}>
                       <div><p style={{fontSize:13.5,color:C.sub,margin:0,fontWeight:600}}>월 학원비</p><p style={{fontSize:15,fontWeight:800,margin:"2px 0 0",color:C.text}}>{Number(a.fee).toLocaleString()}원</p></div>
                       <div><p style={{fontSize:13.5,color:C.sub,margin:0,fontWeight:600}}>납부일</p><p style={{fontSize:15,fontWeight:800,margin:"2px 0 0",color:C.text}}>매월 {a.payDay}일</p></div>
                     </div>
-                    <span style={{fontSize:13,fontWeight:700,padding:"4px 10px",borderRadius:10,background:`${st.color}15`,color:st.color}}>{st.label}</span>
+                    {Number(a.fee||0)!==0&&<span style={{fontSize:13,fontWeight:700,padding:"4px 10px",borderRadius:10,background:`${st.color}15`,color:st.color}}>{st.label}</span>}
                   </div>
                 </div>
               );
@@ -7509,13 +7510,6 @@ export default function App() {
         {tab==="etc"&&(
           <div>
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>⚙️ 기타</p>
-              <p style={{fontSize:13.5,fontWeight:700,color:C.sub,margin:0}}>
-                사용 가이드, 문자관리, 백업/복원, 비밀번호를 관리해요
-              </p>
-            </div>
-
-            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
               <button
                 onClick={()=>{ setShowSettingsModal(false); setTab("home"); setShowCoachmark(true); }}
                 style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",textAlign:"left"}}
@@ -7820,15 +7814,15 @@ export default function App() {
               <button onClick={()=>setShowPinChangeModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
             <label style={lbl}>기존 비밀번호</label>
-            <input type="password" inputMode="numeric" value={oldPinInput} onChange={e=>setOldPinInput(e.target.value)}
-              placeholder="현재 비밀번호"
+            <input type="password" inputMode="numeric" value={oldPinInput} onChange={e=>setOldPinInput(e.target.value.replace(/\D/g,"").slice(0,4))} maxLength={4}
+              placeholder="현재 비밀번호 4자리"
               style={{...inp,marginBottom:14,textAlign:"center",letterSpacing:4,fontSize:20}}/>
             <label style={lbl}>새 비밀번호</label>
-            <input type="password" inputMode="numeric" value={newPinInput} onChange={e=>setNewPinInput(e.target.value)}
-              placeholder="새 비밀번호 4자리 이상"
+            <input type="password" inputMode="numeric" value={newPinInput} onChange={e=>setNewPinInput(e.target.value.replace(/\D/g,"").slice(0,4))} maxLength={4}
+              placeholder="새 비밀번호 4자리"
               style={{...inp,marginBottom:14,textAlign:"center",letterSpacing:4,fontSize:20}}/>
             <label style={lbl}>새 비밀번호 확인</label>
-            <input type="password" inputMode="numeric" value={newPinConfirm} onChange={e=>setNewPinConfirm(e.target.value)}
+            <input type="password" inputMode="numeric" value={newPinConfirm} onChange={e=>setNewPinConfirm(e.target.value.replace(/\D/g,"").slice(0,4))} maxLength={4}
               onKeyDown={e=>e.key==="Enter"&&changeParentPin()}
               placeholder="새 비밀번호 다시 입력"
               style={{...inp,marginBottom:18,textAlign:"center",letterSpacing:4,fontSize:20}}/>
@@ -8077,7 +8071,7 @@ export default function App() {
                       if(p.useCustomSchedule){
                         const schedules=sel
                           ?(p.schedules||[]).filter(s=>s.day!==day)
-                          :[...(p.schedules||[]),{day,time:p.time||"15:00",duration:p.duration||60}];
+                          :[...(p.schedules||[]),{day,time:p.time||"15:00",duration:p.duration||40}];
                         return {...p,days:newDays,schedules};
                       }
                       return {...p,days:newDays};
@@ -8091,7 +8085,7 @@ export default function App() {
             {!newAc.useCustomSchedule&&(
               <div style={{display:"flex",gap:10,marginBottom:12}}>
                 <div style={{flex:1}}><label style={lbl}>시작 시간</label><input type="time" value={newAc.time||""} onChange={e=>setNewAc(p=>({...p,time:e.target.value}))} style={inp}/></div>
-                <div style={{flex:1}}><label style={lbl}>수업 시간(분)</label><input type="number" value={newAc.duration===""?"":(newAc.duration||60)} onFocus={e=>e.target.select&&e.target.select()} onChange={e=>setNewAc(p=>({...p,duration:e.target.value===""?"":Number(e.target.value)}))} style={inp}/></div>
+                <div style={{flex:1}}><label style={lbl}>수업 시간(분)</label><input type="number" value={newAc.duration===""?"":(newAc.duration||40)} onFocus={e=>e.target.select&&e.target.select()} onChange={e=>setNewAc(p=>({...p,duration:e.target.value===""?"":Number(e.target.value)}))} style={inp}/></div>
               </div>
             )}
 
@@ -8102,7 +8096,7 @@ export default function App() {
                 const existing=newAc.schedules||[];
                 const schedules=(newAc.days||[]).map(day=>{
                   const ex=existing.find(s=>s.day===day);
-                  return ex||{day,time:newAc.time||"15:00",duration:newAc.duration||60};
+                  return ex||{day,time:newAc.time||"15:00",duration:newAc.duration||40};
                 });
                 setNewAc(p=>({...p,useCustomSchedule:true,schedules}));
               } else {
