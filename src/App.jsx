@@ -332,17 +332,7 @@ const makeThemeColors = (main) => ({
 
 // ── 디자인 토큰 ───────────────────────────────────────
 // 글씨·여백·모서리·그림자를 일정 단계로 통일해 화면 전반의 통일감을 유지한다.
-const FS = { // font-size scale
-  cap:11,   // 캡션/뱃지 보조
-  sm:13,    // 보조 설명
-  base:15,  // 본문 기본
-  md:17,    // 강조 본문/버튼
-  lg:20,    // 카드 제목
-  xl:24,    // 섹션 헤드라인
-  xxl:30,   // 큰 수치
-};
 const RAD = { sm:10, md:14, lg:20, pill:999 }; // border-radius scale
-const SP  = { xs:6, sm:10, md:14, lg:20, xl:28 }; // spacing scale
 const SHADOW = {
   sm:"0 2px 8px rgba(20,24,60,0.05)",
   md:"0 6px 18px rgba(20,24,60,0.07)",
@@ -472,18 +462,6 @@ const levelView = (lv, skin, gender) => {
   return lv;
 };
 
-const GAME = {
-  dark:"#15162E",
-  dark2:"#20224A",
-  gold:"#FFD166",
-  coin:"#F4C542",
-  xp:"#6C63FF",
-  streak:"#FF6B6B",
-  blue:"#4A90E2",
-  neon:"#6C63FF",
-  green:"#22C9A0",
-  red:"#FF5C7A",
-};
 
 // ════════════════════════════════════════════════════════════
 // 스킨 시스템 — 모든 모드별 디자인/텍스트/세계관을 한곳에 모음
@@ -1354,7 +1332,6 @@ const HOLIDAYS = {
   "2026-10-09":"한글날",
   "2026-12-25":"성탄절",
 };
-const isHoliday = (dateStr) => !!HOLIDAYS[dateStr];
 const getHolidayName = (dateStr) => HOLIDAYS[dateStr]||"";
 
 // ── 날짜 유틸 ─────────────────────────────
@@ -1615,7 +1592,6 @@ function KidCoachmark({ th, onFinish, skin="dungeon" }){
    ════════════════════════════════════════════════════════════════════════ */
 
 function ModeSelect({ onPick }){
-  const dgSel=SKINS.dungeon, ckSel=SKINS.cute;
   const wrap={position:"fixed",inset:0,zIndex:9998,background:"linear-gradient(160deg,#F3EEF7,#FBF1F3)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px",wordBreak:"keep-all"};
   const panel={width:"100%",maxWidth:360,background:"linear-gradient(170deg,#FBF8FC,#F7EFF4)",borderRadius:30,padding:"30px 18px 30px",boxSizing:"border-box",boxShadow:"0 18px 50px rgba(60,52,90,0.2)"};
   const pill={fontSize:13,fontWeight:800,color:"#9A8FA8",background:"#fff",padding:"6px 16px",borderRadius:999,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"};
@@ -2804,7 +2780,6 @@ export default function App() {
       })();
     }
     // 보물상자 있으면 알림
-    const treasure=getChildTreasure(childId);
     const total=getTotalTreasureCount(childId);
     if(total>0){
       setTimeout(()=>showToast(`${TM.boxEmoji} ${TM.box} ${total}개가 기다리고 있어요!`),800);
@@ -2880,16 +2855,7 @@ export default function App() {
 
   // ── 결제(프리미엄) 처리 ─────────────────────────────────
   // RevenueCat 등 인앱결제가 성공하면 이 함수를 호출한다. (결제 검증은 결제 SDK가 담당)
-  const grantPremium=()=>{
-    setIsPaidPremium(true);
-    save("v6_paid_premium",true);
-    showToast("프리미엄이 활성화됐어요 ✨");
-  };
   // (선택) 환불·구독해지 등으로 프리미엄을 회수해야 할 때
-  const revokePremium=()=>{
-    setIsPaidPremium(false);
-    save("v6_paid_premium",false);
-  };
 
   const exportBackup=()=>{
     const backup={
@@ -3019,7 +2985,6 @@ export default function App() {
   const _skin = getSkin(kidSkin);
   const GP = _skin.paletteFn ? _skin.paletteFn(th.main) : _skin.palette;   // 테마색 적용 팔레트(없으면 정적)
   const ST = _skin.stamp || {on:false};  // 완료 도장(베이커리) 설정
-  const thTop = th.lightTop || "#FFFFFF"; // 구버전 테마 폴백
   const CT = makeThemeColors(th.main);   // 현재 테마색에 맞춘 박스색 세트
   // ── 젤리 스타일 헬퍼 (베이커리 전용) ─────────────────────────
   // 색은 기존 톤(흰빛+테마 틴트) 유지, 형태만 말랑한 젤리로 통일.
@@ -3369,7 +3334,6 @@ export default function App() {
   const BakeryScenery = ()=> kidSkin!=="cute" ? null : (()=>{
     const sky1 = mixWhite(th.main, 0.74);   // 하늘 상단(맑은 파스텔)
     const sky2 = mixWhite(th.main, 0.5);    // 하늘 아래(테마색 진하게)
-    const hill = mixWhite(th.main, 0.42);   // 먼 언덕
     const hill2 = mixWhite(th.main, 0.3);   // 앞 지면
     const shop = mixWhite(th.main, 0.2);    // 제과점 실루엣
     return (
@@ -3461,12 +3425,6 @@ export default function App() {
     );
   };
   // 테마 연동 카드 스타일 (상단도 살짝 테마톤 → light로 자연스러운 계단, 톤 점프 완화)
-  const gameCardT = {
-    ...gameCard,
-    background:`linear-gradient(180deg, ${thTop} 0%, ${th.light} 100%)`,
-    border:`1px solid ${th.main}22`,
-    boxShadow:`0 8px 24px ${th.main}14`
-  };
   const characterCardT = kidSkin==="cute"
     ? {
         ...CHARACTER_CARD,
@@ -3511,11 +3469,6 @@ export default function App() {
   const openAddChild=()=>{
     setEditingChild(null);
     setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0]});
-    setShowChildMgr(true);
-  };
-  const openEditChild=(c)=>{
-    setEditingChild(c.id);
-    setChildForm({name:c.name,gender:c.gender,theme:c.theme||GENDER_THEME[c.gender]||GENDER_THEME.boy});
     setShowChildMgr(true);
   };
 
@@ -3647,11 +3600,6 @@ export default function App() {
     return p.done;
   };
 
-  const getRewardCount=()=>getChildRewards().length;
-  const getTotalEarnedXp=(cid)=>{
-    const history=scoreData[cid]?.history||[];
-    return history.filter(h=>h.point>0).reduce((sum,h)=>sum+h.point,0);
-  };
   const getTotalTreasureCount=(cid)=>{
     const t=getChildTreasure(cid);
     return Number(t.normalBox||0)+Number(t.rareBox||0)+Number(t.legendBox||0);
@@ -3715,12 +3663,6 @@ export default function App() {
     if(!isTitleUnlocked(childId,titleId)){ showToast("아직 받지 못한 상장이에요 🔒"); return; }
     setSelectedTitles(prev=>({...prev,[childId]:titleId}));
     showToast("상장을 전시했어요 👑");
-  };
-  const unlockTitle=(cid,title)=>{
-    const key=`${cid}-title_${title.id}`;
-    if(!unlockedBadgeIds.includes(key)){
-      setUnlockedBadgeIds(prev=>[...prev,key]);
-    }
   };
 
   // ── 상장 보상: 등급별 XP·코인. 상장당 1회만 지급 ──
@@ -4063,27 +4005,10 @@ export default function App() {
     if(!data) return 0;
     return Number(data.coin??data.balance??data.total??0);
   };
-  const getChildScore=(cid)=>getChildXP(cid);
-  const getChildBalance=(cid)=>getChildCoin(cid); // 하위호환
 
   const getScoreHistory=(cid)=>scoreData[cid]?.history||[];
 
-  const getScoreHistoryLabel=(item)=>{
-    if(item.memo) return item.memo;
-    if(item.label) return item.label;
-    if(item.type==="reward") return "보상샵 구매";
-    if(item.type==="homework") return item.point>=0?"미션 완료":"미션 체크 취소";
-    if(item.type==="todo") return item.point>=0?"미션 완료":"미션 체크 취소";
-    if(item.type==="manual") return kidSkin==="cute"?`엄마 ${TM.xp} 조정`:"엄마 XP 조정";
-    if(item.type==="treasure") return kidSkin==="cute"?`${TM.box} 획득`:"보물상자 획득";
-    if(item.type==="level_bonus") return "레벨업 보너스";
-    return kidSkin==="cute"?`${TM.xp} 변동`:"XP 변동";
-  };
 
-  const getScoreHistoryAmountText=(item)=>{
-    if(item.type==="reward") return `${Math.abs(item.coin??item.point)} 💎코인`;
-    return `${Math.abs(item.xp??item.point)} ⭐XP`;
-  };
 
   const getCompletedHomeworkCount=(cid)=>{
     let count=0;
@@ -4109,7 +4034,6 @@ export default function App() {
 
   const getApprovedRewardCount=(cid)=>getChildRewardRequests(cid).filter(r=>r.status==="approved").length;
 
-  const hasApprovedReward=(cid)=>getChildRewardRequests(cid).some(r=>r.status==="approved");
 
   const getQuestItemsOnDateForStreak=(cid,date)=>getQuestItemsForDate(cid,date);
 
@@ -4190,15 +4114,6 @@ export default function App() {
     const lv=[...DEFAULT_LEVELS].sort((a,b)=>a.minScore-b.minScore).find(lv=>score<lv.minScore)||null;
     return levelView(lv,kidSkin,children.find(c=>c.id===cid)?.gender);
   };
-  const getLevelProgress=(cid)=>{
-    const score=getChildXP(cid);
-    const current=getChildLevel(cid);
-    const next=getNextLevel(cid);
-    if(!next) return 100;
-    const range=next.minScore-current.minScore;
-    const gained=score-current.minScore;
-    return Math.min(100,Math.max(0,Math.round((gained/range)*100)));
-  };
 
   const getChildRewards=()=>rewardData["shared"]||DEFAULT_REWARDS;
 
@@ -4266,13 +4181,6 @@ export default function App() {
     if(request.status==="pending") refundCoin(childId,request.point,`${request.title} 구매 거절 환불`);
     setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"rejected",rejectedAt:new Date().toISOString()}:r)}));
     showToast(`요청을 거절했어요 (${request.point} ${TM.coin} 돌려줬어요)`);
-  };
-  const deleteRewardRequest=(requestId)=>{
-    const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
-    // 대기중 요청을 삭제하면 미리 빠진 코인을 환불 (코인 증발 방지)
-    if(request&&request.status==="pending") refundCoin(childId,request.point,`${request.title} 요청 취소 환불`);
-    setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).filter(r=>r.id!==requestId)}));
-    showToast("요청 기록 삭제됨");
   };
   const openEditReward=(reward)=>{
     setEditingRewardId(reward.id);
@@ -4369,7 +4277,6 @@ export default function App() {
     if(!target) return;
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
-    const acName=(academies[cid]||[]).find(a=>a.id===academyId)?.name||"학원";
     const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:nextDone,failed:false}:h)});
     addReward(cid,nextDone?point:-point,"homework");
@@ -4393,7 +4300,6 @@ export default function App() {
     if(!target) return;
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
-    const acName=(academies[cid]||[]).find(a=>a.id===academyId)?.name||(academyId===EXTRA_QUEST_ID?"할일":"학원");
     const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:nextDone,failed:false}:t)});
     addReward(cid,nextDone?point:-point,"todo");
@@ -4436,13 +4342,6 @@ export default function App() {
     }
   };
 
-  const pendingHwTotal=()=>{
-    let n=0;
-    Object.entries(dailyData).forEach(([k,e])=>{ if(k.startsWith(childId+"-")) n+=(e.homeworks||[]).filter(h=>!h.done).length; });
-    return n;
-  };
-  const pendingAbsCnt=curAbs.filter(a=>a.makeupDate&&!a.makeupDone).length;
-  const todayAc=curAc.filter(a=>hasClassOnDay(a,todayDN())).sort((a,b)=>getClassTime(a,todayDN()).localeCompare(getClassTime(b,todayDN())));
   
 
   // 학원 CRUD
@@ -4452,7 +4351,7 @@ export default function App() {
     return unused||PALETTE[(curAc||[]).length%PALETTE.length];
   };
   const openAdd=()=>{ setEditTarget(null); setNewAc({...EMPTY_AC,color:getNextAcademyColor(),baseSupplies:[],baseHomeworks:[]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(false); setAcSecSupply(false); setAcSecFee(false); setAcSecInfo(false); setAcSecMemo(false); setShowAddAcModal(true); };
-  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length)); setAcSecFee(!!(ac.fee||ac.payDay)); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
+  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length)); setAcSecFee(!!ac.fee); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
   const saveAcademy=()=>{
     if(!newAc.name.trim()||(newAc.useCustomSchedule?(newAc.schedules||[]).length===0:(newAc.days||[]).length===0)){
       showToast("학원명과 수업 요일을 입력해줘"); return;
@@ -4482,7 +4381,6 @@ export default function App() {
     setVacations(p=>{ const next={...p}; delete next[vacKey(childId,id)]; return next; });
     setShowDetailModal(null); showToast("삭제됨");
   };
-  const toggleDay=(day)=>setNewAc(p=>({...p,days:p.days.includes(day)?p.days.filter(d=>d!==day):[...p.days,day]}));
   const addBaseSupply=()=>{ const v=supplyInput.trim(); if(!v) return; setNewAc(p=>({...p,baseSupplies:[...(p.baseSupplies||[]),v]})); setSupplyInput(""); };
   const addBaseHomework=()=>{ const v=baseHwInput.trim(); if(!v) return; setNewAc(p=>({...p,baseHomeworks:[...(p.baseHomeworks||[]),v]})); setBaseHwInput(""); };
   const removeBaseHomework=(i)=>setNewAc(p=>({...p,baseHomeworks:(p.baseHomeworks||[]).filter((_,idx)=>idx!==i)}));
@@ -4543,8 +4441,6 @@ export default function App() {
   // 공통 스타일
   const inp={ width:"100%",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"12px 14px",color:C.text,fontSize:17,outline:"none",fontFamily:"inherit" };
   const lbl={ fontSize:17,color:C.sub,display:"block",marginBottom:7,fontWeight:700 };
-  const gamePrimaryButton={width:"100%",padding:"12px",borderRadius:13,border:"none",background:`linear-gradient(135deg, ${GP.gold}, ${GP.neon})`,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer",boxShadow:`0 4px 14px ${GP.neon}30`};
-  const gameGhostButton={padding:"8px 11px",borderRadius:11,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:12,fontWeight:900,cursor:"pointer"};
   const devBtn=(bg)=>({width:"100%",border:"none",borderRadius:12,padding:"13px",background:bg,color:"#fff",fontSize:14,fontWeight:900,cursor:"pointer"});
   const devMiniBtn=(bg)=>({border:"none",borderRadius:10,padding:"10px 8px",background:bg,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer"});
   const devGroup={background:CT.faint,border:`1px solid ${C.border}`,borderRadius:14,padding:"13px"};
@@ -5015,7 +4911,6 @@ export default function App() {
         {(()=>{
           const q=getTodayQuestProgress(childId,childDate||TODAY);
           const level=getChildLevel(childId);
-          const evo=getCharacterEvolution(childId);
           const stageHat=getEquipped(childId,"hat");
           const eqSkinActive=!!getEquipped(childId,"skin")&&isMaxEvolution(childId);
           // 스킨 장착 시 모자 숨김은 베이커리(완성형 캐릭터)에서만. 모험은 장비(무기·왕관)를 스킨과 함께 표시.
@@ -5034,7 +4929,6 @@ export default function App() {
           const msg=getProgressMessage(q.percent,q.total);
           const allDone=q.total>0&&q.percent===100;
           // 꾸미기(모자·테두리·배경·스킨) 중 하나라도 장착하면 둥실 효과 정지 — 초기 기본 상태에서만 둥실거려 생동감을 줌
-          const hasAnyDecor=!!(stageHat||stageBorder||stageBgDeco||eqSkinActive);
           // 무대 응원 말풍선 노출 규칙
           //  - 무기 장착: 유지 / 테두리 장착: 유지
           //  - 왕관(무기 아닌 머리장식) 장착: 숨김 / 배경 장착: 숨김
@@ -5181,7 +5075,6 @@ export default function App() {
                     return pool[i%pool.length];
                   });
                 }
-                const N = seq.length;
                 const allDoneBg = allDone; // 미션 100% 완료 시 더 화려하게(축하)
                 // 이모지별 크기 보정 (지구·무지개는 작게, 번개·구름은 강조)
                 const emScale={"🌎":0.7,"🌍":0.7,"🌏":0.7,"⚡":1.3,"🐉":1.1,"🌈":0.8,"☁️":1.25,"🪐":1.15,"🛸":1.0,"☄️":0.95,"🛰️":0.9,"🚀":1.0,"🌊":1.2,"🐬":1.15,"🐠":1.0,"🐚":0.85,"🦀":0.95,"🫧":0.8,"🍓":1.1,"🌸":1.1,"🏡":0.95,"🌷":0.95,"🌿":0.9,"🍫":1.1,"🍩":1.0,"🍪":1.0,"🍰":1.0,"🧁":1.05,"🎂":1.0,"🍭":0.95,"🍬":0.95,"👼":1.05,"✨":0.85,"⭐":0.9,"🌟":1.0};
@@ -5410,12 +5303,10 @@ export default function App() {
                     const dk = kidSkin!=="cute";
                     // 카드 본체: 테마색을 머금은 다크. 헤더는 학원색을 살린 진한 톤.
                     const acCardBg = dk ? "linear-gradient(180deg, #2F3650 0%, #262D42 100%)" : "#fff";
-                    const acCardBorder = dk ? `${ac.color}3d` : `2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`;
                     const acTx = dk ? "#FFFFFF" : C.text;
                     const acSub = dk ? "rgba(255,255,255,0.66)" : C.sub;
                     const acInner = dk ? "rgba(255,255,255,0.07)" : CT.faint;        // 내부 강조 박스
                     const acInnerBorder = dk ? "rgba(255,255,255,0.12)" : C.border;
-                    const acChip = dk ? "rgba(255,255,255,0.08)" : null;             // 준비물 칩 등
                     return (
                       <div key={ac.id} style={{borderRadius:dk?26:(ST.on?(GP.radMid||22):22),overflow:"hidden",marginBottom:14,background:acCardBg,border:dk?"1px solid rgba(255,255,255,0.10)":`2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`,boxShadow:dk?"0 14px 32px rgba(0,0,0,0.25)":(ST.on?`0 6px 18px ${GP.boxShadowCol}`:`0 8px 26px ${ac.color}26, 0 2px 6px rgba(0,0,0,0.06)`)}}>
                         {/* 헤더 - 모험:진한 그라데이션 / 베이커리:부드러운 학원색 파스텔 */}
@@ -5560,17 +5451,7 @@ export default function App() {
                     <p style={{fontSize:13,fontWeight:700,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)",margin:0}}>푹 쉬어도 좋아요 😌</p>
                   </div>
                 );
-                const q=getTodayQuestProgress(childId,childDate);
                 // 미션 강조박스 색 — 모험:어두운 톤 / 베이커리:맑은 박스
-                const mD = GP.missionDark;
-                const mBg = mD ? dungeonShinyBg : GP.boxBg;
-                const mTx = mD ? "#fff" : GP.boxText;
-                const mSub = mD ? "rgba(255,255,255,0.78)" : GP.boxSub;
-                const mTrack = mD ? "rgba(0,0,0,0.3)" : GP.divider;
-                const mChip = mD ? "rgba(255,255,255,0.14)" : GP.chipBg;
-                const mBorder = mD ? `${th.main}66` : GP.boxBorder;
-                const mShadow = mD ? `${mixBlack(th.main,0.4)}55` : GP.boxShadowCol;
-                const mAccent = mD ? GP.gold : GP.dark2;
                 return (
                   <div style={{marginTop:2,marginBottom:14}}>
                     {/* 미션 아이템 목록 */}
@@ -5705,7 +5586,6 @@ export default function App() {
                         const coin=getChildCoin(childId);
                         const canGet=coin>=reward.point;
                         const remain=Math.max(0,reward.point-coin);
-                        const progress=Math.min(100,Math.round((coin/reward.point)*100));
                         const grade=getRewardGrade(reward);
                         const pending=hasPendingRewardRequest(childId,reward.id);
                         const isOpen=openRewardId===reward.id || canGet || pending;
@@ -6210,8 +6090,6 @@ export default function App() {
             const cRewardBg= cute?"#fff":"#1e2547";
             const cRewardTx= cute?"#c25c84":"#f5d98e";
             const cRewardBd= cute?"rgba(231,140,170,.45)":"rgba(245,179,1,.4)";
-            const cBy      = cute?"#bb8a9c":"#7a6a3a";
-            const cSign    = cute?"#7a4257":"#3a3320";
             const cSealBg  = cute?"radial-gradient(circle at 35% 30%,#ffd6e2,#f3a8c0)":"radial-gradient(circle at 35% 30%,#f5d062,#caa23a)";
             const cSealTx  = cute?"#9c3a63":"#5a4410";
             const cSealSh  = cute?"0 3px 8px rgba(200,90,130,.35)":"0 3px 8px rgba(120,90,10,.4)";
@@ -6601,7 +6479,6 @@ export default function App() {
             const day=(entry.supplies||[]).length;
             return n+base+day;
           },0);
-          const pendingHw=pendingHwTotal();
           return (
             <div>
               {/* 날짜 이동 (카드 밖 별도 줄) */}
@@ -6636,10 +6513,12 @@ export default function App() {
 
                 {/* 오늘 챙길 일 알림 */}
                 {(()=>{
+                  const pendingRewardCnt=getChildRewardRequests(childId).filter(r=>r.status==="pending").length;
                   const alerts=[];
                   if(homeSupplyCount>0) alerts.push({label:`🎒 준비물 ${homeSupplyCount}개`,color:th.main});
                   if(homePendingHw>0) alerts.push({label:`📝 미완료 숙제 ${homePendingHw}개`,color:th.main});
                   if(homePendingTodo>0) alerts.push({label:`🎯 미완료 미션 ${homePendingTodo}개`,color:th.main});
+                  if(pendingRewardCnt>0) alerts.push({label:`🎁 보상승인 ${pendingRewardCnt}개`,color:C.green});
                   if(absOnHome.length>0) alerts.push({label:`🏥 결석 ${absOnHome.length}개`,color:C.red});
                   if(makeupOnHome.length>0) alerts.push({label:`📚 보충수업 ${makeupOnHome.length}개`,color:C.orange});
                   const hasAlert=alerts.length>0;
@@ -6804,7 +6683,7 @@ export default function App() {
               <div style={{margin:"16px 0 0"}}>
               <div style={{marginBottom:8,background:mixWhite(th.main,0.95),border:`1.5px solid ${th.main}30`,borderRadius:18,padding:"14px 13px"}}>
                 <button onClick={()=>setShowHomeAcademyList(v=>!v)}
-                  style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",background:th.grad,border:"none",borderRadius:14,padding:"13px 15px",cursor:"pointer",boxShadow:`0 4px 14px ${th.main}40`}}>
+                  style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",background:`linear-gradient(135deg, ${mixWhite(th.main,0)}, ${mixWhite(th.main,0.22)})`,border:"none",borderRadius:14,padding:"13px 15px",cursor:"pointer",boxShadow:`0 6px 16px ${th.main}48`}}>
                   <p style={{fontSize:16,color:"#fff",fontWeight:900,margin:0,letterSpacing:0.3}}>📋 등록 학원 {curAc.length>0&&<span style={{fontSize:13,opacity:0.85}}>({curAc.length})</span>}</p>
                   <span style={{fontSize:15,color:"#fff",fontWeight:900,transition:"transform 0.2s",transform:showHomeAcademyList?"rotate(180deg)":"none"}}>▼</span>
                 </button>
@@ -6898,8 +6777,6 @@ export default function App() {
                   const absOnDay=curAbs.filter(a=>a.date===dateStr);
                   const makeupOnDay=curAbs.filter(a=>a.makeupDate===dateStr&&!a.makeupDone);
                   const makeupDoneDay=curAbs.filter(a=>a.makeupDate===dateStr&&a.makeupDone);
-                  const pendingHwD=acList.some(a=>(getDailyEntry(childId,a.id,dateStr).homeworks||[]).some(h=>!h.done));
-                  const doneHwD=acList.some(a=>(getDailyEntry(childId,a.id,dateStr).homeworks||[]).every(h=>h.done)&&(getDailyEntry(childId,a.id,dateStr).homeworks||[]).length>0);
                   const hasExSup=acList.some(a=>(getDailyEntry(childId,a.id,dateStr).supplies||[]).length>0);
                   // 방학 여부
                   const vacAcList=acList.filter(a=>isVacationDay(childId,a.id,dateStr));
@@ -6911,7 +6788,6 @@ export default function App() {
                   if(makeupOnDay.length>0) badges.push("📚");
                   if(makeupDoneDay.length>0) badges.push("✅");
                   if(hasVac) badges.push("🏖️");
-                  if(doneHwD&&!hasVac) badges.push("✓");
                   if(hasExSup) badges.push("🎒");
                   if(hasMemo) badges.push("📝");
                   const shuttleToday=acList.some(a=>getShuttleText(a,dn));
@@ -6933,7 +6809,7 @@ export default function App() {
                         </div>
                       )}
                       {badges.length>0&&<div style={{display:"flex",gap:1,flexWrap:"wrap",paddingLeft:2,paddingBottom:2}}>
-                        {badges.slice(0,6).map((b,j)=><span key={j} style={{fontSize:b==="✓"?9:10,color:b==="✓"?C.green:"inherit",fontWeight:b==="✓"?900:"normal",lineHeight:1}}>{b}</span>)}
+                        {badges.slice(0,6).map((b,j)=><span key={j} style={{fontSize:10,lineHeight:1}}>{b}</span>)}
                       </div>}
                     </div>
                   );
@@ -7350,7 +7226,7 @@ export default function App() {
                 style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
                 <div style={{textAlign:"left"}}>
                   <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 관리</p>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{rewardAgeGroup==="custom"?"✏️ 나만의 목록":`${(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).emoji} ${(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label}용`} 보상승인 · 추가/삭제</p>
+                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{rewardAgeGroup==="custom"?"✏️ 나만의 목록":`${(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).emoji} ${(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label}용`} · 보상승인 · 추가/삭제</p>
                 </div>
                 <span style={openClosePill(showParentRewardManage)}>
                   {openCloseLabel(showParentRewardManage)}
@@ -7405,12 +7281,6 @@ export default function App() {
                     const level=getChildLevel(childId);
                     const evo=getCharacterEvolution(childId);
                     const evoList=kidSkin==="cute"?BAKERY_EVOLUTIONS:CHARACTER_EVOLUTIONS;
-                    const nextEvoRaw=[...evoList]
-                      .sort((a,b)=>a.minLevel-b.minLevel)
-                      .find(e=>e.minLevel>level.level);
-                    const nextEvo=nextEvoRaw
-                      ? evoView(nextEvoRaw,evoList.findIndex(e=>e.minLevel===nextEvoRaw.minLevel),kidSkin)
-                      : null;
 
                     const treasure=getChildTreasure(childId);
                     const title=getSelectedTitle(childId);
@@ -8554,8 +8424,8 @@ export default function App() {
             {showAcMore&&(<>
 
             {/* ① 준비물·숙제 묶음 */}
-            <div style={{border:`1.5px solid ${acSecSupply?mixWhite(newAc.color||th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecSupply?mixWhite(newAc.color||th.main,0.96):"#fff"}}>
-            <button type="button" onClick={()=>setAcSecSupply(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecSupply?mixWhite(newAc.color||th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
+            <div style={{border:`1.5px solid ${acSecSupply?mixWhite(th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecSupply?mixWhite(th.main,0.96):"#fff"}}>
+            <button type="button" onClick={()=>setAcSecSupply(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecSupply?mixWhite(th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
               <span>🎒 상시 준비물 · 상시 숙제</span><span style={{color:C.sub}}>{acSecSupply?"▲":"▼"}</span>
             </button>
             {acSecSupply&&(
@@ -8563,34 +8433,34 @@ export default function App() {
             <label style={{...lbl,fontSize:14}}>🎒 항상 챙길 준비물</label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseSupplies||[]).map((s,i)=>(
-                <span key={i} style={{fontSize:14,padding:"5px 11px",borderRadius:16,background:`${newAc.color}18`,color:newAc.color,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
-                  {s}<button onClick={()=>setNewAc(p=>({...p,baseSupplies:p.baseSupplies.filter((_,j)=>j!==i)}))} style={{background:"none",border:"none",color:newAc.color,cursor:"pointer",fontSize:15,padding:0}}>✕</button>
+                <span key={i} style={{fontSize:14,padding:"5px 11px",borderRadius:16,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
+                  {s}<button onClick={()=>setNewAc(p=>({...p,baseSupplies:p.baseSupplies.filter((_,j)=>j!==i)}))} style={{background:"none",border:"none",color:th.main,cursor:"pointer",fontSize:15,padding:0}}>✕</button>
                 </span>
               ))}
             </div>
             <div style={{display:"flex",gap:8,marginBottom:14}}>
               <input value={supplyInput} onChange={e=>setSupplyInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseSupply()} placeholder="예: 교재, 필통" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"10px 12px",marginBottom:0}}/>
-              <button onClick={addBaseSupply} style={{padding:"0 16px",borderRadius:10,border:"none",background:newAc.color,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer"}}>추가</button>
+              <button onClick={addBaseSupply} style={{padding:"0 16px",borderRadius:10,border:"none",background:th.main,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer"}}>추가</button>
             </div>
             <label style={{...lbl,fontSize:14}}>📚 항상 해야 할 숙제 <span style={{fontSize:12,color:C.sub,fontWeight:400}}>(미션에서 버튼으로 추가)</span></label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseHomeworks||[]).map((s,i)=>(
-                <span key={i} style={{fontSize:14,padding:"5px 11px",borderRadius:16,background:`${newAc.color}18`,color:newAc.color,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
-                  {s}<button onClick={()=>removeBaseHomework(i)} style={{background:"none",border:"none",color:newAc.color,cursor:"pointer",fontSize:15,padding:0}}>✕</button>
+                <span key={i} style={{fontSize:14,padding:"5px 11px",borderRadius:16,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
+                  {s}<button onClick={()=>removeBaseHomework(i)} style={{background:"none",border:"none",color:th.main,cursor:"pointer",fontSize:15,padding:0}}>✕</button>
                 </span>
               ))}
             </div>
             <div style={{display:"flex",gap:8}}>
               <input value={baseHwInput} onChange={e=>setBaseHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseHomework()} placeholder="예: 문제집 2쪽, 단어 10개" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"10px 12px",marginBottom:0}}/>
-              <button onClick={addBaseHomework} style={{padding:"0 16px",borderRadius:10,border:"none",background:newAc.color,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer"}}>추가</button>
+              <button onClick={addBaseHomework} style={{padding:"0 16px",borderRadius:10,border:"none",background:th.main,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer"}}>추가</button>
             </div>
             </div>
             )}
             </div>
 
             {/* ② 학원비·납부 묶음 */}
-            <div style={{border:`1.5px solid ${acSecFee?mixWhite(newAc.color||th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecFee?mixWhite(newAc.color||th.main,0.96):"#fff"}}>
-            <button type="button" onClick={()=>setAcSecFee(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecFee?mixWhite(newAc.color||th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
+            <div style={{border:`1.5px solid ${acSecFee?mixWhite(th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecFee?mixWhite(th.main,0.96):"#fff"}}>
+            <button type="button" onClick={()=>setAcSecFee(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecFee?mixWhite(th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
               <span>💰 학원비 · 납부일</span><span style={{color:C.sub}}>{acSecFee?"▲":"▼"}</span>
             </button>
             {acSecFee&&(
@@ -8602,8 +8472,8 @@ export default function App() {
             </div>
 
             {/* ③ 학원정보 묶음 */}
-            <div style={{border:`1.5px solid ${acSecInfo?mixWhite(newAc.color||th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecInfo?mixWhite(newAc.color||th.main,0.96):"#fff"}}>
-            <button type="button" onClick={()=>setAcSecInfo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecInfo?mixWhite(newAc.color||th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
+            <div style={{border:`1.5px solid ${acSecInfo?mixWhite(th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecInfo?mixWhite(th.main,0.96):"#fff"}}>
+            <button type="button" onClick={()=>setAcSecInfo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecInfo?mixWhite(th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
               <span>📋 학원 정보 (연락처·주소·셔틀)</span><span style={{color:C.sub}}>{acSecInfo?"▲":"▼"}</span>
             </button>
             {acSecInfo&&(
@@ -8673,8 +8543,8 @@ export default function App() {
             </div>
 
             {/* ④ 메모 묶음 */}
-            <div style={{border:`1.5px solid ${acSecMemo?mixWhite(newAc.color||th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecMemo?mixWhite(newAc.color||th.main,0.96):"#fff"}}>
-            <button type="button" onClick={()=>setAcSecMemo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecMemo?mixWhite(newAc.color||th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
+            <div style={{border:`1.5px solid ${acSecMemo?mixWhite(th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecMemo?mixWhite(th.main,0.96):"#fff"}}>
+            <button type="button" onClick={()=>setAcSecMemo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecMemo?mixWhite(th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
               <span>📝 메모</span><span style={{color:C.sub}}>{acSecMemo?"▲":"▼"}</span>
             </button>
             {acSecMemo&&(
@@ -8899,7 +8769,7 @@ export default function App() {
               </div>
               </>);
               })()}
-              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>저장 & 닫기</button>
+              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:acColor,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>저장 & 닫기</button>
             </div>
           </div>
         );
