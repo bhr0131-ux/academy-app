@@ -918,18 +918,58 @@ const getRewardGrade=(reward)=>REWARD_GRADES.find(g=>g.id===(reward.grade||"comm
 
 const DEFAULT_REWARDS = [
   { id:1,  title:"사탕 하나",              point:30,    emoji:"🍬", grade:"common"    },
-  { id:2,  title:"작은 과자",              point:50,    emoji:"🍪", grade:"common"    },
-  { id:3,  title:"엄마랑 보드게임 15분",   point:80,    emoji:"🎲", grade:"common"    },
+  { id:2,  title:"좋아하는 간식",          point:50,    emoji:"🍪", grade:"common"    },
+  { id:3,  title:"엄마랑 놀이 15분",       point:80,    emoji:"🧸", grade:"common"    },
   { id:4,  title:"아이스크림",             point:120,   emoji:"🍦", grade:"rare"      },
-  { id:5,  title:"편의점 간식 고르기",     point:150,   emoji:"🏪", grade:"rare"      },
-  { id:6,  title:"영상 20분",              point:180,   emoji:"📺", grade:"rare"      },
-  { id:7,  title:"게임 30분",              point:220,   emoji:"🎮", grade:"epic"      },
-  { id:8,  title:"주말 특별 디저트",       point:300,   emoji:"🧁", grade:"epic"      },
-  { id:9,  title:"문구점 쇼핑",            point:480,   emoji:"✏️", grade:"epic"      },
+  { id:5,  title:"영상 20분",              point:150,   emoji:"📺", grade:"rare"      },
+  { id:6,  title:"편의점 간식 고르기",     point:180,   emoji:"🏪", grade:"rare"      },
+  { id:7,  title:"놀이터 데이트",          point:220,   emoji:"🛝", grade:"epic"      },
+  { id:8,  title:"다이소 쇼핑",            point:300,   emoji:"🛒", grade:"epic"      },
+  { id:9,  title:"주말 특별 간식",         point:480,   emoji:"🧁", grade:"epic"      },
   { id:10, title:"작은 장난감",            point:700,   emoji:"🧸", grade:"legendary" },
-  { id:11, title:"키즈카페/놀이터 데이트", point:1100,  emoji:"🎡", grade:"legendary" },
+  { id:11, title:"키즈카페",               point:1100,  emoji:"🎡", grade:"legendary" },
   { id:12, title:"큰 선물 도전권",         point:1800,  emoji:"🎁", grade:"legendary" },
 ];
+
+// 🎒 초등학생 보상 세트
+const REWARDS_ELEMENTARY = [
+  { id:1,  title:"좋아하는 간식",          point:50,    emoji:"🍪", grade:"common"    },
+  { id:2,  title:"편의점 간식 고르기",     point:90,    emoji:"🏪", grade:"common"    },
+  { id:3,  title:"용돈 1,000원",           point:120,   emoji:"💰", grade:"common"    },
+  { id:4,  title:"영상 30분",              point:150,   emoji:"📺", grade:"rare"      },
+  { id:5,  title:"게임 30분",              point:180,   emoji:"🎮", grade:"rare"      },
+  { id:6,  title:"문구·캐릭터 용품",       point:230,   emoji:"✏️", grade:"rare"      },
+  { id:7,  title:"친구랑 놀기",            point:260,   emoji:"🛹", grade:"epic"      },
+  { id:8,  title:"외식 메뉴 선택권",       point:300,   emoji:"🍕", grade:"epic"      },
+  { id:9,  title:"용돈 5,000원",           point:480,   emoji:"💵", grade:"epic"      },
+  { id:10, title:"갖고 싶던 장난감",       point:700,   emoji:"🎁", grade:"legendary" },
+  { id:11, title:"영화관/체험 데이트",     point:1100,  emoji:"🎬", grade:"legendary" },
+  { id:12, title:"큰 선물 도전권(2만원)",  point:1800,  emoji:"🛍️", grade:"legendary" },
+];
+
+// 📚 중학생 이상 보상 세트
+const REWARDS_TEEN = [
+  { id:1,  title:"좋아하는 간식",          point:50,    emoji:"🧋", grade:"common"    },
+  { id:2,  title:"용돈 2,000원",           point:90,    emoji:"💰", grade:"common"    },
+  { id:3,  title:"영상/게임 30분",         point:120,   emoji:"🎮", grade:"common"    },
+  { id:4,  title:"배달음식 메뉴 선택",     point:150,   emoji:"🍔", grade:"rare"      },
+  { id:5,  title:"용돈 5,000원",           point:180,   emoji:"💵", grade:"rare"      },
+  { id:6,  title:"친구랑 외출",            point:230,   emoji:"🚶", grade:"rare"      },
+  { id:7,  title:"취침/통금 30분 연장",    point:260,   emoji:"🌙", grade:"epic"      },
+  { id:8,  title:"갖고 싶은 굿즈·아이템",  point:300,   emoji:"🎧", grade:"epic"      },
+  { id:9,  title:"용돈 10,000원",          point:480,   emoji:"💸", grade:"epic"      },
+  { id:10, title:"사고 싶던 옷/신발",      point:700,   emoji:"👟", grade:"legendary" },
+  { id:11, title:"친구와 노래방/외식",     point:1100,  emoji:"🎤", grade:"legendary" },
+  { id:12, title:"큰 보상 도전권(5만원)",  point:1800,  emoji:"🎁", grade:"legendary" },
+];
+
+// 연령대 → 보상 세트 매핑
+const REWARD_SETS_BY_AGE = {
+  kid:  { label:"어린이",      emoji:"🧸", rewards:DEFAULT_REWARDS    },
+  elem: { label:"초등학생",    emoji:"🎒", rewards:REWARDS_ELEMENTARY },
+  teen: { label:"중학생 이상", emoji:"📚", rewards:REWARDS_TEEN       },
+};
+const getRewardsByAge=(age)=>(REWARD_SETS_BY_AGE[age]||REWARD_SETS_BY_AGE.kid).rewards;
 
 const TREASURE_REWARD_TABLE = {
   normal:{
@@ -1667,6 +1707,7 @@ function OnboardingFlow({ onFinish }){
   const [step,setStep]=useState(0);
   const [childName,setChildName]=useState("");
   const [gender,setGender]=useState("boy");
+  const [age,setAge]=useState("");  // kid | elem | teen
   const [acName,setAcName]=useState("");
   const [acDays,setAcDays]=useState([]);
   const [acTime,setAcTime]=useState("16:00");
@@ -1682,6 +1723,7 @@ function OnboardingFlow({ onFinish }){
   const steps=[
     { kind:"welcome" },
     { kind:"input", title:"아이의 이름이 무엇인가요?", sub:"아이 화면과 미션에 표시돼요.", canNext:()=>childName.trim().length>0 },
+    { kind:"age", title:"아이의 연령대를 골라주세요", sub:"연령대에 맞는 보상 목록을 자동으로 준비해드려요. 나중에 바꿀 수 있어요.", canNext:()=>age!=="" },
     { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>acName.trim().length>0 },
     { kind:"homework", title:"오늘의 숙제가 있나요?", sub:"하나만 적어볼게요. 나중에 자유롭게 바꿀 수 있어요.", canNext:()=>homework.trim().length>0 },
     { kind:"todo", title:"오늘의 미션(할 일)이 있나요?", sub:"숙제 외에 스스로 할 일을 하나 적어주세요.", canNext:()=>todo.trim().length>0 },
@@ -1691,7 +1733,7 @@ function OnboardingFlow({ onFinish }){
 
   const next=()=>{ if(isLast){ finish(); } else setStep(s=>s+1); };
   const prev=()=>setStep(s=>Math.max(0,s-1));
-  const finish=()=>onFinish({ childName, gender, acName, acDays, acTime, homework, todo });
+  const finish=()=>onFinish({ childName, gender, age, acName, acDays, acTime, homework, todo });
 
   return (
     <div style={{position:"fixed",inset:0,zIndex:9999,background:"#fff",display:"flex",flexDirection:"column",wordBreak:"keep-all"}}>
@@ -1729,6 +1771,29 @@ function OnboardingFlow({ onFinish }){
             <div style={{display:"flex",gap:10,marginTop:16}}>
               {[{k:"boy",t:"👦 남자아이"},{k:"girl",t:"👧 여자아이"}].map(g=>(
                 <button key={g.k} onClick={()=>setGender(g.k)} style={{flex:1,padding:14,borderRadius:14,border:`2px solid ${gender===g.k?TH.main:"#E3E8F0"}`,background:gender===g.k?`${TH.main}12`:"#fff",color:gender===g.k?TH.main:"#8890B0",fontSize:15,fontWeight:800,cursor:"pointer"}}>{g.t}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {cur.kind==="age"&&(
+          <div>
+            <p style={lbl}>{cur.title}</p>
+            <p style={sub}>{cur.sub}</p>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              {[
+                {k:"kid",  emoji:"🧸", t:"어린이",      d:"미취학 · 사탕, 놀이터, 키즈카페 등"},
+                {k:"elem", emoji:"🎒", t:"초등학생",    d:"용돈, 게임 시간, 문구 용품 등"},
+                {k:"teen", emoji:"📚", t:"중학생 이상", d:"용돈, 배달음식, 굿즈, 외출 등"},
+              ].map(a=>(
+                <button key={a.k} onClick={()=>setAge(a.k)} style={{display:"flex",alignItems:"center",gap:14,padding:"16px 18px",borderRadius:16,border:`2px solid ${age===a.k?TH.main:"#E3E8F0"}`,background:age===a.k?`${TH.main}12`:"#fff",cursor:"pointer",textAlign:"left",width:"100%"}}>
+                  <span style={{fontSize:30,flexShrink:0}}>{a.emoji}</span>
+                  <span style={{flex:1,minWidth:0}}>
+                    <span style={{display:"block",fontSize:17,fontWeight:900,color:age===a.k?TH.main:"#1A1A35"}}>{a.t}</span>
+                    <span style={{display:"block",fontSize:13,fontWeight:600,color:"#8890B0",marginTop:2}}>{a.d}</span>
+                  </span>
+                  {age===a.k&&<span style={{flexShrink:0,fontSize:18,color:TH.main,fontWeight:900}}>✓</span>}
+                </button>
               ))}
             </div>
           </div>
@@ -1784,11 +1849,18 @@ function OnboardingFlow({ onFinish }){
 
 function GuideModal({type="guide",th,onClose,skin="dungeon"}){
   const isReward=type==="reward";
+  const isWelcome=type==="welcome";
   const isCute=skin==="cute";
   const xpW=isCute?"경험치":"XP";
   const coinW=isCute?"쿠키":"코인";
 
-  const steps=isReward
+  const steps=isWelcome
+    ? [
+        { ic:"🔓", t:"아이가 직접 미션을 추가해요", d:"홈탭에서 숙제·할 일을 등록" },
+        { ic:"🔒", t:"점수·삭제는 엄마만", d:"점수 수정·미션 삭제는 엄마 권한" },
+        { ic:"🎁", t:"보상은 엄마가 승인", d:"아이가 신청하면 여기서 확인하고 승인" },
+      ]
+    : isReward
     ? [
         { ic:"🎁", t:"보상 탭 열기", d:"'확인 필요한 구매 요청'이 보여요" },
         { ic:"✅", t:"구매 승인", d:`승인하면 ${coinW}이 차감돼요` },
@@ -1834,18 +1906,18 @@ function GuideModal({type="guide",th,onClose,skin="dungeon"}){
           color:"#fff",
           textAlign:"center"
         }}>
-          <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>{isReward?"REWARD":"HARANG"}</p>
-          <h2 style={{fontSize:isReward?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isReward?"구매 요청이 왔어요! 🛒":"아이 성장 미션"}</h2>
+          <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>{isWelcome?"GUIDE":isReward?"REWARD":"HARANG"}</p>
+          <h2 style={{fontSize:isReward||isWelcome?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isWelcome?"여기는 엄마 권한이에요 🔒":isReward?"구매 요청이 왔어요! 🛒":"아이 성장 미션"}</h2>
           <div style={{width:38,height:3,borderRadius:99,background:"rgba(255,255,255,0.6)",margin:"12px auto 14px"}}/>
           <p style={{fontSize:14.5,fontWeight:800,lineHeight:1.6,margin:0}}>
-            {isReward?<>아이가 모은 {coinW}으로<br/>첫 보상을 신청했어요 🎉</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨</>}
+            {isWelcome?<>점수와 보상은 엄마가 관리,<br/>아이는 미션에만 집중! ✨</>:isReward?<>아이가 모은 {coinW}으로<br/>첫 보상을 신청했어요 🎉</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨</>}
           </p>
         </div>
 
         {/* 사용 방법 */}
         <div style={{padding:"22px 24px 24px"}}>
           <p style={{fontSize:13,fontWeight:900,letterSpacing:0.5,color:th.main,margin:"0 0 14px"}}>
-            {isReward?"🎁 이렇게 보상을 전해주세요":"🚀 이렇게 시작해요"}
+            {isWelcome?"💡 이렇게 설계됐어요":isReward?"🎁 이렇게 보상을 전해주세요":"🚀 이렇게 시작해요"}
           </p>
 
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -1863,13 +1935,13 @@ function GuideModal({type="guide",th,onClose,skin="dungeon"}){
                   <p style={{fontSize:14.5,fontWeight:900,color:C.text,margin:0,lineHeight:1.2}}>
                     <span style={{color:th.main,marginRight:5}}>{i+1}</span>{s.t}
                   </p>
-                  {s.d&&<p style={{fontSize:12,fontWeight:600,color:C.sub,margin:"2px 0 0"}}>{s.d}</p>}
+                  {s.d&&<p style={{fontSize:12,fontWeight:600,color:C.sub,margin:"3px 0 0",lineHeight:1.5}}>{s.d}</p>}
                 </div>
               </div>
             ))}
           </div>
 
-          {!isReward&&(
+          {!isReward&&!isWelcome&&(
           <div style={{
             background:`${th.main}0E`,
             borderRadius:12,
@@ -1897,7 +1969,7 @@ function GuideModal({type="guide",th,onClose,skin="dungeon"}){
               boxShadow:`0 6px 18px ${th.main}40`
             }}
           >
-            {isReward?"보상 탭으로 가기 🎁":"닫기"}
+            {isWelcome?"알겠어요 👍":isReward?"보상 탭으로 가기 🎁":"닫기"}
           </button>
         </div>
       </div>
@@ -1969,7 +2041,7 @@ const initAuth = {
 const initOnboarding = {
   showOnboarding: false, showCoachmark: false, showKidCoachmark: false, showModeSelect: false,
   firstTipPending: false, showFirstMissionTip: false, firstTipSeen: false,
-  pinHintSeen: false, showParentRewardGuide: false, parentRewardGuideSeen: false,
+  pinHintSeen: false, showParentRewardGuide: false, parentRewardGuideSeen: false, showParentWelcome: false, parentWelcomeSeen: false,
 };
 const initUi = {
   childTab: "area",
@@ -2058,6 +2130,9 @@ export default function App() {
   const [dailyHwInput,        setDailyHwInput]        = useState(initDaily.dailyHwInput);
   const [dailySupInput,       setDailySupInput]       = useState(initDaily.dailySupInput);
   const [dailyTodoInput,      setDailyTodoInput]      = useState(initDaily.dailyTodoInput);
+  const [editingDailyItem,    setEditingDailyItem]    = useState(null); // {kind:'hw'|'todo', id} 수정 중인 미션
+  const [editingDailyText,    setEditingDailyText]    = useState("");   // 수정 중 텍스트
+  const [editingDailyPoint,   setEditingDailyPoint]   = useState("");   // 수정 중 점수(보상탭에서만)
   const [dailyHwPoint,        setDailyHwPoint]        = useState(initDaily.dailyHwPoint);
   const [dailyTodoPoint,      setDailyTodoPoint]      = useState(initDaily.dailyTodoPoint);
   const [showDailyModal,      setShowDailyModal]      = useState(initDaily.showDailyModal);
@@ -2067,6 +2142,8 @@ export default function App() {
   // ── 도메인 D: reward (점수/보상/구매요청/XP조정) ──────────────────
   const [scoreData,      setScoreData]      = useState(initReward.scoreData);
   const [rewardData,     setRewardData]     = useState(initReward.rewardData);
+  const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elem|teen)
+  const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
   const [rewardRequests, setRewardRequests] = useState(initReward.rewardRequests);
   const [rewardForm,     setRewardForm]     = useState(initReward.rewardForm);
   const [editingRewardId,setEditingRewardId]= useState(initReward.editingRewardId);
@@ -2102,13 +2179,17 @@ export default function App() {
   const [appMode,           setAppMode]           = useState(initAuth.appMode);
   const [parentPin,         setParentPin]         = useState(initAuth.parentPin);
   const [pinInput,          setPinInput]          = useState(initAuth.pinInput);
-  const [showParentPin,     setShowParentPin]     = useState(initAuth.showParentPin);
+  const [showParentPin,     setShowParentPin]     = useState(initAuth.showParentPin); // (구) 미사용 — 호환 위해 정의만 유지
   const [oldPinInput,       setOldPinInput]       = useState(initAuth.oldPinInput);
   const [newPinInput,       setNewPinInput]       = useState(initAuth.newPinInput);
   const [newPinConfirm,     setNewPinConfirm]     = useState(initAuth.newPinConfirm);
   const [showPinChangeModal,setShowPinChangeModal]= useState(initAuth.showPinChangeModal);
   const [isPaidPremium,     setIsPaidPremium]     = useState(initAuth.isPaidPremium);
   const [installInfo,       setInstallInfo]       = useState(initAuth.installInfo);
+  // ── 엄마용은 PIN 없이 진입. 단, '보상' 탭과 '위험구역'만 PIN으로 보호 ──
+  const [rewardUnlocked,    setRewardUnlocked]    = useState(false); // 보상탭: 세션 동안 1회 통과하면 유지
+  const [gatePin,           setGatePin]           = useState("");    // 게이트 PIN 입력값(기존 pinInput과 분리)
+  const [gateAction,        setGateAction]        = useState(null);  // PIN 통과 시 실행할 콜백({run, title})
 
   // ── 도메인 H: onboarding (온보딩/코치마크/1회성 안내) ────────────
   const [showOnboarding,        setShowOnboarding]        = useState(initOnboarding.showOnboarding);
@@ -2122,6 +2203,8 @@ export default function App() {
   const [pinHintSeen,           setPinHintSeen]           = useState(initOnboarding.pinHintSeen);
   const [showParentRewardGuide, setShowParentRewardGuide] = useState(initOnboarding.showParentRewardGuide);
   const [parentRewardGuideSeen, setParentRewardGuideSeen] = useState(initOnboarding.parentRewardGuideSeen);
+  const [showParentWelcome,    setShowParentWelcome]    = useState(initOnboarding.showParentWelcome);
+  const [parentWelcomeSeen,    setParentWelcomeSeen]    = useState(initOnboarding.parentWelcomeSeen);
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
@@ -2258,11 +2341,17 @@ export default function App() {
       if(pinHint) setPinHintSeen(true);
       const prGuideSeen=await load("v6_parent_reward_guide_seen");
       if(prGuideSeen) setParentRewardGuideSeen(true);
+      const pWelcomeSeen=await load("v6_parent_welcome_seen");
+      if(pWelcomeSeen) setParentWelcomeSeen(true);
+      const rAge=await load("v6_reward_age_group");
+      if(rAge) setRewardAgeGroup(rAge);
       setLoaded(true);
     })();
   },[]);
 
   useEffect(()=>{ if(loaded) save("v6_children",children); },[children,loaded]);
+  // 안전장치: 아이모드에 있는 동안에는 보상탭 잠금을 항상 유지(어떤 경로로 진입하든 PIN 재요구).
+  useEffect(()=>{ if(appMode==="child" && rewardUnlocked) setRewardUnlocked(false); },[appMode,rewardUnlocked]);
   useEffect(()=>{ if(loaded) save("v6_kid_skin_map",skinByChild); },[skinByChild,loaded]);
   useEffect(()=>{ if(loaded) save("v6_ac",academies); },[academies,loaded]);
   useEffect(()=>{ if(loaded) save("v6_abs",absences); },[absences,loaded]);
@@ -2302,6 +2391,12 @@ export default function App() {
     const cid="child_1";
     setChildren([{ id:cid, name:(data.childName||"우리 아이").trim(), gender:data.gender||"boy" }]);
     setChildId(cid);
+
+    // 연령대에 맞는 보상 세트 적용 (kid|elem|teen)
+    const ageRewards=getRewardsByAge(data.age);
+    setRewardData({ shared:ageRewards });
+    setRewardAgeGroup(data.age||"kid");
+    save("v6_reward_age_group",data.age||"kid");
 
     let acId=null;
     if(data.acName && data.acName.trim()){
@@ -2357,31 +2452,24 @@ export default function App() {
     setTimeout(()=>setCharCheer(null),1300);
   };
 
-  const enterParentMode=()=>{
-    if(DEV_MODE && pinInput===DEV_PIN){
-      setShowParentPin(false);
-      setPinInput("");
+  // 보상탭·위험구역 등 보호가 필요한 동작에 PIN을 요구하는 범용 게이트.
+  // run: PIN 통과 시 실행할 함수, title: 모달에 표시할 안내 문구
+  const askPin=(run,title)=>{ setGatePin(""); setGateAction({run,title}); };
+  const submitGatePin=()=>{
+    // 개발자 도구: DEV_MODE에서 DEV_PIN 입력 시 보상탭 대신 개발자 도구 진입
+    if(DEV_MODE && gatePin===DEV_PIN){
+      setGateAction(null); setGatePin("");
       setShowDevTools(true);
       showToast("개발자 도구 열림 🧪");
       return;
     }
-    if(pinInput===parentPin){
-      setAppMode("parent"); setShowParentPin(false); setPinInput("");
-      markPinHintSeen();
-      showToast("엄마용으로 전환됨 🔓");
-      // 첫 구매요청이 있는데 아직 안내 안 봤으면 1회 안내
-      if(!parentRewardGuideSeen){
-        const anyPending=Object.values(rewardRequests).some(list=>(list||[]).some(r=>r.status==="pending"));
-        if(anyPending){
-          setParentRewardGuideSeen(true);
-          save("v6_parent_reward_guide_seen","1");
-          setTimeout(()=>setShowParentRewardGuide(true),450);
-        }
-      }
-    } else {
-      showToast("비밀번호가 달라요");
-    }
+    if(gatePin!==parentPin){ showToast("비밀번호가 달라요"); return; }
+    markPinHintSeen();
+    const act=gateAction;
+    setGateAction(null); setGatePin("");
+    act?.run?.();
   };
+
   const addDevXP=(amount)=>{
     if(!DEV_MODE) return;
     addChildScore(childId,amount,`개발자 도구 XP ${amount>=0?"+":""}${amount}`,"dev_xp");
@@ -2608,10 +2696,36 @@ export default function App() {
     showToast(`📚 숙제 ${count}개 추가 완료! (${targetName})`);
   };
 
+  // 보상 연령대 변경: 선택한 연령대 세트로 보상 목록을 전체 교체(기존 커스텀 보상은 사라짐)
+  // age가 'custom'이면 목록을 비워 엄마가 직접 만들도록 함
+  // 버튼 클릭 → 같은 연령대면 무시, 아니면 확인 모달 띄움 (window.confirm은 미리보기에서 차단되므로 인앱 모달 사용)
+  const changeRewardAge=(age)=>{
+    if(age===rewardAgeGroup){ showToast(age==="custom"?"이미 '나만의 목록'이에요":`이미 '${REWARD_SETS_BY_AGE[age]?.label}' 보상이에요`); return; }
+    setPendingAgeChange(age);
+  };
+  // 확인 모달에서 '변경'을 누르면 실제 적용
+  const applyAgeChange=(age)=>{
+    if(age==="custom"){
+      setRewardData({ shared:[] });
+      setRewardAgeGroup("custom");
+      save("v6_reward_age_group","custom");
+      showToast("✏️ 나만의 목록으로 비웠어요");
+    } else {
+      const set=REWARD_SETS_BY_AGE[age];
+      if(set){
+        setRewardData({ shared:set.rewards.map(r=>({...r})) });
+        setRewardAgeGroup(age);
+        save("v6_reward_age_group",age);
+        showToast(`${set.emoji} ${set.label} 보상으로 변경됐어요`);
+      }
+    }
+    setPendingAgeChange(null);
+  };
+
   const resetGameData=(cid)=>{
     const nm=(children.find(c=>c.id===cid)?.name)||"이 아이";
-    if(!window.confirm(`${nm}의 모든 기록이 삭제됩니다.\n정말 초기화할까요?`)) return;
-    if(!window.confirm("초기화 후 복구할 수 없습니다.\n정말 진행할까요?")) return;
+    // 재확인 대신 PIN 입력으로 보호. PIN 통과 시에만 실제 초기화 진행.
+    askPin(()=>{
     setScoreData(prev=>({...prev,[cid]:{xp:0,coin:0,history:[]}}));
     // 등록한 학원·미션은 유지하되, 완료 표시(done/failed)만 해제 → 업적·상장가 다시 해금되지 않도록
     setDailyData(prev=>{
@@ -2643,11 +2757,11 @@ export default function App() {
     setBestStreakData(prev=>({...prev,[cid]:0}));
     setLastLevelByChild(prev=>({...prev,[cid]:undefined}));
     showToast("게임 데이터 초기화 완료");
+    }, `🧹 ${nm} 데이터 초기화`);
   };
 
   const resetAllAppData=()=>{
-    if(!window.confirm("정말 앱 전체를 초기화할까요?")) return;
-    if(!window.confirm("아이/학원/미션/설정이 모두 삭제돼요. 정말 삭제할까요?")) return;
+    askPin(()=>{
     try { localStorage.clear(); } catch (e) {}
     setChildren(DEFAULT_CHILDREN); setChildId("child_1");
     setAcademies({}); setAbsences({}); setPaidStatus({}); setDayMemos({});
@@ -2661,12 +2775,13 @@ export default function App() {
     setEarnedTitleIds({});
     setSpecialTitles({}); setBestStreakData({}); setVacations({});
     setTemplates(SAMPLE_TMPL); setParentPin("1234");
-    setShowDevTools(false); setShowSettingsModal(false); setAppMode("child");
+    setShowDevTools(false); setShowSettingsModal(false); setAppMode("child"); setRewardUnlocked(false);
     showToast("앱 전체가 초기화되었어요 🔄");
+    }, "💣 앱 전체 초기화");
   };
 
   const exitParentMode=()=>{
-    setAppMode("child"); setPinInput("");
+    setAppMode("child"); setPinInput(""); setRewardUnlocked(false);
     showToast("아이용으로 전환됨 🎒");
     // 아이모드 첫 진입 흐름: 모드선택 먼저 → (모드 고르면) 코치마크를 그 모드에 맞춰 노출.
     // 가이드는 봤지만 모드를 아직 안 골랐으면 모드선택만 띄운다.
@@ -4802,9 +4917,9 @@ export default function App() {
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
-                <button onClick={()=>setShowParentPin(true)}
+                <button onClick={()=>{ setAppMode("parent"); setTab("home"); }}
                   style={{...jellyChip({border:`1.5px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),flex:children.length>1?1:"none",color:GP.chipText,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 6px rgba(0,0,0,0.28)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
-                  🔒 엄마용
+                  👩 엄마용
                 </button>
                 {children.length<=1&&(
                   <button onClick={()=>setShowKidCoachmark(true)}
@@ -5832,120 +5947,17 @@ export default function App() {
         </div>
 
         {/* 개발자 도구 모달 (DEV_MODE=false 시 완전히 렌더 안 됨) */}
-        {DEV_MODE && showDevTools&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.6)",display:"flex",alignItems:"flex-end",zIndex:3000}} onClick={()=>setShowDevTools(false)}>
-            <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 44px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
-                <div>
-                  <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🧪 개발자 도구</h3>
-                  <p style={{margin:"4px 0 0",fontSize:13,color:C.sub,fontWeight:700}}>테스트용 데이터 생성/초기화</p>
-                </div>
-                <button onClick={()=>setShowDevTools(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
-              </div>
-
-              {/* 현재 아이 상태 */}
-              <div style={{background:GP.boxBg,border:`1px solid ${GP.boxBorder}`,borderRadius:14,padding:"10px 14px",marginBottom:14,color:GP.boxText}}>
-                <p style={{fontSize:11,opacity:0.7,margin:"0 0 2px",fontWeight:900,letterSpacing:1}}>CURRENT PLAYER</p>
-                <p style={{fontSize:13,fontWeight:900,margin:0}}>{children.find(c=>c.id===childId)?.name||"없음"} · Lv.{getChildLevel(childId).level} · {TM.xpEmoji}{getChildXP(childId)} · {TM.coinEmoji}{getChildCoin(childId)}</p>
-              </div>
-
-              <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                <button onClick={loadSampleData} style={devBtn(C.green)}>🌱 샘플 데이터 채우기 (아이·학원·미션)</button>
-                <button onClick={()=>generateTestData(childId)} style={devBtn(C.purple)}>🧪 테스트 데이터 생성</button>
-                <button onClick={()=>generateLegendTestData(childId)} style={devBtn(GP.gold)}>👑 전설 테스트 모드</button>
-
-                <div style={devGroup}>
-                  <p style={devGroupTitle}>미션 · 숙제 일괄 추가 ({fmt(childDate)})</p>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
-                    <button onClick={()=>addDevQuests(childId,10)} style={devMiniBtn(C.blue||"#3B82F6")}>📝 미션 10개</button>
-                    <button onClick={()=>addDevHomeworks(childId,10)} style={devMiniBtn(C.orange)}>📚 숙제 10개</button>
-                  </div>
-                </div>
-
-                <div style={devGroup}>
-                  <p style={devGroupTitle}>상자 지급</p>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-                    <button onClick={()=>giveDevBox("normal")} style={devMiniBtn("#94A3B8")}>📦 일반</button>
-                    <button onClick={()=>giveDevBox("rare")} style={devMiniBtn(C.purple)}>🎁 희귀</button>
-                    <button onClick={()=>giveDevBox("legend")} style={devMiniBtn(GP.gold)}>👑 전설</button>
-                  </div>
-                </div>
-
-                <div style={devGroup}>
-                  <p style={devGroupTitle}>🔥 연속 달성 (현재 {getQuestStreak(childId)}일 · 최고 {getBestStreak(childId)}일)</p>
-                  <p style={{fontSize:11,color:C.sub,margin:"0 0 8px",fontWeight:600,lineHeight:1.4}}>오늘부터 거꾸로 과거 날짜에 완료된 미션을 심어 실제 연속 기록을 만듭니다 (첫 번째 학원 기준)</p>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
-                    <button onClick={()=>setDevStreak(3)} style={devMiniBtn(C.streak||"#FF6B6B")}>3일</button>
-                    <button onClick={()=>setDevStreak(5)} style={devMiniBtn(C.streak||"#FF6B6B")}>5일</button>
-                    <button onClick={()=>setDevStreak(10)} style={devMiniBtn(C.streak||"#FF6B6B")}>10일</button>
-                    <button onClick={()=>setDevStreak(30)} style={devMiniBtn(C.streak||"#FF6B6B")}>30일</button>
-                  </div>
-                  <p style={{fontSize:11,color:C.sub,margin:"10px 0 6px",fontWeight:700}}>최고기록만 설정 (상장 조건 테스트)</p>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
-                    <button onClick={()=>setDevBestStreak(5)} style={devMiniBtn("#94A3B8")}>5</button>
-                    <button onClick={()=>setDevBestStreak(10)} style={devMiniBtn("#94A3B8")}>10</button>
-                    <button onClick={()=>setDevBestStreak(30)} style={devMiniBtn("#94A3B8")}>30</button>
-                    <button onClick={()=>setDevBestStreak(0)} style={devMiniBtn(C.red)}>초기화</button>
-                  </div>
-                  <button onClick={diagnoseStreak} style={{...devMiniBtn(C.purple),width:"100%",marginTop:8}}>🔍 연속 진단 (콘솔+토스트)</button>
-                </div>
-
-                <div style={devGroup}>
-                  <p style={devGroupTitle}>{TM.xp} 지급</p>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-                    <button onClick={()=>addDevXP(10)} style={devMiniBtn(C.green)}>+10</button>
-                    <button onClick={()=>addDevXP(50)} style={devMiniBtn(C.green)}>+50</button>
-                    <button onClick={()=>addDevXP(100)} style={devMiniBtn(C.green)}>+100</button>
-                  </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:8}}>
-                    <button onClick={()=>addDevXP(-10)} style={devMiniBtn(C.red)}>-10</button>
-                    <button onClick={()=>addDevXP(-50)} style={devMiniBtn(C.red)}>-50</button>
-                    <button onClick={()=>addDevXP(-100)} style={devMiniBtn(C.red)}>-100</button>
-                  </div>
-                </div>
-
-                <div style={devGroup}>
-                  <p style={devGroupTitle}>{TM.coin} 지급</p>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-                    <button onClick={()=>addDevCoin(100)} style={devMiniBtn(GP.gold)}>+100</button>
-                    <button onClick={()=>addDevCoin(500)} style={devMiniBtn(GP.gold)}>+500</button>
-                    <button onClick={()=>addDevCoin(1000)} style={devMiniBtn(GP.gold)}>+1000</button>
-                  </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:8}}>
-                    <button onClick={()=>addDevCoin(-10)} style={devMiniBtn(C.red)}>-10</button>
-                    <button onClick={()=>addDevCoin(-50)} style={devMiniBtn(C.red)}>-50</button>
-                    <button onClick={()=>addDevCoin(-100)} style={devMiniBtn(C.red)}>-100</button>
-                  </div>
-                </div>
-
-                <button onClick={()=>unlockAllTitlesForDev(childId)} style={devBtn("#F59E0B")}>👑 모든 상장 받기</button>
-
-                <div style={devGroup}>
-                  <p style={devGroupTitle}>이벤트 팝업 테스트</p>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
-                    <button onClick={()=>showDevEvent("level")} style={devMiniBtn(th.main)}>🎉 레벨업</button>
-                    <button onClick={()=>showDevEvent("title")} style={devMiniBtn("#F59E0B")}>👑 상장</button>
-                    <button onClick={()=>showDevEvent("box")} style={devMiniBtn("#FBBF24")}>📦 상자획득</button>
-                    <button onClick={()=>showDevEvent("treasure")} style={devMiniBtn(C.orange)}>🎁 상자열기</button>
-                  </div>
-                </div>
-
-                <button onClick={()=>{ resetGameData(childId); setShowDevTools(false); }} style={devBtn(C.red)}>🧹 현재 아이 게임 데이터 초기화</button>
-                <button onClick={resetAllAppData} style={devBtn("#111827")}>💣 앱 전체 초기화</button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* PIN 입력 모달 */}
-        {showParentPin&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,padding:20}}>
+        {/* 범용 PIN 게이트 모달 (보상탭 진입 · 위험구역 초기화 · 개발자도구 보호) */}
+        {gateAction&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}}>
             <div style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
-              <h3 style={{fontSize:20,fontWeight:900,margin:"0 0 16px",textAlign:"center"}}>🔒 엄마용</h3>
-              <input type="password" inputMode="numeric" value={pinInput}
-                onChange={e=>setPinInput(e.target.value.replace(/\D/g,"").slice(0,4))}
+              <h3 style={{fontSize:20,fontWeight:900,margin:"0 0 6px",textAlign:"center"}}>🔒 비밀번호 확인</h3>
+              <p style={{fontSize:14,fontWeight:700,color:C.sub,textAlign:"center",margin:"0 0 16px"}}>{gateAction.title}</p>
+              <input type="password" inputMode="numeric" value={gatePin} autoFocus
+                onChange={e=>setGatePin(e.target.value.replace(/\D/g,"").slice(0,4))}
                 maxLength={4}
-                onKeyDown={e=>e.key==="Enter"&&enterParentMode()}
+                onKeyDown={e=>e.key==="Enter"&&submitGatePin()}
                 placeholder="비밀번호 4자리"
                 style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
               {parentPin==="1234"&&!pinHintSeen&&(
@@ -5953,11 +5965,11 @@ export default function App() {
                   💡 처음 비밀번호는 <b>1234</b> 예요.<br/>설정 &gt; 비밀번호 변경에서 바꿀 수 있어요.
                 </p>
               )}
-              <button onClick={enterParentMode}
+              <button onClick={submitGatePin}
                 style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
-                들어가기
+                확인
               </button>
-              <button onClick={()=>{ markPinHintSeen(); setShowParentPin(false); setPinInput(""); }}
+              <button onClick={()=>{ markPinHintSeen(); setGateAction(null); setGatePin(""); }}
                 style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
                 취소
               </button>
@@ -6080,7 +6092,7 @@ export default function App() {
                 지난 미션은 여기서 완료할 수 없어요.<br/>보호자가 대신 처리할 수 있어요 🙆
               </p>
               <div style={{background:CT.faint,borderRadius:14,padding:"12px 14px",fontSize:13,fontWeight:800,color:C.sub,lineHeight:1.5}}>
-                엄마용 <span style={{color:C.orange,fontWeight:900}}>보상 탭 → 오늘의 미션 → 🕗 지난 미션 보기</span>에서 완료/실패할 수 있어요.
+                <span style={{color:C.orange,fontWeight:900}}>엄마용 → 보상 탭(🔒 비밀번호)</span>에서 엄마가 완료/실패를 처리해 줄 수 있어요.
               </div>
               <button onClick={()=>setPastQuestBlockModal(null)}
                 style={{marginTop:16,width:"100%",padding:"12px",borderRadius:14,border:"none",background:`linear-gradient(135deg, ${C.orange}, #FFC36B)`,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer"}}>
@@ -6221,6 +6233,141 @@ export default function App() {
       {/* 토스트 */}
       {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
 
+      {/* 범용 PIN 게이트 모달 (부모모드: 보상탭 진입 · 위험구역 초기화 보호) */}
+      {gateAction&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}}>
+          <div style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
+            <h3 style={{fontSize:20,fontWeight:900,margin:"0 0 6px",textAlign:"center"}}>🔒 비밀번호 확인</h3>
+            <p style={{fontSize:14,fontWeight:700,color:C.sub,textAlign:"center",margin:"0 0 16px"}}>{gateAction.title}</p>
+            <input type="password" inputMode="numeric" value={gatePin} autoFocus
+              onChange={e=>setGatePin(e.target.value.replace(/\D/g,"").slice(0,4))}
+              maxLength={4}
+              onKeyDown={e=>e.key==="Enter"&&submitGatePin()}
+              placeholder="비밀번호 4자리"
+              style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
+            {parentPin==="1234"&&!pinHintSeen&&(
+              <p style={{fontSize:13,fontWeight:700,color:th.main,background:`${th.main}12`,borderRadius:10,padding:"9px 12px",margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
+                💡 처음 비밀번호는 <b>1234</b> 예요.<br/>설정 &gt; 비밀번호 변경에서 바꿀 수 있어요.
+              </p>
+            )}
+            <button onClick={submitGatePin}
+              style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
+              확인
+            </button>
+            <button onClick={()=>{ markPinHintSeen(); setGateAction(null); setGatePin(""); }}
+              style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+
+        {DEV_MODE && showDevTools&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.6)",display:"flex",alignItems:"flex-end",zIndex:3000}} onClick={()=>setShowDevTools(false)}>
+            <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 44px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+                <div>
+                  <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🧪 개발자 도구</h3>
+                  <p style={{margin:"4px 0 0",fontSize:13,color:C.sub,fontWeight:700}}>테스트용 데이터 생성/초기화</p>
+                </div>
+                <button onClick={()=>setShowDevTools(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              </div>
+
+              {/* 현재 아이 상태 */}
+              <div style={{background:GP.boxBg,border:`1px solid ${GP.boxBorder}`,borderRadius:14,padding:"10px 14px",marginBottom:14,color:GP.boxText}}>
+                <p style={{fontSize:11,opacity:0.7,margin:"0 0 2px",fontWeight:900,letterSpacing:1}}>CURRENT PLAYER</p>
+                <p style={{fontSize:13,fontWeight:900,margin:0}}>{children.find(c=>c.id===childId)?.name||"없음"} · Lv.{getChildLevel(childId).level} · {TM.xpEmoji}{getChildXP(childId)} · {TM.coinEmoji}{getChildCoin(childId)}</p>
+              </div>
+
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                <button onClick={loadSampleData} style={devBtn(C.green)}>🌱 샘플 데이터 채우기 (아이·학원·미션)</button>
+                <button onClick={()=>generateTestData(childId)} style={devBtn(C.purple)}>🧪 테스트 데이터 생성</button>
+                <button onClick={()=>generateLegendTestData(childId)} style={devBtn(GP.gold)}>👑 전설 테스트 모드</button>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>미션 · 숙제 일괄 추가 ({fmt(childDate)})</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
+                    <button onClick={()=>addDevQuests(childId,10)} style={devMiniBtn(C.blue||"#3B82F6")}>📝 미션 10개</button>
+                    <button onClick={()=>addDevHomeworks(childId,10)} style={devMiniBtn(C.orange)}>📚 숙제 10개</button>
+                  </div>
+                </div>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>상자 지급</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+                    <button onClick={()=>giveDevBox("normal")} style={devMiniBtn("#94A3B8")}>📦 일반</button>
+                    <button onClick={()=>giveDevBox("rare")} style={devMiniBtn(C.purple)}>🎁 희귀</button>
+                    <button onClick={()=>giveDevBox("legend")} style={devMiniBtn(GP.gold)}>👑 전설</button>
+                  </div>
+                </div>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>🔥 연속 달성 (현재 {getQuestStreak(childId)}일 · 최고 {getBestStreak(childId)}일)</p>
+                  <p style={{fontSize:11,color:C.sub,margin:"0 0 8px",fontWeight:600,lineHeight:1.4}}>오늘부터 거꾸로 과거 날짜에 완료된 미션을 심어 실제 연속 기록을 만듭니다 (첫 번째 학원 기준)</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+                    <button onClick={()=>setDevStreak(3)} style={devMiniBtn(C.streak||"#FF6B6B")}>3일</button>
+                    <button onClick={()=>setDevStreak(5)} style={devMiniBtn(C.streak||"#FF6B6B")}>5일</button>
+                    <button onClick={()=>setDevStreak(10)} style={devMiniBtn(C.streak||"#FF6B6B")}>10일</button>
+                    <button onClick={()=>setDevStreak(30)} style={devMiniBtn(C.streak||"#FF6B6B")}>30일</button>
+                  </div>
+                  <p style={{fontSize:11,color:C.sub,margin:"10px 0 6px",fontWeight:700}}>최고기록만 설정 (상장 조건 테스트)</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+                    <button onClick={()=>setDevBestStreak(5)} style={devMiniBtn("#94A3B8")}>5</button>
+                    <button onClick={()=>setDevBestStreak(10)} style={devMiniBtn("#94A3B8")}>10</button>
+                    <button onClick={()=>setDevBestStreak(30)} style={devMiniBtn("#94A3B8")}>30</button>
+                    <button onClick={()=>setDevBestStreak(0)} style={devMiniBtn(C.red)}>초기화</button>
+                  </div>
+                  <button onClick={diagnoseStreak} style={{...devMiniBtn(C.purple),width:"100%",marginTop:8}}>🔍 연속 진단 (콘솔+토스트)</button>
+                </div>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>{TM.xp} 지급</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+                    <button onClick={()=>addDevXP(10)} style={devMiniBtn(C.green)}>+10</button>
+                    <button onClick={()=>addDevXP(50)} style={devMiniBtn(C.green)}>+50</button>
+                    <button onClick={()=>addDevXP(100)} style={devMiniBtn(C.green)}>+100</button>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:8}}>
+                    <button onClick={()=>addDevXP(-10)} style={devMiniBtn(C.red)}>-10</button>
+                    <button onClick={()=>addDevXP(-50)} style={devMiniBtn(C.red)}>-50</button>
+                    <button onClick={()=>addDevXP(-100)} style={devMiniBtn(C.red)}>-100</button>
+                  </div>
+                </div>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>{TM.coin} 지급</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+                    <button onClick={()=>addDevCoin(100)} style={devMiniBtn(GP.gold)}>+100</button>
+                    <button onClick={()=>addDevCoin(500)} style={devMiniBtn(GP.gold)}>+500</button>
+                    <button onClick={()=>addDevCoin(1000)} style={devMiniBtn(GP.gold)}>+1000</button>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:8}}>
+                    <button onClick={()=>addDevCoin(-10)} style={devMiniBtn(C.red)}>-10</button>
+                    <button onClick={()=>addDevCoin(-50)} style={devMiniBtn(C.red)}>-50</button>
+                    <button onClick={()=>addDevCoin(-100)} style={devMiniBtn(C.red)}>-100</button>
+                  </div>
+                </div>
+
+                <button onClick={()=>unlockAllTitlesForDev(childId)} style={devBtn("#F59E0B")}>👑 모든 상장 받기</button>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>이벤트 팝업 테스트</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
+                    <button onClick={()=>showDevEvent("level")} style={devMiniBtn(th.main)}>🎉 레벨업</button>
+                    <button onClick={()=>showDevEvent("title")} style={devMiniBtn("#F59E0B")}>👑 상장</button>
+                    <button onClick={()=>showDevEvent("box")} style={devMiniBtn("#FBBF24")}>📦 상자획득</button>
+                    <button onClick={()=>showDevEvent("treasure")} style={devMiniBtn(C.orange)}>🎁 상자열기</button>
+                  </div>
+                </div>
+
+                <button onClick={()=>{ resetGameData(childId); setShowDevTools(false); }} style={devBtn(C.red)}>🧹 현재 아이 게임 데이터 초기화</button>
+                <button onClick={resetAllAppData} style={devBtn("#111827")}>💣 앱 전체 초기화</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+
       {showModeSelect&&(
         <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임으로 변경!":"🧭 모험 게임으로 변경!"); }} />
       )}
@@ -6236,6 +6383,36 @@ export default function App() {
       {showParentRewardGuide&&(
         <GuideModal type="reward" th={th} skin={kidSkin} onClose={()=>{ setShowParentRewardGuide(false); setTab("reward"); }} />
       )}
+      {showParentWelcome&&(
+        <GuideModal type="welcome" th={th} skin={kidSkin} onClose={()=>setShowParentWelcome(false)} />
+      )}
+
+      {/* 보상 연령대 변경 확인 모달 (window.confirm 대체) */}
+      {pendingAgeChange&&(()=>{
+        const isCustom=pendingAgeChange==="custom";
+        const set=REWARD_SETS_BY_AGE[pendingAgeChange];
+        const label=isCustom?"✏️ 나만의 목록":`${set?.emoji} ${set?.label}`;
+        return (
+          <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>setPendingAgeChange(null)}>
+            <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:26,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
+              <h3 style={{fontSize:19,fontWeight:900,margin:"0 0 10px",textAlign:"center"}}>{label}(으)로 바꿀까요?</h3>
+              <p style={{fontSize:14,fontWeight:700,color:C.sub,textAlign:"center",lineHeight:1.6,margin:"0 0 20px"}}>
+                {isCustom
+                  ? <>지금 보상 목록이 <b style={{color:C.red}}>모두 삭제</b>되고,<br/>직접 추가해야 해요.</>
+                  : <>지금 보상 목록(직접 수정한 항목 포함)이<br/><b style={{color:C.red}}>모두 새 목록으로 교체</b>돼요.</>}
+              </p>
+              <button onClick={()=>applyAgeChange(pendingAgeChange)}
+                style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer",marginBottom:8}}>
+                네, 바꿀게요
+              </button>
+              <button onClick={()=>setPendingAgeChange(null)}
+                style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+                취소
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── 헤더 (소프트 파스텔) ── */}
       <div style={{background:`linear-gradient(165deg, ${headerTone(th.main,0.42)} 0%, ${headerTone(th.main,0.64)} 100%)`,padding:"20px 18px 56px",position:"relative",overflow:"hidden"}}>
@@ -6286,7 +6463,33 @@ export default function App() {
         {[["home","🏠","홈"],["reward","🎁","보상"],["calendar","🗓","달력"],["fee","💰","학원비"],["absence","🏥","결석"],["etc","⚙️","기타"]].map(([k,ic,l])=>{
           const sel=tab===k;
           return (
-            <button key={k} onClick={()=>setTab(k)} style={{flex:1,padding:"9px 2px",border:"none",borderRadius:14,cursor:"pointer",
+            <button key={k} onClick={()=>{
+              // '보상' 탭은 누를 때마다 항상 PIN 요구. 다른 탭으로 가면 즉시 잠금 해제(rewardUnlocked=false).
+              if(k==="reward"){
+                if(tab==="reward" && rewardUnlocked){ return; } // 이미 보상탭에 열려있으면 그대로
+                askPin(()=>{
+                  setRewardUnlocked(true); setTab("reward");
+                  // 보상탭 첫 진입 시: 권한 구조 안내(welcome)를 1회만 노출
+                  if(!parentWelcomeSeen){
+                    setParentWelcomeSeen(true);
+                    save("v6_parent_welcome_seen","1");
+                    setTimeout(()=>setShowParentWelcome(true),450);
+                  } else if(!parentRewardGuideSeen){
+                    // (별개) 첫 구매요청이 있는데 아직 안내 안 봤으면 1회 안내
+                    const anyPending=Object.values(rewardRequests).some(list=>(list||[]).some(r=>r.status==="pending"));
+                    if(anyPending){
+                      setParentRewardGuideSeen(true);
+                      save("v6_parent_reward_guide_seen","1");
+                      setTimeout(()=>setShowParentRewardGuide(true),450);
+                    }
+                  }
+                }, "🎁 보상 관리");
+                return;
+              }
+              // 보상탭이 아닌 다른 탭으로 이동 → 보상 잠금 해제(다음에 보상탭 누르면 다시 PIN)
+              if(rewardUnlocked) setRewardUnlocked(false);
+              setTab(k);
+            }} style={{flex:1,padding:"9px 2px",border:"none",borderRadius:14,cursor:"pointer",
               background:sel?`linear-gradient(135deg, ${mixWhite(th.main,0)}, ${mixWhite(th.main,0.22)})`:"#fff",
               color:sel?"#fff":C.sub,boxShadow:sel?`0 6px 16px ${th.main}48`:SHADOW.sm,
               display:"flex",flexDirection:"column",alignItems:"center",gap:2,transition:"all 0.2s"}}>
@@ -7030,7 +7233,7 @@ export default function App() {
                 style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
                 <div style={{textAlign:"left"}}>
                   <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 관리</p>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>보상 목록 추가/삭제</p>
+                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{rewardAgeGroup==="custom"?"✏️ 나만의 목록":`${(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).emoji} ${(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label}용`} · 추가/삭제</p>
                 </div>
                 <span style={openClosePill(showParentRewardManage)}>
                   {openCloseLabel(showParentRewardManage)}
@@ -7604,6 +7807,23 @@ export default function App() {
             )}
 
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
+              <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 연령대</p>
+              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>연령대를 고르면 그에 맞는 보상 목록으로 바뀌어요.<br/>※ 지금 보상 목록(직접 수정한 항목 포함)은 모두 교체돼요.</p>
+              <div style={{display:"flex",gap:6}}>
+                {[["kid","🧸","어린이"],["elem","🎒","초등학생"],["teen","📚","중학생+"],["custom","✏️","나만의 목록"]].map(([k,em,lb])=>{
+                  const on=rewardAgeGroup===k;
+                  return (
+                    <button key={k} onClick={()=>changeRewardAge(k)}
+                      style={{flex:1,padding:"10px 3px",borderRadius:10,border:`2px solid ${on?th.main:C.border}`,background:on?`${th.main}14`:"#fff",color:on?th.main:C.sub,fontSize:11.5,fontWeight:900,cursor:"pointer",lineHeight:1.4}}>
+                      <span style={{display:"block",fontSize:18}}>{em}</span>
+                      {lb}{on?" ✓":""}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
               <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:C.text}}>💾 데이터 관리</p>
 
               <button onClick={exportBackup}
@@ -7725,7 +7945,7 @@ export default function App() {
                 버전 1.0
               </p>
               <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:0,lineHeight:1.5}}>
-                학원 일정과 아이의 성장을 게임처럼 관리하는 플래너
+                학원 일정과 아이의 숙제를 게임처럼 관리하는 플래너
               </p>
             </div>
           </div>
@@ -8363,9 +8583,21 @@ export default function App() {
         const entry=getDailyEntry(childId,academyId,date);
         const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
         const upd=(ne)=>setDailyEntry(childId,academyId,date,ne);
-        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; upd({...entry,homeworks:[...hw,{id:Date.now(),text:v,done:false,point:Number(dailyHwPoint||DEFAULT_HOMEWORK_SCORE)}]}); setDailyHwInput(""); };
+        const isParent=(appMode==="parent");   // 엄마용: 수정 가능 + 완료 체크 비활성
+        const isParentEdit=rewardUnlocked;      // 보상탭(PIN) 통과: 삭제·점수수정 허용
+        const canCheck=(!isParent)||isParentEdit; // 체크 가능: 아이용 또는 보상탭 통과한 엄마 (엄마 홈탭은 체크 불가)
+        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyHwPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,homeworks:[...hw,{id:Date.now(),text:v,done:false,point:pt}]}); setDailyHwInput(""); };
         const addSup=()=>{ const v=dailySupInput.trim(); if(!v) return; upd({...entry,supplies:[...sup,v]}); setDailySupInput(""); };
-        const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; upd({...entry,todos:[...todos,{id:Date.now(),text:v,done:false,point:Number(dailyTodoPoint||DEFAULT_HOMEWORK_SCORE)}]}); setDailyTodoInput(""); };
+        const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyTodoPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,todos:[...todos,{id:Date.now(),text:v,done:false,point:pt}]}); setDailyTodoInput(""); };
+        const startEditItem=(kind,id,text,point)=>{ setEditingDailyItem({kind,id}); setEditingDailyText(text); setEditingDailyPoint(String(point||DEFAULT_HOMEWORK_SCORE)); };
+        const saveEditItem=()=>{
+          const v=editingDailyText.trim(); if(!v||!editingDailyItem){ setEditingDailyItem(null); return; }
+          // 보상탭(isParentEdit)에서만 점수 수정 반영, 아니면 기존 점수 유지
+          const applyPt=(orig)=>isParentEdit?Number(editingDailyPoint||orig||DEFAULT_HOMEWORK_SCORE):(orig||DEFAULT_HOMEWORK_SCORE);
+          if(editingDailyItem.kind==="hw") upd({...entry,homeworks:hw.map(x=>x.id===editingDailyItem.id?{...x,text:v,point:applyPt(x.point)}:x)});
+          else upd({...entry,todos:todos.map(x=>x.id===editingDailyItem.id?{...x,text:v,point:applyPt(x.point)}:x)});
+          setEditingDailyItem(null); setEditingDailyText(""); setEditingDailyPoint("");
+        };
         return (
           <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowDailyModal(null)}>
             <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"88vh",overflowY:"auto",boxSizing:"border-box"}}>
@@ -8382,32 +8614,60 @@ export default function App() {
               <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:12}}>
                 {hw.map(h=>(
                   <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:h.done?`${C.green}08`:CT.faint,border:`1.5px solid ${h.done?C.green+"30":CT.faintB}`}}>
-                    <button onClick={()=>toggleHomeworkDone(childId,academyId,date,h.id)} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700}}>{h.done?"✓":""}</button>
-                    <span style={{flex:1,fontSize:13,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
-                    <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
-                    <button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>
+                    <button onClick={()=>{ if(canCheck) toggleHomeworkDone(childId,academyId,date,h.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700,opacity:!canCheck&&!h.done?0.5:1}}>{h.done?"✓":""}</button>
+                    {editingDailyItem&&editingDailyItem.kind==="hw"&&editingDailyItem.id===h.id ? (
+                      <>
+                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:"auto",fontSize:13,padding:"6px 9px"}}/>
+                        {isParentEdit&&(<>
+                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:13,padding:"6px 4px",textAlign:"center"}} min="1"/>
+                          <span style={{fontSize:12,color:C.sub,flexShrink:0}}>점</span>
+                        </>)}
+                        <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:8,padding:"6px 11px",fontSize:12,fontWeight:800,cursor:"pointer",flexShrink:0}}>저장</button>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{flex:1,fontSize:13,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}</span>
+                        <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
+                        {isParentEdit&&<button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
+                        {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h.point)} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15,flexShrink:0}}>✏️</button>}
+                      </>
+                    )}
                   </div>
                 ))}
                 {todos.map(t=>(
                   <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:t.done?`${C.green}08`:CT.faint,border:`1.5px solid ${t.done?C.green+"30":CT.faintB}`}}>
-                    <button onClick={()=>toggleTodoDone(childId,academyId,date,t.id)} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700}}>{t.done?"✓":""}</button>
-                    <span style={{flex:1,fontSize:13,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
-                    <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
-                    <button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>
+                    <button onClick={()=>{ if(canCheck) toggleTodoDone(childId,academyId,date,t.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700,opacity:!canCheck&&!t.done?0.5:1}}>{t.done?"✓":""}</button>
+                    {editingDailyItem&&editingDailyItem.kind==="todo"&&editingDailyItem.id===t.id ? (
+                      <>
+                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:"auto",fontSize:13,padding:"6px 9px"}}/>
+                        {isParentEdit&&(<>
+                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:13,padding:"6px 4px",textAlign:"center"}} min="1"/>
+                          <span style={{fontSize:12,color:C.sub,flexShrink:0}}>점</span>
+                        </>)}
+                        <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:8,padding:"6px 11px",fontSize:12,fontWeight:800,cursor:"pointer",flexShrink:0}}>저장</button>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{flex:1,fontSize:13,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
+                        <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
+                        {isParentEdit&&<button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
+                        {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t.point)} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15,flexShrink:0}}>✏️</button>}
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
               {!isExtra&&(
               <div style={{display:"flex",gap:6,marginBottom:10,alignItems:"center"}}>
                 <input value={dailyHwInput} onChange={e=>setDailyHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addHw()} placeholder="숙제 입력" style={{...inp,flex:3,width:"auto",fontSize:13,padding:"9px 10px"}}/>
-                <input type="number" value={dailyHwPoint} onChange={e=>setDailyHwPoint(e.target.value)} style={{...inp,width:52,fontSize:13,padding:"9px 6px",textAlign:"center"}} min="1"/>
+                <input type="number" value={isParentEdit?dailyHwPoint:DEFAULT_HOMEWORK_SCORE} onChange={e=>setDailyHwPoint(e.target.value)} disabled={!isParentEdit} title={isParentEdit?"":"점수는 엄마용에서 바꿀 수 있어요"} style={{...inp,width:52,fontSize:13,padding:"9px 6px",textAlign:"center",background:isParentEdit?inp.background:CT.faint,color:isParentEdit?C.text:C.sub,cursor:isParentEdit?"text":"not-allowed"}} min="1"/>
                 <span style={{fontSize:13,color:C.sub,flexShrink:0}}>점</span>
                 <button onClick={addHw} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",flexShrink:0}}>숙제</button>
               </div>
               )}
               <div style={{display:"flex",gap:6,marginBottom:20,alignItems:"center"}}>
                 <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="미션 입력" style={{...inp,flex:3,width:"auto",fontSize:13,padding:"9px 10px"}}/>
-                <input type="number" value={dailyTodoPoint} onChange={e=>setDailyTodoPoint(e.target.value)} style={{...inp,width:52,fontSize:13,padding:"9px 6px",textAlign:"center"}} min="1"/>
+                <input type="number" value={isParentEdit?dailyTodoPoint:DEFAULT_HOMEWORK_SCORE} onChange={e=>setDailyTodoPoint(e.target.value)} disabled={!isParentEdit} title={isParentEdit?"":"점수는 엄마용에서 바꿀 수 있어요"} style={{...inp,width:52,fontSize:13,padding:"9px 6px",textAlign:"center",background:isParentEdit?inp.background:CT.faint,color:isParentEdit?C.text:C.sub,cursor:isParentEdit?"text":"not-allowed"}} min="1"/>
                 <span style={{fontSize:13,color:C.sub,flexShrink:0}}>점</span>
                 <button onClick={addTodo} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",flexShrink:0}}>미션</button>
               </div>
