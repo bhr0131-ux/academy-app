@@ -409,26 +409,28 @@ const FREE_THEME_COUNT = 2;
    ════════════════════════════════════════════════════════════════════════ */
 
 const DEFAULT_LEVELS = [
+  // 밸런스: 하루 3미션 기준 만렙(Lv20)까지 약 6개월 페이스 (Lv20 minScore=6000).
+  // 곡선 모양은 유지하고 전체 스케일만 키운 값. 미션 1개=XP 10점.
   { level:1,  name:"새싹 탐험가",   minScore:0,     emoji:"🌱" },
-  { level:2,  name:"꼬마 탐험가",   minScore:40,    emoji:"🧭" },
-  { level:3,  name:"호기심 탐험가", minScore:120,   emoji:"🔍" },
-  { level:4,  name:"씩씩한 탐험가", minScore:240,   emoji:"🗺️" },
-  { level:5,  name:"숲 탐험가",     minScore:400,   emoji:"🌲" },
-  { level:6,  name:"들판 탐험가",   minScore:600,   emoji:"🌾" },
-  { level:7,  name:"동굴 탐험가",   minScore:840,   emoji:"🕯️" },
-  { level:8,  name:"강 탐험가",     minScore:1120,  emoji:"🛶" },
-  { level:9,  name:"바다 탐험가",   minScore:1440,  emoji:"🌊" },
-  { level:10, name:"섬 탐험가",     minScore:1800,  emoji:"🏝️" },
-  { level:11, name:"정글 원정대",   minScore:2200,  emoji:"🌴" },
-  { level:12, name:"사막 원정대",   minScore:2640,  emoji:"🏜️" },
-  { level:13, name:"설산 원정대",   minScore:3120,  emoji:"🏔️" },
-  { level:14, name:"하늘 탐험가",   minScore:3640,  emoji:"🎈" },
-  { level:15, name:"구름 탐험가",   minScore:4200,  emoji:"☁️" },
-  { level:16, name:"별빛 탐험가",   minScore:4800,  emoji:"🌟" },
-  { level:17, name:"은하 탐험가",   minScore:5440,  emoji:"🌌" },
-  { level:18, name:"우주 탐험가",   minScore:6120,  emoji:"🚀" },
-  { level:19, name:"행성 개척자",   minScore:6840,  emoji:"🪐" },
-  { level:20, name:"전설의 탐험가", minScore:7600,  emoji:"👑" },
+  { level:2,  name:"꼬마 탐험가",   minScore:30,    emoji:"🧭" },
+  { level:3,  name:"호기심 탐험가", minScore:90,    emoji:"🔍" },
+  { level:4,  name:"씩씩한 탐험가", minScore:190,   emoji:"🗺️" },
+  { level:5,  name:"숲 탐험가",     minScore:320,   emoji:"🌲" },
+  { level:6,  name:"들판 탐험가",   minScore:470,   emoji:"🌾" },
+  { level:7,  name:"동굴 탐험가",   minScore:660,   emoji:"🕯️" },
+  { level:8,  name:"강 탐험가",     minScore:880,   emoji:"🛶" },
+  { level:9,  name:"바다 탐험가",   minScore:1140,  emoji:"🌊" },
+  { level:10, name:"섬 탐험가",     minScore:1420,  emoji:"🏝️" },
+  { level:11, name:"정글 원정대",   minScore:1740,  emoji:"🌴" },
+  { level:12, name:"사막 원정대",   minScore:2080,  emoji:"🏜️" },
+  { level:13, name:"설산 원정대",   minScore:2460,  emoji:"🏔️" },
+  { level:14, name:"하늘 탐험가",   minScore:2870,  emoji:"🎈" },
+  { level:15, name:"구름 탐험가",   minScore:3320,  emoji:"☁️" },
+  { level:16, name:"별빛 탐험가",   minScore:3790,  emoji:"🌟" },
+  { level:17, name:"은하 탐험가",   minScore:4290,  emoji:"🌌" },
+  { level:18, name:"우주 탐험가",   minScore:4830,  emoji:"🚀" },
+  { level:19, name:"행성 개척자",   minScore:5400,  emoji:"🪐" },
+  { level:20, name:"전설의 탐험가", minScore:6000,  emoji:"👑" },
 ];
 
 // 베이커리(cute) 모드 레벨 — 모험과 동일한 minScore 임계값을 공유하고
@@ -801,10 +803,11 @@ const PET_STAGES = [
   { stage:3, emoji:"🐲", name:"늠름한 청룡",   desc:"용기와 책임감을 갖춘 수호자" },
   { stage:4, emoji:"🐉", name:"전설의 드래곤", desc:"전설로 남을 위대한 존재" },
 ];
-// 상자 등급별 펫 진화 확률 (만렙까지 약 5개월 페이스로 조정)
-const PET_EVOLVE_CHANCE = { normal:0.03, rare:0.05, legend:0.08 };
-// 전설상자 안전망: 전설상자 7개 열 때마다 1단계 진화 보장(확률 진화와 별개의 천장).
-const PET_EVOLVE_LEGEND_PITY = 7;
+// 상자 등급별 펫 진화 확률 (6개월 만렙 곡선 기준, 4단계 평균완성 약 4.5개월에 맞춰 하향)
+// 천장이 기본 보장선을 깔고, 이 확률은 '가끔 일찍 터지는 재미' 보조 역할.
+const PET_EVOLVE_CHANCE = { normal:0.0125, rare:0.021, legend:0.033 };
+// 전설상자 안전망: 전설상자 4개 열 때마다 1단계 진화 보장(확률 진화와 별개의 천장).
+const PET_EVOLVE_LEGEND_PITY = 4;
 
 // 진화 단계별 격려 문구
 const EVOLUTION_MESSAGES = {
@@ -914,40 +917,40 @@ const REWARD_GRADES = [
 const getRewardGrade=(reward)=>REWARD_GRADES.find(g=>g.id===(reward.grade||"common"))||REWARD_GRADES[0];
 
 const DEFAULT_REWARDS = [
-  { id:1,  title:"사탕 하나",              point:10,    emoji:"🍬", grade:"common"    },
+  { id:1,  title:"사탕 하나",              point:30,    emoji:"🍬", grade:"common"    },
   { id:2,  title:"작은 과자",              point:50,    emoji:"🍪", grade:"common"    },
-  { id:3,  title:"엄마랑 보드게임 15분",   point:100,   emoji:"🎲", grade:"common"    },
-  { id:4,  title:"아이스크림",             point:300,   emoji:"🍦", grade:"rare"      },
-  { id:5,  title:"영상 20분",              point:400,   emoji:"📺", grade:"rare"      },
-  { id:6,  title:"편의점 간식 고르기",     point:450,   emoji:"🏪", grade:"rare"      },
-  { id:7,  title:"게임 30분",              point:600,   emoji:"🎮", grade:"epic"      },
-  { id:8,  title:"주말 특별 디저트",       point:900,   emoji:"🧁", grade:"epic"      },
-  { id:9,  title:"문구점 쇼핑",            point:1200,  emoji:"✏️", grade:"epic"      },
-  { id:10, title:"작은 장난감",            point:1500,  emoji:"🧸", grade:"legendary" },
-  { id:11, title:"키즈카페/놀이터 데이트", point:2000,  emoji:"🎡", grade:"legendary" },
-  { id:12, title:"큰 선물 도전권",         point:3000,  emoji:"🎁", grade:"legendary" },
+  { id:3,  title:"엄마랑 보드게임 15분",   point:80,    emoji:"🎲", grade:"common"    },
+  { id:4,  title:"아이스크림",             point:120,   emoji:"🍦", grade:"rare"      },
+  { id:5,  title:"편의점 간식 고르기",     point:150,   emoji:"🏪", grade:"rare"      },
+  { id:6,  title:"영상 20분",              point:180,   emoji:"📺", grade:"rare"      },
+  { id:7,  title:"게임 30분",              point:220,   emoji:"🎮", grade:"epic"      },
+  { id:8,  title:"주말 특별 디저트",       point:300,   emoji:"🧁", grade:"epic"      },
+  { id:9,  title:"문구점 쇼핑",            point:480,   emoji:"✏️", grade:"epic"      },
+  { id:10, title:"작은 장난감",            point:700,   emoji:"🧸", grade:"legendary" },
+  { id:11, title:"키즈카페/놀이터 데이트", point:1100,  emoji:"🎡", grade:"legendary" },
+  { id:12, title:"큰 선물 도전권",         point:1800,  emoji:"🎁", grade:"legendary" },
 ];
 
 const TREASURE_REWARD_TABLE = {
   normal:{
     name:"일반상자",
     emoji:"📦",
-    min:30,
-    max:60,
+    min:18,
+    max:36,
     headerGrad:"linear-gradient(135deg,#94A3B8,#CBD5E1)"
   },
   rare:{
     name:"희귀상자",
     emoji:"🎁",
-    min:70,
-    max:120,
+    min:42,
+    max:72,
     headerGrad:"linear-gradient(135deg,#3B82F6,#60A5FA)"
   },
   legend:{
     name:"전설상자",
     emoji:"👑",
-    min:180,
-    max:280,
+    min:108,
+    max:168,
     headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"
   }
 };
@@ -1117,67 +1120,67 @@ const DECOR_RARITY = {
 };
 // 모자: 캐릭터 이모지 위(머리)에 겹쳐 표시
 const DECOR_HATS = [
-  { id:"hat_axe",     emoji:"🎒", name:"탐험가 배낭",  price:150,  rarity:"common",    weapon:true, bakery:{ emoji:"🎀", name:"리본" } },
-  { id:"hat_tophat",  emoji:"🧭", name:"나침반",      price:380,  rarity:"rare",      weapon:true, bakery:{ emoji:"🍓", name:"딸기 모자" } },
-  { id:"hat_goggles", emoji:"📷", name:"카메라",      price:550,  rarity:"rare",      weapon:true, bakery:{ emoji:"🌸", name:"벚꽃 머리띠" } },
-  { id:"hat_flame",   emoji:"🗺️", name:"보물 지도",    price:800,  rarity:"epic",      weapon:true, bakery:{ emoji:"💎", name:"보석 티아라" } },
-  { id:"hat_star",    emoji:"🚲", name:"자전거",      price:1000, rarity:"legendary", weapon:true, bakery:{ emoji:"🌈", name:"무지개 왕관" } },
-  { id:"hat_crown",   emoji:"👑", name:"전설의 탐험가 왕관", price:1200, rarity:"legendary", bakery:{ emoji:"👑", name:"공주 왕관" } },
+  { id:"hat_axe",     emoji:"🎒", name:"탐험가 배낭",  price:80,  rarity:"common",    weapon:true, bakery:{ emoji:"🎀", name:"리본" } },
+  { id:"hat_tophat",  emoji:"🧭", name:"나침반",      price:200,  rarity:"rare",      weapon:true, bakery:{ emoji:"🍓", name:"딸기 모자" } },
+  { id:"hat_goggles", emoji:"📷", name:"카메라",      price:260,  rarity:"rare",      weapon:true, bakery:{ emoji:"🌸", name:"벚꽃 머리띠" } },
+  { id:"hat_flame",   emoji:"🗺️", name:"보물 지도",    price:380,  rarity:"epic",      weapon:true, bakery:{ emoji:"💎", name:"보석 티아라" } },
+  { id:"hat_star",    emoji:"🚲", name:"자전거",      price:470, rarity:"legendary", weapon:true, bakery:{ emoji:"🌈", name:"무지개 왕관" } },
+  { id:"hat_crown",   emoji:"👑", name:"전설의 탐험가 왕관", price:560, rarity:"legendary", bakery:{ emoji:"👑", name:"공주 왕관" } },
 ];
 // ── 베이커리(cute) 전용 모자 진열 순서 & 자리기준 가격 ──
 // 모험 모드는 DECOR_HATS 원본 순서·가격 그대로. 베이커리만 아래 순서로 진열하고,
 // 각 '자리(슬롯)'에 모험 가격 120/380/550/800/1000/1200 을 그대로 입힌다.
 // 순서: 딸기 모자 → 벚꽃 머리띠 → 리본 → 보석 티아라 → 무지개 왕관 → 공주 왕관
 const BAKERY_HAT_ORDER = ["hat_tophat","hat_star","hat_axe","hat_goggles","hat_crown","hat_flame"];
-const BAKERY_HAT_PRICE = { hat_tophat:120, hat_star:380, hat_axe:550, hat_goggles:800, hat_crown:1000, hat_flame:1200 };
+const BAKERY_HAT_PRICE = { hat_tophat:90, hat_star:270, hat_axe:400, hat_goggles:580, hat_crown:720, hat_flame:870 };
 // 자리(슬롯) 기준 등급도 모험 가격대와 동일하게: 120/380=common/rare, 550=rare, 800=epic, 1000/1200=legendary
 const BAKERY_HAT_RARITY = { hat_tophat:"common", hat_star:"rare", hat_axe:"rare", hat_goggles:"epic", hat_crown:"legendary", hat_flame:"legendary" };
 // 테두리: 프로필 액자 테두리 색/광택 (emoji 는 상점 표시용 아이콘)
 // glow 는 모험(다크 무대)용, glowCute 는 베이커리(밝은 크림 무대)용 — 모드별로 빛번짐 색을 다르게 둔다.
 const DECOR_BORDERS = [
-  { id:"bd_bronze",  emoji:"🥉", name:"브론즈",  price:200,  rarity:"common",    grad:"linear-gradient(135deg,#CD7F32,#E8B583)", glow:"rgba(205,127,50,0.5)",  glowCute:"rgba(205,127,50,0.28)" },
-  { id:"bd_silver",  emoji:"🥈", name:"실버",    price:400,  rarity:"rare",      shimmer:true, grad:"linear-gradient(115deg,#8A909C 0%,#C7CCD4 20%,#FFFFFF 38%,#D5D9E0 52%,#9CA3AF 70%,#EAECF0 86%,#B6BBC4 100%)", glow:"rgba(190,196,206,0.7)", glowCute:"rgba(150,156,168,0.35)" },
-  { id:"bd_gold",    emoji:"🥇", name:"골드",    price:750,  rarity:"epic",      shimmer:true, grad:"linear-gradient(115deg,#C8860B 0%,#F5C542 18%,#FFF6C9 36%,#FBD24E 52%,#E0A21A 70%,#FFE89B 86%,#D9A323 100%)", glow:"rgba(245,180,30,0.78)", glowCute:"rgba(232,165,40,0.4)" },
-  { id:"bd_diamond", emoji:"💎", name:"다이아",  price:1000, rarity:"legendary", shimmer:true, grad:"linear-gradient(115deg,#22D3EE 0%,#A5F3FC 22%,#FFFFFF 40%,#7DD3FC 58%,#67E8F9 76%,#C7F9FF 92%,#38BDF8 100%)", glow:"rgba(34,211,238,0.72)", glowCute:"rgba(120,200,220,0.36)", bakery:{ emoji:"❤️", name:"루비", grad:"linear-gradient(115deg,#E11D48 0%,#FDA4AF 22%,#FFFFFF 40%,#FB7185 58%,#F43F5E 76%,#FFE4E6 92%,#BE123C 100%)", glow:"rgba(244,63,94,0.72)", glowCute:"rgba(244,114,128,0.4)" } },
-  { id:"bd_legend",  emoji:"👑", name:"레전드",  price:1400, rarity:"legendary", rainbow:true, grad:"linear-gradient(115deg,#FF5E8A,#FF9F43,#FFE14D,#4ADE80,#38BDF8,#A78BFA,#FF5E8A)", glow:"rgba(167,139,250,0.75)", glowCute:"rgba(190,160,235,0.4)", bakery:{ emoji:"🌈", name:"무지개빛" } },
+  { id:"bd_bronze",  emoji:"🥉", name:"브론즈",  price:110,  rarity:"common",    grad:"linear-gradient(135deg,#CD7F32,#E8B583)", glow:"rgba(205,127,50,0.5)",  glowCute:"rgba(205,127,50,0.28)" },
+  { id:"bd_silver",  emoji:"🥈", name:"실버",    price:220,  rarity:"rare",      shimmer:true, grad:"linear-gradient(115deg,#8A909C 0%,#C7CCD4 20%,#FFFFFF 38%,#D5D9E0 52%,#9CA3AF 70%,#EAECF0 86%,#B6BBC4 100%)", glow:"rgba(190,196,206,0.7)", glowCute:"rgba(150,156,168,0.35)" },
+  { id:"bd_gold",    emoji:"🥇", name:"골드",    price:350,  rarity:"epic",      shimmer:true, grad:"linear-gradient(115deg,#C8860B 0%,#F5C542 18%,#FFF6C9 36%,#FBD24E 52%,#E0A21A 70%,#FFE89B 86%,#D9A323 100%)", glow:"rgba(245,180,30,0.78)", glowCute:"rgba(232,165,40,0.4)" },
+  { id:"bd_diamond", emoji:"💎", name:"다이아",  price:470, rarity:"legendary", shimmer:true, grad:"linear-gradient(115deg,#22D3EE 0%,#A5F3FC 22%,#FFFFFF 40%,#7DD3FC 58%,#67E8F9 76%,#C7F9FF 92%,#38BDF8 100%)", glow:"rgba(34,211,238,0.72)", glowCute:"rgba(120,200,220,0.36)", bakery:{ emoji:"❤️", name:"루비", grad:"linear-gradient(115deg,#E11D48 0%,#FDA4AF 22%,#FFFFFF 40%,#FB7185 58%,#F43F5E 76%,#FFE4E6 92%,#BE123C 100%)", glow:"rgba(244,63,94,0.72)", glowCute:"rgba(244,114,128,0.4)" } },
+  { id:"bd_legend",  emoji:"👑", name:"레전드",  price:660, rarity:"legendary", rainbow:true, grad:"linear-gradient(115deg,#FF5E8A,#FF9F43,#FFE14D,#4ADE80,#38BDF8,#A78BFA,#FF5E8A)", glow:"rgba(167,139,250,0.75)", glowCute:"rgba(190,160,235,0.4)", bakery:{ emoji:"🌈", name:"무지개빛" } },
 ];
 // 배경: 프로필 카드 배경 장식 (장식 이모지 + 은은한 그라데이션 오버레이)
 // 기본(base) = 모험 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
 const DECOR_BGS = [
-  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:300,  rarity:"common",    deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
-  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:400,  rarity:"rare",      deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
-  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:950,  rarity:"rare",      deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
-  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:650,  rarity:"epic",      deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
-  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:750,  rarity:"epic",      deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
-  { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:1200, rarity:"legendary", deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
+  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
+  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:220,  rarity:"rare",      deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
+  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"rare",      deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
+  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"epic",      deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
+  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
+  { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:560, rarity:"legendary", deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
 ];
 // 베이커리 전용 배경 6슬롯 (모험 4슬롯과 분리). deco[0]=메인(가장 자주 등장). 종류 4개↑면 무대카드 전체에 고르게 분산됨.
 const BAKERY_BGS = [
-  { id:"bbg_sakura",    emoji:"🌸", name:"벚꽃 마을",         price:200,  rarity:"common",    deco:["🌸","🏡","🌷","🌿"],          tint:"rgba(251,207,232,0.42)", bakeryOnly:true },
-  { id:"bbg_strawberry",emoji:"🍓", name:"딸기 농장",         price:450,  rarity:"common",    deco:["🍓","🏡","🌿","🍓"],          tint:"rgba(254,202,202,0.40)", bakeryOnly:true },
-  { id:"bbg_starcandy", emoji:"🌟", name:"별사탕 왕국",       price:650,  rarity:"rare",      deco:["🌟","⭐","🍬","🍭"],          tint:"rgba(253,224,71,0.30)",  bakeryOnly:true },
-  { id:"bbg_choco",     emoji:"🍫", name:"초콜릿 공장",       price:750,  rarity:"rare",      deco:["🍫","🍩","🍪","🍰"],          tint:"rgba(180,120,80,0.32)",  bakeryOnly:true },
-  { id:"bbg_heaven",    emoji:"👼", name:"천상의 베이커리",   price:950,  rarity:"epic",      deco:["👼","☁️","🧁","🍰","✨"],     tint:"rgba(224,231,255,0.40)", bakeryOnly:true },
-  { id:"bbg_rainbow",   emoji:"🌈", name:"무지개 케이크 왕국",price:1200, rarity:"legendary", deco:["🌈","🎂","🧁","🍭","⭐"],     tint:"rgba(196,181,253,0.36)", bakeryOnly:true },
+  { id:"bbg_sakura",    emoji:"🌸", name:"벚꽃 마을",         price:110,  rarity:"common",    deco:["🌸","🏡","🌷","🌿"],          tint:"rgba(251,207,232,0.42)", bakeryOnly:true },
+  { id:"bbg_strawberry",emoji:"🍓", name:"딸기 농장",         price:250,  rarity:"common",    deco:["🍓","🏡","🌿","🍓"],          tint:"rgba(254,202,202,0.40)", bakeryOnly:true },
+  { id:"bbg_starcandy", emoji:"🌟", name:"별사탕 왕국",       price:300,  rarity:"rare",      deco:["🌟","⭐","🍬","🍭"],          tint:"rgba(253,224,71,0.30)",  bakeryOnly:true },
+  { id:"bbg_choco",     emoji:"🍫", name:"초콜릿 공장",       price:350,  rarity:"rare",      deco:["🍫","🍩","🍪","🍰"],          tint:"rgba(180,120,80,0.32)",  bakeryOnly:true },
+  { id:"bbg_heaven",    emoji:"👼", name:"천상의 베이커리",   price:450,  rarity:"epic",      deco:["👼","☁️","🧁","🍰","✨"],     tint:"rgba(224,231,255,0.40)", bakeryOnly:true },
+  { id:"bbg_rainbow",   emoji:"🌈", name:"무지개 케이크 왕국",price:560, rarity:"legendary", deco:["🌈","🎂","🧁","🍭","⭐"],     tint:"rgba(196,181,253,0.36)", bakeryOnly:true },
 ];
 // 캐릭터 스킨: 최종 성장체(Lv17) 달성 시 잠금 해제. 장착하면 성장체 대신 이 이모지로 보이고 모자는 숨겨짐(완성형).
 // locked:true → 최종 성장체 도달 전엔 상점에 자물쇠로 표시. emoji 는 성별 공통(없으면 단일).
 const DECOR_SKINS = [
-  { id:"sk_vampire", emoji:"🧛",   name:"뱀파이어",   price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"🧞",   name:"소원 요정" } },
-  { id:"sk_robot",   emoji:"🤖",   name:"로봇",       price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"👼",   name:"별빛 천사" } },
-  { id:"sk_astro",   emoji:"🧙",   name:"마법사",     price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"👩‍🎨", name:"케이크 아티스트" } },
-  { id:"sk_ninja",   emoji:"🥷",   name:"닌자",       price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"🧚",   name:"꽃요정" } },
-  { id:"sk_spy",     emoji:"🥸",   name:"변장 요원",  price:1000, rarity:"legendary", skin:true, bakery:{ emoji:"🧜‍♀️", name:"인어공주" } },
+  { id:"sk_vampire", emoji:"🧛",   name:"뱀파이어",   price:470, rarity:"legendary", skin:true, bakery:{ emoji:"🧞",   name:"소원 요정" } },
+  { id:"sk_robot",   emoji:"🤖",   name:"로봇",       price:470, rarity:"legendary", skin:true, bakery:{ emoji:"👼",   name:"별빛 천사" } },
+  { id:"sk_astro",   emoji:"🧙",   name:"마법사",     price:470, rarity:"legendary", skin:true, bakery:{ emoji:"👩‍🎨", name:"케이크 아티스트" } },
+  { id:"sk_ninja",   emoji:"🥷",   name:"닌자",       price:470, rarity:"legendary", skin:true, bakery:{ emoji:"🧚",   name:"꽃요정" } },
+  { id:"sk_spy",     emoji:"🥸",   name:"변장 요원",  price:470, rarity:"legendary", skin:true, bakery:{ emoji:"🧜‍♀️", name:"인어공주" } },
 ];
 // 펫 스킨: 펫이 최종 진화(전설의 드래곤/유니콘) 했을 때 잠금 해제. 장착하면 펫 대신 이 동물 이모지로 보임(완성형).
 // 캐릭터 스킨과 동일한 구조 — petskin:true. 모험/베이커리 공용 이모지(동물은 두 모드 모두 자연스러움).
 const DECOR_PET_SKINS = [
-  { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:600, rarity:"rare",      petskin:true, bakery:{ name:"솜사탕 여우" } },
-  { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:600, rarity:"rare",      petskin:true, bakery:{ name:"마시멜로 판다" } },
-  { id:"pk_rabbit",    emoji:"🐰",   name:"질풍 토끼",     price:800, rarity:"epic",      petskin:true, bakery:{ emoji:"🐦", name:"노래하는 새" } },
-  { id:"pk_butterfly", emoji:"🦋",   name:"신비한 나비",   price:800, rarity:"epic",      petskin:true, bakery:{ emoji:"🐰", name:"딸기 토끼" } },
-  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:1000, rarity:"legendary", petskin:true, bakery:{ name:"꿀빛 사자" } },
-  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:1000, rarity:"legendary", petskin:true, bakery:{ emoji:"🦋", name:"반짝 나비" } },
+  { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:280, rarity:"rare",      petskin:true, bakery:{ name:"솜사탕 여우" } },
+  { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:280, rarity:"rare",      petskin:true, bakery:{ name:"마시멜로 판다" } },
+  { id:"pk_rabbit",    emoji:"🐰",   name:"질풍 토끼",     price:380, rarity:"epic",      petskin:true, bakery:{ emoji:"🐦", name:"노래하는 새" } },
+  { id:"pk_butterfly", emoji:"🦋",   name:"신비한 나비",   price:380, rarity:"epic",      petskin:true, bakery:{ emoji:"🐰", name:"딸기 토끼" } },
+  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:470, rarity:"legendary", petskin:true, bakery:{ name:"꿀빛 사자" } },
+  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:470, rarity:"legendary", petskin:true, bakery:{ emoji:"🦋", name:"반짝 나비" } },
 ];
 // 베이커리 모드 펫 스킨 표시 순서 (모험 순서와 분리). 가격·등급은 슬롯(모험) 값을 그대로 따름.
 // 순서: 솜사탕여우→마시멜로판다→노래하는새→반짝나비→딸기토끼→꿀빛사자
@@ -1195,7 +1198,7 @@ const DECOR_GROUPS = [
         이미 보상된 questKey면 changed:false로 알려 호출부가 조기 반환하게 한다.
    적립 규칙(누적 10/30/50의 배수에서 상자 지급)을 한곳에 못박아, 화면 어디서
    호출하든 동일하게 동작하고 단독 테스트가 가능하다. */
-const TREASURE_MILESTONE = { normal:10, rare:30, legend:50 };
+const TREASURE_MILESTONE = { normal:8, rare:20, legend:32 };
 const computeQuestTreasure = (cur, questKey) => {
   const base = cur || { completedQuestCount:0, normalBox:0, rareBox:0, legendBox:0, rewardedQuestKeys:[] };
   const keys = base.rewardedQuestKeys || [];
@@ -2291,7 +2294,7 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_equipped_decor",equippedDecor); },[equippedDecor,loaded]);
   useEffect(()=>{ if(loaded) save("v6_decor_prices",decorPrices); },[decorPrices,loaded]);
 
-  const showToast=(msg="저장됨 ✓")=>{ setToast(msg); setTimeout(()=>setToast(""),1600); };
+  const showToast=(msg="저장됨 ✓",ms=1600)=>{ setToast(msg); setTimeout(()=>setToast(""),ms); };
 
   // 온보딩 완료: 입력값을 실제 데이터에 반영 → 홈 진입 → 코치마크
   const finishOnboarding=(data)=>{
@@ -2405,6 +2408,69 @@ export default function App() {
     showToast(boxType==="legend"?"👑 전설상자 +1":boxType==="rare"?"🎁 희귀상자 +1":"📦 일반상자 +1");
   };
 
+  // ── 개발자: 연속 달성 N일 생성 (과거 N일치 미션을 전부 완료 처리 + 더미 보장) ──
+  const setDevStreak=(days)=>{
+    if(!DEV_MODE) return;
+    const acList=getChildAcademies(childId);
+    if(acList.length===0){ showToast("학원을 먼저 1개 등록하세요"); return; }
+    const acId=acList[0].id;
+    const base=Date.now();
+    setDailyData(prev=>{
+      const next={...prev};
+      for(let i=0;i<days;i++){
+        const d=addDays(TODAY,-i);
+        // 그 날짜의 모든 학원 엔트리를 완료 처리(미완료가 하나라도 있으면 streak이 끊기므로)
+        Object.keys(next).forEach(k=>{
+          if(k.startsWith(`${childId}-`)&&k.endsWith(`-${d}`)){
+            const e=next[k];
+            next[k]={...e,
+              homeworks:(e.homeworks||[]).map(h=>({...h,done:true,failed:false})),
+              todos:(e.todos||[]).map(t=>({...t,done:true,failed:false})),
+            };
+          }
+        });
+        // 더미 1개 보장(그 날 미션이 아예 없던 경우 대비)
+        const key=`${childId}-${acId}-${d}`;
+        const ex=next[key]||{homeworks:[],todos:[],supplies:[]};
+        next[key]={...ex,
+          homeworks:(ex.homeworks||[]).map(h=>({...h,done:true,failed:false})),
+          todos:[...(ex.todos||[]).map(t=>({...t,done:true,failed:false})),{id:base+i,text:`[테스트] 연속달성 ${i+1}`,done:true,point:DEFAULT_HOMEWORK_SCORE}],
+        };
+      }
+      return next;
+    });
+    showToast(`🔥 연속 달성 ${days}일 생성`);
+  };
+
+  // ── 개발자: 최고기록만 직접 설정 ──
+  const setDevBestStreak=(days)=>{
+    if(!DEV_MODE) return;
+    setBestStreakData(prev=>({...prev,[childId]:days}));
+    showToast(`🏆 최고기록 ${days}일 설정`);
+  };
+
+  // ── 개발자: 연속 달성 진단 ──
+  const diagnoseStreak=()=>{
+    if(!DEV_MODE) return;
+    const acList=getChildAcademies(childId);
+    const acId=acList[0]?.id;
+    const todayKey=`${childId}-${acId}-${TODAY}`;
+    const todayEntry=dailyData[todayKey];
+    const todayItems=getQuestItemsForDate(childId,TODAY);
+    const success=isQuestSuccessDay(childId,TODAY);
+    const streak=getQuestStreak(childId);
+    const msg=[
+      `학원ID: ${acId||"없음"}`,
+      `오늘키 존재: ${todayEntry?"O":"X"}`,
+      `오늘 todos: ${(todayEntry?.todos||[]).length}개`,
+      `오늘 미션항목: ${todayItems.length}개`,
+      `오늘 성공판정: ${success?"O":"X"}`,
+      `연속: ${streak}일`,
+    ].join(" / ");
+    console.log("[연속진단]",{todayKey,todayEntry,todayItems,success,streak,dailyKeys:Object.keys(dailyData)});
+    showToast(msg,5000);
+  };
+
   const loadSampleData=()=>{
     if(!DEV_MODE) return;
     const cid=childId;  // 현재 선택된 아이에 적용
@@ -2503,7 +2569,7 @@ export default function App() {
     if(!DEV_MODE) return;
     if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 모험 대장",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100 XP · 💎 +100 코인"}); return; }
     if(type==="title"){ showGameEvent({type:"title",cert:true,emoji:"👑",title:"상장을 받았어요!",name:"황금 테스트러",desc:"임무를 50개나 끝까지 해낸 멋진 모험가에게 이 상장을 드립니다",rarity:"epic",reward:"⭐ +100 XP · 💎 +100 코인"}); return; }
-    if(type==="box"){ showGameEvent({type:"box",emoji:"📦",title:"보물상자 획득!",name:"일반상자",desc:"미션 10개 달성 보상이에요!",reward:"🎁 보물창고에서 열어보세요"}); return; }
+    if(type==="box"){ showGameEvent({type:"box",emoji:"📦",title:"보물상자 획득!",name:"일반상자",desc:`미션 ${TREASURE_MILESTONE.normal}개 달성 보상이에요!`,reward:"🎁 보물창고에서 열어보세요"}); return; }
     if(type==="treasure"){ setTreasureModal({emoji:"👑",boxName:"전설상자",rewardCoin:777,titleReward:{id:"dev_title",name:"황금 테스트러",emoji:"👑",rarity:"legendary"},headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"}); return; }
   };
 
@@ -3473,7 +3539,7 @@ export default function App() {
     const level=getChildLevel(cid).level;
     const questCount=getTotalActivityCount(cid);
     const homeworkCount=getCompletedHomeworkCount(cid);
-    const streak=getQuestStreak(cid);
+    const streak=getBestStreak(cid); // 상장은 '한 번이라도 달성'하면 유지 → 최고기록 기준
     const rewardCount=getApprovedRewardCount(cid);
     const treasureOpenCount=getScoreHistory(cid).filter(h=>h.type==="treasure").length;
     if(titleId==="rookie") return true;
@@ -3648,7 +3714,7 @@ export default function App() {
     const boxName=rewardInfo.name;
     const emoji=rewardInfo.emoji;
     const headerGrad=rewardInfo.headerGrad;
-    // 전설상자 상장 드롭: 20% 확률 + 5회 천장(연속 5번 미획득 시 보장), 미획득 상장 중 지급
+    // 전설상자 상장 드롭: 40% 확률 + 3회 천장(연속 3번 미획득 시 보장), 미획득 상장 중 지급
     // 연타로 여러 개를 빠르게 열어도 중복되지 않도록, 실제 후보 선택은
     // setSpecialTitles 콜백 안에서 "최신 보유 목록(prev)" 기준으로 다시 계산한다.
     const dropResult={ title:null }; // setTimeout 모달이 참조하는 가변 컨테이너
@@ -3657,7 +3723,7 @@ export default function App() {
       const ownedNow=specialTitles[childId]||[];
       const availableNow=LEGENDARY_TITLES.filter(t=>!ownedNow.includes(t.id));
       const pity=Number(cur.legendPity||0)+1; // 이번 오픈 포함 미획득 연속 횟수
-      const hit=availableNow.length>0 && (Math.random()<0.20 || pity>=5);
+      const hit=availableNow.length>0 && (Math.random()<0.40 || pity>=3);
       if(hit){
         // 후보를 동기적으로 먼저 선택 (dropResult를 같은 턴에 안전하게 읽기 위함)
         const pickedNow=availableNow[Math.floor(Math.random()*availableNow.length)];
@@ -3968,19 +4034,14 @@ export default function App() {
     setEventQueue(prev=>prev.slice(1));
   },[eventQueue,eventModal]);
 
-  // 첫 미션 안내창 - 다른 모달(미션결과·레벨업·보물·이벤트)이 모두 닫힌 뒤 1회 표시
+  // 첫 미션 안내창은 제거됨 (사탕 구매 유도 팝업 미사용)
   useEffect(()=>{
     if(!firstTipPending) return;
-    if(eventModal||eventQueue.length>0) return;
-    if(questResultModal||treasureModal||levelUpModal) return;
-    const t=setTimeout(()=>{
-      setFirstTipPending(false);
-      setFirstTipSeen(true);
-      save("v6_first_mission_tip_seen","1");
-      setShowFirstMissionTip(true);
-    },400);
-    return ()=>clearTimeout(t);
-  },[firstTipPending,eventModal,eventQueue,questResultModal,treasureModal,levelUpModal]);
+    // 더 이상 팝업을 띄우지 않고, 1회성 플래그만 정리한다.
+    setFirstTipPending(false);
+    setFirstTipSeen(true);
+    save("v6_first_mission_tip_seen","1");
+  },[firstTipPending]);
 
   const getChildLevel=(cid)=>{
     const score=getChildXP(cid);
@@ -5580,7 +5641,7 @@ export default function App() {
                       {kidSkin==="cute"?`미션을 모으면 ${TM.box}를 받아요! (겹칠 땐 더 좋은 상자로 받아요)`:"미션을 모으면 상자를 받아요! (겹칠 땐 더 좋은 상자로 받아요)"}
                     </p>
                     <p style={{fontSize:11,color:C.sub,fontWeight:700,margin:"4px 0 0",lineHeight:1.4}}>
-                      {getBoxInfo("normal",kidSkin).emoji} 10개 → {getBoxInfo("normal",kidSkin).name} · {getBoxInfo("rare",kidSkin).emoji} 30개 → {getBoxInfo("rare",kidSkin).name} · {getBoxInfo("legend",kidSkin).emoji} 50개 → {getBoxInfo("legend",kidSkin).name}
+                      {getBoxInfo("normal",kidSkin).emoji} {TREASURE_MILESTONE.normal}개 → {getBoxInfo("normal",kidSkin).name} · {getBoxInfo("rare",kidSkin).emoji} {TREASURE_MILESTONE.rare}개 → {getBoxInfo("rare",kidSkin).name} · {getBoxInfo("legend",kidSkin).emoji} {TREASURE_MILESTONE.legend}개 → {getBoxInfo("legend",kidSkin).name}
                     </p>
                   </div>
                 )}
@@ -5808,6 +5869,25 @@ export default function App() {
                     <button onClick={()=>giveDevBox("rare")} style={devMiniBtn(C.purple)}>🎁 희귀</button>
                     <button onClick={()=>giveDevBox("legend")} style={devMiniBtn(GP.gold)}>👑 전설</button>
                   </div>
+                </div>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>🔥 연속 달성 (현재 {getQuestStreak(childId)}일 · 최고 {getBestStreak(childId)}일)</p>
+                  <p style={{fontSize:11,color:C.sub,margin:"0 0 8px",fontWeight:600,lineHeight:1.4}}>오늘부터 거꾸로 과거 날짜에 완료된 미션을 심어 실제 연속 기록을 만듭니다 (첫 번째 학원 기준)</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+                    <button onClick={()=>setDevStreak(3)} style={devMiniBtn(C.streak||"#FF6B6B")}>3일</button>
+                    <button onClick={()=>setDevStreak(5)} style={devMiniBtn(C.streak||"#FF6B6B")}>5일</button>
+                    <button onClick={()=>setDevStreak(10)} style={devMiniBtn(C.streak||"#FF6B6B")}>10일</button>
+                    <button onClick={()=>setDevStreak(30)} style={devMiniBtn(C.streak||"#FF6B6B")}>30일</button>
+                  </div>
+                  <p style={{fontSize:11,color:C.sub,margin:"10px 0 6px",fontWeight:700}}>최고기록만 설정 (상장 조건 테스트)</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+                    <button onClick={()=>setDevBestStreak(5)} style={devMiniBtn("#94A3B8")}>5</button>
+                    <button onClick={()=>setDevBestStreak(10)} style={devMiniBtn("#94A3B8")}>10</button>
+                    <button onClick={()=>setDevBestStreak(30)} style={devMiniBtn("#94A3B8")}>30</button>
+                    <button onClick={()=>setDevBestStreak(0)} style={devMiniBtn(C.red)}>초기화</button>
+                  </div>
+                  <button onClick={diagnoseStreak} style={{...devMiniBtn(C.purple),width:"100%",marginTop:8}}>🔍 연속 진단 (콘솔+토스트)</button>
                 </div>
 
                 <div style={devGroup}>
@@ -6130,20 +6210,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ── 첫 미션 완료 후 상점 안내창 (아이용 설명 디자인) ── */}
-      {showFirstMissionTip&&(
-        <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.8)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px"}} onClick={()=>setShowFirstMissionTip(false)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:26,padding:"32px 24px 24px",width:"100%",maxWidth:340,textAlign:"center",boxShadow:"0 24px 70px rgba(0,0,0,0.32)"}}>
-            <div style={{fontSize:64,marginBottom:16}}>{TM.coinEmoji}</div>
-            <p style={{fontSize:20,fontWeight:900,color:"#1A1A35",margin:"0 0 12px",lineHeight:1.3}}>{TM.coin}을 얻었네요! 🎉</p>
-            <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:"0 0 22px",whiteSpace:"pre-line"}}>{"내 캐릭터 탭 → 아이템 상점에서\n받고 싶은 사탕을 '받을래요!' 눌러요.\n엄마가 확인하면 사탕은 내 거! 🙆"}</p>
-            <button onClick={()=>setShowFirstMissionTip(false)} style={{width:"100%",padding:16,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",boxShadow:`0 6px 18px ${th.main}45`}}>
-              알겠어요! 🎉
-            </button>
-          </div>
-        </div>
-      )}
-
       </div>
     );
   }
@@ -6456,7 +6522,7 @@ export default function App() {
 
               {/* 등록 학원 목록 */}
               <div style={{borderTop:`3px solid ${th.main}`,margin:"28px 0 0",paddingTop:8}}>
-              <div style={{marginBottom:8}}>
+              <div style={{marginBottom:8,background:mixWhite(th.main,0.95),border:`1.5px solid ${th.main}30`,borderRadius:18,padding:"14px 13px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,background:th.light,border:`1.5px solid ${th.main}35`,borderRadius:14,padding:"12px 14px"}}>
                   <p style={{fontSize:16,color:th.main,fontWeight:900,margin:0,letterSpacing:0.3}}>📋 등록 학원</p>
                   <button onClick={()=>{ openAdd(); }} style={{fontSize:13,padding:"5px 12px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:700,cursor:"pointer"}}>+ 학원 추가</button>
