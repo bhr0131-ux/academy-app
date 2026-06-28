@@ -385,6 +385,15 @@ const DEFAULT_HOMEWORK_SCORE = 10;
 const EXTRA_QUEST_ID = "extra_quest";
 const DEV_PIN = "9999"; // 개발자 도구 진입용 PIN
 
+// 비밀번호 복구 질문 목록 (콤보 선택)
+const RECOVERY_QUESTIONS = [
+  "아이의 어릴 적 별명은?",
+  "내가 졸업한 초등학교 이름은?",
+  "기억에 남는 여행지는?",
+  "가장 좋아하는 음식은?",
+  "어릴 때 키우던 반려동물 이름은?",
+];
+
 // ── 프리미엄(유료) 설정 ─────────────────────────────────
 // PREMIUM_ENABLED = false 이면 모든 잠금이 해제되어 지금처럼 전 기능 무료로 동작한다.
 // 유료 전환 시점에 이 값만 true 로 바꾸면 잠금이 일제히 작동한다. (그 외 코드 수정 불필요)
@@ -1150,7 +1159,7 @@ const DECOR_HATS = [
 // 각 '자리(슬롯)'에 모험 가격 120/380/550/800/1000/1200 을 그대로 입힌다.
 // 순서: 딸기 모자 → 벚꽃 머리띠 → 리본 → 보석 티아라 → 무지개 왕관 → 공주 왕관
 const BAKERY_HAT_ORDER = ["hat_tophat","hat_star","hat_axe","hat_goggles","hat_crown","hat_flame"];
-const BAKERY_HAT_PRICE = { hat_tophat:90, hat_star:270, hat_axe:400, hat_goggles:580, hat_crown:720, hat_flame:870 };
+const BAKERY_HAT_PRICE = { hat_tophat:80, hat_star:270, hat_axe:400, hat_goggles:580, hat_crown:720, hat_flame:870 };
 // 자리(슬롯) 기준 등급도 모험 가격대와 동일하게: 120/380=common/rare, 550=rare, 800=epic, 1000/1200=legendary
 const BAKERY_HAT_RARITY = { hat_tophat:"common", hat_star:"rare", hat_axe:"rare", hat_goggles:"epic", hat_crown:"legendary", hat_flame:"legendary" };
 // 테두리: 프로필 액자 테두리 색/광택 (emoji 는 상점 표시용 아이콘)
@@ -1380,9 +1389,9 @@ const buildSampleData = (seq=1, cid="child_1") => {
   const acSample = `sample_ac_${uniq}`;
   const children = [{ id:cid, name:"아이1(예시)", gender:"boy" }];
   const PRESETS = [
-    { name:"피아노 학원 (예시)", color:"#6C63FF", time:"16:00", teacher:"김선생님", fee:150000,
+    { name:"피아노 학원 (예시)", color:"#00B8A9", time:"16:00", teacher:"김선생님", fee:150000,
       baseSupplies:["악보","연필"], baseHomeworks:["하농 1번 연습","오늘 배운 곡 1회 복습"],
-      shuttleInfo:"학원 차량 16:00 아파트 정문", memo:"매주 토요일 연주회 준비",
+      shuttleInfo:"16:00 아파트 정문", memo:"매주 토요일 연주회 준비",
       homeworks:["바이엘 20번 5회 연습","체르니 3번 양손 연습"], todos:["메트로놈 60에 맞춰 치기","악보 한 곡 외워오기"], supplies:["연습장"] },
     { name:"수학 학원 (예시)", color:"#FF6B6B", time:"17:00", teacher:"이선생님", fee:200000,
       baseSupplies:["교재","공책","연필"], baseHomeworks:["연산 문제 2장 풀기","오답 노트 정리"],
@@ -1390,11 +1399,11 @@ const buildSampleData = (seq=1, cid="child_1") => {
       homeworks:["단원평가 1회분 풀기","틀린 문제 다시 풀기"], todos:["구구단 외우기"], supplies:["계산기"] },
     { name:"영어 학원 (예시)", color:"#34C759", time:"18:00", teacher:"박선생님", fee:180000,
       baseSupplies:["단어장","워크북"], baseHomeworks:["단어 20개 암기","리딩 1지문 읽기"],
-      shuttleInfo:"학원 차량 18:00 아파트 후문", memo:"매주 금요일 단어 시험",
+      shuttleInfo:"18:00 아파트 후문", memo:"매주 금요일 단어 시험",
       homeworks:["단어 시험 대비 복습","듣기 1회 풀기"], todos:["영어 일기 3줄 쓰기"], supplies:["이어폰"] },
     { name:"태권도 (예시)", color:"#FF9500", time:"15:00", teacher:"최사범님", fee:120000,
       baseSupplies:["도복","띠"], baseHomeworks:["품새 1회 연습","스트레칭 10분"],
-      shuttleInfo:"학원 차량 15:00 아파트 정문", memo:"다음 달 승급 심사",
+      shuttleInfo:"15:00 아파트 정문", memo:"다음 달 승급 심사",
       homeworks:["발차기 50회","팔굽혀펴기 20회"], todos:["오늘 배운 동작 복습"], supplies:["물통"] },
   ];
   const p = PRESETS[(seq-1) % PRESETS.length];
@@ -1725,12 +1734,12 @@ function OnboardingFlow({ onFinish }){
         {cur.kind==="welcome"&&(
           <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",textAlign:"center"}}>
             <div style={{fontSize:64,marginBottom:18}}>🌱</div>
-            <p style={{fontSize:12,fontWeight:800,letterSpacing:3,color:TH.main,margin:"0 0 8px"}}>HARANG</p>
-            <h2 style={{fontSize:25,fontWeight:900,color:"#1A1A35",margin:"0 0 32px",lineHeight:1.3}}>아이 성장 미션에<br/>오신 걸 환영해요</h2>
+            <p style={{fontSize:12,fontWeight:800,letterSpacing:3,color:TH.main,margin:"0 0 8px"}}>오늘의 미션</p>
+            <h2 style={{fontSize:25,fontWeight:900,color:"#1A1A35",margin:"0 0 32px",lineHeight:1.3}}>미션팡에<br/>오신 걸 환영해요</h2>
             <p style={{fontSize:15,fontWeight:600,color:"#8890B0",lineHeight:1.8,margin:0}}>
               동기부여가 고민이었던 엄마도,<br/>
               숙제가 재미없던 아이도,<br/>
-              아이 성장 미션과 함께해요.<br/><br/>
+              미션팡과 함께해요.<br/><br/>
               미션(숙제)을 완료하면 코인을 얻고,<br/>
               원하는 보상으로 바꾸며 즐겁게 성장해봐요.<br/><br/>
               작은 미션이 쌓여 아이의 큰 성장을 만들어요.
@@ -1832,15 +1841,15 @@ function GuideModal({type="guide",th,onClose,skin="dungeon"}){
 
   const steps=isWelcome
     ? [
-        { ic:"🔓", t:"아이가 직접 미션을 추가해요", d:"홈탭에서 숙제·할 일을 등록" },
-        { ic:"🔒", t:"점수·삭제는 엄마만", d:"점수 수정·미션 삭제는 엄마 권한" },
+        { ic:"🔓", t:"아이가 직접 미션을 추가해요", d:"홈탭 또는 아이용에서 숙제·할 일을 등록" },
+        { ic:"🔒", t:"점수·삭제는 엄마만", d:"보상탭에서 엄마권한으로 점수 수정·미션 삭제" },
         { ic:"🎁", t:"보상은 엄마가 승인", d:"아이가 신청하면 여기서 확인하고 승인" },
       ]
     : isReward
     ? [
-        { ic:"🏠", t:"홈탭은 아이가 미션 등록", d:"숙제·할 일을 아이가 직접 추가하고 체크해요" },
-        { ic:"🔒", t:"보상탭은 엄마 권한", d:"점수 수정·미션 삭제는 여기서 (날짜별로 확인)" },
-        { ic:"🎁", t:"보상은 엄마가 승인", d:`아이가 ${coinW}으로 신청하면 확인하고 승인` },
+        { ic:"🔓", t:"아이가 직접 미션을 추가해요", d:"홈탭 또는 아이용에서 숙제·할 일을 등록" },
+        { ic:"🔒", t:"점수·삭제는 엄마만", d:"보상탭에서 엄마권한으로 점수 수정·미션 삭제" },
+        { ic:"🎁", t:"보상은 엄마가 승인", d:"아이가 신청하면 여기서 확인하고 승인" },
       ]
     : [
         { ic:"🧒", t:"아이 등록", d:"" },
@@ -1882,8 +1891,8 @@ function GuideModal({type="guide",th,onClose,skin="dungeon"}){
           color:"#fff",
           textAlign:"center"
         }}>
-          <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>{isWelcome?"GUIDE":isReward?"REWARD":"HARANG"}</p>
-          <h2 style={{fontSize:isReward||isWelcome?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isWelcome?"여기는 엄마 권한이에요 🔒":isReward?"보상탭은 엄마 공간이에요 🔒":"아이 성장 미션"}</h2>
+          <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>{isWelcome?"GUIDE":isReward?"REWARD":"미션팡"}</p>
+          <h2 style={{fontSize:isReward||isWelcome?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isWelcome?"여기는 엄마 권한이에요 🔒":isReward?"보상탭은 엄마 공간이에요 🔒":"오늘의 미션"}</h2>
           <div style={{width:38,height:3,borderRadius:99,background:"rgba(255,255,255,0.6)",margin:"12px auto 14px"}}/>
           <p style={{fontSize:14.5,fontWeight:800,lineHeight:1.6,margin:0}}>
             {isWelcome?<>점수와 보상은 엄마가 관리,<br/>아이는 미션에만 집중! ✨</>:isReward?<>미션은 아이가 홈탭에서,<br/>점수·보상 관리는 엄마가 여기서 ✨</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨</>}
@@ -2012,6 +2021,11 @@ const initAuth = {
   appMode: "child",
   parentPin: "1234", pinInput: "", showParentPin: false,
   oldPinInput: "", newPinInput: "", newPinConfirm: "", showPinChangeModal: false,
+  recoveryQuestion: "", recoveryAnswer: "", // 비밀번호 복구용 질문/답
+  newRecoveryQ: "", newRecoveryA: "", // 비번 변경 모달 입력값
+  showRecoveryModal: false, recoveryAnswerInput: "", // 복구(찾기) 모달
+  showRecoverySetupModal: false, setupRecoveryQ: "", setupRecoveryA: "", // 복구질문 설정/변경 모달
+  showResetPinModal: false, resetNewPin: "", resetNewPinConfirm: "", // 복구 성공 후 새 PIN만 설정
   isPaidPremium: false, installInfo: null,
 };
 const initOnboarding = {
@@ -2127,6 +2141,11 @@ export default function App() {
   const [rewardData,     setRewardData]     = useState(initReward.rewardData);
   const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elem|teen)
   const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
+  const [pendingRestore, setPendingRestore] = useState(null); // 백업 복원 확인 모달용 (파싱된 데이터)
+  const [lastBackupDate, setLastBackupDate] = useState(null); // 마지막 백업 날짜 (YYYY-MM-DD), 없으면 null
+  const [lastNudgeDate, setLastNudgeDate] = useState(null); // 마지막으로 백업 권유를 띄운 날짜 (YYYY-MM-DD), 없으면 null
+  const [showBackupNudge, setShowBackupNudge] = useState(false); // 백업 권유 모달 표시 여부
+  const [backupNudgeChecked, setBackupNudgeChecked] = useState(false); // 이번 세션에서 넛지 체크를 이미 했는지
   const [rewardRequests, setRewardRequests] = useState(initReward.rewardRequests);
   const [rewardForm,     setRewardForm]     = useState(initReward.rewardForm);
   const [editingRewardId,setEditingRewardId]= useState(initReward.editingRewardId);
@@ -2167,6 +2186,18 @@ export default function App() {
   const [newPinInput,       setNewPinInput]       = useState(initAuth.newPinInput);
   const [newPinConfirm,     setNewPinConfirm]     = useState(initAuth.newPinConfirm);
   const [showPinChangeModal,setShowPinChangeModal]= useState(initAuth.showPinChangeModal);
+  const [recoveryQuestion,  setRecoveryQuestion]  = useState(initAuth.recoveryQuestion);
+  const [recoveryAnswer,    setRecoveryAnswer]    = useState(initAuth.recoveryAnswer);
+  const [newRecoveryQ,      setNewRecoveryQ]      = useState(initAuth.newRecoveryQ);
+  const [newRecoveryA,      setNewRecoveryA]      = useState(initAuth.newRecoveryA);
+  const [showRecoveryModal, setShowRecoveryModal] = useState(initAuth.showRecoveryModal);
+  const [recoveryAnswerInput,setRecoveryAnswerInput]= useState(initAuth.recoveryAnswerInput);
+  const [showResetPinModal, setShowResetPinModal] = useState(initAuth.showResetPinModal);
+  const [resetNewPin,       setResetNewPin]       = useState(initAuth.resetNewPin);
+  const [resetNewPinConfirm,setResetNewPinConfirm]= useState(initAuth.resetNewPinConfirm);
+  const [showRecoverySetupModal,setShowRecoverySetupModal]= useState(initAuth.showRecoverySetupModal);
+  const [setupRecoveryQ,    setSetupRecoveryQ]    = useState(initAuth.setupRecoveryQ);
+  const [setupRecoveryA,    setSetupRecoveryA]    = useState(initAuth.setupRecoveryA);
   const [isPaidPremium,     setIsPaidPremium]     = useState(initAuth.isPaidPremium);
   const [installInfo,       setInstallInfo]       = useState(initAuth.installInfo);
   // ── 엄마용은 PIN 없이 진입. 단, '보상' 탭과 '위험구역'만 PIN으로 보호 ──
@@ -2278,6 +2309,12 @@ export default function App() {
         save("v6_install_info",inst); // 한 번 심으면 갱신·삭제 안 함
       }
       setInstallInfo(inst);
+      // 신규 사용자(설치 24시간 이내)는 등록 학원 목록을 펼친 상태로 시작 (첫 안내 강화).
+      // 24시간이 지나면 접힌 기본값(false) 유지. 이후 사용자가 직접 토글하면 그 선택을 따른다.
+      {
+        const hrs=(Date.now() - new Date(inst.installDate).getTime())/3600000;
+        if(hrs>=0 && hrs<24) setShowHomeAcademyList(true);
+      }
       // 결제(프리미엄) 상태 복원: 인앱결제 성공 시 저장된 값을 읽어온다.
       const paid=await load("v6_paid_premium");
       if(paid===true) setIsPaidPremium(true);
@@ -2306,6 +2343,14 @@ export default function App() {
       if(cid) setChildId(cid);
       if(vac) setVacations(vac);
       if(pin) setParentPin(pin);
+      const recQ=await load("v6_recovery_q");
+      if(recQ) setRecoveryQuestion(recQ);
+      const recA=await load("v6_recovery_a");
+      if(recA) setRecoveryAnswer(recA);
+      const lastBk=await load("v6_last_backup_date");
+      if(lastBk) setLastBackupDate(lastBk);
+      const lastNd=await load("v6_last_nudge_date");
+      if(lastNd) setLastNudgeDate(lastNd);
       if(score) setScoreData(score);
       if(reward) setRewardData(reward);
       if(rewardReq) setRewardRequests(rewardReq);
@@ -2349,6 +2394,59 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_cid",childId); },[childId,loaded]);
   useEffect(()=>{ if(loaded) save("v6_vac",vacations); },[vacations,loaded]);
   useEffect(()=>{ if(loaded) save("v6_parent_pin",parentPin); },[parentPin,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_recovery_q",recoveryQuestion); },[recoveryQuestion,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_recovery_a",recoveryAnswer); },[recoveryAnswer,loaded]);
+
+  // ── 백업 권유(넛지) 로직 ──
+  // 규칙:
+  //  · 백업 이력 있음 → 마지막 백업일 + 30일 경과 후, 그 이후 첫 진입에 권유
+  //  · 백업 이력 없음 → 설치일 기준. 첫 안내는 15일째 이후 첫 진입(신규 잔소리 방지),
+  //    안내한 뒤에도 백업 안 하면 마지막 안내일 + 30일 경과 후 첫 진입에 다시 안내
+  //  · "정확히 N일째"가 아니라 "기준일 + 주기가 지났는지"로 판정하므로 그날을 놓쳐도 다음 진입에 뜸
+  const BACKUP_NUDGE_DAYS = 30;       // 권유 주기
+  const BACKUP_NUDGE_FIRST_DAYS = 15; // 신규(백업 이력 없음) 첫 안내 시점
+  // 기준일로부터 경과 일수 계산 (날짜 없으면 null)
+  const daysSince = (dateStr)=>{
+    if(!dateStr) return null;
+    const diff = Math.floor((new Date(TODAY) - new Date(dateStr)) / 86400000);
+    return diff < 0 ? 0 : diff;
+  };
+  const daysSinceBackup  = daysSince(lastBackupDate);
+  const daysSinceInstall = daysSince(installInfo?.installDate);
+  const daysSinceNudge   = daysSince(lastNudgeDate);
+  // 설치 시각으로부터 경과 시간(시간 단위). 신규 사용자 샘플 학원 버튼의 24시간 노출 판정용.
+  // daysSinceInstall(날짜 기준)과 달리 설치한 '시각'부터 정확히 24시간을 본다.
+  const hoursSinceInstall = (()=>{
+    if(!installInfo?.installDate) return null;
+    const diff = (Date.now() - new Date(installInfo.installDate).getTime()) / 3600000;
+    return diff < 0 ? 0 : diff;
+  })();
+  // 엄마모드로 들어올 때 1회: 규칙에 맞으면 권유 모달 표시
+  useEffect(()=>{
+    if(!loaded) return;
+    if(appMode!=="parent"){ setBackupNudgeChecked(false); return; } // 엄마모드 벗어나면 다음 진입 때 다시 체크 가능
+    if(backupNudgeChecked) return; // 이번 진입에서 이미 체크함
+    setBackupNudgeChecked(true);
+    let needNudge = false;
+    if(lastBackupDate!==null){
+      // 백업한 적 있음 → 마지막 백업일 + 30일 경과 후 첫 진입
+      needNudge = daysSinceBackup!==null && daysSinceBackup>=BACKUP_NUDGE_DAYS;
+    } else if(daysSinceInstall!==null){
+      // 백업한 적 없음
+      if(lastNudgeDate===null){
+        // 아직 한 번도 안내 안 함 → 설치 15일 경과 후 첫 진입
+        needNudge = daysSinceInstall>=BACKUP_NUDGE_FIRST_DAYS;
+      } else {
+        // 이미 안내한 적 있음 → 마지막 안내일 + 30일 경과 후 첫 진입
+        needNudge = daysSinceNudge!==null && daysSinceNudge>=BACKUP_NUDGE_DAYS;
+      }
+    }
+    if(needNudge){
+      setLastNudgeDate(TODAY);
+      save("v6_last_nudge_date",TODAY); // 안내일 기록 → 다음 주기 계산 기준
+      setTimeout(()=>setShowBackupNudge(true), 700);
+    }
+  },[appMode,loaded,backupNudgeChecked,lastBackupDate,daysSinceBackup,daysSinceInstall,lastNudgeDate,daysSinceNudge]);
   // 엄마모드 비번 안내를 본 것으로 기록 (다음부터 숨김)
   const markPinHintSeen=()=>{
     if(!pinHintSeen){ setPinHintSeen(true); save("v6_pin_hint_seen","1"); }
@@ -2559,6 +2657,21 @@ export default function App() {
     showToast(`🌱 ${curName?curName+" — ":""}샘플 학원 추가! (${newAc.name})`);
   };
 
+  // 신규 사용자용: 설치 첫날 학원 등록 화면에서 샘플 학원 1개 채우기 (DEV_MODE 무관)
+  // loadSampleData와 동일한 데이터를 쓰지만 출시 빌드에서도 동작하도록 게이트 없음
+  const addStarterAcademy=()=>{
+    const cid=childId;
+    const existingAcs=academies[cid]||[];
+    const seq=existingAcs.filter(a=>/\(예시\)$/.test(a.name)).length+1;
+    const sample=buildSampleData(seq,cid);
+    const newAc=sample.academies[cid][0];
+    setChildren(prev=>prev.some(c=>c.id===cid)?prev:[...prev,...sample.children]);
+    setAcademies(prev=>({...prev,[cid]:[...(prev[cid]||[]),newAc]}));
+    setDailyData(prev=>({...prev,...sample.dailyData}));
+    const curName=(children.find(c=>c.id===cid)||{}).name||"";
+    showToast(`🌱 ${curName?curName+" — ":""}샘플 학원이 추가됐어요! (${newAc.name})`);
+  };
+
   const generateTestData=(cid)=>{
     if(!DEV_MODE) return;
     setScoreData(prev=>({
@@ -2760,6 +2873,7 @@ export default function App() {
     setEarnedTitleIds({});
     setSpecialTitles({}); setBestStreakData({}); setVacations({});
     setTemplates(SAMPLE_TMPL); setParentPin("1234");
+    setLastBackupDate(null); setLastNudgeDate(null); // 백업·안내 기록도 초기화
     setShowDevTools(false); setShowSettingsModal(false); setAppMode("child"); setRewardUnlocked(false);
     showToast("앱 전체가 초기화되었어요 🔄");
     }, "💣 앱 전체 초기화");
@@ -2847,10 +2961,53 @@ export default function App() {
     if(oldPinInput!==parentPin){ showToast("기존 비밀번호가 달라요"); return; }
     if(!newPinInput||newPinInput.length!==4){ showToast("새 비밀번호는 숫자 4자리로 해줘"); return; }
     if(newPinInput!==newPinConfirm){ showToast("새 비밀번호 확인이 달라요"); return; }
+    // 복구 질문 필수: 기존에 등록된 게 없으면 이번에 반드시 입력해야 함
+    const q=newRecoveryQ.trim(), a=newRecoveryA.trim();
+    const hasExisting=!!(recoveryQuestion&&recoveryAnswer);
+    if(!hasExisting&&(!q||!a)){ showToast("복구 질문과 답을 입력해 주세요"); return; }
     setParentPin(newPinInput);
+    if(q&&a){ setRecoveryQuestion(q); setRecoveryAnswer(a); }
     setOldPinInput(""); setNewPinInput(""); setNewPinConfirm("");
+    setNewRecoveryQ(""); setNewRecoveryA("");
     setShowPinChangeModal(false);
     showToast("비밀번호가 변경됐어요 🔐");
+  };
+
+  // 복구질문 설정/변경 (기타탭 전용 모달)
+  const saveRecoverySetup=()=>{
+    const q=setupRecoveryQ.trim(), a=setupRecoveryA.trim();
+    if(!q){ showToast("복구 질문을 선택해 주세요"); return; }
+    if(!a){ showToast("복구 질문의 답을 입력해 주세요"); return; }
+    setRecoveryQuestion(q); setRecoveryAnswer(a);
+    setSetupRecoveryQ(""); setSetupRecoveryA("");
+    setShowRecoverySetupModal(false);
+    showToast("복구 질문이 저장됐어요 🔑");
+  };
+
+  // 복구 질문 정답 확인 → (PIN 노출 없이) 새 비밀번호 설정 모달로 이동
+  const submitRecovery=()=>{
+    if(!recoveryQuestion||!recoveryAnswer){
+      showToast("등록된 복구 질문이 없어요"); return;
+    }
+    const inp=recoveryAnswerInput.trim().toLowerCase();
+    const ans=recoveryAnswer.trim().toLowerCase();
+    if(inp!==ans){ showToast("답이 일치하지 않아요"); return; }
+    // 정답 → 기존 PIN은 보여주지 않고 곧장 새 PIN 설정
+    setShowRecoveryModal(false);
+    setRecoveryAnswerInput("");
+    setGateAction(null); setGatePin("");
+    setResetNewPin(""); setResetNewPinConfirm("");
+    setShowResetPinModal(true);
+  };
+
+  // 복구 성공 후 새 비밀번호만 설정 (기존 PIN 불필요)
+  const submitResetPin=()=>{
+    if(!resetNewPin||resetNewPin.length!==4){ showToast("새 비밀번호는 숫자 4자리로 해줘"); return; }
+    if(resetNewPin!==resetNewPinConfirm){ showToast("새 비밀번호 확인이 달라요"); return; }
+    setParentPin(resetNewPin);
+    setResetNewPin(""); setResetNewPinConfirm("");
+    setShowResetPinModal(false);
+    showToast("새 비밀번호로 변경됐어요 🔐");
   };
 
   // ── 결제(프리미엄) 처리 ─────────────────────────────────
@@ -2887,6 +3044,8 @@ export default function App() {
       vacations,
       templates,
       parentPin,
+      recoveryQuestion,
+      recoveryAnswer,
       installInfo
     };
 
@@ -2901,20 +3060,38 @@ export default function App() {
     a.click();
     URL.revokeObjectURL(url);
 
+    setLastBackupDate(TODAY);
+    save("v6_last_backup_date",TODAY);
     showToast("데이터 백업 완료 💾");
   };
 
   const importBackup=(file)=>{
     if(!file) return;
 
-    if(!window.confirm("현재 데이터를 백업 파일 내용으로 덮어쓸까요?")) return;
-
     const reader=new FileReader();
 
     reader.onload=(e)=>{
       try{
         const data=JSON.parse(e.target.result);
+        // 백업 파일 형식 최소 검증 (아무 JSON이나 들어오는 것 방지)
+        if(!data || typeof data!=="object" || (!data.children && !data.academies && !data.dailyData)){
+          showToast("복원 실패: 올바른 백업 파일이 아니에요");
+          return;
+        }
+        // 검증 통과 → 확인 모달 띄움 (실제 적용은 applyRestore에서)
+        setPendingRestore(data);
+      }catch(err){
+        showToast("복원 실패: 백업 파일을 확인해줘");
+      }
+    };
 
+    reader.readAsText(file);
+  };
+
+  // 복원 확인 모달에서 "네"를 눌렀을 때 실제 데이터 적용
+  const applyRestore=(data)=>{
+    if(!data) return;
+    try{
         setChildren(data.children||DEFAULT_CHILDREN);
         setChildId(data.childId||data.children?.[0]?.id||"child_1");
         setAcademies(data.academies||{});
@@ -2939,6 +3116,8 @@ export default function App() {
         setVacations(data.vacations||{});
         setTemplates(data.templates||SAMPLE_TMPL);
         setParentPin(data.parentPin||"1234");
+        if(data.recoveryQuestion!==undefined) setRecoveryQuestion(data.recoveryQuestion||"");
+        if(data.recoveryAnswer!==undefined) setRecoveryAnswer(data.recoveryAnswer||"");
 
         // 설치 정보: 복원본과 현재 중 더 이른 설치일을 유지 (창립 사용자 자격 보존)
         if(data.installInfo?.installDate){
@@ -2955,10 +3134,9 @@ export default function App() {
         showToast("데이터 복원 완료 📂");
       }catch(err){
         showToast("복원 실패: 백업 파일을 확인해줘");
+      }finally{
+        setPendingRestore(null);
       }
-    };
-
-    reader.readAsText(file);
   };
 
   // 현재 아이 정보
@@ -5926,6 +6104,12 @@ export default function App() {
                 style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
                 확인
               </button>
+              {recoveryQuestion&&(
+                <button onClick={()=>{ setRecoveryAnswerInput(""); setShowRecoveryModal(true); }}
+                  style={{width:"100%",padding:8,border:"none",background:"transparent",color:th.main,fontSize:13,fontWeight:800,cursor:"pointer",marginBottom:4,textDecoration:"underline"}}>
+                  비밀번호를 잊으셨나요?
+                </button>
+              )}
               <button onClick={()=>{ markPinHintSeen(); setGateAction(null); setGatePin(""); }}
                 style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
                 취소
@@ -6209,6 +6393,12 @@ export default function App() {
               style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
               확인
             </button>
+            {recoveryQuestion&&(
+              <button onClick={()=>{ setRecoveryAnswerInput(""); setShowRecoveryModal(true); }}
+                style={{width:"100%",padding:8,border:"none",background:"transparent",color:th.main,fontSize:13,fontWeight:800,cursor:"pointer",marginBottom:4,textDecoration:"underline"}}>
+                비밀번호를 잊으셨나요?
+              </button>
+            )}
             <button onClick={()=>{ markPinHintSeen(); setGateAction(null); setGatePin(""); }}
               style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
               취소
@@ -6369,7 +6559,49 @@ export default function App() {
         );
       })()}
 
-      {/* ── 헤더 (소프트 파스텔) ── */}
+      {/* 백업 복원 확인 모달 (window.confirm 대체) */}
+      {pendingRestore&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>setPendingRestore(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:26,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
+            <h3 style={{fontSize:19,fontWeight:900,margin:"0 0 10px",textAlign:"center"}}>📂 백업으로 복원할까요?</h3>
+            <p style={{fontSize:14,fontWeight:700,color:C.sub,textAlign:"center",lineHeight:1.6,margin:"0 0 20px"}}>
+              지금 기기의 데이터가<br/><b style={{color:C.red}}>모두 백업 파일 내용으로 교체</b>돼요.<br/>되돌릴 수 없어요.
+            </p>
+            <button onClick={()=>applyRestore(pendingRestore)}
+              style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer",marginBottom:8}}>
+              네, 복원할게요
+            </button>
+            <button onClick={()=>setPendingRestore(null)}
+              style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 백업 권유 넛지 모달 (엄마모드 진입 시, 백업 안 했거나 30일 경과) */}
+      {showBackupNudge&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>setShowBackupNudge(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:26,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
+            <div style={{fontSize:38,textAlign:"center",marginBottom:6}}>🗂️</div>
+            <h3 style={{fontSize:19,fontWeight:900,margin:"0 0 10px",textAlign:"center"}}>데이터를 백업할까요?</h3>
+            <p style={{fontSize:14,fontWeight:700,color:C.sub,textAlign:"center",lineHeight:1.6,margin:"0 0 20px",wordBreak:"keep-all"}}>
+              {lastBackupDate===null
+                ? <>아직 한 번도 백업하지 않았어요.<br/>기기를 바꾸거나 앱을 지우면<br/><b style={{color:C.red}}>모든 기록이 사라져요.</b></>
+                : <>마지막 백업이 <b style={{color:C.red}}>{daysSinceBackup}일 전</b>이에요.<br/>지금 백업해두면 안전해요.</>}
+            </p>
+            <button onClick={()=>{ setShowBackupNudge(false); exportBackup(); }}
+              style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer",marginBottom:8}}>
+              💾 지금 백업하기
+            </button>
+            <button onClick={()=>setShowBackupNudge(false)}
+              style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+              나중에 할게요
+            </button>
+          </div>
+        </div>
+      )}
+
       <div style={{background:`linear-gradient(165deg, ${headerTone(th.main,0.42)} 0%, ${headerTone(th.main,0.64)} 100%)`,padding:"20px 18px 56px",position:"relative",overflow:"hidden"}}>
         {/* 은은한 장식 블롭 */}
         <div style={{position:"absolute",top:-40,right:-30,width:160,height:160,borderRadius:"50%",background:`${th.main}22`,filter:"blur(8px)"}}/>
@@ -6731,6 +6963,14 @@ export default function App() {
                       </div>
                     ))}
                   </div>
+                )}
+                {/* 신규 사용자용: 설치 후 24시간 이내에만 노출되는 샘플 학원 추가 버튼 */}
+                {hoursSinceInstall!==null && hoursSinceInstall<24 && (
+                  <button onClick={addStarterAcademy}
+                    style={{width:"100%",marginTop:12,padding:"12px",borderRadius:14,border:`1.5px dashed ${th.main}55`,background:mixWhite(th.main,0.9),color:th.main,fontSize:13.5,fontWeight:800,cursor:"pointer",lineHeight:1.5}}>
+                    🌱 샘플 학원 추가해보기
+                    <span style={{display:"block",fontSize:11.5,fontWeight:600,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
+                  </button>
                 )}
                 </>)}
               </div>
@@ -7795,7 +8035,7 @@ export default function App() {
 
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
               <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 연령대</p>
-              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>연령대를 고르면 그에 맞는 보상 목록으로 바뀌어요.<br/>※ 지금 보상 목록(직접 수정한 항목 포함)은 모두 교체돼요.</p>
+              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>연령대를 고르면 그에 맞는 보상 목록으로 바뀌어요.</p>
               <div style={{display:"flex",gap:6}}>
                 {[["kid","🧸","어린이"],["elem","🎒","초등학생"],["teen","📚","중학생+"],["custom","✏️","나만의 목록"]].map(([k,em,lb])=>{
                   const on=rewardAgeGroup===k;
@@ -7812,6 +8052,30 @@ export default function App() {
 
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
               <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:C.text}}>💾 데이터 관리</p>
+
+              {/* 마지막 백업 상태 배너 */}
+              {(()=>{
+                const never = lastBackupDate===null;
+                const stale = !never && daysSinceBackup!==null && daysSinceBackup>=BACKUP_NUDGE_DAYS;
+                // 백업 이력 없어도 설치 15일 전이면 경고하지 않고 순한 안내로 (신규 잔소리 방지)
+                const earlyNew = never && daysSinceInstall!==null && daysSinceInstall<BACKUP_NUDGE_FIRST_DAYS;
+                const warn = (never && !earlyNew) || stale;
+                const txt = earlyNew
+                  ? "기록이 쌓이면 백업을 안내해 드릴게요"
+                  : never
+                  ? "아직 백업한 적이 없어요"
+                  : daysSinceBackup===0 ? "오늘 백업했어요 ✓"
+                  : `마지막 백업: ${daysSinceBackup}일 전`;
+                return (
+                  <div style={{display:"flex",alignItems:"center",gap:8,padding:"9px 12px",borderRadius:12,marginBottom:10,
+                    background:warn?`${C.red}12`:`${th.main}10`,border:`1px solid ${warn?C.red+"44":th.main+"22"}`}}>
+                    <span style={{fontSize:15}}>{warn?"⚠️":"🗂"}</span>
+                    <span style={{fontSize:12.5,fontWeight:800,color:warn?C.red:C.sub,lineHeight:1.4,wordBreak:"keep-all"}}>
+                      {txt}{warn&&<><br/><span style={{fontWeight:600}}>기기를 바꾸거나 앱을 지우면 기록이 사라져요. 백업을 권장해요.</span></>}
+                    </span>
+                  </div>
+                );
+              })()}
 
               <button onClick={exportBackup}
                 style={{width:"100%",padding:12,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:9}}>
@@ -7838,6 +8102,10 @@ export default function App() {
               <button onClick={()=>setShowPinChangeModal(true)}
                 style={{width:"100%",padding:12,borderRadius:14,border:`1.5px solid ${C.border}`,background:CT.faint,color:C.text,fontSize:13,fontWeight:900,cursor:"pointer"}}>
                 비밀번호 변경
+              </button>
+              <button onClick={()=>{ setSetupRecoveryQ(recoveryQuestion||""); setSetupRecoveryA(""); setShowRecoverySetupModal(true); }}
+                style={{width:"100%",padding:12,borderRadius:14,border:`1.5px solid ${C.border}`,background:CT.faint,color:C.text,fontSize:13,fontWeight:900,cursor:"pointer",marginTop:9}}>
+                {recoveryQuestion?"복구 질문 변경":"복구 질문 설정"}
               </button>
             </div>
 
@@ -7926,7 +8194,7 @@ export default function App() {
             <div style={{...gameCard,padding:"16px",marginTop:14,textAlign:"center"}}>
               <p style={{fontSize:15,fontWeight:900,margin:"0 0 6px",color:C.text}}>ℹ️ 앱 정보</p>
               <p style={{fontSize:13,fontWeight:900,color:C.text,margin:"0 0 3px"}}>
-                HARANG 아이 성장 미션
+                미션팡
               </p>
               <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:"0 0 6px"}}>
                 버전 1.0
@@ -8099,11 +8367,131 @@ export default function App() {
               onKeyDown={e=>e.key==="Enter"&&changeParentPin()}
               placeholder="새 비밀번호 다시 입력"
               style={{...inp,marginBottom:18,textAlign:"center",letterSpacing:4,fontSize:20}}/>
+
+            {!recoveryQuestion&&(
+            <div style={{borderTop:`1px solid ${C.border}`,paddingTop:16,marginBottom:4}}>
+              <p style={{fontSize:13,fontWeight:800,color:C.text,margin:"0 0 4px"}}>
+                🔑 복구 질문 <span style={{color:C.red}}>*필수</span>
+              </p>
+              <p style={{fontSize:11.5,fontWeight:600,color:C.sub,lineHeight:1.5,margin:"0 0 12px"}}>
+                비밀번호를 잊었을 때, 이 질문의 답으로 다시 설정할 수 있어요.
+                <br/><b style={{color:C.red}}>비밀번호를 처음 바꿀 땐 꼭 등록해야 해요.</b>
+              </p>
+              <label style={lbl}>복구 질문</label>
+              <select value={newRecoveryQ} onChange={e=>setNewRecoveryQ(e.target.value)}
+                style={{...inp,marginBottom:12}}>
+                <option value="">질문을 선택하세요</option>
+                {RECOVERY_QUESTIONS.map(q=><option key={q} value={q}>{q}</option>)}
+              </select>
+              <label style={lbl}>복구 질문의 답</label>
+              <input type="text" value={newRecoveryA} onChange={e=>setNewRecoveryA(e.target.value)}
+                placeholder="답을 입력 (대소문자 구분 안 함)"
+                style={{...inp,marginBottom:18}}/>
+            </div>
+            )}
+
             <button onClick={changeParentPin}
               style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
               변경 완료
             </button>
-            <button onClick={()=>{ setShowPinChangeModal(false); setOldPinInput(""); setNewPinInput(""); setNewPinConfirm(""); }}
+            <button onClick={()=>{ setShowPinChangeModal(false); setOldPinInput(""); setNewPinInput(""); setNewPinConfirm(""); setNewRecoveryQ(""); setNewRecoveryA(""); }}
+              style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 복구 질문 설정/변경 모달 ── */}
+      {showRecoverySetupModal&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>{ setShowRecoverySetupModal(false); setSetupRecoveryQ(""); setSetupRecoveryA(""); }}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+              <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔑 복구 질문 {recoveryQuestion?"변경":"설정"}</h3>
+              <button onClick={()=>{ setShowRecoverySetupModal(false); setSetupRecoveryQ(""); setSetupRecoveryA(""); }} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+            </div>
+            <p style={{fontSize:11.5,fontWeight:600,color:C.sub,lineHeight:1.5,margin:"0 0 16px"}}>
+              비밀번호를 잊었을 때, 이 질문의 답으로 다시 설정할 수 있어요.
+              {recoveryQuestion&&<><br/>현재 질문: <b style={{color:th.main}}>{recoveryQuestion}</b></>}
+            </p>
+            <label style={lbl}>복구 질문</label>
+            <select value={setupRecoveryQ} onChange={e=>setSetupRecoveryQ(e.target.value)}
+              style={{...inp,marginBottom:12}}>
+              <option value="">질문을 선택하세요</option>
+              {RECOVERY_QUESTIONS.map(q=><option key={q} value={q}>{q}</option>)}
+            </select>
+            <label style={lbl}>복구 질문의 답</label>
+            <input type="text" value={setupRecoveryA} onChange={e=>setSetupRecoveryA(e.target.value)}
+              onKeyDown={e=>e.key==="Enter"&&saveRecoverySetup()}
+              placeholder="답을 입력 (대소문자 구분 안 함)"
+              style={{...inp,marginBottom:18}}/>
+            <button onClick={saveRecoverySetup}
+              style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
+              저장
+            </button>
+            <button onClick={()=>{ setShowRecoverySetupModal(false); setSetupRecoveryQ(""); setSetupRecoveryA(""); }}
+              style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 비밀번호 찾기(복구 질문) 모달 ── */}
+      {showRecoveryModal&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1100,padding:20}} onClick={()=>{ setShowRecoveryModal(false); setRecoveryAnswerInput(""); }}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+              <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔑 비밀번호 찾기</h3>
+              <button onClick={()=>{ setShowRecoveryModal(false); setRecoveryAnswerInput(""); }} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+            </div>
+            <div style={{background:`${th.main}10`,borderRadius:12,padding:"12px 14px",marginBottom:16}}>
+              <p style={{fontSize:12,fontWeight:700,color:C.sub,margin:"0 0 4px"}}>복구 질문</p>
+              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:0,wordBreak:"keep-all"}}>{recoveryQuestion}</p>
+            </div>
+            <label style={lbl}>답 입력</label>
+            <input type="text" value={recoveryAnswerInput} autoFocus
+              onChange={e=>setRecoveryAnswerInput(e.target.value)}
+              onKeyDown={e=>e.key==="Enter"&&submitRecovery()}
+              placeholder="질문의 답을 입력하세요"
+              style={{...inp,marginBottom:18}}/>
+            <button onClick={submitRecovery}
+              style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
+              확인
+            </button>
+            <button onClick={()=>{ setShowRecoveryModal(false); setRecoveryAnswerInput(""); }}
+              style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 복구 성공 후 새 비밀번호 설정 모달 (기존 PIN 불필요) ── */}
+      {showResetPinModal&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1100,padding:20}} onClick={()=>{ setShowResetPinModal(false); setResetNewPin(""); setResetNewPinConfirm(""); }}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+              <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔓 새 비밀번호 설정</h3>
+              <button onClick={()=>{ setShowResetPinModal(false); setResetNewPin(""); setResetNewPinConfirm(""); }} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+            </div>
+            <p style={{fontSize:12.5,fontWeight:700,color:C.sub,lineHeight:1.5,margin:"0 0 18px"}}>
+              본인 확인이 완료됐어요. 새 비밀번호를 정해 주세요.
+            </p>
+            <label style={lbl}>새 비밀번호</label>
+            <input type="password" inputMode="numeric" value={resetNewPin} onChange={e=>setResetNewPin(e.target.value.replace(/\D/g,"").slice(0,4))} maxLength={4} autoFocus
+              placeholder="새 비밀번호 4자리"
+              style={{...inp,marginBottom:14,textAlign:"center",letterSpacing:4,fontSize:20}}/>
+            <label style={lbl}>새 비밀번호 확인</label>
+            <input type="password" inputMode="numeric" value={resetNewPinConfirm} onChange={e=>setResetNewPinConfirm(e.target.value.replace(/\D/g,"").slice(0,4))} maxLength={4}
+              onKeyDown={e=>e.key==="Enter"&&submitResetPin()}
+              placeholder="새 비밀번호 다시 입력"
+              style={{...inp,marginBottom:18,textAlign:"center",letterSpacing:4,fontSize:20}}/>
+            <button onClick={submitResetPin}
+              style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
+              설정 완료
+            </button>
+            <button onClick={()=>{ setShowResetPinModal(false); setResetNewPin(""); setResetNewPinConfirm(""); }}
               style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
               취소
             </button>
