@@ -143,7 +143,7 @@ const softTint = (hex, wf, satBoost=0.92) => {
    SECTION 3. 테마/스킨 토큰 (모험·베이커리 팔레트)
    ════════════════════════════════════════════════════════════════════════ */
 
-const DUNGEON_BASE = [42, 60, 96]; // 밝은 저녁하늘 베이스 (더 밝고 캐주얼하게)
+const DUNGEON_BASE = [52, 70, 106]; // 밝은 저녁하늘 베이스 (살짝 밝게 +10 — 카드 분리감 ↑, 밤 무드 유지)
 const dungeonTone = (main, lift=0, tf=0.22) => {
   const h = (main||"#6C63FF").replace("#","");
   const r0=parseInt(h.slice(0,2),16), g0=parseInt(h.slice(2,4),16), b0=parseInt(h.slice(4,6),16);
@@ -537,11 +537,11 @@ const SKINS = {
       areaCountIcon:"🗺️",
       // 진행도별 응원 메시지
       progress:{
-        rest:"오늘은 쉬어가는 날이야 😴",
-        start:"오늘도 신나는 모험을 시작해볼까? 🗺️",
+        rest:"오늘은 쉬어가는 날! 😴",
+        start:"오늘도 신나는 모험 출발! 🧭",
         low:"좋아, 하나씩 해보자! 💪",
-        high:"거의 다 왔어! 조금만 더 힘내! ✨",
-        done:"오늘 미션 전부 클리어! 최고야 ⭐",
+        high:"거의 다 왔어, 조금만 더! ✨",
+        done:"오늘 미션 전부 클리어! ⭐",
       },
       // 활동 기록(모험 기록) 라벨
       logName:"모험 기록",
@@ -652,12 +652,23 @@ const SKINS = {
         innerBg:L_inner, innerBgD:L_innerD, innerText:COCOA, innerBorder:"rgba(255,255,255,0.6)",
         // 강조 포인트 칸 (가장 진한 마카롱) — 특별히 띄울 때
         popBox:L_deep, popBoxText:COCOA, popBoxBorder:"rgba(90,58,74,0.24)",
-        appBg:`linear-gradient(180deg, ${L_app} 0%, ${tint(0.76)} 45%, ${tint(0.73)} 100%)`,
+        // 테마별 고정 배경색 (안B) — softTint 연산 없이 항상 동일한 색으로 고정
+        appBg: (m === "#FF6FA3") ? "linear-gradient(180deg, #FFF0F6 0%, #FFF6F2 45%, #FDF4F8 100%)"  // 분홍
+             : (m === "#FFB66B") ? "linear-gradient(180deg, #FFF6EE 0%, #FFFAF5 45%, #FFF8F2 100%)"  // 살구
+             : (m === "#7BE0A6") ? "linear-gradient(180deg, #F4FCF6 0%, #F8FEF9 45%, #F3FCF6 100%)"  // 연두
+             : (m === "#A78BFA") ? "linear-gradient(180deg, #F8F5FF 0%, #FBF8FF 45%, #F9F6FF 100%)"  // 보라
+             : (m === "#60A8FF") ? "linear-gradient(180deg, #F0F8FF 0%, #F6FBFF 45%, #F2F8FF 100%)"  // 파랑
+             : `linear-gradient(180deg, ${L_app} 0%, ${tint(0.76)} 45%, ${tint(0.73)} 100%)`,        // 기타(fallback)
         missionDark:false,
         // 둥글기 — 베이커리는 더 말랑하게(큰 카드 28, 중간 22, 작은 16)
         radCard:28, radMid:22, radSmall:16,
-        // 배경 스프링클 점무늬(포장지 느낌) — appBg 위에 겹친다
-        appPattern:`radial-gradient(${tint(0.40)} 1.5px, transparent 1.6px), radial-gradient(${tint(0.40)} 1.5px, transparent 1.6px)`,
+        // 배경 스프링클 점무늬 — 테마별 고정색
+        appPattern: (m === "#FF6FA3") ? `radial-gradient(#FADADF 1.5px, transparent 1.6px), radial-gradient(#FADADF 1.5px, transparent 1.6px)`  // 분홍
+                  : (m === "#FFB66B") ? `radial-gradient(#FFD8B0 1.5px, transparent 1.6px), radial-gradient(#FFD8B0 1.5px, transparent 1.6px)`  // 살구
+                  : (m === "#7BE0A6") ? `radial-gradient(#B8E8C8 1.5px, transparent 1.6px), radial-gradient(#B8E8C8 1.5px, transparent 1.6px)`  // 연두
+                  : (m === "#A78BFA") ? `radial-gradient(#E4D8FC 1.5px, transparent 1.6px), radial-gradient(#E4D8FC 1.5px, transparent 1.6px)`  // 보라
+                  : (m === "#60A8FF") ? `radial-gradient(#B8D8FF 1.5px, transparent 1.6px), radial-gradient(#B8D8FF 1.5px, transparent 1.6px)`  // 파랑
+                  : `radial-gradient(${tint(0.40)} 1.5px, transparent 1.6px), radial-gradient(${tint(0.40)} 1.5px, transparent 1.6px)`,         // 기타(fallback)
         appPatternSize:"22px 22px", appPatternPos:"0 0, 11px 11px",
       };
     },
@@ -905,20 +916,20 @@ const getRewardGrade=(reward)=>REWARD_GRADES.find(g=>g.id===(reward.grade||"comm
 
 const DEFAULT_REWARDS = [
   { id:1,  title:"사탕 하나",              point:30,    emoji:"🍬", grade:"common"    },
-  { id:2,  title:"좋아하는 간식",          point:50,    emoji:"🍪", grade:"common"    },
-  { id:3,  title:"엄마랑 놀이 15분",       point:80,    emoji:"🧸", grade:"common"    },
-  { id:4,  title:"아이스크림",             point:120,   emoji:"🍦", grade:"rare"      },
-  { id:5,  title:"영상 20분",              point:150,   emoji:"📺", grade:"rare"      },
-  { id:6,  title:"편의점 간식 고르기",     point:180,   emoji:"🏪", grade:"rare"      },
-  { id:7,  title:"놀이터 데이트",          point:220,   emoji:"🛝", grade:"epic"      },
-  { id:8,  title:"다이소 쇼핑",            point:300,   emoji:"🛒", grade:"epic"      },
+  { id:2,  title:"좋아하는 간식",          point:80,    emoji:"🍪", grade:"common"    },
+  { id:3,  title:"엄마랑 놀이 15분",       point:90,    emoji:"🧸", grade:"common"    },
+  { id:4,  title:"아이스크림",             point:105,   emoji:"🍦", grade:"rare"      },
+  { id:5,  title:"영상 20분",              point:130,   emoji:"📺", grade:"rare"      },
+  { id:6,  title:"편의점 간식 고르기",     point:160,   emoji:"🏪", grade:"rare"      },
+  { id:7,  title:"놀이터 데이트",          point:230,   emoji:"🛝", grade:"epic"      },
+  { id:8,  title:"다이소 쇼핑",            point:260,   emoji:"🛒", grade:"epic"      },
   { id:9,  title:"주말 특별 간식",         point:480,   emoji:"🧁", grade:"epic"      },
   { id:10, title:"작은 장난감",            point:700,   emoji:"🧸", grade:"legendary" },
   { id:11, title:"키즈카페",               point:1100,  emoji:"🎡", grade:"legendary" },
   { id:12, title:"큰 선물 도전권",         point:1800,  emoji:"🎁", grade:"legendary" },
 ];
 
-// 🎒 초등학생 보상 세트
+// 🎒 초등학생 보상 세트 (구버전 호환용 — 기존 elem 사용자 데이터 보존)
 const REWARDS_ELEMENTARY = [
   { id:1,  title:"좋아하는 간식",          point:50,    emoji:"🍪", grade:"common"    },
   { id:2,  title:"편의점 간식 고르기",     point:90,    emoji:"🏪", grade:"common"    },
@@ -929,32 +940,66 @@ const REWARDS_ELEMENTARY = [
   { id:7,  title:"친구랑 놀기",            point:260,   emoji:"🛹", grade:"epic"      },
   { id:8,  title:"외식 메뉴 선택권",       point:300,   emoji:"🍕", grade:"epic"      },
   { id:9,  title:"용돈 5,000원",           point:480,   emoji:"💵", grade:"epic"      },
-  { id:10, title:"갖고 싶던 장난감",       point:700,   emoji:"🎁", grade:"legendary" },
+  { id:10, title:"갖고 싶은 장난감",       point:700,   emoji:"🎁", grade:"legendary" },
   { id:11, title:"영화관/체험 데이트",     point:1100,  emoji:"🎬", grade:"legendary" },
   { id:12, title:"큰 선물 도전권(2만원)",  point:1800,  emoji:"🛍️", grade:"legendary" },
 ];
 
-// 📚 중학생 이상 보상 세트
+// 🎒 초등 저학년 보상 세트
+const REWARDS_ELEM_LOW = [
+  { id:1,  title:"좋아하는 간식",          point:80,    emoji:"🍪", grade:"common"    },
+  { id:2,  title:"편의점 간식 고르기",     point:110,   emoji:"🏪", grade:"common"    },
+  { id:3,  title:"다이소 쇼핑",            point:150,   emoji:"🛒", grade:"common"    },
+  { id:4,  title:"영상 30분",              point:180,   emoji:"📺", grade:"rare"      },
+  { id:5,  title:"게임 30분",              point:200,   emoji:"🎮", grade:"rare"      },
+  { id:6,  title:"문구·캐릭터 용품",       point:260,   emoji:"✏️", grade:"rare"      },
+  { id:7,  title:"외식 메뉴 선택권",       point:320,   emoji:"🍕", grade:"epic"      },
+  { id:8,  title:"용돈 2,000원",           point:380,   emoji:"💰", grade:"epic"      },
+  { id:9,  title:"영화관 데이트",          point:480,   emoji:"🎬", grade:"epic"      },
+  { id:10, title:"갖고 싶은 장난감",       point:800,   emoji:"🎁", grade:"legendary" },
+  { id:11, title:"키즈카페/원하는곳 소풍", point:1100,  emoji:"🚌", grade:"legendary" },
+  { id:12, title:"큰 선물 도전권",         point:1800,  emoji:"🛍️", grade:"legendary" },
+];
+
+// 🎒 초등 고학년 보상 세트
+const REWARDS_ELEM_HIGH = [
+  { id:1,  title:"용돈 1,000원",           point:80,    emoji:"💰", grade:"common"    },
+  { id:2,  title:"좋아하는 간식",          point:90,    emoji:"🍪", grade:"common"    },
+  { id:3,  title:"용돈 2,000원",           point:150,   emoji:"💰", grade:"common"    },
+  { id:4,  title:"영상 30분",              point:180,   emoji:"📺", grade:"rare"      },
+  { id:5,  title:"게임 30분",              point:200,   emoji:"🎮", grade:"rare"      },
+  { id:6,  title:"문구·굿즈 사기",         point:260,   emoji:"✏️", grade:"rare"      },
+  { id:7,  title:"용돈 5,000원",           point:390,   emoji:"💵", grade:"epic"      },
+  { id:8,  title:"외식·배달 메뉴 선택",    point:430,   emoji:"🍕", grade:"epic"      },
+  { id:9,  title:"용돈 10,000원",          point:750,   emoji:"💸", grade:"epic"      },
+  { id:10, title:"가고싶은 여행지",        point:990,   emoji:"✈️", grade:"legendary" },
+  { id:11, title:"갖고 싶은 장난감",       point:1250,  emoji:"🎁", grade:"legendary" },
+  { id:12, title:"큰 선물 도전권",         point:1800,  emoji:"🛍️", grade:"legendary" },
+];
+
+// 📚 중학생 이상 보상 세트 — 전부 현금 / 포인트는 누진 비례(큰 보상일수록 약간 더 이득 → 모아서 받게 유도), 큰 보상은 큰맘 먹고 받도록 기간↑
 const REWARDS_TEEN = [
-  { id:1,  title:"좋아하는 간식",          point:50,    emoji:"🧋", grade:"common"    },
-  { id:2,  title:"용돈 2,000원",           point:90,    emoji:"💰", grade:"common"    },
-  { id:3,  title:"영상/게임 30분",         point:120,   emoji:"🎮", grade:"common"    },
-  { id:4,  title:"배달음식 메뉴 선택",     point:150,   emoji:"🍔", grade:"rare"      },
-  { id:5,  title:"용돈 5,000원",           point:180,   emoji:"💵", grade:"rare"      },
-  { id:6,  title:"친구랑 외출",            point:230,   emoji:"🚶", grade:"rare"      },
-  { id:7,  title:"취침/통금 30분 연장",    point:260,   emoji:"🌙", grade:"epic"      },
-  { id:8,  title:"갖고 싶은 굿즈·아이템",  point:300,   emoji:"🎧", grade:"epic"      },
-  { id:9,  title:"용돈 10,000원",          point:480,   emoji:"💸", grade:"epic"      },
-  { id:10, title:"사고 싶던 옷/신발",      point:700,   emoji:"👟", grade:"legendary" },
-  { id:11, title:"친구와 노래방/외식",     point:1100,  emoji:"🎤", grade:"legendary" },
-  { id:12, title:"큰 보상 도전권(5만원)",  point:1800,  emoji:"🎁", grade:"legendary" },
+  { id:1,  title:"용돈 5,000원",       point:100,   emoji:"💰", grade:"common"    },
+  { id:2,  title:"용돈 8,000원",       point:160,   emoji:"💰", grade:"common"    },
+  { id:3,  title:"용돈 10,000원",      point:200,   emoji:"💵", grade:"common"    },
+  { id:4,  title:"용돈 15,000원",      point:300,   emoji:"💵", grade:"rare"      },
+  { id:5,  title:"용돈 20,000원",      point:380,   emoji:"💵", grade:"rare"      },
+  { id:6,  title:"용돈 25,000원",      point:450,   emoji:"💵", grade:"rare"      },
+  { id:7,  title:"용돈 30,000원",      point:530,   emoji:"💸", grade:"epic"      },
+  { id:8,  title:"용돈 40,000원",      point:670,   emoji:"💸", grade:"epic"      },
+  { id:9,  title:"용돈 50,000원",      point:810,   emoji:"💸", grade:"epic"      },
+  { id:10, title:"용돈 70,000원",      point:1110,  emoji:"🤑", grade:"legendary" },
+  { id:11, title:"용돈 85,000원",      point:1300,  emoji:"🤑", grade:"legendary" },
+  { id:12, title:"용돈 100,000원",     point:1500,  emoji:"🤑", grade:"legendary" },
 ];
 
 // 연령대 → 보상 세트 매핑
 const REWARD_SETS_BY_AGE = {
-  kid:  { label:"어린이",      emoji:"🧸", rewards:DEFAULT_REWARDS    },
-  elem: { label:"초등학생",    emoji:"🎒", rewards:REWARDS_ELEMENTARY },
-  teen: { label:"중학생 이상", emoji:"📚", rewards:REWARDS_TEEN       },
+  kid:      { label:"어린이용",     emoji:"🧸", rewards:DEFAULT_REWARDS    },
+  elemLow:  { label:"초등 저학년",  emoji:"🎒", rewards:REWARDS_ELEM_LOW   },
+  elemHigh: { label:"초등 고학년",  emoji:"🎽", rewards:REWARDS_ELEM_HIGH  },
+  teen:     { label:"이상",         emoji:"💸", rewards:REWARDS_TEEN       },
+  elem:     { label:"초등학생",     emoji:"🎒", rewards:REWARDS_ELEMENTARY }, // 구버전 호환
 };
 const getRewardsByAge=(age)=>(REWARD_SETS_BY_AGE[age]||REWARD_SETS_BY_AGE.kid).rewards;
 
@@ -1454,7 +1499,7 @@ const EMPTY_AC = {
   fee:0, payDay:1, color:"#FF6B6B",
   baseSupplies:[], baseHomeworks:[], phone:"", teacher:"", address:"", memo:""
 };
-const EMPTY_ABS = { academyId:"", date:TODAY, reason:"", makeupDate:"", makeupDone:false };
+const EMPTY_ABS = { academyId:"", date:TODAY, reason:"", makeupDate:"", makeupDone:false, makeupStatus:"" };
 
 // ── 요일별 스케줄 유틸 (하이브리드: 기본 공통시간 + 예외 요일별 시간) ──
 const hasClassOnDay = (academy, day) => {
@@ -1767,9 +1812,10 @@ function OnboardingFlow({ onFinish }){
             <p style={sub}>{cur.sub}</p>
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
               {[
-                {k:"kid",  emoji:"🧸", t:"어린이",      d:"미취학 · 사탕, 놀이터, 키즈카페 등"},
-                {k:"elem", emoji:"🎒", t:"초등학생",    d:"용돈, 게임 시간, 문구 용품 등"},
-                {k:"teen", emoji:"📚", t:"중학생 이상", d:"용돈, 배달음식, 굿즈, 외출 등"},
+                {k:"kid",      emoji:"🧸", t:"어린이용",     d:"사탕, 놀이터, 키즈카페 등"},
+                {k:"elemLow",  emoji:"🎒", t:"초등 저학년",  d:"간식, 놀이, 소액 용돈 등"},
+                {k:"elemHigh", emoji:"🎽", t:"초등 고학년",  d:"용돈, 게임, 굿즈 등"},
+                {k:"teen",     emoji:"💸", t:"이상",         d:"현금만 (5천~10만원)"},
               ].map(a=>(
                 <button key={a.k} onClick={()=>setAge(a.k)} style={{display:"flex",alignItems:"center",gap:14,padding:"16px 18px",borderRadius:16,border:`2px solid ${age===a.k?TH.main:"#E3E8F0"}`,background:age===a.k?`${TH.main}12`:"#fff",cursor:"pointer",textAlign:"left",width:"100%"}}>
                   <span style={{fontSize:30,flexShrink:0}}>{a.emoji}</span>
@@ -2108,6 +2154,7 @@ export default function App() {
   const [vacations,   setVacations]   = useState(initAcademy.vacations);
   const [newAc,       setNewAc]       = useState(initAcademy.newAc);
   const [editTarget,  setEditTarget]  = useState(initAcademy.editTarget);
+  const [confirmDelAc, setConfirmDelAc] = useState(false); // 학원 수정 모달 내 삭제 2단계 확인
   const [supplyInput, setSupplyInput] = useState(initAcademy.supplyInput);
   const [baseHwInput, setBaseHwInput] = useState(initAcademy.baseHwInput);
   const [showAcMore,  setShowAcMore]  = useState(initAcademy.showAcMore);
@@ -2254,6 +2301,7 @@ export default function App() {
   const [tab,                    setTab]                    = useState(initUi.tab);
   const [dayMemos,               setDayMemos]               = useState(initUi.dayMemos);
   const [feeMonth,               setFeeMonth]               = useState(initUi.feeMonth);
+  const [absMonth,               setAbsMonth]               = useState(()=>TODAY.slice(0,7)); // 결석 탭 월 필터 (YYYY-MM)
   const [calDate,                setCalDate]                = useState(initUi.calDate);
   const [calSelDate,             setCalSelDate]             = useState(initUi.calSelDate);
   const [homeDate,               setHomeDate]               = useState(initUi.homeDate);
@@ -4528,8 +4576,8 @@ export default function App() {
     const unused=PALETTE.find(c=>!used.includes(c.toUpperCase()));
     return unused||PALETTE[(curAc||[]).length%PALETTE.length];
   };
-  const openAdd=()=>{ setEditTarget(null); setNewAc({...EMPTY_AC,color:getNextAcademyColor(),baseSupplies:[],baseHomeworks:[]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(false); setAcSecSupply(false); setAcSecFee(false); setAcSecInfo(false); setAcSecMemo(false); setShowAddAcModal(true); };
-  const openEdit=(ac)=>{ setEditTarget(ac.id); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length)); setAcSecFee(!!ac.fee); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
+  const openAdd=()=>{ setEditTarget(null); setConfirmDelAc(false); setNewAc({...EMPTY_AC,color:getNextAcademyColor(),baseSupplies:[],baseHomeworks:[]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(false); setAcSecSupply(false); setAcSecFee(false); setAcSecInfo(false); setAcSecMemo(false); setShowAddAcModal(true); };
+  const openEdit=(ac)=>{ setEditTarget(ac.id); setConfirmDelAc(false); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length)); setAcSecFee(!!ac.fee); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
   const saveAcademy=()=>{
     if(!newAc.name.trim()||(newAc.useCustomSchedule?(newAc.schedules||[]).length===0:(newAc.days||[]).length===0)){
       showToast("학원명과 수업 요일을 입력해줘"); return;
@@ -4557,7 +4605,10 @@ export default function App() {
     });
     // 해당 학원 방학 데이터 삭제
     setVacations(p=>{ const next={...p}; delete next[vacKey(childId,id)]; return next; });
-    setShowDetailModal(null); showToast("삭제됨");
+    setShowDetailModal(null);
+    // 수정 모달에서 삭제한 경우도 함께 닫고 편집 상태 초기화
+    setShowAddAcModal(false); setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[],baseHomeworks:[]}); setConfirmDelAc(false);
+    showToast("삭제됨");
   };
   const addBaseSupply=()=>{ const v=supplyInput.trim(); if(!v) return; setNewAc(p=>({...p,baseSupplies:[...(p.baseSupplies||[]),v]})); setSupplyInput(""); };
   const addBaseHomework=()=>{ const v=baseHwInput.trim(); if(!v) return; setNewAc(p=>({...p,baseHomeworks:[...(p.baseHomeworks||[]),v]})); setBaseHwInput(""); };
@@ -4586,6 +4637,12 @@ export default function App() {
   };
   const deleteAbs=(id)=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).filter(a=>a.id!==id)}));
   const toggleMakeup=(id)=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(a=>a.id===id?{...a,makeupDone:!a.makeupDone}:a)}));
+  // 보충 결과를 출석/불참으로 설정 (같은 값을 다시 누르면 미처리로 토글)
+  const setMakeupResult=(id,result)=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(a=>{
+    if(a.id!==id) return a;
+    const next = a.makeupStatus===result ? "" : result;       // 같은 버튼 재클릭 → 해제
+    return {...a, makeupStatus:next, makeupDone: next!=="" };  // 둘 중 하나 선택되면 처리완료(makeupDone=true)
+  })}));
 
   // 문자
   const applyTmpl=(tmpl,ac)=>setSmsDraft(tmpl.body.replace(/{아이이름}/g,curChild?.name||"").replace(/{학원명}/g,ac.name).replace(/{날짜}/g,fmt(TODAY)).replace(/{시간}/g,getClassTime(ac,todayDN())||getSchedules(ac)[0]?.time||""));
@@ -4795,6 +4852,8 @@ export default function App() {
           @keyframes burstPop{0%{transform:translate(0,0) scale(0.2);opacity:1}100%{transform:translate(var(--bx),var(--by)) scale(1.1);opacity:0}}
           @keyframes floatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
           @keyframes floatHero{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+          @keyframes shadowPulse{0%,100%{transform:translateX(-50%) scale(1);opacity:1}50%{transform:translateX(-50%) scale(0.78);opacity:0.7}}
+          @keyframes shadowPulsePet{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(0.8);opacity:0.72}}
           @keyframes floatHat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-10px)}}
           @keyframes wiggle{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
           @keyframes blobShift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(14px,-12px) scale(1.08)}66%{transform:translate(-10px,10px) scale(0.94)}}
@@ -5057,12 +5116,12 @@ export default function App() {
             <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
                 <button onClick={()=>{ setAppMode("parent"); setTab("home"); }}
-                  style={{...jellyChip({border:`1.5px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),flex:children.length>1?1:"none",color:GP.chipText,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 6px rgba(0,0,0,0.28)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
+                  style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:`1.5px solid ${GP.gold||"#FFD166"}99`,background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.18)",borderRadius:14}),flex:children.length>1?1:"none",color:GP.chipText,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 8px rgba(0,0,0,0.32)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
                   👩 엄마용
                 </button>
                 {children.length<=1&&(
                   <button onClick={()=>setShowKidCoachmark(true)}
-                    style={{...jellyChip({border:`1.5px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),color:GP.chipText,padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 6px rgba(0,0,0,0.28)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
+                    style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:`1.5px solid ${GP.gold||"#FFD166"}99`,background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.18)",borderRadius:14}),color:GP.chipText,padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 8px rgba(0,0,0,0.32)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
                     ❓
                   </button>
                 )}
@@ -5075,7 +5134,7 @@ export default function App() {
                   setShowChildRewards(false);
                   setShowChildXP(false);
                   setOpenRewardId(null);
-                }} style={{...jellyChip({border:`1.5px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),width:"100%",boxSizing:"border-box",color:GP.chipText,padding:"9px 10px",fontSize:13,fontWeight:900,outline:"none",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 6px rgba(0,0,0,0.28)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
+                }} style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:`1.5px solid ${GP.gold||"#FFD166"}99`,background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.18)",borderRadius:14}),width:"100%",boxSizing:"border-box",color:GP.chipText,padding:"9px 10px",fontSize:13,fontWeight:900,outline:"none",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 8px rgba(0,0,0,0.32)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
                   {children.map(c=>(
                     <option key={c.id} value={c.id} style={{color:C.text}}>{getGenderEmoji(c)} {c.name}</option>
                   ))}
@@ -5120,10 +5179,10 @@ export default function App() {
                 // 테두리 장착 시: 안쪽을 테마색 머금은 한 톤 밝은 다크로 → 화려한 프레임이 돋보임
                 ?`radial-gradient(125% 100% at 50% 0%, ${th.main}4a 0%, ${dungeonTone(th.main,40)} 42%, ${dungeonTone(th.main,22)} 100%)`
                 :`radial-gradient(120% 95% at 50% -10%, ${th.main}40 0%, transparent 55%), ${dungeonShinyBg}`);
-          // 무대 위 스포트라이트(캐릭터를 비추는 빛)
+          // 무대 위 스포트라이트(캐릭터를 비추는 빛) — 모험은 위쪽에 따뜻한 골드 광원을 더해 차가운 블루 단조로움을 풀고 생기를 줌
           const spotlight=cute
             ?"radial-gradient(ellipse 60% 50% at 50% 62%, rgba(255,255,255,0.55), transparent 70%)"
-            :`radial-gradient(ellipse 55% 45% at 50% 60%, ${th.main}33, transparent 72%)`;
+            :`radial-gradient(ellipse 70% 42% at 50% 30%, ${GP.gold||"#FFD166"}30, transparent 68%), radial-gradient(ellipse 58% 48% at 50% 60%, ${th.main}3d, transparent 72%)`;
           return (
             <div style={{position:"relative",zIndex:1,margin:"16px 16px 0",borderRadius:cute?34:GP.radCard||28,padding:stageBorder?4:0,overflow:"hidden",
               background:stageBorder?stageBorder.grad:"transparent",
@@ -5301,11 +5360,11 @@ export default function App() {
               {/* 말풍선 — "오늘의 모험을 시작해볼까?" 등 진행도 멘트. 왕관·배경 장착 시엔 숨김(무기·테두리는 유지). 모험·베이커리 공통. */}
               {!hideStageCheer&&(
               <div style={{position:"relative",zIndex:2,display:"flex",justifyContent:"center",marginBottom:2,marginTop:2}}>
-                <div style={{position:"relative",background:cute?`linear-gradient(160deg, ${mixWhite(th.main,0.88)}, ${mixWhite(th.main,0.78)})`:"rgba(255,255,255,0.95)",color:cute?mixBlack(th.main,0.42):"#2A2A45",borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:cute?`0 6px 14px ${th.main}26, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"0 6px 16px rgba(0,0,0,0.16)",maxWidth:"82%",textAlign:"center",lineHeight:1.35,
+                <div style={{position:"relative",background:cute?`linear-gradient(160deg, ${mixWhite(th.main,0.88)}, ${mixWhite(th.main,0.78)})`:"#F5F1E8",color:cute?mixBlack(th.main,0.42):"#2A2A45",borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:cute?`0 6px 14px ${th.main}26, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"0 5px 14px rgba(0,0,0,0.22)",maxWidth:cute?"82%":"92%",whiteSpace:cute?"normal":"nowrap",textAlign:"center",lineHeight:1.35,
                   animation:"bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both",border:cute?`2px solid ${mixWhite(th.main,0.7)}`:"none"}}>
                   {msg}
                   {/* 말풍선 꼬리 — 모험·베이커리 모두 가운데 아래(캐릭터 머리 방향) */}
-                  <div style={{position:"absolute",bottom:-7,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"8px solid transparent",borderRight:"8px solid transparent",borderTop:`8px solid ${cute?mixWhite(th.main,0.8):"rgba(255,255,255,0.95)"}`}}/>
+                  <div style={{position:"absolute",bottom:-7,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"8px solid transparent",borderRight:"8px solid transparent",borderTop:`8px solid ${cute?mixWhite(th.main,0.8):"#F5F1E8"}`}}/>
                 </div>
               </div>
               )}
@@ -5350,13 +5409,13 @@ export default function App() {
                       <div style={{position:"absolute",left:"50%",bottom:-2,transform:"translateX(-50%)",width:116,height:38,pointerEvents:"none",zIndex:0,
                         background:`radial-gradient(ellipse 50% 50% at 50% 50%, ${GP.themePoint||th.main}80, ${GP.themePoint||th.main}33 45%, transparent 72%)`,filter:"blur(2px)"}}/>
                     )}
-                    {/* 바닥 그림자 */}
-                    <div style={{position:"relative",zIndex:1,width:60,height:13,borderRadius:"50%",background:cute?"rgba(120,80,100,0.16)":"rgba(0,0,0,0.20)",filter:"blur(3.5px)",marginTop:-4}}/>
+                    {/* 바닥 그림자 — 캐릭터가 떠오를 때 살짝 작아져 '점프 안착'처럼 보이게 펄스 */}
+                    <div style={{position:"relative",zIndex:1,width:60,height:13,borderRadius:"50%",background:cute?"rgba(120,80,100,0.16)":"rgba(0,0,0,0.20)",filter:"blur(3.5px)",marginTop:-4,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                   </div>
                   {/* 펫 */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center",marginBottom:8}}>
                     <div style={{fontSize:40,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 6px 8px rgba(0,0,0,0.22))"}}>{pet.emoji}</div>
-                    <div style={{width:32,height:8,borderRadius:"50%",background:cute?"rgba(120,80,100,0.14)":"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2}}/>
+                    <div style={{width:32,height:8,borderRadius:"50%",background:cute?"rgba(120,80,100,0.14)":"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                     <span style={{position:"absolute",bottom:-14,fontSize:10.5,fontWeight:900,color:cute?mixBlack(th.main,0.3):"rgba(255,255,255,0.82)",whiteSpace:"nowrap"}}>🐾 펫</span>
                   </div>
                 </div>
@@ -5639,9 +5698,9 @@ export default function App() {
                         // 베이커리(cute)면 학원색을 따뜻한 쪽으로 부드럽게 보정(색 구분은 유지)
                         const acCol = item.academyColor||th.main;
                         return (
-                          <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{borderRadius:GP.radMid||22,overflow:"hidden",background:kidSkin==="cute"?(item.done?"#F7F8FB":"#fff"):(item.done?"linear-gradient(180deg,#EEEDF5 0%,#E7E5F0 100%)":item.failed?"linear-gradient(180deg,#ECEAF3 0%,#E6E4EE 100%)":"linear-gradient(180deg,#F7F5FF 0%,#F0EEF9 100%)"),border:`2px solid ${item.done?(kidSkin==="cute"?"#D8DCE6":"#C2C7D6"):item.failed?(kidSkin==="cute"?C.red+"45":"#D8D7E5"):acCol+(kidSkin==="cute"?"55":"")}`,boxShadow:item.done?"0 3px 12px rgba(20,24,60,0.06)":item.failed?"0 3px 12px rgba(0,0,0,0.05)":(kidSkin==="cute"?`0 10px 26px ${acCol}26, 0 3px 8px rgba(0,0,0,0.05)`:`0 0 18px ${acCol}40, 0 8px 24px rgba(0,0,0,0.18)`),opacity:item.done?0.82:1,marginBottom:12,animation:item.done?`squishCard .5s ease-out`:`jellyIn .4s cubic-bezier(.34,1.56,.64,1) ${idx*0.05}s both`}}>
+                          <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{borderRadius:GP.radMid||22,overflow:"hidden",background:kidSkin==="cute"?(item.done?"#F7F8FB":"#fff"):(item.done?"linear-gradient(180deg,#EEEDF5 0%,#E7E5F0 100%)":item.failed?"linear-gradient(180deg,#ECEAF3 0%,#E6E4EE 100%)":`linear-gradient(180deg, ${acCol}10 0%, ${acCol}06 100%)`),border:`2px solid ${item.done?(kidSkin==="cute"?"#D8DCE6":"#C2C7D6"):item.failed?(kidSkin==="cute"?C.red+"45":"#D8D7E5"):acCol+(kidSkin==="cute"?"55":"")}`,boxShadow:item.done?"0 3px 12px rgba(20,24,60,0.06)":item.failed?"0 3px 12px rgba(0,0,0,0.05)":(kidSkin==="cute"?`0 10px 26px ${acCol}26, 0 3px 8px rgba(0,0,0,0.05)`:`0 0 18px ${acCol}40, 0 8px 24px rgba(0,0,0,0.18)`),opacity:item.done?0.82:1,marginBottom:12,animation:item.done?`squishCard .5s ease-out`:`jellyIn .4s cubic-bezier(.34,1.56,.64,1) ${idx*0.05}s both`}}>
                             {/* 스크롤 헤더 - 학원 색 띠 (클리어 시 회색) */}
-                            <div style={{padding:"10px 13px",background:item.done?"#EDEFF4":item.failed?`${C.red}0A`:`linear-gradient(135deg, ${acCol}1c, ${acCol}08)`,borderBottom:`1px solid ${item.done?"#DFE3EC":item.failed?C.red+"20":acCol+"22"}`,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                            <div style={{padding:"10px 13px",background:item.done?"#EDEFF4":item.failed?`${C.red}0A`:`linear-gradient(135deg, ${acCol}24, ${acCol}12)`,borderBottom:`1px solid ${item.done?"#DFE3EC":item.failed?C.red+"20":acCol+"18"}`,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
                               <div style={{display:"flex",alignItems:"center",gap:9,minWidth:0}}>
                                 <span style={{fontSize:20,flexShrink:0}}>{getAcademyTheme(item.academyName,kidSkin).icon}</span>
                                 <p style={{fontSize:14,fontWeight:900,color:C.text,margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
@@ -5760,7 +5819,7 @@ export default function App() {
                     <div style={kidSkin==="cute"
                       ?{display:"flex",flexDirection:"column",gap:10}
                       :{borderRadius:18,padding:10,display:"flex",flexDirection:"column",gap:9,background:DUNGEON_SHOP.listBg,border:DUNGEON_SHOP.listBorder,boxShadow:DUNGEON_SHOP.listShadow}}>
-                      {getChildRewards().map((reward,ri)=>{
+                      {getChildRewards().slice().sort((a,b)=>a.point-b.point).map((reward,ri)=>{
                         const coin=getChildCoin(childId);
                         const canGet=coin>=reward.point;
                         const remain=Math.max(0,reward.point-coin);
@@ -7135,7 +7194,7 @@ export default function App() {
                                 <span style={{fontSize:17,fontWeight:700,color:C.text}}>{ac.name}</span>
                                 <p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>결석일: {ab.date}</p>
                               </div>
-                              <button onClick={()=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(a=>a.id===ab.id?{...a,makeupDone:!a.makeupDone}:a)}))}
+                              <button onClick={()=>toggleMakeup(ab.id)}
                                 style={{fontSize:13.5,padding:"5px 12px",borderRadius:10,border:"none",background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:C.sub,cursor:"pointer",fontWeight:800}}>
                                 {ab.makeupDone?"✓ 완료":"미완료"}
                               </button>
@@ -7274,7 +7333,7 @@ export default function App() {
                       <span style={{padding:"5px 12px",borderRadius:10,fontSize:13.5,fontWeight:800,background:CT.faint,color:C.sub}}>-</span>
                     ):(
                       <button onClick={()=>togglePaid(a.id)} style={{padding:"5px 12px",borderRadius:10,border:"none",cursor:"pointer",fontSize:13.5,fontWeight:800,background:isPaid(a.id)?`${C.green}18`:CT.faint,color:isPaid(a.id)?C.green:C.sub}}>
-                        {isPaid(a.id)?"✓ 납부완료":"미납"}
+                        {isPaid(a.id)?"✓ 납부완료":"👆 미납"}
                       </button>
                     )}
                   </div>
@@ -7293,10 +7352,43 @@ export default function App() {
         )}
 
         {/* ════ 결석 탭 ════ */}
-        {tab==="absence"&&(
+        {tab==="absence"&&(()=>{
+          // 삭제된 학원의 결석은 제외하고 집계(유효 학원만)
+          const validAcIds=new Set(curAc.map(a=>String(a.id)));
+          const liveAbs=curAbs.filter(a=>validAcIds.has(String(a.academyId)));
+          const inMonth=(a)=>(a.date||"").slice(0,7)===absMonth;                       // 이번 달에 결석한 건
+          // 이월 규칙: 지난달 이전 결석 중 미처리(출석/불참 안 누름)인 것만.
+          //  - 보충일정 있으면 → 그 보충일이 속한 달까지만 이월(보충월 ≥ 현재 보는 달)
+          //  - 보충일정 미정이면 → 출석/불참 누를 때까지 항상 이월
+          const isCarry=(a)=>{
+            if((a.date||"").slice(0,7)>=absMonth) return false;   // 이번 달 이후 결석은 이월 대상 아님
+            if(a.makeupDone) return false;                         // 이미 처리(출석/불참)된 건 제외
+            if(a.makeupDate) return a.makeupDate.slice(0,7)>=absMonth; // 보충월이 현재 달 이상일 때만 따라옴
+            return true;                                           // 보충 미정 → 항상 이월
+          };
+          const thisMonthAbs=liveAbs.filter(inMonth);                                   // 이번 달 결석
+          const carryAbs=liveAbs.filter(isCarry);                                       // 이월된 미처리 건
+          const visibleAbs=[...carryAbs,...thisMonthAbs];                               // 화면에 보이는 전체(이월이 위)
+          const totalCnt=visibleAbs.length;                                             // 전체 = 이번달 + 이월
+          const pendingCnt=visibleAbs.filter(a=>!a.makeupDone).length;                  // 보충 예정 = 아직 출석/불참 안 누른 건
+          const doneCnt=visibleAbs.filter(a=>a.makeupDone).length;                      // 보충 완료 = 출석·불참 처리된 건(합산)
+          const [ay,am]=absMonth.split("-").map(Number);
+          const shiftMonth=(delta)=>{ const d=new Date(ay,am-1+delta,1); setAbsMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); };
+          // 정렬: 이월 건 먼저(결석일 최신순) → 이번 달 건(결석일 최신순)
+          const sortedAbs=[
+            ...carryAbs.sort((a,b)=>b.date.localeCompare(a.date)),
+            ...thisMonthAbs.sort((a,b)=>b.date.localeCompare(a.date)),
+          ];
+          return (
           <div>
+            {/* 월 네비게이션 */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+              <button onClick={()=>shiftMonth(-1)} style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:10,width:34,height:34,fontSize:15,cursor:"pointer",color:C.text}}>‹</button>
+              <span style={{fontWeight:800,fontSize:15,color:C.text}}>{ay}년 {am}월 결석</span>
+              <button onClick={()=>shiftMonth(1)} style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:10,width:34,height:34,fontSize:15,cursor:"pointer",color:C.text}}>›</button>
+            </div>
             <div style={{display:"flex",gap:8,marginBottom:16}}>
-              {[{l:"전체",v:curAbs.length,c:C.red},{l:"보충 예정",v:curAbs.filter(a=>a.makeupDate&&!a.makeupDone).length,c:C.orange},{l:"보충 완료",v:curAbs.filter(a=>a.makeupDone).length,c:C.green}].map((s,i)=>(
+              {[{l:"전체",v:totalCnt,c:C.red},{l:"보충 예정",v:pendingCnt,c:C.orange},{l:"보충 완료",v:doneCnt,c:C.green}].map((s,i)=>(
                 <div key={i} style={{flex:1,background:CT.card,borderRadius:16,padding:"12px 8px",textAlign:"center",border:`1px solid ${s.c}33`,boxShadow:SHADOW.sm}}>
                   <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:600}}>{s.l}</p>
                   <p style={{fontSize:20,fontWeight:800,margin:"3px 0 0",color:s.c}}>{s.v}</p>
@@ -7304,30 +7396,35 @@ export default function App() {
               ))}
             </div>
             <button onClick={()=>setShowAbsModal(true)} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px dashed ${C.red}40`,background:`${C.red}06`,color:C.red,fontSize:13,fontWeight:700,cursor:"pointer",marginBottom:16}}>+ 결석 기록 추가</button>
-            {[...curAbs].sort((a,b)=>b.date.localeCompare(a.date)).map(ab=>{
+            {sortedAbs.map(ab=>{
               const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
               const past=ab.makeupDate&&ab.makeupDate<TODAY;
+              const carried=isCarry(ab);
               return (
-                <div key={ab.id} style={{background:CT.card,borderRadius:18,padding:"14px 16px",marginBottom:10,border:`1px solid ${ab.makeupDone?C.green+"33":th.main+"22"}`,boxShadow:SHADOW.sm}}>
+                <div key={ab.id} style={{background:CT.card,borderRadius:18,padding:"14px 16px",marginBottom:10,border:`1px solid ${carried?C.orange+"55":ab.makeupDone?C.green+"33":th.main+"22"}`,boxShadow:SHADOW.sm}}>
                   <div style={{display:"flex",gap:9}}>
                     <div style={{width:9,height:9,borderRadius:"50%",background:ac.color,marginTop:5,flexShrink:0}}/>
                     <div style={{flex:1}}>
-                      <div style={{display:"flex",justifyContent:"space-between"}}>
-                        <p style={{fontWeight:800,fontSize:15,margin:0,color:C.text}}>{ac.name}</p>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                          <p style={{fontWeight:800,fontSize:15,margin:0,color:C.text}}>{ac.name}</p>
+                          {carried&&<span style={{fontSize:11,fontWeight:800,color:C.orange,background:`${C.orange}18`,border:`1px solid ${C.orange}44`,borderRadius:7,padding:"1px 7px"}}>↩️ 이월 · {Number(ab.date.slice(5,7))}월</span>}
+                        </div>
                         <button onClick={()=>deleteAbs(ab.id)} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>
                       </div>
                       <p style={{fontSize:13.5,color:C.sub,margin:"3px 0 10px",fontWeight:600}}>결석일: {ab.date}{ab.reason&&` · ${ab.reason}`}</p>
                       <div style={{padding:"11px 13px",borderRadius:10,background:ab.makeupDone?`${C.green}0D`:past?`${C.red}0D`:CT.faint,border:`1px solid ${ab.makeupDone?C.green+"33":past?C.red+"33":CT.faintB}`}}>
-                        {ab.makeupDate?(
-                          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                            <div>
-                              <p style={{fontSize:11.5,color:C.sub,margin:0,fontWeight:600}}>보충 일정</p>
-                              <p style={{fontSize:13,fontWeight:800,margin:"2px 0 0",color:ab.makeupDone?C.green:past?C.red:C.text}}>{ab.makeupDate}</p>
-                              {past&&!ab.makeupDone&&<p style={{fontSize:11.5,color:C.red,margin:"2px 0 0",fontWeight:600}}>⚠️ 보충일이 지났어요</p>}
-                            </div>
-                            <button onClick={()=>toggleMakeup(ab.id)} style={{padding:"5px 12px",borderRadius:10,border:"none",cursor:"pointer",fontSize:13.5,fontWeight:800,background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:C.sub}}>{ab.makeupDone?"✓ 완료":"미완료"}</button>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
+                          <div style={{flex:1,minWidth:0}}>
+                            <p style={{fontSize:11.5,color:C.sub,margin:0,fontWeight:600}}>보충 일정</p>
+                            {ab.makeupDate
+                              ? <p style={{fontSize:13,fontWeight:800,margin:"2px 0 0",color:ab.makeupDone?C.green:past?C.red:C.text}}>{ab.makeupDate}</p>
+                              : <p style={{fontSize:13,fontWeight:800,margin:"2px 0 0",color:C.sub}}>📭 미정</p>}
+                            {ab.makeupDate&&past&&!ab.makeupDone&&<p style={{fontSize:11.5,color:C.red,margin:"2px 0 0",fontWeight:600}}>⚠️ 보충일이 지났어요</p>}
                           </div>
-                        ):<p style={{fontSize:13,color:C.sub,margin:0,fontWeight:600}}>📭 보충 일정 미정</p>}
+                          <button onClick={()=>toggleMakeup(ab.id)} style={{padding:"5px 12px",borderRadius:10,border:`1px solid ${ab.makeupDone?C.green+"33":past?C.red+"33":CT.faintB}`,cursor:"pointer",fontSize:13.5,fontWeight:800,background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:C.sub}}>
+                            {ab.makeupDone?"✓ 완료":"👆 미완료"}</button>
+                        </div>
                       </div>
                       <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:"100%",marginTop:9,padding:"8px",borderRadius:10,border:`1px solid ${C.purple}30`,background:C.purpleL,color:C.purple,fontSize:13,fontWeight:700,cursor:"pointer"}}>💬 결석 안내 문자 보내기</button>
                     </div>
@@ -7335,9 +7432,10 @@ export default function App() {
                 </div>
               );
             })}
-            {curAbs.length===0&&<div style={{textAlign:"center",padding:"40px 20px",background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}><p style={{fontSize:32,margin:0}}>🙌</p><p style={{color:C.sub,fontSize:13,margin:"8px 0 0"}}>결석 기록이 없어요!</p></div>}
+            {totalCnt===0&&<div style={{textAlign:"center",padding:"40px 20px",background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}><p style={{fontSize:32,margin:0}}>🙌</p><p style={{color:C.sub,fontSize:13,margin:"8px 0 0"}}>{ay}년 {am}월 결석 기록이 없어요!</p></div>}
           </div>
-        )}
+          );
+        })()}
 
         {/* ════ 보상 탭 ════ */}
         {tab==="reward"&&(
@@ -7479,7 +7577,7 @@ export default function App() {
                     + 보상 추가
                   </button>
                   <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    {getChildRewards().map(reward=>(
+                    {getChildRewards().slice().sort((a,b)=>a.point-b.point).map(reward=>(
                       <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:14,background:CT.faint,border:`1px solid ${C.border}`}}>
                         <span style={{fontSize:24}}>{reward.emoji}</span>
                         <div style={{flex:1}}>
@@ -8036,13 +8134,13 @@ export default function App() {
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
               <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 연령대</p>
               <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>연령대를 고르면 그에 맞는 보상 목록으로 바뀌어요.</p>
-              <div style={{display:"flex",gap:6}}>
-                {[["kid","🧸","어린이"],["elem","🎒","초등학생"],["teen","📚","중학생+"],["custom","✏️","나만의 목록"]].map(([k,em,lb])=>{
+              <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                {[["kid","🧸","어린이용"],["elemLow","🎒","초등\n저학년"],["elemHigh","🎽","초등\n고학년"],["teen","💸","이상"],["custom","✏️","나만의\n목록"]].map(([k,em,lb])=>{
                   const on=rewardAgeGroup===k;
                   return (
                     <button key={k} onClick={()=>changeRewardAge(k)}
-                      style={{flex:1,padding:"10px 3px",borderRadius:10,border:`2px solid ${on?th.main:C.border}`,background:on?`${th.main}14`:"#fff",color:on?th.main:C.sub,fontSize:11.5,fontWeight:900,cursor:"pointer",lineHeight:1.4}}>
-                      <span style={{display:"block",fontSize:18}}>{em}</span>
+                      style={{flex:"1 1 18%",minWidth:54,padding:"9px 2px",borderRadius:10,border:`2px solid ${on?th.main:C.border}`,background:on?`${th.main}14`:"#fff",color:on?th.main:C.sub,fontSize:11,fontWeight:900,cursor:"pointer",lineHeight:1.3,whiteSpace:"pre-line"}}>
+                      <span style={{display:"block",fontSize:17}}>{em}</span>
                       {lb}{on?" ✓":""}
                     </button>
                   );
@@ -8945,6 +9043,11 @@ export default function App() {
             <button onClick={saveAcademy} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer",boxShadow:`0 4px 16px ${th.main}40`}}>
               {editTarget?"수정 완료 ✓":"추가하기"}
             </button>
+            {editTarget!==null&&(
+              <button onClick={()=>deleteAcademy(editTarget)} style={{width:"100%",marginTop:10,padding:13,borderRadius:14,border:`1.5px solid ${C.red}44`,background:`${C.red}0D`,color:C.red,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+                🗑 이 학원 삭제
+              </button>
+            )}
           </div>
         </div>
       )}
