@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from "react";
    주의: 정식 "위험구역" 초기화(resetGameData/resetAllAppData)는 사용자 기능이라
         이 플래그와 무관하게 항상 동작한다.
    ════════════════════════════════════════════════════════════════════════ */
-const DEV_MODE = false;
+const DEV_MODE = true;
 
 /* ════════════════════════════════════════════════════════════════════════
    SECTION 1. 디자인 토큰 (색상/사이즈/그림자 상수)
