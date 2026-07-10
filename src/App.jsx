@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-
+import { useState, useEffect, useRef } from "react";
 /* ════════════════════════════════════════════════════════════════════════
    개발자 도구 플래그
    ────────────────────────────────────────────────────────────────────────
@@ -10,7 +9,7 @@ import { useState, useEffect } from "react";
    주의: 정식 "위험구역" 초기화(resetGameData/resetAllAppData)는 사용자 기능이라
         이 플래그와 무관하게 항상 동작한다.
    ════════════════════════════════════════════════════════════════════════ */
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 /* ════════════════════════════════════════════════════════════════════════
    SECTION 1. 디자인 토큰 (색상/사이즈/그림자 상수)
@@ -206,16 +205,16 @@ const ITEM_ACTION_STYLE = {
 // 등급은 테두리색 + glow 로만 구분 (WoW 인벤토리/장비창 느낌).
 // rarity 키: common(일반) / rare(희귀) / epic(영웅) / legendary(전설)
 const DUNGEON_DECOR_CARD = {
-  // 통일 카드 배경 (네이비 → 슬레이트 블루)
-  cardBg: "linear-gradient(135deg, #2C3658 0%, #3D4A70 100%)",
+  // 통일 카드 배경 — 모든 등급 동일. 등급은 테두리·뱃지·glow로만 표현
+  cardBg: "linear-gradient(180deg, #2F3D63 0%, #253250 100%)",
   // 미리보기 박스(아이콘 자리) — 카드보다 한 단계 더 깊은 톤
   previewBg: "linear-gradient(135deg, #232C49 0%, #313D60 100%)",
   previewBorder: "rgba(150,175,225,0.22)",
   rarity: {
-    common:    { border:"#8190B8", glow:"none",                            badgeText:"#C3CEEA", badgeBg:"rgba(129,144,184,0.20)" },
-    rare:      { border:"#5C97E8", glow:"0 0 9px rgba(92,151,232,0.22)",   badgeText:"#9DC4F5", badgeBg:"rgba(92,151,232,0.20)" },
-    epic:      { border:"#8A7BFF", glow:"0 0 10px rgba(138,123,255,0.28)", badgeText:"#BEB0FF", badgeBg:"rgba(138,123,255,0.22)" },
-    legendary: { border:"#FFD86B", glow:"0 0 13px rgba(255,216,107,0.30)", badgeText:"#FFE7A0", badgeBg:"rgba(255,216,107,0.18)" },
+    common:    { border:"rgba(160,122,78,.75)",  glow:"0 0 16px rgba(160,122,78,0.12)",  badgeText:"#D7B98A", badgeBg:"rgba(160,122,78,0.22)" },
+    rare:      { border:"rgba(199,205,216,.85)", glow:"0 0 16px rgba(230,236,245,0.16)", badgeText:"#E5EAF2", badgeBg:"rgba(199,205,216,0.18)" },
+    epic:      { border:"rgba(142,107,255,.85)", glow:"0 0 16px rgba(142,107,255,0.24)", badgeText:"#C9B8FF", badgeBg:"rgba(142,107,255,0.22)" },
+    legendary: { border:"rgba(242,193,78,.9)",   glow:"0 0 16px rgba(242,193,78,0.22)",  badgeText:"#FFD976", badgeBg:"rgba(242,193,78,0.20)" },
   },
 };
 const dungeonDecorRarity = (r="common") => DUNGEON_DECOR_CARD.rarity[r] || DUNGEON_DECOR_CARD.rarity.common;
@@ -916,10 +915,10 @@ const getRewardGrade=(reward)=>REWARD_GRADES.find(g=>g.id===(reward.grade||"comm
 
 const DEFAULT_REWARDS = [
   { id:1,  title:"사탕 하나",              point:30,    emoji:"🍬", grade:"common"    },
-  { id:2,  title:"좋아하는 간식",          point:80,    emoji:"🍪", grade:"common"    },
+  { id:2,  title:"좋아하는 간식",          point:50,    emoji:"🍪", grade:"common"    },
   { id:3,  title:"엄마랑 놀이 15분",       point:90,    emoji:"🧸", grade:"common"    },
-  { id:4,  title:"아이스크림",             point:105,   emoji:"🍦", grade:"rare"      },
-  { id:5,  title:"영상 20분",              point:130,   emoji:"📺", grade:"rare"      },
+  { id:4,  title:"아이스크림",             point:100,   emoji:"🍦", grade:"rare"      },
+  { id:5,  title:"영상 20분",              point:120,   emoji:"📺", grade:"rare"      },
   { id:6,  title:"편의점 간식 고르기",     point:160,   emoji:"🏪", grade:"rare"      },
   { id:7,  title:"놀이터 데이트",          point:230,   emoji:"🛝", grade:"epic"      },
   { id:8,  title:"다이소 쇼핑",            point:260,   emoji:"🛒", grade:"epic"      },
@@ -929,68 +928,52 @@ const DEFAULT_REWARDS = [
   { id:12, title:"큰 선물 도전권",         point:1800,  emoji:"🎁", grade:"legendary" },
 ];
 
-// 🎒 초등학생 보상 세트 (구버전 호환용 — 기존 elem 사용자 데이터 보존)
-const REWARDS_ELEMENTARY = [
-  { id:1,  title:"좋아하는 간식",          point:50,    emoji:"🍪", grade:"common"    },
-  { id:2,  title:"편의점 간식 고르기",     point:90,    emoji:"🏪", grade:"common"    },
-  { id:3,  title:"용돈 1,000원",           point:120,   emoji:"💰", grade:"common"    },
-  { id:4,  title:"영상 30분",              point:150,   emoji:"📺", grade:"rare"      },
-  { id:5,  title:"게임 30분",              point:180,   emoji:"🎮", grade:"rare"      },
-  { id:6,  title:"문구·캐릭터 용품",       point:230,   emoji:"✏️", grade:"rare"      },
-  { id:7,  title:"친구랑 놀기",            point:260,   emoji:"🛹", grade:"epic"      },
-  { id:8,  title:"외식 메뉴 선택권",       point:300,   emoji:"🍕", grade:"epic"      },
-  { id:9,  title:"용돈 5,000원",           point:480,   emoji:"💵", grade:"epic"      },
-  { id:10, title:"갖고 싶은 장난감",       point:700,   emoji:"🎁", grade:"legendary" },
-  { id:11, title:"영화관/체험 데이트",     point:1100,  emoji:"🎬", grade:"legendary" },
-  { id:12, title:"큰 선물 도전권(2만원)",  point:1800,  emoji:"🛍️", grade:"legendary" },
-];
-
 // 🎒 초등 저학년 보상 세트
 const REWARDS_ELEM_LOW = [
-  { id:1,  title:"좋아하는 간식",          point:80,    emoji:"🍪", grade:"common"    },
-  { id:2,  title:"편의점 간식 고르기",     point:110,   emoji:"🏪", grade:"common"    },
-  { id:3,  title:"다이소 쇼핑",            point:150,   emoji:"🛒", grade:"common"    },
-  { id:4,  title:"영상 30분",              point:180,   emoji:"📺", grade:"rare"      },
-  { id:5,  title:"게임 30분",              point:200,   emoji:"🎮", grade:"rare"      },
-  { id:6,  title:"문구·캐릭터 용품",       point:260,   emoji:"✏️", grade:"rare"      },
-  { id:7,  title:"외식 메뉴 선택권",       point:320,   emoji:"🍕", grade:"epic"      },
-  { id:8,  title:"용돈 2,000원",           point:380,   emoji:"💰", grade:"epic"      },
-  { id:9,  title:"영화관 데이트",          point:480,   emoji:"🎬", grade:"epic"      },
-  { id:10, title:"갖고 싶은 장난감",       point:800,   emoji:"🎁", grade:"legendary" },
-  { id:11, title:"키즈카페/원하는곳 소풍", point:1100,  emoji:"🚌", grade:"legendary" },
-  { id:12, title:"큰 선물 도전권",         point:1800,  emoji:"🛍️", grade:"legendary" },
+  { id:1,  title:"좋아하는 간식",          point:40,    emoji:"🍪", grade:"common"    },
+  { id:2,  title:"편의점 간식 고르기",     point:60,    emoji:"🏪", grade:"common"    },
+  { id:3,  title:"다이소 쇼핑",            point:90,    emoji:"🛒", grade:"common"    },
+  { id:4,  title:"영상 30분",              point:120,   emoji:"📺", grade:"rare"      },
+  { id:5,  title:"게임 30분",              point:140,   emoji:"🎮", grade:"rare"      },
+  { id:6,  title:"문구·캐릭터 용품",       point:180,   emoji:"✏️", grade:"rare"      },
+  { id:7,  title:"외식 메뉴 선택권",       point:230,   emoji:"🍕", grade:"epic"      },
+  { id:8,  title:"용돈 2,000원",           point:260,   emoji:"💰", grade:"epic"      },
+  { id:9,  title:"영화관 데이트",          point:310,   emoji:"🎬", grade:"epic"      },
+  { id:10, title:"갖고 싶은 장난감",       point:400,   emoji:"🎁", grade:"legendary" },
+  { id:11, title:"키즈카페/원하는곳 소풍", point:600,   emoji:"🚌", grade:"legendary" },
+  { id:12, title:"큰 선물 도전권",         point:1000,  emoji:"🛍️", grade:"legendary" },
 ];
 
 // 🎒 초등 고학년 보상 세트
 const REWARDS_ELEM_HIGH = [
-  { id:1,  title:"용돈 1,000원",           point:80,    emoji:"💰", grade:"common"    },
-  { id:2,  title:"좋아하는 간식",          point:90,    emoji:"🍪", grade:"common"    },
-  { id:3,  title:"용돈 2,000원",           point:150,   emoji:"💰", grade:"common"    },
-  { id:4,  title:"영상 30분",              point:180,   emoji:"📺", grade:"rare"      },
-  { id:5,  title:"게임 30분",              point:200,   emoji:"🎮", grade:"rare"      },
+  { id:1,  title:"좋아하는 간식",          point:30,    emoji:"🍪", grade:"common"    },
+  { id:2,  title:"용돈 1,000원",           point:60,    emoji:"💰", grade:"common"    },
+  { id:3,  title:"용돈 2,000원",           point:110,   emoji:"💰", grade:"common"    },
+  { id:4,  title:"영상 30분",              point:150,   emoji:"📺", grade:"rare"      },
+  { id:5,  title:"게임 30분",              point:170,   emoji:"🎮", grade:"rare"      },
   { id:6,  title:"문구·굿즈 사기",         point:260,   emoji:"✏️", grade:"rare"      },
-  { id:7,  title:"용돈 5,000원",           point:390,   emoji:"💵", grade:"epic"      },
-  { id:8,  title:"외식·배달 메뉴 선택",    point:430,   emoji:"🍕", grade:"epic"      },
-  { id:9,  title:"용돈 10,000원",          point:750,   emoji:"💸", grade:"epic"      },
-  { id:10, title:"가고싶은 여행지",        point:990,   emoji:"✈️", grade:"legendary" },
-  { id:11, title:"갖고 싶은 장난감",       point:1250,  emoji:"🎁", grade:"legendary" },
-  { id:12, title:"큰 선물 도전권",         point:1800,  emoji:"🛍️", grade:"legendary" },
+  { id:7,  title:"용돈 5,000원",           point:290,   emoji:"💵", grade:"epic"      },
+  { id:8,  title:"외식·배달 메뉴 선택",    point:340,   emoji:"🍕", grade:"epic"      },
+  { id:9,  title:"용돈 10,000원",          point:530,   emoji:"💸", grade:"epic"      },
+  { id:10, title:"가고싶은 여행지",        point:700,   emoji:"✈️", grade:"legendary" },
+  { id:11, title:"갖고 싶은 장난감",       point:800,   emoji:"🎁", grade:"legendary" },
+  { id:12, title:"큰 선물 도전권",         point:1000,  emoji:"🛍️", grade:"legendary" },
 ];
 
 // 📚 중학생 이상 보상 세트 — 전부 현금 / 포인트는 누진 비례(큰 보상일수록 약간 더 이득 → 모아서 받게 유도), 큰 보상은 큰맘 먹고 받도록 기간↑
 const REWARDS_TEEN = [
-  { id:1,  title:"용돈 5,000원",       point:100,   emoji:"💰", grade:"common"    },
-  { id:2,  title:"용돈 8,000원",       point:160,   emoji:"💰", grade:"common"    },
-  { id:3,  title:"용돈 10,000원",      point:200,   emoji:"💵", grade:"common"    },
-  { id:4,  title:"용돈 15,000원",      point:300,   emoji:"💵", grade:"rare"      },
-  { id:5,  title:"용돈 20,000원",      point:380,   emoji:"💵", grade:"rare"      },
-  { id:6,  title:"용돈 25,000원",      point:450,   emoji:"💵", grade:"rare"      },
-  { id:7,  title:"용돈 30,000원",      point:530,   emoji:"💸", grade:"epic"      },
-  { id:8,  title:"용돈 40,000원",      point:670,   emoji:"💸", grade:"epic"      },
-  { id:9,  title:"용돈 50,000원",      point:810,   emoji:"💸", grade:"epic"      },
-  { id:10, title:"용돈 70,000원",      point:1110,  emoji:"🤑", grade:"legendary" },
-  { id:11, title:"용돈 85,000원",      point:1300,  emoji:"🤑", grade:"legendary" },
-  { id:12, title:"용돈 100,000원",     point:1500,  emoji:"🤑", grade:"legendary" },
+  { id:1,  title:"용돈 1,000원",      point:40,    emoji:"💰", grade:"common"    },
+  { id:2,  title:"용돈 3,000원",      point:110,   emoji:"💰", grade:"common"    },
+  { id:3,  title:"용돈 5,000원",      point:180,   emoji:"💰", grade:"common"    },
+  { id:4,  title:"용돈 10,000원",     point:340,   emoji:"💵", grade:"rare"      },
+  { id:5,  title:"용돈 20,000원",     point:600,   emoji:"💵", grade:"rare"      },
+  { id:6,  title:"용돈 25,000원",     point:750,   emoji:"💵", grade:"rare"      },
+  { id:7,  title:"용돈 30,000원",     point:880,   emoji:"💸", grade:"epic"      },
+  { id:8,  title:"용돈 40,000원",     point:1000,  emoji:"💸", grade:"epic"      },
+  { id:9,  title:"용돈 50,000원",     point:1250,  emoji:"💸", grade:"epic"      },
+  { id:10, title:"용돈 70,000원",     point:1800,  emoji:"🤑", grade:"legendary" },
+  { id:11, title:"용돈 85,000원",     point:2100,  emoji:"🤑", grade:"legendary" },
+  { id:12, title:"용돈 100,000원",    point:2400,  emoji:"🤑", grade:"legendary" },
 ];
 
 // 연령대 → 보상 세트 매핑
@@ -998,8 +981,7 @@ const REWARD_SETS_BY_AGE = {
   kid:      { label:"어린이용",     emoji:"🧸", rewards:DEFAULT_REWARDS    },
   elemLow:  { label:"초등 저학년",  emoji:"🎒", rewards:REWARDS_ELEM_LOW   },
   elemHigh: { label:"초등 고학년",  emoji:"🎽", rewards:REWARDS_ELEM_HIGH  },
-  teen:     { label:"이상",         emoji:"💸", rewards:REWARDS_TEEN       },
-  elem:     { label:"초등학생",     emoji:"🎒", rewards:REWARDS_ELEMENTARY }, // 구버전 호환
+  teen:     { label:"고학년 이상",   emoji:"💸", rewards:REWARDS_TEEN       },
 };
 const getRewardsByAge=(age)=>(REWARD_SETS_BY_AGE[age]||REWARD_SETS_BY_AGE.kid).rewards;
 
@@ -1192,6 +1174,7 @@ const DECOR_RARITY = {
 };
 // 모자: 캐릭터 이모지 위(머리)에 겹쳐 표시
 const DECOR_HATS = [
+  { id:"hat_light",   emoji:"🔦", name:"꼬마 손전등",  price:0,   rarity:"common",    weapon:true, bakery:{ emoji:"🍒", name:"체리 핀" } },
   { id:"hat_axe",     emoji:"🎒", name:"탐험가 배낭",  price:80,  rarity:"common",    weapon:true, bakery:{ emoji:"🎀", name:"리본" } },
   { id:"hat_tophat",  emoji:"🧭", name:"나침반",      price:200,  rarity:"rare",      weapon:true, bakery:{ emoji:"🍓", name:"딸기 모자" } },
   { id:"hat_goggles", emoji:"📷", name:"카메라",      price:260,  rarity:"rare",      weapon:true, bakery:{ emoji:"🌸", name:"벚꽃 머리띠" } },
@@ -1203,13 +1186,14 @@ const DECOR_HATS = [
 // 모험 모드는 DECOR_HATS 원본 순서·가격 그대로. 베이커리만 아래 순서로 진열하고,
 // 각 '자리(슬롯)'에 모험 가격 120/380/550/800/1000/1200 을 그대로 입힌다.
 // 순서: 딸기 모자 → 벚꽃 머리띠 → 리본 → 보석 티아라 → 무지개 왕관 → 공주 왕관
-const BAKERY_HAT_ORDER = ["hat_tophat","hat_star","hat_axe","hat_goggles","hat_crown","hat_flame"];
-const BAKERY_HAT_PRICE = { hat_tophat:80, hat_star:270, hat_axe:400, hat_goggles:580, hat_crown:720, hat_flame:870 };
+const BAKERY_HAT_ORDER = ["hat_light","hat_tophat","hat_star","hat_axe","hat_goggles","hat_crown","hat_flame"];
+const BAKERY_HAT_PRICE = { hat_light:0, hat_tophat:80, hat_star:270, hat_axe:400, hat_goggles:580, hat_crown:720, hat_flame:870 };
 // 자리(슬롯) 기준 등급도 모험 가격대와 동일하게: 120/380=common/rare, 550=rare, 800=epic, 1000/1200=legendary
-const BAKERY_HAT_RARITY = { hat_tophat:"common", hat_star:"rare", hat_axe:"rare", hat_goggles:"epic", hat_crown:"legendary", hat_flame:"legendary" };
+const BAKERY_HAT_RARITY = { hat_light:"common", hat_tophat:"common", hat_star:"rare", hat_axe:"rare", hat_goggles:"epic", hat_crown:"legendary", hat_flame:"legendary" };
 // 테두리: 프로필 액자 테두리 색/광택 (emoji 는 상점 표시용 아이콘)
 // glow 는 모험(다크 무대)용, glowCute 는 베이커리(밝은 크림 무대)용 — 모드별로 빛번짐 색을 다르게 둔다.
 const DECOR_BORDERS = [
+  { id:"bd_wood",    emoji:"🪵", name:"나무",    price:0,    rarity:"common",    grad:"repeating-linear-gradient(100deg,#6E4526 0px,#8B5E3C 5px,#75492B 9px,#96683F 14px,#6E4526 19px)", glow:"rgba(110,69,38,0.35)",  glowCute:"rgba(110,69,38,0.2)", bakery:{ emoji:"🍫", name:"초코" } },
   { id:"bd_bronze",  emoji:"🥉", name:"브론즈",  price:110,  rarity:"common",    grad:"linear-gradient(135deg,#CD7F32,#E8B583)", glow:"rgba(205,127,50,0.5)",  glowCute:"rgba(205,127,50,0.28)" },
   { id:"bd_silver",  emoji:"🥈", name:"실버",    price:220,  rarity:"rare",      shimmer:true, grad:"linear-gradient(115deg,#8A909C 0%,#C7CCD4 20%,#FFFFFF 38%,#D5D9E0 52%,#9CA3AF 70%,#EAECF0 86%,#B6BBC4 100%)", glow:"rgba(190,196,206,0.7)", glowCute:"rgba(150,156,168,0.35)" },
   { id:"bd_gold",    emoji:"🥇", name:"골드",    price:350,  rarity:"epic",      shimmer:true, grad:"linear-gradient(115deg,#C8860B 0%,#F5C542 18%,#FFF6C9 36%,#FBD24E 52%,#E0A21A 70%,#FFE89B 86%,#D9A323 100%)", glow:"rgba(245,180,30,0.78)", glowCute:"rgba(232,165,40,0.4)" },
@@ -1221,9 +1205,9 @@ const DECOR_BORDERS = [
 const DECOR_BGS = [
   { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
   { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:220,  rarity:"rare",      deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
-  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"rare",      deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
-  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"epic",      deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
+  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
   { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
+  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
   { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:560, rarity:"legendary", deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
 ];
 // 베이커리 전용 배경 6슬롯 (모험 4슬롯과 분리). deco[0]=메인(가장 자주 등장). 종류 4개↑면 무대카드 전체에 고르게 분산됨.
@@ -1388,6 +1372,7 @@ const HOLIDAYS = {
 };
 const getHolidayName = (dateStr) => HOLIDAYS[dateStr]||"";
 
+
 // ── 날짜 유틸 ─────────────────────────────
 /* ════════════════════════════════════════════════════════════════════════
    SECTION 5. 날짜·공용 유틸
@@ -1413,8 +1398,35 @@ const getCalDays = (y,m) => {
 const getDN = (y,m,d) => ["일","월","화","수","목","금","토"][new Date(y,m,d).getDay()];
 
 // ── 저장 ─────────────────────────────────
-const save = async (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
-const load = async (k) => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch (e) { return null; } };
+// 저장소 우선순위: ① Capacitor Preferences(네이티브 앱) → ② localStorage(브라우저) → ③ 인메모리(폴백)
+// 앱 재시작 후에도 데이터 유지. 아티팩트/구형 웹뷰에서도 최소한 세션 동안은 동작.
+const __MEM_STORE = {};
+const __CAP_PREFS = (typeof window!=="undefined" && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) || null;
+const __hasLS = (()=>{ try { if(typeof localStorage==="undefined") return false; const t="__v6_ls_test__"; localStorage.setItem(t,"1"); localStorage.removeItem(t); return true; } catch(e){ return false; } })();
+
+const save = async (k, v) => {
+  try {
+    const s = JSON.stringify(v);
+    if(__CAP_PREFS){ await __CAP_PREFS.set({ key:k, value:s }); return; }
+    if(__hasLS){ localStorage.setItem(k, s); return; }
+    __MEM_STORE[k] = JSON.parse(s);
+  } catch (e) {}
+};
+const load = async (k) => {
+  try {
+    if(__CAP_PREFS){ const r = await __CAP_PREFS.get({ key:k }); return r && r.value!=null ? JSON.parse(r.value) : null; }
+    if(__hasLS){ const s = localStorage.getItem(k); return s!=null ? JSON.parse(s) : null; }
+    return k in __MEM_STORE ? __MEM_STORE[k] : null;
+  } catch (e) { return null; }
+};
+// 전체 저장소 초기화 (데이터 리셋용)
+const clearAllStorage = async () => {
+  try {
+    if(__CAP_PREFS){ await __CAP_PREFS.clear(); return; }
+    if(__hasLS){ localStorage.clear(); return; }
+    Object.keys(__MEM_STORE).forEach(k=>delete __MEM_STORE[k]);
+  } catch (e) {}
+};
 
 // ── SMS ─────────────────────────────────
 const smsLink=(phone,body="")=>{ const enc=encodeURIComponent(body); const ios=/iPad|iPhone|iPod/.test(navigator.userAgent); return `sms:${phone}${body?(ios?`&body=${enc}`:`?body=${enc}`):""}` };
@@ -1435,21 +1447,21 @@ const buildSampleData = (seq=1, cid="child_1") => {
   const children = [{ id:cid, name:"아이1(예시)", gender:"boy" }];
   const PRESETS = [
     { name:"피아노 학원 (예시)", color:"#00B8A9", time:"16:00", teacher:"김선생님", fee:150000,
-      baseSupplies:["악보","연필"], baseHomeworks:["하농 1번 연습","오늘 배운 곡 1회 복습"],
+      baseSupplies:["악보"], baseHomeworks:["하농 1번 연습"],
       shuttleInfo:"16:00 아파트 정문", memo:"매주 토요일 연주회 준비",
-      homeworks:["바이엘 20번 5회 연습","체르니 3번 양손 연습"], todos:["메트로놈 60에 맞춰 치기","악보 한 곡 외워오기"], supplies:["연습장"] },
+      homeworks:["바이엘 20번 5회 연습"], todos:["메트로놈 60에 맞춰 치기"], supplies:["연습장"] },
     { name:"수학 학원 (예시)", color:"#FF6B6B", time:"17:00", teacher:"이선생님", fee:200000,
-      baseSupplies:["교재","공책","연필"], baseHomeworks:["연산 문제 2장 풀기","오답 노트 정리"],
+      baseSupplies:["교재"], baseHomeworks:["연산 문제 2장 풀기"],
       shuttleInfo:"", memo:"매월 모의고사 응시",
-      homeworks:["단원평가 1회분 풀기","틀린 문제 다시 풀기"], todos:["구구단 외우기"], supplies:["계산기"] },
+      homeworks:["단원평가 1회분 풀기"], todos:["구구단 외우기"], supplies:["계산기"] },
     { name:"영어 학원 (예시)", color:"#34C759", time:"18:00", teacher:"박선생님", fee:180000,
-      baseSupplies:["단어장","워크북"], baseHomeworks:["단어 20개 암기","리딩 1지문 읽기"],
+      baseSupplies:["단어장"], baseHomeworks:["단어 20개 암기"],
       shuttleInfo:"18:00 아파트 후문", memo:"매주 금요일 단어 시험",
-      homeworks:["단어 시험 대비 복습","듣기 1회 풀기"], todos:["영어 일기 3줄 쓰기"], supplies:["이어폰"] },
+      homeworks:["단어 시험 대비 복습"], todos:["영어 일기 3줄 쓰기"], supplies:["이어폰"] },
     { name:"태권도 (예시)", color:"#FF9500", time:"15:00", teacher:"최사범님", fee:120000,
-      baseSupplies:["도복","띠"], baseHomeworks:["품새 1회 연습","스트레칭 10분"],
+      baseSupplies:["도복"], baseHomeworks:["품새 1회 연습"],
       shuttleInfo:"15:00 아파트 정문", memo:"다음 달 승급 심사",
-      homeworks:["발차기 50회","팔굽혀펴기 20회"], todos:["오늘 배운 동작 복습"], supplies:["물통"] },
+      homeworks:["발차기 50회"], todos:["오늘 배운 동작 복습"], supplies:["물통"] },
   ];
   const p = PRESETS[(seq-1) % PRESETS.length];
   const academies = {
@@ -1815,7 +1827,7 @@ function OnboardingFlow({ onFinish }){
                 {k:"kid",      emoji:"🧸", t:"어린이용",     d:"사탕, 놀이터, 키즈카페 등"},
                 {k:"elemLow",  emoji:"🎒", t:"초등 저학년",  d:"간식, 놀이, 소액 용돈 등"},
                 {k:"elemHigh", emoji:"🎽", t:"초등 고학년",  d:"용돈, 게임, 굿즈 등"},
-                {k:"teen",     emoji:"💸", t:"이상",         d:"현금만 (5천~10만원)"},
+                {k:"teen",     emoji:"💸", t:"고학년 이상",  d:"현금만 (1천~10만원)"},
               ].map(a=>(
                 <button key={a.k} onClick={()=>setAge(a.k)} style={{display:"flex",alignItems:"center",gap:14,padding:"16px 18px",borderRadius:16,border:`2px solid ${age===a.k?TH.main:"#E3E8F0"}`,background:age===a.k?`${TH.main}12`:"#fff",cursor:"pointer",textAlign:"left",width:"100%"}}>
                   <span style={{fontSize:30,flexShrink:0}}>{a.emoji}</span>
@@ -2186,7 +2198,7 @@ export default function App() {
   // ── 도메인 D: reward (점수/보상/구매요청/XP조정) ──────────────────
   const [scoreData,      setScoreData]      = useState(initReward.scoreData);
   const [rewardData,     setRewardData]     = useState(initReward.rewardData);
-  const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elem|teen)
+  const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elemLow|elemHigh|teen|custom)
   const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
   const [pendingRestore, setPendingRestore] = useState(null); // 백업 복원 확인 모달용 (파싱된 데이터)
   const [lastBackupDate, setLastBackupDate] = useState(null); // 마지막 백업 날짜 (YYYY-MM-DD), 없으면 null
@@ -2577,6 +2589,32 @@ export default function App() {
 
   // 완료 순간 화면 중앙에 큰 보상 연출을 띄운다 (스크롤 위치와 무관하게 항상 보임, 아이 모드 전용)
   const CHEER_MSGS = ["대단해! 🎉","최고야! ⭐","멋지다! 💪","해냈어! 🔥","굿잡! 👍","완벽해! ✨","좋았어! 😆","척척박사! 🧠"];
+  // 미션 완료 효과음 — 음원 파일 없이 Web Audio로 생성 (베이커리: 말랑 팝 / 모험: 코인 획득)
+  const audioCtxRef=useRef(null);
+  const playCompleteSound=()=>{
+    try{
+      if(!audioCtxRef.current) audioCtxRef.current=new (window.AudioContext||window.webkitAudioContext)();
+      const c=audioCtxRef.current;
+      if(c.state==="suspended") c.resume();
+      const tone=({freq,start,dur,type="sine",gain=0.22,slideTo=null})=>{
+        const o=c.createOscillator(), g=c.createGain();
+        o.type=type; o.frequency.setValueAtTime(freq, c.currentTime+start);
+        if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, c.currentTime+start+dur);
+        g.gain.setValueAtTime(0.0001, c.currentTime+start);
+        g.gain.exponentialRampToValueAtTime(gain, c.currentTime+start+0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime+start+dur);
+        o.connect(g); g.connect(c.destination);
+        o.start(c.currentTime+start); o.stop(c.currentTime+start+dur+0.05);
+      };
+      if(kidSkin==="cute"){ // 베이커리: 말랑 팝
+        tone({freq:520,start:0,dur:0.16,type:"sine",gain:0.28,slideTo:920});
+        tone({freq:1200,start:0.13,dur:0.2,type:"sine",gain:0.16});
+      } else {             // 모험: 코인 획득
+        tone({freq:988,start:0,dur:0.09,type:"square",gain:0.16});
+        tone({freq:1318,start:0.08,dur:0.28,type:"square",gain:0.16});
+      }
+    }catch(e){/* 오디오 미지원 환경은 조용히 무시 */}
+  };
   const cheerCharacter=(xp=DEFAULT_HOMEWORK_SCORE)=>{
     const msg=CHEER_MSGS[Math.floor(Math.random()*CHEER_MSGS.length)];
     setCharCheer({msg,xp,key:Date.now()});
@@ -2908,7 +2946,7 @@ export default function App() {
 
   const resetAllAppData=()=>{
     askPin(()=>{
-    try { localStorage.clear(); } catch (e) {}
+    clearAllStorage();
     setChildren(DEFAULT_CHILDREN); setChildId("child_1");
     setAcademies({}); setAbsences({}); setPaidStatus({}); setDayMemos({});
     setDailyData({}); setScoreData({}); setRewardData({}); setRewardRequests({});
@@ -3206,7 +3244,11 @@ export default function App() {
 
   // 테마색은 모험·베이커리 모두 아이가 고른 색을 그대로 쓴다(아이 구분 유지).
   const th = getChildTheme(curChild);
-  const T = getSkin(kidSkin).text;       // 현재 아이모드 스킨의 텍스트 세트(모험/베이커리)
+  const _T = getSkin(kidSkin).text;      // 현재 아이모드 스킨의 텍스트 세트(모험/베이커리)
+  // 어린이용(미취학~초1) 연령대는 영문을 못 읽으므로 모험모드 상태 라벨을 한글로 교체
+  const T = (kidSkin!=="cute" && rewardAgeGroup==="kid")
+    ? {..._T, clearShort:"완료", ready:"준비", clear:"완료", failed:"실패"}
+    : _T;
   const TM = getTerms(kidSkin);          // 현재 아이모드 재화/아이콘 용어(모험/베이커리)
   const _skin = getSkin(kidSkin);
   const GP = _skin.paletteFn ? _skin.paletteFn(th.main) : _skin.palette;   // 테마색 적용 팔레트(없으면 정적)
@@ -3608,21 +3650,21 @@ export default function App() {
     const cute = kidSkin==="cute";
     const h = cute ? Math.max(height,14) : height;
     const fill = cute
-      ? `linear-gradient(90deg, ${th.main}, ${mixWhite(th.main,0.22)})`
+      ? `linear-gradient(90deg, ${mixHex(th.main,"#000000",0.12)}, ${th.main})`
       : (fallbackFill||GP.accentBar||`linear-gradient(90deg, ${GP.gold}, ${mixWhite(th.main,0.25)} 55%, ${th.main})`);
     return (
       <div style={{height:h,borderRadius:999,overflow:"hidden",position:"relative",
-        background:cute?`${th.main}33`:(fallbackTrack||"rgba(0,0,0,0.34)"),
-        border:cute?`1px solid ${th.main}3a`:(fallbackBorder||`1px solid ${th.main}55`),
-        boxShadow:cute?`inset 0 2px 5px ${th.main}3a`:"inset 0 2px 6px rgba(0,0,0,0.5)"}}>
-        {/* 빈 트랙 활기: 은은한 사선 무늬 + 왼쪽 출발 글로우 (0%여도 죽지 않게) */}
-        <div style={{position:"absolute",inset:0,pointerEvents:"none",opacity:cute?0.5:0.4,
+        background:cute?"#F0D8E4":(fallbackTrack||"rgba(0,0,0,0.34)"),
+        border:cute?`1px solid ${th.main}55`:(fallbackBorder||`1px solid ${th.main}55`),
+        boxShadow:cute?`inset 0 2px 5px rgba(0,0,0,0.08)`:"inset 0 2px 6px rgba(0,0,0,0.5)"}}>
+        {/* 빈 트랙: cute모드는 밝은 회색톤 베이스만, 어드벤처는 기존 유지 */}
+        <div style={{position:"absolute",inset:0,pointerEvents:"none",opacity:cute?0:0.4,
           backgroundImage:cute
             ?`repeating-linear-gradient(115deg, ${th.main}1f 0 6px, transparent 6px 13px)`
             :`repeating-linear-gradient(115deg, rgba(255,255,255,0.10) 0 6px, transparent 6px 13px)`}}/>
         <div style={{position:"absolute",top:0,bottom:0,left:0,width:"38%",pointerEvents:"none",borderRadius:999,
           background:cute
-            ?`linear-gradient(90deg, ${th.main}3a, transparent)`
+            ?"transparent"
             :`linear-gradient(90deg, ${GP.gold}3a, transparent)`}}/>
         <div style={{width:`${percent}%`,height:"100%",borderRadius:999,position:"relative",overflow:"hidden",zIndex:1,
           background:fill,
@@ -3630,9 +3672,9 @@ export default function App() {
           boxShadow:cute?`0 0 8px ${th.main}55, inset 0 2px 3px rgba(255,255,255,0.55)`:(fallbackGlow||`0 0 12px ${th.main}, inset 0 1px 2px rgba(255,255,255,0.4)`)}}>
           {cute
             ?<>
-              <div style={{position:"absolute",top:1.5,left:6,right:6,height:4,borderRadius:999,background:"rgba(255,255,255,0.6)"}}/>
+              <div style={{position:"absolute",top:1.5,left:6,right:6,height:3,borderRadius:999,background:"rgba(255,255,255,0.35)"}}/>
               {/* 흐르는 광택 */}
-              <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)",backgroundSize:"40px 100%",animation:"gaugeShine 1.4s linear infinite"}}/>
+              <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",backgroundSize:"40px 100%",animation:"gaugeShine 1.4s linear infinite"}}/>
               {/* 진행 끝 발광 */}
               {percent>3&&percent<100&&<div style={{position:"absolute",top:-1,bottom:-1,right:0,width:Math.max(6,h*0.7),background:"#fff",filter:"blur(3px)",opacity:0.85,animation:"barPulse 1.4s ease-in-out infinite"}}/>}
             </>
@@ -4503,6 +4545,7 @@ export default function App() {
     if(!target) return;
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
+    if(nextDone&&appMode==="child") playCompleteSound(); // 누르는 즉시 소리 (상태 갱신 전)
     const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:nextDone,failed:false}:h)});
     addReward(cid,nextDone?point:-point,"homework");
@@ -4526,6 +4569,7 @@ export default function App() {
     if(!target) return;
     const nextDone=!target.done;
     const point=target.point||DEFAULT_HOMEWORK_SCORE;
+    if(nextDone&&appMode==="child") playCompleteSound(); // 누르는 즉시 소리 (상태 갱신 전)
     const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:nextDone,failed:false}:t)});
     addReward(cid,nextDone?point:-point,"todo");
@@ -5008,32 +5052,17 @@ export default function App() {
                         const price=getDecorPrice(it);
                         const rc=(DECOR_RARITY[it.rarity]||DECOR_RARITY.common).color;
                         const canBuy=coin>=price;
+                        // 4단계 상태: 착용중 > 보유 > 구매가능 > 구매불가(코인부족) — 모험모드 카드/버튼/뱃지 공용
+                        const state = equipped?"equipped":owned?"owned":canBuy?"available":"locked";
                         // 모험모드: 카드 배경을 네이비로 통일하고 등급은 테두리+glow 로만 표현 (RPG 장비창 느낌)
                         const dungeon = kidSkin!=="cute";
                         let dr = dungeonDecorRarity(it.rarity);
-                        // 테두리(액자) 아이템은 자기 보석색이 곧 정체성 → 카드 오라도 그 색으로 통일.
-                        // (예: 다이아=민트, 골드=금색, 레전드=보라. 등급색과 보석색이 싸우지 않게)
-                        if(dungeon && grp.key==="border"){
-                          const m = (it.glow||"").match(/rgba?\(([^)]+)\)/);
-                          if(m){
-                            const [r,g,b] = m[1].split(",").map(s=>parseInt(s.trim(),10));
-                            const hx=(v)=>Math.max(0,Math.min(255,v)).toString(16).padStart(2,"0").toUpperCase();
-                            // 테두리는 약간 밝게(보석 느낌), glow는 은은하게
-                            const lift=(v)=>Math.round(v+(255-v)*0.18);
-                            const accent=`#${hx(lift(r))}${hx(lift(g))}${hx(lift(b))}`;
-                            dr = { border:accent, glow:`0 0 13px rgba(${r},${g},${b},0.30)`, badgeText:accent, badgeBg:`rgba(${r},${g},${b},0.18)` };
-                          }
-                        }
+                        // (통일 규칙) 테두리 아이템도 카드 오라는 등급색만 사용 — 아이템 고유색은 미리보기 썸네일에서만 표현
                         return (
                           <div key={it.id}
-                            onClick={dungeon&&owned?(()=>toggleEquipDecor(grp.key,it.id)):undefined}
                             style={dungeon
-                            ?{background:equipped
-                                ? "linear-gradient(135deg, #1C6B62 0%, #2FA396 100%)"   // 착용중: 선명한 청록 강조
-                                : (owned
-                                    ? "linear-gradient(135deg, #233f33 0%, #2c4a3b 100%)"  // 보유: 차분한 초록
-                                    : DUNGEON_DECOR_CARD.cardBg),                          // 미구매: 기본
-                              border:equipped?"2px solid #4FE3D0":(owned?"2px solid rgba(143,240,181,0.55)":`2px solid ${dr.border}`),borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 0 18px rgba(79,227,208,.28), 0 6px 18px rgba(8,16,40,0.5)`:`${dr.glow}, 0 6px 16px rgba(8,16,40,0.42), inset 0 1px 0 rgba(255,255,255,0.06)`,display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden",cursor:owned?"pointer":"default"}
+                            ?{background:DUNGEON_DECOR_CARD.cardBg,   // 배경 통일 — 상태·등급은 테두리/뱃지/glow로만
+                              border:`2px solid ${equipped?"#FFD976":dr.border}`,borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 0 22px rgba(255,217,118,.28), 0 6px 16px rgba(8,16,40,0.42), inset 0 1px 0 rgba(255,255,255,0.08)`:`${dr.glow}, 0 6px 16px rgba(8,16,40,0.42), inset 0 1px 0 rgba(255,255,255,0.06)`,opacity:state==="locked"?0.55:1,filter:state==="locked"?"grayscale(.25)":"none",display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden"}
                             :{background:equipped?`${th.main}14`:(owned?`${th.main}08`:C.card),border:`1.5px solid ${equipped?th.main:(owned?th.main+"66":rc+"44")}`,borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 6px 18px ${th.main}44`:`0 3px 10px ${rc}1f`,display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden"}}>
                             {(it.rarity==="legendary"||it.rarity==="epic")&&<div style={{position:"absolute",inset:0,background:dungeon?`radial-gradient(85% 55% at 50% 0%, ${dr.border}26, transparent 72%)`:`radial-gradient(80% 60% at 50% 0%, ${rc}1a, transparent 70%)`,pointerEvents:"none"}}/>}
                             {/* 상태 뱃지 (우측 상단): 베이커리만 사용. 모험은 하단 액션 영역에서 표시 */}
@@ -5041,6 +5070,10 @@ export default function App() {
                               <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#0F1220",background:th.main,borderRadius:999,padding:"2px 8px",boxShadow:"0 2px 6px rgba(0,0,0,0.3)"}}>✓ 착용중</span>
                             ):(!dungeon&&owned)?(
                               <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:th.main,background:`${th.main}18`,border:`1px solid ${th.main+"55"}`,borderRadius:999,padding:"2px 8px"}}>📦 보유중</span>
+                            ):(dungeon&&equipped)?(
+                              <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#1F2937",background:"#fff",borderRadius:999,padding:"2px 8px",boxShadow:"0 2px 6px rgba(0,0,0,0.35)"}}>✓ 착용중</span>
+                            ):(dungeon&&state==="available")?(
+                              <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#fff",background:"rgba(78,163,255,.95)",borderRadius:999,padding:"2px 8px",boxShadow:"0 0 12px rgba(78,163,255,.35)"}}>구매 가능</span>
                             ):null}
                             {/* 미리보기 */}
                             <div style={{position:"relative",width:54,height:54,borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,
@@ -5054,26 +5087,44 @@ export default function App() {
                             {!owned?(
                               <button onClick={()=>buyDecor(raw)} disabled={!canBuy}
                                 style={dungeon
-                                  ?{width:"100%",borderRadius:11,padding:"8px",fontSize:13,fontWeight:900,cursor:canBuy?"pointer":"not-allowed",marginTop:2,
-                                    background:canBuy?(grp.key==="border"?dr.badgeBg:({common:"rgba(255,255,255,0.06)",rare:"rgba(110,169,255,0.12)",epic:"rgba(162,135,255,0.12)",legendary:"rgba(255,216,107,0.12)"}[it.rarity]||"rgba(255,255,255,0.06)")):"rgba(255,255,255,0.04)",
-                                    border:`1px solid ${canBuy?"rgba(255,255,255,0.12)":"rgba(255,255,255,0.07)"}`,
-                                    boxShadow:canBuy?"inset 0 1px 0 rgba(255,255,255,0.10)":"none",
-                                    color:canBuy?(grp.key==="border"?dr.badgeText:({common:"#9FD2FF",rare:"#9DC4F5",epic:"#BEB0FF",legendary:"#FFE7A0"}[it.rarity]||"#7FC4FF")):"rgba(160,180,215,0.45)",
-                                    display:"flex",alignItems:"center",justifyContent:"center",gap:5}
+                                  ?(price===0
+                                    // 무료: 민트 그라데이션 CTA
+                                    ?{width:"100%",borderRadius:11,padding:"8px",fontSize:13,fontWeight:900,cursor:"pointer",marginTop:2,
+                                      background:"linear-gradient(135deg, rgba(117,235,165,.28), rgba(90,169,255,.18))",
+                                      border:"1px solid rgba(117,235,165,.35)",
+                                      color:"#EFFFF5",
+                                      display:"flex",alignItems:"center",justifyContent:"center",gap:5}
+                                    :state==="available"
+                                    // 구매 가능: 밝은 파랑 CTA — "누를 수 있음"이 즉시 보이게
+                                    ?{width:"100%",borderRadius:11,padding:"8px",fontSize:13,fontWeight:900,cursor:"pointer",marginTop:2,
+                                      background:"linear-gradient(135deg, #4EA3FF 0%, #78C7FF 100%)",
+                                      border:"1px solid rgba(180,225,255,.55)",
+                                      color:"#FFFFFF",
+                                      boxShadow:"0 0 18px rgba(78,163,255,.28)",
+                                      display:"flex",alignItems:"center",justifyContent:"center",gap:5}
+                                    // 구매 불가(코인 부족): 확실히 흐리게
+                                    :{width:"100%",borderRadius:11,padding:"8px",fontSize:13,fontWeight:900,cursor:"not-allowed",marginTop:2,
+                                      background:"rgba(255,255,255,.05)",
+                                      border:"1px solid rgba(255,255,255,.08)",
+                                      color:"rgba(255,255,255,.35)",
+                                      display:"flex",alignItems:"center",justifyContent:"center",gap:5})
                                   :{width:"100%",border:"none",borderRadius:11,padding:"8px",fontSize:12.5,fontWeight:900,cursor:canBuy?"pointer":"not-allowed",
                                     background:canBuy?th.grad:"#E5E7EB",color:canBuy?"#fff":"#9CA3AF",marginTop:2}}>
-                                {dungeon
-                                  ?<>{TM.coinEmoji} <span>{price}</span> <span style={{fontSize:10.5,fontWeight:800,opacity:0.72}}>{TM.coin}</span></>
-                                  :<>{TM.coinEmoji} {price}</>}
+                                {price===0
+                                  ?<span>무료</span>
+                                  :dungeon
+                                    ?<>{TM.coinEmoji} <span>{price}</span> <span style={{fontSize:10.5,fontWeight:800,opacity:0.72}}>{state==="available"?`${TM.coin} 구매`:TM.coin}</span></>
+                                    :<>{TM.coinEmoji} {price}</>}
                               </button>
                             ):dungeon?(
-                              <div style={{width:"100%",borderRadius:11,padding:"8px",fontSize:12.5,fontWeight:900,marginTop:2,
+                              <button onClick={()=>toggleEquipDecor(grp.key,it.id)}
+                                style={{width:"100%",borderRadius:11,padding:"8px",fontSize:12.5,fontWeight:900,marginTop:2,cursor:"pointer",
                                 display:"flex",alignItems:"center",justifyContent:"center",gap:5,
-                                border:equipped?"1px solid rgba(79,227,208,0.55)":"1px solid rgba(143,240,181,0.4)",
-                                background:equipped?"rgba(79,227,208,0.16)":"#1f4d36",
-                                color:equipped?"#7CF2E4":"#8ff0b5"}}>
-                                {equipped?"✓ 착용중":"📦 보유중"}
-                              </div>
+                                border:equipped?"1px solid rgba(255,217,118,.38)":"1px solid rgba(117,235,165,.42)",
+                                background:equipped?"rgba(255,217,118,.16)":"linear-gradient(135deg, rgba(75,220,140,.30), rgba(80,190,255,.16))",
+                                color:equipped?"#FFD976":"#B8FFD0"}}>
+                                {equipped?"✓ 착용중":"착용하기"}
+                              </button>
                             ):(
                               <button onClick={()=>toggleEquipDecor(grp.key,it.id)}
                                 style={{width:"100%",borderRadius:11,padding:"8px",fontSize:12.5,fontWeight:900,cursor:"pointer",marginTop:2,
@@ -5392,6 +5443,7 @@ export default function App() {
                         // 도구별 크기·위치·기울기 미세조정. 회전은 회전 전용 span에서 처리(둥실은 부모 컨테이너가 담당).
                         let wSize=32, wLeft=-24, wRot=0, wBottom=-8;
                         if(stageHat.id==="hat_axe"){ wSize=38; wLeft=-40; }                   // 탐험가 배낭: 크게 + 캐릭터와 간격 확보(얼굴 겹침 방지)
+                        else if(stageHat.id==="hat_light"){ wSize=30; wLeft=-38; wBottom=-6; } // 꼬마 손전등: 이모지가 기울어져 있어 우상단이 귀에 닿음 → 왼쪽으로 간격 확보
                         else if(stageHat.id==="hat_tophat"){ wSize=28; wLeft=-26; wRot=-30; }  // 나침반: 고리가 좌측 위로 가게 회전
                         else if(stageHat.id==="hat_goggles"){ wSize=28; wLeft=-26; wRot=-8; }  // 카메라: 오른쪽으로 + / 살짝 기울임
                         else if(stageHat.id==="hat_flame"){ wSize=30; wLeft=-28; wRot=-10; }   // 보물 지도: / 살짝 기울임
@@ -5432,10 +5484,13 @@ export default function App() {
                   // 모험은 원래 어두운 칩. 베이커리는 칩 색은 그대로 두되, 배경 꾸미기 장착(무대 어두움) 시 글자만 밝게.
                   const darkChip = !cute;                  // 칩 배경 자체가 어두운 경우(모험)
                   const lightText = !cute || onScene;      // 글자를 흰색으로 (모험 / 배경 꾸미기 장착한 베이커리)
+                  const borderOpacity = cute
+                    ? ((title.rarity==="common"||title.rarity==="legendary") ? "BB" : "77")
+                    : "88";
                   return (
                   <div style={{display:"flex",alignItems:"center",gap:5,
                     background: cute ? `linear-gradient(135deg, ${ring}26, ${ring}12)` : GP.chipBg,
-                    border:`1.5px solid ${ring}${darkChip?"88":"77"}`,borderRadius:999,padding:"3px 10px 3px 4px",
+                    border:`1.5px solid ${ring}${borderOpacity}`,borderRadius:999,padding:"3px 10px 3px 4px",
                     boxShadow: cute ? `0 3px 9px ${ring}33` : "0 2px 6px rgba(0,0,0,0.3)"}}>
                     <span style={{width:24,height:24,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:cute?`radial-gradient(circle at 50% 35%, #fff, ${ring}22)`:`radial-gradient(circle at 50% 35%, ${ring}44, rgba(0,0,0,0.35))`,border:`1.5px solid ${ring}`,fontSize:13,flexShrink:0}}>{emoji}</span>
                     <span style={{fontSize:10,fontWeight:900,color:lightText?"#fff":mixBlack(ring,0.2),whiteSpace:"nowrap",letterSpacing:0.2,textShadow:lightText?"0 1px 2px rgba(0,0,0,0.55)":"none"}}>{text}</span>
@@ -5664,12 +5719,12 @@ export default function App() {
                       <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>{T.missionEmoji}</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{ready}</p>
-                        <p style={{fontSize:11,opacity:0.75,margin:0}}>{kidSkin==="cute"?"남음":"READY"}</p>
+                        <p style={{fontSize:11,opacity:0.75,margin:0}}>{kidSkin==="cute"||rewardAgeGroup==="kid"?"남음":"READY"}</p>
                       </div>
                       <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>❌</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{q.failed}</p>
-                        <p style={{fontSize:11,opacity:0.75,margin:0}}>{kidSkin==="cute"?"실패":"FAILED"}</p>
+                        <p style={{fontSize:11,opacity:0.75,margin:0}}>{kidSkin==="cute"||rewardAgeGroup==="kid"?"실패":"FAILED"}</p>
                       </div>
                     </div>
                   </div>
@@ -5698,7 +5753,7 @@ export default function App() {
                         // 베이커리(cute)면 학원색을 따뜻한 쪽으로 부드럽게 보정(색 구분은 유지)
                         const acCol = item.academyColor||th.main;
                         return (
-                          <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{borderRadius:GP.radMid||22,overflow:"hidden",background:kidSkin==="cute"?(item.done?"#F7F8FB":"#fff"):(item.done?"linear-gradient(180deg,#EEEDF5 0%,#E7E5F0 100%)":item.failed?"linear-gradient(180deg,#ECEAF3 0%,#E6E4EE 100%)":`linear-gradient(180deg, ${acCol}10 0%, ${acCol}06 100%)`),border:`2px solid ${item.done?(kidSkin==="cute"?"#D8DCE6":"#C2C7D6"):item.failed?(kidSkin==="cute"?C.red+"45":"#D8D7E5"):acCol+(kidSkin==="cute"?"55":"")}`,boxShadow:item.done?"0 3px 12px rgba(20,24,60,0.06)":item.failed?"0 3px 12px rgba(0,0,0,0.05)":(kidSkin==="cute"?`0 10px 26px ${acCol}26, 0 3px 8px rgba(0,0,0,0.05)`:`0 0 18px ${acCol}40, 0 8px 24px rgba(0,0,0,0.18)`),opacity:item.done?0.82:1,marginBottom:12,animation:item.done?`squishCard .5s ease-out`:`jellyIn .4s cubic-bezier(.34,1.56,.64,1) ${idx*0.05}s both`}}>
+                          <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{borderRadius:GP.radMid||22,overflow:"hidden",background:kidSkin==="cute"?(item.done?"#F7F8FB":"#fff"):(item.done?"linear-gradient(180deg,#EEEDF5 0%,#E7E5F0 100%)":item.failed?"linear-gradient(180deg,#ECEAF3 0%,#E6E4EE 100%)":`linear-gradient(180deg, ${mixWhite(acCol,0.88)} 0%, ${mixWhite(acCol,0.96)} 100%)`),border:`2px solid ${item.done?(kidSkin==="cute"?"#D8DCE6":"#C2C7D6"):item.failed?(kidSkin==="cute"?C.red+"45":"#D8D7E5"):acCol+(kidSkin==="cute"?"55":"")}`,boxShadow:item.done?"0 3px 12px rgba(20,24,60,0.06)":item.failed?"0 3px 12px rgba(0,0,0,0.05)":(kidSkin==="cute"?`0 10px 26px ${acCol}26, 0 3px 8px rgba(0,0,0,0.05)`:`0 0 18px ${acCol}40, 0 8px 24px rgba(0,0,0,0.18)`),opacity:item.done?0.82:1,marginBottom:12,animation:item.done?`squishCard .5s ease-out`:`jellyIn .4s cubic-bezier(.34,1.56,.64,1) ${idx*0.05}s both`}}>
                             {/* 스크롤 헤더 - 학원 색 띠 (클리어 시 회색) */}
                             <div style={{padding:"10px 13px",background:item.done?"#EDEFF4":item.failed?`${C.red}0A`:`linear-gradient(135deg, ${acCol}24, ${acCol}12)`,borderBottom:`1px solid ${item.done?"#DFE3EC":item.failed?C.red+"20":acCol+"18"}`,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
                               <div style={{display:"flex",alignItems:"center",gap:9,minWidth:0}}>
@@ -6030,7 +6085,9 @@ export default function App() {
                         : `0 0 24px rgba(255,255,255,0.55), 0 0 0 1px ${rarity.color}, 0 6px 18px ${rarity.color}33`;
                       const nameClr  = dungeon ? (unlocked?"#1B2238":"rgba(230,236,250,0.55)") : (selected?rarity.color:unlocked?C.text:C.sub);
                       const condClr  = dungeon ? (unlocked?"rgba(27,34,56,0.7)":"rgba(230,236,250,0.45)") : C.sub;
-                      const rrClr    = dungeon ? (title.rarity==="legendary"?"#7A5C12":title.rarity==="epic"?"#4A3A8A":title.rarity==="rare"?"#244C8A":"#3A4255") : rarity.color;
+                      const rrClr    = dungeon
+                        ? (title.rarity==="legendary"?"#7A5C12":title.rarity==="epic"?"#4A3A8A":title.rarity==="rare"?"#244C8A":"#3A4255")
+                        : (title.rarity==="common"?"#5A4A3A":title.rarity==="legendary"?"#7B5C00":rarity.color);
                       return (
                         <button key={title.id} onClick={()=>selectTitle(title.id)} disabled={!unlocked}
                           style={{borderRadius:14,padding:"12px 10px",position:"relative",
@@ -8135,7 +8192,7 @@ export default function App() {
               <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 연령대</p>
               <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>연령대를 고르면 그에 맞는 보상 목록으로 바뀌어요.</p>
               <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-                {[["kid","🧸","어린이용"],["elemLow","🎒","초등\n저학년"],["elemHigh","🎽","초등\n고학년"],["teen","💸","이상"],["custom","✏️","나만의\n목록"]].map(([k,em,lb])=>{
+                {[["kid","🧸","어린이용"],["elemLow","🎒","초등\n저학년"],["elemHigh","🎽","초등\n고학년"],["teen","💸","고학년\n이상"],["custom","✏️","나만의\n목록"]].map(([k,em,lb])=>{
                   const on=rewardAgeGroup===k;
                   return (
                     <button key={k} onClick={()=>changeRewardAge(k)}
