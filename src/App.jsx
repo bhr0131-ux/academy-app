@@ -1225,23 +1225,6 @@ const DECOR_RARITY = {
   epic:      { color:"#9333EA" },
   legendary: { color:"#F59E0B" },
 };
-// 모자: 캐릭터 이모지 위(머리)에 겹쳐 표시
-const DECOR_HATS = [
-  { id:"hat_light",   emoji:"🔦", name:"꼬마 손전등",  price:0,   rarity:"common",    weapon:true, bakery:{ emoji:"🍒", name:"체리 핀" } },
-  { id:"hat_axe",     emoji:"🎒", name:"탐험가 배낭",  price:80,  rarity:"common",    weapon:true, bakery:{ emoji:"🎀", name:"리본" } },
-  { id:"hat_tophat",  emoji:"🧭", name:"나침반",      price:200,  rarity:"rare",      weapon:true, bakery:{ emoji:"🍓", name:"딸기 모자" } },
-  { id:"hat_goggles", emoji:"📷", name:"카메라",      price:260,  rarity:"rare",      weapon:true, bakery:{ emoji:"🌸", name:"벚꽃 머리띠" } },
-  { id:"hat_flame",   emoji:"🗺️", name:"보물 지도",    price:380,  rarity:"epic",      weapon:true, bakery:{ emoji:"💎", name:"보석 티아라" } },
-  { id:"hat_star",    emoji:"🚲", name:"자전거",      price:470, rarity:"legendary", weapon:true, bakery:{ emoji:"🌈", name:"무지개 왕관" } },
-];
-// ── 베이커리(cute) 전용 모자 진열 순서 & 자리기준 가격 ──
-// 모험 모드는 DECOR_HATS 원본 순서·가격 그대로. 베이커리만 아래 순서로 진열하고,
-// 각 '자리(슬롯)'에 모험 가격 120/380/550/800/1000/1200 을 그대로 입힌다.
-// 순서: 딸기 모자 → 벚꽃 머리띠 → 리본 → 보석 티아라 → 무지개 왕관 → 공주 왕관
-const BAKERY_HAT_ORDER = ["hat_light","hat_tophat","hat_star","hat_axe","hat_goggles","hat_flame"];
-const BAKERY_HAT_PRICE = { hat_light:0, hat_tophat:80, hat_star:270, hat_axe:400, hat_goggles:580, hat_flame:870 };
-// 자리(슬롯) 기준 등급도 모험 가격대와 동일하게: 120/380=common/rare, 550=rare, 800=epic, 1000/1200=legendary
-const BAKERY_HAT_RARITY = { hat_light:"common", hat_tophat:"common", hat_star:"rare", hat_axe:"rare", hat_goggles:"epic", hat_flame:"legendary" };
 // 테두리: 프로필 액자 테두리 색/광택 (emoji 는 상점 표시용 아이콘)
 // glow 는 모험(다크 무대)용, glowCute 는 베이커리(밝은 크림 무대)용 — 모드별로 빛번짐 색을 다르게 둔다.
 const DECOR_BORDERS = [
@@ -1285,7 +1268,6 @@ const DECOR_PET_SKINS = [
 // 순서: 솜사탕여우→마시멜로판다→노래하는새→반짝나비→딸기토끼→꿀빛사자
 const BAKERY_PETSKIN_ORDER = ["pk_fox","pk_panda","pk_rabbit","pk_dragon","pk_butterfly","pk_lion"];
 const DECOR_GROUPS = [
-  { key:"hat",     label:"모자",     icon:"👑", items:DECOR_HATS },
   { key:"border",  label:"테두리",   icon:"💎", items:DECOR_BORDERS },
   { key:"bg",      label:"배경",     icon:"🌸", items:DECOR_BGS },
   { key:"petskin", label:"펫",       icon:"🐾", items:DECOR_PET_SKINS, lockUntilMaxPet:true },
@@ -1319,7 +1301,7 @@ const computeQuestTreasure = (cur, questKey) => {
   return { changed:true, next, earned, nextCount };
 };
 
-const ALL_DECOR = [...DECOR_HATS, ...DECOR_BORDERS, ...DECOR_BGS, ...BAKERY_BGS, ...DECOR_PET_SKINS];
+const ALL_DECOR = [...DECOR_BORDERS, ...DECOR_BGS, ...BAKERY_BGS, ...DECOR_PET_SKINS];
 const getDecorById = (id) => ALL_DECOR.find(d=>d.id===id) || null;
 
 /* ── 순수 규칙: 데코가 장착될 그룹 키 판정 ──────────────────────────
@@ -2119,7 +2101,7 @@ const initSms = {
 };
 const initAuth = {
   appMode: "child",
-  parentPin: "1234", pinInput: "", showParentPin: false,
+  parentPin: "1234", pinInput: "",
   oldPinInput: "", newPinInput: "", newPinConfirm: "", showPinChangeModal: false,
   recoveryQuestion: "", recoveryAnswer: "", // 비밀번호 복구용 질문/답
   newRecoveryQ: "", newRecoveryA: "", // 비번 변경 모달 입력값
@@ -2130,14 +2112,13 @@ const initAuth = {
 };
 const initOnboarding = {
   showOnboarding: false, showCoachmark: false, showKidCoachmark: false, showModeSelect: false,
-  firstTipPending: false, showFirstMissionTip: false, firstTipSeen: false,
+  firstTipPending: false, firstTipSeen: false,
   pinHintSeen: false, showParentRewardGuide: false, parentRewardGuideSeen: false, showParentWelcome: false, parentWelcomeSeen: false,
 };
 const initUi = {
   childTab: "area",
   showChildRewards: false,
   showChildXP: false,
-  showParentXP: false,
   showParentTodayQuest: false,
   showParentRewardManage: false,
   showParentXpAdjust: false,
@@ -2148,7 +2129,6 @@ const initUi = {
   openPet: false,
   openHistory: false,
   openStreak: false,
-  levelUpModal: null,
   pastQuestBlockModal: null,
   questResultModal: null,
   charCheer: null,
@@ -2172,7 +2152,6 @@ const initUi = {
   showAddAcModal: false,
   showDetailModal: null,
   showAbsModal: false,
-  showGuideModal: false,
   newAbs: EMPTY_ABS,
   toast: "",
 };
@@ -2208,7 +2187,6 @@ export default function App() {
   const [vacations,   setVacations]   = useState(initAcademy.vacations);
   const [newAc,       setNewAc]       = useState(initAcademy.newAc);
   const [editTarget,  setEditTarget]  = useState(initAcademy.editTarget);
-  const [confirmDelAc, setConfirmDelAc] = useState(false); // 학원 수정 모달 내 삭제 2단계 확인
   const [supplyInput, setSupplyInput] = useState(initAcademy.supplyInput);
   const [baseHwInput, setBaseHwInput] = useState(initAcademy.baseHwInput);
   const [showAcMore,  setShowAcMore]  = useState(initAcademy.showAcMore);
@@ -2280,9 +2258,9 @@ export default function App() {
 
   // ── 도메인 G: auth (부모모드/PIN/프리미엄) ──────────────────────
   const [appMode,           setAppMode]           = useState(initAuth.appMode);
+  const [confirmDelAc, setConfirmDelAc] = useState(false); // 학원 수정 모달 내 삭제 2단계 확인
   const [parentPin,         setParentPin]         = useState(initAuth.parentPin);
   const [pinInput,          setPinInput]          = useState(initAuth.pinInput);
-  const [showParentPin,     setShowParentPin]     = useState(initAuth.showParentPin); // (구) 미사용 — 호환 위해 정의만 유지
   const [oldPinInput,       setOldPinInput]       = useState(initAuth.oldPinInput);
   const [newPinInput,       setNewPinInput]       = useState(initAuth.newPinInput);
   const [newPinConfirm,     setNewPinConfirm]     = useState(initAuth.newPinConfirm);
@@ -2312,7 +2290,6 @@ export default function App() {
   const [showKidCoachmark,      setShowKidCoachmark]      = useState(initOnboarding.showKidCoachmark);
   const [showModeSelect,        setShowModeSelect]        = useState(initOnboarding.showModeSelect);
   const [firstTipPending,       setFirstTipPending]       = useState(initOnboarding.firstTipPending);
-  const [showFirstMissionTip,   setShowFirstMissionTip]   = useState(initOnboarding.showFirstMissionTip);
   const [firstTipSeen,          setFirstTipSeen]          = useState(initOnboarding.firstTipSeen);
   // 온보딩 직후 첫 홈 화면에서 '학원 추가' → '미션·준비물 편집' 순서로 1회성 버튼 깜빡임 안내
   const [pinHintSeen,           setPinHintSeen]           = useState(initOnboarding.pinHintSeen);
@@ -2325,7 +2302,6 @@ export default function App() {
   const [childTab,               setChildTab]               = useState(initUi.childTab);
   const [showChildRewards,       setShowChildRewards]       = useState(initUi.showChildRewards);
   const [showChildXP,            setShowChildXP]            = useState(initUi.showChildXP);
-  const [showParentXP,           setShowParentXP]           = useState(initUi.showParentXP);
   const [showParentTodayQuest,   setShowParentTodayQuest]   = useState(initUi.showParentTodayQuest);
   const [showParentRewardManage, setShowParentRewardManage] = useState(initUi.showParentRewardManage);
   const [showParentXpAdjust,     setShowParentXpAdjust]     = useState(initUi.showParentXpAdjust);
@@ -2337,7 +2313,6 @@ export default function App() {
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
   const [openStreak,             setOpenStreak]             = useState(initUi.openStreak);
-  const [levelUpModal,           setLevelUpModal]           = useState(initUi.levelUpModal);
   const [pastQuestBlockModal,    setPastQuestBlockModal]    = useState(initUi.pastQuestBlockModal);
   const [questResultModal,       setQuestResultModal]       = useState(initUi.questResultModal);
   const [charCheer,              setCharCheer]              = useState(initUi.charCheer);
@@ -2363,7 +2338,6 @@ export default function App() {
   const [showAddAcModal,         setShowAddAcModal]         = useState(initUi.showAddAcModal);
   const [showDetailModal,        setShowDetailModal]        = useState(initUi.showDetailModal);
   const [showAbsModal,           setShowAbsModal]           = useState(initUi.showAbsModal);
-  const [showGuideModal,         setShowGuideModal]         = useState(initUi.showGuideModal);
   const [newAbs,                 setNewAbs]                 = useState(initUi.newAbs);
   const [toast,                  setToast]                  = useState(initUi.toast);
 
@@ -4088,11 +4062,10 @@ export default function App() {
   };
 
   // ── 꾸미기(데코) 헬퍼 ──
-  // 가격: 부모 오버라이드(decorPrices) 우선, 없으면 — 베이커리 모드 모자는 자리기준 가격, 그 외엔 카탈로그 기본값
+  // 가격: 부모 오버라이드(decorPrices) 우선, 없으면 카탈로그 기본값
   const getDecorPrice=(decor)=>{
     const o=decorPrices[decor.id];
     if(o===0||o>0) return Number(o);
-    if(kidSkin==="cute" && BAKERY_HAT_PRICE[decor.id]!=null) return BAKERY_HAT_PRICE[decor.id];
     return decor.price;
   };
   const isDecorOwned=(cid,decorId)=>(ownedDecor[cid]||[]).includes(decorId);
@@ -4537,28 +4510,8 @@ export default function App() {
     return evoView(evo,idx<0?0:idx,kidSkin);
   };
   // 최종 성장체(마지막 단계) 도달 여부 — 캐릭터 스킨 잠금 해제 기준
-  const isMaxEvolution=(cid)=>{
-    const level=getChildLevel(cid).level;
-    const evos=kidSkin==="cute"?BAKERY_EVOLUTIONS:CHARACTER_EVOLUTIONS;
-    const maxMin=Math.max(...evos.map(e=>e.minLevel));
-    return level>=maxMin;
-  };
   // 펫 최종 진화(마지막 단계) 도달 여부 — 펫 스킨 잠금 해제 기준
   const isMaxPet=(cid)=>getPetStage(cid)>=PET_STAGES.length-1;
-  const getCharacterAvatar=(cid,hatEquipped=false)=>{
-    const child=children.find(c=>c.id===cid);
-    const gender=child?.gender||"boy";
-    // 캐릭터 스킨 장착 시 성장체 대신 스킨으로 표시(완성형). 최종 성장체 도달했을 때만 유효.
-    const eqSkin=getEquipped(cid,"skin");
-    if(eqSkin&&isMaxEvolution(cid)) return eqSkin.emoji;
-    const evo=getCharacterEvolution(cid);
-    let av=evo.avatar?.[gender]||evo.avatar?.boy||"🧒";
-    // 셰프 모자를 이미 쓴 요리사 이모지는 모자와 겹치므로, 모자 착용 시 맨머리로 교체
-    if(hatEquipped&&(av==="👨‍🍳"||av==="👩‍🍳"||av==="🧑‍🍳")){
-      av = gender==="girl" ? "👩" : "🧑";
-    }
-    return av;
-  };
 
   const getChildRewardRequests=(cid)=>rewardRequests[cid]||[];
   const hasPendingRewardRequest=(cid,rewardId)=>getChildRewardRequests(cid).some(r=>r.rewardId===rewardId&&r.status==="pending");
@@ -5141,7 +5094,7 @@ export default function App() {
               {/* 본문: 카테고리별 */}
               <div style={{padding:"6px 16px 26px"}}>
                 {DECOR_GROUPS.filter(grp=>grp.key!=="hat").map(grp=>{   // 모자/장비 카테고리는 두 모드 모두 상점에서 제외(외형은 진화로만)
-                  const grpLocked = (grp.lockUntilMaxEvo && !isMaxEvolution(childId)) || (grp.lockUntilMaxPet && !isMaxPet(childId));
+                  const grpLocked = grp.lockUntilMaxPet && !isMaxPet(childId);   // 펫 스킨만 잠금 대상(캐릭터 스킨은 폐지)
                   return (
                   <div key={grp.key} style={{marginTop:18}}>
                     <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:kidSkin!=="cute"?"#EAF0FF":C.text}}>{grp.key==="hat"&&kidSkin!=="cute"?"⚔️":grp.icon} {grp.key==="hat"&&kidSkin!=="cute"?"장비":grp.label}{grp.key==="petskin"&&<span style={{fontSize:11,fontWeight:800,color:kidSkin!=="cute"?"rgba(200,212,240,0.6)":C.sub,marginLeft:6}}>펫 최종 진화 시 해제</span>}</p>
@@ -5167,18 +5120,6 @@ export default function App() {
                       {(()=>{
                         // 베이커리 모드의 '모자' 그룹만 지정 순서로 재정렬 + 자리기준 등급 적용. 그 외는 원본.
                         let items=grp.items;
-                        // 모험 모드: 장비(weapon) 아이템은 상점에서 제외 — 캐릭터 진화로 장비가 자동 지급되므로
-                        // 구매·착용이 중복된다. (베이커리는 같은 id가 '모자'로 쓰이므로 그대로 진열)
-                        if(kidSkin!=="cute" && grp.key==="hat"){
-                          items=grp.items.filter(it=>!it.weapon);
-                        }
-                        if(kidSkin==="cute" && grp.key==="hat"){
-                          items=BAKERY_HAT_ORDER.map(id=>{
-                            const o=grp.items.find(it=>it.id===id);
-                            if(!o) return null;
-                            return BAKERY_HAT_RARITY[id]?{...o,rarity:BAKERY_HAT_RARITY[id]}:o;
-                          }).filter(Boolean);
-                        }
                         // 테두리 그룹: 'themed' 아이템은 이 아이의 테마색으로 색을 입혀 미리보기에도 반영
                         if(grp.key==="border"){
                           items=items.map(it=> it.themed ? themedBorder(it, th) : it);
@@ -5346,13 +5287,6 @@ export default function App() {
         {(()=>{
           const q=getTodayQuestProgress(childId,childDate||TODAY);
           const level=getChildLevel(childId);
-          const stageHat=getEquipped(childId,"hat");
-          const eqSkinActive=!!getEquipped(childId,"skin")&&isMaxEvolution(childId);
-          // 스킨 장착 시 모자 숨김은 베이커리(완성형 캐릭터)에서만. 모험은 장비(무기·왕관)를 스킨과 함께 표시.
-          const showHat=stageHat&&!(eqSkinActive&&kidSkin==="cute");
-          // 모험 도구(쌍안경·나침반·지도 등)는 머리에 쓰지 않으므로 아바타 맨머리 치환 대상에서 제외
-          const headHat=showHat&&!(stageHat.weapon&&kidSkin!=="cute");
-          const avatar=getCharacterAvatar(childId,!!headHat);
           const pet=getPet(childId);
           const title=getSelectedTitle(childId);
           const cute=kidSkin==="cute";
@@ -5363,12 +5297,8 @@ export default function App() {
           // 진행도에 따른 말풍선 멘트 + 캐릭터 기분
           const msg=getProgressMessage(q.percent,q.total);
           const allDone=q.total>0&&q.percent===100;
-          // 꾸미기(모자·테두리·배경·스킨) 중 하나라도 장착하면 둥실 효과 정지 — 초기 기본 상태에서만 둥실거려 생동감을 줌
-          // 무대 응원 말풍선 노출 규칙
-          //  - 무기 장착: 유지 / 테두리 장착: 유지
-          //  - 왕관(무기 아닌 머리장식) 장착: 숨김 / 배경 장착: 숨김
-          const crownEquipped=showHat&&!(stageHat.weapon&&!cute); // 모험 무기는 제외, 베이커리 머리장식·모험 왕관만 해당
-          const hideStageCheer=crownEquipped||!!stageBgDeco||eqSkinActive;
+          // 무대 응원 말풍선: 배경 장착 시엔 배경 연출을 살리기 위해 숨김
+          const hideStageCheer=!!stageBgDeco;
           const charAnim="floatHero 2.6s ease-in-out infinite -1.3s";
           // 무대 배경: 모험은 다크 샤이니, 베이커리는 따뜻한 크림 스포트라이트
           const stageBg=cute
@@ -5544,7 +5474,7 @@ export default function App() {
                 {/* ── 중앙(모험)·좌측(베이커리): 캐릭터 + 펫 ── */}
                 <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?12:8}}>
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
-                  <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center",paddingLeft:(showHat&&stageHat.weapon&&!cute)?32:0}}>
+                  <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"}}>
                     <div style={{position:"relative",zIndex:1}}>
                       {/* 캐릭터+무기를 한 컨테이너로 묶어 같은 둥실(floatHero)로 통째로 움직인다 → 타이밍 100% 일치 */}
                       <div style={{position:"relative",display:"inline-block",willChange:"transform",animation:charAnim}}>
@@ -5559,31 +5489,6 @@ export default function App() {
                           <img src={_IMG[_g][_st]} alt="캐릭터" draggable={false}
                             decoding="sync" fetchpriority="high"
                             style={{display:"block",height:_sz,width:"auto",maxWidth:"none",filter:cute?"drop-shadow(0 9px 12px rgba(120,60,90,0.25))":"drop-shadow(0 8px 12px rgba(0,0,0,0.35))",transition:"height .3s"}}/>
-                        );
-                      })()}
-                      {showHat&&!(stageHat.weapon&&!cute)&&(()=>{
-                        // 카메라(모험)는 머리 꼭대기가 아니라 눈 위치에 와야 자연스러움 → 아래로 내림
-                        const isGoggles=stageHat.id==="hat_goggles"&&!cute;
-                        // 탐험 히어로(🦸, Lv13~16)는 머리가 작아 왕관이 커보임 → 모험 모드에서만 축소·하향
-                        const isHero=!cute&&(avatar==="🦸‍♂️"||avatar==="🦸‍♀️");
-                        return (
-                          <span style={{position:"absolute",bottom:isGoggles?"calc(100% - 40px)":(isHero?"calc(100% - 14px)":"calc(100% - 18px)"),left:"50%",transform:"translateX(-50%)",fontSize:isHero?30:40,zIndex:3,pointerEvents:"none",filter:"drop-shadow(0 4px 5px rgba(0,0,0,0.25))"}}>{stageHat.emoji}</span>
-                        );
-                      })()}
-                      {/* 모험: 손에 드는 도구(배낭·나침반·카메라·지도·자전거)는 캐릭터 좌측 약간 아래(손 높이)에 배치 */}
-                      {showHat&&stageHat.weapon&&!cute&&(()=>{
-                        // 도구별 크기·위치·기울기 미세조정. 회전은 회전 전용 span에서 처리(둥실은 부모 컨테이너가 담당).
-                        let wSize=32, wLeft=-24, wRot=0, wBottom=-8;
-                        if(stageHat.id==="hat_axe"){ wSize=38; wLeft=-40; }                   // 탐험가 배낭: 크게 + 캐릭터와 간격 확보(얼굴 겹침 방지)
-                        else if(stageHat.id==="hat_light"){ wSize=30; wLeft=-38; wBottom=-6; } // 꼬마 손전등: 이모지가 기울어져 있어 우상단이 귀에 닿음 → 왼쪽으로 간격 확보
-                        else if(stageHat.id==="hat_tophat"){ wSize=28; wLeft=-26; wRot=-30; }  // 나침반: 고리가 좌측 위로 가게 회전
-                        else if(stageHat.id==="hat_goggles"){ wSize=28; wLeft=-26; wRot=-8; }  // 카메라: 오른쪽으로 + / 살짝 기울임
-                        else if(stageHat.id==="hat_flame"){ wSize=30; wLeft=-28; wRot=-10; }   // 보물 지도: / 살짝 기울임
-                        else if(stageHat.id==="hat_star"){ wSize=44; wLeft=-46; wBottom=-22; } // 자전거: 크게 + 더 왼쪽 + 아래로 내림
-                        // 레벨13~16 구간은 캐릭터 폭이 넓어 도구가 붙어 보임 → 모든 도구 좌측으로 약간 이동
-                        if(level.level>=13&&level.level<17){ wLeft-=6; }
-                        return (
-                          <span style={{position:"absolute",bottom:wBottom,left:wLeft,zIndex:2,pointerEvents:"none",display:"inline-block",fontSize:wSize,filter:"drop-shadow(0 5px 6px rgba(0,0,0,0.3))",transform:wRot?`rotate(${wRot}deg)`:"none"}}>{stageHat.emoji}</span>
                         );
                       })()}
                       </div>
@@ -5614,7 +5519,6 @@ export default function App() {
                 // 정보 칩: 동그란 이모지 + 라벨 (레벨/상장).
                 const InfoChip=({ring,emoji,text})=>{
                   // 모험은 원래 어두운 칩. 베이커리는 칩 색은 그대로 두되, 배경 꾸미기 장착(무대 어두움) 시 글자만 밝게.
-                  const darkChip = !cute;                  // 칩 배경 자체가 어두운 경우(모험)
                   const lightText = !cute || onScene;      // 글자를 흰색으로 (모험 / 배경 꾸미기 장착한 베이커리)
                   const borderOpacity = cute
                     ? ((title.rarity==="common"||title.rarity==="legendary") ? "BB" : "77")
@@ -7850,7 +7754,6 @@ export default function App() {
                   {(()=>{
                     const level=getChildLevel(childId);
                     const evo=getCharacterEvolution(childId);
-                    const evoList=kidSkin==="cute"?BAKERY_EVOLUTIONS:CHARACTER_EVOLUTIONS;
 
                     const treasure=getChildTreasure(childId);
                     const title=getSelectedTitle(childId);
