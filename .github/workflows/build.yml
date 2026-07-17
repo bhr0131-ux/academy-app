@@ -1,0 +1,22 @@
+# 커밋할 때마다 GitHub 서버가 자동으로 앱을 빌드합니다.
+# 결과물(dist)은 Actions 탭 → 해당 실행 → Artifacts 에서 다운로드할 수 있고,
+# Capacitor 앱에 넣을 웹 번들로 그대로 사용합니다.
+name: build
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: missionpang-dist
+          path: dist/
+          retention-days: 30
