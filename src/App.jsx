@@ -416,6 +416,31 @@ export default function App() {
           }
         }
       }
+      // ── 은퇴(판매 중단) 아이템 정리: 보유 제거 + 구매가 환불 (멱등: 정리 저장 후엔 재실행 안 됨) ──
+      //  카탈로그에서 뺀 아이템을 이미 구매한 아이가 코인을 잃지 않도록 보호한다.
+      //  환불은 아래 기존 avRefunds 반영부(꾸미기 상점 개편 환불)를 그대로 재사용한다.
+      const RETIRED_AVATAR_ITEMS={ shoes_boots_desert:140 }; // { 은퇴 아이템 id: 환불 코인 }
+      if(avOwnedMerged && typeof avOwnedMerged==="object"){
+        let retiredTouched=false;
+        const cleanedOwned={};
+        for(const ocid of Object.keys(avOwnedMerged)){
+          const list=Array.isArray(avOwnedMerged[ocid])?avOwnedMerged[ocid]:[];
+          cleanedOwned[ocid]=list.filter(iid=>{
+            const refundAmt=RETIRED_AVATAR_ITEMS[iid];
+            if(refundAmt!==undefined){
+              avRefunds=avRefunds||{};
+              avRefunds[ocid]=(avRefunds[ocid]||0)+refundAmt;
+              retiredTouched=true;
+              return false;
+            }
+            return true;
+          });
+        }
+        if(retiredTouched){
+          avOwnedMerged=cleanedOwned;
+          save(AVATAR_OWNED_KEY,cleanedOwned); // 즉시 저장 → 다음 실행에서 중복 환불 방지
+        }
+      }
       const avMode=await load(CHAR_DISPLAY_MODE_KEY);
       const savedSkinMap=await load("v6_kid_skin_map"); // 아이별 스킨 맵 (신규)
       const savedSkin=await load("v6_kid_skin");         // 단일 스킨 (구버전, 마이그레이션용)

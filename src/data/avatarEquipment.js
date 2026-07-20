@@ -103,7 +103,6 @@ export const AVATAR_CATALOG = [
   { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp" },
   { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp" },
   { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp" },
-  { id: "shoes_boots_desert", slot: "shoes", label: "모래 부츠", emoji: "🏜️", price: 140, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/desert-boots.webp" },
   { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp" },
   { id: "back_backpack",  slot: "back",  label: "탐험 배낭",   emoji: "🎒", price: 250, rarity: "epic",   theme: "adventure", img: "assets/avatar/back/purple-backpack.webp" },
 ];
