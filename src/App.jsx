@@ -3532,7 +3532,8 @@ export default function App() {
                         const _IMG=cute?BAKERY_CHAR_IMG:ADV_CHAR_IMG;
                         // 표시 모드가 '아바타'면 꾸미기 아바타를 보여준다 (성장 캐릭터와 토글).
                         if(getCharMode(childId)===CHAR_DISPLAY_AVATAR){
-                          return <AvatarViewer equipped={getAvatarEquipped(childId)} size={Math.round(_sz*0.92)} baseCharImg={getAvatarBaseCharImg(childId)} />;
+                          // 홈 무대에는 이미 씬 배경이 깔려 있으므로 아바타 자체 배경·프레임은 끈다 (이중 배경 방지)
+                          return <AvatarViewer equipped={getAvatarEquipped(childId)} size={Math.round(_sz*0.92)} showFrame={false} showBg={false} baseCharImg={getAvatarBaseCharImg(childId)} />;
                         }
                         return (
                           // 타이트 재단 이미지: 높이=_sz, 폭은 그림 비율대로 → 캐릭터 몸에 딱 맞는 박스 (펫·주변 요소가 몸 기준으로 붙음)

@@ -18,6 +18,9 @@ import {
      equipped    : { [slot]: itemId | null }
      size        : number  한 변 px (기본 200)
      showFrame   : boolean 프레임 배경 표시 (기본 true)
+     showBg      : boolean 아바타 배경(기본 배경+배경 슬롯 장비) 표시 (기본 true)
+                   → 모험/베이커리 홈 무대처럼 이미 씬 배경이 깔린 곳에서는
+                     false로 넘겨 이중 배경 겹침을 방지한다.
      baseCharImg : string|null  베이스 아트 미제작 시 폴백용 성장 캐릭터
    ════════════════════════════════════════════════════════════════════════ */
 
@@ -107,28 +110,34 @@ function BaseCharacter({ baseCharImg, size }) {
   );
 }
 
-export default function AvatarViewer({ equipped = {}, size = 200, showFrame = true, baseCharImg = null }) {
-  const layers = getAvatarLayers(equipped);
+export default function AvatarViewer({ equipped = {}, size = 200, showFrame = true, showBg = true, baseCharImg = null }) {
+  /* showBg=false면 배경 슬롯 장비도 함께 생략 — 홈 무대 씬 위에 사각 배경이 겹치는 것 방지 */
+  const layers = getAvatarLayers(equipped).filter(
+    (layer) => showBg || layer.item?.slot !== "background"
+  );
 
   return (
     <div
       style={{
         position: "relative", width: size, height: size, margin: "0 auto",
-        borderRadius: 28, overflow: "hidden",
+        borderRadius: showFrame || showBg ? 28 : 0,
+        overflow: showFrame || showBg ? "hidden" : "visible",
         background: showFrame
           ? "linear-gradient(160deg, #F1F5FF 0%, #FDF2FF 100%)"
           : "transparent",
         boxShadow: showFrame ? "inset 0 0 0 2px rgba(139,92,246,0.14)" : "none",
       }}
     >
-      {/* 기본 배경 — 항상 맨 뒤. 배경 아이템 이미지가 준비된 경우에만 위를 덮는다 */}
-      <img
-        src={"/" + DEFAULT_AVATAR_BG.replace(/^\/+/, "")}
-        alt=""
-        draggable={false}
-        style={{ position: "absolute", inset: 0, zIndex: 5, width: "100%", height: "100%",
-                 objectFit: "cover", objectPosition: "center 72%", pointerEvents: "none" }}
-      />
+      {/* 기본 배경 — 항상 맨 뒤. 배경 아이템 이미지가 준비된 경우에만 위를 덮는다 (showBg=false면 생략) */}
+      {showBg && (
+        <img
+          src={"/" + DEFAULT_AVATAR_BG.replace(/^\/+/, "")}
+          alt=""
+          draggable={false}
+          style={{ position: "absolute", inset: 0, zIndex: 5, width: "100%", height: "100%",
+                   objectFit: "cover", objectPosition: "center 72%", pointerEvents: "none" }}
+        />
+      )}
       {/* 뒤쪽 레이어(배경·등 장비) → 베이스 캐릭터 → 앞쪽 레이어 순서로 z 배치 */}
       {layers.map((layer) => (
         <div key={layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex }}>
