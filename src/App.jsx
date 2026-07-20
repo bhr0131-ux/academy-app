@@ -3515,10 +3515,10 @@ export default function App() {
               </div>
               )}
               {/* 캐릭터 무대 — 모험·베이커리 공통: 중앙 캐릭터+펫 / 레벨·상장은 하단 알약칩 줄로 통일 */}
-              <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?16:12,minHeight:cute?104:415}}>
+              <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?16:12,minHeight:cute?104:310}}>
                 {/* ── 중앙(모험)·좌측(베이커리): 캐릭터 + 펫 ── */}
                 {/* gap을 벌려 캐릭터는 살짝 왼쪽·펫은 오른쪽으로 → 화면 구도가 살아남 */}
-                <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:38}}>
+                <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:38,transform:cute?undefined:"translateY(18px)"}}>
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"}}>
                     <div style={{position:"relative",zIndex:1}}>
@@ -3532,8 +3532,17 @@ export default function App() {
                         const _IMG=cute?BAKERY_CHAR_IMG:ADV_CHAR_IMG;
                         // 표시 모드가 '아바타'면 꾸미기 아바타를 보여준다 (성장 캐릭터와 토글).
                         if(getCharMode(childId)===CHAR_DISPLAY_AVATAR){
-                          // 홈 무대에는 이미 씬 배경이 깔려 있으므로 아바타 자체 배경·프레임은 끈다 (이중 배경 방지)
-                          return <AvatarViewer equipped={getAvatarEquipped(childId)} size={Math.round(_sz*0.92)} showFrame={false} showBg={false} baseCharImg={getAvatarBaseCharImg(childId)} />;
+                          // 아바타 원본(1024² 캔버스)은 캐릭터 실폭≈30%·하단 투명 여백≈8%.
+                          // 정사각형 그대로 두면 ① 투명 여백까지 레이아웃 폭을 차지해 펫이 오른쪽 밖으로 밀리고
+                          // ② 발밑 여백 탓에 그림자보다 위에 떠 보인다.
+                          // → 레이아웃 폭은 실루엣 폭 기준(42%)으로 좁히고, 하단 여백만큼 음수 마진으로 상쇄해
+                          //   발끝을 성장 캐릭터와 같은 바닥선(그림자 라인)에 맞춘다.
+                          const _avSz=Math.round(_sz*1.18); // 캔버스 내 캐릭터 높이가 80%라 확대해 성장 캐릭터와 체감 크기를 맞춤
+                          return (
+                            <div style={{width:Math.round(_avSz*0.42),display:"flex",justifyContent:"center",marginBottom:-Math.round(_avSz*0.08)}}>
+                              <AvatarViewer equipped={getAvatarEquipped(childId)} size={_avSz} showFrame={false} showBg={false} baseCharImg={getAvatarBaseCharImg(childId)} />
+                            </div>
+                          );
                         }
                         return (
                           // 타이트 재단 이미지: 높이=_sz, 폭은 그림 비율대로 → 캐릭터 몸에 딱 맞는 박스 (펫·주변 요소가 몸 기준으로 붙음)
