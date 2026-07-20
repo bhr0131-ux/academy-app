@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  getAvatarLayers, DEFAULT_AVATAR_BG, AVATAR_BASE_IMG, AVATAR_BASE_EMOJI, AVATAR_BASE_Z,
+  getAvatarLayers, DEFAULT_AVATAR_BG, AVATAR_BASE_IMG, AVATAR_BASE_IMG_GIRL, AVATAR_BASE_EMOJI, AVATAR_BASE_Z,
 } from "../data/avatarEquipment.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -69,13 +69,14 @@ function AvatarLayer({ item, emojiPos, size }) {
 }
 
 /* 베이스 캐릭터 — 아바타 전용 아트 → 성장 캐릭터 → 이모지 폴백 */
-function BaseCharacter({ baseCharImg, size }) {
+function BaseCharacter({ baseCharImg, size, gender = "boy" }) {
   const [baseFailed, setBaseFailed] = useState(false);
+  const baseSrc = gender === "girl" ? AVATAR_BASE_IMG_GIRL : AVATAR_BASE_IMG;
 
   if (!baseFailed) {
     return (
       <img
-        src={"/" + AVATAR_BASE_IMG.replace(/^\/+/, "")}
+        src={"/" + baseSrc.replace(/^\/+/, "")}
         alt="아바타"
         onError={() => setBaseFailed(true)}
         draggable={false}
@@ -110,7 +111,7 @@ function BaseCharacter({ baseCharImg, size }) {
   );
 }
 
-export default function AvatarViewer({ equipped = {}, size = 200, showFrame = true, showBg = true, baseCharImg = null }) {
+export default function AvatarViewer({ equipped = {}, size = 200, showFrame = true, showBg = true, baseCharImg = null, gender = "boy" }) {
   /* showBg=false면 배경 슬롯 장비도 함께 생략 — 홈 무대 씬 위에 사각 배경이 겹치는 것 방지 */
   const layers = getAvatarLayers(equipped).filter(
     (layer) => showBg || layer.item?.slot !== "background"
@@ -145,7 +146,7 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
         </div>
       ))}
       <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z }}>
-        <BaseCharacter baseCharImg={baseCharImg} size={size} />
+        <BaseCharacter baseCharImg={baseCharImg} size={size} gender={gender} />
       </div>
     </div>
   );

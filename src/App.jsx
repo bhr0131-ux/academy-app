@@ -3277,6 +3277,7 @@ export default function App() {
           owned={getAvatarOwned(childId)}
           equipped={getAvatarEquipped(childId)}
           baseCharImg={getAvatarBaseCharImg(childId)}
+          gender={(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy"}
           onBuy={buyAvatarItem}
           onToggle={toggleAvatarItem}
         />
@@ -3540,7 +3541,7 @@ export default function App() {
                           return (
                             <div style={{position:"relative",width:Math.round(_avSz*0.42),height:Math.round(_avSz*0.80)}}>
                               <div style={{position:"absolute",left:"50%",bottom:-Math.round(_avSz*0.08),transform:"translateX(-50%)",width:_avSz}}>
-                                <AvatarViewer equipped={getAvatarEquipped(childId)} size={_avSz} showFrame={false} showBg={false} baseCharImg={getAvatarBaseCharImg(childId)} />
+                                <AvatarViewer equipped={getAvatarEquipped(childId)} size={_avSz} showFrame={false} showBg={false} baseCharImg={getAvatarBaseCharImg(childId)} gender={(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy"} />
                               </div>
                             </div>
                           );

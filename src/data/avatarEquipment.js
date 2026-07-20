@@ -33,7 +33,8 @@ export const DEFAULT_CHAR_DISPLAY_MODE = CHAR_DISPLAY_GROWTH;
    꾸미기 전용 캐릭터 1장. 모자·안경·손지물 없이 맨몸(기본옷)으로 제작된
    1024×1024 이미지. 모든 장비는 이 위에 덧씌워진다.
    아트가 아직 없으면 뷰어가 성장 3단계 캐릭터 → 이모지 순으로 폴백한다. */
-export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp";
+export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp";        // 남아(기본)
+export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp"; // 여아
 export const AVATAR_BASE_EMOJI = "🧒";
 
 /* ── 기본 배경 (아이템 아님) ────────────────────────────────────────── */

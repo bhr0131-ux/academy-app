@@ -25,7 +25,7 @@ import {
    ════════════════════════════════════════════════════════════════════════ */
 
 export default function EquipmentShop({
-  open, onClose, coins = 0, owned = [], equipped = {}, onBuy, onToggle, baseCharImg = null,
+  open, onClose, coins = 0, owned = [], equipped = {}, onBuy, onToggle, baseCharImg = null, gender = "boy",
 }) {
   const [activeSlot, setActiveSlot] = useState(AVATAR_SLOTS[0].key);
   if (!open) return null;
@@ -71,7 +71,7 @@ export default function EquipmentShop({
 
         {/* 미리보기 */}
         <div style={{ padding: "16px 20px 8px", display: "flex", justifyContent: "center" }}>
-          <AvatarViewer equipped={equipped} size={150} baseCharImg={baseCharImg} />
+          <AvatarViewer equipped={equipped} size={150} baseCharImg={baseCharImg} gender={gender} />
         </div>
 
         {/* 슬롯 탭 (가로 스크롤) */}
