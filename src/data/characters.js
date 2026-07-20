@@ -14,9 +14,9 @@ export const ADV_CHAR_STAGE_OF=(level)=>{
   CHARACTER_EVOLUTIONS.forEach((e,i)=>{ if(level>=e.minLevel) idx=i; });
   return idx+1; // 1~5
 };
-export const ADV_CHAR_SIZE={1:148,2:159,3:168,4:175,5:188};
+export const ADV_CHAR_SIZE={1:300,2:311,3:320,4:327,5:335}; // 최대치에서 한 단계 완화 (약 -10%)
 // 베이커리는 셰프 모자 탓에 몸 비중이 작아 단계별로 약간 상향 보정 (특히 3단계: 캔버스 폭 43%로 가장 슬림)
-export const BAKERY_CHAR_SIZE={1:148,2:161,3:175,4:179,5:190};
+export const BAKERY_CHAR_SIZE={1:232,2:248,3:264,4:270,5:282}; // 시안B 동일 기준
 
 // ── 모험 모드 무대 기본 배경 ────────────────────────────────
 // 이미지는 Capacitor public/assets 폴더에 두고 경로로 참조 (base64 임베드 X → App.jsx 경량 유지).

@@ -9,6 +9,7 @@ import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
+  LEGACY_AVATAR_OWNED_KEY, computeAvatarMigration,
   CHAR_DISPLAY_GROWTH, CHAR_DISPLAY_AVATAR, DEFAULT_CHAR_DISPLAY_MODE,
   getDefaultEquipped, computeAvatarPurchase, computeAvatarEquipToggle,
   computeCharDisplayToggle, normalizeOwned, normalizeEquipped, getAvatarItem,
@@ -395,9 +396,26 @@ export default function App() {
       const ownedDec=await load("v6_owned_decor");
       const equipDec=await load("v6_equipped_decor");
       const decPrices=await load("v6_decor_prices");
-      // ── 꾸미기 아바타 데이터 로드 (신규 키. 없으면 빈 값→기본값 폴백) ──
+      // ── 꾸미기 아바타 데이터 로드 (v2 키. 없으면 빈 값→기본값 폴백) ──
       const avOwned=await load(AVATAR_OWNED_KEY);
       const avEquip=await load(AVATAR_EQUIPPED_KEY);
+      // ── v1→v2 마이그레이션 (1회, 읽기 폴백) ──
+      //  v2 데이터가 아직 없고 구 키(v6_avatar_owned)에 기록이 있으면:
+      //   · v2 카탈로그에도 있는 아이템(배경 3종) → 보유 그대로 이전
+      //   · 없어진 구 아이템 → 구매가만큼 코인 환불 (아래 score 반영부에서 처리)
+      //  구 키는 읽기만 하고 절대 수정·삭제하지 않는다. (CLAUDE.md 준수)
+      let avOwnedMerged=avOwned, avRefunds=null;
+      if(!avOwned){
+        const legacyOwned=await load(LEGACY_AVATAR_OWNED_KEY);
+        if(legacyOwned && typeof legacyOwned==="object"){
+          avOwnedMerged={}; avRefunds={};
+          for(const lcid of Object.keys(legacyOwned)){
+            const mig=computeAvatarMigration(legacyOwned[lcid]);
+            avOwnedMerged[lcid]=mig.carryOwned;
+            if(mig.refund>0) avRefunds[lcid]=mig.refund;
+          }
+        }
+      }
       const avMode=await load(CHAR_DISPLAY_MODE_KEY);
       const savedSkinMap=await load("v6_kid_skin_map"); // 아이별 스킨 맵 (신규)
       const savedSkin=await load("v6_kid_skin");         // 단일 스킨 (구버전, 마이그레이션용)
@@ -452,7 +470,21 @@ export default function App() {
       if(lastBk) setLastBackupDate(lastBk);
       const lastNd=await load("v6_last_nudge_date");
       if(lastNd) setLastNudgeDate(lastNd);
-      if(score) setScoreData(score);
+      // ── 아바타 개편 환불 반영 (마이그레이션과 함께 1회만 실행됨) ──
+      let scoreFinal=score;
+      if(avRefunds && Object.keys(avRefunds).length){
+        scoreFinal={...(score||{})};
+        for(const rcid of Object.keys(avRefunds)){
+          const cur=scoreFinal[rcid]||{xp:0,coin:0,history:[]};
+          const amt=avRefunds[rcid];
+          scoreFinal[rcid]={...cur,
+            coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+amt),
+            history:[...(cur.history||[]),{id:Date.now(),point:0,xp:0,coin:amt,date:TODAY,type:"avatar_refund",memo:`꾸미기 상점 개편 코인 환불 +${amt}`}]
+          };
+        }
+        save("v6_score",scoreFinal); // 즉시 저장 (v2 키 생성 후엔 재실행 안 됨)
+      }
+      if(scoreFinal) setScoreData(scoreFinal);
       if(reward) setRewardData(reward);
       if(rewardReq) setRewardRequests(rewardReq);
       if(badges) setUnlockedBadgeIds(badges);
@@ -468,7 +500,7 @@ export default function App() {
       if(decPrices) setDecorPrices(decPrices);
       // ── 꾸미기 아바타 주입: 아이별로 normalize(손상·구버전 방어) ──
       {
-        const rawOwned = (avOwned && typeof avOwned==="object") ? avOwned : {};
+        const rawOwned = (avOwnedMerged && typeof avOwnedMerged==="object") ? avOwnedMerged : {};
         const rawEquip = (avEquip && typeof avEquip==="object") ? avEquip : {};
         const rawMode  = (avMode  && typeof avMode ==="object") ? avMode  : {};
         const nextOwnedMap={}, nextEquipMap={}, nextModeMap={};
@@ -1402,7 +1434,7 @@ export default function App() {
       <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none",zIndex:0,borderRadius:"inherit"}}>
         {/* 낮 초원 배경 이미지 — /assets 경로 참조 (Capacitor public/assets) */}
         <img src={bgSrc} alt="" draggable={false}
-          style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center 78%"}}/>
+          style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center 68%"}}/>
         {/* 하단 살짝 어둡게 — 캐릭터 발밑을 지면에 앉히고 하단 알약칩 가독성 확보 */}
         <div style={{position:"absolute",inset:0,background:"linear-gradient(180deg, transparent 55%, rgba(30,60,40,0.12) 78%, rgba(20,45,30,0.26) 100%)"}}/>
         {/* 캐릭터 발치 바닥빛 — 떠 보임 방지용으로 아주 은은하게 */}
@@ -2982,10 +3014,10 @@ export default function App() {
           @keyframes squishCard{0%{transform:scale(1)}30%{transform:scale(1.04,0.96)}55%{transform:scale(0.97,1.03)}78%{transform:scale(1.01,0.99)}100%{transform:scale(1)}}
           @keyframes burstPop{0%{transform:translate(0,0) scale(0.2);opacity:1}100%{transform:translate(var(--bx),var(--by)) scale(1.1);opacity:0}}
           @keyframes floatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-          @keyframes floatHero{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+          @keyframes floatHero{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
           @keyframes shadowPulse{0%,100%{transform:translateX(-50%) scale(1);opacity:1}50%{transform:translateX(-50%) scale(0.78);opacity:0.7}}
-          @keyframes shadowPulsePet{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(0.8);opacity:0.72}}
-          @keyframes floatHat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-10px)}}
+          @keyframes shadowPulsePet{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(0.93);opacity:0.85}}
+          @keyframes floatHat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
           @keyframes wiggle{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
           @keyframes blobShift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(14px,-12px) scale(1.08)}66%{transform:translate(-10px,10px) scale(0.94)}}
           @keyframes barStripe{0%{background-position:0 0}100%{background-position:28px 0}}
@@ -3483,9 +3515,10 @@ export default function App() {
               </div>
               )}
               {/* 캐릭터 무대 — 모험·베이커리 공통: 중앙 캐릭터+펫 / 레벨·상장은 하단 알약칩 줄로 통일 */}
-              <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?22:24,minHeight:104}}>
+              <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?16:12,minHeight:cute?104:415}}>
                 {/* ── 중앙(모험)·좌측(베이커리): 캐릭터 + 펫 ── */}
-                <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?12:8}}>
+                {/* gap을 벌려 캐릭터는 살짝 왼쪽·펫은 오른쪽으로 → 화면 구도가 살아남 */}
+                <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:38}}>
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"}}>
                     <div style={{position:"relative",zIndex:1}}>
@@ -3512,17 +3545,17 @@ export default function App() {
                     </div>
                     {/* 발밑 바닥 원 (모험) — 공중부양 방지용 라이트 원. 밝은 테마 포인트색. */}
                     {!cute&&(
-                      <div style={{position:"absolute",left:"50%",bottom:-2,transform:"translateX(-50%)",width:116,height:38,pointerEvents:"none",zIndex:0,
+                      <div style={{position:"absolute",left:"50%",bottom:-2,transform:"translateX(-50%)",width:150,height:44,pointerEvents:"none",zIndex:0,
                         background:`radial-gradient(ellipse 50% 50% at 50% 50%, ${GP.themePoint||th.main}80, ${GP.themePoint||th.main}33 45%, transparent 72%)`,filter:"blur(2px)"}}/>
                     )}
-                    {/* 바닥 그림자 — 캐릭터가 떠오를 때 살짝 작아져 '점프 안착'처럼 보이게 펄스 */}
-                    <div style={{position:"relative",zIndex:1,width:60,height:13,borderRadius:"50%",background:cute?"rgba(120,80,100,0.16)":"rgba(0,0,0,0.20)",filter:"blur(3.5px)",marginTop:-4,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
+                    {/* 바닥 그림자 — 발에 밀착된 접지 그림자 (marginTop을 크게 당겨 부츠 바로 밑에 붙임) */}
+                    <div style={{position:"relative",zIndex:1,width:118,height:19,borderRadius:"50%",background:cute?"rgba(120,80,100,0.20)":"rgba(0,0,0,0.26)",filter:"blur(5px)",marginTop:-13,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                   </div>
-                  {/* 펫 */}
+                  {/* 펫 — 보조 역할이므로 캐릭터보다 작게(기존 40 → 34). 알 단계(0)엔 '곧 부화!'로 기대감 UP */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center",marginBottom:8}}>
-                    <div style={{fontSize:40,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 6px 8px rgba(0,0,0,0.22))"}}>{pet.emoji}</div>
-                    <div style={{width:32,height:8,borderRadius:"50%",background:cute?"rgba(120,80,100,0.14)":"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
-                    <span style={{position:"absolute",bottom:-14,fontSize:10.5,fontWeight:900,color:cute?mixBlack(th.main,0.3):"rgba(255,255,255,0.82)",whiteSpace:"nowrap"}}>🐾 펫</span>
+                    <div style={{fontSize:34,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 6px 8px rgba(0,0,0,0.22))"}}>{pet.emoji}</div>
+                    <div style={{width:28,height:7,borderRadius:"50%",background:cute?"rgba(120,80,100,0.14)":"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
+                    <span style={{position:"absolute",bottom:-17,fontSize:pet.stage===0?12.5:11.5,fontWeight:900,color:cute?mixBlack(th.main,0.3):"#FFE9A8",whiteSpace:"nowrap",textShadow:cute?"none":"0 1px 3px rgba(0,0,0,0.55)"}}>{pet.stage===0?"곧 부화! 🐣":"🐾 펫"}</span>
                   </div>
                 </div>
                 {/* 우측 칩 제거 — 베이커리도 모험처럼 캐릭터 중앙 + 레벨/상장 하단 알약칩으로 통일 */}
@@ -3551,16 +3584,17 @@ export default function App() {
                   );
                 };
                 return (
-                  <div style={{position:"relative",zIndex:2,marginTop:cute?12:18,display:"flex",alignItems:"center",justifyContent:"center",gap:8,flexWrap:"wrap"}}>
-                    <InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>
-                    <InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>
-                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 */}
+                  <div style={{position:"relative",zIndex:2,marginTop:cute?10:14,display:"flex",alignItems:"center",justifyContent:cute?"center":"flex-end",gap:8,flexWrap:"wrap"}}>
+                    {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
+                    {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
+                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 우측 하단 구석에 단독 배치 */}
                     <button onClick={toggleCharDisplayMode}
                       style={{display:"flex",alignItems:"center",gap:4,cursor:"pointer",
-                        background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:GP.chipBg,
-                        border:`1.5px solid ${cute?th.main+"77":"rgba(255,255,255,0.55)"}`,borderRadius:999,padding:"4px 11px",
-                        color:(!cute)?"#fff":mixBlack(th.main,0.25),fontSize:10,fontWeight:900,whiteSpace:"nowrap",
-                        boxShadow:cute?`0 3px 9px ${th.main}33`:"0 2px 6px rgba(0,0,0,0.3)"}}>
+                        background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:"rgba(15,25,48,0.62)",
+                        border:`1.5px solid ${cute?th.main+"77":"rgba(255,255,255,0.5)"}`,borderRadius:999,padding:cute?"4px 11px":"5px 13px",
+                        color:(!cute)?"#fff":mixBlack(th.main,0.25),fontSize:cute?10:11,fontWeight:900,whiteSpace:"nowrap",
+                        backdropFilter:cute?"none":"blur(3px)",
+                        boxShadow:cute?`0 3px 9px ${th.main}33`:"0 2px 8px rgba(0,0,0,0.35)"}}>
                       {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"👗 아바타 보기"}
                     </button>
                   </div>

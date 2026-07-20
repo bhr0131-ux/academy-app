@@ -1,139 +1,143 @@
 import { useState } from "react";
-import { getAvatarLayers, DEFAULT_AVATAR_BG } from "../data/avatarEquipment.js";
+import {
+  getAvatarLayers, DEFAULT_AVATAR_BG, AVATAR_BASE_IMG, AVATAR_BASE_EMOJI, AVATAR_BASE_Z,
+} from "../data/avatarEquipment.js";
 
 /* ════════════════════════════════════════════════════════════════════════
-   AvatarViewer — 꾸미기 아바타 레이어 뷰어
+   AvatarViewer — 꾸미기 아바타 레이어 뷰어 (1024 캔버스 겹치기 방식)
    ────────────────────────────────────────────────────────────────────────
-   장착된 파츠(equippedMap)를 zIndex 순서(뒤→앞)로 겹쳐 하나의 아바타로 그린다.
-   이미지 에셋(public/assets/avatar/…)이 아직 없을 수 있으므로, 각 레이어는
-   이미지 로드 실패 시 자동으로 대표 이모지로 폴백한다. (base64 금지 규칙 준수)
+   모든 캐릭터·장비 이미지는 동일한 1024×1024 캔버스에 제자리에 그려져
+   있으므로, 여기서는 전 레이어를 inset:0 / 100% 크기로 그대로 겹치기만
+   한다. 슬롯별 위치 보정 코드는 존재하지 않는다. (CHARACTER_SPEC 준수)
+
+   폴백 체인
+     · 장비: img 로드 실패 → 슬롯별 emojiPos 위치에 대표 이모지
+     · 베이스: AVATAR_BASE_IMG 실패 → baseCharImg(성장 3단계) → 이모지
 
    props
-     equipped : { [slot]: itemId | null }   현재 장착 상태
-     size     : number  뷰어 한 변 px (기본 200)
-     showFrame: boolean 둥근 배경 프레임 표시 여부 (기본 true)
+     equipped    : { [slot]: itemId | null }
+     size        : number  한 변 px (기본 200)
+     showFrame   : boolean 프레임 배경 표시 (기본 true)
+     baseCharImg : string|null  베이스 아트 미제작 시 폴백용 성장 캐릭터
    ════════════════════════════════════════════════════════════════════════ */
 
-/* 개별 레이어 한 장. 이미지 우선, 실패하면 이모지. */
-function AvatarLayer({ item, size }) {
+/* 장비 레이어 1장 — 이미지 우선, 실패 시 슬롯 지정 위치에 이모지 */
+function AvatarLayer({ item, emojiPos, size }) {
   const [imgFailed, setImgFailed] = useState(false);
   const showImg = item.img && !imgFailed;
-
-  // 배경 슬롯은 프레임 전체를 채우고, 나머지 파츠는 중앙에 얹는다.
   const isBackground = item.slot === "background";
-  const emojiSize = isBackground ? size : Math.round(size * 0.62);
 
-  // 배경 아이템은 이미지가 없거나 로드 실패 시 이모지를 그리지 않는다.
-  // (뒤에 항상 깔려 있는 기본 배경(DEFAULT_AVATAR_BG)이 그대로 보이게)
+  /* 배경은 이미지 없으면 아무것도 안 그림 (뒤의 기본 배경이 보이게) */
   if (isBackground && !showImg) return null;
 
+  if (showImg) {
+    return (
+      <img
+        src={"/" + item.img.replace(/^\/+/, "")}
+        alt={item.label}
+        onError={() => setImgFailed(true)}
+        draggable={false}
+        style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          objectFit: isBackground ? "cover" : "contain",
+          borderRadius: isBackground ? "inherit" : 0,
+          pointerEvents: "none",
+        }}
+      />
+    );
+  }
+
+  /* 이모지 폴백 — emojiPos {x,y,s} 는 0~1 비율 좌표 */
+  const p = emojiPos || { x: 0.5, y: 0.5, s: 0.4 };
   return (
-    <div
+    <span
       style={{
         position: "absolute",
-        inset: 0,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        pointerEvents: "none",
+        left: `${p.x * 100}%`, top: `${p.y * 100}%`,
+        transform: "translate(-50%, -50%)",
+        fontSize: Math.round(size * p.s), lineHeight: 1,
+        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.18))",
+        userSelect: "none", pointerEvents: "none",
       }}
     >
-      {showImg ? (
+      {item.emoji}
+    </span>
+  );
+}
+
+/* 베이스 캐릭터 — 아바타 전용 아트 → 성장 캐릭터 → 이모지 폴백 */
+function BaseCharacter({ baseCharImg, size }) {
+  const [baseFailed, setBaseFailed] = useState(false);
+
+  if (!baseFailed) {
+    return (
+      <img
+        src={"/" + AVATAR_BASE_IMG.replace(/^\/+/, "")}
+        alt="아바타"
+        onError={() => setBaseFailed(true)}
+        draggable={false}
+        style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          objectFit: "contain", pointerEvents: "none",
+          filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.20))",
+        }}
+      />
+    );
+  }
+  if (baseCharImg) {
+    return (
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img
-          src={"/" + item.img.replace(/^\/+/, "")}
-          alt={item.label}
-          onError={() => setImgFailed(true)}
-          style={{
-            width: isBackground ? "100%" : "82%",
-            height: isBackground ? "100%" : "82%",
-            objectFit: isBackground ? "cover" : "contain",
-            borderRadius: isBackground ? "inherit" : 0,
-          }}
+          src={baseCharImg}
+          alt="캐릭터"
+          draggable={false}
+          style={{ height: "88%", width: "auto", maxWidth: "92%", objectFit: "contain",
+                   filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.22))", pointerEvents: "none" }}
         />
-      ) : (
-        <span
-          style={{
-            fontSize: emojiSize,
-            lineHeight: 1,
-            filter: isBackground ? "none" : "drop-shadow(0 2px 4px rgba(0,0,0,0.18))",
-            opacity: isBackground ? 0.9 : 1,
-            userSelect: "none",
-          }}
-        >
-          {item.emoji}
-        </span>
-      )}
-    </div>
+      </div>
+    );
+  }
+  return (
+    <span style={{
+      position: "absolute", left: "50%", top: "52%", transform: "translate(-50%,-50%)",
+      fontSize: Math.round(size * 0.5), lineHeight: 1, userSelect: "none",
+    }}>
+      {AVATAR_BASE_EMOJI}
+    </span>
   );
 }
 
 export default function AvatarViewer({ equipped = {}, size = 200, showFrame = true, baseCharImg = null }) {
   const layers = getAvatarLayers(equipped);
-  // baseCharImg(성장 3단계 캐릭터)가 있으면, 배경(zIndex 10) 위·나머지 파츠 아래에
-  // 몸체로 깐다. 이때 카탈로그의 'body' 슬롯 이모지 몸통은 숨겨 중복을 막는다.
-  const BASE_Z = 15; // background(10) < base < body(20)~
-  const visibleLayers = baseCharImg
-    ? layers.filter(l => l.slot !== "body")
-    : layers;
 
   return (
     <div
       style={{
-        position: "relative",
-        width: size,
-        height: size,
-        margin: "0 auto",
-        borderRadius: 28,
-        overflow: "hidden",
+        position: "relative", width: size, height: size, margin: "0 auto",
+        borderRadius: 28, overflow: "hidden",
         background: showFrame
           ? "linear-gradient(160deg, #F1F5FF 0%, #FDF2FF 100%)"
           : "transparent",
         boxShadow: showFrame ? "inset 0 0 0 2px rgba(139,92,246,0.14)" : "none",
       }}
     >
-      {visibleLayers.length === 0 && !baseCharImg ? (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#B8B8C8",
-            fontSize: 13,
-            fontWeight: 700,
-          }}
-        >
-          아바타를 꾸며보세요
+      {/* 기본 배경 — 항상 맨 뒤. 배경 아이템 이미지가 준비된 경우에만 위를 덮는다 */}
+      <img
+        src={"/" + DEFAULT_AVATAR_BG.replace(/^\/+/, "")}
+        alt=""
+        draggable={false}
+        style={{ position: "absolute", inset: 0, zIndex: 5, width: "100%", height: "100%",
+                 objectFit: "cover", objectPosition: "center 72%", pointerEvents: "none" }}
+      />
+      {/* 뒤쪽 레이어(배경·등 장비) → 베이스 캐릭터 → 앞쪽 레이어 순서로 z 배치 */}
+      {layers.map((layer) => (
+        <div key={layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex }}>
+          <AvatarLayer item={layer.item} emojiPos={layer.emojiPos} size={size} />
         </div>
-      ) : (
-        <>
-          {/* 기본 배경 — 성장캐릭터와 동일한 그림. 항상 맨 뒤(z:5)에 깔린다.
-              배경 아이템(z:10)을 장착하고 그 이미지가 준비된 경우에만 위를 덮는다. */}
-          <img
-            src={"/" + DEFAULT_AVATAR_BG.replace(/^\/+/, "")}
-            alt=""
-            draggable={false}
-            style={{ position: "absolute", inset: 0, zIndex: 5, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 72%" }}
-          />
-          {/* 성장 캐릭터를 몸체 베이스로 (있을 때만) */}
-          {baseCharImg && (
-            <div style={{ position: "absolute", inset: 0, zIndex: BASE_Z, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <img
-                src={baseCharImg}
-                alt="캐릭터"
-                draggable={false}
-                style={{ height: "88%", width: "auto", maxWidth: "92%", objectFit: "contain", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.22))" }}
-              />
-            </div>
-          )}
-          {visibleLayers.map((layer) => (
-            <div key={layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex }}>
-              <AvatarLayer item={layer.item} size={size} />
-            </div>
-          ))}
-        </>
-      )}
+      ))}
+      <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z }}>
+        <BaseCharacter baseCharImg={baseCharImg} size={size} />
+      </div>
     </div>
   );
 }

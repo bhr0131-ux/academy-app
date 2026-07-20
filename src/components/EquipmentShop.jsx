@@ -2,7 +2,7 @@ import { useState } from "react";
 import { C } from "../data/tokens.js";
 import AvatarViewer from "./AvatarViewer.jsx";
 import {
-  AVATAR_SLOTS, AVATAR_RARITY, getItemsBySlot, getSlot,
+  AVATAR_SLOTS, AVATAR_RARITY, AVATAR_THEMES, getItemsBySlot, getSlot,
 } from "../data/avatarEquipment.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -104,11 +104,20 @@ export default function EquipmentShop({
           padding: "14px 16px", overflowY: "auto", flex: 1,
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10,
         }}>
+          {items.length === 0 && (
+            <div style={{
+              gridColumn: "1 / -1", textAlign: "center", padding: "34px 10px",
+              color: "#A0A0B0", fontSize: 13, fontWeight: 700,
+            }}>
+              🎨 새로운 아이템을 준비하고 있어요!
+            </div>
+          )}
           {items.map((item) => {
             const isOwned = owned.includes(item.id);
             const isEquipped = equipped[item.slot] === item.id;
             const canAfford = coins >= item.price;
             const rar = AVATAR_RARITY[item.rarity] || AVATAR_RARITY.common;
+            const thm = AVATAR_THEMES[item.theme] || null;
 
             return (
               <div
@@ -128,6 +137,17 @@ export default function EquipmentShop({
                 }}>
                   {rar.label}
                 </span>
+
+                {/* 테마 배지 (공용은 생략) */}
+                {thm && item.theme !== "common" && (
+                  <span style={{
+                    position: "absolute", top: 6, right: 6, fontSize: 9, fontWeight: 800,
+                    color: thm.color, background: thm.color + "1A",
+                    padding: "2px 6px", borderRadius: 999,
+                  }}>
+                    {thm.emoji} {thm.label}
+                  </span>
+                )}
 
                 {/* 파츠 아이콘 (이모지 대표) */}
                 <div style={{ fontSize: 34, lineHeight: 1, marginTop: 12 }}>{item.emoji}</div>
