@@ -14,7 +14,7 @@ export const ADV_CHAR_STAGE_OF=(level)=>{
   CHARACTER_EVOLUTIONS.forEach((e,i)=>{ if(level>=e.minLevel) idx=i; });
   return idx+1; // 1~5
 };
-export const ADV_CHAR_SIZE={1:245,2:254,3:262,4:268,5:275}; // 무대 대비 과대 피드백 반영 (기존 300~335에서 약 -18%)
+export const ADV_CHAR_SIZE={1:220,2:229,3:236,4:241,5:247}; // 2차 축소 피드백 반영 (245~275에서 약 -10% 추가)
 // 베이커리는 셰프 모자 탓에 몸 비중이 작아 단계별로 약간 상향 보정 (특히 3단계: 캔버스 폭 43%로 가장 슬림)
 export const BAKERY_CHAR_SIZE={1:232,2:248,3:264,4:270,5:282}; // 시안B 동일 기준
 
