@@ -3515,10 +3515,10 @@ export default function App() {
               </div>
               )}
               {/* 캐릭터 무대 — 모험·베이커리 공통: 중앙 캐릭터+펫 / 레벨·상장은 하단 알약칩 줄로 통일 */}
-              <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?16:12,minHeight:cute?104:310}}>
+              <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?16:12,minHeight:cute?104:245}}>
                 {/* ── 중앙(모험)·좌측(베이커리): 캐릭터 + 펫 ── */}
                 {/* gap을 벌려 캐릭터는 살짝 왼쪽·펫은 오른쪽으로 → 화면 구도가 살아남 */}
-                <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:38,transform:cute?undefined:"translateY(18px)"}}>
+                <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:14,transform:cute?undefined:"translateY(18px)"}}>
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"}}>
                     <div style={{position:"relative",zIndex:1}}>
