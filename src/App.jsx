@@ -3517,8 +3517,8 @@ export default function App() {
               {/* 캐릭터 무대 — 모험·베이커리 공통: 중앙 캐릭터+펫 / 레벨·상장은 하단 알약칩 줄로 통일 */}
               <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?16:12,minHeight:cute?104:245}}>
                 {/* ── 중앙(모험)·좌측(베이커리): 캐릭터 + 펫 ── */}
-                {/* gap을 벌려 캐릭터는 살짝 왼쪽·펫은 오른쪽으로 → 화면 구도가 살아남 */}
-                <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:14,transform:cute?undefined:"translateY(18px)"}}>
+                {/* [모험] 펫은 절대배치(우측 하단) → 캐릭터 본체가 화면 정중앙에 정확히 옴 / [베이커리] 기존 flex 나란히 유지 */}
+                <div style={{flex:1,minWidth:0,position:"relative",display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:14,transform:cute?undefined:"translateY(18px)"}}>
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"}}>
                     <div style={{position:"relative",zIndex:1}}>
@@ -3563,7 +3563,8 @@ export default function App() {
                     <div style={{position:"relative",zIndex:1,width:118,height:19,borderRadius:"50%",background:cute?"rgba(120,80,100,0.20)":"rgba(0,0,0,0.26)",filter:"blur(5px)",marginTop:-13,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                   </div>
                   {/* 펫 — 보조 역할이므로 캐릭터보다 작게(기존 40 → 34). 알 단계(0)엔 '곧 부화!'로 기대감 UP */}
-                  <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center",marginBottom:8}}>
+                  {/* [모험] 절대배치(우측 10%·바닥 8px)로 캐릭터 중앙 정렬을 방해하지 않음. 최대 스테이지(247px) 캐릭터와도 안 겹치는 간격. */}
+                  <div style={{position:cute?"relative":"absolute",right:cute?undefined:"10%",bottom:cute?undefined:8,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
                     <div style={{fontSize:34,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 6px 8px rgba(0,0,0,0.22))"}}>{pet.emoji}</div>
                     <div style={{width:28,height:7,borderRadius:"50%",background:cute?"rgba(120,80,100,0.14)":"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                     <span style={{position:"absolute",bottom:-17,fontSize:pet.stage===0?12.5:11.5,fontWeight:900,color:cute?mixBlack(th.main,0.3):"#FFE9A8",whiteSpace:"nowrap",textShadow:cute?"none":"0 1px 3px rgba(0,0,0,0.55)"}}>{pet.stage===0?"곧 부화! 🐣":"🐾 펫"}</span>
@@ -3594,11 +3595,12 @@ export default function App() {
                   </div>
                   );
                 };
+                // [모험] 버튼 줄을 좌측 정렬로 — 우측 펫 라벨('곧 부화!')과의 겹침 방지
                 return (
-                  <div style={{position:"relative",zIndex:2,marginTop:cute?10:14,display:"flex",alignItems:"center",justifyContent:cute?"center":"flex-end",gap:8,flexWrap:"wrap"}}>
+                  <div style={{position:"relative",zIndex:2,marginTop:cute?10:14,display:"flex",alignItems:"center",justifyContent:cute?"center":"flex-start",gap:8,flexWrap:"wrap"}}>
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
-                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 우측 하단 구석에 단독 배치 */}
+                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
                     <button onClick={toggleCharDisplayMode}
                       style={{display:"flex",alignItems:"center",gap:4,cursor:"pointer",
                         background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:"rgba(15,25,48,0.62)",
