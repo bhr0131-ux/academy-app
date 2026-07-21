@@ -33,7 +33,7 @@ export const ADV_STAGE_BG_ALL = [ADV_STAGE_BG_MEADOW];
 /* 성장 캐릭터 이미지 — /public/assets/ 경로 방식 (base64 내장 폐지)
    파일 규칙: /assets/growth-characters/{테마}/{성별}/stage-{단계}.webp
    이미지 교체 시 같은 파일명으로 덮어쓰기만 하면 됨(코드 수정 불필요). */
-export const CHAR_IMG = (theme,gender,stage)=>`/assets/growth-characters/${theme}/${gender}/stage-${stage}.webp`;
+export const CHAR_IMG = (theme,gender,stage)=>`/assets/growth-characters/${theme}/${gender}/stage-${stage}.webp?v=2`; // v=2: 2026-07-21 갇힌 배경 제거판 캐시 무효화
 export const _charSet = (theme)=>({
   boy:  {1:CHAR_IMG(theme,"boy",1), 2:CHAR_IMG(theme,"boy",2), 3:CHAR_IMG(theme,"boy",3), 4:CHAR_IMG(theme,"boy",4), 5:CHAR_IMG(theme,"boy",5)},
   girl: {1:CHAR_IMG(theme,"girl",1),2:CHAR_IMG(theme,"girl",2),3:CHAR_IMG(theme,"girl",3),4:CHAR_IMG(theme,"girl",4),5:CHAR_IMG(theme,"girl",5)},
