@@ -15,3 +15,5 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | boots-cream-wearing.png | 크림 부츠 착용 원화 | avatar/shoes/cream-boots.webp |
 | boots-desert-wearing-retired.png | 모래 부츠 원화 (판매 중단, 보관용) | (은퇴) |
 | hat-explorer-wearing.png | 탐험 헬멧 착용 원화 | avatar/hat/explorer-helmet.webp |
+| boots-explorer-sockless-v2.png | 탐험 부츠 착용 원화 (맨발목 v2, 최종 승인본) | avatar/shoes/explorer-boots.webp |
+| boots-pink-ribbon-wearing.png | 리본 부츠 착용 원화 | avatar/shoes/pink-ribbon-boots.webp |
