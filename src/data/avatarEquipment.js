@@ -97,7 +97,7 @@ export const AVATAR_CATALOG = [
   { id: "background_galaxy", slot: "background", label: "은하수",   emoji: "🌌", price: 300, rarity: "epic",   theme: "common", img: "assets/avatar/background/galaxy.webp" },
 
   /* 초기 장비 6종 — 탐험 테마 */
-  { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/explorer-helmet.webp" },
+  { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure" }, // 아트 재제작 중 — 원화: art-src/hat-explorer-wearing.png
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp" },
   { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp" },
   { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp" },
