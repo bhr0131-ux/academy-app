@@ -419,7 +419,7 @@ export default function App() {
       // ── 은퇴(판매 중단) 아이템 정리: 보유 제거 + 구매가 환불 (멱등: 정리 저장 후엔 재실행 안 됨) ──
       //  카탈로그에서 뺀 아이템을 이미 구매한 아이가 코인을 잃지 않도록 보호한다.
       //  환불은 아래 기존 avRefunds 반영부(꾸미기 상점 개편 환불)를 그대로 재사용한다.
-      const RETIRED_AVATAR_ITEMS={ shoes_boots_desert:140 }; // { 은퇴 아이템 id: 환불 코인 }
+      const RETIRED_AVATAR_ITEMS={ shoes_boots_desert:140, shoes_boots_ribbon:150 }; // { 은퇴 아이템 id: 환불 코인 }
       if(avOwnedMerged && typeof avOwnedMerged==="object"){
         let retiredTouched=false;
         const cleanedOwned={};
