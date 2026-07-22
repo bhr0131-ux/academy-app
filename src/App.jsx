@@ -3705,16 +3705,25 @@ export default function App() {
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
                     {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
-                    {/* 모험: 나무 팻말 느낌 캡슐 버튼 (크림 배경·갈색 테두리·눌림 애니메이션) */}
-                    <button onClick={toggleCharDisplayMode} className={cute?undefined:"jelly-tap"}
+                    {/* 모험: 사용자 원화 나무 팻말 이미지 버튼 (art-src/btn-*-sign.png → assets/btn-*.webp) */}
+                    {cute?(
+                    <button onClick={toggleCharDisplayMode}
                       style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
-                        background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:"#F2EED9",
-                        border:cute?`1.5px solid ${th.main}77`:"1.5px solid #B39A6A",borderRadius:999,padding:cute?"4px 11px":"11px 17px",
-                        color:(!cute)?"#4E3B2A":mixBlack(th.main,0.25),fontSize:cute?10:14,fontWeight:900,whiteSpace:"nowrap",
-                        boxShadow:cute?`0 3px 9px ${th.main}33`:"0 3px 6px rgba(93,70,51,0.28)"}}>
+                        background:`linear-gradient(135deg, ${th.main}22, ${th.main}10)`,
+                        border:`1.5px solid ${th.main}77`,borderRadius:999,padding:"4px 11px",
+                        color:mixBlack(th.main,0.25),fontSize:10,fontWeight:900,whiteSpace:"nowrap",
+                        boxShadow:`0 3px 9px ${th.main}33`}}>
                       {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
-                      {!cute&&<span style={{opacity:0.5,fontWeight:900,fontSize:15,lineHeight:1,marginLeft:1}}>›</span>}
                     </button>
+                    ):(
+                    <button onClick={toggleCharDisplayMode} className="jelly-tap"
+                      style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
+                      <img
+                        src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
+                        alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장캐릭터 보기":"내 아바타 보기"}
+                        style={{height:48,width:"auto",display:"block",filter:"drop-shadow(0 3px 6px rgba(93,70,51,0.35))"}}/>
+                    </button>
+                    )}
                   </div>
                 );
               })()}
