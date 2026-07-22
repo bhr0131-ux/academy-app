@@ -393,8 +393,8 @@ export default function App() {
             earnedTitlesData=await load("v6_earned_titles"),
             specialTitleData=await load("v6_special_titles"),
             bestStreak=await load("v6_best_streak");
-      const ownedDec=await load("v6_owned_decor");
-      const equipDec=await load("v6_equipped_decor");
+      let ownedDec=await load("v6_owned_decor");
+      let equipDec=await load("v6_equipped_decor");
       const decPrices=await load("v6_decor_prices");
       // ── 꾸미기 아바타 데이터 로드 (v2 키. 없으면 빈 값→기본값 폴백) ──
       const avOwned=await load(AVATAR_OWNED_KEY);
@@ -444,6 +444,51 @@ export default function App() {
       const avMode=await load(CHAR_DISPLAY_MODE_KEY);
       const savedSkinMap=await load("v6_kid_skin_map"); // 아이별 스킨 맵 (신규)
       const savedSkin=await load("v6_kid_skin");         // 단일 스킨 (구버전, 마이그레이션용)
+      // ── 구 '꾸미기 상점'의 장비/모자(hat) 카테고리 제거: 보유 기록 삭제 + 코인 환불 ──
+      //  신규 '아바타 꾸미기'와 중복되어 이 상점에서 뺐으므로, 이미 구매한 아이의 코인을 돌려준다.
+      //  가격은 아이 스킨(모험/베이커리)·부모 오버라이드(decPrices)를 반영해 산정.
+      //  멱등: 보유목록에서 hat 아이템을 지우고 즉시 저장하므로 다음 실행에선 환불 대상이 없다.
+      //  (avRefunds 반영부에서 코인+내역 처리 — RETIRED_AVATAR_ITEMS 방식과 동일)
+      {
+        const hatItems=(DECOR_GROUPS.find(g=>g.key==="hat")?.items)||[];
+        const hatIdSet=new Set(hatItems.map(h=>h.id));
+        const hatPriceFor=(id,skin)=>{
+          const ov=decPrices?.[id];
+          if(ov===0||ov>0) return Number(ov);                 // 부모 오버라이드 우선
+          const base=hatItems.find(h=>h.id===id);
+          if(!base) return 0;
+          return skin==="cute" ? (BAKERY_HAT_PRICE[id]??base.price) : base.price;
+        };
+        if(ownedDec && typeof ownedDec==="object"){
+          let hatTouched=false;
+          const cleanedOwnedDec={};
+          for(const dcid of Object.keys(ownedDec)){
+            const list=Array.isArray(ownedDec[dcid])?ownedDec[dcid]:[];
+            const skin=(savedSkinMap&&savedSkinMap[dcid])||savedSkin||DEFAULT_SKIN;
+            const kept=[]; let refund=0;
+            for(const id of list){
+              if(hatIdSet.has(id)){ refund+=hatPriceFor(id,skin); hatTouched=true; }
+              else kept.push(id);
+            }
+            cleanedOwnedDec[dcid]=kept;
+            if(refund>0){ avRefunds=avRefunds||{}; avRefunds[dcid]=(avRefunds[dcid]||0)+refund; }
+          }
+          if(hatTouched){
+            ownedDec=cleanedOwnedDec;
+            save("v6_owned_decor",cleanedOwnedDec);           // 즉시 저장 → 중복 환불 방지
+            if(equipDec && typeof equipDec==="object"){        // 장착된 hat 슬롯도 정리
+              const cleanedEqDec={};
+              for(const ecid of Object.keys(equipDec)){
+                const m=(equipDec[ecid]&&typeof equipDec[ecid]==="object")?{...equipDec[ecid]}:{};
+                if("hat" in m) delete m.hat;
+                cleanedEqDec[ecid]=m;
+              }
+              equipDec=cleanedEqDec;
+              save("v6_equipped_decor",cleanedEqDec);
+            }
+          }
+        }
+      }
       const sampleSeeded=await load("v6_sample_seeded");
       // ── 설치 정보 기록: 한 번도 기록된 적 없으면 최초 1회 저장 (향후 유료 전환 분기용) ──
       // installDate = 첫 실행일, isFoundingUser = 초기(무료 시작) 사용자 표식
@@ -3146,7 +3191,7 @@ export default function App() {
               </div>
               {/* 본문: 카테고리별 */}
               <div style={{padding:"6px 16px 26px"}}>
-                {DECOR_GROUPS.map(grp=>{   // 모자/장비 카테고리 복구: 상점에서 구매·장착 가능(캐릭터 위 표시는 안 함)
+                {DECOR_GROUPS.filter(grp=>grp.key!=="hat").map(grp=>{   // 모자/장비(hat) 카테고리는 신규 '아바타 꾸미기'와 중복되어 이 상점에서 제외(데이터·저장 로직은 유지)
                   const grpLocked = grp.lockUntilMaxPet && !isMaxPet(childId);   // 펫 스킨만 잠금 대상(캐릭터 스킨은 폐지)
                   return (
                   <div key={grp.key} style={{marginTop:18}}>
