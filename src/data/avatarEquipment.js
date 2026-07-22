@@ -91,10 +91,9 @@ export const AVATAR_RARITY = {
    각 아이템: id / slot / label / emoji(폴백) / price / rarity / theme /
              img(1024 정렬 webp) / starter(기본 지급)                     */
 export const AVATAR_CATALOG = [
-  /* 배경 (3) — v1 승계 */
-  { id: "background_sky",    slot: "background", label: "하늘",     emoji: "🌤️", price: 0,   rarity: "common", theme: "common", img: "assets/avatar/background/sky.webp", starter: true },
-  { id: "background_forest", slot: "background", label: "숲속",     emoji: "🌲", price: 120, rarity: "rare",   theme: "common", img: "assets/avatar/background/item-forest.webp" },
-  { id: "background_galaxy", slot: "background", label: "은하수",   emoji: "🌌", price: 300, rarity: "epic",   theme: "common", img: "assets/avatar/background/galaxy.webp" },
+  /* 배경 — 제거됨 (구 '꾸미기 상점'의 배경과 중복되어 아바타 꾸미기에서는 다루지 않음).
+     기존 구매자는 로드 시 코인 환불(App의 RETIRED_AVATAR_ITEMS 처리). 기본 배경은
+     DEFAULT_AVATAR_BG(뷰어 항상 표시)로 유지되므로 스타터 배경 없이도 문제 없음. */
 
   /* 초기 장비 6종 — 탐험 테마 */
   { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure" }, // 아트 재제작 중 — 원화: art-src/hat-explorer-wearing.png

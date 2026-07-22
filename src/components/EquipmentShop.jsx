@@ -5,6 +5,9 @@ import {
   AVATAR_SLOTS, AVATAR_RARITY, AVATAR_THEMES, getItemsBySlot, getSlot,
 } from "../data/avatarEquipment.js";
 
+/* 배경 카테고리는 구 '꾸미기 상점'과 중복되어 아바타 꾸미기에서는 제외한다. */
+const SHOP_SLOTS = AVATAR_SLOTS.filter((s) => s.key !== "background");
+
 /* ════════════════════════════════════════════════════════════════════════
    EquipmentShop — 꾸미기 아바타 상점 모달
    ────────────────────────────────────────────────────────────────────────
@@ -27,7 +30,7 @@ import {
 export default function EquipmentShop({
   open, onClose, coins = 0, owned = [], equipped = {}, onBuy, onToggle, baseCharImg = null, gender = "boy",
 }) {
-  const [activeSlot, setActiveSlot] = useState(AVATAR_SLOTS[0].key);
+  const [activeSlot, setActiveSlot] = useState(SHOP_SLOTS[0].key);
   if (!open) return null;
 
   const items = getItemsBySlot(activeSlot);
@@ -79,7 +82,7 @@ export default function EquipmentShop({
           display: "flex", gap: 6, overflowX: "auto", padding: "6px 16px 12px",
           borderBottom: `1px solid ${C.line || "#EEE"}`,
         }}>
-          {AVATAR_SLOTS.map((s) => {
+          {SHOP_SLOTS.map((s) => {
             const active = s.key === activeSlot;
             return (
               <button
