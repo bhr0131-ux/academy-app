@@ -3039,7 +3039,10 @@ export default function App() {
       </div>
     );
     return (
-      <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||(kidSkin==="cute"?`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`:`radial-gradient(120% 55% at 50% 0%, ${th.main}3a 0%, transparent 52%), radial-gradient(100% 45% at 100% 26%, ${th.main}22 0%, transparent 55%), radial-gradient(100% 45% at 0% 74%, ${th.main}1e 0%, transparent 55%), linear-gradient(180deg, ${dungeonTone(th.main,4)} 0%, ${dungeonTone(th.main,0)} 50%, ${dungeonTone(th.main,10)} 100%)`)),backgroundSize:GP.appPattern?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden",wordBreak:"keep-all"}}>
+      <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:kidSkin!=="cute"
+          // 모험(개방감): 루트 바탕도 시트와 같은 아이보리 — 시트·콘텐츠·바닥이 한 장의 종이처럼 이어짐 (카드만 색 유지)
+          ?"linear-gradient(180deg, #F0F3F3 0%, #EAEFE9 100%)"
+          :(GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`)),backgroundSize:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden",wordBreak:"keep-all"}}>
         {/* 말랑한 배경 블롭 */}
         <div style={{position:"absolute",top:-40,right:-50,width:170,height:170,borderRadius:"50%",background:`radial-gradient(circle at 35% 35%, ${th.main}26, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 11s ease-in-out infinite",pointerEvents:"none",zIndex:0}}/>
         <div style={{position:"absolute",top:240,left:-60,width:150,height:150,borderRadius:"50%",background:`radial-gradient(circle at 50% 50%, ${GP.gold}24, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 14s ease-in-out infinite 1.5s",pointerEvents:"none",zIndex:0}}/>
@@ -3783,7 +3786,7 @@ export default function App() {
           );
         })()}
 
-        <div key={childTab} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:(GP.appBg||C.bg)}}>
+        <div key={childTab} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:"#F0F3F3"}}>
           {/* ── 모험장소 탭 (학원카드) ── */}
           {childTab==="area"&&(
             <>
@@ -3842,7 +3845,7 @@ export default function App() {
               {/* 오늘 학원 일정 섹션 */}
               <div style={{marginTop:2,marginBottom:14}}>
                 {childTodayAc.length===0?(
-                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"#DDE8DE",background:kidSkin==="cute"?"#fff":"rgba(255,255,255,0.08)",borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed rgba(143,176,129,0.5)"}}>
+                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"#7E8C7B",background:kidSkin==="cute"?"#fff":"rgba(71,116,71,0.07)",borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed rgba(143,176,129,0.65)"}}>
                     <p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>
                     <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
                   </div>
@@ -4003,10 +4006,10 @@ export default function App() {
               {(()=>{
                 const allTodayTodos=getChildQuestBoardItems(childId,childDate);
                 if(allTodayTodos.length===0) return (
-                  <div style={{padding:"30px 16px",textAlign:"center",marginTop:2,marginBottom:14,borderRadius:22,background:kidSkin==="cute"?"#fff":"rgba(255,255,255,0.08)",border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed rgba(143,176,129,0.5)"}}>
+                  <div style={{padding:"30px 16px",textAlign:"center",marginTop:2,marginBottom:14,borderRadius:22,background:kidSkin==="cute"?"#fff":"rgba(71,116,71,0.07)",border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed rgba(143,176,129,0.65)"}}>
                     <p style={{fontSize:42,margin:"0 0 8px",animation:"wiggle 2.4s ease-in-out infinite"}}>🗒️</p>
-                    <p style={{fontSize:17,fontWeight:900,color:kidSkin==="cute"?C.text:"#F0F3F3",margin:"0 0 4px"}}>{T.restDay}</p>
-                    <p style={{fontSize:13,fontWeight:700,color:kidSkin==="cute"?C.sub:"#DDE8DE",margin:0}}>푹 쉬어도 좋아요 😌</p>
+                    <p style={{fontSize:17,fontWeight:900,color:kidSkin==="cute"?C.text:"#4B3A2F",margin:"0 0 4px"}}>{T.restDay}</p>
+                    <p style={{fontSize:13,fontWeight:700,color:kidSkin==="cute"?C.sub:"#7E8C7B",margin:0}}>푹 쉬어도 좋아요 😌</p>
                   </div>
                 );
                 // 미션 강조박스 색 — 모험:어두운 톤 / 베이커리:맑은 박스
@@ -4114,9 +4117,9 @@ export default function App() {
 
               {/* 섹션 구분 — 즐기기 */}
               <div style={{display:"flex",alignItems:"center",gap:12,margin:"30px 2px 16px"}}>
-                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}00, ${th.main}55)`:`linear-gradient(90deg, rgba(255,255,255,0) 10%, ${GP.gold}55)`}}/>
-                <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:kidSkin==="cute"?th.main:"#FFE6A6"}}>🎮 즐기기</span>
-                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:`linear-gradient(90deg, ${GP.gold}55, rgba(255,255,255,0) 90%)`}}/>
+                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}00, ${th.main}55)`:"linear-gradient(90deg, rgba(138,119,95,0) 10%, rgba(138,119,95,0.4))"}}/>
+                <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:kidSkin==="cute"?th.main:"#8A775F"}}>🎮 즐기기</span>
+                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:"linear-gradient(90deg, rgba(138,119,95,0.4), rgba(138,119,95,0) 90%)"}}/>
               </div>
 
               <div style={characterCardT}>
@@ -4334,9 +4337,9 @@ export default function App() {
 
               {/* 섹션 구분 — 내 기록 */}
               <div style={{display:"flex",alignItems:"center",gap:12,margin:"30px 2px 16px"}}>
-                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}00, ${th.main}55)`:`linear-gradient(90deg, rgba(255,255,255,0) 10%, ${GP.gold}55)`}}/>
-                <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:kidSkin==="cute"?th.main:"#FFE6A6"}}>📜 내 기록</span>
-                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:`linear-gradient(90deg, ${GP.gold}55, rgba(255,255,255,0) 90%)`}}/>
+                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}00, ${th.main}55)`:"linear-gradient(90deg, rgba(138,119,95,0) 10%, rgba(138,119,95,0.4))"}}/>
+                <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:kidSkin==="cute"?th.main:"#8A775F"}}>📜 내 기록</span>
+                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:"linear-gradient(90deg, rgba(138,119,95,0.4), rgba(138,119,95,0) 90%)"}}/>
               </div>
 
               {/* 상장 카드 */}
