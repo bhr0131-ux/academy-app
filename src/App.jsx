@@ -3040,7 +3040,10 @@ export default function App() {
       </div>
     );
     return (
-      <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:kidSkin!=="cute"
+      <div style={{fontFamily:kidSkin!=="cute"
+          // 모험: 본문 전체를 Pretendard로 통일 — 손글씨는 헤드라인(의연체)·타일 제목(콘콘체)만
+          ?"'PretendardSemiBold','Noto Sans KR','Apple SD Gothic Neo',sans-serif"
+          :"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:kidSkin!=="cute"
           // 모험(개방감): 루트 바탕도 시트와 같은 아이보리 — 시트·콘텐츠·바닥이 한 장의 종이처럼 이어짐 (카드만 색 유지)
           ?"linear-gradient(180deg, #F0F3F3 0%, #EAEFE9 100%)"
           :(GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`)),backgroundSize:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden",wordBreak:"keep-all"}}>

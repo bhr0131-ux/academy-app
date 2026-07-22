@@ -263,8 +263,9 @@ export const dungeonPalette = (main="#60A8FF") => {
   const bg0 = "#33503F";
   const bg1 = mixHex("#3C5E4A", d.deep, 0.16);
   const bg2 = mixHex("#4E7A57", d.deep, 0.18);
-  const card1 = mixHex("#5F7F68", d.deep, 0.10);
-  const card2 = mixHex("#477447", d.deep, 0.10);
+  // 카드 톤: 아래쪽이 무겁지 않게 기존보다 ~8% 밝게 (아이 앱 경쾌함)
+  const card1 = mixHex("#6B8A74", d.deep, 0.10);
+  const card2 = mixHex("#548150", d.deep, 0.10);
   // 종이 질감(3~5%): 미세한 점 + 따뜻한 빛 번짐 — '게임 UI'가 아니라 동화책 일지 느낌
   const paper = `radial-gradient(1.3px 1.3px at 18% 26%, rgba(255,255,255,0.055), transparent), radial-gradient(1.1px 1.1px at 64% 14%, rgba(255,255,255,0.045), transparent), radial-gradient(1.4px 1.4px at 84% 58%, rgba(255,255,255,0.05), transparent), radial-gradient(1.1px 1.1px at 36% 76%, rgba(255,255,255,0.04), transparent), radial-gradient(60% 40% at 82% 0%, rgba(246,209,143,0.06), transparent)`;
   return {
