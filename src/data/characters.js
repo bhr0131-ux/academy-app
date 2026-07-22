@@ -365,13 +365,14 @@ export const DECOR_BORDERS = [
 ];
 // 배경: 프로필 카드 배경 장식 (장식 이모지 + 은은한 그라데이션 오버레이)
 // 기본(base) = 모험 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
+// darkStage: 장착 시 무대가 밤하늘 톤(어두움)으로 바뀌는 배경 — 무대 위 글씨(응원문구 등)를 밝은색으로 반전하는 기준.
 export const DECOR_BGS = [
-  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
-  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:220,  rarity:"rare",      deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
-  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
-  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
-  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
-  { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:560, rarity:"legendary", deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
+  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    darkStage:true, deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
+  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:220,  rarity:"rare",      darkStage:true, deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
+  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      darkStage:true, deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
+  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      darkStage:true, deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
+  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      darkStage:true, deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
+  { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:560, rarity:"legendary", darkStage:true, deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
 ];
 // 베이커리 전용 배경 6슬롯 (모험 4슬롯과 분리). deco[0]=메인(가장 자주 등장). 종류 4개↑면 무대카드 전체에 고르게 분산됨.
 export const BAKERY_BGS = [

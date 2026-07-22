@@ -3393,8 +3393,10 @@ export default function App() {
               const _em=_rest.match(/([\p{Extended_Pictographic}\u{FE0F}\u{200D}]+)\s*$/u);
               const _restText=_em?_rest.slice(0,_em.index).trimEnd():_rest;
               const _emoji=_em?_em[1]:"";
+              // 꾸미기 배경(darkStage: 밤 톤) 장착 시 무대가 어두워짐 → 응원문구를 밝은 크림색+어두운 그림자로 반전해 가독성 유지
+              const _onDark=!!getEquipped(childId,"bg")?.darkStage;
               return (
-                <h1 style={{fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:28,fontWeight:700,margin:"30px 0 0 30px",lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:"#5D4633",textShadow:"0 1px 0 rgba(255,255,255,0.6), 0 3px 12px rgba(255,255,255,0.4)"}}>
+                <h1 style={{fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:28,fontWeight:700,margin:"30px 0 0 30px",lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:_onDark?"#FFF3D9":"#5D4633",textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 0 rgba(255,255,255,0.6), 0 3px 12px rgba(255,255,255,0.4)"}}>
                   {_head}{_restText&&<><br/>{_restText}</>}
                   {_emoji&&<span style={{fontSize:"0.64em",verticalAlign:"baseline"}}> {_emoji}</span>}
                 </h1>
