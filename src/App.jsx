@@ -3841,13 +3841,13 @@ export default function App() {
                     // ── 모험 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ──
                     const dk = kidSkin!=="cute";
                     // 카드 본체: 테마색을 머금은 다크. 헤더는 학원색을 살린 진한 톤.
-                    const acCardBg = dk ? "linear-gradient(180deg, #2F3650 0%, #262D42 100%)" : "#fff";
+                    const acCardBg = dk ? "linear-gradient(180deg, #3A4156 0%, #333A4C 100%)" : "#fff"; // 10% 밝게 + 남색기 완화
                     const acTx = dk ? "#FFFFFF" : C.text;
                     const acSub = dk ? "rgba(255,255,255,0.66)" : C.sub;
                     const acInner = dk ? "rgba(255,255,255,0.07)" : CT.faint;        // 내부 강조 박스
                     const acInnerBorder = dk ? "rgba(255,255,255,0.12)" : C.border;
                     return (
-                      <div key={ac.id} style={{borderRadius:dk?26:(ST.on?(GP.radMid||22):22),overflow:"hidden",marginBottom:14,background:acCardBg,border:dk?"1px solid rgba(255,255,255,0.10)":`2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`,boxShadow:dk?"0 14px 32px rgba(0,0,0,0.25)":(ST.on?`0 6px 18px ${GP.boxShadowCol}`:`0 8px 26px ${ac.color}26, 0 2px 6px rgba(0,0,0,0.06)`)}}>
+                      <div key={ac.id} style={{borderRadius:dk?26:(ST.on?(GP.radMid||22):22),overflow:"hidden",marginBottom:14,background:acCardBg,border:dk?"1px solid rgba(255,255,255,0.10)":`2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`,boxShadow:dk?"0 10px 26px rgba(0,0,0,0.18)":(ST.on?`0 6px 18px ${GP.boxShadowCol}`:`0 8px 26px ${ac.color}26, 0 2px 6px rgba(0,0,0,0.06)`)}}>
                         {/* 헤더 - 모험:진한 그라데이션 / 베이커리:부드러운 학원색 파스텔 */}
                         <div style={{position:"relative",overflow:"hidden",background:ST.on?`linear-gradient(135deg, ${softTint(ac.color,0.50)}, ${softTint(ac.color,0.62)})`:`linear-gradient(135deg, ${mixBlack(ac.color,0.42)}, ${mixBlack(ac.color,0.18)})`,padding:"11px 15px",display:"flex",alignItems:"center",gap:12}}>
                           {/* 헤더 장식 빛무리/버블 (베이커리 모드에서만) */}
@@ -3860,7 +3860,7 @@ export default function App() {
                           </div>
                           <div style={{flex:1,minWidth:0,position:"relative"}}>
                             {/* 모험 구조로 통일: 학원명(위) → 라벨(아래) + 남은시간 배지(우측 하단) */}
-                            <p style={{fontSize:dk?17:16,fontWeight:900,margin:0,color:dk?"#fff":GP.boxText,textShadow:dk?"0 1px 3px rgba(0,0,0,0.25)":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.1}}>{ac.name}</p>
+                            <p style={{fontSize:dk?17:16,fontWeight:dk?400:900,margin:0,color:dk?"#fff":GP.boxText,textShadow:dk?"0 1px 3px rgba(0,0,0,0.25)":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.1}}>{ac.name}</p>
                             <p style={{fontSize:11.5,fontWeight:900,color:dk?"rgba(255,255,255,0.78)":GP.boxSub,margin:"3px 0 0",letterSpacing:1,paddingRight:96,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dungeon.label}</p>
                             {isChildToday&&(()=>{
                               const rl=getRemainLabel(sc?.time,sc?.duration||40);
@@ -3868,12 +3868,12 @@ export default function App() {
                               const tx = dk
                                 ? (rl.tone==="urgent"?"#FFC089":rl.tone==="now"?"#A6F0CF":rl.tone==="soon"?"#FFFFFF":"rgba(255,255,255,0.6)")
                                 : (rl.tone==="urgent"?C.orange:rl.tone==="now"?C.green:rl.tone==="soon"?GP.boxText:GP.boxSub);
-                              return <span style={{position:"absolute",right:0,bottom:0,fontSize:10.5,fontWeight:900,color:tx,background:dk?mixBlack(ac.color,0.62):"rgba(255,255,255,0.9)",border:dk?`1px solid ${mixBlack(ac.color,0.35)}`:`1px solid ${ac.color}33`,borderRadius:999,padding:dk?"3px 9px":"5px 10px",whiteSpace:"nowrap",lineHeight:1.2,boxShadow:dk?"0 2px 6px rgba(0,0,0,0.3)":`0 2px 6px ${ac.color}22`}}>{rl.icon} {rl.text}</span>;
+                              return <span style={{position:"absolute",right:0,bottom:0,fontSize:10.5,fontWeight:900,color:tx,background:dk?mixBlack(ac.color,0.62):"rgba(255,255,255,0.9)",border:dk?`1px solid ${mixBlack(ac.color,0.35)}`:`1px solid ${ac.color}33`,borderRadius:999,padding:dk?"3px 9px":"5px 10px",whiteSpace:"nowrap",lineHeight:1.2,boxShadow:dk?"0 2px 5px rgba(0,0,0,0.20)":`0 2px 6px ${ac.color}22`}}>{rl.icon} {rl.text}</span>;
                             })()}
                           </div>
                         </div>
                         {/* 상세 정보 */}
-                        <div style={{padding:"15px 16px 16px",background:dk?"linear-gradient(180deg, rgba(27,33,52,0.96), rgba(35,42,62,0.96))":"transparent"}}>
+                        <div style={{padding:"15px 16px 16px",background:dk?"linear-gradient(180deg, rgba(40,46,60,0.96), rgba(48,55,70,0.96))":"transparent"}}>
                         {/* 시간 (모험 구조로 통일: 시작 시각만 / 남은시간은 헤더 배지로) */}
                         <p style={{fontSize:16,fontWeight:900,color:acTx,margin:"0 0 12px"}}>🕓 {toKoreanTime(sc?.time)} 시작</p>
                         {shuttleText&&<p style={{fontSize:13,color:acSub,margin:"0 0 8px"}}>🚌 셔틀 · {shuttleText}</p>}
@@ -3881,13 +3881,14 @@ export default function App() {
                         <div style={{marginTop:8,display:"flex",alignItems:"baseline",flexWrap:"wrap",gap:"6px 8px"}}>
                           <p style={{fontSize:15,fontWeight:800,color:dk?"rgba(255,255,255,0.82)":acSub,margin:0,flexShrink:0}}>🎒 준비물</p>
                           <div style={{display:"flex",flexWrap:"wrap",gap:6,flex:1,minWidth:0}}>
+                            {/* 색 통일: 준비물 칩은 전부 학원색 계열, 챙기면 노랑 포인트 (모험) */}
                             {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=>{
                               const checked=(entry.checkedSupplies||[]).includes(s);
-                              return <button key={`b${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,s)} style={{fontSize:13,padding:"5px 12px",borderRadius:999,cursor:"pointer",background:checked?(dk?`${ac.color}33`:softTint(ac.color,0.62)):(dk?"rgba(255,255,255,0.06)":`${ac.color}14`),border:checked?`1px solid ${dk?ac.color+"aa":ac.color+"88"}`:`1px solid ${dk?"rgba(255,255,255,0.1)":ac.color+"33"}`,color:checked?(dk?softTint(ac.color,0.78):GP.boxText):(dk?"rgba(255,255,255,0.92)":GP.boxText),fontWeight:800,transition:"all .15s"}}><span style={{fontSize:11,marginRight:1}}>{checked?"✅":"⬜"}</span> {s}</button>;
+                              return <button key={`b${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,s)} style={{fontSize:13,padding:"5px 12px",borderRadius:999,cursor:"pointer",background:checked?(dk?"rgba(246,209,143,0.22)":softTint(ac.color,0.62)):(dk?`${ac.color}1f`:`${ac.color}14`),border:checked?(dk?"1px solid #F6D18F":`1px solid ${ac.color}88`):`1px solid ${dk?ac.color+"55":ac.color+"33"}`,color:checked?(dk?"#FFE9BE":GP.boxText):(dk?softTint(ac.color,0.85):GP.boxText),fontWeight:800,transition:"all .15s"}}><span style={{fontSize:11,marginRight:1}}>{checked?"✅":"⬜"}</span> {s}</button>;
                             })}
                             {sup.map((s,i)=>{
                               const key="+"+s; const checked=(entry.checkedSupplies||[]).includes(key);
-                              return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={{fontSize:13,padding:"5px 12px",borderRadius:999,cursor:"pointer",background:checked?(dk?`${ac.color}33`:softTint(ac.color,0.62)):(dk?`${C.orange}1f`:`${C.orange}14`),border:checked?`1px solid ${dk?ac.color+"aa":ac.color+"88"}`:`1px solid ${C.orange}33`,color:checked?(dk?softTint(ac.color,0.78):GP.boxText):(dk?"#FFD9A8":C.orange),fontWeight:800,transition:"all .15s"}}><span style={{fontSize:11,marginRight:1}}>{checked?"✅":"⬜"}</span> +{s}</button>;
+                              return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={{fontSize:13,padding:"5px 12px",borderRadius:999,cursor:"pointer",background:checked?(dk?"rgba(246,209,143,0.22)":softTint(ac.color,0.62)):(dk?`${ac.color}1f`:`${C.orange}14`),border:checked?(dk?"1px solid #F6D18F":`1px solid ${ac.color}88`):`1px solid ${dk?ac.color+"55":C.orange+"33"}`,color:checked?(dk?"#FFE9BE":GP.boxText):(dk?softTint(ac.color,0.85):C.orange),fontWeight:800,transition:"all .15s"}}><span style={{fontSize:11,marginRight:1}}>{checked?"✅":"⬜"}</span> +{s}</button>;
                             })}
                             {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:13,color:acSub}}>없음</span>}
                           </div>

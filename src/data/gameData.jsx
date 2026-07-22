@@ -508,20 +508,20 @@ export const IslandMap = ({ items=[], night=true, mode="today", charEmoji="" }) 
           return (
             <g key={`rd${i}`}>
               {night ? (
-                /* ── 밤: 횃불 길 ── */
+                /* ── 밤: 횃불 길 (도로 폭 ~30% 축소 — 아기자기하게) ── */
                 <>
-                  <path d={d} fill="none" stroke={P.roadEdge} strokeWidth={22}
+                  <path d={d} fill="none" stroke={P.roadEdge} strokeWidth={16}
                     strokeLinecap="round" opacity={fill>=1?1:0.55}/>
-                  <path d={d} fill="none" stroke={P.roadDim} strokeWidth={16} strokeLinecap="round"/>
-                  {lit&&(<path d={d} fill="none" stroke="#FFD873" strokeWidth={26}
+                  <path d={d} fill="none" stroke={P.roadDim} strokeWidth={11} strokeLinecap="round"/>
+                  {lit&&(<path d={d} fill="none" stroke="#FFD873" strokeWidth={19}
                     strokeLinecap="round" pathLength={1} strokeDasharray={dash}
                     opacity={0.45} style={{filter:"blur(5px)"}}/>)}
-                  {lit&&(<path d={d} fill="none" stroke={P.road} strokeWidth={16}
+                  {lit&&(<path d={d} fill="none" stroke={P.road} strokeWidth={11}
                     strokeLinecap="round" pathLength={1} strokeDasharray={dash}
                     style={{filter:"drop-shadow(0 0 6px rgba(255,210,110,.95))"}}/>)}
-                  {lit&&(<path d={d} fill="none" stroke="#FFF3C8" strokeWidth={5}
+                  {lit&&(<path d={d} fill="none" stroke="#FFF3C8" strokeWidth={4}
                     strokeLinecap="round" pathLength={1} strokeDasharray={dash} opacity={0.9}/>)}
-                  <path d={d} fill="none" stroke={P.roadDash} strokeWidth={3}
+                  <path d={d} fill="none" stroke={P.roadDash} strokeWidth={2.5}
                     strokeLinecap="round" strokeDasharray="1 12" opacity={fill>=1?1:0.4}/>
                 </>
               ) : (
