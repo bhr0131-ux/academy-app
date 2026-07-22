@@ -3776,8 +3776,8 @@ export default function App() {
                       background:on?"#EAF6FD":"#F7F8F6",
                       boxShadow:"0 4px 14px rgba(71,116,71,0.10)"}}>
                       <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
-                      <b style={{display:"block",fontFamily:"'GmarketSansBold','Noto Sans KR',sans-serif",fontSize:15.5,fontWeight:400,color:on?"#477447":"#4B3A2F",marginTop:3}}>{t.title}</b>
-                      <small style={{display:"block",fontFamily:"'GmarketSansBold','Noto Sans KR',sans-serif",fontSize:11,fontWeight:400,color:"#7E8C7B",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
+                      <b style={{display:"block",fontFamily:"'OwnglyphConCon','Noto Sans KR',sans-serif",fontSize:19,fontWeight:400,color:on?"#477447":"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
+                      <small style={{display:"block",fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",fontSize:11.5,fontWeight:400,color:"#7E8C7B",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
                     </button>
                   );
                 })}
