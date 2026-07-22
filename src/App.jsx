@@ -3722,7 +3722,7 @@ export default function App() {
                       <img
                         src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
                         alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장캐릭터 보기":"내 아바타 보기"}
-                        style={{width:110,height:"auto",display:"block",filter:"drop-shadow(0 3px 6px rgba(93,70,51,0.35))"}}/>
+                        style={{width:110,height:"auto",display:"block",filter:"saturate(0.85) drop-shadow(0 3px 6px rgba(93,70,51,0.35))"}}/>
                     </button>
                     )}
                   </div>
