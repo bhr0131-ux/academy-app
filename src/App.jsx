@@ -3382,8 +3382,8 @@ export default function App() {
               const _head=_sp>0?_msg.slice(0,_sp):_msg;
               const _rest=_sp>0?_msg.slice(_sp+1):"";
               return (
-                <h1 style={{fontSize:31,fontWeight:900,margin:0,lineHeight:1.1,letterSpacing:"-0.01em",maxWidth:"62%",textShadow:"0 1px 0 rgba(255,255,255,0.5), 0 3px 14px rgba(255,255,255,0.35)"}}>
-                  <span style={{color:"#14231B"}}>{_head}</span>{_rest&&<><br/><span style={{color:"#0E7A38"}}>{_rest}</span></>}
+                <h1 style={{fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:26,fontWeight:400,margin:"30px 0 0",lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",textShadow:"0 1px 0 rgba(255,255,255,0.6), 0 3px 12px rgba(255,255,255,0.4)"}}>
+                  <span style={{color:"#5D4633"}}>{_head}</span>{_rest&&<><br/><span style={{color:"#5CB85C"}}>{_rest}</span></>}
                 </h1>
               );
             })()}
