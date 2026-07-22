@@ -3720,6 +3720,16 @@ export default function App() {
                         boxShadow:`0 3px 9px ${th.main}33`}}>
                       {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
                     </button>
+                    ):stageBgDeco?(
+                    /* 배경 꾸미기 장착 시: 나무 팻말 그림이 밤 톤 배경과 안 어울림 → 기존 크림 캡슐 버튼 유지 */
+                    <button onClick={toggleCharDisplayMode} className="jelly-tap"
+                      style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
+                        background:"#F2EED9",border:"1.5px solid #B39A6A",borderRadius:999,padding:"11px 17px",
+                        color:"#4E3B2A",fontSize:14,fontWeight:900,whiteSpace:"nowrap",
+                        boxShadow:"0 3px 6px rgba(93,70,51,0.28)"}}>
+                      {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
+                      <span style={{opacity:0.5,fontWeight:900,fontSize:15,lineHeight:1,marginLeft:1}}>›</span>
+                    </button>
                     ):(
                     <button onClick={toggleCharDisplayMode} className="jelly-tap"
                       style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
