@@ -3353,17 +3353,19 @@ export default function App() {
         />
 
         {/* 아이용 헤더 - RPG 상태창 */}
-        <div style={{position:"relative",zIndex:kidSkin==="cute"?1:6,background:kidSkin==="cute"
-            ?`radial-gradient(130% 100% at 85% -20%, ${mixWhite(th.main,0.30)}, transparent 60%), ${GP.headerBg}`
-            :"linear-gradient(180deg, rgba(245,250,255,0.30) 0%, rgba(245,250,255,0.0) 62%, transparent 100%)",
-          padding:kidSkin==="cute"?"18px 18px 20px":"18px 18px 30px",color:GP.onDark,borderRadius:kidSkin==="cute"?"0 0 32px 32px":"0",boxShadow:kidSkin==="cute"?`0 10px 32px ${th.main}33`:"none",overflow:"hidden",
-          marginBottom:kidSkin==="cute"?0:-96}}>
+        <div style={kidSkin==="cute"
+          ?{position:"relative",zIndex:1,background:`radial-gradient(130% 100% at 85% -20%, ${mixWhite(th.main,0.30)}, transparent 60%), ${GP.headerBg}`,
+            padding:"18px 18px 20px",color:GP.onDark,borderRadius:"0 0 32px 32px",boxShadow:`0 10px 32px ${th.main}33`,overflow:"hidden"}
+          // 모험(목업형): 헤더를 장면 위 absolute 오버레이로 — 높이와 무관하게 배경이 화면 최상단까지 참
+          :{position:"absolute",top:0,left:0,right:0,zIndex:6,
+            background:"linear-gradient(180deg, rgba(245,250,255,0.30) 0%, rgba(245,250,255,0.0) 62%, transparent 100%)",
+            padding:"18px 18px 0",color:GP.onDark,pointerEvents:"none"}}>
           {/* 헤더 장식 버블 (베이커리만) */}
           {kidSkin==="cute"&&<>
           <div style={{position:"absolute",top:-30,right:30,width:90,height:90,borderRadius:"50%",background:`${th.main}1f`,pointerEvents:"none"}}/>
           <div style={{position:"absolute",bottom:-24,left:-10,width:70,height:70,borderRadius:"50%",background:GP.bubble,pointerEvents:"none"}}/>
           </>}
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",position:"relative"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:kidSkin==="cute"?"center":"flex-start",position:"relative",pointerEvents:"auto"}}>
             {kidSkin==="cute" ? (
             <div style={{display:"flex",alignItems:"center",gap:11}}>
               <div style={{width:52,height:52,borderRadius:"50%",background:GP.chipBg,border:`2.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,boxShadow:"0 4px 14px rgba(0,0,0,0.10)"}}>{_skin.selectEmoji}</div>
@@ -3380,24 +3382,32 @@ export default function App() {
               const _head=_sp>0?_msg.slice(0,_sp):_msg;
               const _rest=_sp>0?_msg.slice(_sp+1):"";
               return (
-                <h1 style={{fontSize:28,fontWeight:900,margin:0,lineHeight:1.14,letterSpacing:"-0.01em",maxWidth:"62%",textShadow:"0 1px 2px rgba(255,255,255,0.5)"}}>
-                  <span style={{color:"#1e2b23"}}>{_head}</span>{_rest&&<><br/><span style={{color:"#16A34A"}}>{_rest}</span></>}
+                <h1 style={{fontSize:31,fontWeight:900,margin:0,lineHeight:1.1,letterSpacing:"-0.01em",maxWidth:"62%",textShadow:"0 1px 0 rgba(255,255,255,0.5), 0 3px 14px rgba(255,255,255,0.35)"}}>
+                  <span style={{color:"#14231B"}}>{_head}</span>{_rest&&<><br/><span style={{color:"#0E7A38"}}>{_rest}</span></>}
                 </h1>
               );
             })()}
             <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
                 <button onClick={()=>{ setAppMode("parent"); setTab("home"); }}
-                  style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:`1.5px solid ${GP.gold||"#FFD166"}99`,background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.18)",borderRadius:14}),flex:children.length>1?1:"none",color:GP.chipText,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 8px rgba(0,0,0,0.32)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
+                  style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:"1.5px solid rgba(255,255,255,0.85)",background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.60)",borderRadius:14}),flex:children.length>1?1:"none",color:kidSkin==="cute"?GP.chipText:"#123021",padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",backdropFilter:kidSkin==="cute"?undefined:"blur(8px)",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 3px 10px rgba(20,50,35,0.18)",textShadow:"none"}}>
                   👩 엄마용
                 </button>
                 {children.length<=1&&(
                   <button onClick={()=>setShowKidCoachmark(true)}
-                    style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:`1.5px solid ${GP.gold||"#FFD166"}99`,background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.18)",borderRadius:14}),color:GP.chipText,padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 8px rgba(0,0,0,0.32)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
+                    style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:"1.5px solid rgba(255,255,255,0.85)",background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.60)",borderRadius:14}),color:kidSkin==="cute"?GP.chipText:"#123021",padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer",backdropFilter:kidSkin==="cute"?undefined:"blur(8px)",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 3px 10px rgba(20,50,35,0.18)",textShadow:"none"}}>
                     ❓
                   </button>
                 )}
               </div>
+              {/* 미션받기 플라스크 버튼 (목업) — 모험 전용, 엄마용 줄 아래 우측 */}
+              {kidSkin!=="cute"&&(
+                <button onClick={()=>setChildTab("today")}
+                  style={{alignSelf:"flex-end",border:"none",background:"transparent",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:0,marginTop:4}}>
+                  <span style={{width:64,height:64,borderRadius:"50%",background:"radial-gradient(circle at 34% 28%, #ffffff, #EFF6FF 70%)",boxShadow:"0 10px 22px -6px rgba(20,60,40,0.5), inset 0 2px 4px #fff, 0 0 0 4px rgba(255,255,255,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:31,animation:"floatHero 3s ease-in-out infinite"}}>🧪</span>
+                  <span style={{fontSize:12,fontWeight:900,color:"#12321F",background:"rgba(255,255,255,0.85)",padding:"3px 10px",borderRadius:999,boxShadow:"0 3px 8px rgba(0,0,0,0.14)"}}>미션받기</span>
+                </button>
+              )}
               {children.length>1&&(
                 <select value={childId} onChange={e=>{
                   setChildId(e.target.value);
@@ -3460,7 +3470,9 @@ export default function App() {
                   <div style={{position:"absolute",top:0,left:"-40%",width:"45%",height:"100%",background:`linear-gradient(105deg, transparent, rgba(255,255,255,${cute?0.6:0.85}), transparent)`,transform:"skewX(-18deg)",willChange:"transform",animation:"shineMove 4s ease-in-out infinite"}}/>
                 </div>
               )}
-            <div style={{position:"relative",borderRadius:stageBorder?(cute?30:((GP.radCard||28)-4)):(cute?34:"0"),padding:stageBorder?"18px 18px 16px":(cute?"18px 18px 16px":"120px 18px 22px"),overflow:"hidden",
+            <div style={{position:"relative",borderRadius:stageBorder?(cute?30:((GP.radCard||28)-4)):(cute?34:"0"),padding:stageBorder?"18px 18px 16px":(cute?"18px 18px 16px":"120px 18px 26px"),overflow:"hidden",
+              // 목업형(모험·기본): 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림
+              ...(!stageBorder&&!cute?{display:"flex",flexDirection:"column",justifyContent:"flex-end",minHeight:"calc(100vh - 205px)",boxSizing:"border-box"}:{}),
               contain:"paint",   // 카드 내부의 애니메이션 리페인트를 카드 안으로 격리 → 헤더 등 바깥 UI 페인트 지연 방지
               background:stageBg,
               // 모험(개방감): 테두리 없이 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
@@ -3611,8 +3623,9 @@ export default function App() {
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"}}>
                     <div style={{position:"relative",zIndex:1}}>
-                      {/* 캐릭터+무기를 한 컨테이너로 묶어 같은 둥실(floatHero)로 통째로 움직인다 → 타이밍 100% 일치 */}
-                      <div style={{position:"relative",display:"inline-block",willChange:"transform",animation:charAnim}}>
+              {/* 캐릭터+무기를 한 컨테이너로 묶어 같은 둥실(floatHero)로 통째로 움직인다 → 타이밍 100% 일치 */}
+                      {/* 목업형: '캐릭터' 타일이 빠진 대신 캐릭터를 탭하면 내 캐릭터 탭이 열린다 (기능 보존) */}
+                      <div onClick={cute?undefined:()=>setChildTab("growth")} style={{position:"relative",display:"inline-block",willChange:"transform",animation:charAnim,cursor:cute?undefined:"pointer"}}>
                       {(()=>{ // AI 일러스트 캐릭터 — 모험/베이커리 모두 (진화 단계별 키 성장, 발끝 하단 정렬)
                         const _st=ADV_CHAR_STAGE_OF(level.level); // 두 모드 동일 구간(1/5/9/13/17)
                         const _g=(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy";
@@ -3691,12 +3704,12 @@ export default function App() {
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
                     {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
                     <button onClick={toggleCharDisplayMode}
-                      style={{display:"flex",alignItems:"center",gap:4,cursor:"pointer",
-                        background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:"rgba(15,25,48,0.62)",
-                        border:`1.5px solid ${cute?th.main+"77":"rgba(255,255,255,0.5)"}`,borderRadius:999,padding:cute?"4px 11px":"5px 13px",
-                        color:(!cute)?"#fff":mixBlack(th.main,0.25),fontSize:cute?10:11,fontWeight:900,whiteSpace:"nowrap",
-                        backdropFilter:cute?"none":"blur(3px)",
-                        boxShadow:cute?`0 3px 9px ${th.main}33`:"0 2px 8px rgba(0,0,0,0.35)"}}>
+                      style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",
+                        background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:"rgba(255,255,255,0.66)",
+                        border:cute?`1.5px solid ${th.main}77`:"1.5px solid rgba(255,255,255,0.85)",borderRadius:999,padding:cute?"4px 11px":"10px 15px",
+                        color:(!cute)?"#123021":mixBlack(th.main,0.25),fontSize:cute?10:13.5,fontWeight:900,whiteSpace:"nowrap",
+                        backdropFilter:cute?"none":"blur(9px)",
+                        boxShadow:cute?`0 3px 9px ${th.main}33`:"0 8px 20px -6px rgba(0,0,0,0.3)"}}>
                       {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"👗 아바타 보기"}
                     </button>
                   </div>
@@ -3736,44 +3749,49 @@ export default function App() {
               {tabEls}
             </div>
           );
-          // 모험(개방감·목업형): 하단을 밝은 시트로 — 레벨바 + 3타일(모험/미션/캐릭터=탭 선택)
+          // 모험(첫 목업 그대로): 흰 시트 — 핸들바 + 레벨줄 + 진행바 + 2타일(모험 💊 / 미션 ☁️🔒, 아이콘 오른쪽·틴트 배경)
           const _score=getChildXP(childId);
           const _cur=getChildLevel(childId);
           const _next=getNextLevel(childId);
           const _pct=(_next&&_next.minScore>_cur.minScore)?Math.max(0,Math.min(100,Math.round((_score-_cur.minScore)/(_next.minScore-_cur.minScore)*100))):100;
           const _qp=getTodayQuestProgress(childId,childDate||TODAY);
           const _tiles=[
-            ["area","모험",`${childTodayAc.length}곳`,"🗺️"],
-            ["today","미션",_qp.total>0?`${_qp.total-Math.round(_qp.total*_qp.percent/100)}개 남음`:"지금 주세요","🎯"],
-            ["growth","캐릭터",`레벨 ${_cur.level}`,getGenderEmoji(curChild)],
+            {k:"area",title:"모험",sub:`${childTodayAc.length}곳`,icon:"💊",tint:"22,163,74"},
+            {k:"today",title:"미션",sub:_qp.total>0?`${_qp.total-Math.round(_qp.total*_qp.percent/100)}개 남음`:"지금 주세요",icon:"☁️",lock:true,tint:"55,174,226"},
           ];
           return (
-            <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"14px 16px 16px",
-              borderRadius:"26px 26px 0 0",background:"linear-gradient(180deg, #FFFFFF 0%, #F5F7FA 100%)",
-              boxShadow:"0 -14px 34px rgba(0,0,0,0.30)"}}>
+            <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"18px 18px 22px",
+              borderRadius:"30px 30px 0 0",background:"#FFFFFF",
+              boxShadow:"0 -12px 34px -14px rgba(0,0,0,0.30)"}}>
               {/* 시트 핸들바 */}
-              <div style={{width:44,height:5,borderRadius:999,background:"#E3E6EA",margin:"0 auto 14px"}}/>
-              {/* 레벨 바 */}
-              <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:9,padding:"0 2px"}}>
-                <span style={{fontSize:17,fontWeight:900,color:"#1b2620"}}>레벨{_cur.level} {curChild?.name}</span>
+              <div style={{width:44,height:5,borderRadius:999,background:"#ECEBE4",margin:"-4px auto 14px"}}/>
+              {/* 레벨 줄 */}
+              <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:9}}>
+                <span style={{fontSize:17,fontWeight:900,color:"#1B2620"}}>레벨{_cur.level} {curChild?.name}</span>
                 <span style={{fontSize:18,fontWeight:900,color:"#37AEE2",fontVariantNumeric:"tabular-nums"}}>{_pct}%</span>
               </div>
-              <div style={{height:12,borderRadius:999,background:"#EAEDF0",overflow:"hidden",margin:"0 2px"}}>
-                <div style={{height:"100%",width:`${_pct}%`,borderRadius:999,background:"linear-gradient(90deg,#16A34A,#37AEE2)"}}/>
+              <div style={{height:12,borderRadius:999,background:"#ECEBE4",overflow:"hidden"}}>
+                <div style={{height:"100%",width:`${_pct}%`,borderRadius:999,background:"linear-gradient(90deg,#16A34A,#37AEE2)",boxShadow:"inset 0 2px 0 rgba(255,255,255,0.4)"}}/>
               </div>
-              {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginTop:15}}>
-                {_tiles.map(([k,title,sub,ic])=>{
-                  const on=childTab===k;
+              {/* 2 타일 (모험/미션) = 탭 선택 — 목업 그대로 (라벨 왼쪽·아이콘 오른쪽·틴트) */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11,marginTop:15}}>
+                {_tiles.map(t=>{
+                  const on=childTab===t.k;
                   return (
-                    <button key={k} onClick={()=>setChildTab(k)} className="jelly-tap" style={{
-                      textAlign:"left",cursor:"pointer",padding:"13px 12px",borderRadius:18,
-                      border:on?`2px solid ${th.main}`:"1.5px solid #E7EAEE",
-                      background:on?`${th.main}14`:"#fff",display:"flex",flexDirection:"column",gap:4,
-                      boxShadow:on?`0 6px 16px ${th.main}26`:"0 2px 7px rgba(0,0,0,0.05)"}}>
-                      <span style={{fontSize:22,lineHeight:1}}>{ic}</span>
-                      <span style={{fontSize:15,fontWeight:900,color:"#1b2620"}}>{title}</span>
-                      <span style={{fontSize:11,fontWeight:700,color:"#8A94A0",whiteSpace:"nowrap"}}>{sub}</span>
+                    <button key={t.k} onClick={()=>setChildTab(t.k)} className="jelly-tap" style={{
+                      display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,textAlign:"left",cursor:"pointer",
+                      padding:"14px 15px",borderRadius:20,
+                      border:`1.5px solid rgba(${t.tint},${on?0.62:0.28})`,
+                      background:`linear-gradient(150deg, rgba(${t.tint},0.10), transparent)`,
+                      boxShadow:on?`0 6px 16px rgba(${t.tint},0.22)`:"none"}}>
+                      <span>
+                        <b style={{display:"block",fontSize:16,fontWeight:900,color:"#1B2620"}}>{t.title}</b>
+                        <small style={{display:"block",fontSize:12.5,fontWeight:700,color:"#6E7B72",marginTop:2}}>{t.sub}</small>
+                      </span>
+                      <span style={{fontSize:26,lineHeight:1,position:"relative",flexShrink:0}}>
+                        {t.icon}
+                        {t.lock&&<span style={{position:"absolute",right:-6,bottom:-4,fontSize:14}}>🔒</span>}
+                      </span>
                     </button>
                   );
                 })}
