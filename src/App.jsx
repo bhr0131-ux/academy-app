@@ -3353,13 +3353,16 @@ export default function App() {
         />
 
         {/* 아이용 헤더 - RPG 상태창 */}
-        <div style={{position:"relative",zIndex:1,background:kidSkin==="cute"
+        <div style={{position:"relative",zIndex:kidSkin==="cute"?1:6,background:kidSkin==="cute"
             ?`radial-gradient(130% 100% at 85% -20%, ${mixWhite(th.main,0.30)}, transparent 60%), ${GP.headerBg}`
-            :`radial-gradient(130% 100% at 85% -20%, ${th.main}55, transparent 60%), ${GP.headerBg}`,
-          padding:"18px 18px 20px",color:GP.onDark,borderRadius:"0 0 32px 32px",boxShadow:`0 10px 32px ${th.main}33`,overflow:"hidden"}}>
-          {/* 헤더 장식 버블 */}
-          <div style={{position:"absolute",top:-30,right:30,width:90,height:90,borderRadius:"50%",background:kidSkin==="cute"?`${th.main}1f`:GP.bubble,pointerEvents:"none"}}/>
+            :"linear-gradient(180deg, rgba(8,16,12,0.42) 0%, rgba(8,16,12,0.14) 58%, transparent 100%)",
+          padding:kidSkin==="cute"?"18px 18px 20px":"18px 18px 30px",color:GP.onDark,borderRadius:kidSkin==="cute"?"0 0 32px 32px":"0",boxShadow:kidSkin==="cute"?`0 10px 32px ${th.main}33`:"none",overflow:"hidden",
+          marginBottom:kidSkin==="cute"?0:-96}}>
+          {/* 헤더 장식 버블 (베이커리만) */}
+          {kidSkin==="cute"&&<>
+          <div style={{position:"absolute",top:-30,right:30,width:90,height:90,borderRadius:"50%",background:`${th.main}1f`,pointerEvents:"none"}}/>
           <div style={{position:"absolute",bottom:-24,left:-10,width:70,height:70,borderRadius:"50%",background:GP.bubble,pointerEvents:"none"}}/>
+          </>}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",position:"relative"}}>
             <div style={{display:"flex",alignItems:"center",gap:11}}>
               <div style={{width:52,height:52,borderRadius:"50%",background:GP.chipBg,border:`2.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,boxShadow:"0 4px 14px rgba(0,0,0,0.10)"}}>{_skin.selectEmoji}</div>
@@ -3428,7 +3431,7 @@ export default function App() {
             ?"radial-gradient(ellipse 60% 50% at 50% 62%, rgba(255,255,255,0.55), transparent 70%)"
             :`radial-gradient(ellipse 70% 42% at 50% 30%, ${GP.gold||"#FFD166"}30, transparent 68%), radial-gradient(ellipse 58% 48% at 50% 60%, ${th.main}3d, transparent 72%)`;
           return (
-            <div style={{position:"relative",zIndex:1,margin:stageBorder?"16px 16px 0":(cute?"16px 16px 0":"-26px 0 0"),borderRadius:stageBorder?(cute?34:GP.radCard||28):(cute?34:"0"),padding:stageBorder?4:0,overflow:"hidden",
+            <div style={{position:"relative",zIndex:1,margin:stageBorder?"16px 16px 0":(cute?"16px 16px 0":"0"),borderRadius:stageBorder?(cute?34:GP.radCard||28):(cute?34:"0"),padding:stageBorder?4:0,overflow:"hidden",
               background:stageBorder?stageBorder.grad:"transparent",
               backgroundSize:stageBorder&&(stageBorder.shimmer||stageBorder.rainbow)?"260% 260%":"100% 100%",
               boxShadow:stageBorder?(cute?`0 10px 26px ${bGlow}, 0 0 14px ${bGlow}`:`0 14px 36px ${bGlow}, 0 0 26px ${bGlow}`):"none",
@@ -3443,7 +3446,7 @@ export default function App() {
                   <div style={{position:"absolute",top:0,left:"-40%",width:"45%",height:"100%",background:`linear-gradient(105deg, transparent, rgba(255,255,255,${cute?0.6:0.85}), transparent)`,transform:"skewX(-18deg)",willChange:"transform",animation:"shineMove 4s ease-in-out infinite"}}/>
                 </div>
               )}
-            <div style={{position:"relative",borderRadius:stageBorder?(cute?30:((GP.radCard||28)-4)):(cute?34:"0"),padding:stageBorder?"18px 18px 16px":(cute?"18px 18px 16px":"72px 18px 22px"),overflow:"hidden",
+            <div style={{position:"relative",borderRadius:stageBorder?(cute?30:((GP.radCard||28)-4)):(cute?34:"0"),padding:stageBorder?"18px 18px 16px":(cute?"18px 18px 16px":"120px 18px 22px"),overflow:"hidden",
               contain:"paint",   // 카드 내부의 애니메이션 리페인트를 카드 안으로 격리 → 헤더 등 바깥 UI 페인트 지연 방지
               background:stageBg,
               // 모험(개방감): 테두리 없이 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
