@@ -3742,9 +3742,9 @@ export default function App() {
           const _pct=(_next&&_next.minScore>_cur.minScore)?Math.max(0,Math.min(100,Math.round((_score-_cur.minScore)/(_next.minScore-_cur.minScore)*100))):100;
           const _qp=getTodayQuestProgress(childId,childDate||TODAY);
           const _tiles=[
-            {k:"area",title:"모험",sub:`${childTodayAc.length}곳`,icon:"💊",tint:"22,163,74"},
-            {k:"today",title:"미션",sub:_qp.total>0?`${_qp.total-Math.round(_qp.total*_qp.percent/100)}개 남음`:"지금 주세요",icon:"☁️",lock:true,tint:"55,174,226"},
-            {k:"growth",title:"캐릭터",sub:`레벨 ${_cur.level}`,icon:getGenderEmoji(curChild),tint:"245,158,11"},
+            {k:"area",title:"모험",sub:`${childTodayAc.length}곳`,icon:"🗺️"},
+            {k:"today",title:"미션",sub:_qp.total>0?`${_qp.total-Math.round(_qp.total*_qp.percent/100)}개 남음`:"지금 주세요",icon:"🎯"},
+            {k:"growth",title:"캐릭터",sub:`레벨 ${_cur.level}`,icon:getGenderEmoji(curChild)},
           ];
           return (
             <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"18px 18px 22px",
@@ -3760,25 +3760,20 @@ export default function App() {
               <div style={{height:12,borderRadius:999,background:"#ECEBE4",overflow:"hidden"}}>
                 <div style={{height:"100%",width:`${_pct}%`,borderRadius:999,background:"linear-gradient(90deg,#16A34A,#37AEE2)",boxShadow:"inset 0 2px 0 rgba(255,255,255,0.4)"}}/>
               </div>
-              {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 — 목업 스타일 (라벨 왼쪽·아이콘 오른쪽·틴트) */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9,marginTop:15}}>
+              {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 — 아이콘 위·세로 중앙 정렬, 선택 시 파란 강조 */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginTop:15}}>
                 {_tiles.map(t=>{
                   const on=childTab===t.k;
                   return (
                     <button key={t.k} onClick={()=>setChildTab(t.k)} className="jelly-tap" style={{
-                      display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,textAlign:"left",cursor:"pointer",
-                      padding:"13px 11px",borderRadius:20,minWidth:0,
-                      border:`1.5px solid rgba(${t.tint},${on?0.62:0.28})`,
-                      background:`linear-gradient(150deg, rgba(${t.tint},0.10), transparent)`,
-                      boxShadow:on?`0 6px 16px rgba(${t.tint},0.22)`:"none"}}>
-                      <span style={{minWidth:0}}>
-                        <b style={{display:"block",fontSize:15,fontWeight:900,color:"#1B2620"}}>{t.title}</b>
-                        <small style={{display:"block",fontSize:11.5,fontWeight:700,color:"#6E7B72",marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{t.sub}</small>
-                      </span>
-                      <span style={{fontSize:23,lineHeight:1,position:"relative",flexShrink:0}}>
-                        {t.icon}
-                        {t.lock&&<span style={{position:"absolute",right:-5,bottom:-4,fontSize:13}}>🔒</span>}
-                      </span>
+                      display:"flex",flexDirection:"column",alignItems:"center",gap:5,textAlign:"center",cursor:"pointer",
+                      padding:"14px 8px 12px",borderRadius:22,minWidth:0,
+                      border:on?"2px solid #55A3E6":"1.5px solid #E8E5DA",
+                      background:on?"#EAF4FE":"#FCFBF6",
+                      boxShadow:on?"0 6px 16px rgba(85,163,230,0.25)":"0 2px 6px rgba(0,0,0,0.04)"}}>
+                      <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
+                      <b style={{display:"block",fontSize:16,fontWeight:900,color:"#1B2620",marginTop:3}}>{t.title}</b>
+                      <small style={{display:"block",fontSize:12,fontWeight:700,color:"#7C8965",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
                     </button>
                   );
                 })}
