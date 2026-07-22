@@ -3731,19 +3731,22 @@ export default function App() {
               {tabEls}
             </div>
           );
-          // 모험(개방감): 배경을 탭까지 이어지게 — 풀블리드 밴드에 숲 하단 연속 + 글래스 탭바
+          // 모험(개방감): 하단을 '떠오른 시트'로 — 숲(캐릭터) 위로 둥근 상단 패널이 올라오고 그 안에 탭
           return (
-            <div style={{position:"relative",zIndex:1,margin:0,padding:"12px 14px 16px",overflow:"hidden",
-              backgroundImage:`linear-gradient(180deg, rgba(18,32,24,0) 0%, rgba(16,28,20,0.42) 52%, ${GP.appBg||C.bg} 100%), url(/assets/stage-adventure-meadow.webp)`,
-              backgroundSize:"cover, cover", backgroundPosition:"center top, center 88%", backgroundRepeat:"no-repeat, no-repeat"}}>
-              <div style={{display:"flex",gap:6,background:"rgba(12,22,16,0.40)",backdropFilter:"blur(7px)",WebkitBackdropFilter:"blur(7px)",borderRadius:16,padding:6,border:"1px solid rgba(255,255,255,0.14)",boxShadow:"0 8px 22px rgba(0,0,0,0.30)"}}>
+            <div style={{position:"relative",zIndex:3,margin:0,marginTop:-26,padding:"12px 16px 8px",
+              borderRadius:"28px 28px 0 0",
+              background:`linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 140px), ${GP.appBg||C.bg}`,
+              boxShadow:"0 -16px 36px rgba(0,0,0,0.42)"}}>
+              {/* 시트 핸들바 */}
+              <div style={{width:44,height:5,borderRadius:999,background:"rgba(255,255,255,0.22)",margin:"0 auto 12px"}}/>
+              <div style={{display:"flex",gap:6}}>
                 {tabEls}
               </div>
             </div>
           );
         })()}
 
-        <div key={childTab} style={{padding:"16px",position:"relative",zIndex:1,animation:"popInUp .35s ease-out"}}>
+        <div key={childTab} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:(GP.appBg||C.bg)}}>
           {/* ── 모험장소 탭 (학원카드) ── */}
           {childTab==="area"&&(
             <>
