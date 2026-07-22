@@ -2948,7 +2948,8 @@ export default function App() {
               <>
               <div style={kidSkin==="cute"
                 ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,borderRadius:34,padding:"17px",boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,color:GP.boxText,border:"2px solid #fff",marginBottom:12}
-                :{position:"relative",overflow:"hidden",background:dungeonShinyBg,borderRadius:GP.radCard,padding:"17px",boxShadow:`0 10px 28px ${mixBlack(th.main,0.4)}55`,color:GP.boxText,border:`1px solid ${th.main}66`,marginBottom:12}}>
+                // 캐릭터 탭(모험): '호수' 느낌 — Sky 계열 그라데이션 + 은은한 종이 질감 (HERO STATUS 골드는 대비 유지)
+                :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 28%, rgba(255,255,255,0.07), transparent), radial-gradient(1.2px 1.2px at 68% 16%, rgba(255,255,255,0.05), transparent), radial-gradient(1.3px 1.3px at 82% 64%, rgba(255,255,255,0.06), transparent), linear-gradient(150deg, #6AA7D3, #4E82A8)`,borderRadius:GP.radCard,padding:"17px",boxShadow:"0 10px 28px rgba(40,80,110,0.35)",color:GP.boxText,border:"1px solid rgba(168,210,238,0.55)",marginBottom:12}}>
                 {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"42%",background:"linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
                 <DungeonCardGlow/>
                 {/* 레벨 + 상장 — 윗줄(라벨+상장뱃지) / 아랫줄(레벨명 한 줄 전체)로 분리해 겹침 방지 */}
