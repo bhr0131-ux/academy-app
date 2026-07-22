@@ -3702,14 +3702,15 @@ export default function App() {
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
                     {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
-                    <button onClick={toggleCharDisplayMode}
-                      style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",
-                        background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:"rgba(255,255,255,0.66)",
-                        border:cute?`1.5px solid ${th.main}77`:"1.5px solid rgba(255,255,255,0.85)",borderRadius:999,padding:cute?"4px 11px":"10px 15px",
-                        color:(!cute)?"#123021":mixBlack(th.main,0.25),fontSize:cute?10:13.5,fontWeight:900,whiteSpace:"nowrap",
-                        backdropFilter:cute?"none":"blur(9px)",
-                        boxShadow:cute?`0 3px 9px ${th.main}33`:"0 8px 20px -6px rgba(0,0,0,0.3)"}}>
-                      {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"👗 아바타 보기"}
+                    {/* 모험: 나무 팻말 느낌 캡슐 버튼 (크림 배경·갈색 테두리·눌림 애니메이션) */}
+                    <button onClick={toggleCharDisplayMode} className={cute?undefined:"jelly-tap"}
+                      style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
+                        background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:"#F2EED9",
+                        border:cute?`1.5px solid ${th.main}77`:"1.5px solid #B39A6A",borderRadius:999,padding:cute?"4px 11px":"11px 17px",
+                        color:(!cute)?"#4E3B2A":mixBlack(th.main,0.25),fontSize:cute?10:14,fontWeight:900,whiteSpace:"nowrap",
+                        boxShadow:cute?`0 3px 9px ${th.main}33`:"0 3px 6px rgba(93,70,51,0.28)"}}>
+                      {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
+                      {!cute&&<span style={{opacity:0.5,fontWeight:900,fontSize:15,lineHeight:1,marginLeft:1}}>›</span>}
                     </button>
                   </div>
                 );
