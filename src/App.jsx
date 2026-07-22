@@ -3400,14 +3400,6 @@ export default function App() {
                   </button>
                 )}
               </div>
-              {/* 미션받기 플라스크 버튼 (목업) — 모험 전용, 엄마용 줄 아래 우측 */}
-              {kidSkin!=="cute"&&(
-                <button onClick={()=>setChildTab("today")}
-                  style={{alignSelf:"flex-end",border:"none",background:"transparent",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:0,marginTop:4}}>
-                  <span style={{width:64,height:64,borderRadius:"50%",background:"radial-gradient(circle at 34% 28%, #ffffff, #EFF6FF 70%)",boxShadow:"0 10px 22px -6px rgba(20,60,40,0.5), inset 0 2px 4px #fff, 0 0 0 4px rgba(255,255,255,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:31,animation:"floatHero 3s ease-in-out infinite"}}>🧪</span>
-                  <span style={{fontSize:12,fontWeight:900,color:"#12321F",background:"rgba(255,255,255,0.85)",padding:"3px 10px",borderRadius:999,boxShadow:"0 3px 8px rgba(0,0,0,0.14)"}}>미션받기</span>
-                </button>
-              )}
               {children.length>1&&(
                 <select value={childId} onChange={e=>{
                   setChildId(e.target.value);
