@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>미션팡</title>
     <style>
-      /* 온글잎 의연체 (눈누 배포 CDN) — 홈 헤드라인 손글씨용.
-         오프라인(Capacitor)에서는 로드 실패 시 Noto Sans KR로 폴백.
-         추후 public/assets/fonts/ 에 파일을 넣으면 src 를 로컬 경로로 교체할 것. */
+      /* 온글잎 의연체 — 홈 헤드라인 손글씨용. 앱 내장(로컬) 파일이라 오프라인(Capacitor)에서도 동작.
+         원본 TTF: art-src/font-ownglyph-euiyeonchae.ttf (재가공용, 배포 미포함) */
       @font-face {
         font-family: 'Uiyeun';
-        src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105@1.1/Uiyeun.woff') format('woff');
+        src: url('/assets/fonts/ownglyph-euiyeonchae.woff2') format('woff2');
         font-weight: normal;
         font-style: normal;
         font-display: swap;
