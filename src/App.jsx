@@ -3355,7 +3355,7 @@ export default function App() {
         {/* 아이용 헤더 - RPG 상태창 */}
         <div style={{position:"relative",zIndex:kidSkin==="cute"?1:6,background:kidSkin==="cute"
             ?`radial-gradient(130% 100% at 85% -20%, ${mixWhite(th.main,0.30)}, transparent 60%), ${GP.headerBg}`
-            :"linear-gradient(180deg, rgba(8,16,12,0.42) 0%, rgba(8,16,12,0.14) 58%, transparent 100%)",
+            :"linear-gradient(180deg, rgba(245,250,255,0.30) 0%, rgba(245,250,255,0.0) 62%, transparent 100%)",
           padding:kidSkin==="cute"?"18px 18px 20px":"18px 18px 30px",color:GP.onDark,borderRadius:kidSkin==="cute"?"0 0 32px 32px":"0",boxShadow:kidSkin==="cute"?`0 10px 32px ${th.main}33`:"none",overflow:"hidden",
           marginBottom:kidSkin==="cute"?0:-96}}>
           {/* 헤더 장식 버블 (베이커리만) */}
@@ -3373,11 +3373,16 @@ export default function App() {
               </div>
             </div>
             ) : (()=>{
-              // 개방감: 나침반·PLAYER·이름 대신 말풍선 문구를 헤더 텍스트로 표시 (샘플 스타일)
+              // 개방감: 나침반·PLAYER·이름 대신 말풍선 문구를 헤더 텍스트로 (목업 스타일: 진한 글자 + 초록 2색)
               const _q=getTodayQuestProgress(childId,childDate||TODAY);
               const _msg=getProgressMessage(_q.percent,_q.total);
+              const _sp=_msg.indexOf(" ");
+              const _head=_sp>0?_msg.slice(0,_sp):_msg;
+              const _rest=_sp>0?_msg.slice(_sp+1):"";
               return (
-                <h1 style={{fontSize:27,fontWeight:900,margin:0,color:"#fff",lineHeight:1.14,letterSpacing:"-0.01em",maxWidth:"64%",textShadow:"0 2px 10px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.55)"}}>{_msg}</h1>
+                <h1 style={{fontSize:28,fontWeight:900,margin:0,lineHeight:1.14,letterSpacing:"-0.01em",maxWidth:"62%",textShadow:"0 1px 2px rgba(255,255,255,0.5)"}}>
+                  <span style={{color:"#1e2b23"}}>{_head}</span>{_rest&&<><br/><span style={{color:"#16A34A"}}>{_rest}</span></>}
+                </h1>
               );
             })()}
             <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
@@ -3731,16 +3736,47 @@ export default function App() {
               {tabEls}
             </div>
           );
-          // 모험(개방감): 하단을 '떠오른 시트'로 — 숲(캐릭터) 위로 둥근 상단 패널이 올라오고 그 안에 탭
+          // 모험(개방감·목업형): 하단을 밝은 시트로 — 레벨바 + 3타일(모험/미션/캐릭터=탭 선택)
+          const _score=getChildXP(childId);
+          const _cur=getChildLevel(childId);
+          const _next=getNextLevel(childId);
+          const _pct=(_next&&_next.minScore>_cur.minScore)?Math.max(0,Math.min(100,Math.round((_score-_cur.minScore)/(_next.minScore-_cur.minScore)*100))):100;
+          const _qp=getTodayQuestProgress(childId,childDate||TODAY);
+          const _tiles=[
+            ["area","모험",`${childTodayAc.length}곳`,"🗺️"],
+            ["today","미션",_qp.total>0?`${_qp.total-Math.round(_qp.total*_qp.percent/100)}개 남음`:"지금 주세요","🎯"],
+            ["growth","캐릭터",`레벨 ${_cur.level}`,getGenderEmoji(curChild)],
+          ];
           return (
-            <div style={{position:"relative",zIndex:3,margin:0,marginTop:-26,padding:"12px 16px 8px",
-              borderRadius:"28px 28px 0 0",
-              background:`linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 140px), ${GP.appBg||C.bg}`,
-              boxShadow:"0 -16px 36px rgba(0,0,0,0.42)"}}>
+            <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"14px 16px 16px",
+              borderRadius:"26px 26px 0 0",background:"linear-gradient(180deg, #FFFFFF 0%, #F5F7FA 100%)",
+              boxShadow:"0 -14px 34px rgba(0,0,0,0.30)"}}>
               {/* 시트 핸들바 */}
-              <div style={{width:44,height:5,borderRadius:999,background:"rgba(255,255,255,0.22)",margin:"0 auto 12px"}}/>
-              <div style={{display:"flex",gap:6}}>
-                {tabEls}
+              <div style={{width:44,height:5,borderRadius:999,background:"#E3E6EA",margin:"0 auto 14px"}}/>
+              {/* 레벨 바 */}
+              <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:9,padding:"0 2px"}}>
+                <span style={{fontSize:17,fontWeight:900,color:"#1b2620"}}>레벨{_cur.level} {curChild?.name}</span>
+                <span style={{fontSize:18,fontWeight:900,color:"#37AEE2",fontVariantNumeric:"tabular-nums"}}>{_pct}%</span>
+              </div>
+              <div style={{height:12,borderRadius:999,background:"#EAEDF0",overflow:"hidden",margin:"0 2px"}}>
+                <div style={{height:"100%",width:`${_pct}%`,borderRadius:999,background:"linear-gradient(90deg,#16A34A,#37AEE2)"}}/>
+              </div>
+              {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginTop:15}}>
+                {_tiles.map(([k,title,sub,ic])=>{
+                  const on=childTab===k;
+                  return (
+                    <button key={k} onClick={()=>setChildTab(k)} className="jelly-tap" style={{
+                      textAlign:"left",cursor:"pointer",padding:"13px 12px",borderRadius:18,
+                      border:on?`2px solid ${th.main}`:"1.5px solid #E7EAEE",
+                      background:on?`${th.main}14`:"#fff",display:"flex",flexDirection:"column",gap:4,
+                      boxShadow:on?`0 6px 16px ${th.main}26`:"0 2px 7px rgba(0,0,0,0.05)"}}>
+                      <span style={{fontSize:22,lineHeight:1}}>{ic}</span>
+                      <span style={{fontSize:15,fontWeight:900,color:"#1b2620"}}>{title}</span>
+                      <span style={{fontSize:11,fontWeight:700,color:"#8A94A0",whiteSpace:"nowrap"}}>{sub}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           );
