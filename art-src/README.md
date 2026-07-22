@@ -7,8 +7,8 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 
 | 파일 | 용도 | 탑재 에셋 |
 |---|---|---|
-| base-boy.png | 남아 아바타 베이스 원화 | avatar/base/default.webp |
-| base-girl.png | 여아 아바타 베이스 원화 (v2, 승인본) | avatar/base/default-girl.webp |
+| base-boy.png | 남아 아바타 베이스 원화 (신규 교체본, 배경 제거·정렬 탑재) | avatar/base/default.webp |
+| base-girl.png | 여아 아바타 베이스 원화 (신규 교체본, 배경 제거·정렬 탑재) | avatar/base/default-girl.webp |
 | boots-explorer-wearing.png | 탐험 부츠 착용 원화 (양말 버전, 구) | (교체됨) |
 | boots-explorer-sockless.png | 탐험 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/explorer-boots.webp |
 | boots-green-wearing.png | 새싹 부츠 착용 원화 (구) | (교체됨) |
