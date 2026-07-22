@@ -3364,13 +3364,22 @@ export default function App() {
           <div style={{position:"absolute",bottom:-24,left:-10,width:70,height:70,borderRadius:"50%",background:GP.bubble,pointerEvents:"none"}}/>
           </>}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",position:"relative"}}>
+            {kidSkin==="cute" ? (
             <div style={{display:"flex",alignItems:"center",gap:11}}>
               <div style={{width:52,height:52,borderRadius:"50%",background:GP.chipBg,border:`2.5px solid ${GP.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,boxShadow:"0 4px 14px rgba(0,0,0,0.10)"}}>{_skin.selectEmoji}</div>
               <div>
-                <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.5,color:GP.onDarkSub}}>{kidSkin==="cute"?"BAKER":"PLAYER"}</p>
+                <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.5,color:GP.onDarkSub}}>BAKER</p>
                 <h1 style={{fontSize:24,fontWeight:900,margin:"3px 0 0",color:GP.onDark}}>{curChild?.name}</h1>
               </div>
             </div>
+            ) : (()=>{
+              // 개방감: 나침반·PLAYER·이름 대신 말풍선 문구를 헤더 텍스트로 표시 (샘플 스타일)
+              const _q=getTodayQuestProgress(childId,childDate||TODAY);
+              const _msg=getProgressMessage(_q.percent,_q.total);
+              return (
+                <h1 style={{fontSize:27,fontWeight:900,margin:0,color:"#fff",lineHeight:1.14,letterSpacing:"-0.01em",maxWidth:"64%",textShadow:"0 2px 10px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.55)"}}>{_msg}</h1>
+              );
+            })()}
             <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
                 <button onClick={()=>{ setAppMode("parent"); setTab("home"); }}
@@ -3578,8 +3587,8 @@ export default function App() {
                   </>
                 );
               })()}
-              {/* 말풍선 — "오늘의 모험을 시작해볼까?" 등 진행도 멘트. 왕관·배경 장착 시엔 숨김(무기·테두리는 유지). 모험·베이커리 공통. */}
-              {!hideStageCheer&&(
+              {/* 말풍선 — 진행도 멘트. 모험(개방감)은 헤더 텍스트로 대체되어 숨김. 베이커리만 캐릭터 위 말풍선 유지. */}
+              {!hideStageCheer&&cute&&(
               <div style={{position:"relative",zIndex:2,display:"flex",justifyContent:"center",marginBottom:2,marginTop:2}}>
                 <div style={{position:"relative",background:cute?`linear-gradient(160deg, ${mixWhite(th.main,0.88)}, ${mixWhite(th.main,0.78)})`:"#F5F1E8",color:cute?mixBlack(th.main,0.42):"#2A2A45",borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:cute?`0 6px 14px ${th.main}26, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"0 5px 14px rgba(0,0,0,0.22)",maxWidth:cute?"82%":"92%",whiteSpace:cute?"normal":"nowrap",textAlign:"center",lineHeight:1.35,
                   animation:"bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both",border:cute?`2px solid ${mixWhite(th.main,0.7)}`:"none"}}>
