@@ -257,18 +257,22 @@ export const getDungeonThemePreset = (main="#60A8FF") =>
   DUNGEON_THEME_PRESETS.reduce((best,p)=> colorDistance(main,p.match)<colorDistance(main,best.match)?p:best, DUNGEON_THEME_PRESETS[4]);
 export const dungeonPalette = (main="#60A8FF") => {
   const d = getDungeonThemePreset(main);
-  // 밝은 저녁하늘 톤: 베이스를 더 밝게 + 테마색(d.deep) 비중을 키워 캐주얼하고 컬러풀하게
-  const bg0 = "#1D3056";
-  const bg1 = mixHex("#22396A", d.deep, 0.42);
-  const bg2 = mixHex("#345E9C", d.deep, 0.46);
-  const card1 = mixHex("#365C8C", d.deep, 0.44);
-  const card2 = mixHex("#28426E", d.deep, 0.52);
+  // 수채화 숲 톤(Forest 메인) — 네이비 베이스 폐지. '숲속 탐험 일지' 컨셉.
+  // 카드: #5F7F68→#477447(Forest) / 테두리 Grass / 글씨 Cloud — 상단 수채화 무대와 한 톤으로 연결.
+  // 테마색(d.deep)은 은은하게만 섞어 아이별 개성은 남기되 숲 톤을 유지한다.
+  const bg0 = "#33503F";
+  const bg1 = mixHex("#3C5E4A", d.deep, 0.16);
+  const bg2 = mixHex("#4E7A57", d.deep, 0.18);
+  const card1 = mixHex("#5F7F68", d.deep, 0.10);
+  const card2 = mixHex("#477447", d.deep, 0.10);
+  // 종이 질감(3~5%): 미세한 점 + 따뜻한 빛 번짐 — '게임 UI'가 아니라 동화책 일지 느낌
+  const paper = `radial-gradient(1.3px 1.3px at 18% 26%, rgba(255,255,255,0.055), transparent), radial-gradient(1.1px 1.1px at 64% 14%, rgba(255,255,255,0.045), transparent), radial-gradient(1.4px 1.4px at 84% 58%, rgba(255,255,255,0.05), transparent), radial-gradient(1.1px 1.1px at 36% 76%, rgba(255,255,255,0.04), transparent), radial-gradient(60% 40% at 82% 0%, rgba(246,209,143,0.06), transparent)`;
   return {
     dark:bg0,
     dark2:bg2,
-    gold:"#FFD166",
-    coin:"#5ED9FF",
-    xp:d.point,
+    gold:"#F6D18F",
+    coin:"#62B9E6",
+    xp:"#A9B448",
     streak:d.point2,
     accent:d.point,
     themePoint:d.point,
@@ -277,31 +281,31 @@ export const dungeonPalette = (main="#60A8FF") => {
     themeJob:d.job,
     themeSoft:d.soft,
     themeDeep:d.deep,
-    green:"#7BE0A6",
+    green:"#8FB081",
     neon:d.point,
     red:"#FF5C7A",
     scenery:d.scenery,
-    aura:d.aura,
-    panelBg:`radial-gradient(110% 85% at 18% 0%, ${d.aura} 0%, transparent 54%), linear-gradient(160deg, ${bg2}, ${bg0})`,
-    panelText:"#F6F7FB",
-    panelSub:"#A8ADC5",
-    headerBg:`radial-gradient(120% 95% at 18% 0%, ${d.aura} 0%, transparent 60%), linear-gradient(135deg, ${bg2}, ${bg0})`,
-    onDark:"#F6F7FB",
-    onDarkSub:"rgba(246,247,251,0.72)",
-    chipBg:"rgba(255,255,255,0.09)",
-    chipBorder:`${d.point}55`,
-    chipText:"#F6F7FB",
+    aura:"rgba(246,209,143,0.10)",
+    panelBg:`${paper}, linear-gradient(160deg, ${card1}, ${card2})`,
+    panelText:"#F0F3F3",
+    panelSub:"#DDE8DE",
+    headerBg:`linear-gradient(135deg, ${bg2}, ${bg0})`,
+    onDark:"#F0F3F3",
+    onDarkSub:"rgba(240,243,243,0.75)",
+    chipBg:"rgba(255,255,255,0.12)",
+    chipBorder:"rgba(143,176,129,0.55)",
+    chipText:"#F0F3F3",
     bubble:"rgba(255,255,255,0.08)",
     divider:"rgba(255,255,255,0.1)",
-    boxBg:`radial-gradient(100% 90% at 18% 0%, ${d.aura} 0%, transparent 58%), linear-gradient(150deg, ${card1}, ${card2})`,
+    boxBg:`${paper}, linear-gradient(150deg, ${card1}, ${card2})`,
     boxSolid:card2,
-    boxText:"#F6F7FB",
-    boxSub:"rgba(246,247,251,0.68)",
-    boxBorder:`${d.point}66`,
-    boxShadowCol:"rgba(3,8,24,0.48)",
-    appBg:`linear-gradient(180deg, ${bg1} 0%, ${bg0} 50%, #182C4E 100%)`,
+    boxText:"#F0F3F3",
+    boxSub:"#DDE8DE",
+    boxBorder:"rgba(143,176,129,0.55)",
+    boxShadowCol:"rgba(35,64,42,0.35)",
+    appBg:`linear-gradient(180deg, ${bg1} 0%, ${bg0} 55%, #2C4636 100%)`,
     tabActive:`linear-gradient(135deg, ${d.point}, ${d.point2})`,
-    accentBar:`linear-gradient(90deg, ${d.point}, ${d.point2})`,
+    accentBar:`linear-gradient(90deg, #A9B448, #8FB081)`,
     missionDark:true,
     radCard:22,
     radMid:18,

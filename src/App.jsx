@@ -3841,7 +3841,7 @@ export default function App() {
               {/* 오늘 학원 일정 섹션 */}
               <div style={{marginTop:2,marginBottom:14}}>
                 {childTodayAc.length===0?(
-                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)",background:kidSkin==="cute"?"#fff":`linear-gradient(160deg, ${dungeonTone(th.main,30)}, ${dungeonTone(th.main,20)})`,borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:`1px dashed rgba(255,255,255,0.18)`}}>
+                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"#DDE8DE",background:kidSkin==="cute"?"#fff":"rgba(255,255,255,0.08)",borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed rgba(143,176,129,0.5)"}}>
                     <p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>
                     <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
                   </div>
@@ -3956,7 +3956,8 @@ export default function App() {
                 return (
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
-                    :{position:"relative",overflow:"hidden",background:dungeonShinyBg,border:`1px solid ${th.main}55`,borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 10px 30px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.08)`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
+                    // 미션 탭(모험): '모험 지도·가죽 노트' 느낌 — Rock 계열 그라데이션 + 은은한 종이 질감
+                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.06), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.05), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.05), transparent), linear-gradient(150deg, #C08A59, #8E6845)`,border:"1px solid rgba(246,209,143,0.55)",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#FFF8EB",boxShadow:`0 10px 30px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.10)`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
                     <DungeonCardGlow/>
                     {/* 젤리 광택 */}
                     {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
@@ -4001,10 +4002,10 @@ export default function App() {
               {(()=>{
                 const allTodayTodos=getChildQuestBoardItems(childId,childDate);
                 if(allTodayTodos.length===0) return (
-                  <div style={{padding:"30px 16px",textAlign:"center",marginTop:2,marginBottom:14,borderRadius:22,background:kidSkin==="cute"?"#fff":`linear-gradient(160deg, ${dungeonTone(th.main,30)}, ${dungeonTone(th.main,20)})`,border:kidSkin==="cute"?`1px dashed ${C.border}`:`1px dashed rgba(255,255,255,0.18)`}}>
+                  <div style={{padding:"30px 16px",textAlign:"center",marginTop:2,marginBottom:14,borderRadius:22,background:kidSkin==="cute"?"#fff":"rgba(255,255,255,0.08)",border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed rgba(143,176,129,0.5)"}}>
                     <p style={{fontSize:42,margin:"0 0 8px",animation:"wiggle 2.4s ease-in-out infinite"}}>🗒️</p>
-                    <p style={{fontSize:17,fontWeight:900,color:kidSkin==="cute"?C.text:"#fff",margin:"0 0 4px"}}>{T.restDay}</p>
-                    <p style={{fontSize:13,fontWeight:700,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)",margin:0}}>푹 쉬어도 좋아요 😌</p>
+                    <p style={{fontSize:17,fontWeight:900,color:kidSkin==="cute"?C.text:"#F0F3F3",margin:"0 0 4px"}}>{T.restDay}</p>
+                    <p style={{fontSize:13,fontWeight:700,color:kidSkin==="cute"?C.sub:"#DDE8DE",margin:0}}>푹 쉬어도 좋아요 😌</p>
                   </div>
                 );
                 // 미션 강조박스 색 — 모험:어두운 톤 / 베이커리:맑은 박스
