@@ -6428,6 +6428,17 @@ export default function App() {
               </button>
             </div>
 
+            {/* 학부모 카카오톡 오픈채팅 — 부모 설정에서 바로 입장 */}
+            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
+              <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>💬 학부모 오픈채팅</p>
+              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>카카오톡 오픈채팅방에서 공지·문의를 함께 나눠요.</p>
+              <button
+                onClick={()=>window.open("https://open.kakao.com/o/g6H6WgFi","_blank","noopener,noreferrer")}
+                style={{width:"100%",padding:12,borderRadius:14,border:"none",background:"#FEE500",color:"#3C1E1E",fontSize:14,fontWeight:900,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+                <span style={{fontSize:16}}>💬</span> 오픈채팅방 입장하기
+              </button>
+            </div>
+
             {!skinByChild[childId] && (
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
               <button
