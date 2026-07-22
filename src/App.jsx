@@ -3641,8 +3641,11 @@ export default function App() {
                           // → 절대배치로 크기를 완전 고정: 바깥 div가 레이아웃 자리(실루엣 폭×실루엣 높이)만 차지하고,
                           //   아바타 정사각형은 그 중앙·발끝이 바깥 div 바닥선에 오도록 고정 → 펫도 옆에 붙고 접지도 정확.
                           const _avSz=cute?Math.round(_sz*1.18):AVATAR_HOME_SIZE[_st]; // 모험: 독립 크기표(성장 캐릭터와 비연동) / 베이커리: 기존 비례 유지
+                          // [모험] 레이아웃 박스 높이를 성장 캐릭터(_sz)와 동일하게 → 모드 전환 시 무대 줄 높이가 같아져
+                          //        배경 전체 크기·팻말 버튼·펫(알) 위치가 그대로 유지되고, 발끝도 같은 바닥선에 접지된다.
+                          //        (아바타 그림 자체 크기는 _avSz 그대로 — 박스 위로만 넘치고 바닥 기준은 불변)
                           return (
-                            <div style={{position:"relative",width:Math.round(_avSz*0.42),height:Math.round(_avSz*0.80)}}>
+                            <div style={{position:"relative",width:Math.round(_avSz*0.42),height:cute?Math.round(_avSz*0.80):_sz}}>
                               <div style={{position:"absolute",left:"50%",bottom:-Math.round(_avSz*0.08),transform:"translateX(-50%)",width:_avSz}}>
                                 <AvatarViewer equipped={getAvatarEquipped(childId)} size={_avSz} showFrame={false} showBg={false} baseCharImg={getAvatarBaseCharImg(childId)} gender={(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy"} />
                               </div>
@@ -3700,8 +3703,9 @@ export default function App() {
                   );
                 };
                 // [모험] 버튼 줄을 좌측 정렬로 — 우측 펫 라벨('곧 부화!')과의 겹침 방지
+                // [모험] 팻말 버튼만 10px 위로: 무대가 아래 기준 정렬이라 marginTop↓/marginBottom↑을 맞바꿔 캐릭터·펫 위치는 고정
                 return (
-                  <div style={{position:"relative",zIndex:2,marginTop:cute?10:14,display:"flex",alignItems:"center",justifyContent:cute?"center":"flex-start",gap:8,flexWrap:"wrap"}}>
+                  <div style={{position:"relative",zIndex:2,marginTop:cute?10:4,marginBottom:cute?0:10,display:"flex",alignItems:"center",justifyContent:cute?"center":"flex-start",gap:8,flexWrap:"wrap"}}>
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
                     {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
