@@ -7,6 +7,7 @@ import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark 
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
+import HomeSheet from "./components/HomeSheet.jsx";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   LEGACY_AVATAR_OWNED_KEY, computeAvatarMigration,
@@ -3739,7 +3740,7 @@ export default function App() {
               {tabEls}
             </div>
           );
-          // 모험(첫 목업 그대로): 흰 시트 — 핸들바 + 레벨줄 + 진행바 + 2타일(모험 💊 / 미션 ☁️🔒, 아이콘 오른쪽·틴트 배경)
+          // 모험: 하단 시트(레벨바+3타일) — 표시부는 HomeSheet 컴포넌트로 분리(CLAUDE.md 3번 점진 분리)
           const _score=getChildXP(childId);
           const _cur=getChildLevel(childId);
           const _next=getNextLevel(childId);
@@ -3751,38 +3752,8 @@ export default function App() {
             {k:"growth",title:"캐릭터",sub:`레벨 ${_cur.level}`,icon:getGenderEmoji(curChild)},
           ];
           return (
-            <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"18px 18px 22px",
-              borderRadius:"30px 30px 0 0",background:"#F0F3F3", // Cloud — 순백 대신 수채화와 이어지는 아이보리·회색
-              boxShadow:"0 -10px 30px -12px rgba(40,70,45,0.30)"}}>
-              {/* 시트 핸들바 */}
-              <div style={{width:44,height:5,borderRadius:999,background:"#D9DED7",margin:"-4px auto 14px"}}/>
-              {/* 레벨 줄 */}
-              <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:9}}>
-                <span style={{fontSize:17,fontWeight:900,color:"#4B3A2F"}}>레벨{_cur.level} {curChild?.name}</span>
-                <span style={{fontSize:18,fontWeight:900,color:"#62B9E6",fontVariantNumeric:"tabular-nums"}}>{_pct}%</span>
-              </div>
-              <div style={{height:12,borderRadius:999,background:"#DDE5DE",overflow:"hidden"}}>
-                <div style={{height:"100%",width:`${_pct}%`,borderRadius:999,background:"linear-gradient(90deg,#5C8B57,#8FB081)",boxShadow:"inset 0 2px 0 rgba(255,255,255,0.35)"}}/>
-              </div>
-              {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 — 아이콘 위·세로 중앙 정렬, 선택 시 파란 강조 */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginTop:15}}>
-                {_tiles.map(t=>{
-                  const on=childTab===t.k;
-                  return (
-                    <button key={t.k} onClick={()=>setChildTab(t.k)} className="jelly-tap" style={{
-                      display:"flex",flexDirection:"column",alignItems:"center",gap:5,textAlign:"center",cursor:"pointer",
-                      padding:"14px 8px 12px",borderRadius:22,minWidth:0,
-                      border:on?"2px solid #8FC9ED":"1.5px solid #E3E6DE",
-                      background:on?"#EAF6FD":"#F7F8F6",
-                      boxShadow:"0 4px 14px rgba(71,116,71,0.10)"}}>
-                      <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
-                      <b style={{display:"block",fontFamily:"'OwnglyphConCon','Noto Sans KR',sans-serif",fontSize:19,fontWeight:400,color:on?"#477447":"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
-                      <small style={{display:"block",fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",fontSize:11.5,fontWeight:400,color:"#7E8C7B",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <HomeSheet name={curChild?.name} level={_cur.level} pct={_pct}
+              tiles={_tiles} activeTab={childTab} onSelect={setChildTab} />
           );
         })()}
 
