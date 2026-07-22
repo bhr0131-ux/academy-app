@@ -3453,8 +3453,9 @@ export default function App() {
           const spotlight=cute
             ?"radial-gradient(ellipse 60% 50% at 50% 62%, rgba(255,255,255,0.55), transparent 70%)"
             :`radial-gradient(ellipse 70% 42% at 50% 30%, ${GP.gold||"#FFD166"}30, transparent 68%), radial-gradient(ellipse 58% 48% at 50% 60%, ${th.main}3d, transparent 72%)`;
+          // 모험(개방감): 테두리 장착 시에도 풀블리드 유지 — 프레임은 화면 가장자리 4px 림 + 글로우로만 표현
           return (
-            <div style={{position:"relative",zIndex:1,margin:stageBorder?"16px 16px 0":(cute?"16px 16px 0":"0"),borderRadius:stageBorder?(cute?34:GP.radCard||28):(cute?34:"0"),padding:stageBorder?4:0,overflow:"hidden",
+            <div style={{position:"relative",zIndex:1,margin:cute?"16px 16px 0":"0",borderRadius:cute?34:"0",padding:stageBorder?4:0,overflow:"hidden",
               background:stageBorder?stageBorder.grad:"transparent",
               backgroundSize:stageBorder&&(stageBorder.shimmer||stageBorder.rainbow)?"260% 260%":"100% 100%",
               boxShadow:stageBorder?(cute?`0 10px 26px ${bGlow}, 0 0 14px ${bGlow}`:`0 14px 36px ${bGlow}, 0 0 26px ${bGlow}`):"none",
@@ -3469,14 +3470,14 @@ export default function App() {
                   <div style={{position:"absolute",top:0,left:"-40%",width:"45%",height:"100%",background:`linear-gradient(105deg, transparent, rgba(255,255,255,${cute?0.6:0.85}), transparent)`,transform:"skewX(-18deg)",willChange:"transform",animation:"shineMove 4s ease-in-out infinite"}}/>
                 </div>
               )}
-            <div style={{position:"relative",borderRadius:stageBorder?(cute?30:((GP.radCard||28)-4)):(cute?34:"0"),padding:stageBorder?"18px 18px 16px":(cute?"18px 18px 16px":"120px 18px 26px"),overflow:"hidden",
-              // 목업형(모험·기본): 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림
-              ...(!stageBorder&&!cute?{display:"flex",flexDirection:"column",justifyContent:"flex-end",minHeight:"calc(100vh - 205px)",boxSizing:"border-box"}:{}),
+            <div style={{position:"relative",borderRadius:cute?(stageBorder?30:34):"0",padding:cute?"18px 18px 16px":"120px 18px 26px",overflow:"hidden",
+              // 목업형(모험): 테두리 장착 여부와 무관하게 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림
+              ...(!cute?{display:"flex",flexDirection:"column",justifyContent:"flex-end",minHeight:stageBorder?"calc(100vh - 213px)":"calc(100vh - 205px)",boxSizing:"border-box"}:{}),
               contain:"paint",   // 카드 내부의 애니메이션 리페인트를 카드 안으로 격리 → 헤더 등 바깥 UI 페인트 지연 방지
               background:stageBg,
               // 모험(개방감): 테두리 없이 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
               border:stageBorder?"none":(cute?"2px solid #fff":"none"),
-              boxShadow:stageBorder?(cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:`0 14px 34px ${GP.boxShadowCol||"rgba(0,0,0,0.35)"}, inset 0 1px 0 rgba(255,255,255,0.10)`):(cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:"none")}}>
+              boxShadow:cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:"none"}}>
               {/* 모험 기본 풍경 (밤·숲속 캠프) — 배경 꾸미기 미장착 시 기본 배경으로 */}
               {!cute&&!stageBgDeco&&<DungeonScenery/>}
               {/* 베이커리 기본 풍경 (하늘+해+구름+제과점) — 그대로 유지 */}
