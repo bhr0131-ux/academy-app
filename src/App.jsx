@@ -2949,14 +2949,14 @@ export default function App() {
               <>
               <div style={kidSkin==="cute"
                 ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,borderRadius:34,padding:"17px",boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,color:GP.boxText,border:"2px solid #fff",marginBottom:12}
-                // 캐릭터 탭(모험): '호수' 느낌 — Sky 계열 그라데이션 + 은은한 종이 질감 (HERO STATUS 골드는 대비 유지)
-                :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 28%, rgba(255,255,255,0.07), transparent), radial-gradient(1.2px 1.2px at 68% 16%, rgba(255,255,255,0.05), transparent), radial-gradient(1.3px 1.3px at 82% 64%, rgba(255,255,255,0.06), transparent), linear-gradient(150deg, #6AA7D3, #4E82A8)`,borderRadius:GP.radCard,padding:"17px",boxShadow:"0 10px 28px rgba(40,80,110,0.35)",color:GP.boxText,border:"1px solid rgba(168,210,238,0.55)",marginBottom:12}}>
+                // 캐릭터 탭(모험): '호수' 느낌 — SkyLight(#B5DBEE) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 딥블루로 대비
+                :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 28%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 68% 16%, rgba(255,255,255,0.28), transparent), radial-gradient(1.3px 1.3px at 82% 64%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #B5DBEE, #9CC8E2)`,borderRadius:GP.radCard,padding:"17px",boxShadow:"0 10px 28px rgba(78,130,168,0.28)",color:"#2F5670",border:"1px solid rgba(143,201,237,0.6)",marginBottom:12}}>
                 {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"42%",background:"linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
                 <DungeonCardGlow/>
                 {/* 레벨 + 상장 — 윗줄(라벨+상장뱃지) / 아랫줄(레벨명 한 줄 전체)로 분리해 겹침 방지 */}
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,position:"relative",zIndex:1}}>
-                  <p style={{fontSize:12,fontWeight:900,letterSpacing:1.5,margin:0,color:kidSkin==="cute"?GP.boxSub:GP.gold}}>{T.heroStatus}</p>
-                  <p style={{display:"inline-block",...jellyChip({background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:`1px solid ${GP.chipBorder}`,borderRadius:20},{radius:20}),fontSize:13,fontWeight:900,color:GP.boxText,padding:"5px 12px",margin:0,maxWidth:"58%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
+                  <p style={{fontSize:12,fontWeight:900,letterSpacing:1.5,margin:0,color:kidSkin==="cute"?GP.boxSub:"#B8863B"}}>{T.heroStatus}</p>
+                  <p style={{display:"inline-block",...jellyChip({background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"rgba(255,255,255,0.55)",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"1px solid rgba(143,201,237,0.55)",borderRadius:20},{radius:20}),fontSize:13,fontWeight:900,color:kidSkin==="cute"?GP.boxText:"#2F5670",padding:"5px 12px",margin:0,maxWidth:"58%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                     {title.emoji} {title.name}
                   </p>
                 </div>
@@ -2969,21 +2969,21 @@ export default function App() {
                     const longish=nameLen+lvDigits;
                     const fs= longish>=8 ? 17 : longish>=7 ? 19 : 21;
                     return (
-                      <p style={{fontSize:fs,fontWeight:900,margin:0,color:GP.boxText,lineHeight:1.2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{level.emoji} Lv.{level.level} {level.name}</p>
+                      <p style={{fontSize:fs,fontWeight:900,margin:0,color:kidSkin==="cute"?GP.boxText:"#2F5670",lineHeight:1.2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{level.emoji} Lv.{level.level} {level.name}</p>
                     );
                   })()}
                 </div>
                 {(()=>{
                   const coinXpBlock=(
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginTop:14,marginBottom:6,position:"relative",zIndex:1}}>
-                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"rgba(255,255,255,0.5)",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <span style={{fontSize:20}}>{TM.coinEmoji}</span>
                         <div style={{minWidth:0}}>
                           <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>보유 {TM.coin}</p>
                           <p style={{fontSize:17,fontWeight:900,margin:"1px 0 0",lineHeight:1}}>{coin}</p>
                         </div>
                       </div>
-                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"rgba(255,255,255,0.5)",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <span style={{fontSize:20}}>{TM.xpEmoji}</span>
                         <div style={{minWidth:0}}>
                           <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>누적 {TM.xp}</p>
@@ -2999,7 +2999,7 @@ export default function App() {
                         <span style={{fontSize:11,fontWeight:900,opacity:0.86}}>{nextLevel?`${progress.currentXp}/${progress.needXp}`:"MAX LEVEL"}</span>
                       </div>
                       )}
-                      <JellyBar percent={progress.percent} height={14} />
+                      <JellyBar percent={progress.percent} height={14} fallbackTrack="rgba(47,86,112,0.16)" fallbackBorder="1px solid rgba(143,201,237,0.7)" />
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginTop:6,fontSize:11.5,fontWeight:800,opacity:0.88}}>
                         <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nextLevel?<>다음 레벨 : {nextLevel.emoji} Lv.{nextLevel.level} {nextLevel.name}</>:"🏆 최고 레벨 달성!"}</span>
                         <span style={{opacity:0.78,flexShrink:0}}>{nextLevel?(kidSkin==="cute"?`${progress.remainXp} ${TM.xp} 남음`:`${progress.currentXp}/${progress.needXp} · ${progress.remainXp} 남음`):""}</span>
@@ -3791,7 +3791,8 @@ export default function App() {
                 return (
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
-                    :{position:"relative",overflow:"hidden",background:dungeonShinyBg,border:`1px solid ${th.main}55`,borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 10px 30px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.08)`,boxSizing:"border-box",display:"flex",flexDirection:"column"}}>
+                    // 모험 탭(모험): '풀숲 들판' 느낌 — Olive(#A9B448) 계열 그라데이션 + 은은한 종이 질감, 글씨는 딥올리브로 대비
+                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.3), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.25), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.25), transparent), linear-gradient(150deg, #B7C25A, #9CA741)`,border:"1px solid rgba(217,226,150,0.6)",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#3E4A20",boxShadow:"0 10px 30px rgba(90,102,44,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",boxSizing:"border-box",display:"flex",flexDirection:"column"}}>
                     <DungeonCardGlow/>
                     {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
                     <div style={{position:"absolute",top:-26,right:-20,width:90,height:90,borderRadius:"50%",background:"rgba(255,255,255,0.07)",pointerEvents:"none"}}/>
@@ -3800,8 +3801,8 @@ export default function App() {
                         {kidSkin==="cute"&&T.areaTag&&<p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.2}}>{T.areaTag}</p>}
                         <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0"}}><span style={{display:"inline-block",animation:"floatBob 2.6s ease-in-out infinite"}}>{T.areaCountIcon}</span> {isChildToday?T.todayArea:`${childDt.getMonth()+1}/${childDt.getDate()} ${T.dateAreaSuffix}`}</p>
                       </div>
-                      <div style={{borderRadius:999,padding:"7px 16px",background:kidSkin==="cute"?`radial-gradient(circle at 38% 30%, #fff, ${mixWhite(th.main,0.55)})`:(GP.innerBg||GP.chipBg),border:`${kidSkin==="cute"?"3px":"2px"} solid ${kidSkin==="cute"?"#fff":(GP.innerBorder||GP.chipBorder)}`,display:"flex",alignItems:"center",gap:5,boxShadow:kidSkin==="cute"?`0 5px 14px ${th.main}4a, inset 0 2px 4px rgba(255,255,255,0.9)`:"none",flexShrink:0,whiteSpace:"nowrap"}}>
-                        <span style={{fontSize:18,fontWeight:900,color:kidSkin==="cute"?th.main:GP.gold,lineHeight:1}}>{T.areaCountIcon} {total}</span>
+                      <div style={{borderRadius:999,padding:"7px 16px",background:kidSkin==="cute"?`radial-gradient(circle at 38% 30%, #fff, ${mixWhite(th.main,0.55)})`:"rgba(255,255,255,0.5)",border:`${kidSkin==="cute"?"3px":"2px"} solid ${kidSkin==="cute"?"#fff":"rgba(255,255,255,0.7)"}`,display:"flex",alignItems:"center",gap:5,boxShadow:kidSkin==="cute"?`0 5px 14px ${th.main}4a, inset 0 2px 4px rgba(255,255,255,0.9)`:"none",flexShrink:0,whiteSpace:"nowrap"}}>
+                        <span style={{fontSize:18,fontWeight:900,color:kidSkin==="cute"?th.main:"#556320",lineHeight:1}}>{T.areaCountIcon} {total}</span>
                         <span style={{fontSize:13,fontWeight:900,opacity:0.85,lineHeight:1}}>곳</span>
                       </div>
                     </div>
@@ -3941,8 +3942,8 @@ export default function App() {
                 return (
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
-                    // 미션 탭(모험): '모험 지도·가죽 노트' 느낌 — Rock 계열 그라데이션 + 은은한 종이 질감
-                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.06), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.05), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.05), transparent), linear-gradient(150deg, #C08A59, #8E6845)`,border:"1px solid rgba(246,209,143,0.55)",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#FFF8EB",boxShadow:`0 10px 30px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.10)`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
+                    // 미션 탭(모험): '모험 지도·모래 사장' 느낌 — Sand(#F6D18F) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 진갈색으로 대비
+                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.3), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #F6D18F, #E8BC72)`,border:"1px solid rgba(192,138,89,0.5)",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#5D4633",boxShadow:"0 10px 30px rgba(142,104,69,0.28), inset 0 1px 0 rgba(255,255,255,0.35)",boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
                     <DungeonCardGlow/>
                     {/* 젤리 광택 */}
                     {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
@@ -3952,26 +3953,26 @@ export default function App() {
                         <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.2}}>{T.dailyArea}</p>
                         <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0"}}><span style={{display:"inline-block",animation:"floatBob 2.6s ease-in-out infinite"}}>{T.missionEmoji}</span> {T.todayQuest}</p>
                       </div>
-                      <div style={{width:62,height:62,borderRadius:"50%",background:kidSkin==="cute"?`radial-gradient(circle at 38% 30%, #fff, ${mixWhite(th.main,0.55)})`:(GP.innerBg||GP.chipBg),border:`${kidSkin==="cute"?"3px":"2px"} solid ${kidSkin==="cute"?"#fff":(GP.innerBorder||GP.chipBorder)}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",boxShadow:kidSkin==="cute"?`0 5px 14px ${th.main}4a, inset 0 2px 4px rgba(255,255,255,0.9)`:"none"}}>
-                        <p style={{fontSize:17,fontWeight:900,margin:0,color:kidSkin==="cute"?th.main:GP.gold}}>{q.percent}%</p>
+                      <div style={{width:62,height:62,borderRadius:"50%",background:kidSkin==="cute"?`radial-gradient(circle at 38% 30%, #fff, ${mixWhite(th.main,0.55)})`:"rgba(255,255,255,0.5)",border:`${kidSkin==="cute"?"3px":"2px"} solid ${kidSkin==="cute"?"#fff":"rgba(192,138,89,0.45)"}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",boxShadow:kidSkin==="cute"?`0 5px 14px ${th.main}4a, inset 0 2px 4px rgba(255,255,255,0.9)`:"none"}}>
+                        <p style={{fontSize:17,fontWeight:900,margin:0,color:kidSkin==="cute"?th.main:"#8E6845"}}>{q.percent}%</p>
                         <p style={{fontSize:11,fontWeight:900,margin:0,opacity:0.8}}>{T.clearShort}</p>
                       </div>
                     </div>
                     <div style={{marginBottom:12}}>
-                      <JellyBar percent={q.percent} height={14} />
+                      <JellyBar percent={q.percent} height={14} fallbackTrack="rgba(142,104,69,0.18)" fallbackBorder="1px solid rgba(192,138,89,0.55)" />
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,position:"relative"}}>
-                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"rgba(255,255,255,0.45)",borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>✅</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{q.done}</p>
                         <p style={{fontSize:11,opacity:0.75,margin:0}}>{T.clearShort}</p>
                       </div>
-                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"rgba(255,255,255,0.45)",borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>{T.missionEmoji}</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{ready}</p>
                         <p style={{fontSize:11,opacity:0.75,margin:0}}>{kidSkin==="cute"||rewardAgeGroup==="kid"?"남음":"READY"}</p>
                       </div>
-                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:GP.chipBg,borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
+                      <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"rgba(255,255,255,0.45)",borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                         <p style={{fontSize:16,margin:0}}>❌</p>
                         <p style={{fontSize:14,fontWeight:900,margin:"1px 0 0"}}>{q.failed}</p>
                         <p style={{fontSize:11,opacity:0.75,margin:0}}>{kidSkin==="cute"||rewardAgeGroup==="kid"?"실패":"FAILED"}</p>
