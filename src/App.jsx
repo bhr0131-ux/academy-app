@@ -3393,12 +3393,6 @@ export default function App() {
                   style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:"1.5px solid rgba(255,255,255,0.85)",background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.60)",borderRadius:14}),flex:children.length>1?1:"none",color:kidSkin==="cute"?GP.chipText:"#123021",padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",backdropFilter:kidSkin==="cute"?undefined:"blur(8px)",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 3px 10px rgba(20,50,35,0.18)",textShadow:"none"}}>
                   👩 엄마용
                 </button>
-                {children.length<=1&&(
-                  <button onClick={()=>setShowKidCoachmark(true)}
-                    style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:"1.5px solid rgba(255,255,255,0.85)",background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.60)",borderRadius:14}),color:kidSkin==="cute"?GP.chipText:"#123021",padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer",backdropFilter:kidSkin==="cute"?undefined:"blur(8px)",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 3px 10px rgba(20,50,35,0.18)",textShadow:"none"}}>
-                    ❓
-                  </button>
-                )}
               </div>
               {children.length>1&&(
                 <select value={childId} onChange={e=>{
