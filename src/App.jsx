@@ -3710,7 +3710,7 @@ export default function App() {
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
                     {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
                     {/* 모험: 사용자 원화 나무 팻말 이미지 버튼 (art-src/btn-*-sign.png → assets/btn-*.webp)
-                        두 팻말의 원화 비율이 달라 높이 기준이면 성장캐릭터가 더 커 보임 → '내 아바타' 폭(110px) 기준으로 통일 */}
+                        두 팻말 원화가 동일 비율(약 3.4:1)이라 폭 기준(130px)으로 통일 표시 */}
                     {cute?(
                     <button onClick={toggleCharDisplayMode}
                       style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
@@ -3736,7 +3736,7 @@ export default function App() {
                       <img
                         src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
                         alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장캐릭터 보기":"내 아바타 보기"}
-                        style={{width:110,height:"auto",display:"block",filter:"saturate(0.85) drop-shadow(0 3px 6px rgba(93,70,51,0.35))"}}/>
+                        style={{width:130,height:"auto",display:"block",filter:"saturate(0.85) drop-shadow(0 3px 6px rgba(93,70,51,0.35))"}}/>
                     </button>
                     )}
                   </div>
