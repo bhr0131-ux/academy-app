@@ -3389,9 +3389,14 @@ export default function App() {
               const _sp=_msg.indexOf(" ");
               const _head=_sp>0?_msg.slice(0,_sp):_msg;
               const _rest=_sp>0?_msg.slice(_sp+1):"";
+              // 문구 끝 이모지는 글자보다 커 보여서 분리해 작게 표시
+              const _em=_rest.match(/([\p{Extended_Pictographic}\u{FE0F}\u{200D}]+)\s*$/u);
+              const _restText=_em?_rest.slice(0,_em.index).trimEnd():_rest;
+              const _emoji=_em?_em[1]:"";
               return (
-                <h1 style={{fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:28,fontWeight:400,margin:"30px 0 0 16px",lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:"#5D4633",textShadow:"0 1px 0 rgba(255,255,255,0.6), 0 3px 12px rgba(255,255,255,0.4)"}}>
-                  {_head}{_rest&&<><br/>{_rest}</>}
+                <h1 style={{fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:28,fontWeight:700,margin:"30px 0 0 30px",lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:"#5D4633",textShadow:"0 1px 0 rgba(255,255,255,0.6), 0 3px 12px rgba(255,255,255,0.4)"}}>
+                  {_head}{_restText&&<><br/>{_restText}</>}
+                  {_emoji&&<span style={{fontSize:"0.64em",verticalAlign:"baseline"}}> {_emoji}</span>}
                 </h1>
               );
             })()}
