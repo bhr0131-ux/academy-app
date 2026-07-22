@@ -19,3 +19,5 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | boots-explorer-sockless-v2.png | 탐험 부츠 착용 원화 (맨발목 v2, 최종 승인본) | avatar/shoes/explorer-boots.webp |
 | boots-pink-ribbon-wearing.png | 리본 부츠 원화 (판매 중단, 보관용) | (은퇴) |
 | boots-green-wearing-v2.png | 새싹 부츠 착용 원화 (v2, 현행 승인본) | avatar/shoes/green-boots.webp |
+| btn-my-avatar-sign.png | '내 아바타' 나무 팻말 버튼 원화 | btn-my-avatar.webp |
+| btn-growth-character-sign.png | '성장캐릭터' 나무 팻말 버튼 원화 | btn-growth-character.webp |
