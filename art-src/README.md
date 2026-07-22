@@ -11,10 +11,11 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | base-girl.png | 여아 아바타 베이스 원화 (v2, 승인본) | avatar/base/default-girl.webp |
 | boots-explorer-wearing.png | 탐험 부츠 착용 원화 (양말 버전, 구) | (교체됨) |
 | boots-explorer-sockless.png | 탐험 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/explorer-boots.webp |
-| boots-green-wearing.png | 새싹 부츠 착용 원화 | avatar/shoes/green-boots.webp |
+| boots-green-wearing.png | 새싹 부츠 착용 원화 (구) | (교체됨) |
 | boots-cream-wearing.png | 크림 부츠 착용 원화 (양말 버전, 구) | (교체됨) |
 | boots-cream-sockless.png | 크림 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/cream-boots.webp |
 | boots-desert-wearing-retired.png | 모래 부츠 원화 (판매 중단, 보관용) | (은퇴) |
 | hat-explorer-wearing.png | 탐험 헬멧 착용 원화 | avatar/hat/explorer-helmet.webp |
 | boots-explorer-sockless-v2.png | 탐험 부츠 착용 원화 (맨발목 v2, 최종 승인본) | avatar/shoes/explorer-boots.webp |
 | boots-pink-ribbon-wearing.png | 리본 부츠 원화 (판매 중단, 보관용) | (은퇴) |
+| boots-green-wearing-v2.png | 새싹 부츠 착용 원화 (v2, 현행 승인본) | avatar/shoes/green-boots.webp |
