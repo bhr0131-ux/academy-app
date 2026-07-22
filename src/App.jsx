@@ -3428,7 +3428,7 @@ export default function App() {
             ?"radial-gradient(ellipse 60% 50% at 50% 62%, rgba(255,255,255,0.55), transparent 70%)"
             :`radial-gradient(ellipse 70% 42% at 50% 30%, ${GP.gold||"#FFD166"}30, transparent 68%), radial-gradient(ellipse 58% 48% at 50% 60%, ${th.main}3d, transparent 72%)`;
           return (
-            <div style={{position:"relative",zIndex:1,margin:stageBorder?"16px 16px 0":"-26px 0 0",borderRadius:stageBorder?(cute?34:GP.radCard||28):"0 0 30px 30px",padding:stageBorder?4:0,overflow:"hidden",
+            <div style={{position:"relative",zIndex:1,margin:stageBorder?"16px 16px 0":(cute?"16px 16px 0":"-26px 0 0"),borderRadius:stageBorder?(cute?34:GP.radCard||28):(cute?34:"0"),padding:stageBorder?4:0,overflow:"hidden",
               background:stageBorder?stageBorder.grad:"transparent",
               backgroundSize:stageBorder&&(stageBorder.shimmer||stageBorder.rainbow)?"260% 260%":"100% 100%",
               boxShadow:stageBorder?(cute?`0 10px 26px ${bGlow}, 0 0 14px ${bGlow}`:`0 14px 36px ${bGlow}, 0 0 26px ${bGlow}`):"none",
@@ -3443,11 +3443,12 @@ export default function App() {
                   <div style={{position:"absolute",top:0,left:"-40%",width:"45%",height:"100%",background:`linear-gradient(105deg, transparent, rgba(255,255,255,${cute?0.6:0.85}), transparent)`,transform:"skewX(-18deg)",willChange:"transform",animation:"shineMove 4s ease-in-out infinite"}}/>
                 </div>
               )}
-            <div style={{position:"relative",borderRadius:stageBorder?(cute?30:((GP.radCard||28)-4)):"0 0 30px 30px",padding:stageBorder?"18px 18px 16px":"40px 18px 20px",overflow:"hidden",
+            <div style={{position:"relative",borderRadius:stageBorder?(cute?30:((GP.radCard||28)-4)):(cute?34:"0"),padding:stageBorder?"18px 18px 16px":(cute?"18px 18px 16px":"72px 18px 22px"),overflow:"hidden",
               contain:"paint",   // 카드 내부의 애니메이션 리페인트를 카드 안으로 격리 → 헤더 등 바깥 UI 페인트 지연 방지
               background:stageBg,
-              border:stageBorder?"none":(cute?"none":"none"),   // 풀블리드(개방감): 기본 무대는 테두리 없이 화면 끝까지
-              boxShadow:stageBorder?(cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:`0 14px 34px ${GP.boxShadowCol||"rgba(0,0,0,0.35)"}, inset 0 1px 0 rgba(255,255,255,0.10)`):"none"}}>
+              // 모험(개방감): 테두리 없이 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
+              border:stageBorder?"none":(cute?"2px solid #fff":"none"),
+              boxShadow:stageBorder?(cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:`0 14px 34px ${GP.boxShadowCol||"rgba(0,0,0,0.35)"}, inset 0 1px 0 rgba(255,255,255,0.10)`):(cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:"none")}}>
               {/* 모험 기본 풍경 (밤·숲속 캠프) — 배경 꾸미기 미장착 시 기본 배경으로 */}
               {!cute&&!stageBgDeco&&<DungeonScenery/>}
               {/* 베이커리 기본 풍경 (하늘+해+구름+제과점) — 그대로 유지 */}
@@ -3690,31 +3691,45 @@ export default function App() {
         })()}
 
         {/* 아이용 탭 */}
-        <div style={{position:"relative",zIndex:1,display:"flex",background:GP.boxSolid,margin:"16px 16px 0",borderRadius:18,padding:6,border:`1px solid ${GP.boxBorder}`,boxShadow:SHADOW.md,gap:6}}>
-          {(()=>{ const charLabel = kidSkin==="cute" ? T.tabs.character : `${getGenderEmoji(curChild)} 내 캐릭터`;
-          return [["area",T.tabs.area],["today",T.tabs.quest],["growth",charLabel]].map(([k,label])=>{
+        {(()=>{
+          const charLabel = kidSkin==="cute" ? T.tabs.character : `${getGenderEmoji(curChild)} 내 캐릭터`;
+          const isCute=kidSkin==="cute";
+          const tabEls = [["area",T.tabs.area],["today",T.tabs.quest],["growth",charLabel]].map(([k,label])=>{
             const on=childTab===k;
             // RPG 스킨: 선택 탭 = 테마별 판타지 3단 그라데이션 (진→중→밝).
-            // 파랑=모험가 / 보라=마법사 / 연두=엘프 / 살구=힐러 / 분홍=요정.
-            // 보라로 통일하지 않고 각 테마색을 유지하되 채도를 약간 낮춰 고급스럽게.
             const fan=GP.themeFan||[mixBlack(th.main,0.30),th.main,mixWhite(th.main,0.20)];
             const tpBase=GP.themePoint||th.main;
             const rpgActiveBg=`linear-gradient(135deg, ${fan[0]} 0%, ${fan[1]} 55%, ${fan[2]} 100%)`;
-            const isCute=kidSkin==="cute";
             return (
             <button key={k} onClick={()=>setChildTab(k)} className="jelly-tap"
               style={{flex:1,position:"relative",overflow:"hidden",
-                border:isCute?"none":(on?"1px solid rgba(255,255,255,.15)":"1px solid transparent"),
+                border:isCute?"none":(on?"1px solid rgba(255,255,255,.15)":"1px solid rgba(255,255,255,.10)"),
                 borderRadius:14,padding:"12px 4px",
                 background:on?(isCute?(GP.tabActive||`linear-gradient(135deg, ${GP.gold}, ${th.main})`):rpgActiveBg):"transparent",
-                color:on?"#fff":GP.boxSub,fontSize:14.5,fontWeight:900,cursor:"pointer",letterSpacing:0.3,whiteSpace:"nowrap",
+                color:on?"#fff":(isCute?GP.boxSub:"rgba(255,255,255,.86)"),fontSize:14.5,fontWeight:900,cursor:"pointer",letterSpacing:0.3,whiteSpace:"nowrap",
                 boxShadow:on?(isCute?`0 5px 16px ${th.main}44`:`0 0 18px rgba(255,255,255,.10), 0 0 30px ${tpBase}55, inset 0 1px 0 rgba(255,255,255,.18)`):"none",
-                textShadow:on&&!isCute?"0 1px 3px rgba(20,15,60,.4)":"none",
+                textShadow:on&&!isCute?"0 1px 3px rgba(20,15,60,.4)":(!isCute?"0 1px 3px rgba(0,0,0,.6)":"none"),
                 animation:on?"tabBounce .4s ease-out":"none",transition:"color .2s"}}>
               {label}
             </button>
-          );});})()}
-        </div>
+          );});
+          // 베이커리: 기존 카드형 탭 유지
+          if(isCute) return (
+            <div style={{position:"relative",zIndex:1,display:"flex",background:GP.boxSolid,margin:"16px 16px 0",borderRadius:18,padding:6,border:`1px solid ${GP.boxBorder}`,boxShadow:SHADOW.md,gap:6}}>
+              {tabEls}
+            </div>
+          );
+          // 모험(개방감): 배경을 탭까지 이어지게 — 풀블리드 밴드에 숲 하단 연속 + 글래스 탭바
+          return (
+            <div style={{position:"relative",zIndex:1,margin:0,padding:"12px 14px 16px",overflow:"hidden",
+              backgroundImage:`linear-gradient(180deg, rgba(18,32,24,0) 0%, rgba(16,28,20,0.42) 52%, ${GP.appBg||C.bg} 100%), url(/assets/stage-adventure-meadow.webp)`,
+              backgroundSize:"cover, cover", backgroundPosition:"center top, center 88%", backgroundRepeat:"no-repeat, no-repeat"}}>
+              <div style={{display:"flex",gap:6,background:"rgba(12,22,16,0.40)",backdropFilter:"blur(7px)",WebkitBackdropFilter:"blur(7px)",borderRadius:16,padding:6,border:"1px solid rgba(255,255,255,0.14)",boxShadow:"0 8px 22px rgba(0,0,0,0.30)"}}>
+                {tabEls}
+              </div>
+            </div>
+          );
+        })()}
 
         <div key={childTab} style={{padding:"16px",position:"relative",zIndex:1,animation:"popInUp .35s ease-out"}}>
           {/* ── 모험장소 탭 (학원카드) ── */}
