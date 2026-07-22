@@ -3702,16 +3702,33 @@ export default function App() {
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
                     {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
-                    {/* 모험: 나무 팻말 느낌 캡슐 버튼 (크림 배경·갈색 테두리·눌림 애니메이션) */}
-                    <button onClick={toggleCharDisplayMode} className={cute?undefined:"jelly-tap"}
-                      style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
-                        background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:"#F2EED9",
-                        border:cute?`1.5px solid ${th.main}77`:"1.5px solid #B39A6A",borderRadius:999,padding:cute?"4px 11px":"11px 17px",
-                        color:(!cute)?"#4E3B2A":mixBlack(th.main,0.25),fontSize:cute?10:14,fontWeight:900,whiteSpace:"nowrap",
-                        boxShadow:cute?`0 3px 9px ${th.main}33`:"0 3px 6px rgba(93,70,51,0.28)"}}>
-                      {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
-                      {!cute&&<span style={{opacity:0.5,fontWeight:900,fontSize:15,lineHeight:1,marginLeft:1}}>›</span>}
-                    </button>
+                    {/* 내 아바타 상태 = 나무 팻말 이미지 버튼 / 성장 보기 상태 = 기존 캡슐(성장 보기 이미지 제공 시 교체) — 눌림 효과(jelly-tap) 유지 */}
+                    {(()=>{
+                      const isAvatarMode = getCharMode(childId)===CHAR_DISPLAY_AVATAR;
+                      // 성장 보기 상태: 별도 나무 팻말 이미지가 준비되면 아래 캡슐을 <img>로 교체.
+                      if(isAvatarMode){
+                        return (
+                          <button onClick={toggleCharDisplayMode} className="jelly-tap"
+                            style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
+                              background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:"#F2EED9",
+                              border:cute?`1.5px solid ${th.main}77`:"1.5px solid #B39A6A",borderRadius:999,padding:cute?"4px 11px":"11px 17px",
+                              color:(!cute)?"#4E3B2A":mixBlack(th.main,0.25),fontSize:cute?10:14,fontWeight:900,whiteSpace:"nowrap",
+                              boxShadow:cute?`0 3px 9px ${th.main}33`:"0 3px 6px rgba(93,70,51,0.28)"}}>
+                            🌱 성장 보기
+                            {!cute&&<span style={{opacity:0.5,fontWeight:900,fontSize:15,lineHeight:1,marginLeft:1}}>›</span>}
+                          </button>
+                        );
+                      }
+                      // 내 아바타 상태: 나무 팻말 이미지 버튼 (눌림 효과 jelly-tap 유지)
+                      return (
+                        <button onClick={toggleCharDisplayMode} className="jelly-tap" aria-label="내 아바타 보기"
+                          style={{background:"transparent",border:"none",padding:0,cursor:"pointer",lineHeight:0,
+                            WebkitTapHighlightColor:"transparent",filter:"drop-shadow(0 4px 6px rgba(93,70,51,0.30))"}}>
+                          <img src="/assets/ui/btn-my-avatar.webp" alt="내 아바타" draggable={false}
+                            style={{display:"block",width:178,height:"auto",userSelect:"none",pointerEvents:"none"}}/>
+                        </button>
+                      );
+                    })()}
                   </div>
                 );
               })()}
