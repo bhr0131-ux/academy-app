@@ -3454,7 +3454,8 @@ export default function App() {
             ?"radial-gradient(ellipse 60% 50% at 50% 62%, rgba(255,255,255,0.55), transparent 70%)"
             :`radial-gradient(ellipse 70% 42% at 50% 30%, ${GP.gold||"#FFD166"}30, transparent 68%), radial-gradient(ellipse 58% 48% at 50% 60%, ${th.main}3d, transparent 72%)`;
           return (
-            <div style={{position:"relative",zIndex:1,margin:stageBorder?"16px 16px 0":(cute?"16px 16px 0":"0"),borderRadius:stageBorder?(cute?34:GP.radCard||28):(cute?34:"0"),padding:stageBorder?4:0,overflow:"hidden",
+            // [모험] 테두리를 켜도 무대(배경)는 줄지 않고 화면 끝까지 풀블리드 유지 → 프레임은 배경 가장 바깥 가장자리에 그린다. [베이커리] 기존 카드형(16px 여백·둥근 34) 유지.
+            <div style={{position:"relative",zIndex:1,margin:cute?"16px 16px 0":"0",borderRadius:cute?34:"0",padding:stageBorder?4:0,overflow:"hidden",
               background:stageBorder?stageBorder.grad:"transparent",
               backgroundSize:stageBorder&&(stageBorder.shimmer||stageBorder.rainbow)?"260% 260%":"100% 100%",
               boxShadow:stageBorder?(cute?`0 10px 26px ${bGlow}, 0 0 14px ${bGlow}`:`0 14px 36px ${bGlow}, 0 0 26px ${bGlow}`):"none",
@@ -3469,9 +3470,10 @@ export default function App() {
                   <div style={{position:"absolute",top:0,left:"-40%",width:"45%",height:"100%",background:`linear-gradient(105deg, transparent, rgba(255,255,255,${cute?0.6:0.85}), transparent)`,transform:"skewX(-18deg)",willChange:"transform",animation:"shineMove 4s ease-in-out infinite"}}/>
                 </div>
               )}
-            <div style={{position:"relative",borderRadius:stageBorder?(cute?30:((GP.radCard||28)-4)):(cute?34:"0"),padding:stageBorder?"18px 18px 16px":(cute?"18px 18px 16px":"120px 18px 26px"),overflow:"hidden",
-              // 목업형(모험·기본): 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림
-              ...(!stageBorder&&!cute?{display:"flex",flexDirection:"column",justifyContent:"flex-end",minHeight:"calc(100vh - 205px)",boxSizing:"border-box"}:{}),
+            <div style={{position:"relative",borderRadius:cute?(stageBorder?30:34):"0",padding:cute?"18px 18px 16px":"120px 18px 26px",overflow:"hidden",
+              // 목업형(모험·기본): 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림.
+              //  테두리를 켜도 이 풀사이즈를 유지해 배경이 줄지 않게 한다(프레임만 가장자리에 덧대짐).
+              ...(!cute?{display:"flex",flexDirection:"column",justifyContent:"flex-end",minHeight:"calc(100vh - 205px)",boxSizing:"border-box"}:{}),
               contain:"paint",   // 카드 내부의 애니메이션 리페인트를 카드 안으로 격리 → 헤더 등 바깥 UI 페인트 지연 방지
               background:stageBg,
               // 모험(개방감): 테두리 없이 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
