@@ -3744,6 +3744,7 @@ export default function App() {
           const _tiles=[
             {k:"area",title:"모험",sub:`${childTodayAc.length}곳`,icon:"💊",tint:"22,163,74"},
             {k:"today",title:"미션",sub:_qp.total>0?`${_qp.total-Math.round(_qp.total*_qp.percent/100)}개 남음`:"지금 주세요",icon:"☁️",lock:true,tint:"55,174,226"},
+            {k:"growth",title:"캐릭터",sub:`레벨 ${_cur.level}`,icon:getGenderEmoji(curChild),tint:"245,158,11"},
           ];
           return (
             <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"18px 18px 22px",
@@ -3759,24 +3760,24 @@ export default function App() {
               <div style={{height:12,borderRadius:999,background:"#ECEBE4",overflow:"hidden"}}>
                 <div style={{height:"100%",width:`${_pct}%`,borderRadius:999,background:"linear-gradient(90deg,#16A34A,#37AEE2)",boxShadow:"inset 0 2px 0 rgba(255,255,255,0.4)"}}/>
               </div>
-              {/* 2 타일 (모험/미션) = 탭 선택 — 목업 그대로 (라벨 왼쪽·아이콘 오른쪽·틴트) */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11,marginTop:15}}>
+              {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 — 목업 스타일 (라벨 왼쪽·아이콘 오른쪽·틴트) */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9,marginTop:15}}>
                 {_tiles.map(t=>{
                   const on=childTab===t.k;
                   return (
                     <button key={t.k} onClick={()=>setChildTab(t.k)} className="jelly-tap" style={{
-                      display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,textAlign:"left",cursor:"pointer",
-                      padding:"14px 15px",borderRadius:20,
+                      display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,textAlign:"left",cursor:"pointer",
+                      padding:"13px 11px",borderRadius:20,minWidth:0,
                       border:`1.5px solid rgba(${t.tint},${on?0.62:0.28})`,
                       background:`linear-gradient(150deg, rgba(${t.tint},0.10), transparent)`,
                       boxShadow:on?`0 6px 16px rgba(${t.tint},0.22)`:"none"}}>
-                      <span>
-                        <b style={{display:"block",fontSize:16,fontWeight:900,color:"#1B2620"}}>{t.title}</b>
-                        <small style={{display:"block",fontSize:12.5,fontWeight:700,color:"#6E7B72",marginTop:2}}>{t.sub}</small>
+                      <span style={{minWidth:0}}>
+                        <b style={{display:"block",fontSize:15,fontWeight:900,color:"#1B2620"}}>{t.title}</b>
+                        <small style={{display:"block",fontSize:11.5,fontWeight:700,color:"#6E7B72",marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{t.sub}</small>
                       </span>
-                      <span style={{fontSize:26,lineHeight:1,position:"relative",flexShrink:0}}>
+                      <span style={{fontSize:23,lineHeight:1,position:"relative",flexShrink:0}}>
                         {t.icon}
-                        {t.lock&&<span style={{position:"absolute",right:-6,bottom:-4,fontSize:14}}>🔒</span>}
+                        {t.lock&&<span style={{position:"absolute",right:-5,bottom:-4,fontSize:13}}>🔒</span>}
                       </span>
                     </button>
                   );
