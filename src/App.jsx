@@ -1844,6 +1844,14 @@ export default function App() {
         boxShadow:`0 8px 24px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.06)`,
         color:"#FFFFFF"
       };
+  // [모험] 캐릭터 탭 카드 — 즐기기·펫·상장 등 하단 카드를 청회색(Sky 계열)으로: 캐릭터 탭 테마와 통일.
+  //        초록 숲 카드(characterCardT) 대신 채도 낮은 블루로, 베이커리는 기존 스타일 그대로.
+  const skyCard=(c1,c2)=> kidSkin==="cute" ? characterCardT : {
+    ...characterCardT,
+    background:`linear-gradient(160deg, ${c1}, ${c2})`,
+    border:"1px solid rgba(190,220,232,0.4)",
+    boxShadow:"0 8px 24px rgba(60,90,105,0.30), inset 0 1px 0 rgba(255,255,255,0.08)",
+  };
   const curAc = academies[childId]||[];
   const curAbs = absences[childId]||[];
   const totalFee=(cid)=>(academies[cid]||[]).reduce((s,a)=>s+Number(a.fee||0),0);
@@ -3022,13 +3030,15 @@ export default function App() {
               </>
             );
     })();
-    // 날짜 이동 바 — 모험장소/미션 탭 공용. 모험은 무거운 Forest 대신 한 톤 밝은 숲색(#5F825B)으로.
+    // 날짜 이동 바 — 모험장소/미션 탭 공용. 모험=밝은 숲색, 미션=원목 브라운 (탭 테마 연동).
     const dateNav=(()=>{
       const _dn=kidSkin!=="cute";
+      const _dnBg=childTab==="today"?"#A98157":"#5F825B";
+      const _dnBtn=childTab==="today"?"#C29567":"#6F9564";
       return (
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?"#5F825B":GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"10px 12px",marginBottom:14}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"10px 12px",marginBottom:14}}>
         <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
-          style={{...jellyChip({background:_dn?"#73996D":GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>‹</button>
+          style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>‹</button>
         <div style={{textAlign:"center"}}>
           <p style={{fontSize:15,fontWeight:900,margin:0,color:_dn?"#F0F3F3":GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
           {!isChildToday&&<p style={{fontSize:11,color:GP.gold,margin:"2px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
@@ -3037,7 +3047,7 @@ export default function App() {
           {!isChildToday&&<button onClick={()=>setChildDate(TODAY)}
             style={{background:`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:"#fff",borderRadius:10,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
           <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()+1);setChildDate(toStr(d));}}
-            style={{...jellyChip({background:_dn?"#73996D":GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>›</button>
+            style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>›</button>
         </div>
       </div>
       );
@@ -3926,7 +3936,7 @@ export default function App() {
               {/* 오늘 학원 일정 섹션 */}
               <div style={{marginTop:2,marginBottom:14}}>
                 {childTodayAc.length===0?(
-                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"#7E8C7B",background:kidSkin==="cute"?"#fff":"rgba(71,116,71,0.07)",borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed rgba(143,176,129,0.65)"}}>
+                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"#7E8C7B",background:kidSkin==="cute"?"#fff":"#F4F8EE",borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed #BDD59C"}}>
                     <p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>
                     <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
                   </div>
@@ -4088,7 +4098,7 @@ export default function App() {
               {(()=>{
                 const allTodayTodos=getChildQuestBoardItems(childId,childDate);
                 if(allTodayTodos.length===0) return (
-                  <div style={{padding:"30px 16px",textAlign:"center",marginTop:2,marginBottom:14,borderRadius:22,background:kidSkin==="cute"?"#fff":"rgba(71,116,71,0.07)",border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed rgba(143,176,129,0.65)"}}>
+                  <div style={{padding:"30px 16px",textAlign:"center",marginTop:2,marginBottom:14,borderRadius:22,background:kidSkin==="cute"?"#fff":"#FBF7EF",border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed #E8D6BA"}}>
                     <p style={{fontSize:42,margin:"0 0 8px",animation:"wiggle 2.4s ease-in-out infinite"}}>🗒️</p>
                     <p style={{fontSize:17,fontWeight:900,color:kidSkin==="cute"?C.text:"#4B3A2F",margin:"0 0 4px"}}>{T.restDay}</p>
                     <p style={{fontSize:13,fontWeight:700,color:kidSkin==="cute"?C.sub:"#7E8C7B",margin:0}}>푹 쉬어도 좋아요 😌</p>
@@ -4179,13 +4189,14 @@ export default function App() {
               })()}
 
               {/* ── 미션 추가 버튼 (현재 보는 날짜) ── */}
+              {/* [모험] 미션 추가 버튼은 미션 탭 테마(원목 브라운) — 숲색 대신 Sand/Rock 계열 */}
               {(childDate||TODAY)>=TODAY&&(
                   <button onClick={()=>{ setKidAddAcId(""); setKidAddText(""); setShowKidAddModal(true); }}
-                    style={{width:"100%",...jellyBox({background:GP.boxBg,border:`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),
+                    style={{width:"100%",...jellyBox({background:kidSkin==="cute"?GP.boxBg:"#B78D5D",border:kidSkin==="cute"?`1px solid ${GP.boxBorder}`:"1px solid #C29567",borderRadius:16,boxShadow:kidSkin==="cute"?`0 6px 18px ${GP.boxShadowCol}`:"0 6px 18px rgba(142,104,69,0.32)"},{radius:18}),
                       padding:"13px 12px",marginBottom:14,cursor:"pointer",
                       display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-                      color:GP.boxText,fontSize:16,fontWeight:900}}>
-                    <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:26,height:26,borderRadius:"50%",background:`linear-gradient(135deg, ${GP.gold}, ${th.main})`,color:"#fff",fontSize:17,fontWeight:900,flexShrink:0}}>＋</span>
+                      color:kidSkin==="cute"?GP.boxText:"#FFF8EB",fontSize:16,fontWeight:900}}>
+                    <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:26,height:26,borderRadius:"50%",background:kidSkin==="cute"?`linear-gradient(135deg, ${GP.gold}, ${th.main})`:"rgba(255,248,235,0.28)",color:"#fff",fontSize:17,fontWeight:900,flexShrink:0}}>＋</span>
                     미션 추가하기
                   </button>
               )}
@@ -4205,7 +4216,7 @@ export default function App() {
                 <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:"linear-gradient(90deg, rgba(138,119,95,0.4), rgba(138,119,95,0) 90%)"}}/>
               </div>
 
-              <div style={characterCardT}>
+              <div style={skyCard("#6F95A5","#61828F")}>
                 <CharacterSectionHeader
                   dark={kidSkin!=="cute"}
                   icon="🛒" title="아이템 상점"
@@ -4296,7 +4307,7 @@ export default function App() {
 
               {/* ── 꾸미기 상점 진입 (아이템 상점 아래) ── */}
               <button onClick={()=>setShowDecorShop(true)}
-                style={{...characterCardT,width:"100%",boxSizing:"border-box",padding:"18px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",textAlign:"left"}}>
+                style={{...skyCard("#82A8B5","#71939F"),width:"100%",boxSizing:"border-box",padding:"18px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",textAlign:"left"}}>
                 <span style={{display:"flex",alignItems:"center",gap:7}}>
                   <span style={{fontSize:18}}>🛍️</span>
                   <span style={{textAlign:"left"}}>
@@ -4309,7 +4320,7 @@ export default function App() {
 
               {/* ── 아바타 꾸미기 상점 진입 (신규) ── */}
               <button onClick={()=>setShowEquipShop(true)}
-                style={{...characterCardT,width:"100%",boxSizing:"border-box",padding:"18px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",textAlign:"left"}}>
+                style={{...skyCard("#7398A8","#648492"),width:"100%",boxSizing:"border-box",padding:"18px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",textAlign:"left"}}>
                 <span style={{display:"flex",alignItems:"center",gap:7}}>
                   <span style={{fontSize:18}}>👗</span>
                   <span style={{textAlign:"left"}}>
@@ -4323,7 +4334,7 @@ export default function App() {
               {/* 보물창고 / 디저트 보관함 카드 */}
               <div style={kidSkin==="cute"
                 ? {...characterCardT, boxShadow:getTotalTreasureCount(childId)>0?`0 12px 26px ${th.main}30, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -7px 15px ${th.main}1f, 0 0 0 2px #F5B30166`:characterCardT.boxShadow}
-                : {...characterCardT,border:getTotalTreasureCount(childId)>0?`2px solid ${GP.gold}55`:characterCardT.border}}>
+                : {...skyCard("#7EA7B5","#6E929E"),...(getTotalTreasureCount(childId)>0?{border:`2px solid ${GP.gold}55`}:{})}}>
                 <CharacterSectionHeader
                   dark={kidSkin!=="cute"}
                   icon={TM.bookEmoji} title={TM.book}
@@ -4382,7 +4393,7 @@ export default function App() {
                 const pet=petView(PET_STAGES[stage],stage,kidSkin);
                 const isMax=stage>=PET_STAGES.length-1;
                 return (
-                  <div style={characterCardT}>
+                  <div style={skyCard("#7BA3B2","#6A8F9D")}>
                     <CharacterSectionHeader
                       dark={kidSkin!=="cute"}
                       icon={kidSkin==="cute"?"🦄":"🐾"} title="나의 펫"
@@ -4426,7 +4437,7 @@ export default function App() {
               </div>
 
               {/* 상장 카드 */}
-              <div style={characterCardT}>
+              <div style={skyCard("#6F95A5","#61828F")}>
                 <CharacterSectionHeader
                   dark={kidSkin!=="cute"}
                   icon="👑" title="상장"
@@ -4481,7 +4492,7 @@ export default function App() {
               </div>
 
               {/* 연속 달성 카드 */}
-              <div style={characterCardT}>
+              <div style={skyCard("#82A8B5","#71939F")}>
                 <CharacterSectionHeader
                   dark={kidSkin!=="cute"}
                   icon="🔥" title="연속 달성"
@@ -4510,7 +4521,7 @@ export default function App() {
               </div>
 
               {/* 모험 기록 카드 */}
-              <div style={characterCardT}>
+              <div style={skyCard("#7398A8","#648492")}>
                 <CharacterSectionHeader
                   dark={kidSkin!=="cute"}
                   icon="📖" title={T.logName||"활동 기록"}
