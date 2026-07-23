@@ -3395,8 +3395,9 @@ export default function App() {
               const _emoji=_em?_em[1]:"";
               // 꾸미기 배경(darkStage: 밤 톤) 장착 시 무대가 어두워짐 → 응원문구를 밝은 크림색+어두운 그림자로 반전해 가독성 유지
               const _onDark=!!getEquipped(childId,"bg")?.darkStage;
+              // 굵기: 가짜 볼드(700) 대신 원래 얇은 손글씨(400) + 0.4px 스트로크로 약 10~15%만 도톰하게
               return (
-                <h1 style={{fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:28,fontWeight:700,margin:"30px 0 0 30px",lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:_onDark?"#FFF3D9":"#5D4633",textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 0 rgba(255,255,255,0.6), 0 3px 12px rgba(255,255,255,0.4)"}}>
+                <h1 style={{fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:28,fontWeight:400,WebkitTextStroke:_onDark?"0.4px #FFF3D9":"0.4px #5D4633",margin:"30px 0 0 30px",lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:_onDark?"#FFF3D9":"#5D4633",textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 0 rgba(255,255,255,0.6), 0 3px 12px rgba(255,255,255,0.4)"}}>
                   {_head}{_restText&&<><br/>{_restText}</>}
                   {_emoji&&<span style={{fontSize:"0.64em",verticalAlign:"baseline"}}> {_emoji}</span>}
                 </h1>
