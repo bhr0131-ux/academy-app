@@ -4,7 +4,7 @@
    App.jsx 홈 화면에서 분리(CLAUDE.md 3번: 수정 시 점진 분리).
    표시 전용 컴포넌트 — 데이터 계산은 App이 하고 props로 받는다.
 
-   팔레트: 사용자 확정 수채화 톤 (Cloud 시트 / Sky 선택 / Forest·Rock·Grass 텍스트)
+   팔레트: 사용자 확정 수채화 톤 (Cloud 시트 / 타일은 크림·연갈색 — 숲 컨셉 통일, Sky 선택 폐지)
    폰트: 제목 온글잎 콘콘체 / 부제 Pretendard SemiBold (index.html @font-face)
 
    props
@@ -39,9 +39,9 @@ export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab,
             <button key={t.k} onClick={()=>onSelect&&onSelect(t.k)} className="jelly-tap" style={{
               display:"flex",flexDirection:"column",alignItems:"center",gap:5,textAlign:"center",cursor:"pointer",
               padding:"14px 8px 12px",borderRadius:22,minWidth:0,
-              border:on?"2px solid #8FC9ED":"1.5px solid #E3E6DE",
-              background:on?"#EAF6FD":"#F7F8F6",
-              boxShadow:"0 4px 14px rgba(71,116,71,0.10)"}}>
+              border:on?"2px solid #C29A63":"1.5px solid #E4D7BC",
+              background:on?"#F5ECD7":"#F8F4EA",
+              boxShadow:"0 4px 14px rgba(155,114,74,0.13)"}}>
               <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
               <b style={{display:"block",fontFamily:"'OwnglyphConCon','Noto Sans KR',sans-serif",fontSize:17,fontWeight:400,color:on?"#477447":"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
               <small style={{display:"block",fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",fontSize:11.5,fontWeight:400,color:"#7E8C7B",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
