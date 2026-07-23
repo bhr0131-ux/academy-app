@@ -3097,6 +3097,8 @@ export default function App() {
           @keyframes shadowPulsePet{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(0.93);opacity:0.85}}
           @keyframes floatHat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
           @keyframes wiggle{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+          @keyframes eggWiggle{0%,86%,100%{transform:rotate(0deg)}88%{transform:rotate(-9deg)}90%{transform:rotate(8deg)}92%{transform:rotate(-6deg)}94%{transform:rotate(4deg)}96%{transform:rotate(-2deg)}98%{transform:rotate(0deg)}}
+          @keyframes eggSparkle{0%,82%,100%{opacity:0;transform:scale(0.5)}88%{opacity:1;transform:scale(1.15)}96%{opacity:0.4;transform:scale(0.9)}}
           @keyframes blobShift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(14px,-12px) scale(1.08)}66%{transform:translate(-10px,10px) scale(0.94)}}
           @keyframes barStripe{0%{background-position:0 0}100%{background-position:28px 0}}
           @keyframes popInUp{0%{transform:translateY(14px) scale(0.96);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
@@ -3699,11 +3701,31 @@ export default function App() {
                     <div style={{position:"relative",zIndex:1,width:118,height:19,borderRadius:"50%",background:cute?"rgba(120,80,100,0.20)":"rgba(0,0,0,0.26)",filter:"blur(5px)",marginTop:-13,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                   </div>
                   {/* 펫 — 보조 역할이므로 캐릭터보다 작게(기존 40 → 34). 알 단계(0)엔 '곧 부화!'로 기대감 UP */}
-                  {/* [모험] 절대배치(우측 10%·바닥 8px)로 캐릭터 중앙 정렬을 방해하지 않음. 최대 스테이지(247px) 캐릭터와도 안 겹치는 간격. */}
-                  <div style={{position:cute?"relative":"absolute",right:cute?undefined:"10%",bottom:cute?undefined:8,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
-                    <div style={{fontSize:34,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 6px 8px rgba(0,0,0,0.22))"}}>{pet.emoji}</div>
-                    <div style={{width:28,height:7,borderRadius:"50%",background:cute?"rgba(120,80,100,0.14)":"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
-                    <span style={{position:"absolute",bottom:-17,fontSize:pet.stage===0?12.5:11.5,fontWeight:900,color:cute?mixBlack(th.main,0.3):"#FFE9A8",whiteSpace:"nowrap",textShadow:cute?"none":"0 1px 3px rgba(0,0,0,0.55)"}}>{pet.stage===0?"곧 부화! 🐣":"🐾 펫"}</span>
+                  {/* [모험] 존재감 개선: 구석(우측 10%) → 캐릭터 발 옆(중앙+62px). 알 단계는 말풍선+반짝이+둥지+10초 간헐 흔들림(둥실 제거). */}
+                  <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:62,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
+                    {!cute&&pet.stage===0?(
+                    <>
+                      {/* 말풍선 */}
+                      <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"4px 9px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:8}}>
+                        곧 부화! 🐣
+                        <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
+                      </div>
+                      {/* 알 + 반짝이 (10초 주기: 반짝 → 살짝 흔들) */}
+                      <div style={{position:"relative"}}>
+                        <span style={{position:"absolute",top:-9,left:-14,fontSize:12,animation:"eggSparkle 10s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
+                        <span style={{position:"absolute",top:-3,right:-13,fontSize:10,animation:"eggSparkle 10s ease-in-out infinite -0.6s",pointerEvents:"none"}}>✨</span>
+                        <div style={{fontSize:34,lineHeight:1,animation:"eggWiggle 10s ease-in-out infinite",transformOrigin:"50% 90%",filter:"drop-shadow(0 5px 7px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
+                      </div>
+                      {/* 둥지 */}
+                      <div style={{fontSize:12,lineHeight:1,marginTop:-5,letterSpacing:"-0.35em",paddingRight:"0.35em",filter:"drop-shadow(0 2px 3px rgba(40,70,40,0.3))"}}>🌿🌿🌿</div>
+                    </>
+                    ):(
+                    <>
+                      <div style={{fontSize:34,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 6px 8px rgba(0,0,0,0.22))"}}>{pet.emoji}</div>
+                      <div style={{width:28,height:7,borderRadius:"50%",background:cute?"rgba(120,80,100,0.14)":"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
+                      <span style={{position:"absolute",bottom:-17,fontSize:pet.stage===0?12.5:11.5,fontWeight:900,color:cute?mixBlack(th.main,0.3):"#FFE9A8",whiteSpace:"nowrap",textShadow:cute?"none":"0 1px 3px rgba(0,0,0,0.55)"}}>{pet.stage===0?"곧 부화! 🐣":"🐾 펫"}</span>
+                    </>
+                    )}
                   </div>
                 </div>
                 {/* 우측 칩 제거 — 베이커리도 모험처럼 캐릭터 중앙 + 레벨/상장 하단 알약칩으로 통일 */}
