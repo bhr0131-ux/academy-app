@@ -3738,8 +3738,7 @@ export default function App() {
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
                     {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
-                    {/* 모험: 사용자 원화 나무 팻말 이미지 버튼 (art-src/btn-*-sign.png → assets/btn-*.webp)
-                        두 팻말 원화가 동일 비율(약 3.4:1)이라 폭 기준(130px)으로 통일 표시 */}
+                    {/* 모험: 사용자 원화 팻말 이미지 버튼 v3 — 크림·코럴 수채화 톤(상단 원형 뱃지와 한 세트), 동일 비율이라 폭 130px 기준 통일 표시 */}
                     {cute?(
                     <button onClick={toggleCharDisplayMode}
                       style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
