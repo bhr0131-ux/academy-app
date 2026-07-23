@@ -19,9 +19,9 @@
 // 탭별 선택 색 — 아래 탭 콘텐츠의 메인 카드와 같은 계열, 선택 탭은 메인 카드보다 채도 10~15% 높게 (클릭감)
 // (모험=올리브 그린·미션=허니 브라운·캐릭터=스카이 블루 / 명도 규칙: 선택 탭 中 > 메인 카드 連)
 const TILE_ACCENT = {
-  area:   { bg:"#9FB84C", border:"#86A03E", text:"#48663D" },
-  today:  { bg:"#D5B16A", border:"#B98F4F", text:"#6C5238" },
-  growth: { bg:"#93C3E5", border:"#6FA6CC", text:"#355D76" },
+  area:   { bg:"#97AF48", border:"#7F983B", text:"#48663D" },  // 모험: 5% 더 어둡게 → 선택감↑
+  today:  { bg:"#D0A86A", border:"#B48C51", text:"#6C5238" },  // 미션: 노란기↓·브라운 살짝 → 날짜바·카드와 연결
+  growth: { bg:"#9CC8E8", border:"#7BAFD2", text:"#355D76" },  // 캐릭터: 명도+5%·채도↓ → 카드와의 격차 완화
 };
 
 export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab, onSelect }) {
