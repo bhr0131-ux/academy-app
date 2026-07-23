@@ -3738,6 +3738,8 @@ export default function App() {
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
                     {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
+                    {/* 모험: 사용자 원화 나무 팻말 이미지 버튼 (art-src/btn-*-sign.png → assets/btn-*.webp)
+                        두 팻말 원화가 동일 비율(약 3.4:1)이라 폭 기준(130px)으로 통일 표시 */}
                     {cute?(
                     <button onClick={toggleCharDisplayMode}
                       style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
@@ -3747,25 +3749,25 @@ export default function App() {
                         boxShadow:`0 3px 9px ${th.main}33`}}>
                       {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
                     </button>
-                    ):(()=>{
-                    /* [모험] 상단 엄마용·아이 전환 뱃지와 같은 원형 뱃지 스타일로 통일 (크림 원판 + 코럴 링 + 아이콘 + 하단 라벨)
-                       배경 꾸미기 장착 여부와 무관하게 동일 — 라벨 색만 어두운 배경(darkStage)에서 크림으로 반전 */
-                    const _isAv=getCharMode(childId)===CHAR_DISPLAY_AVATAR;
-                    const _dkBg=!!stageBgDeco?.darkStage;
-                    return (
+                    ):stageBgDeco?(
+                    /* 배경 꾸미기 장착 시: 나무 팻말 그림이 밤 톤 배경과 안 어울림 → 기존 크림 캡슐 버튼 유지 (팻말과 같은 크림베이지 팔레트) */
                     <button onClick={toggleCharDisplayMode} className="jelly-tap"
-                      style={{background:"none",border:"none",padding:0,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-                      <span style={{width:52,height:52,borderRadius:"50%",background:"radial-gradient(circle at 45% 35%, #F8F1DE, #EBDFC2)",boxShadow:"0 3px 9px rgba(155,114,74,0.30), inset 0 1px 2px rgba(255,255,255,0.8)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        <span style={{width:43,height:43,borderRadius:"50%",border:"2.5px solid #DB7A63",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,lineHeight:1}}>
-                          {_isAv?"🌱":"🎒"}
-                        </span>
-                      </span>
-                      <span style={{fontSize:11,fontWeight:900,whiteSpace:"nowrap",color:_dkBg?"#FFE9A8":"#5D4633",textShadow:_dkBg?"0 1px 3px rgba(0,0,0,0.55)":"0 1px 0 rgba(255,255,255,0.6)"}}>
-                        {_isAv?"성장 보기":"내 아바타"}
-                      </span>
+                      style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
+                        background:"#F0E6CC",border:"1.5px solid #B88957",borderRadius:999,padding:"11px 17px",
+                        color:"#4E392A",fontSize:14,fontWeight:900,whiteSpace:"nowrap",
+                        boxShadow:"0 3px 9px rgba(155,114,74,0.22)"}}>
+                      {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
+                      <span style={{opacity:0.5,fontWeight:900,fontSize:15,lineHeight:1,marginLeft:1}}>›</span>
                     </button>
-                    );
-                    })()}
+                    ):(
+                    <button onClick={toggleCharDisplayMode} className="jelly-tap"
+                      style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
+                      <img
+                        src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
+                        alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장캐릭터 보기":"내 아바타 보기"}
+                        style={{width:130,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.24))"}}/>
+                    </button>
+                    )}
                   </div>
                 );
               })()}
