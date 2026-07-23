@@ -3657,8 +3657,9 @@ export default function App() {
               <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?16:12,minHeight:cute?104:245}}>
                 {/* ── 중앙(모험)·좌측(베이커리): 캐릭터 + 펫 ── */}
                 {/* [모험] 펫은 절대배치(우측 하단) → 캐릭터 본체가 화면 정중앙에 정확히 옴 / [베이커리] 기존 flex 나란히 유지 */}
-                {/* [모험] translateY 18→6: 팻말 버튼과 하단에 몰려 보여 캐릭터·펫을 12px 위로 (아바타/성장 공통 컨테이너라 함께 이동) */}
-                <div style={{flex:1,minWidth:0,position:"relative",display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:14,transform:cute?undefined:"translateY(6px)"}}>
+                {/* [모험] translateY 18→6: 팻말 버튼과 하단에 몰려 보여 캐릭터·펫을 12px 위로 (아바타/성장 공통 컨테이너라 함께 이동)
+                    X -14px: 펫이 오른쪽에 붙으면서 우측으로 쏠린 시각 무게중심 보정 (우측 뱃지 아이콘들과의 간격 확보) */}
+                <div style={{flex:1,minWidth:0,position:"relative",display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:14,transform:cute?undefined:"translate(-14px, 6px)"}}>
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"}}>
                     <div style={{position:"relative",zIndex:1}}>
@@ -3711,11 +3712,6 @@ export default function App() {
                   <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:62,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
                     {!cute&&pet.stage===0?(
                     <>
-                      {/* 말풍선 */}
-                      <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"4px 9px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:8}}>
-                        곧 부화! 🐣
-                        <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
-                      </div>
                       {/* 알 + 반짝이 (10초 주기: 반짝 → 살짝 흔들). 크림 외곽선으로 초록 배경에서 분리 */}
                       <div style={{position:"relative"}}>
                         <span style={{position:"absolute",top:-11,left:-17,fontSize:13,animation:"eggSparkle 10s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
@@ -3724,14 +3720,15 @@ export default function App() {
                       </div>
                       {/* 둥지 */}
                       <div style={{fontSize:15,lineHeight:1,marginTop:-6,letterSpacing:"-0.35em",paddingRight:"0.35em",filter:"drop-shadow(0 2px 3px rgba(40,70,40,0.3))"}}>🌿🌿🌿</div>
+                      {/* 말풍선 — 알 아래에 매달기(레이아웃 비참여 → 알 접지 유지), 꼬리는 위로 */}
+                      <div style={{position:"absolute",top:"100%",left:"50%",transform:"translateX(-50%)",marginTop:6,background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"4px 9px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap"}}>
+                        곧 부화! 🐣
+                        <div style={{position:"absolute",top:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderBottom:"5px solid rgba(255,248,235,0.96)"}}/>
+                      </div>
                     </>
                     ):!cute?(
                     <>
-                      {/* [모험] 부화한 펫: 캐릭터 키 대비 존재감 확보 — 34→46px + 크림 외곽선 + 말풍선 라벨 + 상시 반짝이 2~3개 */}
-                      <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"3px 8px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:7}}>
-                        🐾 펫
-                        <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
-                      </div>
+                      {/* [모험] 부화한 펫: 캐릭터 키 대비 존재감 확보 — 34→46px + 크림 외곽선 + 하단 말풍선 라벨 + 상시 반짝이 2~3개 */}
                       <div style={{position:"relative"}}>
                         <span style={{position:"absolute",top:-10,left:-17,fontSize:13,animation:"petSparkle 3.8s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
                         <span style={{position:"absolute",bottom:2,right:-16,fontSize:10,animation:"petSparkle 3.8s ease-in-out infinite -1.3s",pointerEvents:"none"}}>✨</span>
@@ -3739,6 +3736,11 @@ export default function App() {
                         <div style={{fontSize:46,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 6px 8px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
                       </div>
                       <div style={{width:34,height:8,borderRadius:"50%",background:"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
+                      {/* 말풍선 — 펫 아래에 매달기, 꼬리는 위로 */}
+                      <div style={{position:"absolute",top:"100%",left:"50%",transform:"translateX(-50%)",marginTop:6,background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"3px 8px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap"}}>
+                        🐾 펫
+                        <div style={{position:"absolute",top:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderBottom:"5px solid rgba(255,248,235,0.96)"}}/>
+                      </div>
                     </>
                     ):(
                     <>
