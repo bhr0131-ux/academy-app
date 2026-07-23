@@ -3721,12 +3721,12 @@ export default function App() {
                       {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
                     </button>
                     ):stageBgDeco?(
-                    /* 배경 꾸미기 장착 시: 나무 팻말 그림이 밤 톤 배경과 안 어울림 → 기존 크림 캡슐 버튼 유지 */
+                    /* 배경 꾸미기 장착 시: 나무 팻말 그림이 밤 톤 배경과 안 어울림 → 기존 크림 캡슐 버튼 유지 (팻말과 같은 크림베이지 팔레트) */
                     <button onClick={toggleCharDisplayMode} className="jelly-tap"
                       style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
-                        background:"#F2EED9",border:"1.5px solid #B39A6A",borderRadius:999,padding:"11px 17px",
-                        color:"#4E3B2A",fontSize:14,fontWeight:900,whiteSpace:"nowrap",
-                        boxShadow:"0 3px 6px rgba(93,70,51,0.28)"}}>
+                        background:"#F0E6CC",border:"1.5px solid #B88957",borderRadius:999,padding:"11px 17px",
+                        color:"#4E392A",fontSize:14,fontWeight:900,whiteSpace:"nowrap",
+                        boxShadow:"0 3px 6px rgba(155,114,74,0.30)"}}>
                       {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
                       <span style={{opacity:0.5,fontWeight:900,fontSize:15,lineHeight:1,marginLeft:1}}>›</span>
                     </button>
@@ -3736,7 +3736,7 @@ export default function App() {
                       <img
                         src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
                         alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장캐릭터 보기":"내 아바타 보기"}
-                        style={{width:130,height:"auto",display:"block",filter:"saturate(0.85) drop-shadow(0 3px 6px rgba(93,70,51,0.35))"}}/>
+                        style={{width:130,height:"auto",display:"block",filter:"drop-shadow(0 3px 6px rgba(155,114,74,0.35))"}}/>
                     </button>
                     )}
                   </div>
