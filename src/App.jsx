@@ -3402,14 +3402,23 @@ export default function App() {
                 </h1>
               );
             })()}
-            <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
+            <div style={{display:"flex",flexDirection:"column",gap:kidSkin==="cute"?7:9,alignItems:kidSkin==="cute"?"stretch":"flex-end"}}>
+              {/* [모험] 사용자 원화 원형 뱃지 버튼 2종 위아래 배치 (엄마용 / 아이 전환) — 베이커리는 기존 칩·셀렉트 유지 */}
+              {kidSkin==="cute"?(
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
                 <button onClick={()=>{ setAppMode("parent"); setTab("home"); }}
-                  style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:"1.5px solid rgba(255,255,255,0.85)",background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.60)",borderRadius:14}),flex:children.length>1?1:"none",color:kidSkin==="cute"?GP.chipText:"#123021",padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",backdropFilter:kidSkin==="cute"?undefined:"blur(8px)",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 3px 10px rgba(20,50,35,0.18)",textShadow:"none"}}>
+                  style={{...jellyChip({border:`1.5px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),flex:children.length>1?1:"none",color:GP.chipText,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 3px 9px ${th.main}26`,textShadow:"none"}}>
                   👩 엄마용
                 </button>
               </div>
-              {children.length>1&&(
+              ):(
+              <button onClick={()=>{ setAppMode("parent"); setTab("home"); }} className="jelly-tap"
+                style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
+                <img src="assets/btn-parent.webp" alt="엄마용"
+                  style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
+              </button>
+              )}
+              {children.length>1&&(kidSkin==="cute"?(
                 <select value={childId} onChange={e=>{
                   setChildId(e.target.value);
                   setChildDate(TODAY);
@@ -3417,12 +3426,30 @@ export default function App() {
                   setShowChildRewards(false);
                   setShowChildXP(false);
                   setOpenRewardId(null);
-                }} style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:`1.5px solid ${GP.gold||"#FFD166"}99`,background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.18)",borderRadius:14}),width:"100%",boxSizing:"border-box",color:GP.chipText,padding:"9px 10px",fontSize:13,fontWeight:900,outline:"none",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 8px rgba(0,0,0,0.32)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
+                }} style={{...jellyChip({border:`1.5px solid ${GP.chipBorder}`,background:GP.chipBg,borderRadius:14}),width:"100%",boxSizing:"border-box",color:GP.chipText,padding:"9px 10px",fontSize:13,fontWeight:900,outline:"none",boxShadow:`0 3px 9px ${th.main}26`,textShadow:"none"}}>
                   {children.map(c=>(
                     <option key={c.id} value={c.id} style={{color:C.text}}>{getGenderEmoji(c)} {c.name}</option>
                   ))}
                 </select>
-              )}
+              ):(
+                /* 아이 전환 뱃지: 그림 위에 투명 select를 겹쳐 네이티브 아이 선택 메뉴 유지 */
+                <div className="jelly-tap" style={{position:"relative",lineHeight:0}}>
+                  <img src="assets/btn-child-switch.webp" alt="아이 전환"
+                    style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
+                  <select value={childId} onChange={e=>{
+                    setChildId(e.target.value);
+                    setChildDate(TODAY);
+                    setChildTab("area");
+                    setShowChildRewards(false);
+                    setShowChildXP(false);
+                    setOpenRewardId(null);
+                  }} style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer"}}>
+                    {children.map(c=>(
+                      <option key={c.id} value={c.id} style={{color:C.text}}>{getGenderEmoji(c)} {c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
             </div>
           </div>
         </div>
