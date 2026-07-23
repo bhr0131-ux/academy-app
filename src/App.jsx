@@ -3102,6 +3102,7 @@ export default function App() {
           @keyframes wiggle{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
           @keyframes eggWiggle{0%,86%,100%{transform:rotate(0deg)}88%{transform:rotate(-9deg)}90%{transform:rotate(8deg)}92%{transform:rotate(-6deg)}94%{transform:rotate(4deg)}96%{transform:rotate(-2deg)}98%{transform:rotate(0deg)}}
           @keyframes eggSparkle{0%,82%,100%{opacity:0;transform:scale(0.5)}88%{opacity:1;transform:scale(1.15)}96%{opacity:0.4;transform:scale(0.9)}}
+          @keyframes petSparkle{0%,100%{opacity:0;transform:scale(0.5)}50%{opacity:1;transform:scale(1.1)}}
           @keyframes blobShift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(14px,-12px) scale(1.08)}66%{transform:translate(-10px,10px) scale(0.94)}}
           @keyframes barStripe{0%{background-position:0 0}100%{background-position:28px 0}}
           @keyframes popInUp{0%{transform:translateY(14px) scale(0.96);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
@@ -3715,20 +3716,35 @@ export default function App() {
                         곧 부화! 🐣
                         <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
                       </div>
-                      {/* 알 + 반짝이 (10초 주기: 반짝 → 살짝 흔들) */}
+                      {/* 알 + 반짝이 (10초 주기: 반짝 → 살짝 흔들). 크림 외곽선으로 초록 배경에서 분리 */}
                       <div style={{position:"relative"}}>
-                        <span style={{position:"absolute",top:-9,left:-14,fontSize:12,animation:"eggSparkle 10s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
-                        <span style={{position:"absolute",top:-3,right:-13,fontSize:10,animation:"eggSparkle 10s ease-in-out infinite -0.6s",pointerEvents:"none"}}>✨</span>
-                        <div style={{fontSize:34,lineHeight:1,animation:"eggWiggle 10s ease-in-out infinite",transformOrigin:"50% 90%",filter:"drop-shadow(0 5px 7px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
+                        <span style={{position:"absolute",top:-11,left:-17,fontSize:13,animation:"eggSparkle 10s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
+                        <span style={{position:"absolute",top:-4,right:-16,fontSize:11,animation:"eggSparkle 10s ease-in-out infinite -0.6s",pointerEvents:"none"}}>✨</span>
+                        <div style={{fontSize:46,lineHeight:1,animation:"eggWiggle 10s ease-in-out infinite",transformOrigin:"50% 90%",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 5px 7px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
                       </div>
                       {/* 둥지 */}
-                      <div style={{fontSize:12,lineHeight:1,marginTop:-5,letterSpacing:"-0.35em",paddingRight:"0.35em",filter:"drop-shadow(0 2px 3px rgba(40,70,40,0.3))"}}>🌿🌿🌿</div>
+                      <div style={{fontSize:15,lineHeight:1,marginTop:-6,letterSpacing:"-0.35em",paddingRight:"0.35em",filter:"drop-shadow(0 2px 3px rgba(40,70,40,0.3))"}}>🌿🌿🌿</div>
+                    </>
+                    ):!cute?(
+                    <>
+                      {/* [모험] 부화한 펫: 캐릭터 키 대비 존재감 확보 — 34→46px + 크림 외곽선 + 말풍선 라벨 + 상시 반짝이 2~3개 */}
+                      <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"3px 8px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:7}}>
+                        🐾 펫
+                        <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
+                      </div>
+                      <div style={{position:"relative"}}>
+                        <span style={{position:"absolute",top:-10,left:-17,fontSize:13,animation:"petSparkle 3.8s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
+                        <span style={{position:"absolute",bottom:2,right:-16,fontSize:10,animation:"petSparkle 3.8s ease-in-out infinite -1.3s",pointerEvents:"none"}}>✨</span>
+                        <span style={{position:"absolute",top:-14,right:-6,fontSize:9,animation:"petSparkle 3.8s ease-in-out infinite -2.5s",pointerEvents:"none"}}>✨</span>
+                        <div style={{fontSize:46,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 6px 8px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
+                      </div>
+                      <div style={{width:34,height:8,borderRadius:"50%",background:"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                     </>
                     ):(
                     <>
                       <div style={{fontSize:34,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 6px 8px rgba(0,0,0,0.22))"}}>{pet.emoji}</div>
-                      <div style={{width:28,height:7,borderRadius:"50%",background:cute?"rgba(120,80,100,0.14)":"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
-                      <span style={{position:"absolute",bottom:-17,fontSize:pet.stage===0?12.5:11.5,fontWeight:900,color:cute?mixBlack(th.main,0.3):"#FFE9A8",whiteSpace:"nowrap",textShadow:cute?"none":"0 1px 3px rgba(0,0,0,0.55)"}}>{pet.stage===0?"곧 부화! 🐣":"🐾 펫"}</span>
+                      <div style={{width:28,height:7,borderRadius:"50%",background:"rgba(120,80,100,0.14)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
+                      <span style={{position:"absolute",bottom:-17,fontSize:pet.stage===0?12.5:11.5,fontWeight:900,color:mixBlack(th.main,0.3),whiteSpace:"nowrap"}}>{pet.stage===0?"곧 부화! 🐣":"🐾 펫"}</span>
                     </>
                     )}
                   </div>
