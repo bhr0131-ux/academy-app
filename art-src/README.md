@@ -21,3 +21,5 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | boots-green-wearing-v2.png | 새싹 부츠 착용 원화 (v2, 현행 승인본) | avatar/shoes/green-boots.webp |
 | btn-my-avatar-sign.png | '내 아바타' 나무 팻말 버튼 원화 | btn-my-avatar.webp |
 | btn-growth-character-sign.png | '성장캐릭터' 나무 팻말 버튼 원화 | btn-growth-character.webp |
+| btn-parent-badge.png | '엄마용' 원형 뱃지 버튼 원화 | btn-parent.webp |
+| btn-child-switch-badge.png | 아이 전환 원형 뱃지 버튼 원화 (2명 이상일 때만 노출) | btn-child-switch.webp |
