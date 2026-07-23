@@ -3726,7 +3726,7 @@ export default function App() {
                       style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
                         background:"#F0E6CC",border:"1.5px solid #B88957",borderRadius:999,padding:"11px 17px",
                         color:"#4E392A",fontSize:14,fontWeight:900,whiteSpace:"nowrap",
-                        boxShadow:"0 3px 6px rgba(155,114,74,0.30)"}}>
+                        boxShadow:"0 3px 9px rgba(155,114,74,0.22)"}}>
                       {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
                       <span style={{opacity:0.5,fontWeight:900,fontSize:15,lineHeight:1,marginLeft:1}}>›</span>
                     </button>
@@ -3736,7 +3736,7 @@ export default function App() {
                       <img
                         src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
                         alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장캐릭터 보기":"내 아바타 보기"}
-                        style={{width:130,height:"auto",display:"block",filter:"drop-shadow(0 3px 6px rgba(155,114,74,0.35))"}}/>
+                        style={{width:130,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.24))"}}/>
                     </button>
                     )}
                   </div>
