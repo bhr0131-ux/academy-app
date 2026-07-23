@@ -16,6 +16,13 @@
      onSelect  : (k)=>void                   타일 탭 선택
    ════════════════════════════════════════════════════════════════════════ */
 
+// 탭별 선택 색 — 아래 탭 콘텐츠의 메인 카드와 같은 계열 (모험=올리브·미션=샌드·캐릭터=스카이)
+const TILE_ACCENT = {
+  area:   { bg:"#B7C65A", border:"#8EA54A", text:"#48663D" },
+  today:  { bg:"#F2D39B", border:"#C89B62", text:"#6C5238" },
+  growth: { bg:"#B6DCEF", border:"#7DB7D8", text:"#355D76" },
+};
+
 export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab, onSelect }) {
   return (
     <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"18px 18px 22px",
@@ -35,16 +42,17 @@ export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab,
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginTop:15}}>
         {tiles.map(t=>{
           const on=activeTab===t.k;
+          const ac=TILE_ACCENT[t.k]||TILE_ACCENT.area;
           return (
             <button key={t.k} onClick={()=>onSelect&&onSelect(t.k)} className="jelly-tap" style={{
               display:"flex",flexDirection:"column",alignItems:"center",gap:5,textAlign:"center",cursor:"pointer",
               padding:"14px 8px 12px",borderRadius:22,minWidth:0,
-              border:on?"2px solid #C8A46A":"1.5px solid #D8C9A8",
-              background:on?"#F7EED9":"#F8F2E6",
+              border:on?`2px solid ${ac.border}`:"1.5px solid #D8C9A8",
+              background:on?ac.bg:"#F8F2E6",
               boxShadow:"0 4px 14px rgba(155,114,74,0.13)"}}>
               <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
-              <b style={{display:"block",fontFamily:"'OwnglyphConCon','Noto Sans KR',sans-serif",fontSize:17,fontWeight:400,color:on?"#477447":"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
-              <small style={{display:"block",fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",fontSize:11.5,fontWeight:400,color:"#7E8C7B",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
+              <b style={{display:"block",fontFamily:"'OwnglyphConCon','Noto Sans KR',sans-serif",fontSize:17,fontWeight:400,color:on?ac.text:"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
+              <small style={{display:"block",fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",fontSize:11.5,fontWeight:400,color:on?ac.text:"#7E8C7B",opacity:on?0.85:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
             </button>
           );
         })}
