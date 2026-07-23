@@ -3022,23 +3022,26 @@ export default function App() {
               </>
             );
     })();
-    // 날짜 이동 바 — 모험장소/미션 탭 공용
-    const dateNav=(
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:GP.boxBg,border:`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"10px 12px",marginBottom:14}}>
+    // 날짜 이동 바 — 모험장소/미션 탭 공용. 모험은 무거운 Forest 대신 한 톤 밝은 숲색(#5F825B)으로.
+    const dateNav=(()=>{
+      const _dn=kidSkin!=="cute";
+      return (
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?"#5F825B":GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"10px 12px",marginBottom:14}}>
         <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
-          style={{...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>‹</button>
+          style={{...jellyChip({background:_dn?"#73996D":GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>‹</button>
         <div style={{textAlign:"center"}}>
-          <p style={{fontSize:15,fontWeight:900,margin:0,color:GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
+          <p style={{fontSize:15,fontWeight:900,margin:0,color:_dn?"#F0F3F3":GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
           {!isChildToday&&<p style={{fontSize:11,color:GP.gold,margin:"2px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
         </div>
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
           {!isChildToday&&<button onClick={()=>setChildDate(TODAY)}
             style={{background:`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:"#fff",borderRadius:10,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
           <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()+1);setChildDate(toStr(d));}}
-            style={{...jellyChip({background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>›</button>
+            style={{...jellyChip({background:_dn?"#73996D":GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>›</button>
         </div>
       </div>
-    );
+      );
+    })();
     return (
       <div style={{fontFamily:kidSkin!=="cute"
           // 모험: 본문 전체를 Pretendard로 통일 — 손글씨는 헤드라인(의연체)·타일 제목(콘콘체)만
@@ -4022,7 +4025,7 @@ export default function App() {
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
                     // 미션 탭(모험): '모험 지도·모래 사장' 느낌 — Sand(#F6D18F) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 진갈색으로 대비
-                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.3), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #F6D18F, #E8BC72)`,border:"1px solid rgba(192,138,89,0.5)",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#5D4633",boxShadow:"0 10px 30px rgba(142,104,69,0.28), inset 0 1px 0 rgba(255,255,255,0.35)",boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
+                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.3), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #F5D89B, #E9C88A)`,border:"1px solid #C9A56C",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#5D4633",boxShadow:"0 10px 30px rgba(142,104,69,0.28), inset 0 1px 0 rgba(255,255,255,0.35)",boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
                     <DungeonCardGlow/>
                     {/* 젤리 광택 */}
                     {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
@@ -4032,7 +4035,7 @@ export default function App() {
                         <p style={{fontSize:13,opacity:0.75,margin:0,fontWeight:900,letterSpacing:1.2}}>{T.dailyArea}</p>
                         <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0"}}><span style={{display:"inline-block",animation:"floatBob 2.6s ease-in-out infinite"}}>{T.missionEmoji}</span> {T.todayQuest}</p>
                       </div>
-                      <div style={{width:62,height:62,borderRadius:"50%",background:kidSkin==="cute"?`radial-gradient(circle at 38% 30%, #fff, ${mixWhite(th.main,0.55)})`:"rgba(255,255,255,0.5)",border:`${kidSkin==="cute"?"3px":"2px"} solid ${kidSkin==="cute"?"#fff":"rgba(192,138,89,0.45)"}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",boxShadow:kidSkin==="cute"?`0 5px 14px ${th.main}4a, inset 0 2px 4px rgba(255,255,255,0.9)`:"none"}}>
+                      <div style={{width:62,height:62,borderRadius:"50%",background:kidSkin==="cute"?`radial-gradient(circle at 38% 30%, #fff, ${mixWhite(th.main,0.55)})`:"#FAF0DB",border:`${kidSkin==="cute"?"3px":"2px"} solid ${kidSkin==="cute"?"#fff":"#D8BF90"}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",boxShadow:kidSkin==="cute"?`0 5px 14px ${th.main}4a, inset 0 2px 4px rgba(255,255,255,0.9)`:"none"}}>
                         <p style={{fontSize:17,fontWeight:900,margin:0,color:kidSkin==="cute"?th.main:"#8E6845"}}>{q.percent}%</p>
                         <p style={{fontSize:11,fontWeight:900,margin:0,opacity:0.8}}>{T.clearShort}</p>
                       </div>
@@ -4092,7 +4095,8 @@ export default function App() {
                                   {item.academyName}
                                 </p>
                               </div>
-                              <span style={{fontSize:11,fontWeight:900,color:item.done?"#7C8398":item.failed?"#8A8A9A":"#fff",background:item.done?"#E6E9F0":item.failed?"#ECEAF3":acCol,border:`1px solid ${item.done?"#D2D7E2":item.failed?"#D8D7E5":"transparent"}`,padding:"5px 12px",borderRadius:999,flexShrink:0,boxShadow:item.done||item.failed?"none":`0 6px 16px ${acCol}40`}}>
+                              {/* 준비 배지: 모험은 학원색 대신 팔레트 Sky 고정(#7BB5E6) — 쨍한 학원색이 튀지 않게 */}
+                              <span style={{fontSize:11,fontWeight:900,color:item.done?"#7C8398":item.failed?"#8A8A9A":"#fff",background:item.done?"#E6E9F0":item.failed?"#ECEAF3":(kidSkin==="cute"?acCol:"#7BB5E6"),border:`1px solid ${item.done?"#D2D7E2":item.failed?"#D8D7E5":(kidSkin==="cute"?"transparent":"#5E93C5")}`,padding:"5px 12px",borderRadius:999,flexShrink:0,boxShadow:item.done||item.failed?"none":(kidSkin==="cute"?`0 6px 16px ${acCol}40`:"0 6px 16px rgba(94,147,197,0.35)")}}>
                                 {item.done?(ST.on?ST.face:"✓"):status.emoji} {status.label}
                               </span>
                             </div>

@@ -28,8 +28,8 @@ export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab,
         <span style={{fontSize:17,fontWeight:900,color:"#4B3A2F"}}>레벨{level} {name}</span>
         <span style={{fontSize:18,fontWeight:900,color:"#62B9E6",fontVariantNumeric:"tabular-nums"}}>{pct}%</span>
       </div>
-      <div style={{height:12,borderRadius:999,background:"#DDE5DE",overflow:"hidden"}}>
-        <div style={{height:"100%",width:`${pct}%`,borderRadius:999,background:"linear-gradient(90deg,#5C8B57,#8FB081)",boxShadow:"inset 0 2px 0 rgba(255,255,255,0.35)"}}/>
+      <div style={{height:12,borderRadius:999,background:"#DCE4DD",overflow:"hidden"}}>
+        <div style={{height:"100%",width:`${pct}%`,borderRadius:999,background:"linear-gradient(90deg,#5E8C5A,#8FB081)",boxShadow:"inset 0 2px 0 rgba(255,255,255,0.35)"}}/>
       </div>
       {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 — 아이콘 위·세로 중앙 정렬, 선택 시 파란 강조 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginTop:15}}>
@@ -39,8 +39,8 @@ export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab,
             <button key={t.k} onClick={()=>onSelect&&onSelect(t.k)} className="jelly-tap" style={{
               display:"flex",flexDirection:"column",alignItems:"center",gap:5,textAlign:"center",cursor:"pointer",
               padding:"14px 8px 12px",borderRadius:22,minWidth:0,
-              border:on?"2px solid #C29A63":"1.5px solid #E4D7BC",
-              background:on?"#F5ECD7":"#F8F4EA",
+              border:on?"2px solid #C8A46A":"1.5px solid #D8C9A8",
+              background:on?"#F7EED9":"#F8F2E6",
               boxShadow:"0 4px 14px rgba(155,114,74,0.13)"}}>
               <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
               <b style={{display:"block",fontFamily:"'OwnglyphConCon','Noto Sans KR',sans-serif",fontSize:17,fontWeight:400,color:on?"#477447":"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
