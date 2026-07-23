@@ -3712,8 +3712,8 @@ export default function App() {
                   <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:62,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
                     {!cute&&pet.stage===0?(
                     <>
-                      {/* 말풍선 — 알 위 (사용자 확정: 위가 더 귀여움) */}
-                      <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"4px 9px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:8}}>
+                      {/* 말풍선 — 알 위 (사용자 확정: 위가 더 귀여움), 알과의 간격 8→14px */}
+                      <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"4px 9px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:14}}>
                         곧 부화! 🐣
                         <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
                       </div>
