@@ -19,9 +19,9 @@
 // 탭별 선택 색 — 아래 탭 콘텐츠의 메인 카드와 같은 계열, 선택 탭은 메인 카드보다 채도 10~15% 높게 (클릭감)
 // (모험=올리브 그린·미션=허니 브라운·캐릭터=스카이 블루 / 명도 규칙: 선택 탭 中 > 메인 카드 連)
 const TILE_ACCENT = {
-  area:   { bg:"#97AF48", border:"#7F983B", text:"#48663D" },  // 모험: 5% 더 어둡게 → 선택감↑
-  today:  { bg:"#D0A86A", border:"#B48C51", text:"#6C5238" },  // 미션: 노란기↓·브라운 살짝 → 날짜바·카드와 연결
-  growth: { bg:"#9CC8E8", border:"#7BAFD2", text:"#355D76" },  // 캐릭터: 명도+5%·채도↓ → 카드와의 격차 완화
+  area:   { bg:"#97AF48", border:"#8CA24F", text:"#48663D" },  // 모험: 테두리만 8% 연하게 → 부드럽게
+  today:  { bg:"#CCA267", border:"#AF8850", text:"#6C5238" },  // 미션: 노란기 5% 추가 감소 (브라운 쪽으로)
+  growth: { bg:"#A3CCE9", border:"#83B4D4", text:"#355D76" },  // 캐릭터: 채도 5%↓·명도 살짝↑ → 상태창과 연결
 };
 
 export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab, onSelect }) {
@@ -50,7 +50,7 @@ export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab,
               padding:"14px 8px 12px",borderRadius:22,minWidth:0,
               border:on?`2px solid ${ac.border}`:"1.5px solid #D8C9A8",
               background:on?ac.bg:"#F8F2E6",
-              boxShadow:"0 4px 14px rgba(155,114,74,0.13)"}}>
+              boxShadow:"0 3px 11px rgba(155,114,74,0.10)"}}>
               <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
               <b style={{display:"block",fontFamily:"'OwnglyphConCon','Noto Sans KR',sans-serif",fontSize:17,fontWeight:400,color:on?ac.text:"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
               <small style={{display:"block",fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",fontSize:11.5,fontWeight:400,color:on?ac.text:"#7E8C7B",opacity:on?0.85:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
