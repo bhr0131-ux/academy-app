@@ -4045,6 +4045,8 @@ export default function App() {
           {/* ── 오늘 탭 ── */}
           {childTab==="today"&&(
             <>
+              {/* 날짜바 — 모험 탭과 동일하게 요약 카드 위 */}
+              {dateNav}
               {/* 오늘의 진행 요약 카드(스킨 공용) */}
               {(()=>{
                 const q=getTodayQuestProgress(childId,childDate||TODAY);
@@ -4091,8 +4093,6 @@ export default function App() {
                   </div>
                 );
               })()}
-
-              {dateNav}
 
               {/* 미션 전체 카드 - 항상 오늘 기준 */}
               {(()=>{
