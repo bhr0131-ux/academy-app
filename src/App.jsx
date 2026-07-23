@@ -3717,11 +3717,11 @@ export default function App() {
                         곧 부화! 🐣
                         <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
                       </div>
-                      {/* 알 + 반짝이 (10초 주기: 반짝 → 살짝 흔들). 크림 외곽선으로 초록 배경에서 분리 */}
+                      {/* 알 + 반짝이 (5초 주기: 반짝 → 살짝 흔들). 크림 외곽선으로 초록 배경에서 분리 */}
                       <div style={{position:"relative"}}>
-                        <span style={{position:"absolute",top:-11,left:-17,fontSize:13,animation:"eggSparkle 10s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
-                        <span style={{position:"absolute",top:-4,right:-16,fontSize:11,animation:"eggSparkle 10s ease-in-out infinite -0.6s",pointerEvents:"none"}}>✨</span>
-                        <div style={{fontSize:46,lineHeight:1,animation:"eggWiggle 10s ease-in-out infinite",transformOrigin:"50% 90%",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 5px 7px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
+                        <span style={{position:"absolute",top:-11,left:-17,fontSize:13,animation:"eggSparkle 5s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
+                        <span style={{position:"absolute",top:-4,right:-16,fontSize:11,animation:"eggSparkle 5s ease-in-out infinite -0.3s",pointerEvents:"none"}}>✨</span>
+                        <div style={{fontSize:46,lineHeight:1,animation:"eggWiggle 5s ease-in-out infinite",transformOrigin:"50% 90%",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 5px 7px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
                       </div>
                       {/* 둥지 */}
                       <div style={{fontSize:15,lineHeight:1,marginTop:-6,letterSpacing:"-0.35em",paddingRight:"0.35em",filter:"drop-shadow(0 2px 3px rgba(40,70,40,0.3))"}}>🌿🌿🌿</div>
