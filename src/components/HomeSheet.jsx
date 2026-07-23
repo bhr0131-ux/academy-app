@@ -16,11 +16,12 @@
      onSelect  : (k)=>void                   타일 탭 선택
    ════════════════════════════════════════════════════════════════════════ */
 
-// 탭별 선택 색 — 아래 탭 콘텐츠의 메인 카드와 같은 계열 (모험=올리브·미션=샌드·캐릭터=스카이)
+// 탭별 선택 색 — 아래 탭 콘텐츠의 메인 카드와 같은 계열, 선택 탭은 메인 카드보다 채도 10~15% 높게 (클릭감)
+// (모험=올리브 그린·미션=허니 브라운·캐릭터=스카이 블루 / 명도 규칙: 선택 탭 中 > 메인 카드 連)
 const TILE_ACCENT = {
-  area:   { bg:"#B7C65A", border:"#8EA54A", text:"#48663D" },
-  today:  { bg:"#F2D39B", border:"#C89B62", text:"#6C5238" },
-  growth: { bg:"#B6DCEF", border:"#7DB7D8", text:"#355D76" },
+  area:   { bg:"#9FB84C", border:"#86A03E", text:"#48663D" },
+  today:  { bg:"#D5B16A", border:"#B98F4F", text:"#6C5238" },
+  growth: { bg:"#93C3E5", border:"#6FA6CC", text:"#355D76" },
 };
 
 export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab, onSelect }) {

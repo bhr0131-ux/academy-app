@@ -2958,7 +2958,7 @@ export default function App() {
               <div style={kidSkin==="cute"
                 ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,borderRadius:34,padding:"17px",boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,color:GP.boxText,border:"2px solid #fff",marginBottom:12}
                 // 캐릭터 탭(모험): '호수' 느낌 — SkyLight(#B5DBEE) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 딥블루로 대비
-                :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 28%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 68% 16%, rgba(255,255,255,0.28), transparent), radial-gradient(1.3px 1.3px at 82% 64%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #BFE2F3, #A8D4EE)`,borderRadius:GP.radCard,padding:"17px",boxShadow:"0 10px 28px rgba(78,130,168,0.28)",color:"#355D76",border:"1px solid #7DB7D8",marginBottom:12}}>
+                :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 28%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 68% 16%, rgba(255,255,255,0.28), transparent), radial-gradient(1.3px 1.3px at 82% 64%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #CBE7F8, #B4DAF1)`,borderRadius:GP.radCard,padding:"17px",boxShadow:"0 10px 28px rgba(78,130,168,0.28)",color:"#355D76",border:"1px solid #7DB7D8",marginBottom:12}}>
                 {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"42%",background:"linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
                 <DungeonCardGlow/>
                 {/* 레벨 + 상장 — 윗줄(라벨+상장뱃지) / 아랫줄(레벨명 한 줄 전체)로 분리해 겹침 방지 */}
@@ -3033,8 +3033,8 @@ export default function App() {
     // 날짜 이동 바 — 모험장소/미션 탭 공용. 모험=밝은 숲색, 미션=원목 브라운 (탭 테마 연동).
     const dateNav=(()=>{
       const _dn=kidSkin!=="cute";
-      const _dnBg=childTab==="today"?"#A98157":"#5F825B";
-      const _dnBtn=childTab==="today"?"#C29567":"#6F9564";
+      const _dnBg=childTab==="today"?"#B38A60":"#6F8E63";
+      const _dnBtn=childTab==="today"?"#C69C6F":"#83A177";
       return (
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"10px 12px",marginBottom:14}}>
         <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
@@ -3902,7 +3902,7 @@ export default function App() {
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
                     // 모험 탭(모험): '풀숲 들판' 느낌 — Olive(#A9B448) 계열 그라데이션 + 은은한 종이 질감, 글씨는 딥올리브로 대비
-                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.3), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.25), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.25), transparent), linear-gradient(150deg, #C4D465, #B3C654)`,border:"1px solid #8EA54A",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#48663D",boxShadow:"0 10px 30px rgba(90,102,44,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",boxSizing:"border-box",display:"flex",flexDirection:"column"}}>
+                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.3), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.25), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.25), transparent), linear-gradient(150deg, #CFE175, #C2D65B)`,border:"1px solid #8EA54A",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#48663D",boxShadow:"0 10px 30px rgba(90,102,44,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",boxSizing:"border-box",display:"flex",flexDirection:"column"}}>
                     <DungeonCardGlow/>
                     {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
                     <div style={{position:"absolute",top:-26,right:-20,width:90,height:90,borderRadius:"50%",background:"rgba(255,255,255,0.07)",pointerEvents:"none"}}/>
@@ -4055,7 +4055,7 @@ export default function App() {
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
                     // 미션 탭(모험): '모험 지도·모래 사장' 느낌 — Sand(#F6D18F) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 진갈색으로 대비
-                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.3), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #F5D8A6, #EDCB8C)`,border:"1px solid #C89B62",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#6C5238",boxShadow:"0 10px 30px rgba(142,104,69,0.28), inset 0 1px 0 rgba(255,255,255,0.35)",boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
+                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.3), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #F6DCA6, #EFD08E)`,border:"1px solid #C89B62",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#6C5238",boxShadow:"0 10px 30px rgba(142,104,69,0.28), inset 0 1px 0 rgba(255,255,255,0.35)",boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
                     <DungeonCardGlow/>
                     {/* 젤리 광택 */}
                     {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
