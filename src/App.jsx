@@ -3036,9 +3036,9 @@ export default function App() {
       const _dnBg=childTab==="today"?"#B38A60":"#6F8E63";
       const _dnBtn=childTab==="today"?"#C69C6F":"#83A177";
       return (
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"10px 12px",marginBottom:14}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"6px 10px",marginBottom:14}}>
         <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
-          style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>‹</button>
+          style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:30,height:30,fontSize:17,cursor:"pointer",fontWeight:900}}>‹</button>
         <div style={{textAlign:"center"}}>
           <p style={{fontSize:15,fontWeight:900,margin:0,color:_dn?"#F0F3F3":GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
           {!isChildToday&&<p style={{fontSize:11,color:GP.gold,margin:"2px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
@@ -3047,7 +3047,7 @@ export default function App() {
           {!isChildToday&&<button onClick={()=>setChildDate(TODAY)}
             style={{background:`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:"#fff",borderRadius:10,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
           <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()+1);setChildDate(toStr(d));}}
-            style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:34,height:34,fontSize:18,cursor:"pointer",fontWeight:900}}>›</button>
+            style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:30,height:30,fontSize:17,cursor:"pointer",fontWeight:900}}>›</button>
         </div>
       </div>
       );
@@ -4071,7 +4071,7 @@ export default function App() {
                       </div>
                     </div>
                     <div style={{marginBottom:12}}>
-                      <JellyBar percent={q.percent} height={14} fallbackTrack="rgba(142,104,69,0.18)" fallbackBorder="1px solid rgba(192,138,89,0.55)" />
+                      <JellyBar percent={q.percent} height={14} fallbackTrack="rgba(142,104,69,0.18)" fallbackBorder="1px solid rgba(192,138,89,0.55)" fallbackFill="linear-gradient(90deg,#ADB74F,#C6CF6D)" />
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,position:"relative"}}>
                       <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"#FBF3E6",borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
