@@ -57,7 +57,7 @@ const MAP_LONG = {
   ar: "854 / 1842",
   chest: [50, 89],
   yr: 1842 / 854,
-  bw: 23, fs: 16,   // 건물 표시 폭(%)·이모지 크기
+  bw: 28, fs: 18,   // 건물 표시 폭(%)·이모지 크기 (사용자 피드백: 1.3배 확대)
   // 학원 건물 고정 배치 좌표 (사용자 지정: 길 '옆' 잔디, 좌우 번갈아) — 방문 순서대로
   spots: {
     3: [[68,29],[71,45],[36,76]],
@@ -75,13 +75,13 @@ const MAP_SHORT = {
   ar: "972 / 1619",
   chest: [50, 85],
   yr: 1619 / 972,
-  bw: 19, fs: 14,   // 짧은 지도는 건물을 한 단계 작게
+  bw: 25, fs: 17,   // 짧은 지도는 건물을 한 단계 작게 (1.3배 확대 반영)
   // 사용자 지정 자리 ①②③ — 숫자는 '사용할 자리 개수' (1곳=①만, 2곳=①②, 3곳=①②③).
   // 학원 배정은 시간순으로 지도의 위→아래 (렌더 시 y로 정렬해서 배정).
   spots: {
-    1: [[67,47]],                       // ① 우측(원숭이 왼편, 사용자 조정 확정)
-    2: [[67,47],[41,29]],               // +② 좌상(오두막 아래)
-    3: [[67,47],[41,29],[24,63]],       // +③ 좌하(개구리 위)
+    1: [[61,47]],                       // ① 우측 — 원숭이와 거리 확보, 길에 밀착 (사용자 피드백)
+    2: [[61,47],[41,29]],               // +② 좌상(오두막 아래)
+    3: [[61,47],[41,29],[24,63]],       // +③ 좌하(개구리 위)
   },
   pointAt: mkPointAt([
     [50,22],[54,25],[57,28],[55,32],[48,36],[44,40],[46,44],[52,48],[55,52],
@@ -169,7 +169,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 {ac.icon}
               </span>
               <img src={B.src} alt="" draggable={false}
-                style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
+                style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
             </div>
             {/* 이름표 — 이름 + 시각 (완료 시 ✅ 표시. 아이콘은 건물 동그라미가 담당) */}
             <div style={{ display: "inline-block", marginTop: 2, background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)", maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
