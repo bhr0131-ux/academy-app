@@ -21,10 +21,10 @@ import { useEffect, useRef, useState } from "react";
 // cx/cy/d: 원화에 뚫린 '이모지 동그라미 구멍'의 중심·지름 (이미지 % — 투명 블롭 스캔으로 실측).
 // 이모지는 구멍 '뒤'에 크림 원판과 함께 깔려, 원화의 테두리가 이모지를 자연스럽게 감싼다.
 const BUILDINGS = [
-  { src: "assets/map-bld-junglehut.webp",   cx: 53.7, cy: 53.9, d: 26.9 },
-  { src: "assets/map-bld-tileroof.webp",    cx: 36.7, cy: 55.5, d: 26.7 },
-  { src: "assets/map-bld-globehouse.webp",  cx: 42.5, cy: 53.6, d: 30.9 },
-  { src: "assets/map-bld-artisthouse.webp", cx: 36.5, cy: 53.4, d: 28.5 },
+  { src: "assets/map-bld-junglehut.webp",   cx: 50.4, cy: 53.9, d: 32.4 },
+  { src: "assets/map-bld-tileroof.webp",    cx: 35.7, cy: 54.1, d: 31.3 },
+  { src: "assets/map-bld-greenroof.webp",   cx: 41.7, cy: 52.7, d: 31.8 },
+  { src: "assets/map-bld-artisthouse.webp", cx: 34.7, cy: 53.4, d: 30.2 },
 ];
 
 // 폴리라인 누적 길이 → t(0~1)로 좌표 보간하는 함수 생성 (지도별로 각각)
