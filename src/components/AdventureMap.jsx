@@ -56,7 +56,12 @@ const MAP_LONG = {
   bg: "assets/adventure-map.webp",
   ar: "854 / 1842",
   chest: [50, 89],
-  slots: { 3: [0.3, 0.5, 0.7], 4: [0.25, 0.45, 0.62, 0.78] },
+  yr: 1842 / 854,
+  // 학원 건물 고정 배치 좌표 (사용자 지정: 길 '옆' 잔디, 좌우 번갈아) — 방문 순서대로
+  spots: {
+    3: [[68,29],[71,45],[36,76]],
+    4: [[68,29],[71,45],[20,63],[36,76]],
+  },
   pointAt: mkPointAt([
     [47,17],[51,20],[56,23],[55,27],[48,31],[44,35],[47,39],[53,43],[55,47],
     [50,50.5],[45,53.5],[44,57],[41,61],[41,65],[45,69],[50,73],[52,77],
@@ -68,7 +73,11 @@ const MAP_SHORT = {
   bg: "assets/adventure-map-short.webp",
   ar: "1254 / 1254",
   chest: [54, 88],
-  slots: { 1: [0.52], 2: [0.34, 0.68] },
+  yr: 1,
+  spots: {
+    1: [[36,44]],
+    2: [[36,43],[63,60]],
+  },
   pointAt: mkPointAt([
     [49,26],[54,30],[58,34],[59,39],[56,44],[50,49],[44,54],[40,59],[39,64],
     [42,69],[47,73],[51,78],[52,82],[52,85],
@@ -84,13 +93,23 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   // 학원 0~2곳=짧은 지도 / 3곳 이상=긴 지도
   const M = n <= 2 ? MAP_SHORT : MAP_LONG;
   const pointAt = M.pointAt, CHEST = M.chest;
-  // 학원 슬롯: 지도별 '고정 위치' (사용자 확정) — 길 중간 구간 중심, 프리셋 밖 개수만 균등 분배 폴백
-  const slots = M.slots[n] || sorted.map((_, i) => (i + 1) / (n + 1));
+  // 학원 건물: 지도별 고정 좌표(길 옆 잔디) — 프리셋 밖 개수는 길 위 균등 분배 폴백
+  const spots = sorted.map((_, i) => (M.spots[n] && M.spots[n][i]) || pointAt((i + 1) / (n + 1)));
+  // 각 건물에서 가장 가까운 길 지점 t — 캐릭터는 길 위 이 지점에 정차
+  const stopT = spots.map(([sx, sy]) => {
+    let bt = 0, bd = Infinity;
+    for (let s = 0; s <= 200; s++) {
+      const tt = s / 200; const [px, py] = pointAt(tt);
+      const dd = (px - sx) ** 2 + ((py - sy) * M.yr) ** 2;
+      if (dd < bd) { bd = dd; bt = tt; }
+    }
+    return bt;
+  });
   const done = (a) => a.total > 0 ? a.done >= a.total : true; // 미션 없는 학원은 통과 취급
   // 순차 진행: 앞에서부터 연속으로 완료한 다음 목적지가 캐릭터의 현재 목표
   let k = 0; while (k < n && done(sorted[k])) k++;
   const allDone = n > 0 && k === n;
-  const targetT = mode === "past" ? 1 : mode === "future" ? 0 : (allDone ? 1 : (k === 0 ? 0 : slots[k]));
+  const targetT = mode === "past" ? 1 : mode === "future" ? 0 : (allDone ? 1 : (k === 0 ? 0 : stopT[k]));
 
   // 캐릭터를 길을 따라 부드럽게 이동 (rAF 트윈 — 길 밖으로 나가지 않음)
   const [t, setT] = useState(mode === "past" ? 1 : 0);
@@ -125,9 +144,9 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       `}</style>
       <img src={M.bg} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
 
-      {/* ── 학원 건물 Overlay (배경 무수정 — 길 위 배치, 비슷한 크기) ── */}
+      {/* ── 학원 건물 Overlay (배경 무수정 — 길 옆 잔디 고정 좌표, 비슷한 크기) ── */}
       {sorted.map((ac, i) => {
-        const [x, y] = pointAt(slots[i]);
+        const [x, y] = spots[i];
         const d = done(ac);
         const B = BUILDINGS[i % BUILDINGS.length];
         return (
