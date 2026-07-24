@@ -17,13 +17,14 @@
 import { useEffect, useRef, useState } from "react";
 
 const BG = "assets/adventure-map.webp";           // 860×1290 (원화 1024×1536 비율 유지)
-// 학원 건물 아이콘 5종 — 배치 순서대로 순환 사용 (원화 무수정, 위치·크기만 조정)
+// 학원 건물 아이콘 4종 — 배치 순서대로 순환 사용 (원화 무수정, 위치·크기만 조정)
+// cx/cy/d: 원화에 뚫린 '이모지 동그라미 구멍'의 중심·지름 (이미지 % — 투명 블롭 스캔으로 실측).
+// 이모지는 구멍 '뒤'에 크림 원판과 함께 깔려, 원화의 테두리가 이모지를 자연스럽게 감싼다.
 const BUILDINGS = [
-  "assets/map-bld-roundhouse.webp",
-  "assets/map-bld-windmill.webp",
-  "assets/map-bld-yellowhouse.webp",
-  "assets/map-bld-stonehut.webp",
-  "assets/map-bld-tent.webp",
+  { src: "assets/map-bld-roundhouse.webp", cx: 43.2, cy: 63.4, d: 32.7 },
+  { src: "assets/map-bld-windmill.webp",   cx: 42.0, cy: 66.1, d: 35.0 },
+  { src: "assets/map-bld-redhouse.webp",   cx: 64.1, cy: 60.9, d: 30.2 },
+  { src: "assets/map-bld-tent.webp",       cx: 44.3, cy: 67.3, d: 31.6 },
 ];
 
 // 배경 원화의 길(흙길) 중심선 폴리라인 — 이미지 기준 % 좌표 (x, y). 집 계단 → 보물상자 앞.
@@ -112,19 +113,20 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       {sorted.map((ac, i) => {
         const [x, y] = pointAt(slots[i]);
         const d = done(ac);
+        const B = BUILDINGS[i % BUILDINGS.length];
         return (
           <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: "20%", textAlign: "center", pointerEvents: "none" }}>
             <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
               {d && <>
-                <span style={{ position: "absolute", top: "-6%", left: "-8%", fontSize: 14, animation: "amSpark 2.8s ease-in-out infinite" }}>✨</span>
-                <span style={{ position: "absolute", top: "10%", right: "-9%", fontSize: 11, animation: "amSpark 2.8s ease-in-out infinite -1.2s" }}>✨</span>
+                <span style={{ position: "absolute", top: "-6%", left: "-8%", fontSize: 14, animation: "amSpark 2.8s ease-in-out infinite", zIndex: 2 }}>✨</span>
+                <span style={{ position: "absolute", top: "10%", right: "-9%", fontSize: 11, animation: "amSpark 2.8s ease-in-out infinite -1.2s", zIndex: 2 }}>✨</span>
               </>}
-              <img src={BUILDINGS[i % BUILDINGS.length]} alt="" draggable={false}
-                style={{ width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
-              {/* 건물 가운데 학원 이모지 배지 — 어떤 학원인지 한눈에 (완료 시 ✅) */}
-              <span style={{ position: "absolute", left: "50%", top: "54%", transform: "translate(-50%,-50%)", width: 26, height: 26, borderRadius: "50%", background: "rgba(255,251,240,0.95)", border: "1.5px solid rgba(155,114,74,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, lineHeight: 1, boxShadow: "0 2px 5px rgba(60,80,40,0.3)" }}>
+              {/* 구멍 뒤 크림 원판 + 학원 이모지 (완료 시 ✅) — 원화의 동그라미 테두리가 앞에서 감싼다 */}
+              <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, lineHeight: 1, zIndex: 0 }}>
                 {d ? "✅" : ac.icon}
               </span>
+              <img src={B.src} alt="" draggable={false}
+                style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
             </div>
             {/* 이름표 — 이름 + 시각 (아이콘은 건물 배지로 이동) */}
             <div style={{ display: "inline-block", marginTop: 2, background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)", maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
