@@ -16,25 +16,25 @@
    ════════════════════════════════════════════════════════════════════════ */
 import { useEffect, useRef, useState } from "react";
 
-const BG = "assets/adventure-map.webp";           // 860×1290 (원화 1024×1536 비율 유지)
+const BG = "assets/adventure-map.webp";           // 860×1855 (원화 854×1842 비율 유지)
 // 학원 건물 아이콘 4종 (정글 세트) — 배치 순서대로 순환 사용 (원화 무수정, 위치·크기만 조정)
 // cx/cy/d: 원화에 뚫린 '이모지 동그라미 구멍'의 중심·지름 (이미지 % — 투명 블롭 스캔으로 실측).
 // 이모지는 구멍 '뒤'에 크림 원판과 함께 깔려, 원화의 테두리가 이모지를 자연스럽게 감싼다.
 const BUILDINGS = [
-  { src: "assets/map-bld-junglehut.webp",   cx: 54.4, cy: 54.8, d: 26.5 },
-  { src: "assets/map-bld-tileroof.webp",    cx: 36.0, cy: 56.8, d: 27.3 },
-  { src: "assets/map-bld-globehouse.webp",  cx: 43.1, cy: 54.1, d: 31.0 },
-  { src: "assets/map-bld-artisthouse.webp", cx: 35.6, cy: 54.5, d: 28.9 },
+  { src: "assets/map-bld-junglehut.webp",   cx: 53.7, cy: 53.9, d: 26.9 },
+  { src: "assets/map-bld-tileroof.webp",    cx: 36.7, cy: 55.5, d: 26.7 },
+  { src: "assets/map-bld-globehouse.webp",  cx: 42.5, cy: 53.6, d: 30.9 },
+  { src: "assets/map-bld-artisthouse.webp", cx: 36.5, cy: 53.4, d: 28.5 },
 ];
 
-// 배경 원화(정글 섬)의 길 중심선 폴리라인 — 이미지 기준 % 좌표 (x, y). 오두막 계단 → 해변 보물상자 앞.
+// 배경 원화(정글 v2, 854×1842)의 길 중심선 폴리라인 — 이미지 기준 % 좌표 (x, y). 오두막 계단 → 해변 보물상자 앞.
 const PATH = [
-  [30,16.5],[38,12.5],[49,10],[58,10],[63,14],[61,19],[52,23],[41,26],[33,29],
-  [31,33],[34,37],[39,40],[37,43],[45,44.5],[51,46.5],[48,51],[40,55],[33,60],
-  [30,65],[33,71],[39,76],[43,80],[45,85],
+  [48,15],[43,18.5],[42.5,22],[48,25],[55,28],[58.5,31.5],[56,35.5],[49,39.5],
+  [41,43.5],[37,47.5],[38,51.5],[43,55],[50,57.5],[47,60.5],[40,63.5],[35,67],
+  [36,71],[42,75],[47,79],[47,83],[45,87],
 ];
-const CHEST = [45, 88.5];  // 배경 속 보물상자 위치(%)
-const ASPECT = 1536 / 1024; // 세로/가로 비 (거리 계산 시 y 보정)
+const CHEST = [50, 90.5];  // 배경 속 보물상자 위치(%)
+const ASPECT = 1842 / 854;  // 세로/가로 비 (거리 계산 시 y 보정)
 
 // 폴리라인 누적 길이 → t(0~1)로 좌표 보간
 const segLens = (() => {
@@ -101,7 +101,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   const chestParty = mode === "past" || (mode === "today" && allDone && t >= 0.995);
 
   return (
-    <div style={{ position: "relative", width: "100%", aspectRatio: "1024 / 1536", borderRadius: fullBleed ? 0 : 18, overflow: "hidden", boxShadow: fullBleed ? "none" : "inset 0 0 0 1px rgba(142,165,74,0.35)" }}>
+    <div style={{ position: "relative", width: "100%", aspectRatio: "854 / 1842", borderRadius: fullBleed ? 0 : 18, overflow: "hidden", boxShadow: fullBleed ? "none" : "inset 0 0 0 1px rgba(142,165,74,0.35)" }}>
       <style>{`
         @keyframes amBob{0%,100%{transform:translate(-50%,-86%) translateY(0)}50%{transform:translate(-50%,-86%) translateY(-4px)}}
         @keyframes amSpark{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.1)}}
