@@ -3216,6 +3216,22 @@ export default function App() {
               </div>
               {/* 본문: 카테고리별 */}
               <div style={{padding:"6px 16px 26px"}}>
+                {/* 아바타 꾸미기 진입 카드 — 홈의 별도 카드를 상점 안으로 통합 (기능은 기존 아바타 꾸미기 모달 그대로) */}
+                <button onClick={()=>{ setShowDecorShop(false); setShowEquipShop(true); }}
+                  style={{width:"100%",boxSizing:"border-box",marginTop:14,padding:"15px 16px",borderRadius:18,cursor:"pointer",textAlign:"left",
+                    display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,
+                    background:kidSkin==="cute"?`linear-gradient(135deg, ${mixWhite(th.main,0.86)}, #fff)`:"linear-gradient(135deg, #7398A8, #648492)",
+                    border:kidSkin==="cute"?`1.5px solid ${th.main}55`:"1px solid rgba(190,220,232,0.45)",
+                    boxShadow:kidSkin==="cute"?`0 6px 16px ${th.main}22`:"0 6px 18px rgba(60,90,105,0.28)"}}>
+                  <span style={{display:"flex",alignItems:"center",gap:9}}>
+                    <span style={{fontSize:22}}>👗</span>
+                    <span>
+                      <span style={{display:"block",fontSize:16,fontWeight:900,color:kidSkin==="cute"?C.text:"#FFFFFF"}}>아바타 꾸미기</span>
+                      <span style={{display:"block",fontSize:12,fontWeight:800,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",marginTop:3}}>파츠를 사서 나만의 아바타를 만들어요 · {getAvatarOwned(childId).length}개 보유</span>
+                    </span>
+                  </span>
+                  <span style={{fontSize:17,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)"}}>›</span>
+                </button>
                 {DECOR_GROUPS.filter(grp=>grp.key!=="hat").map(grp=>{   // 모자/장비(hat) 카테고리는 신규 '아바타 꾸미기'와 중복되어 이 상점에서 제외(데이터·저장 로직은 유지)
                   const grpLocked = grp.lockUntilMaxPet && !isMaxPet(childId);   // 펫 스킨만 잠금 대상(캐릭터 스킨은 폐지)
                   return (
@@ -4313,24 +4329,13 @@ export default function App() {
                   <span style={{fontSize:18}}>🛍️</span>
                   <span style={{textAlign:"left"}}>
                     <span style={{display:"block",fontSize:18,fontWeight:900,color:kidSkin==="cute"?C.text:"#FFFFFF"}}>{kidSkin==="cute"?"꾸미기 가게":"꾸미기 상점"}</span>
-                    <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",marginTop:4}}>모자·테두리·배경으로 프로필 꾸미기 · {getOwnedCount(childId)}개 보유</span>
+                    <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",marginTop:4}}>모자·테두리·배경·아바타 꾸미기 · {getOwnedCount(childId)+getAvatarOwned(childId).length}개 보유</span>
                   </span>
                 </span>
                 <span style={{fontSize:18,opacity:kidSkin==="cute"?0.6:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)"}}>›</span>
               </button>
 
-              {/* ── 아바타 꾸미기 상점 진입 (신규) ── */}
-              <button onClick={()=>setShowEquipShop(true)}
-                style={{...skyCard("#7398A8","#648492"),width:"100%",boxSizing:"border-box",padding:"18px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",textAlign:"left"}}>
-                <span style={{display:"flex",alignItems:"center",gap:7}}>
-                  <span style={{fontSize:18}}>👗</span>
-                  <span style={{textAlign:"left"}}>
-                    <span style={{display:"block",fontSize:18,fontWeight:900,color:kidSkin==="cute"?C.text:"#FFFFFF"}}>아바타 꾸미기</span>
-                    <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",marginTop:4}}>파츠를 사서 나만의 아바타를 만들어요 · {getAvatarOwned(childId).length}개 보유</span>
-                  </span>
-                </span>
-                <span style={{fontSize:18,opacity:kidSkin==="cute"?0.6:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)"}}>›</span>
-              </button>
+              {/* 아바타 꾸미기 진입은 꾸미기 상점 모달 안으로 통합 (홈 별도 카드 제거, 기능은 상점 내 버튼으로 유지) */}
 
               {/* 보물창고 / 디저트 보관함 카드 */}
               <div style={kidSkin==="cute"
