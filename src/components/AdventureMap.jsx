@@ -76,9 +76,12 @@ const MAP_SHORT = {
   chest: [50, 85],
   yr: 1619 / 972,
   bw: 19, fs: 14,   // 짧은 지도는 건물을 한 단계 작게
+  // 사용자 지정 배치 (참고 이미지 ①②③): 1번 우측(원숭이 왼편) → 2번 좌상(오두막 아래) → 3번 좌하(개구리 위)
+  // ①→②→③ 순서가 길 진행 방향(stopT)과 일치해 캐릭터가 앞으로만 이동한다.
   spots: {
-    1: [[66,37]],
-    2: [[66,37],[32,66]],
+    1: [[67,38]],
+    2: [[67,38],[41,29]],
+    3: [[67,38],[41,29],[24,63]],
   },
   pointAt: mkPointAt([
     [50,22],[54,25],[57,28],[55,32],[48,36],[44,40],[46,44],[52,48],[55,52],
@@ -92,8 +95,8 @@ const isImg = (s) => typeof s === "string" && s.includes("assets/");
 export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
-  // 학원 0~2곳=짧은 지도 / 3곳 이상=긴 지도
-  const M = n <= 2 ? MAP_SHORT : MAP_LONG;
+  // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
+  const M = n <= 3 ? MAP_SHORT : MAP_LONG;
   const pointAt = M.pointAt, CHEST = M.chest;
   // 학원 건물: 지도별 고정 좌표(길 옆 잔디) — 프리셋 밖 개수는 길 위 균등 분배 폴백
   const spots = sorted.map((_, i) => (M.spots[n] && M.spots[n][i]) || pointAt((i + 1) / (n + 1)));
