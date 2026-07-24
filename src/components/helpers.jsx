@@ -9,7 +9,7 @@ import { UI_TEXT } from "../data/characters.js";
 
 export function CharacterSectionHeader({icon,title,subtitle,open,onToggle,dark=false}){
   const tx = dark ? "#FFFFFF" : C.text;
-  const sub = dark ? "rgba(255,255,255,0.66)" : C.sub;
+  const sub = dark ? "rgba(255,255,255,0.85)" : C.sub;  // 0.66 → 0.85: 청회색 카드 위 12px 부제 가독성
   return (
     <div onClick={onToggle} style={{display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer"}}>
       <div>
