@@ -21,10 +21,10 @@ import { useEffect, useRef, useState } from "react";
 // cx/cy/d: 원화에 뚫린 '이모지 동그라미 구멍'의 중심·지름 (이미지 % — 투명 블롭 스캔으로 실측).
 // 이모지는 구멍 '뒤'에 크림 원판과 함께 깔려, 원화의 테두리가 이모지를 자연스럽게 감싼다.
 const BUILDINGS = [
-  { src: "assets/map-bld-junglehut.webp",   cx: 50.4, cy: 53.9, d: 32.4 },
-  { src: "assets/map-bld-tileroof.webp",    cx: 35.7, cy: 54.1, d: 31.3 },
-  { src: "assets/map-bld-greenroof.webp",   cx: 41.7, cy: 52.7, d: 31.8 },
-  { src: "assets/map-bld-artisthouse.webp", cx: 34.7, cy: 53.4, d: 30.2 },
+  { src: "assets/map-bld-junglehut.webp",   cx: 48.4, cy: 53.6, d: 39.1 },
+  { src: "assets/map-bld-tileroof.webp",    cx: 36.7, cy: 54.3, d: 37.5 },
+  { src: "assets/map-bld-greenroof.webp",   cx: 42.3, cy: 52.5, d: 39.6 },
+  { src: "assets/map-bld-artisthouse.webp", cx: 35.5, cy: 52.5, d: 37.9 },
 ];
 
 // 폴리라인 누적 길이 → t(0~1)로 좌표 보간하는 함수 생성 (지도별로 각각)
@@ -57,7 +57,7 @@ const MAP_LONG = {
   ar: "854 / 1842",
   chest: [50, 89],
   yr: 1842 / 854,
-  bw: 28, fs: 18,   // 건물 표시 폭(%)·이모지 크기 (사용자 피드백: 1.3배 확대)
+  bw: 28, fs: 26,   // 건물 표시 폭(%)·이모지 크기 (구멍 확대판 원화에 맞춤)
   // 학원 건물 고정 배치 좌표 (사용자 지정: 길 '옆' 잔디, 좌우 번갈아) — 방문 순서대로
   spots: {
     3: [[68,29],[71,45],[36,76]],
@@ -75,7 +75,7 @@ const MAP_SHORT = {
   ar: "972 / 1619",
   chest: [50, 85],
   yr: 1619 / 972,
-  bw: 25, fs: 17,   // 짧은 지도는 건물을 한 단계 작게 (1.3배 확대 반영)
+  bw: 25, fs: 23,   // 짧은 지도는 건물을 한 단계 작게 (구멍 확대판 원화에 맞춤)
   // 사용자 지정 자리 ①②③ — 숫자는 '사용할 자리 개수' (1곳=①만, 2곳=①②, 3곳=①②③).
   // 학원 배정은 시간순으로 지도의 위→아래 (렌더 시 y로 정렬해서 배정).
   spots: {
