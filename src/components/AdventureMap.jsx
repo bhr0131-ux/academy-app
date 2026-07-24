@@ -76,12 +76,12 @@ const MAP_SHORT = {
   chest: [50, 85],
   yr: 1619 / 972,
   bw: 19, fs: 14,   // 짧은 지도는 건물을 한 단계 작게
-  // 사용자 지정 배치 (참고 이미지 ①②③): 1번 우측(원숭이 왼편) → 2번 좌상(오두막 아래) → 3번 좌하(개구리 위)
-  // ①→②→③ 순서가 길 진행 방향(stopT)과 일치해 캐릭터가 앞으로만 이동한다.
+  // 사용자 지정 자리 ①②③ — 숫자는 '사용할 자리 개수' (1곳=①만, 2곳=①②, 3곳=①②③).
+  // 학원 배정은 시간순으로 지도의 위→아래 (렌더 시 y로 정렬해서 배정).
   spots: {
-    1: [[67,38]],
-    2: [[67,38],[41,29]],
-    3: [[67,38],[41,29],[24,63]],
+    1: [[67,38]],                       // ① 우측(원숭이 왼편)
+    2: [[67,38],[41,29]],               // +② 좌상(오두막 아래)
+    3: [[67,38],[41,29],[24,63]],       // +③ 좌하(개구리 위)
   },
   pointAt: mkPointAt([
     [50,22],[54,25],[57,28],[55,32],[48,36],[44,40],[46,44],[52,48],[55,52],
@@ -98,9 +98,12 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
   const M = n <= 3 ? MAP_SHORT : MAP_LONG;
   const pointAt = M.pointAt, CHEST = M.chest;
-  // 학원 건물: 지도별 고정 좌표(길 옆 잔디) — 프리셋 밖 개수는 길 위 균등 분배 폴백
-  const spots = sorted.map((_, i) => (M.spots[n] && M.spots[n][i]) || pointAt((i + 1) / (n + 1)));
-  // 각 건물에서 가장 가까운 길 지점 t — 캐릭터는 길 위 이 지점에 정차
+  // 학원 건물: 지도별 고정 자리(길 옆 잔디)를 위→아래(y) 순으로 정렬해 시간순 학원에 배정 (사용자 확정)
+  // 프리셋 밖 개수는 길 위 균등 분배 폴백
+  const spots = M.spots[n]
+    ? [...M.spots[n]].sort((a, b) => a[1] - b[1])
+    : sorted.map((_, i) => pointAt((i + 1) / (n + 1)));
+  // 각 건물에서 가장 가까운 길 지점 t를 구한 뒤 오름차순 정렬 — 캐릭터가 길을 앞으로만 이동하도록 보장
   const stopT = spots.map(([sx, sy]) => {
     let bt = 0, bd = Infinity;
     for (let s = 0; s <= 200; s++) {
@@ -109,7 +112,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       if (dd < bd) { bd = dd; bt = tt; }
     }
     return bt;
-  });
+  }).sort((a, b) => a - b);
   const done = (a) => a.total > 0 ? a.done >= a.total : true; // 미션 없는 학원은 통과 취급
   // 순차 진행: 앞에서부터 연속으로 완료한 다음 목적지가 캐릭터의 현재 목표
   let k = 0; while (k < n && done(sorted[k])) k++;
