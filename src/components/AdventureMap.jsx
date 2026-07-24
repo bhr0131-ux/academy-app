@@ -63,7 +63,7 @@ const pointAt = (t) => {
 const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
-export default function AdventureMap({ items = [], mode = "today", charEmoji = "" }) {
+export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
   // 학원 슬롯: 길 위 t 값. 학원이 적으면 뒷공간은 풍경으로 남긴다 (분모 = max(n,4)+1).
@@ -99,7 +99,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   const chestParty = mode === "past" || (mode === "today" && allDone && t >= 0.995);
 
   return (
-    <div style={{ position: "relative", width: "100%", aspectRatio: "1024 / 1536", borderRadius: 18, overflow: "hidden", boxShadow: "inset 0 0 0 1px rgba(142,165,74,0.35)" }}>
+    <div style={{ position: "relative", width: "100%", aspectRatio: "1024 / 1536", borderRadius: fullBleed ? 0 : 18, overflow: "hidden", boxShadow: fullBleed ? "none" : "inset 0 0 0 1px rgba(142,165,74,0.35)" }}>
       <style>{`
         @keyframes amBob{0%,100%{transform:translate(-50%,-86%) translateY(0)}50%{transform:translate(-50%,-86%) translateY(-4px)}}
         @keyframes amSpark{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.1)}}

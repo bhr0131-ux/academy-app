@@ -1,16 +1,16 @@
 /* ════════════════════════════════════════════════════════════════════════
-   HomeSheet — 아이 홈(모험) 하단 시트: 레벨 줄 + 진행바 + 3타일(모험/미션/캐릭터)
+   HomeSheet — 아이 홈(모험) 하단 시트: 날짜바 + 3타일(모험/미션/캐릭터)
    ────────────────────────────────────────────────────────────────────────
    App.jsx 홈 화면에서 분리(CLAUDE.md 3번: 수정 시 점진 분리).
    표시 전용 컴포넌트 — 데이터 계산은 App이 하고 props로 받는다.
+   레벨·아이 이름 줄과 경험치바는 사용자 확정으로 제거(레벨 정보는 캐릭터 탭 HERO STATUS 카드에서 표시)
+   → 그 자리에 날짜바(dateNav)를 배치. 날짜바는 App이 탭별 톤으로 만들어 node로 내려준다.
 
-   팔레트: 사용자 확정 수채화 톤 (Cloud 시트 / 타일은 크림·연갈색 — 숲 컨셉 통일, Sky 선택 폐지)
+   팔레트: 사용자 확정 수채화 톤 (Cloud 시트 / 타일은 크림·연갈색 — 숲 컨셉 통일)
    폰트: 제목 온글잎 콘콘체 / 부제 Pretendard SemiBold (index.html @font-face)
 
    props
-     name      : string                      아이 이름
-     level     : number                      현재 레벨
-     pct       : number(0~100)               다음 레벨까지 진행률
+     dateNav   : node                        날짜 이동 바 (App 제작, 탭별 색)
      tiles     : [{k,title,sub,icon}]        타일 데이터 (k=탭 키)
      activeTab : string                      현재 선택 탭 키
      onSelect  : (k)=>void                   타일 탭 선택
@@ -24,23 +24,17 @@ const TILE_ACCENT = {
   growth: { bg:"#AED2EC", border:"#83B4D4", text:"#355D76" },  // 캐릭터
 };
 
-export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab, onSelect }) {
+export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) {
   return (
     <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"18px 18px 22px",
       borderRadius:"30px 30px 0 0",background:"#F0F3F3", // Cloud — 순백 대신 수채화와 이어지는 아이보리·회색
       boxShadow:"0 -10px 30px -12px rgba(40,70,45,0.30)"}}>
       {/* 시트 핸들바 */}
       <div style={{width:44,height:5,borderRadius:999,background:"#D9DED7",margin:"-4px auto 14px"}}/>
-      {/* 레벨 줄 */}
-      <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:9}}>
-        <span style={{fontSize:17,fontWeight:900,color:"#4B3A2F"}}>레벨{level} {name}</span>
-        <span style={{fontSize:18,fontWeight:900,color:"#4A8CB8",fontVariantNumeric:"tabular-nums"}}>{pct}%</span>
-      </div>
-      <div style={{height:12,borderRadius:999,background:"#DCE4DD",overflow:"hidden"}}>
-        <div style={{height:"100%",width:`${pct}%`,borderRadius:999,background:"linear-gradient(90deg,#5E8C5A,#8FB081)",boxShadow:"inset 0 2px 0 rgba(255,255,255,0.35)"}}/>
-      </div>
-      {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 — 아이콘 위·세로 중앙 정렬, 선택 시 파란 강조 */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginTop:15}}>
+      {/* 날짜바 — 레벨·이름 줄 자리 (탭별 톤은 App의 dateNav가 담당) */}
+      {dateNav}
+      {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 — 아이콘 위·세로 중앙 정렬 */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginTop:1}}>
         {tiles.map(t=>{
           const on=activeTab===t.k;
           const ac=TILE_ACCENT[t.k]||TILE_ACCENT.area;
