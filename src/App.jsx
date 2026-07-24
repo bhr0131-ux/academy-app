@@ -8,6 +8,7 @@ import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./comp
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import HomeSheet from "./components/HomeSheet.jsx";
+import AdventureMap from "./components/AdventureMap.jsx";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   LEGACY_AVATAR_OWNED_KEY, computeAvatarMigration,
@@ -3935,9 +3936,11 @@ export default function App() {
                     </div>
                     {total>0&&(
                     <div style={{position:"relative",marginTop:8}}>
+                      {/* 모험: 그림책 초원 맵(AdventureMap — 사용자 원화 배경+건물 오버레이) / 베이커리: 기존 캔디랜드 IslandMap 유지 */}
+                      {kidSkin==="cute"?(
                       <IslandMap
                         items={ringItems}
-                        night={kidSkin!=="cute"}
+                        night={false}
                         mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
                         charEmoji={(()=>{
                           const evo=getCharacterEvolution(childId);
@@ -3945,6 +3948,17 @@ export default function App() {
                           return evo?.avatar?.[g] || evo?.emoji || "";
                         })()}
                       />
+                      ):(
+                      <AdventureMap
+                        items={ringItems}
+                        mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
+                        charEmoji={(()=>{
+                          const evo=getCharacterEvolution(childId);
+                          const g=curChild?.gender==="girl"?"girl":"boy";
+                          return evo?.avatar?.[g] || evo?.emoji || "";
+                        })()}
+                      />
+                      )}
                     </div>
                     )}
                   </div>
