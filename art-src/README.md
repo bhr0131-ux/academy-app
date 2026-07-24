@@ -28,3 +28,4 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | map-bld-tileroof.png | 지도 학원 건물 원화 2 (파란 기와집, 이모지 구멍) | map-bld-tileroof.webp |
 | map-bld-globehouse.png | 지도 학원 건물 원화 3 (지구본 책방, 이모지 구멍) | map-bld-globehouse.webp |
 | map-bld-artisthouse.png | 지도 학원 건물 원화 4 (화방, 이모지 구멍) | map-bld-artisthouse.webp |
+| adventure-map-short-src.png | 모험 지도 배경 원화 (짧은 정사각 1254², 학원 0~2곳용) | adventure-map-short.webp |
