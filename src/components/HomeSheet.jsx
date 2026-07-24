@@ -34,7 +34,7 @@ export default function HomeSheet({ name, level, pct = 0, tiles = [], activeTab,
       {/* 레벨 줄 */}
       <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:9}}>
         <span style={{fontSize:17,fontWeight:900,color:"#4B3A2F"}}>레벨{level} {name}</span>
-        <span style={{fontSize:18,fontWeight:900,color:"#62B9E6",fontVariantNumeric:"tabular-nums"}}>{pct}%</span>
+        <span style={{fontSize:18,fontWeight:900,color:"#4A8CB8",fontVariantNumeric:"tabular-nums"}}>{pct}%</span>
       </div>
       <div style={{height:12,borderRadius:999,background:"#DCE4DD",overflow:"hidden"}}>
         <div style={{height:"100%",width:`${pct}%`,borderRadius:999,background:"linear-gradient(90deg,#5E8C5A,#8FB081)",boxShadow:"inset 0 2px 0 rgba(255,255,255,0.35)"}}/>

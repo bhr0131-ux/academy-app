@@ -2963,7 +2963,7 @@ export default function App() {
                 <DungeonCardGlow/>
                 {/* 레벨 + 상장 — 윗줄(라벨+상장뱃지) / 아랫줄(레벨명 한 줄 전체)로 분리해 겹침 방지 */}
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,position:"relative",zIndex:1}}>
-                  <p style={{fontSize:12,fontWeight:900,letterSpacing:1.5,margin:0,color:kidSkin==="cute"?GP.boxSub:"#B8863B"}}>{T.heroStatus}</p>
+                  <p style={{fontSize:12,fontWeight:900,letterSpacing:1.5,margin:0,color:kidSkin==="cute"?GP.boxSub:"#8A6A2E"}}>{T.heroStatus}</p>
                   <p style={{display:"inline-block",...jellyChip({background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"#EDF8FD",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"1px solid rgba(125,183,216,0.6)",borderRadius:20},{radius:20}),fontSize:13,fontWeight:900,color:kidSkin==="cute"?GP.boxText:"#355D76",padding:"5px 12px",margin:0,maxWidth:"58%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
                     {title.emoji} {title.name}
                   </p>
@@ -3035,19 +3035,20 @@ export default function App() {
       const _dn=kidSkin!=="cute";
       const _dnBg=childTab==="today"?"#B38A60":"#6F8E63";
       const _dnBtn=childTab==="today"?"#C69C6F":"#83A177";
+      const _dnDeep=childTab==="today"?"#5C452C":"#2F4A2C"; // 밝은 버튼 위 화살표·오늘 글씨용 진한 색 (가독성)
       return (
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"6px 10px",marginBottom:14}}>
         <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
-          style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:30,height:30,fontSize:17,cursor:"pointer",fontWeight:900}}>‹</button>
+          style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?_dnDeep:GP.chipText,width:30,height:30,fontSize:17,cursor:"pointer",fontWeight:900}}>‹</button>
         <div style={{textAlign:"center"}}>
           <p style={{fontSize:15,fontWeight:900,margin:0,color:_dn?"#F0F3F3":GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
-          {!isChildToday&&<p style={{fontSize:11,color:GP.gold,margin:"2px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
+          {!isChildToday&&<p style={{fontSize:11,color:_dn?"#FFF8EB":GP.gold,margin:"2px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
         </div>
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
           {!isChildToday&&<button onClick={()=>setChildDate(TODAY)}
-            style={{background:`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:"#fff",borderRadius:10,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
+            style={{background:_dn?"#FFF8EB":`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:_dn?_dnDeep:"#fff",borderRadius:10,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
           <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()+1);setChildDate(toStr(d));}}
-            style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#F0F3F3":GP.chipText,width:30,height:30,fontSize:17,cursor:"pointer",fontWeight:900}}>›</button>
+            style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?_dnDeep:GP.chipText,width:30,height:30,fontSize:17,cursor:"pointer",fontWeight:900}}>›</button>
         </div>
       </div>
       );
@@ -4124,7 +4125,7 @@ export default function App() {
                                 </p>
                               </div>
                               {/* 준비 배지: 모험은 학원색 대신 팔레트 Sky 고정(#7BB5E6) — 쨍한 학원색이 튀지 않게 */}
-                              <span style={{fontSize:11,fontWeight:900,color:item.done?"#7C8398":item.failed?"#8A8A9A":"#fff",background:item.done?"#E6E9F0":item.failed?"#ECEAF3":(kidSkin==="cute"?acCol:"#7BB5E6"),border:`1px solid ${item.done?"#D2D7E2":item.failed?"#D8D7E5":(kidSkin==="cute"?"transparent":"#5E93C5")}`,padding:"5px 12px",borderRadius:999,flexShrink:0,boxShadow:item.done||item.failed?"none":(kidSkin==="cute"?`0 6px 16px ${acCol}40`:"0 6px 16px rgba(94,147,197,0.35)")}}>
+                              <span style={{fontSize:11,fontWeight:900,color:item.done?"#7C8398":item.failed?"#8A8A9A":"#fff",background:item.done?"#E6E9F0":item.failed?"#ECEAF3":(kidSkin==="cute"?acCol:"#5E93C5"),border:`1px solid ${item.done?"#D2D7E2":item.failed?"#D8D7E5":(kidSkin==="cute"?"transparent":"#4E7FA9")}`,padding:"5px 12px",borderRadius:999,flexShrink:0,boxShadow:item.done||item.failed?"none":(kidSkin==="cute"?`0 6px 16px ${acCol}40`:"0 6px 16px rgba(94,147,197,0.35)")}}>
                                 {item.done?(ST.on?ST.face:"✓"):status.emoji} {status.label}
                               </span>
                             </div>
@@ -4312,7 +4313,7 @@ export default function App() {
                   <span style={{fontSize:18}}>🛍️</span>
                   <span style={{textAlign:"left"}}>
                     <span style={{display:"block",fontSize:18,fontWeight:900,color:kidSkin==="cute"?C.text:"#FFFFFF"}}>{kidSkin==="cute"?"꾸미기 가게":"꾸미기 상점"}</span>
-                    <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.66)",marginTop:4}}>모자·테두리·배경으로 프로필 꾸미기 · {getOwnedCount(childId)}개 보유</span>
+                    <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",marginTop:4}}>모자·테두리·배경으로 프로필 꾸미기 · {getOwnedCount(childId)}개 보유</span>
                   </span>
                 </span>
                 <span style={{fontSize:18,opacity:kidSkin==="cute"?0.6:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)"}}>›</span>
@@ -4325,7 +4326,7 @@ export default function App() {
                   <span style={{fontSize:18}}>👗</span>
                   <span style={{textAlign:"left"}}>
                     <span style={{display:"block",fontSize:18,fontWeight:900,color:kidSkin==="cute"?C.text:"#FFFFFF"}}>아바타 꾸미기</span>
-                    <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.66)",marginTop:4}}>파츠를 사서 나만의 아바타를 만들어요 · {getAvatarOwned(childId).length}개 보유</span>
+                    <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",marginTop:4}}>파츠를 사서 나만의 아바타를 만들어요 · {getAvatarOwned(childId).length}개 보유</span>
                   </span>
                 </span>
                 <span style={{fontSize:18,opacity:kidSkin==="cute"?0.6:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)"}}>›</span>
