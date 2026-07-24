@@ -4359,29 +4359,29 @@ export default function App() {
                         return (
                           <button key={box.type} onClick={()=>openTreasureBox(box.type)} disabled={count<=0}
                             style={{position:"relative",overflow:"hidden",borderRadius:14,padding:"13px 8px",
-                              border:`${count>0?(box.type==="legend"?"2.5px":"2px"):"1.5px"} solid ${count>0?(kidSkin==="cute"?box.color:box.rewardBorder):(kidSkin==="cute"?C.border:th.main+"33")}`,
+                              border:`${count>0?(box.type==="legend"?"2.5px":"2px"):"1.5px"} solid ${count>0?(kidSkin==="cute"?box.color:box.rewardBorder):(kidSkin==="cute"?C.border:"rgba(255,255,255,0.30)")}`,
                               background:count>0
                                 ?(kidSkin==="cute"
                                     ?(box.type==="legend"?`linear-gradient(135deg, ${box.color}33, #FFFDF5)`:`linear-gradient(135deg, ${box.color}22, #fff)`)
                                     :box.rewardBg)
-                                :(kidSkin==="cute"?CT.faint:dungeonTone(th.main,16)),
-                              opacity:count>0?1:0.5,cursor:count>0?"pointer":"not-allowed",textAlign:"center",
+                                :(kidSkin==="cute"?CT.faint:"rgba(255,255,255,0.12)"),
+                              opacity:count>0?1:0.8,cursor:count>0?"pointer":"not-allowed",textAlign:"center",
                               boxShadow:count>0?(kidSkin==="cute"?(box.type==="legend"?`0 4px 16px ${box.color}66, 0 0 0 1px ${box.color}33`:`0 4px 14px ${box.color}30`):`0 0 18px ${box.rewardGlow}, inset 0 1px 0 rgba(255,255,255,0.25)`):"none"}}>
                             {kidSkin!=="cute"&&count>0&&box.type==="legend"&&(
                               <span style={{position:"absolute",top:8,right:10,fontSize:16,opacity:0.9}}>✨</span>
                             )}
                             <p style={{fontSize:kidSkin==="cute"?28:40,margin:"0 0 5px",filter:kidSkin!=="cute"&&count>0?"drop-shadow(0 0 10px rgba(255,255,255,0.35))":"none"}}>{box.emoji}</p>
-                            <p style={{fontSize:13,fontWeight:900,color:kidSkin==="cute"?(count>0?C.text:C.sub):(count>0?"#fff":"rgba(255,255,255,0.6)"),margin:"0 0 3px"}}>{box.name}</p>
-                            <p style={{fontSize:13,fontWeight:900,color:kidSkin==="cute"?(count>0?box.color:C.sub):(count>0?"#fff":"rgba(255,255,255,0.55)"),margin:"0 0 4px"}}>x {count}</p>
+                            <p style={{fontSize:13,fontWeight:900,color:kidSkin==="cute"?(count>0?C.text:C.sub):(count>0?"#fff":"rgba(255,255,255,0.85)"),margin:"0 0 3px"}}>{box.name}</p>
+                            <p style={{fontSize:13,fontWeight:900,color:kidSkin==="cute"?(count>0?box.color:C.sub):(count>0?"#fff":"rgba(255,255,255,0.8)"),margin:"0 0 4px"}}>x {count}</p>
                             {count>0&&<p style={{fontSize:11,fontWeight:900,color:"#fff",background:kidSkin==="cute"?box.color:"rgba(255,255,255,0.18)",border:kidSkin==="cute"?"none":"1px solid rgba(255,255,255,0.25)",borderRadius:20,padding:"2px 8px",display:"inline-block",margin:0}}>열기</p>}
                           </button>
                         );
                       })}
                     </div>
-                    <p style={{fontSize:11,color:C.sub,fontWeight:700,margin:"12px 0 0",lineHeight:1.4}}>
+                    <p style={{fontSize:11,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",fontWeight:700,margin:"12px 0 0",lineHeight:1.4}}>
                       {kidSkin==="cute"?`미션을 모으면 ${TM.box}를 받아요! (겹칠 땐 더 좋은 상자로 받아요)`:"미션을 모으면 상자를 받아요! (겹칠 땐 더 좋은 상자로 받아요)"}
                     </p>
-                    <p style={{fontSize:11,color:C.sub,fontWeight:700,margin:"4px 0 0",lineHeight:1.4}}>
+                    <p style={{fontSize:11,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",fontWeight:700,margin:"4px 0 0",lineHeight:1.4}}>
                       {getBoxInfo("normal",kidSkin).emoji} {TREASURE_MILESTONE.normal}개 → {getBoxInfo("normal",kidSkin).name} · {getBoxInfo("rare",kidSkin).emoji} {TREASURE_MILESTONE.rare}개 → {getBoxInfo("rare",kidSkin).name} · {getBoxInfo("legend",kidSkin).emoji} {TREASURE_MILESTONE.legend}개 → {getBoxInfo("legend",kidSkin).name}
                     </p>
                   </div>
@@ -4460,8 +4460,8 @@ export default function App() {
                       const selGlow  = dungeon
                         ? `${rarity.glow}, 0 0 26px ${rarity.borderClr}66, 0 0 0 1px ${rarity.borderClr}, 0 6px 18px rgba(8,16,40,0.55)`
                         : `0 0 24px rgba(255,255,255,0.55), 0 0 0 1px ${rarity.color}, 0 6px 18px ${rarity.color}33`;
-                      const nameClr  = dungeon ? (unlocked?"#1B2238":"rgba(230,236,250,0.55)") : (selected?rarity.color:unlocked?C.text:C.sub);
-                      const condClr  = dungeon ? (unlocked?"rgba(27,34,56,0.7)":"rgba(230,236,250,0.45)") : C.sub;
+                      const nameClr  = dungeon ? (unlocked?"#1B2238":"rgba(240,245,252,0.78)") : (selected?rarity.color:unlocked?C.text:C.sub);
+                      const condClr  = dungeon ? (unlocked?"rgba(27,34,56,0.7)":"rgba(240,245,252,0.64)") : C.sub;
                       const rrClr    = dungeon
                         ? (title.rarity==="legendary"?"#7A5C12":title.rarity==="epic"?"#4A3A8A":title.rarity==="rare"?"#244C8A":"#3A4255")
                         : (title.rarity==="common"?"#5A4A3A":title.rarity==="legendary"?"#7B5C00":rarity.color);
@@ -4537,7 +4537,7 @@ export default function App() {
                       <div style={{textAlign:"center",padding:"24px 10px"}}>
                         <p style={{fontSize:42,marginBottom:8}}>📖</p>
                         <p style={{fontSize:15,fontWeight:900,color:dungeon?"#EAF0FF":C.text,margin:"0 0 6px"}}>아직 {T.logName||"활동 기록"}이 없어요</p>
-                        <p style={{fontSize:13,color:dungeon?"rgba(200,212,240,0.62)":C.sub,margin:0}}>미션을 완료하면 기록이 쌓여요</p>
+                        <p style={{fontSize:13,color:dungeon?"rgba(255,255,255,0.82)":C.sub,margin:0}}>미션을 완료하면 기록이 쌓여요</p>
                       </div>
                     ):(
                       <div>
@@ -4555,7 +4555,7 @@ export default function App() {
                               </div>
                               <div style={{flex:1,minWidth:0}}>
                                 <p style={{margin:0,fontSize:13,fontWeight:900,color:dungeon?"#EAF0FF":C.text}}>{info.title}</p>
-                                <p style={{marginTop:3,fontSize:13,color:dungeon?"rgba(200,212,240,0.6)":C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.memo||item.date||""}</p>
+                                <p style={{marginTop:3,fontSize:13,color:dungeon?"rgba(255,255,255,0.78)":C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.memo||item.date||""}</p>
                               </div>
                               <div style={{textAlign:"right",flexShrink:0}}>
                                 {xp>0&&<p style={{margin:0,color:dungeon?"#5FE2C5":GP.gold,fontWeight:900,fontSize:13}}>{TM.xpEmoji} +{xp}</p>}
