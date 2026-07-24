@@ -120,11 +120,15 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 <span style={{ position: "absolute", top: "10%", right: "-9%", fontSize: 11, animation: "amSpark 2.8s ease-in-out infinite -1.2s" }}>✨</span>
               </>}
               <img src={BUILDINGS[i % BUILDINGS.length]} alt="" draggable={false}
-                style={{ width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 4px 5px rgba(60,80,40,0.3))" : "drop-shadow(0 4px 5px rgba(60,80,40,0.3))" }} />
+                style={{ width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
+              {/* 건물 가운데 학원 이모지 배지 — 어떤 학원인지 한눈에 (완료 시 ✅) */}
+              <span style={{ position: "absolute", left: "50%", top: "54%", transform: "translate(-50%,-50%)", width: 26, height: 26, borderRadius: "50%", background: "rgba(255,251,240,0.95)", border: "1.5px solid rgba(155,114,74,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, lineHeight: 1, boxShadow: "0 2px 5px rgba(60,80,40,0.3)" }}>
+                {d ? "✅" : ac.icon}
+              </span>
             </div>
-            {/* 이름표 — 학원 아이콘 + 이름 + 시각 (완료 시 ✔) */}
+            {/* 이름표 — 이름 + 시각 (아이콘은 건물 배지로 이동) */}
             <div style={{ display: "inline-block", marginTop: 2, background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)", maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {d ? "✅" : ac.icon} {ac.name}{ac.time ? ` · ${ac.time}` : ""}
+              {ac.name}{ac.time ? ` · ${ac.time}` : ""}
             </div>
           </div>
         );
