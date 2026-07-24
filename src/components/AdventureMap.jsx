@@ -57,6 +57,7 @@ const MAP_LONG = {
   ar: "854 / 1842",
   chest: [50, 89],
   yr: 1842 / 854,
+  bw: 23, fs: 16,   // 건물 표시 폭(%)·이모지 크기
   // 학원 건물 고정 배치 좌표 (사용자 지정: 길 '옆' 잔디, 좌우 번갈아) — 방문 순서대로
   spots: {
     3: [[68,29],[71,45],[36,76]],
@@ -74,9 +75,10 @@ const MAP_SHORT = {
   ar: "1254 / 1254",
   chest: [54, 88],
   yr: 1,
+  bw: 19, fs: 14,   // 짧은 지도는 건물을 한 단계 작게
   spots: {
-    1: [[36,44]],
-    2: [[36,43],[63,60]],
+    1: [[38,47]],
+    2: [[38,46],[60,64]],
   },
   pointAt: mkPointAt([
     [49,26],[54,30],[58,34],[59,39],[56,44],[50,49],[44,54],[40,59],[39,64],
@@ -150,14 +152,14 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         const d = done(ac);
         const B = BUILDINGS[i % BUILDINGS.length];
         return (
-          <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: "23%", textAlign: "center", pointerEvents: "none" }}>
+          <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw}%`, textAlign: "center", pointerEvents: "none" }}>
             <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
               {d && <>
                 <span style={{ position: "absolute", top: "-6%", left: "-8%", fontSize: 14, animation: "amSpark 2.8s ease-in-out infinite", zIndex: 2 }}>✨</span>
                 <span style={{ position: "absolute", top: "10%", right: "-9%", fontSize: 11, animation: "amSpark 2.8s ease-in-out infinite -1.2s", zIndex: 2 }}>✨</span>
               </>}
               {/* 구멍 뒤 크림 원판 + 학원 이모지 — 아이 학원카드와 같은 이모지를 항상 유지 (완료 표시는 이름표 ✅) */}
-              <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, lineHeight: 1, zIndex: 0 }}>
+              <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: M.fs, lineHeight: 1, zIndex: 0 }}>
                 {ac.icon}
               </span>
               <img src={B.src} alt="" draggable={false}
