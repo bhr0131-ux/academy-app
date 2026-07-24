@@ -67,9 +67,10 @@ const isImg = (s) => typeof s === "string" && s.includes("assets/");
 export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
-  // 학원 슬롯: 길 위 t 값. 학원이 적으면 뒷공간은 풍경으로 남긴다 (분모 = max(n,4)+1).
-  const D = Math.max(n, 4) + 1;
-  const slots = sorted.map((_, i) => (i + 1) / D);
+  // 학원 슬롯: 개수별 '고정 위치' (사용자 확정) — 길의 중간 구간을 중심으로 배치해
+  // 출발 오두막·도착 보물상자와 겹치지 않는다. 5곳 이상만 균등 분배 폴백.
+  const SLOT_PRESETS = { 1: [0.5], 2: [0.35, 0.62], 3: [0.3, 0.5, 0.7], 4: [0.25, 0.45, 0.62, 0.78] };
+  const slots = SLOT_PRESETS[n] || sorted.map((_, i) => (i + 1) / (n + 1));
   const done = (a) => a.total > 0 ? a.done >= a.total : true; // 미션 없는 학원은 통과 취급
   // 순차 진행: 앞에서부터 연속으로 완료한 다음 목적지가 캐릭터의 현재 목표
   let k = 0; while (k < n && done(sorted[k])) k++;
@@ -121,16 +122,16 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 <span style={{ position: "absolute", top: "-6%", left: "-8%", fontSize: 14, animation: "amSpark 2.8s ease-in-out infinite", zIndex: 2 }}>✨</span>
                 <span style={{ position: "absolute", top: "10%", right: "-9%", fontSize: 11, animation: "amSpark 2.8s ease-in-out infinite -1.2s", zIndex: 2 }}>✨</span>
               </>}
-              {/* 구멍 뒤 크림 원판 + 학원 이모지 (완료 시 ✅) — 원화의 동그라미 테두리가 앞에서 감싼다 */}
+              {/* 구멍 뒤 크림 원판 + 학원 이모지 — 아이 학원카드와 같은 이모지를 항상 유지 (완료 표시는 이름표 ✅) */}
               <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, lineHeight: 1, zIndex: 0 }}>
-                {d ? "✅" : ac.icon}
+                {ac.icon}
               </span>
               <img src={B.src} alt="" draggable={false}
                 style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
             </div>
-            {/* 이름표 — 이름 + 시각 (아이콘은 건물 배지로 이동) */}
+            {/* 이름표 — 이름 + 시각 (완료 시 ✅ 표시. 아이콘은 건물 동그라미가 담당) */}
             <div style={{ display: "inline-block", marginTop: 2, background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)", maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {ac.name}{ac.time ? ` · ${ac.time}` : ""}
+              {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
             </div>
           </div>
         );
