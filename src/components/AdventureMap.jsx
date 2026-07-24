@@ -17,23 +17,23 @@
 import { useEffect, useRef, useState } from "react";
 
 const BG = "assets/adventure-map.webp";           // 860×1290 (원화 1024×1536 비율 유지)
-// 학원 건물 아이콘 4종 — 배치 순서대로 순환 사용 (원화 무수정, 위치·크기만 조정)
+// 학원 건물 아이콘 4종 (정글 세트) — 배치 순서대로 순환 사용 (원화 무수정, 위치·크기만 조정)
 // cx/cy/d: 원화에 뚫린 '이모지 동그라미 구멍'의 중심·지름 (이미지 % — 투명 블롭 스캔으로 실측).
 // 이모지는 구멍 '뒤'에 크림 원판과 함께 깔려, 원화의 테두리가 이모지를 자연스럽게 감싼다.
 const BUILDINGS = [
-  { src: "assets/map-bld-roundhouse.webp", cx: 43.2, cy: 63.4, d: 32.7 },
-  { src: "assets/map-bld-windmill.webp",   cx: 42.0, cy: 66.1, d: 35.0 },
-  { src: "assets/map-bld-redhouse.webp",   cx: 64.1, cy: 60.9, d: 30.2 },
-  { src: "assets/map-bld-tent.webp",       cx: 44.3, cy: 67.3, d: 31.6 },
+  { src: "assets/map-bld-junglehut.webp",   cx: 54.4, cy: 54.8, d: 26.5 },
+  { src: "assets/map-bld-tileroof.webp",    cx: 36.0, cy: 56.8, d: 27.3 },
+  { src: "assets/map-bld-globehouse.webp",  cx: 43.1, cy: 54.1, d: 31.0 },
+  { src: "assets/map-bld-artisthouse.webp", cx: 35.6, cy: 54.5, d: 28.9 },
 ];
 
-// 배경 원화의 길(흙길) 중심선 폴리라인 — 이미지 기준 % 좌표 (x, y). 집 계단 → 보물상자 앞.
+// 배경 원화(정글 섬)의 길 중심선 폴리라인 — 이미지 기준 % 좌표 (x, y). 오두막 계단 → 해변 보물상자 앞.
 const PATH = [
-  [45,25],[56,22.5],[66,25],[73,29],[75,34],[69,39],[57,42],[42,45.5],[30,48.5],
-  [25,52],[26,55.5],[33,58.5],[46,60.5],[60,62],[71,64.5],[78,67.5],[75,71.5],
-  [66,75.5],[54,79],[46,82.5],[40,86],
+  [30,16.5],[38,12.5],[49,10],[58,10],[63,14],[61,19],[52,23],[41,26],[33,29],
+  [31,33],[34,37],[39,40],[37,43],[45,44.5],[51,46.5],[48,51],[40,55],[33,60],
+  [30,65],[33,71],[39,76],[43,80],[45,85],
 ];
-const CHEST = [28, 85];    // 배경 속 보물상자 위치(%)
+const CHEST = [45, 88.5];  // 배경 속 보물상자 위치(%)
 const ASPECT = 1536 / 1024; // 세로/가로 비 (거리 계산 시 y 보정)
 
 // 폴리라인 누적 길이 → t(0~1)로 좌표 보간
@@ -115,7 +115,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         const d = done(ac);
         const B = BUILDINGS[i % BUILDINGS.length];
         return (
-          <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: "20%", textAlign: "center", pointerEvents: "none" }}>
+          <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: "23%", textAlign: "center", pointerEvents: "none" }}>
             <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
               {d && <>
                 <span style={{ position: "absolute", top: "-6%", left: "-8%", fontSize: 14, animation: "amSpark 2.8s ease-in-out infinite", zIndex: 2 }}>✨</span>
