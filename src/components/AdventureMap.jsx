@@ -16,7 +16,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 import { useEffect, useRef, useState } from "react";
 
-const BG = "assets/adventure-map.webp";           // 860×1855 (원화 854×1842 비율 유지)
+// 지도 2종: 학원 0~2곳=짧은 정사각 지도 / 3곳 이상=긴 세로 지도 (사용자 확정 — 개수에 따라 자동 전환)
 // 학원 건물 아이콘 4종 (정글 세트) — 배치 순서대로 순환 사용 (원화 무수정, 위치·크기만 조정)
 // cx/cy/d: 원화에 뚫린 '이모지 동그라미 구멍'의 중심·지름 (이미지 % — 투명 블롭 스캔으로 실측).
 // 이모지는 구멍 '뒤'에 크림 원판과 함께 깔려, 원화의 테두리가 이모지를 자연스럽게 감싼다.
@@ -27,38 +27,52 @@ const BUILDINGS = [
   { src: "assets/map-bld-artisthouse.webp", cx: 36.5, cy: 53.4, d: 28.5 },
 ];
 
-// 배경 원화(양피지 보물지도 v3, 854×1842)의 길 중심선 폴리라인 — 이미지 기준 % 좌표. 오두막 계단 → 해변 보물상자 앞.
-const PATH = [
-  [47,17],[51,20],[56,23],[55,27],[48,31],[44,35],[47,39],[53,43],[55,47],
-  [50,50.5],[45,53.5],[44,57],[41,61],[41,65],[45,69],[50,73],[52,77],
-  [48,81],[45,85],
-];
-const CHEST = [50, 89];  // 배경 속 보물상자 위치(%)
-const ASPECT = 1842 / 854;  // 세로/가로 비 (거리 계산 시 y 보정)
-
-// 폴리라인 누적 길이 → t(0~1)로 좌표 보간
-const segLens = (() => {
+// 폴리라인 누적 길이 → t(0~1)로 좌표 보간하는 함수 생성 (지도별로 각각)
+const mkPointAt = (PATH, ASPECT) => {
   const l = [0];
   for (let i = 1; i < PATH.length; i++) {
     const dx = PATH[i][0] - PATH[i - 1][0];
     const dy = (PATH[i][1] - PATH[i - 1][1]) * ASPECT;
     l.push(l[i - 1] + Math.hypot(dx, dy));
   }
-  return l;
-})();
-const TOTAL_LEN = segLens[segLens.length - 1];
-const pointAt = (t) => {
-  const d = Math.max(0, Math.min(1, t)) * TOTAL_LEN;
-  for (let i = 1; i < PATH.length; i++) {
-    if (d <= segLens[i]) {
-      const r = (d - segLens[i - 1]) / (segLens[i] - segLens[i - 1] || 1);
-      return [
-        PATH[i - 1][0] + (PATH[i][0] - PATH[i - 1][0]) * r,
-        PATH[i - 1][1] + (PATH[i][1] - PATH[i - 1][1]) * r,
-      ];
+  const TOTAL = l[l.length - 1];
+  return (t) => {
+    const d = Math.max(0, Math.min(1, t)) * TOTAL;
+    for (let i = 1; i < PATH.length; i++) {
+      if (d <= l[i]) {
+        const r = (d - l[i - 1]) / (l[i] - l[i - 1] || 1);
+        return [
+          PATH[i - 1][0] + (PATH[i][0] - PATH[i - 1][0]) * r,
+          PATH[i - 1][1] + (PATH[i][1] - PATH[i - 1][1]) * r,
+        ];
+      }
     }
-  }
-  return PATH[PATH.length - 1];
+    return PATH[PATH.length - 1];
+  };
+};
+
+// 긴 지도 (854×1842, 양피지 보물지도) — 길 중심선 % 좌표: 오두막 계단 → 해변 보물상자 앞
+const MAP_LONG = {
+  bg: "assets/adventure-map.webp",
+  ar: "854 / 1842",
+  chest: [50, 89],
+  slots: { 3: [0.3, 0.5, 0.7], 4: [0.25, 0.45, 0.62, 0.78] },
+  pointAt: mkPointAt([
+    [47,17],[51,20],[56,23],[55,27],[48,31],[44,35],[47,39],[53,43],[55,47],
+    [50,50.5],[45,53.5],[44,57],[41,61],[41,65],[45,69],[50,73],[52,77],
+    [48,81],[45,85],
+  ], 1842 / 854),
+};
+// 짧은 지도 (1254×1254 정사각) — 학원 0~2곳용
+const MAP_SHORT = {
+  bg: "assets/adventure-map-short.webp",
+  ar: "1254 / 1254",
+  chest: [54, 88],
+  slots: { 1: [0.52], 2: [0.34, 0.68] },
+  pointAt: mkPointAt([
+    [49,26],[54,30],[58,34],[59,39],[56,44],[50,49],[44,54],[40,59],[39,64],
+    [42,69],[47,73],[51,78],[52,82],[52,85],
+  ], 1),
 };
 
 const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
@@ -67,10 +81,11 @@ const isImg = (s) => typeof s === "string" && s.includes("assets/");
 export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
-  // 학원 슬롯: 개수별 '고정 위치' (사용자 확정) — 길의 중간 구간을 중심으로 배치해
-  // 출발 오두막·도착 보물상자와 겹치지 않는다. 5곳 이상만 균등 분배 폴백.
-  const SLOT_PRESETS = { 1: [0.5], 2: [0.35, 0.62], 3: [0.3, 0.5, 0.7], 4: [0.25, 0.45, 0.62, 0.78] };
-  const slots = SLOT_PRESETS[n] || sorted.map((_, i) => (i + 1) / (n + 1));
+  // 학원 0~2곳=짧은 지도 / 3곳 이상=긴 지도
+  const M = n <= 2 ? MAP_SHORT : MAP_LONG;
+  const pointAt = M.pointAt, CHEST = M.chest;
+  // 학원 슬롯: 지도별 '고정 위치' (사용자 확정) — 길 중간 구간 중심, 프리셋 밖 개수만 균등 분배 폴백
+  const slots = M.slots[n] || sorted.map((_, i) => (i + 1) / (n + 1));
   const done = (a) => a.total > 0 ? a.done >= a.total : true; // 미션 없는 학원은 통과 취급
   // 순차 진행: 앞에서부터 연속으로 완료한 다음 목적지가 캐릭터의 현재 목표
   let k = 0; while (k < n && done(sorted[k])) k++;
@@ -101,14 +116,14 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   const chestParty = mode === "past" || (mode === "today" && allDone && t >= 0.995);
 
   return (
-    <div style={{ position: "relative", width: "100%", aspectRatio: "854 / 1842", borderRadius: fullBleed ? 0 : 18, overflow: "hidden", boxShadow: fullBleed ? "none" : "inset 0 0 0 1px rgba(142,165,74,0.35)" }}>
+    <div style={{ position: "relative", width: "100%", aspectRatio: M.ar, borderRadius: fullBleed ? 0 : 18, overflow: "hidden", boxShadow: fullBleed ? "none" : "inset 0 0 0 1px rgba(142,165,74,0.35)" }}>
       <style>{`
         @keyframes amBob{0%,100%{transform:translate(-50%,-86%) translateY(0)}50%{transform:translate(-50%,-86%) translateY(-4px)}}
         @keyframes amSpark{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.1)}}
         @keyframes amStar{0%{opacity:0;transform:translateY(4px) scale(.5)}40%{opacity:1;transform:translateY(-6px) scale(1.15)}100%{opacity:0;transform:translateY(-14px) scale(.8)}}
         @keyframes amGlow{0%,100%{opacity:.25}50%{opacity:.6}}
       `}</style>
-      <img src={BG} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      <img src={M.bg} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
 
       {/* ── 학원 건물 Overlay (배경 무수정 — 길 위 배치, 비슷한 크기) ── */}
       {sorted.map((ac, i) => {
