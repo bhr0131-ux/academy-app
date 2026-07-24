@@ -3034,9 +3034,9 @@ export default function App() {
     // 날짜 이동 바 — 모험장소/미션 탭 공용. 모험=밝은 숲색, 미션=원목 브라운 (탭 테마 연동).
     const dateNav=(()=>{
       const _dn=kidSkin!=="cute";
-      const _dnBg=childTab==="today"?"#B38A60":"#6F8E63";
-      const _dnBtn=childTab==="today"?"#C69C6F":"#83A177";
-      const _dnDeep=childTab==="today"?"#5C452C":"#2F4A2C"; // 밝은 버튼 위 화살표·오늘 글씨용 진한 색 (가독성)
+      const _dnBg=childTab==="today"?"#B38A60":childTab==="growth"?"#79A6BB":"#6F8E63";
+      const _dnBtn=childTab==="today"?"#C69C6F":childTab==="growth"?"#8FB7C9":"#83A177";
+      const _dnDeep=childTab==="today"?"#5C452C":childTab==="growth"?"#28495C":"#2F4A2C"; // 밝은 버튼 위 화살표·오늘 글씨용 진한 색 (가독성)
       return (
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"6px 10px",marginBottom:14}}>
         <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
@@ -3878,10 +3878,7 @@ export default function App() {
             </div>
           );
           // 모험: 하단 시트(레벨바+3타일) — 표시부는 HomeSheet 컴포넌트로 분리(CLAUDE.md 3번 점진 분리)
-          const _score=getChildXP(childId);
           const _cur=getChildLevel(childId);
-          const _next=getNextLevel(childId);
-          const _pct=(_next&&_next.minScore>_cur.minScore)?Math.max(0,Math.min(100,Math.round((_score-_cur.minScore)/(_next.minScore-_cur.minScore)*100))):100;
           const _qp=getTodayQuestProgress(childId,childDate||TODAY);
           const _tiles=[
             {k:"area",title:"모험",sub:`${childTodayAc.length}곳`,icon:"🗺️"},
@@ -3889,7 +3886,7 @@ export default function App() {
             {k:"growth",title:"캐릭터",sub:`레벨 ${_cur.level}`,icon:getGenderEmoji(curChild)},
           ];
           return (
-            <HomeSheet name={curChild?.name} level={_cur.level} pct={_pct}
+            <HomeSheet dateNav={dateNav}
               tiles={_tiles} activeTab={childTab} onSelect={setChildTab} />
           );
         })()}
@@ -3898,7 +3895,7 @@ export default function App() {
           {/* ── 모험장소 탭 (학원카드) ── */}
           {childTab==="area"&&(
             <>
-              <div style={{marginBottom:12}}>{dateNav}</div>
+              {kidSkin==="cute"&&<div style={{marginBottom:12}}>{dateNav}</div>}
               {/* 오늘의 모험 장소 요약 카드 (가는 학원 이름 + 총 곳 수) */}
               {(()=>{
                 const total=childTodayAc.length;
@@ -3916,6 +3913,25 @@ export default function App() {
                     done:doneCnt, total:totalCnt,
                   };
                 });
+                // [모험] 사용자 확정: '오늘의 모험 장소' 헤더·N곳 배지·올리브 카드 삭제 —
+                //        지도를 탭 바로 아래에서 화면 폭 풀블리드로 확장 (콘텐츠 패딩 상쇄)
+                if(kidSkin!=="cute"){
+                  if(total===0) return null; // 0곳이면 아래 '오늘은 모험 장소가 없어요' 박스만
+                  return (
+                    <div style={{margin:"-6px -16px 14px"}}>
+                      <AdventureMap
+                        items={ringItems}
+                        fullBleed
+                        mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
+                        charEmoji={(()=>{
+                          const evo=getCharacterEvolution(childId);
+                          const g=curChild?.gender==="girl"?"girl":"boy";
+                          return evo?.avatar?.[g] || evo?.emoji || "";
+                        })()}
+                      />
+                    </div>
+                  );
+                }
                 return (
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
@@ -4076,8 +4092,8 @@ export default function App() {
           {/* ── 오늘 탭 ── */}
           {childTab==="today"&&(
             <>
-              {/* 날짜바 — 모험 탭과 동일하게 요약 카드 위 */}
-              {dateNav}
+              {/* 날짜바는 시트(HomeSheet)로 이동 — 베이커리(구 탭바)에서만 본문에 표시 */}
+              {kidSkin==="cute"&&dateNav}
               {/* 오늘의 진행 요약 카드(스킨 공용) */}
               {(()=>{
                 const q=getTodayQuestProgress(childId,childDate||TODAY);
