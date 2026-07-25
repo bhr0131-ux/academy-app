@@ -9,6 +9,7 @@ import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
+import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   LEGACY_AVATAR_OWNED_KEY, computeAvatarMigration,
@@ -4006,6 +4007,37 @@ export default function App() {
                     const dungeon=getAcademyTheme(ac.name,kidSkin);
                     // ── 모험 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ──
                     const dk = kidSkin!=="cute";
+                    // [모험] 양피지 탐험일지 카드 (사용자 원화 오버레이) — 퀘스트 목록은 미션 탭 전담(사용자 확정)
+                    if(dk){
+                      const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
+                      const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
+                      const chipSty=(checked)=>({fontSize:12.5,padding:"4px 10px",borderRadius:999,cursor:"pointer",fontWeight:800,transition:"all .15s",
+                        fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",
+                        background:checked?"rgba(127,163,90,0.30)":"rgba(122,88,50,0.10)",
+                        border:checked?"1.5px solid #7FA35A":"1px solid rgba(122,88,50,0.4)",
+                        color:checked?"#3E5C28":"#5A4430"});
+                      return (
+                        <AdventureJournalCard key={ac.id}
+                          icon={dungeon.icon} title={dungeon.label} name={ac.name}
+                          time={sc?.time?toKoreanTime(sc.time):"-"}
+                          remain={rl?`${rl.icon} ${rl.text}`:""}
+                          shuttle={shuttleText||"없음"}
+                          missionText={totalTodoCnt===0?"미션 없음":allDone?"🎉 클리어!":`${totalTodoCnt-doneCnt}개 남음`}
+                          missionTone={totalTodoCnt===0?"#8A7458":allDone?"#4E7B3A":"#B4652A"}
+                          supplies={<>
+                            {baseSup.map((s,i)=>{
+                              const checked=(entry.checkedSupplies||[]).includes(s);
+                              return <button key={`b${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,s)} style={chipSty(checked)}>{checked?"✅":"⬜"} {s}</button>;
+                            })}
+                            {sup.map((s,i)=>{
+                              const key="+"+s; const checked=(entry.checkedSupplies||[]).includes(key);
+                              return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={chipSty(checked)}>{checked?"✅":"⬜"} +{s}</button>;
+                            })}
+                            {baseSup.length===0&&sup.length===0&&<span style={{fontSize:13,color:"#8A7458",fontWeight:700,alignSelf:"center"}}>없음</span>}
+                          </>}
+                        />
+                      );
+                    }
                     // 카드 본체: 테마색을 머금은 다크. 헤더는 학원색을 살린 진한 톤.
                     const acCardBg = dk ? "linear-gradient(180deg, #3A4156 0%, #333A4C 100%)" : "#fff"; // 10% 밝게 + 남색기 완화
                     const acTx = dk ? "#FFFFFF" : C.text;
