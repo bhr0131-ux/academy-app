@@ -19,7 +19,7 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
       {/* 섹션 구분 — 탐험장소 (모험지도·모험일지 구분선과 동일 디자인·갈색톤) */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "2px 2px 12px" }}>
         <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.4))" }} />
-        <span style={{ flexShrink: 0, fontSize: 13.5, fontWeight: 900, letterSpacing: 0.4, color: "#8A6B47" }}>🧭 탐험장소</span>
+        <span style={{ flexShrink: 0, fontSize: 13.5, fontWeight: 900, letterSpacing: 0.4, color: "#8A6B47" }}>🧭 모험장소</span>
         <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)" }} />
       </div>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 2, flexWrap: "wrap", marginBottom: 4 }}>

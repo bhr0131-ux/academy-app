@@ -3792,10 +3792,10 @@ export default function App() {
                         <div style={{fontSize:46,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 6px 8px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
                       </div>
                       <div style={{width:34,height:8,borderRadius:"50%",background:"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
-                      {/* 말풍선 — 펫 아래에 매달기, 꼬리는 위로 */}
-                      <div style={{position:"absolute",top:"100%",left:"50%",transform:"translateX(-50%)",marginTop:6,background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"3px 8px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap"}}>
+                      {/* 말풍선 — 펫 위 (사용자 확정: 알 말풍선과 통일), 꼬리는 아래로 */}
+                      <div style={{position:"absolute",bottom:"100%",left:"50%",transform:"translateX(-50%)",marginBottom:8,background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"3px 8px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap"}}>
                         🐾 펫
-                        <div style={{position:"absolute",top:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderBottom:"5px solid rgba(255,248,235,0.96)"}}/>
+                        <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
                       </div>
                     </>
                     ):(
@@ -4321,10 +4321,10 @@ export default function App() {
               })()}
 
               {/* ── 미션 추가 버튼 (현재 보는 날짜) ── */}
-              {/* [모험] 미션 추가 버튼은 미션 탭 테마(원목 브라운) — 숲색 대신 Sand/Rock 계열 */}
+              {/* [모험] 미션 추가 버튼은 미션 탭 테마(그린 — 사용자 확정: 탭 톤 맞교환에 맞춤) */}
               {(childDate||TODAY)>=TODAY&&(
                   <button onClick={()=>{ setKidAddAcId(""); setKidAddText(""); setShowKidAddModal(true); }}
-                    style={{width:"100%",...jellyBox({background:kidSkin==="cute"?GP.boxBg:"#B78D5D",border:kidSkin==="cute"?`1px solid ${GP.boxBorder}`:"1px solid #C29567",borderRadius:16,boxShadow:kidSkin==="cute"?`0 6px 18px ${GP.boxShadowCol}`:"0 6px 18px rgba(142,104,69,0.32)"},{radius:18}),
+                    style={{width:"100%",...jellyBox({background:kidSkin==="cute"?GP.boxBg:"#8FA653",border:kidSkin==="cute"?`1px solid ${GP.boxBorder}`:"1px solid #9DB35F",borderRadius:16,boxShadow:kidSkin==="cute"?`0 6px 18px ${GP.boxShadowCol}`:"0 6px 18px rgba(90,102,44,0.32)"},{radius:18}),
                       padding:"13px 12px",marginBottom:14,cursor:"pointer",
                       display:"flex",alignItems:"center",justifyContent:"center",gap:8,
                       color:kidSkin==="cute"?GP.boxText:"#FFF8EB",fontSize:16,fontWeight:900}}>

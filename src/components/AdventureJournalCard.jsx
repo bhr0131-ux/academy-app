@@ -49,12 +49,12 @@ export default function AdventureJournalCard({
       <img src="assets/journal-card.webp" alt="" draggable={false}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", filter: "drop-shadow(0 6px 14px rgba(74,90,37,0.22))" }} />
 
-      {/* 엠블럼 — 잎 리스 안 학원 이모지 */}
+      {/* 엠블럼 — 잎 리스 '안'에 들어가게 축소 (리스 지름의 ~60%, 사용자 미세조정) */}
       <span style={{ position: "absolute", left: "30.5%", top: "19.5%", transform: "translate(-50%,-50%)",
-        fontSize: "clamp(30px, 11vw, 52px)", lineHeight: 1, pointerEvents: "none" }}>{icon}</span>
+        fontSize: "clamp(22px, 8vw, 38px)", lineHeight: 1, pointerEvents: "none" }}>{icon}</span>
 
-      {/* 제목 — 던전명(손글씨 크게) + 학원명(부제), 리스 우측 여백 */}
-      <div style={{ position: "absolute", left: "43%", right: "7%", top: "15.5%", height: "14%",
+      {/* 제목 — 던전명(손글씨 크게) + 학원명(부제), 리스 우측 여백 (사용자 조정: 위로) */}
+      <div style={{ position: "absolute", left: "43%", right: "7%", top: "12.5%", height: "14%",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", pointerEvents: "none" }}>
         <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(19px, 6.6vw, 30px)",
           color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,255,255,0.7)",
@@ -63,10 +63,11 @@ export default function AdventureJournalCard({
           color: "#7A6E48", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{name}</p>
       </div>
 
-      {/* 탐험 시작 — 시각을 시계 아이콘 옆 밑줄 위에, (오늘) 남은시간은 그 아래 작게 */}
-      <div style={{ position: "absolute", left: "31.5%", right: "10%", top: "40%", transform: "translateY(-50%)", textAlign: "left", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(15px, 4.9vw, 22px)", color: "#4E432A", lineHeight: 1.15 }}>{time}</p>
-        {remain && <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontSize: "clamp(10px, 3.2vw, 13px)", color: "#7A6E48" }}>{remain}</p>}
+      {/* 탐험 시작 — 시각을 시계 아이콘 옆 밑줄 위에, (오늘) 남은시간은 시간 '옆'에 작게 (사용자 조정) */}
+      <div style={{ position: "absolute", left: "31.5%", right: "8%", top: "40%", transform: "translateY(-50%)",
+        display: "flex", alignItems: "baseline", flexWrap: "wrap", columnGap: 8, rowGap: 2, pointerEvents: "none" }}>
+        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(15px, 4.9vw, 22px)", color: "#4E432A", lineHeight: 1.15 }}>{time}</span>
+        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(10px, 3.2vw, 13px)", color: "#7A6E48", whiteSpace: "nowrap" }}>{remain}</span>}
       </div>
 
       {/* 셔틀 — 버스 아이콘 옆 */}

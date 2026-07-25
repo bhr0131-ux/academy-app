@@ -146,9 +146,6 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
     }
     return bt;
   }).sort((a, b) => a - b);
-  const done = (a) => a.total > 0 ? a.done >= a.total : true; // 건물 ✅·반짝임용 (미션 완료 기준)
-  const doneCount = sorted.filter(done).length;               // 보물상자 진행도 칩(🔒 n/N)용
-
   // ── 시간 기준 이동 (B안) ──────────────────────────────────
   // 수업 시작 30분 전에 출발해 시작 시각에 도착, 수업이 끝나면 다음 학원으로. 마지막 수업 종료 후 보물상자로.
   const [, setTick] = useState(0);
@@ -161,6 +158,12 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   const starts = sorted.map(a => toMin(a.time));
   const ends = sorted.map((a, i) => starts[i] + (a.duration || 40));
   const lastEnded = n > 0 && nowMin >= ends[n - 1];
+
+  // 건물 ✅·반짝임·상자 칩 공용 완료 판정 (사용자 확정): 미션이 있으면 전부 완료 기준,
+  // 미션이 없는 학원은 '수업이 끝났는지'(시간)로 판정 — 아직 안 갔으면 0/N이 맞다.
+  const passedByTime = (i) => mode === "past" || (mode === "today" && nowMin >= ends[i]);
+  const done = (a, i) => a.total > 0 ? a.done >= a.total : passedByTime(i);
+  const doneCount = sorted.filter((a, i) => done(a, i)).length; // 보물상자 진행도 칩(🔒 n/N)용
   const TRAVEL = 30; // 다음 수업 시작 몇 분 전에 출발하는지
   let targetT;
   if (mode === "past") targetT = 1;
@@ -249,7 +252,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       {/* ── 학원 건물 Overlay (배경 무수정 — 길 옆 잔디 고정 좌표, 비슷한 크기) ── */}
       {sorted.map((ac, i) => {
         const [x, y, lp, bi, ldx] = spots[i];
-        const d = done(ac);
+        const d = done(ac, i);
         const B = BUILDINGS[(bi ?? i) % BUILDINGS.length];
         const chip = { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 8px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
         // 이름표 2줄 통일 (사용자 확정): 1줄 학원명 / 2줄 🕘 시간 — 엄마는 시간부터 보므로 시간을 진하게
