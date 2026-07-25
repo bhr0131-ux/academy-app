@@ -25,7 +25,7 @@ const BUILDINGS = [
   { src: "assets/map-bld-junglehut.webp",   cx: 48.4, cy: 53.6, d: 39.1, k: 0.92 },
   { src: "assets/map-bld-tileroof.webp",    cx: 36.7, cy: 54.3, d: 37.5, k: 0.98 },
   { src: "assets/map-bld-greenroof.webp",   cx: 42.3, cy: 52.5, d: 39.6, k: 0.99 },
-  { src: "assets/map-bld-artisthouse.webp", cx: 35.5, cy: 52.5, d: 37.9, k: 1.0 },
+  { src: "assets/map-bld-artisthouse.webp", cx: 64.3, cy: 52.7, d: 37.8, k: 1.0 },  // 좌우 반전판 (구멍 우측)
 ];
 
 // 폴리라인 누적 길이 → t(0~1)로 좌표 보간하는 함수 생성 (지도별로 각각)
