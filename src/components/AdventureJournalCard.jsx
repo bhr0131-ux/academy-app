@@ -63,11 +63,11 @@ export default function AdventureJournalCard({
           color: "#7A6E48", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{name}</p>
       </div>
 
-      {/* 탐험 시작 — 시각을 시계 아이콘 옆 밑줄 위에, (오늘) 남은시간은 시간 '옆'에 작게 (사용자 조정) */}
-      <div style={{ position: "absolute", left: "31.5%", right: "8%", top: "40%", transform: "translateY(-50%)",
-        display: "flex", alignItems: "baseline", flexWrap: "wrap", columnGap: 8, rowGap: 2, pointerEvents: "none" }}>
-        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(15px, 4.9vw, 22px)", color: "#4E432A", lineHeight: 1.15 }}>{time}</span>
-        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(10px, 3.2vw, 13px)", color: "#7A6E48", whiteSpace: "nowrap" }}>{remain}</span>}
+      {/* 탐험 시작 — 시각 + 남은시간을 한 줄로 (사용자 조정: 남은시간은 항상 시간 우측, 글자 축소) */}
+      <div style={{ position: "absolute", left: "31.5%", right: "7%", top: "40%", transform: "translateY(-50%)",
+        display: "flex", alignItems: "baseline", flexWrap: "nowrap", columnGap: 7, pointerEvents: "none" }}>
+        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(13px, 4.2vw, 18px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap" }}>{time}</span>
+        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(9.5px, 3vw, 12px)", color: "#7A6E48", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{remain}</span>}
       </div>
 
       {/* 셔틀 — 버스 아이콘 옆 */}
