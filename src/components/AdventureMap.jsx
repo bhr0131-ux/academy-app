@@ -82,9 +82,9 @@ const MAP_SHORT = {
   // 자리 형식: [x, y, 라벨위치?, 건물번호?] — 라벨위치 "left"=이름표를 집 옆에(기본 집 위),
   // 건물번호는 BUILDINGS 인덱스 고정 지정(없으면 순환). ②는 노란 초가집(3) 고정 — 사용자 확정.
   spots: {
-    1: [[80,50]],                            // ① 우측 — 원숭이를 덮는 위치
-    2: [[80,50],[40,36,"left",3]],           // +② 좌상 (라벨 지붕 옆, 노란 건물)
-    3: [[80,50],[40,36,"left",3],[17,79]],   // +③ 좌하 — 개구리를 덮는 위치
+    1: [[80,50]],                                  // ① 우측 — 원숭이를 덮는 위치
+    2: [[80,50],[40,36,"left",3]],                 // +② 좌상 (라벨 지붕 옆, 노란 건물)
+    3: [[80,50],[40,36,"left",3],[17.5,79,"bottom"]], // +③ 좌하 (0.5% 우측, 라벨 집 아래)
   },
   pointAt: mkPointAt([
     [50,22],[54,25],[57,28],[55,32],[48,36],[44,40],[46,44],[52,48],[55,52],
@@ -163,8 +163,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         const chip = { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
         return (
           <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: "none" }}>
-            {/* 이름표 — 기본은 집 위, lp==="left"면 집 왼쪽 옆 */}
-            {lp !== "left" && (
+            {/* 이름표 — 기본은 집 위, lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래 */}
+            {!lp && (
             <div style={{ ...chip, display: "inline-block", marginBottom: 2, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
               {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
             </div>
@@ -186,6 +186,11 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
               <img src={B.src} alt="" draggable={false}
                 style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
             </div>
+            {lp === "bottom" && (
+            <div style={{ ...chip, display: "inline-block", marginTop: 2, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
+            </div>
+            )}
           </div>
         );
       })}
