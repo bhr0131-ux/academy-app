@@ -32,10 +32,16 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | map-bld-tileroof.png | 지도 학원 건물 원화 2 (파란 기와집 v3, 구) | (교체됨) |
 | map-bld-greenroof.png | 지도 학원 건물 원화 3 (초록지붕 울타리집 v3, 구) | (교체됨) |
 | map-bld-artisthouse.png | 지도 학원 건물 원화 4 (화방 v3, 구) | (교체됨) |
-| map-bld-treehouse.png | 지도 학원 건물 v6-1 (나무 위의 집, 투명 구멍) | map-bld-treehouse.webp |
-| map-bld-stonearch.png | 지도 학원 건물 v6-2 (돌 아치문, 투명 구멍) | map-bld-stonearch.webp |
-| map-bld-tent.png | 지도 학원 건물 v6-3 (탐험가 텐트, 흰 원→투명 펀칭 탑재) | map-bld-tent.webp |
-| map-bld-tikihut.png | 지도 학원 건물 v6-4 (티키 초가 오두막, 흰 원→투명 펀칭 탑재) | map-bld-tikihut.webp |
+| map-bld-treehouse.png | 지도 학원 건물 v6-1 (수채화풍, 구) | (교체됨) |
+| map-bld-stonearch.png | 지도 학원 건물 v6-2 (수채화풍, 구) | (교체됨) |
+| map-bld-tent.png | 지도 학원 건물 v6-3 (수채화풍, 구) | (교체됨) |
+| map-bld-tikihut.png | 지도 학원 건물 v6-4 (수채화풍, 구) | (교체됨) |
+| adventure-map-v6-src.png | 긴 지도 v7 크리스프 카툰 (853×1844, 길 모양 변경 — PATH 재추출) | adventure-map.webp |
+| adventure-map-short-v6-src.png | 짧은 지도 v7 크리스프 카툰 (951×1653) | adventure-map-short.webp |
+| map-bld-treehouse-v2.png | 지도 학원 건물 v7-1 (나무 위의 집, 흰 원→투명 펀칭) | map-bld-treehouse.webp |
+| map-bld-stonearch-v2.png | 지도 학원 건물 v7-2 (돌 아치문, 흰 원→투명 펀칭) | map-bld-stonearch.webp |
+| map-bld-tent-v2.png | 지도 학원 건물 v7-3 (탐험가 텐트, 흰 원→투명 펀칭) | map-bld-tent.webp |
+| map-bld-tikihut-v2.png | 지도 학원 건물 v7-4 (티키 초가 오두막, 흰 원→투명 펀칭) | map-bld-tikihut.webp |
 | adventure-map-short-src.png | 모험 지도 배경 원화 v2 (3:5 양피지 972×1619, 학원 0~2곳용) | adventure-map-short.webp |
 | journal-card-src.png | 모험일지 학원 카드 양피지 노트 원화 (1181×1338, 구) | (교체됨) |
 | journal-card-v2-src.png | 모험일지 초록 노트 원화 v2 (라벨 글자 포함, 구) | (교체됨) |
