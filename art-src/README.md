@@ -28,8 +28,12 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | btn-my-avatar-badge.png | '내 아바타' 원형 뱃지 (초록 실루엣, 현행 — 팻말에서 교체) | btn-my-avatar.webp |
 | btn-growth-character-badge.png | '성장캐릭터' 원형 뱃지 (새싹, 현행 — 팻말에서 교체) | btn-growth-character.webp |
 | adventure-map-src.png | 모험 지도 배경 원화 v3 (정글 세로형 854×1842, 무수정 사용) | adventure-map.webp |
-| map-bld-junglehut.png | 지도 학원 건물 원화 1 (정글 오두막 v3, 큰 이모지 구멍) | map-bld-junglehut.webp |
-| map-bld-tileroof.png | 지도 학원 건물 원화 2 (파란 기와집 v3, 큰 이모지 구멍) | map-bld-tileroof.webp |
-| map-bld-greenroof.png | 지도 학원 건물 원화 3 (초록지붕 울타리집 v3, 큰 이모지 구멍) | map-bld-greenroof.webp |
-| map-bld-artisthouse.png | 지도 학원 건물 원화 4 (화방 v3, 큰 이모지 구멍) | map-bld-artisthouse.webp |
+| map-bld-junglehut.png | 지도 학원 건물 원화 1 (정글 오두막 v3, 구) | (교체됨) |
+| map-bld-tileroof.png | 지도 학원 건물 원화 2 (파란 기와집 v3, 구) | (교체됨) |
+| map-bld-greenroof.png | 지도 학원 건물 원화 3 (초록지붕 울타리집 v3, 구) | (교체됨) |
+| map-bld-artisthouse.png | 지도 학원 건물 원화 4 (화방 v3, 구) | (교체됨) |
+| map-bld-treehouse.png | 지도 학원 건물 v6-1 (나무 위의 집, 투명 구멍) | map-bld-treehouse.webp |
+| map-bld-stonearch.png | 지도 학원 건물 v6-2 (돌 아치문, 투명 구멍) | map-bld-stonearch.webp |
+| map-bld-tent.png | 지도 학원 건물 v6-3 (탐험가 텐트, 흰 원→투명 펀칭 탑재) | map-bld-tent.webp |
+| map-bld-tikihut.png | 지도 학원 건물 v6-4 (티키 초가 오두막, 흰 원→투명 펀칭 탑재) | map-bld-tikihut.webp |
 | adventure-map-short-src.png | 모험 지도 배경 원화 v2 (3:5 양피지 972×1619, 학원 0~2곳용) | adventure-map-short.webp |
