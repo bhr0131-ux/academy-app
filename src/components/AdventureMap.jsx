@@ -24,7 +24,7 @@ import { useEffect, useRef, useState } from "react";
 const BUILDINGS = [
   { src: "assets/map-bld-junglehut.webp",   cx: 48.4, cy: 53.6, d: 39.1, k: 0.92 },
   { src: "assets/map-bld-tileroof.webp",    cx: 36.7, cy: 54.3, d: 37.5, k: 0.98 },
-  { src: "assets/map-bld-greenroof.webp",   cx: 42.3, cy: 52.5, d: 39.6, k: 0.99 },
+  { src: "assets/map-bld-greenroof.webp",   cx: 57.4, cy: 52.5, d: 39.6, k: 0.99 },  // 좌우 반전판 (구멍 우측)
   { src: "assets/map-bld-artisthouse.webp", cx: 64.3, cy: 52.7, d: 37.8, k: 1.0 },  // 좌우 반전판 (구멍 우측)
 ];
 
@@ -84,7 +84,7 @@ const MAP_SHORT = {
   spots: {
     1: [[80,50]],                                  // ① 우측 — 원숭이를 덮는 위치
     2: [[80,50],[40,36,"left",3]],                 // +② 좌상 (라벨 지붕 옆, 노란 건물)
-    3: [[80,50],[40,36,"left",3],[17.5,79,"bottom"]], // +③ 좌하 (0.5% 우측, 라벨 집 아래)
+    3: [[80,50],[40,36,"left",3],[18,79,"bottom"]],   // +③ 좌하 (0.5% 추가 우측, 라벨 집 아래)
   },
   pointAt: mkPointAt([
     [50,22],[54,25],[57,28],[55,32],[48,36],[44,40],[46,44],[52,48],[55,52],
