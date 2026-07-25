@@ -4056,7 +4056,7 @@ export default function App() {
                         time={sc?.time?toKoreanTime(sc.time):"-"}
                         remain={rl?`${rl.icon} ${rl.text}`:""}
                         shuttle={shuttleText||"없음"}
-                        missionText={totalTodoCnt===0?"없음":allDone?"클리어!":`${totalTodoCnt-doneCnt}개`}
+                        missionText={totalTodoCnt===0?"미션 없음":allDone?"미션 클리어! 🎉":`미션 ${totalTodoCnt-doneCnt}개 남음`}
                         missionTone={totalTodoCnt===0?"#8A7458":allDone?"#4E7B3A":"#B4652A"}
                         supplies={<>
                           {baseSup.map((s,i)=>{
