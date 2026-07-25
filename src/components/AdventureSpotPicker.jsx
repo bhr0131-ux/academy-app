@@ -28,7 +28,17 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
           const on = it.id === selectedId;
           return (
             <div key={it.id} style={{ display: "flex", alignItems: "center" }}>
-              {i > 0 && <span style={{ fontSize: 15, fontWeight: 900, color: "#B08D5F", margin: "0 2px 24px" }}>→</span>}
+              {/* 건물 사이 연결 — 지도와 같은 발자국 트레일 (좌우 발 번갈아, 진행 방향 오른쪽) */}
+              {i > 0 && (
+                <span style={{ display: "flex", alignItems: "center", gap: 5, margin: "0 2px 24px" }}>
+                  {[0, 1, 2].map(k => (
+                    <span key={k} style={{ display: "inline-block", transform: `translateY(${k % 2 ? 3 : -3}px) rotate(90deg)`, opacity: 0.55 }}>
+                      <span style={{ display: "block", width: 4, height: 6.5, borderRadius: "50%", background: "#9A6030" }} />
+                      <span style={{ display: "block", width: 2.4, height: 2.4, borderRadius: "50%", background: "#9A6030", margin: "1px auto 0" }} />
+                    </span>
+                  ))}
+                </span>
+              )}
               <button onClick={() => onSelect && onSelect(it.id)} className="jelly-tap"
                 style={{ background: "none", border: "none", padding: "4px 5px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
                 <span style={{ position: "relative", display: "block", width: 62, transition: "all .18s",
