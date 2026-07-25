@@ -216,20 +216,16 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       `}</style>
       <img src={M.bg} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
 
-      {/* ── 길 발자국 — 전체 경로를 미리 깔되 두 단계 톤 (사용자 확정: 지나온 길=진하게, 남은 길=연하게 → 진행도가 한눈에) ── */}
+      {/* ── 길 발자국 — 지나온 길만 진한 갈색으로 표시, 남은 길은 숨김 (사용자 확정: 2단계 톤 철회) ── */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-        {prints.map((p, i) => {
-          const passed = p.t <= t;
-          const col = passed ? "#7E4E20" : "#9A6030";
-          return (
+        {prints.map((p, i) => (
           <div key={i} style={{ position: "absolute", left: `${p.x}%`, top: `${p.y}%`,
             transform: `translate(-50%,-50%) rotate(${p.ang + 90}deg)`, // +90: 발끝 점이 진행 방향을 향하도록 (사용자 수정: 기존 -90은 반대)
-            opacity: passed ? 0.62 : 0.2, transition: "opacity .35s ease" }}>
-            <div style={{ width: 4.5, height: 7, borderRadius: "50%", background: col }} />
-            <div style={{ width: 2.6, height: 2.6, borderRadius: "50%", background: col, margin: "1px auto 0" }} />
+            opacity: p.t <= t ? 0.62 : 0, transition: "opacity .35s ease" }}>
+            <div style={{ width: 4.5, height: 7, borderRadius: "50%", background: "#7E4E20" }} />
+            <div style={{ width: 2.6, height: 2.6, borderRadius: "50%", background: "#7E4E20", margin: "1px auto 0" }} />
           </div>
-          );
-        })}
+        ))}
       </div>
 
       {/* ── 지도 소품 (deco: [x,y,이모지,크기,회전]) ── */}
