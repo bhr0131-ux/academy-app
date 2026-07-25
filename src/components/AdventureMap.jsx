@@ -79,10 +79,11 @@ const MAP_SHORT = {
   bw: 23, fs: 21,   // 짧은 지도는 건물을 한 단계 작게 (사용자 조정: 소폭 축소)
   // 사용자 지정 자리 ①②③ — 숫자는 '사용할 자리 개수' (1곳=①만, 2곳=①②, 3곳=①②③).
   // 학원 배정은 시간순으로 지도의 위→아래 (렌더 시 y로 정렬해서 배정).
+  // 자리 형식: [x, y, 라벨위치?] — 라벨위치 "left"면 이름표를 집 왼쪽 옆에 (기본은 집 위)
   spots: {
     1: [[80,50]],                       // ① 우측 — 원숭이를 덮는 위치 (사용자 확정)
-    2: [[80,50],[41,38]],               // +② 좌상
-    3: [[80,50],[41,38],[17,79]],       // +③ 좌하 — 개구리를 덮는 위치 (사용자 확정)
+    2: [[80,50],[41,37,"left"]],        // +② 좌상 (1% 상향, 라벨은 집 왼쪽)
+    3: [[80,50],[41,37,"left"],[17,79]],// +③ 좌하 — 개구리를 덮는 위치 (사용자 확정)
   },
   pointAt: mkPointAt([
     [50,22],[54,25],[57,28],[55,32],[48,36],[44,40],[46,44],[52,48],[55,52],
@@ -155,15 +156,23 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
 
       {/* ── 학원 건물 Overlay (배경 무수정 — 길 옆 잔디 고정 좌표, 비슷한 크기) ── */}
       {sorted.map((ac, i) => {
-        const [x, y] = spots[i];
+        const [x, y, lp] = spots[i];
         const d = done(ac);
         const B = BUILDINGS[i % BUILDINGS.length];
+        const chip = { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
         return (
           <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: "none" }}>
-            {/* 이름표 — 건물 위 (사용자 확정: 집 위로) */}
-            <div style={{ display: "inline-block", marginBottom: 2, background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)", maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {/* 이름표 — 기본은 집 위, lp==="left"면 집 왼쪽 옆 */}
+            {lp !== "left" && (
+            <div style={{ ...chip, display: "inline-block", marginBottom: 2, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
               {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
             </div>
+            )}
+            {lp === "left" && (
+            <div style={{ ...chip, position: "absolute", right: "100%", top: "42%", marginRight: 3 }}>
+              {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
+            </div>
+            )}
             <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
               {d && <>
                 <span style={{ position: "absolute", top: "-6%", left: "-8%", fontSize: 14, animation: "amSpark 2.8s ease-in-out infinite", zIndex: 2 }}>✨</span>
