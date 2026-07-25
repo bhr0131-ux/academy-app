@@ -3034,8 +3034,8 @@ export default function App() {
     // 날짜 이동 바 — 모험장소/미션 탭 공용. 모험=밝은 숲색, 미션=원목 브라운 (탭 테마 연동).
     const dateNav=(()=>{
       const _dn=kidSkin!=="cute";
-      const _dnBg=childTab==="today"?"#B38A60":childTab==="growth"?"#79A6BB":"#6F8E63";
-      const _dnBtn=childTab==="today"?"#C69C6F":childTab==="growth"?"#8FB7C9":"#83A177";
+      const _dnBg=childTab==="today"?"#6F8E63":childTab==="growth"?"#79A6BB":"#B38A60";  // 미션=그린·모험=브라운 (사용자 확정: 톤 맞교환)
+      const _dnBtn=childTab==="today"?"#83A177":childTab==="growth"?"#8FB7C9":"#C69C6F";
       const _dnDeep=childTab==="today"?"#5C452C":childTab==="growth"?"#28495C":"#2F4A2C"; // 밝은 버튼 위 화살표·오늘 글씨용 진한 색 (가독성)
       return (
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"6px 10px",marginBottom:14}}>
@@ -3910,8 +3910,8 @@ export default function App() {
                   if(total===0) return null; // 0곳이면 아래 '오늘은 모험 장소가 없어요' 박스만
                   return (
                     <>
-                    {/* 섹션 구분 — 모험지도 (캐릭터 탭 즐기기·내기록과 같은 디자인, 갈색톤 — 사용자 확정) */}
-                    <div style={{display:"flex",alignItems:"center",gap:12,margin:"4px 2px 14px"}}>
+                    {/* 섹션 구분 — 모험지도 (캐릭터 탭 즐기기·내기록과 같은 디자인, 갈색톤 — 사용자 확정. 탭과의 여백 축소) */}
+                    <div style={{display:"flex",alignItems:"center",gap:12,margin:"-4px 2px 12px"}}>
                       <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.4))"}}/>
                       <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>🗺️ 모험지도</span>
                       <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)"}}/>
@@ -3990,7 +3990,7 @@ export default function App() {
               {/* 오늘 학원 일정 섹션 */}
               <div style={{marginTop:2,marginBottom:14}}>
                 {childTodayAc.length===0?(
-                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"#7E8C7B",background:kidSkin==="cute"?"#fff":"#F4F8EE",borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed #BDD59C"}}>
+                  <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"#8C7E6B",background:kidSkin==="cute"?"#fff":"#F8F3E8",borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed #D5BE96"}}>
                     <p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>
                     <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
                   </div>
@@ -4109,7 +4109,7 @@ export default function App() {
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
                     // 미션 탭(모험): '모험 지도·모래 사장' 느낌 — Sand(#F6D18F) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 진갈색으로 대비
-                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.3), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #F6DCA6, #EFD08E)`,border:"1px solid #C89B62",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#6C5238",boxShadow:"0 10px 30px rgba(142,104,69,0.28), inset 0 1px 0 rgba(255,255,255,0.35)",boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
+                    :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.3), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #CFE175, #C2D65B)`,border:"1px solid #8EA54A",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#48663D",boxShadow:"0 10px 30px rgba(90,102,44,0.28), inset 0 1px 0 rgba(255,255,255,0.35)",boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
                     <DungeonCardGlow/>
                     {/* 젤리 광택 */}
                     {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
@@ -4125,7 +4125,7 @@ export default function App() {
                       </div>
                     </div>
                     <div style={{marginBottom:12}}>
-                      <JellyBar percent={q.percent} height={14} fallbackTrack="rgba(142,104,69,0.18)" fallbackBorder="1px solid rgba(192,138,89,0.55)" fallbackFill="linear-gradient(90deg,#ADB74F,#C6CF6D)" />
+                      <JellyBar percent={q.percent} height={14} fallbackTrack="rgba(90,102,44,0.18)" fallbackBorder="1px solid rgba(140,162,79,0.55)" fallbackFill="linear-gradient(90deg,#C0955C,#D8B57F)" />
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,position:"relative"}}>
                       <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"#FBF3E6",borderRadius:18,padding:"9px 6px",textAlign:"center",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}24, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
