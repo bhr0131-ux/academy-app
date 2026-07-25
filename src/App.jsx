@@ -10,6 +10,7 @@ import EquipmentShop from "./components/EquipmentShop.jsx";
 import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
+import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   LEGACY_AVATAR_OWNED_KEY, computeAvatarMigration,
@@ -292,6 +293,20 @@ export default function App() {
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
+  const [journalAcId,            setJournalAcId]            = useState(null); // 모험일지 표시 학원 (null=시간 기준 자동)
+  // 모험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
+  const pickJournalAc = (list, dayName, isToday) => {
+    if (!list.length) return null;
+    const withT = list.map(ac => {
+      const sc = getScheduleForDay(ac, dayName);
+      const [h, m] = String(sc?.time || "23:59").split(":").map(Number);
+      const st = (h || 0) * 60 + (m || 0);
+      return { id: ac.id, st, en: st + (sc?.duration || 40) };
+    }).sort((a, b) => a.st - b.st);
+    if (!isToday) return withT[0].id;
+    const now = new Date(); const nm = now.getHours() * 60 + now.getMinutes();
+    return (withT.find(x => nm < x.en) || withT[withT.length - 1]).id;
+  };
   const [showChildRewards,       setShowChildRewards]       = useState(initUi.showChildRewards);
   const [showChildXP,            setShowChildXP]            = useState(initUi.showChildXP);
   const [showParentTodayQuest,   setShowParentTodayQuest]   = useState(initUi.showParentTodayQuest);
@@ -3980,6 +3995,19 @@ export default function App() {
                   </div>
                 );
               })()}
+              {/* 탐험장소 선택 줄 — 시간순 학원을 지도 건물 아이콘으로 나열, 누르면 아래 모험일지에 표시 (사용자 확정) */}
+              {kidSkin!=="cute"&&childTodayAc.length>0&&(()=>{
+                const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
+                const jList=[...childTodayAc].sort((a,b)=>mOf(getClassTime(a,childTodayDN))-mOf(getClassTime(b,childTodayDN)));
+                const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
+                return (
+                  <AdventureSpotPicker
+                    items={jList.map(ac=>({id:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin).icon}))}
+                    selectedId={selId}
+                    onSelect={setJournalAcId}
+                  />
+                );
+              })()}
               {/* 섹션 구분 — 모험일지 (모험 스킨 전용, 지도 아래·학원카드 위, 갈색톤 — 사용자 확정) */}
               {kidSkin!=="cute"&&(
                 <div style={{display:"flex",alignItems:"center",gap:12,margin:"18px 2px 14px"}}>
@@ -4008,7 +4036,10 @@ export default function App() {
                     // ── 모험 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ──
                     const dk = kidSkin!=="cute";
                     // [모험] 양피지 탐험일지 카드 (사용자 원화 오버레이) — 퀘스트 목록은 미션 탭 전담(사용자 확정)
+                    // 탐험장소 줄에서 선택한 학원 하나만 표시 (기본: 시간 기준 이번 학원)
                     if(dk){
+                      const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
+                      if(ac.id!==selId) return null;
                       const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
                       const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
                       const chipSty=(checked)=>({fontSize:12.5,padding:"4px 10px",borderRadius:999,cursor:"pointer",fontWeight:800,transition:"all .15s",

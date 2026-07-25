@@ -113,6 +113,14 @@ const MAP_SHORT = {
   ], 1652 / 952),
 };
 
+// 모험일지 '탐험장소' 선택 줄이 지도와 같은 건물 배정을 쓰도록 하는 헬퍼:
+// 시간순 i번째 학원 → 지도 자리(위→아래) i번째의 건물 (자리 고정 건물번호 bi 우선, 없으면 순환)
+export const journalBuildings = (n) => {
+  const M = n <= 3 ? MAP_SHORT : MAP_LONG;
+  const sp = M.spots[n] ? [...M.spots[n]].sort((a, b) => a[1] - b[1]) : Array.from({ length: n }, () => []);
+  return sp.map((s, i) => BUILDINGS[(s[3] ?? i) % BUILDINGS.length]);
+};
+
 const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
