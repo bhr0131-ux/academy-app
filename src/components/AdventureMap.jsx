@@ -79,11 +79,12 @@ const MAP_SHORT = {
   bw: 23, fs: 21,   // 짧은 지도는 건물을 한 단계 작게 (사용자 조정: 소폭 축소)
   // 사용자 지정 자리 ①②③ — 숫자는 '사용할 자리 개수' (1곳=①만, 2곳=①②, 3곳=①②③).
   // 학원 배정은 시간순으로 지도의 위→아래 (렌더 시 y로 정렬해서 배정).
-  // 자리 형식: [x, y, 라벨위치?] — 라벨위치 "left"면 이름표를 집 왼쪽 옆에 (기본은 집 위)
+  // 자리 형식: [x, y, 라벨위치?, 건물번호?] — 라벨위치 "left"=이름표를 집 옆에(기본 집 위),
+  // 건물번호는 BUILDINGS 인덱스 고정 지정(없으면 순환). ②는 노란 초가집(3) 고정 — 사용자 확정.
   spots: {
-    1: [[80,50]],                       // ① 우측 — 원숭이를 덮는 위치 (사용자 확정)
-    2: [[80,50],[40,36,"left"]],        // +② 좌상 (라벨은 지붕 옆)
-    3: [[80,50],[40,36,"left"],[17,79]],// +③ 좌하 — 개구리를 덮는 위치 (사용자 확정)
+    1: [[80,50]],                            // ① 우측 — 원숭이를 덮는 위치
+    2: [[80,50],[40,36,"left",3]],           // +② 좌상 (라벨 지붕 옆, 노란 건물)
+    3: [[80,50],[40,36,"left",3],[17,79]],   // +③ 좌하 — 개구리를 덮는 위치
   },
   pointAt: mkPointAt([
     [50,22],[54,25],[57,28],[55,32],[48,36],[44,40],[46,44],[52,48],[55,52],
@@ -156,9 +157,9 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
 
       {/* ── 학원 건물 Overlay (배경 무수정 — 길 옆 잔디 고정 좌표, 비슷한 크기) ── */}
       {sorted.map((ac, i) => {
-        const [x, y, lp] = spots[i];
+        const [x, y, lp, bi] = spots[i];
         const d = done(ac);
-        const B = BUILDINGS[i % BUILDINGS.length];
+        const B = BUILDINGS[(bi ?? i) % BUILDINGS.length];
         const chip = { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
         return (
           <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: "none" }}>
