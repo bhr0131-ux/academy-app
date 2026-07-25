@@ -19,10 +19,14 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | boots-explorer-sockless-v2.png | 탐험 부츠 착용 원화 (맨발목 v2, 최종 승인본) | avatar/shoes/explorer-boots.webp |
 | boots-pink-ribbon-wearing.png | 리본 부츠 원화 (판매 중단, 보관용) | (은퇴) |
 | boots-green-wearing-v2.png | 새싹 부츠 착용 원화 (v2, 현행 승인본) | avatar/shoes/green-boots.webp |
-| btn-my-avatar-sign.png | '내 아바타' 나무 팻말 버튼 원화 | btn-my-avatar.webp |
-| btn-growth-character-sign.png | '성장캐릭터' 나무 팻말 버튼 원화 | btn-growth-character.webp |
-| btn-parent-badge.png | '엄마용' 원형 뱃지 버튼 원화 | btn-parent.webp |
-| btn-child-switch-badge.png | 아이 전환 원형 뱃지 버튼 원화 (2명 이상일 때만 노출) | btn-child-switch.webp |
+| btn-my-avatar-sign.png | '내 아바타' 나무 팻말 버튼 원화 (구) | (교체됨) |
+| btn-growth-character-sign.png | '성장캐릭터' 나무 팻말 버튼 원화 (구) | (교체됨) |
+| btn-parent-badge.png | '엄마용' 원형 뱃지 버튼 원화 (구) | (교체됨) |
+| btn-child-switch-badge.png | 아이 전환 원형 뱃지 버튼 원화 (구) | (교체됨) |
+| btn-parent-badge-v2.png | '엄마용' 원형 뱃지 v2 (엄마 얼굴, 현행) | btn-parent.webp |
+| btn-child-switch-badge-v2.png | 아이 전환 원형 뱃지 v2 (남매, 2명 이상일 때만 노출, 현행) | btn-child-switch.webp |
+| btn-my-avatar-badge.png | '내 아바타' 원형 뱃지 (초록 실루엣, 현행 — 팻말에서 교체) | btn-my-avatar.webp |
+| btn-growth-character-badge.png | '성장캐릭터' 원형 뱃지 (새싹, 현행 — 팻말에서 교체) | btn-growth-character.webp |
 | adventure-map-src.png | 모험 지도 배경 원화 v3 (정글 세로형 854×1842, 무수정 사용) | adventure-map.webp |
 | map-bld-junglehut.png | 지도 학원 건물 원화 1 (정글 오두막 v3, 큰 이모지 구멍) | map-bld-junglehut.webp |
 | map-bld-tileroof.png | 지도 학원 건물 원화 2 (파란 기와집 v3, 큰 이모지 구멍) | map-bld-tileroof.webp |
