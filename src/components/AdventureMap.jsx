@@ -169,7 +169,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
             </div>
             )}
             {lp === "left" && (
-            <div style={{ ...chip, position: "absolute", right: "100%", top: "42%", marginRight: 3 }}>
+            <div style={{ ...chip, position: "absolute", right: "86%", top: "10%", marginRight: 3, zIndex: 2 }}>
               {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
             </div>
             )}
