@@ -3936,6 +3936,7 @@ export default function App() {
                       <AdventureMap
                         items={ringItems}
                         fullBleed
+                        onPick={setJournalAcId}
                         mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
                         charEmoji={(()=>{
                           const evo=getCharacterEvolution(childId);
@@ -4040,6 +4041,11 @@ export default function App() {
                     if(dk){
                       const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
                       if(ac.id!==selId) return null;
+                      // 좌우 스와이프 → 시간순 이전/다음 학원 (순환)
+                      const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
+                      const jList=[...childTodayAc].sort((a,b)=>mOf(getClassTime(a,childTodayDN))-mOf(getClassTime(b,childTodayDN)));
+                      const jIdx=jList.findIndex(a=>a.id===selId);
+                      const goJournal=(d)=>{if(jList.length<2)return;setJournalAcId(jList[(jIdx+d+jList.length)%jList.length].id);};
                       const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
                       const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
                       const chipSty=(checked)=>({fontSize:12.5,padding:"4px 10px",borderRadius:999,cursor:"pointer",fontWeight:800,transition:"all .15s",
@@ -4049,6 +4055,7 @@ export default function App() {
                         color:checked?"#3E5C28":"#5A4430"});
                       return (
                         <AdventureJournalCard key={ac.id}
+                          onPrev={()=>goJournal(-1)} onNext={()=>goJournal(1)}
                           icon={dungeon.icon} title={dungeon.label} name={ac.name}
                           time={sc?.time?toKoreanTime(sc.time):"-"}
                           remain={rl?`${rl.icon} ${rl.text}`:""}

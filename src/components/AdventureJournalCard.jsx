@@ -19,15 +19,33 @@
      missionTone : string  요약 글자색
    ════════════════════════════════════════════════════════════════════════ */
 
+import { useRef } from "react";
+
 const F_HAND = "'OwnglyphConCon','Noto Sans KR',sans-serif";   // 손글씨 (제목)
 const F_BODY = "'PretendardSemiBold','Noto Sans KR',sans-serif"; // 본문 값
 
+// onPrev/onNext: 좌우 스와이프로 시간순 이전/다음 학원 일지로 전환 (App이 순환 이동 전달)
+// 카드가 학원 전환으로 다시 마운트될 때(key=학원 id) 페이지 넘김 애니메이션 재생
 export default function AdventureJournalCard({
   icon, title, name, time, remain = "", shuttle = "없음",
-  supplies, missionText, missionTone = "#5A3F22",
+  supplies, missionText, missionTone = "#5A3F22", onPrev, onNext,
 }) {
+  const touch = useRef(null);
   return (
-    <div style={{ position: "relative", width: "100%", aspectRatio: "1181 / 1338", marginBottom: 14 }}>
+    <div
+      onTouchStart={(e) => { const t = e.touches[0]; touch.current = [t.clientX, t.clientY]; }}
+      onTouchEnd={(e) => {
+        if (!touch.current) return;
+        const t = e.changedTouches[0];
+        const dx = t.clientX - touch.current[0], dy = t.clientY - touch.current[1];
+        touch.current = null;
+        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+          if (dx < 0) { onNext && onNext(); } else { onPrev && onPrev(); }
+        }
+      }}
+      style={{ position: "relative", width: "100%", aspectRatio: "1181 / 1338", marginBottom: 14,
+        transformOrigin: "left center", animation: "jPageIn .5s cubic-bezier(.22,.9,.36,1) both", touchAction: "pan-y" }}>
+      <style>{`@keyframes jPageIn{0%{transform:perspective(900px) rotateY(-24deg) translateX(16px);opacity:.2}100%{transform:perspective(900px) rotateY(0) translateX(0);opacity:1}}`}</style>
       <img src="assets/journal-card.webp" alt="" draggable={false}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", filter: "drop-shadow(0 6px 14px rgba(93,70,51,0.20))" }} />
 

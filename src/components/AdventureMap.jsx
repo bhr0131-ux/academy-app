@@ -124,7 +124,8 @@ export const journalBuildings = (n) => {
 const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
-export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false }) {
+// onPick: 학원 건물 탭 → 모험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
+export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
@@ -257,7 +258,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           {ac.time ? <div style={{ fontSize: 10.5, marginTop: 1, color: "#3F2E1E" }}>🕘 {ac.time}</div> : null}
         </>);
         return (
-          <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: "none" }}>
+          <div key={ac.id} onClick={onPick ? () => onPick(ac.id) : undefined}
+            style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: onPick ? "auto" : "none", cursor: onPick ? "pointer" : undefined }}>
             {/* 이름표 — 기본은 집 위(+9px 여유: 길에 안 걸치게), lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래. ldx=x미세보정 */}
             {!lp && (
             <div style={{ ...chip, display: "inline-block", marginBottom: -3, position: "relative", left: ldx || 0, zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
