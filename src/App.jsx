@@ -3487,6 +3487,16 @@ export default function App() {
                   </select>
                 </div>
               ))}
+              {/* 아바타 표시 전환 뱃지 — 우측 상단 세로 3번째 (엄마용-아이전환-아바타, 사용자 확정 순서) */}
+              {kidSkin!=="cute"&&(
+                <button onClick={toggleCharDisplayMode} className="jelly-tap"
+                  style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
+                  <img
+                    src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
+                    alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장캐릭터 보기":"내 아바타 보기"}
+                    style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -3804,15 +3814,13 @@ export default function App() {
                   </div>
                   );
                 };
-                // [모험] 버튼 줄을 좌측 정렬로 — 우측 펫 라벨('곧 부화!')과의 겹침 방지
-                // [모험] 팻말 버튼만 10px 위로: 무대가 아래 기준 정렬이라 marginTop↓/marginBottom↑을 맞바꿔 캐릭터·펫 위치는 고정
+                // [모험] 팻말 버튼은 우측 상단 뱃지로 이동 — 이 줄은 베이커리 칩 전용, 모험은 빈 줄(마진)만 남아 하단 여백 유지
                 return (
                   <div style={{position:"relative",zIndex:2,marginTop:cute?10:4,marginBottom:cute?0:10,display:"flex",alignItems:"center",justifyContent:cute?"center":"flex-start",gap:8,flexWrap:"wrap"}}>
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
-                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 좌측 하단 구석에 단독 배치(우측 펫과 겹침 방지) */}
-                    {/* 모험: 사용자 원화 팻말 이미지 버튼 v3 — 크림·코럴 수채화 톤(상단 원형 뱃지와 한 세트), 동일 비율이라 폭 130px 기준 통일 표시 */}
-                    {cute?(
+                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 우측 상단 원형 뱃지로 이동(사용자 확정), 베이커리(cute)만 여기 칩 유지 */}
+                    {cute&&(
                     <button onClick={toggleCharDisplayMode}
                       style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
                         background:`linear-gradient(135deg, ${th.main}22, ${th.main}10)`,
@@ -3820,24 +3828,6 @@ export default function App() {
                         color:mixBlack(th.main,0.25),fontSize:10,fontWeight:900,whiteSpace:"nowrap",
                         boxShadow:`0 3px 9px ${th.main}33`}}>
                       {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
-                    </button>
-                    ):stageBgDeco?(
-                    /* 배경 꾸미기 장착 시: 나무 팻말 그림이 밤 톤 배경과 안 어울림 → 기존 크림 캡슐 버튼 유지 (팻말과 같은 크림베이지 팔레트) */
-                    <button onClick={toggleCharDisplayMode} className="jelly-tap"
-                      style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
-                        background:"#F0E6CC",border:"1.5px solid #B88957",borderRadius:999,padding:"11px 17px",
-                        color:"#4E392A",fontSize:14,fontWeight:900,whiteSpace:"nowrap",
-                        boxShadow:"0 3px 9px rgba(155,114,74,0.22)"}}>
-                      {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
-                      <span style={{opacity:0.5,fontWeight:900,fontSize:15,lineHeight:1,marginLeft:1}}>›</span>
-                    </button>
-                    ):(
-                    <button onClick={toggleCharDisplayMode} className="jelly-tap"
-                      style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
-                      <img
-                        src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
-                        alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장캐릭터 보기":"내 아바타 보기"}
-                        style={{width:130,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.24))"}}/>
                     </button>
                     )}
                   </div>
