@@ -43,9 +43,7 @@ export default function AdventureJournalCard({
           if (dx < 0) { onNext && onNext(); } else { onPrev && onPrev(); }
         }
       }}
-      style={{ position: "relative", width: "100%", aspectRatio: "1181 / 1338", marginBottom: 14,
-        transformOrigin: "left center", animation: "jPageIn .5s cubic-bezier(.22,.9,.36,1) both", touchAction: "pan-y" }}>
-      <style>{`@keyframes jPageIn{0%{transform:perspective(900px) rotateY(-24deg) translateX(16px);opacity:.2}100%{transform:perspective(900px) rotateY(0) translateX(0);opacity:1}}`}</style>
+      style={{ position: "relative", width: "100%", aspectRatio: "1181 / 1338", marginBottom: 14, touchAction: "pan-y" }}>
       <img src="assets/journal-card.webp" alt="" draggable={false}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", filter: "drop-shadow(0 6px 14px rgba(93,70,51,0.20))" }} />
 

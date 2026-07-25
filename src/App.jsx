@@ -11,6 +11,7 @@ import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
+import PageFlip from "./components/PageFlip.jsx";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   LEGACY_AVATAR_OWNED_KEY, computeAvatarMigration,
@@ -4024,7 +4025,54 @@ export default function App() {
                     <p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>
                     <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
                   </div>
-                ):(
+                ):kidSkin!=="cute"?(()=>{
+                  // [모험] 양피지 탐험일지 — 선택된 학원 1곳만, 책장 넘김(PageFlip)으로 전환 (사용자 확정)
+                  const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
+                  const jList=[...childTodayAc].sort((a,b)=>mOf(getClassTime(a,childTodayDN))-mOf(getClassTime(b,childTodayDN)));
+                  const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
+                  const jIdx=Math.max(0,jList.findIndex(a=>a.id===selId));
+                  const ac=jList[jIdx];
+                  const goJournal=(d)=>{if(jList.length<2)return;setJournalAcId(jList[(jIdx+d+jList.length)%jList.length].id);};
+                  const sc=getScheduleForDay(ac,childTodayDN);
+                  const entry=getDailyEntry(childId,ac.id,childDate);
+                  const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
+                  const shuttleText=getShuttleText(ac,childTodayDN);
+                  const totalTodoCnt=hw.length+todos.length;
+                  const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
+                  const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
+                  const dungeon=getAcademyTheme(ac.name,kidSkin);
+                  const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
+                  const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
+                  const chipSty=(checked)=>({fontSize:12.5,padding:"4px 10px",borderRadius:999,cursor:"pointer",fontWeight:800,transition:"all .15s",
+                    fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",
+                    background:checked?"rgba(127,163,90,0.30)":"rgba(122,88,50,0.10)",
+                    border:checked?"1.5px solid #7FA35A":"1px solid rgba(122,88,50,0.4)",
+                    color:checked?"#3E5C28":"#5A4430"});
+                  return (
+                    <PageFlip flipKey={ac.id} order={jIdx}>
+                      <AdventureJournalCard
+                        onPrev={()=>goJournal(-1)} onNext={()=>goJournal(1)}
+                        icon={dungeon.icon} title={dungeon.label} name={ac.name}
+                        time={sc?.time?toKoreanTime(sc.time):"-"}
+                        remain={rl?`${rl.icon} ${rl.text}`:""}
+                        shuttle={shuttleText||"없음"}
+                        missionText={totalTodoCnt===0?"미션 없음":allDone?"🎉 클리어!":`${totalTodoCnt-doneCnt}개 남음`}
+                        missionTone={totalTodoCnt===0?"#8A7458":allDone?"#4E7B3A":"#B4652A"}
+                        supplies={<>
+                          {baseSup.map((s,i)=>{
+                            const checked=(entry.checkedSupplies||[]).includes(s);
+                            return <button key={`b${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,s)} style={chipSty(checked)}>{checked?"✅":"⬜"} {s}</button>;
+                          })}
+                          {sup.map((s,i)=>{
+                            const key="+"+s; const checked=(entry.checkedSupplies||[]).includes(key);
+                            return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={chipSty(checked)}>{checked?"✅":"⬜"} +{s}</button>;
+                          })}
+                          {baseSup.length===0&&sup.length===0&&<span style={{fontSize:13,color:"#8A7458",fontWeight:700,alignSelf:"center"}}>없음</span>}
+                        </>}
+                      />
+                    </PageFlip>
+                  );
+                })():(
                   childTodayAc.map(ac=>{
                     const sc=getScheduleForDay(ac,childTodayDN);
                     const entry=getDailyEntry(childId,ac.id,childDate);
@@ -4034,48 +4082,8 @@ export default function App() {
                     const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
                     const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
                     const dungeon=getAcademyTheme(ac.name,kidSkin);
-                    // ── 모험 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ──
+                    // ── 모험 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ── (이 분기는 베이커리 전용, dk는 항상 false)
                     const dk = kidSkin!=="cute";
-                    // [모험] 양피지 탐험일지 카드 (사용자 원화 오버레이) — 퀘스트 목록은 미션 탭 전담(사용자 확정)
-                    // 탐험장소 줄에서 선택한 학원 하나만 표시 (기본: 시간 기준 이번 학원)
-                    if(dk){
-                      const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
-                      if(ac.id!==selId) return null;
-                      // 좌우 스와이프 → 시간순 이전/다음 학원 (순환)
-                      const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
-                      const jList=[...childTodayAc].sort((a,b)=>mOf(getClassTime(a,childTodayDN))-mOf(getClassTime(b,childTodayDN)));
-                      const jIdx=jList.findIndex(a=>a.id===selId);
-                      const goJournal=(d)=>{if(jList.length<2)return;setJournalAcId(jList[(jIdx+d+jList.length)%jList.length].id);};
-                      const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
-                      const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
-                      const chipSty=(checked)=>({fontSize:12.5,padding:"4px 10px",borderRadius:999,cursor:"pointer",fontWeight:800,transition:"all .15s",
-                        fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",
-                        background:checked?"rgba(127,163,90,0.30)":"rgba(122,88,50,0.10)",
-                        border:checked?"1.5px solid #7FA35A":"1px solid rgba(122,88,50,0.4)",
-                        color:checked?"#3E5C28":"#5A4430"});
-                      return (
-                        <AdventureJournalCard key={ac.id}
-                          onPrev={()=>goJournal(-1)} onNext={()=>goJournal(1)}
-                          icon={dungeon.icon} title={dungeon.label} name={ac.name}
-                          time={sc?.time?toKoreanTime(sc.time):"-"}
-                          remain={rl?`${rl.icon} ${rl.text}`:""}
-                          shuttle={shuttleText||"없음"}
-                          missionText={totalTodoCnt===0?"미션 없음":allDone?"🎉 클리어!":`${totalTodoCnt-doneCnt}개 남음`}
-                          missionTone={totalTodoCnt===0?"#8A7458":allDone?"#4E7B3A":"#B4652A"}
-                          supplies={<>
-                            {baseSup.map((s,i)=>{
-                              const checked=(entry.checkedSupplies||[]).includes(s);
-                              return <button key={`b${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,s)} style={chipSty(checked)}>{checked?"✅":"⬜"} {s}</button>;
-                            })}
-                            {sup.map((s,i)=>{
-                              const key="+"+s; const checked=(entry.checkedSupplies||[]).includes(key);
-                              return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={chipSty(checked)}>{checked?"✅":"⬜"} +{s}</button>;
-                            })}
-                            {baseSup.length===0&&sup.length===0&&<span style={{fontSize:13,color:"#8A7458",fontWeight:700,alignSelf:"center"}}>없음</span>}
-                          </>}
-                        />
-                      );
-                    }
                     // 카드 본체: 테마색을 머금은 다크. 헤더는 학원색을 살린 진한 톤.
                     const acCardBg = dk ? "linear-gradient(180deg, #3A4156 0%, #333A4C 100%)" : "#fff"; // 10% 밝게 + 남색기 완화
                     const acTx = dk ? "#FFFFFF" : C.text;
