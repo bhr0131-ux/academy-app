@@ -26,7 +26,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 const BUILDINGS = [
   { src: "assets/map-bld-treehouse.webp", cx: 58.7, cy: 49.3, d: 42.7, k: 0.88 },  // 나무 위의 집 (구멍 우측)
   { src: "assets/map-bld-stonearch.webp", cx: 48.3, cy: 50.6, d: 40.4, k: 0.93 },  // 돌 아치문
-  { src: "assets/map-bld-tent.webp",      cx: 51.5, cy: 55.7, d: 39.0, k: 0.96 },  // 탐험가 텐트
+  { src: "assets/map-bld-tent.webp",      cx: 51.5, cy: 55.7, d: 39.0, k: 0.96, es: 1.05 },  // 탐험가 텐트 (es: 이모지 5% 확대 — 책 글리프가 작아 보이는 착시 보정)
   { src: "assets/map-bld-tikihut.webp",   cx: 49.5, cy: 54.4, d: 40.8, k: 0.92 },  // 티키 초가 오두막
 ];
 
@@ -88,21 +88,24 @@ const MAP_SHORT = {
   yr: 1652 / 952,
   bw: 23, fs: 21,   // 짧은 지도는 건물을 한 단계 작게 (사용자 조정: 소폭 축소)
   fpk: 50,          // 발자국 개수 (경로 등간격)
+  deco: [[61,90.5,"🐚",13,-15]], // 상자 아래 빈 공간 소품 딱 하나 (사용자 요청: 과하지 않게)
   // 사용자 지정 자리 ①②③ — 숫자는 '사용할 자리 개수' (1곳=①만, 2곳=①②, 3곳=①②③).
   // 학원 배정은 시간순으로 지도의 위→아래 (렌더 시 y로 정렬해서 배정).
-  // 자리 형식: [x, y, 라벨위치?, 건물번호?] — 라벨위치 "left"=이름표를 집 옆에(기본 집 위),
+  // 자리 형식: [x, y, 라벨위치?, 건물번호?, 라벨x보정px?] — 라벨위치 "left"=이름표를 집 옆에(기본 집 위),
   // 건물번호는 BUILDINGS 인덱스 고정 지정(없으면 순환). ②는 3번(현 티키 초가 오두막) 고정 — 사용자 확정.
+  // ①의 라벨 -10px: 돌아치 우측 팻말 때문에 이름표가 오른쪽으로 치우쳐 보이는 착시 보정 (사용자 조정)
   spots: {
-    1: [[80,50]],                                    // ① 우측 — 원숭이를 덮는 위치
-    2: [[80,50],[37.7,35.7,null,3]],                 // +② 좌상 (라벨 집 위, 노란 건물)
-    3: [[80,50],[37.7,35.7,null,3],[18.5,79,"bottom"]], // +③ 좌하 (라벨 집 아래)
+    1: [[80,50,null,null,-10]],                                    // ① 우측 — 원숭이를 덮는 위치
+    2: [[80,50,null,null,-10],[37.7,35.7,null,3]],                 // +② 좌상 (라벨 집 위)
+    3: [[80,50,null,null,-10],[37.7,35.7,null,3],[18.5,79,"bottom"]], // +③ 좌하 (라벨 집 아래)
   },
   // 원화 모래길 중심선 자동 추출(색 분류 스캔) 좌표 — 다리 구간은 목재라 수동 보간
+  // 우측 굽이 정점(원래 66,50.7)은 1.4% 좌측 보정 — 캐릭터가 길 한가운데를 걷는 느낌 (사용자 조정)
   pointAt: mkPointAt([
     [50.5,22],[51,23.8],[52,25.5],[54,27],[57.5,28.3],[61.5,29.5],[65,30.8],[67.3,32],
     [66.8,33.5],[64.5,35],[61,36.4],[56.5,37.7],[51.5,39],[47,40.2],[43.5,41.3],[41.8,42.5],
-    [42.8,43.7],[45.5,44.7],[49,45.6],[53,46.5],[57,47.4],[61,48.4],[64.3,49.5],[66,50.7],
-    [65.8,52],[63.8,53.2],[61,54.3],[58.3,55.3],[56.2,56.4],[54.7,57.5],[53.8,58.7],[52.5,60],
+    [42.8,43.7],[45.5,44.7],[49,45.6],[53,46.5],[57,47.4],[61,48.4],[63,49.5],[64.6,50.7],
+    [64.5,52],[63.3,53.2],[61,54.3],[58.3,55.3],[56.2,56.4],[54.7,57.5],[53.8,58.7],[52.5,60],
     [50.5,61.5],[48,63],[45.5,64.6],[43.5,66.2],[41.8,67.8],[40,69.5],[38.5,71.2],[37.6,72.9],
     [37.5,74.6],[38.8,76.3],[41,77.9],[43.8,79.3],[46.3,80.5],[48,81.5],
   ], 1652 / 952),
@@ -133,6 +136,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
     return bt;
   }).sort((a, b) => a - b);
   const done = (a) => a.total > 0 ? a.done >= a.total : true; // 건물 ✅·반짝임용 (미션 완료 기준)
+  const doneCount = sorted.filter(done).length;               // 보물상자 진행도 칩(🔒 n/N)용
 
   // ── 시간 기준 이동 (B안) ──────────────────────────────────
   // 수업 시작 30분 전에 출발해 시작 시각에 도착, 수업이 끝나면 다음 학원으로. 마지막 수업 종료 후 보물상자로.
@@ -212,36 +216,51 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       `}</style>
       <img src={M.bg} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
 
-      {/* ── 지나온 길 발자국 (은은한 황토색 실루엣 — 건물·캐릭터보다 낮은 우선순위) ── */}
+      {/* ── 길 발자국 — 전체 경로를 미리 깔되 두 단계 톤 (사용자 확정: 지나온 길=진하게, 남은 길=연하게 → 진행도가 한눈에) ── */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-        {prints.map((p, i) => (
+        {prints.map((p, i) => {
+          const passed = p.t <= t;
+          const col = passed ? "#7E4E20" : "#9A6030";
+          return (
           <div key={i} style={{ position: "absolute", left: `${p.x}%`, top: `${p.y}%`,
             transform: `translate(-50%,-50%) rotate(${p.ang - 90}deg)`,
-            opacity: p.t <= t ? 0.55 : 0, transition: "opacity .35s ease" }}>
-            {/* 발바닥 실루엣: 패드 타원 + 발끝 점 (이모지 아님) */}
-            <div style={{ width: 4.5, height: 7, borderRadius: "50%", background: "#9A6030" }} />
-            <div style={{ width: 2.6, height: 2.6, borderRadius: "50%", background: "#9A6030", margin: "1px auto 0" }} />
+            opacity: passed ? 0.62 : 0.2, transition: "opacity .35s ease" }}>
+            <div style={{ width: 4.5, height: 7, borderRadius: "50%", background: col }} />
+            <div style={{ width: 2.6, height: 2.6, borderRadius: "50%", background: col, margin: "1px auto 0" }} />
           </div>
-        ))}
+          );
+        })}
       </div>
+
+      {/* ── 지도 소품 (deco: [x,y,이모지,크기,회전]) ── */}
+      {(M.deco || []).map(([ex, ey, em, efs, erot], i) => (
+        <span key={i} style={{ position: "absolute", left: `${ex}%`, top: `${ey}%`,
+          transform: `translate(-50%,-50%) rotate(${erot || 0}deg)`, fontSize: efs || 13,
+          opacity: 0.95, pointerEvents: "none", filter: "drop-shadow(0 1px 2px rgba(93,70,51,0.3))" }}>{em}</span>
+      ))}
 
       {/* ── 학원 건물 Overlay (배경 무수정 — 길 옆 잔디 고정 좌표, 비슷한 크기) ── */}
       {sorted.map((ac, i) => {
-        const [x, y, lp, bi] = spots[i];
+        const [x, y, lp, bi, ldx] = spots[i];
         const d = done(ac);
         const B = BUILDINGS[(bi ?? i) % BUILDINGS.length];
-        const chip = { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
+        const chip = { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 8px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
+        // 이름표 2줄 통일 (사용자 확정): 1줄 학원명 / 2줄 🕘 시간 — 엄마는 시간부터 보므로 시간을 진하게
+        const label = (<>
+          <span style={{ fontWeight: 700 }}>{d ? "✅ " : ""}{ac.name}</span>
+          {ac.time ? <div style={{ fontSize: 10.5, marginTop: 1, color: "#3F2E1E" }}>🕘 {ac.time}</div> : null}
+        </>);
         return (
           <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: "none" }}>
-            {/* 이름표 — 기본은 집 위, lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래 */}
+            {/* 이름표 — 기본은 집 위(+9px 여유: 길에 안 걸치게), lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래. ldx=x미세보정 */}
             {!lp && (
-            <div style={{ ...chip, display: "inline-block", marginBottom: -4, position: "relative", zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
+            <div style={{ ...chip, display: "inline-block", marginBottom: 5, position: "relative", left: ldx || 0, zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {label}
             </div>
             )}
             {lp === "left" && (
             <div style={{ ...chip, position: "absolute", right: "74%", top: "15%", marginRight: 3, zIndex: 3 }}>
-              {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
+              {label}
             </div>
             )}
             <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
@@ -250,15 +269,15 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 <span style={{ position: "absolute", top: "10%", right: "-9%", fontSize: 11, animation: "amSpark 2.8s ease-in-out infinite -1.2s", zIndex: 2 }}>✨</span>
               </>}
               {/* 구멍 뒤 크림 원판 + 학원 이모지 — 아이 학원카드와 같은 이모지를 항상 유지 (완료 표시는 이름표 ✅) */}
-              <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: M.fs, lineHeight: 1, zIndex: 0 }}>
+              <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(M.fs * (B.es || 1)), lineHeight: 1, zIndex: 0 }}>
                 {ac.icon}
               </span>
               <img src={B.src} alt="" draggable={false}
                 style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
             </div>
             {lp === "bottom" && (
-            <div style={{ ...chip, display: "inline-block", marginTop: -11, position: "relative", zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
+            <div style={{ ...chip, display: "inline-block", marginTop: -3, position: "relative", left: ldx || 0, zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {label}
             </div>
             )}
           </div>
@@ -272,6 +291,15 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           {[["⭐", "6%", "-4%", 0], ["✨", "70%", "-10%", 0.5], ["🌟", "40%", "-22%", 1.0], ["✨", "-6%", "30%", 1.5], ["⭐", "86%", "36%", 2.0]].map(([e, l, tp, dl], i) => (
             <span key={i} style={{ position: "absolute", left: l, top: tp, fontSize: 15, animation: `amStar 2.4s ease-in-out ${dl}s infinite` }}>{e}</span>
           ))}
+        </div>
+      )}
+
+      {/* ── 보물상자 진행도 칩 — 🔒 n/N, 전부 완료하면 🔓 (사용자 요청: 잠김·진행도를 상자에 표시) ── */}
+      {n > 0 && mode !== "future" && (
+        <div style={{ position: "absolute", left: `${CHEST[0]}%`, top: `${CHEST[1] + 3}%`, transform: "translate(-50%,-50%)", zIndex: 2, pointerEvents: "none",
+          background: "rgba(255,251,240,0.94)", border: `1px solid ${doneCount >= n ? "rgba(212,160,60,0.75)" : "rgba(155,114,74,0.4)"}`, borderRadius: 999,
+          padding: "2px 8px", fontSize: 10.5, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.2)" }}>
+          {doneCount >= n ? "🔓" : "🔒"} {doneCount}/{n}
         </div>
       )}
 
