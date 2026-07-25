@@ -22,11 +22,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // cx/cy/d: 원화에 뚫린 '이모지 동그라미 구멍'의 중심·지름 (이미지 % — 투명 블롭 스캔으로 실측).
 // 이모지는 구멍 '뒤'에 크림 원판과 함께 깔려, 원화의 테두리가 이모지를 자연스럽게 감싼다.
 // k: 폭 보정 계수 — 원화 가로세로비가 달라도 표시 '높이'가 4종 동일해지도록 (질감 통일)
+// v6 정글 세트 (텐트·티키는 원화의 흰 원을 투명으로 뚫어 탑재 — 이모지가 뒤에서 비치도록)
 const BUILDINGS = [
-  { src: "assets/map-bld-junglehut.webp",   cx: 48.4, cy: 53.6, d: 39.1, k: 0.92 },
-  { src: "assets/map-bld-tileroof.webp",    cx: 36.7, cy: 54.3, d: 37.5, k: 0.98 },
-  { src: "assets/map-bld-greenroof.webp",   cx: 57.4, cy: 52.5, d: 39.6, k: 0.99 },  // 좌우 반전판 (구멍 우측)
-  { src: "assets/map-bld-artisthouse.webp", cx: 64.3, cy: 52.7, d: 37.8, k: 1.0 },  // 좌우 반전판 (구멍 우측)
+  { src: "assets/map-bld-treehouse.webp", cx: 58.7, cy: 49.3, d: 42.7, k: 0.88 },  // 나무 위의 집 (구멍 우측)
+  { src: "assets/map-bld-stonearch.webp", cx: 48.3, cy: 50.6, d: 40.4, k: 0.93 },  // 돌 아치문
+  { src: "assets/map-bld-tent.webp",      cx: 51.5, cy: 55.7, d: 39.0, k: 0.96 },  // 탐험가 텐트
+  { src: "assets/map-bld-tikihut.webp",   cx: 49.5, cy: 54.4, d: 40.8, k: 0.92 },  // 티키 초가 오두막
 ];
 
 // 폴리라인 누적 길이 → t(0~1)로 좌표 보간하는 함수 생성 (지도별로 각각)
@@ -90,7 +91,7 @@ const MAP_SHORT = {
   // 사용자 지정 자리 ①②③ — 숫자는 '사용할 자리 개수' (1곳=①만, 2곳=①②, 3곳=①②③).
   // 학원 배정은 시간순으로 지도의 위→아래 (렌더 시 y로 정렬해서 배정).
   // 자리 형식: [x, y, 라벨위치?, 건물번호?] — 라벨위치 "left"=이름표를 집 옆에(기본 집 위),
-  // 건물번호는 BUILDINGS 인덱스 고정 지정(없으면 순환). ②는 노란 초가집(3) 고정 — 사용자 확정.
+  // 건물번호는 BUILDINGS 인덱스 고정 지정(없으면 순환). ②는 3번(현 티키 초가 오두막) 고정 — 사용자 확정.
   spots: {
     1: [[80,50]],                                    // ① 우측 — 원숭이를 덮는 위치
     2: [[80,50],[37.7,35.7,null,3]],                 // +② 좌상 (라벨 집 위, 노란 건물)
