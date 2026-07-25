@@ -43,45 +43,46 @@ export default function AdventureJournalCard({
           if (dx < 0) { onNext && onNext(); } else { onPrev && onPrev(); }
         }
       }}
-      style={{ position: "relative", width: "100%", aspectRatio: "1181 / 1338", marginBottom: 14, touchAction: "pan-y" }}>
+      style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", marginBottom: 14, touchAction: "pan-y" }}>
+      {/* v2 초록 노트 원화 (1254×1254, 모서리 검정 투명 처리) — 좌표 실측: 리스 (32.3,19.6) / 행 y 39.1·53.8·68.6 / 배너 86.9 */}
       <img src="assets/journal-card.webp" alt="" draggable={false}
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", filter: "drop-shadow(0 6px 14px rgba(93,70,51,0.20))" }} />
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", filter: "drop-shadow(0 6px 14px rgba(74,90,37,0.22))" }} />
 
-      {/* 엠블럼 — 나무 링 안 학원 이모지 */}
-      <span style={{ position: "absolute", left: "27.7%", top: "18.2%", transform: "translate(-50%,-50%)",
-        fontSize: "clamp(30px, 11.5vw, 52px)", lineHeight: 1, pointerEvents: "none" }}>{icon}</span>
+      {/* 엠블럼 — 잎 리스 안 학원 이모지 */}
+      <span style={{ position: "absolute", left: "32.3%", top: "19.6%", transform: "translate(-50%,-50%)",
+        fontSize: "clamp(32px, 12vw, 56px)", lineHeight: 1, pointerEvents: "none" }}>{icon}</span>
 
-      {/* 제목 — 던전명(손글씨 크게) + 학원명(부제) */}
-      <div style={{ position: "absolute", left: "40%", right: "5%", top: "7.5%", height: "21%",
+      {/* 제목 — 던전명(손글씨 크게) + 학원명(부제), 리스 우측 여백 */}
+      <div style={{ position: "absolute", left: "45%", right: "7%", top: "16.5%", height: "14%",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", pointerEvents: "none" }}>
         <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(19px, 6.6vw, 30px)",
-          color: "#4E392A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,246,224,0.6)",
+          color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,250,230,0.6)",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{title}</p>
         <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(12px, 3.9vw, 17px)",
-          color: "#7A6248", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{name}</p>
+          color: "#7A6E48", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{name}</p>
       </div>
 
       {/* 탐험 시작 — 시각 + (오늘) 남은시간 한 줄 */}
-      <div style={{ position: "absolute", right: "8%", top: "38.1%", transform: "translateY(-50%)", textAlign: "right", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(15px, 4.9vw, 22px)", color: "#4E392A", lineHeight: 1.15 }}>{time}</p>
-        {remain && <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontSize: "clamp(10px, 3.2vw, 13px)", color: "#8A6B47" }}>{remain}</p>}
+      <div style={{ position: "absolute", right: "12.5%", top: "39.1%", transform: "translateY(-50%)", textAlign: "right", pointerEvents: "none" }}>
+        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(15px, 4.9vw, 22px)", color: "#4E432A", lineHeight: 1.15 }}>{time}</p>
+        {remain && <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontSize: "clamp(10px, 3.2vw, 13px)", color: "#7A6E48" }}>{remain}</p>}
       </div>
 
       {/* 셔틀 */}
-      <div style={{ position: "absolute", right: "8%", top: "53.4%", transform: "translateY(-50%)", maxWidth: "52%", textAlign: "right", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(13px, 4.2vw, 18px)", color: "#4E392A", lineHeight: 1.3,
+      <div style={{ position: "absolute", right: "12.5%", top: "53.8%", transform: "translateY(-50%)", maxWidth: "42%", textAlign: "right", pointerEvents: "none" }}>
+        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(13px, 4.2vw, 18px)", color: "#4E432A", lineHeight: 1.3,
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{shuttle}</p>
       </div>
 
       {/* 준비물 — 체크 칩 (App이 토글 포함해 내려줌, 많으면 스크롤) */}
-      <div style={{ position: "absolute", left: "41%", right: "5.5%", top: "61.5%", height: "17%",
+      <div style={{ position: "absolute", left: "46%", right: "12%", top: "62%", height: "13.5%",
         display: "flex", flexWrap: "wrap", gap: 5, alignContent: "center", justifyContent: "flex-end", overflowY: "auto" }}>
         {supplies}
       </div>
 
-      {/* 남은 미션 배너 값 */}
-      <div style={{ position: "absolute", right: "9%", top: "87%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(15px, 5vw, 22px)", color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
+      {/* 남은 미션 배너 값 — 라벨과 깃발 장식 사이 공간 */}
+      <div style={{ position: "absolute", left: "53%", top: "86.9%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(13.5px, 4.4vw, 19px)", color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
       </div>
     </div>
   );

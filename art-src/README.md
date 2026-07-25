@@ -37,4 +37,5 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | map-bld-tent.png | 지도 학원 건물 v6-3 (탐험가 텐트, 흰 원→투명 펀칭 탑재) | map-bld-tent.webp |
 | map-bld-tikihut.png | 지도 학원 건물 v6-4 (티키 초가 오두막, 흰 원→투명 펀칭 탑재) | map-bld-tikihut.webp |
 | adventure-map-short-src.png | 모험 지도 배경 원화 v2 (3:5 양피지 972×1619, 학원 0~2곳용) | adventure-map-short.webp |
-| journal-card-src.png | 모험일지 학원 카드 양피지 노트 원화 (1181×1338, 값 오버레이용) | journal-card.webp |
+| journal-card-src.png | 모험일지 학원 카드 양피지 노트 원화 (1181×1338, 구) | (교체됨) |
+| journal-card-v2-src.png | 모험일지 초록 노트 원화 v2 (1254×1254, 모서리 검정→투명 펀칭 탑재) | journal-card.webp |
