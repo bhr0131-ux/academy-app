@@ -223,7 +223,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           const col = passed ? "#7E4E20" : "#9A6030";
           return (
           <div key={i} style={{ position: "absolute", left: `${p.x}%`, top: `${p.y}%`,
-            transform: `translate(-50%,-50%) rotate(${p.ang - 90}deg)`,
+            transform: `translate(-50%,-50%) rotate(${p.ang + 90}deg)`, // +90: 발끝 점이 진행 방향을 향하도록 (사용자 수정: 기존 -90은 반대)
             opacity: passed ? 0.62 : 0.2, transition: "opacity .35s ease" }}>
             <div style={{ width: 4.5, height: 7, borderRadius: "50%", background: col }} />
             <div style={{ width: 2.6, height: 2.6, borderRadius: "50%", background: col, margin: "1px auto 0" }} />
