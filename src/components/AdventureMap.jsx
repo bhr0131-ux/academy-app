@@ -165,12 +165,12 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: "none" }}>
             {/* 이름표 — 기본은 집 위, lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래 */}
             {!lp && (
-            <div style={{ ...chip, display: "inline-block", marginBottom: 2, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div style={{ ...chip, display: "inline-block", marginBottom: -11, position: "relative", zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
               {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
             </div>
             )}
             {lp === "left" && (
-            <div style={{ ...chip, position: "absolute", right: "86%", top: "10%", marginRight: 3, zIndex: 2 }}>
+            <div style={{ ...chip, position: "absolute", right: "74%", top: "15%", marginRight: 3, zIndex: 3 }}>
               {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
             </div>
             )}
@@ -187,7 +187,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
             </div>
             {lp === "bottom" && (
-            <div style={{ ...chip, display: "inline-block", marginTop: 2, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div style={{ ...chip, display: "inline-block", marginTop: -11, position: "relative", zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
               {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
             </div>
             )}
