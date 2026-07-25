@@ -59,6 +59,7 @@ const MAP_LONG = {
   bg: "assets/adventure-map.webp",
   ar: "853 / 1844",
   chest: [51, 88],
+  cdy: 6.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 %)
   yr: 1844 / 853,
   bw: 26, fs: 24,   // 건물 표시 폭(%)·이모지 크기 (사용자 조정: 소폭 축소)
   fpk: 64,          // 발자국 개수 (경로 등간격)
@@ -85,6 +86,7 @@ const MAP_SHORT = {
   bg: "assets/adventure-map-short.webp",
   ar: "952 / 1652",
   chest: [50, 82.5],
+  cdy: 8,           // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 %)
   yr: 1652 / 952,
   bw: 23, fs: 21,   // 짧은 지도는 건물을 한 단계 작게 (사용자 조정: 소폭 축소)
   fpk: 50,          // 발자국 개수 (경로 등간격)
@@ -250,7 +252,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: "none" }}>
             {/* 이름표 — 기본은 집 위(+9px 여유: 길에 안 걸치게), lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래. ldx=x미세보정 */}
             {!lp && (
-            <div style={{ ...chip, display: "inline-block", marginBottom: 5, position: "relative", left: ldx || 0, zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div style={{ ...chip, display: "inline-block", marginBottom: -3, position: "relative", left: ldx || 0, zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
               {label}
             </div>
             )}
@@ -290,9 +292,9 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         </div>
       )}
 
-      {/* ── 보물상자 진행도 칩 — 🔒 n/N, 전부 완료하면 🔓 (사용자 요청: 잠김·진행도를 상자에 표시) ── */}
+      {/* ── 보물상자 진행도 칩 — 🔒 n/N, 전부 완료하면 🔓. 상자 '아래' 배치 (사용자 확정) ── */}
       {n > 0 && mode !== "future" && (
-        <div style={{ position: "absolute", left: `${CHEST[0]}%`, top: `${CHEST[1] + 3}%`, transform: "translate(-50%,-50%)", zIndex: 2, pointerEvents: "none",
+        <div style={{ position: "absolute", left: `${CHEST[0]}%`, top: `${CHEST[1] + (M.cdy || 8)}%`, transform: "translate(-50%,-50%)", zIndex: 2, pointerEvents: "none",
           background: "rgba(255,251,240,0.94)", border: `1px solid ${doneCount >= n ? "rgba(212,160,60,0.75)" : "rgba(155,114,74,0.4)"}`, borderRadius: 999,
           padding: "2px 8px", fontSize: 10.5, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.2)" }}>
           {doneCount >= n ? "🔓" : "🔒"} {doneCount}/{n}
