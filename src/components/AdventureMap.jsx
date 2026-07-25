@@ -165,7 +165,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           <div key={ac.id} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: "none" }}>
             {/* 이름표 — 기본은 집 위, lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래 */}
             {!lp && (
-            <div style={{ ...chip, display: "inline-block", marginBottom: -11, position: "relative", zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div style={{ ...chip, display: "inline-block", marginBottom: -4, position: "relative", zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
               {d ? "✅ " : ""}{ac.name}{ac.time ? ` · ${ac.time}` : ""}
             </div>
             )}
