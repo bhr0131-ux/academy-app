@@ -4,8 +4,9 @@
    · 배경(adventure-map.webp)은 완성 원화 그대로 사용 — 절대 가공하지 않는다.
      배경 속 상단 집 = 우리집(출발지), 하단 보물상자 = 오늘의 도착지.
    · 학원은 사용자 제공 건물 PNG(webp 변환본)를 길 위에 Overlay만 한다.
-   · 캐릭터는 길 폴리라인 위에서만 이동:
-       우리집 → (완료할 때마다) 다음 학원 → 모두 완료 시 보물상자.
+   · 캐릭터는 길 폴리라인 위에서만, "시간 기준"으로 이동 (사용자 확정 B안):
+       수업 시작 30분 전 출발 → 수업 중엔 그 학원 앞 → 마지막 수업 종료 후 보물상자.
+       (건물의 ✅·반짝임은 미션 완료 기준 유지)
    · 완료한 학원 건물은 반짝이고, 전부 완료하면 보물상자에서 축하 효과.
    · 원본 원화는 art-src/ (adventure-map-src.png, map-bld-*.png) 보관.
 
@@ -118,11 +119,32 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
     }
     return bt;
   }).sort((a, b) => a - b);
-  const done = (a) => a.total > 0 ? a.done >= a.total : true; // 미션 없는 학원은 통과 취급
-  // 순차 진행: 앞에서부터 연속으로 완료한 다음 목적지가 캐릭터의 현재 목표
-  let k = 0; while (k < n && done(sorted[k])) k++;
-  const allDone = n > 0 && k === n;
-  const targetT = mode === "past" ? 1 : mode === "future" ? 0 : (allDone ? 1 : (k === 0 ? 0 : stopT[k]));
+  const done = (a) => a.total > 0 ? a.done >= a.total : true; // 건물 ✅·반짝임용 (미션 완료 기준)
+
+  // ── 시간 기준 이동 (B안) ──────────────────────────────────
+  // 수업 시작 30분 전에 출발해 시작 시각에 도착, 수업이 끝나면 다음 학원으로. 마지막 수업 종료 후 보물상자로.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (mode !== "today") return;
+    const iv = setInterval(() => setTick(v => v + 1), 60000); // 1분마다 위치 갱신
+    return () => clearInterval(iv);
+  }, [mode]);
+  const nowMin = (() => { const dt = new Date(); return dt.getHours() * 60 + dt.getMinutes(); })();
+  const starts = sorted.map(a => toMin(a.time));
+  const ends = sorted.map((a, i) => starts[i] + (a.duration || 40));
+  const lastEnded = n > 0 && nowMin >= ends[n - 1];
+  const TRAVEL = 30; // 다음 수업 시작 몇 분 전에 출발하는지
+  let targetT;
+  if (mode === "past") targetT = 1;
+  else if (mode === "future" || n === 0) targetT = 0;
+  else if (lastEnded) targetT = 1;
+  else {
+    let j = 0; while (j < n && nowMin >= ends[j]) j++;   // 아직 안 끝난 첫 수업 = 현재 목적지
+    const from = j === 0 ? 0 : stopT[j - 1];
+    const to = stopT[j];
+    const t0 = starts[j] - TRAVEL, t1 = starts[j];
+    targetT = nowMin <= t0 ? from : nowMin >= t1 ? to : from + (to - from) * ((nowMin - t0) / (t1 - t0));
+  }
 
   // 캐릭터를 길을 따라 부드럽게 이동 (rAF 트윈 — 길 밖으로 나가지 않음)
   const [t, setT] = useState(mode === "past" ? 1 : 0);
@@ -144,8 +166,9 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
     return () => cancelAnimationFrame(raf);
   }, [targetT]);
 
-  const [cx, cy] = allDone && t >= 0.995 ? CHEST : pointAt(t); // 도착하면 상자 앞으로 착지
-  const chestParty = mode === "past" || (mode === "today" && allDone && t >= 0.995);
+  const arrived = t >= 0.995 && (mode === "past" || lastEnded);
+  const [cx, cy] = arrived ? CHEST : pointAt(t); // 도착하면 상자 앞으로 착지
+  const chestParty = mode === "past" || (mode === "today" && arrived);
 
   // ── 지나온 길 발자국 ──────────────────────────────────────
   // 모래길 중심선(pointAt)을 등간격 샘플링해 발자국을 전부 깔아두고,
