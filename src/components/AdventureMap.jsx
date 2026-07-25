@@ -14,7 +14,7 @@
      mode     : "today" | "past" | "future"       past=모두 통과, future=출발 전
      charEmoji: string                            캐릭터 (이미지 경로 또는 이모지)
    ════════════════════════════════════════════════════════════════════════ */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 // 지도 2종: 학원 0~2곳=짧은 정사각 지도 / 3곳 이상=긴 세로 지도 (사용자 확정 — 개수에 따라 자동 전환)
 // 학원 건물 아이콘 4종 (정글 세트) — 배치 순서대로 순환 사용 (원화 무수정, 위치·크기만 조정)
@@ -59,6 +59,7 @@ const MAP_LONG = {
   chest: [50, 89],
   yr: 1842 / 854,
   bw: 26, fs: 24,   // 건물 표시 폭(%)·이모지 크기 (사용자 조정: 소폭 축소)
+  fpk: 64,          // 발자국 개수 (경로 등간격)
   // 학원 건물 고정 배치 좌표 (사용자 지정: 길 '옆' 잔디, 좌우 번갈아) — 방문 순서대로
   spots: {
     3: [[68,29],[71,45],[36,76]],
@@ -77,6 +78,7 @@ const MAP_SHORT = {
   chest: [50, 85],
   yr: 1619 / 972,
   bw: 23, fs: 21,   // 짧은 지도는 건물을 한 단계 작게 (사용자 조정: 소폭 축소)
+  fpk: 46,          // 발자국 개수 (경로 등간격)
   // 사용자 지정 자리 ①②③ — 숫자는 '사용할 자리 개수' (1곳=①만, 2곳=①②, 3곳=①②③).
   // 학원 배정은 시간순으로 지도의 위→아래 (렌더 시 y로 정렬해서 배정).
   // 자리 형식: [x, y, 라벨위치?, 건물번호?] — 라벨위치 "left"=이름표를 집 옆에(기본 집 위),
@@ -145,6 +147,25 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   const [cx, cy] = allDone && t >= 0.995 ? CHEST : pointAt(t); // 도착하면 상자 앞으로 착지
   const chestParty = mode === "past" || (mode === "today" && allDone && t >= 0.995);
 
+  // ── 지나온 길 발자국 ──────────────────────────────────────
+  // 모래길 중심선(pointAt)을 등간격 샘플링해 발자국을 전부 깔아두고,
+  // 캐릭터 진행률(t)까지만 보이게 한다 → 이동 트윈을 따라 톡톡 나타나는 연출.
+  // 방향은 길의 접선에 맞춰 회전, 좌/우 발은 진행 방향의 수직으로 번갈아 오프셋.
+  const prints = useMemo(() => {
+    const K = M.fpk || 50, out = [];
+    for (let i = 1; i < K; i++) {
+      const tt = i / K;
+      const [ax, ay] = M.pointAt(Math.min(1, tt + 0.012));
+      const [bx, by] = M.pointAt(Math.max(0, tt - 0.012));
+      const ang = Math.atan2((ay - by) * M.yr, ax - bx) * 180 / Math.PI;
+      const side = i % 2 ? 1 : -1;                     // 왼발/오른발
+      const rad = (ang + 90) * Math.PI / 180;
+      const [px, py] = M.pointAt(tt);
+      out.push({ t: tt, x: px + Math.cos(rad) * 0.9 * side, y: py + (Math.sin(rad) * 0.9 * side) / M.yr, ang });
+    }
+    return out;
+  }, [M]);
+
   return (
     <div style={{ position: "relative", width: "100%", aspectRatio: M.ar, borderRadius: fullBleed ? 0 : 18, overflow: "hidden", boxShadow: fullBleed ? "none" : "inset 0 0 0 1px rgba(142,165,74,0.35)" }}>
       <style>{`
@@ -154,6 +175,19 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         @keyframes amGlow{0%,100%{opacity:.25}50%{opacity:.6}}
       `}</style>
       <img src={M.bg} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+
+      {/* ── 지나온 길 발자국 (은은한 황토색 실루엣 — 건물·캐릭터보다 낮은 우선순위) ── */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        {prints.map((p, i) => (
+          <div key={i} style={{ position: "absolute", left: `${p.x}%`, top: `${p.y}%`,
+            transform: `translate(-50%,-50%) rotate(${p.ang - 90}deg)`,
+            opacity: p.t <= t ? 0.55 : 0, transition: "opacity .35s ease" }}>
+            {/* 발바닥 실루엣: 패드 타원 + 발끝 점 (이모지 아님) */}
+            <div style={{ width: 4.5, height: 7, borderRadius: "50%", background: "#9A6030" }} />
+            <div style={{ width: 2.6, height: 2.6, borderRadius: "50%", background: "#9A6030", margin: "1px auto 0" }} />
+          </div>
+        ))}
+      </div>
 
       {/* ── 학원 건물 Overlay (배경 무수정 — 길 옆 잔디 고정 좌표, 비슷한 크기) ── */}
       {sorted.map((ac, i) => {
