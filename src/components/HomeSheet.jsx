@@ -19,7 +19,7 @@
 // 탭별 선택 색 — 아래 탭 콘텐츠의 메인 카드와 같은 계열, 선택 탭은 메인 카드보다 채도 10~15% 높게 (클릭감)
 // (모험=올리브 그린·미션=허니 브라운·캐릭터=스카이 블루 / 명도 규칙: 선택 탭 中 > 메인 카드 連)
 const TILE_ACCENT = {
-  area:   { bg:"#A5BB60", border:"#8CA24F", text:"#48663D" },  // 모험 (선택 배경 한 단계 밝게 — 테두리·글씨로 선택감 유지)
+  area:   { bg:"#ACC06D", border:"#8CA24F", text:"#48663D" },  // 모험 (초록 채움 8% 소프트 — 수채화 상단과 무게 균형, 사용자 조정)
   today:  { bg:"#D2AD79", border:"#AF8850", text:"#6C5238" },  // 미션
   growth: { bg:"#AED2EC", border:"#83B4D4", text:"#355D76" },  // 캐릭터
 };
@@ -29,8 +29,8 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
     <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"18px 18px 22px",
       borderRadius:"30px 30px 0 0",background:"#F0F3F3", // Cloud — 순백 대신 수채화와 이어지는 아이보리·회색
       boxShadow:"0 -10px 30px -12px rgba(40,70,45,0.30)"}}>
-      {/* 시트 핸들바 */}
-      <div style={{width:44,height:5,borderRadius:999,background:"#D9DED7",margin:"-4px auto 14px"}}/>
+      {/* 시트 핸들바 — 아래 여백 14→7: 날짜바 위 공간이 넓어 보여 살짝 당김 (사용자 조정) */}
+      <div style={{width:44,height:5,borderRadius:999,background:"#D9DED7",margin:"-4px auto 7px"}}/>
       {/* 날짜바 — 레벨·이름 줄 자리 (탭별 톤은 App의 dateNav가 담당) */}
       {dateNav}
       {/* 3 타일 (모험/미션/캐릭터) = 탭 선택 — 아이콘 위·세로 중앙 정렬 */}
