@@ -3792,8 +3792,8 @@ export default function App() {
                         <div style={{fontSize:46,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 6px 8px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
                       </div>
                       <div style={{width:34,height:8,borderRadius:"50%",background:"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
-                      {/* 말풍선 — 펫 위 (사용자 확정: 알 말풍선과 통일), 꼬리는 아래로. 간격 8→14px (사용자 조정) */}
-                      <div style={{position:"absolute",bottom:"100%",left:"50%",transform:"translateX(-50%)",marginBottom:14,background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"3px 8px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap"}}>
+                      {/* 말풍선 — 펫 위 (사용자 확정: 알 말풍선과 통일), 꼬리는 아래로. 간격 14→18px (사용자 조정) */}
+                      <div style={{position:"absolute",bottom:"100%",left:"50%",transform:"translateX(-50%)",marginBottom:18,background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"3px 8px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap"}}>
                         🐾 펫
                         <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
                       </div>
@@ -4049,7 +4049,7 @@ export default function App() {
                     border:checked?"1.5px solid #7FA35A":"1px solid rgba(122,88,50,0.4)",
                     color:checked?"#3E5C28":"#5A4430"});
                   return (
-                    <PageFlip flipKey={ac.id} order={jIdx}>
+                    <PageFlip flipKey={ac.id} order={jIdx} total={jList.length}>
                       <AdventureJournalCard
                         onPrev={()=>goJournal(-1)} onNext={()=>goJournal(1)}
                         icon={dungeon.icon} title={dungeon.label} name={ac.name}

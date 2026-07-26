@@ -28,9 +28,10 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
           const on = it.id === selectedId;
           return (
             <div key={it.id} style={{ display: "flex", alignItems: "center" }}>
-              {/* 건물 사이 연결 — 지도와 같은 발자국 트레일 (좌우 발 번갈아, 진행 방향 오른쪽) */}
+              {/* 건물 사이 연결 — 지도와 같은 발자국 트레일 (좌우 발 번갈아, 진행 방향 오른쪽)
+                  marginBottom 8: 발자국 라인이 건물 세로 중앙에 오도록 (사용자 조정: 24는 지붕 높이라 하향) */}
               {i > 0 && (
-                <span style={{ display: "flex", alignItems: "center", gap: 5, margin: "0 2px 24px" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 5, margin: "0 2px 8px" }}>
                   {[0, 1, 2].map(k => (
                     <span key={k} style={{ display: "inline-block", transform: `translateY(${k % 2 ? 3 : -3}px) rotate(90deg)`, opacity: 0.55 }}>
                       <span style={{ display: "block", width: 4, height: 6.5, borderRadius: "50%", background: "#9A6030" }} />
