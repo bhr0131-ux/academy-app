@@ -4053,8 +4053,8 @@ export default function App() {
                   const dungeon=getAcademyTheme(ac.name,kidSkin);
                   const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
                   const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
-                  const chipSty=(checked)=>({fontSize:12.5,padding:"4px 10px",borderRadius:999,cursor:"pointer",fontWeight:800,transition:"all .15s",
-                    fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",
+                  const chipSty=(checked)=>({fontSize:13.5,padding:"4px 10px",borderRadius:999,cursor:"pointer",fontWeight:400,transition:"all .15s",
+                    fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",
                     background:checked?"rgba(127,163,90,0.30)":"rgba(122,88,50,0.10)",
                     border:checked?"1.5px solid #7FA35A":"1px solid rgba(122,88,50,0.4)",
                     color:checked?"#3E5C28":"#5A4430"});

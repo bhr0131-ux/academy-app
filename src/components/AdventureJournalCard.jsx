@@ -21,8 +21,9 @@
 
 import { useRef } from "react";
 
-const F_HAND = "'OwnglyphConCon','Noto Sans KR',sans-serif";   // 손글씨 (제목)
-const F_BODY = "'PretendardSemiBold','Noto Sans KR',sans-serif"; // 본문 값
+// 사용자 확정: 응원문구(오늘도 신나는 모험 출발!)와 같은 손글씨체 'Uiyeun'으로 통일 — 제목·값 모두
+const F_HAND = "'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif";
+const F_BODY = "'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif";
 
 // onPrev/onNext: 좌우 스와이프로 시간순 이전/다음 학원 일지로 전환 (App이 순환 이동 전달)
 // 카드가 학원 전환으로 다시 마운트될 때(key=학원 id) 페이지 넘김 애니메이션 재생
@@ -59,20 +60,20 @@ export default function AdventureJournalCard({
         <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(19px, 6.6vw, 30px)",
           color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,255,255,0.7)",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{title}</p>
-        <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(12px, 3.9vw, 17px)",
+        <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(13px, 4.2vw, 18px)",
           color: "#7A6E48", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{name}</p>
       </div>
 
       {/* 탐험 시작 — 시각 + 남은시간을 한 줄로 (사용자 조정: 남은시간은 항상 시간 우측, 글자 축소) */}
       <div style={{ position: "absolute", left: "30%", right: "7%", top: "41.2%", transform: "translateY(-50%)",
         display: "flex", alignItems: "baseline", flexWrap: "nowrap", columnGap: 7, pointerEvents: "none" }}>
-        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(13px, 4.2vw, 18px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap" }}>{time}</span>
-        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(9.5px, 3vw, 12px)", color: "#7A6E48", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{remain}</span>}
+        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(14px, 4.5vw, 19px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap" }}>{time}</span>
+        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(10.5px, 3.3vw, 13.5px)", color: "#7A6E48", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{remain}</span>}
       </div>
 
       {/* 셔틀 — 버스 아이콘 옆 */}
       <div style={{ position: "absolute", left: "30%", right: "9%", top: "56.1%", transform: "translateY(-50%)", textAlign: "left", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(13px, 4.2vw, 18px)", color: "#4E432A", lineHeight: 1.3,
+        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(14px, 4.5vw, 19px)", color: "#4E432A", lineHeight: 1.3,
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{shuttle}</p>
       </div>
 
@@ -84,7 +85,7 @@ export default function AdventureJournalCard({
 
       {/* 남은 미션 배너 값 — 타깃 아이콘 옆 (라벨 없음 → 문구를 온전히 표기) */}
       <div style={{ position: "absolute", left: "31%", top: "83.4%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(14px, 4.6vw, 20px)", color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
+        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(15px, 5vw, 21px)", color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
       </div>
     </div>
   );
