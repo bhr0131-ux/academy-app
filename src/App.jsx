@@ -4002,9 +4002,19 @@ export default function App() {
                 const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
                 const jList=[...childTodayAc].sort((a,b)=>mOf(getClassTime(a,childTodayDN))-mOf(getClassTime(b,childTodayDN)));
                 const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
+                // 진행 상태(지나온/현재) — 오늘만 시간 기준, 과거 날짜는 전부 지나온 것으로
+                const _now=new Date(), _nowMin=_now.getHours()*60+_now.getMinutes();
+                const curId=pickJournalAc(childTodayAc,childTodayDN,isChildToday);
+                const isPast=(ac)=>{
+                  if(childDate<TODAY) return true;
+                  if(!isChildToday) return false;
+                  const sc=getScheduleForDay(ac,childTodayDN);
+                  return _nowMin >= mOf(sc?.time)+(sc?.duration||40);
+                };
                 return (
                   <AdventureSpotPicker
-                    items={jList.map(ac=>({id:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin).icon}))}
+                    items={jList.map(ac=>({id:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin).icon,
+                      passed:isPast(ac), current:isChildToday&&ac.id===curId}))}
                     selectedId={selId}
                     onSelect={setJournalAcId}
                   />
