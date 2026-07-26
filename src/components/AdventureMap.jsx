@@ -261,7 +261,14 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         const [x, y, lp, bi, ldx] = spots[i];
         const d = done(ac, i);
         const B = BUILDINGS[(bi ?? i) % BUILDINGS.length];
-        const chip = { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 8px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
+        // 지나온 학원(수업 종료) 표현 — 사용자 확정: 투명도 대신 '채도'를 낮춘다.
+        // 투명도를 낮추면 배경 풀과 섞여 건물 형태가 지저분해지므로, 채도 -50%·명도 +5%·대비 -17%.
+        // 건물과 안쪽 이모지에 동일 적용 (이름표는 정보라 제외 — 배경만 톤다운)
+        const past = passedByTime(i);
+        const pastFx = past ? "saturate(0.5) brightness(1.05) contrast(0.83) " : "";
+        const chip = past
+          ? { background: "rgba(238,233,221,0.90)", border: "1px solid rgba(155,114,74,0.30)", borderRadius: 9, padding: "2px 8px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.14)" }
+          : { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 8px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
         // 이름표 2줄 통일 (사용자 확정): 1줄 학원명 / 2줄 🕘 시간 — 엄마는 시간부터 보므로 시간을 진하게
         const label = (<>
           <span style={{ fontWeight: 700 }}>{d ? "✅ " : ""}{ac.name}</span>
@@ -287,11 +294,11 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 <span style={{ position: "absolute", top: "10%", right: "-9%", fontSize: 11, animation: "amSpark 2.8s ease-in-out infinite -1.2s", zIndex: 2 }}>✨</span>
               </>}
               {/* 구멍 뒤 크림 원판 + 학원 이모지 — 아이 학원카드와 같은 이모지를 항상 유지 (완료 표시는 이름표 ✅) */}
-              <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(M.fs * (B.es || 1)), lineHeight: 1, zIndex: 0 }}>
+              <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(M.fs * (B.es || 1)), lineHeight: 1, zIndex: 0, filter: pastFx || undefined, transition: "filter .4s ease" }}>
                 {ac.icon}
               </span>
               <img src={B.src} alt="" draggable={false}
-                style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", filter: d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" }} />
+                style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", transition: "filter .4s ease", filter: pastFx + (d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))") }} />
             </div>
             {lp === "bottom" && (
             <div style={{ ...chip, display: "inline-block", marginTop: -3, position: "relative", left: ldx || 0, zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
