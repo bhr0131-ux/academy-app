@@ -23,11 +23,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // 이모지는 구멍 '뒤'에 크림 원판과 함께 깔려, 원화의 테두리가 이모지를 자연스럽게 감싼다.
 // k: 폭 보정 계수 — 원화 가로세로비가 달라도 표시 '높이'가 4종 동일해지도록 (질감 통일)
 // v7 크리스프 카툰 세트 (흰 원을 투명으로 뚫어 탑재 — 이모지가 뒤에서 비치도록)
+// ar: 원본 가로/세로 비 (모험장소 줄에서 '표시 높이'를 통일할 때 사용)
 const BUILDINGS = [
-  { src: "assets/map-bld-treehouse.webp", cx: 57.2, cy: 49.9, d: 43.2, k: 0.87 },  // 나무 위의 집 (구멍 우측)
-  { src: "assets/map-bld-stonearch.webp", cx: 48.5, cy: 51.2, d: 39.2, k: 0.95 },  // 돌 아치문
-  { src: "assets/map-bld-tent.webp",      cx: 51.3, cy: 56.1, d: 39.3, k: 0.95, es: 1.05 },  // 탐험가 텐트 (es: 이모지 5% 확대 — 책 글리프가 작아 보이는 착시 보정)
-  { src: "assets/map-bld-tikihut.webp",   cx: 48.5, cy: 53.8, d: 40.6, k: 0.92 },  // 티키 초가 오두막
+  { src: "assets/map-bld-treehouse.webp", cx: 57.2, cy: 49.9, d: 43.2, k: 0.87, ar: 190 / 220 },  // 나무 위의 집 (구멍 우측)
+  { src: "assets/map-bld-stonearch.webp", cx: 48.5, cy: 51.2, d: 39.2, k: 0.95, ar: 251 / 220 },  // 돌 아치문
+  { src: "assets/map-bld-tent.webp",      cx: 51.3, cy: 56.1, d: 39.3, k: 0.95, ar: 228 / 220, es: 1.05 },  // 탐험가 텐트 (es: 이모지 5% 확대 — 책 글리프가 작아 보이는 착시 보정)
+  { src: "assets/map-bld-tikihut.webp",   cx: 48.5, cy: 53.8, d: 40.6, k: 0.92, ar: 235 / 220 },  // 티키 초가 오두막
 ];
 
 // 폴리라인 누적 길이 → t(0~1)로 좌표 보간하는 함수 생성 (지도별로 각각)
