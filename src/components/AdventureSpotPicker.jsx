@@ -20,7 +20,10 @@
    ════════════════════════════════════════════════════════════════════════ */
 import { journalBuildings } from "./AdventureMap.jsx";
 
-const BW = 48;   // 건물 표시 폭 px (사용자 조정: 62 → 48, 약 23% 축소)
+// 건물마다 원본 가로세로비가 달라 '폭'을 맞추면 높이가 들쭉날쭉해진다.
+// → 표시 '높이'를 고정하고 폭은 비율대로 (사용자 확정: 위아래 폭 통일 + 전체 축소)
+const BH = 38;          // 건물 표시 높이 px
+const EM_RATIO = 1.05;  // 이모지 크기 / 구멍 원 지름 — 살짝만 넘치게 (건물을 덜 가리도록 1.2→1.05)
 
 export default function AdventureSpotPicker({ items = [], selectedId, onSelect }) {
   const blds = journalBuildings(items.length);
@@ -39,8 +42,9 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
         {items.map((it, i) => {
           const B = blds[i] || {};
           const on = it.id === selectedId;
-          const holeD = BW * ((B.d || 38) + 5) / 100;          // 구멍(크림 원판) 지름 px
-          const emSize = Math.round(holeD * 1.2);              // 이모지는 원 지름의 120% — 살짝 넘치게(스티커 느낌)
+          const bw = BH * (B.ar || 1);                          // 높이 고정 → 폭은 원본 비율대로
+          const holeD = bw * ((B.d || 38) + 5) / 100;           // 구멍(크림 원판) 지름 px
+          const emSize = Math.round(holeD * EM_RATIO);          // 이모지는 원 지름보다 살짝 크게(스티커 느낌)
           // 건물은 배경 역할: 남은 학원도 채도를 살짝 낮추고, 지나온 학원은 확 낮춘다
           const bldFx = it.passed ? "saturate(0.35) brightness(1.06) contrast(0.88)" : "saturate(0.75)";
           return (
@@ -58,7 +62,7 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
               )}
               <button onClick={() => onSelect && onSelect(it.id)} className="jelly-tap"
                 style={{ background: "none", border: "none", padding: "4px 5px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <span style={{ position: "relative", display: "block", width: BW, transition: "all .18s",
+                <span style={{ position: "relative", display: "block", width: bw, height: BH, transition: "all .18s",
                   filter: on ? "drop-shadow(0 0 6px rgba(212,160,60,0.9)) drop-shadow(0 3px 5px rgba(93,70,51,0.3))" : "drop-shadow(0 2px 4px rgba(93,70,51,0.25))",
                   transform: on ? "scale(1.08)" : "none" }}>
                   {B.src && <>
@@ -66,7 +70,7 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
                     <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${(B.d || 38) + 5}%`, aspectRatio: "1/1",
                       transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", zIndex: 0 }} />
                     <img src={B.src} alt="" draggable={false}
-                      style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", filter: bldFx, transition: "filter .3s ease" }} />
+                      style={{ position: "relative", zIndex: 1, width: "100%", height: BH, display: "block", filter: bldFx, transition: "filter .3s ease" }} />
                     {/* 학원 이모지 — 건물 '위'에 크게 얹어 스티커처럼 (이 줄의 주인공) */}
                     <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, transform: "translate(-50%,-50%)",
                       fontSize: emSize, lineHeight: 1, zIndex: 2, pointerEvents: "none",
