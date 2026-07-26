@@ -44,17 +44,17 @@ export default function AdventureJournalCard({
         }
       }}
       style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", marginBottom: 14, touchAction: "pan-y" }}>
-      {/* v3 초록 노트 원화 (1254×1254, 라벨 글자 없음 — 아이콘+밑줄만) — 값을 아이콘 옆 밑줄 위에 직접 쓴다.
-          좌표 실측: 리스 (30.5,19.5) / 아이콘 행 y 40.3·54.6·68.6 / 배너 타깃 85.7 */}
+      {/* v4 초록 노트 원화 (1254×1254, 라벨·장식 정리판) — 값을 아이콘 옆 밑줄 위에 직접 쓴다.
+          좌표 실측: 리스 중심 (31.6,20.0)·지름 17.5% / 아이콘 행 중심 y 41.2·56.1·69.1 / 배너 83.4 / 밑줄 시작 x 25% */}
       <img src="assets/journal-card.webp" alt="" draggable={false}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", filter: "drop-shadow(0 6px 14px rgba(74,90,37,0.22))" }} />
 
-      {/* 엠블럼 — 잎 리스 '안'에 들어가게 축소, 리스 원 정중앙 정렬 (사용자 미세조정: +0.7%,+0.3%) */}
-      <span style={{ position: "absolute", left: "31.2%", top: "19.8%", transform: "translate(-50%,-50%)",
+      {/* 엠블럼 — 잎 리스 '안'에 들어가게, 리스 원 정중앙 정렬 (실측 중심) */}
+      <span style={{ position: "absolute", left: "31.6%", top: "20%", transform: "translate(-50%,-50%)",
         fontSize: "clamp(22px, 8vw, 38px)", lineHeight: 1, pointerEvents: "none" }}>{icon}</span>
 
-      {/* 제목 — 던전명(손글씨 크게) + 학원명(부제), 리스 우측 여백 (사용자 조정: 위로) */}
-      <div style={{ position: "absolute", left: "43%", right: "7%", top: "12.5%", height: "14%",
+      {/* 제목 — 던전명(손글씨 크게) + 학원명(부제), 리스 우측 여백 */}
+      <div style={{ position: "absolute", left: "43%", right: "7%", top: "13%", height: "14%",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", pointerEvents: "none" }}>
         <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(19px, 6.6vw, 30px)",
           color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,255,255,0.7)",
@@ -64,26 +64,26 @@ export default function AdventureJournalCard({
       </div>
 
       {/* 탐험 시작 — 시각 + 남은시간을 한 줄로 (사용자 조정: 남은시간은 항상 시간 우측, 글자 축소) */}
-      <div style={{ position: "absolute", left: "31.5%", right: "7%", top: "40%", transform: "translateY(-50%)",
+      <div style={{ position: "absolute", left: "30%", right: "7%", top: "41.2%", transform: "translateY(-50%)",
         display: "flex", alignItems: "baseline", flexWrap: "nowrap", columnGap: 7, pointerEvents: "none" }}>
         <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(13px, 4.2vw, 18px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap" }}>{time}</span>
         {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(9.5px, 3vw, 12px)", color: "#7A6E48", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{remain}</span>}
       </div>
 
       {/* 셔틀 — 버스 아이콘 옆 */}
-      <div style={{ position: "absolute", left: "31.5%", right: "10%", top: "54.6%", transform: "translateY(-50%)", textAlign: "left", pointerEvents: "none" }}>
+      <div style={{ position: "absolute", left: "30%", right: "9%", top: "56.1%", transform: "translateY(-50%)", textAlign: "left", pointerEvents: "none" }}>
         <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(13px, 4.2vw, 18px)", color: "#4E432A", lineHeight: 1.3,
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{shuttle}</p>
       </div>
 
       {/* 준비물 — 가방 아이콘 옆 체크 칩 (App이 토글 포함해 내려줌, 많으면 스크롤) */}
-      <div style={{ position: "absolute", left: "31%", right: "9%", top: "62%", height: "13.5%",
+      <div style={{ position: "absolute", left: "29.5%", right: "9%", top: "62.5%", height: "13%",
         display: "flex", flexWrap: "wrap", gap: 5, alignContent: "center", justifyContent: "flex-start", overflowY: "auto" }}>
         {supplies}
       </div>
 
       {/* 남은 미션 배너 값 — 타깃 아이콘 옆 (라벨 없음 → 문구를 온전히 표기) */}
-      <div style={{ position: "absolute", left: "32%", top: "85.7%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+      <div style={{ position: "absolute", left: "31%", top: "83.4%", transform: "translateY(-50%)", pointerEvents: "none" }}>
         <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(14px, 4.6vw, 20px)", color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
       </div>
     </div>
