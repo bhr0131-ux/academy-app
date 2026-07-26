@@ -38,7 +38,8 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | map-bld-tikihut.png | 지도 학원 건물 v6-4 (수채화풍, 구) | (교체됨) |
 | adventure-map-v6-src.png | 긴 지도 v7 크리스프 카툰 (구) | (교체됨) |
 | adventure-map-v8-src.png | 긴 지도 v8 수채화 (852×1846, PATH 재추출) | adventure-map.webp |
-| adventure-map-short-v6-src.png | 짧은 지도 v7 크리스프 카툰 (951×1653) | adventure-map-short.webp |
+| adventure-map-short-v6-src.png | 짧은 지도 v7 크리스프 카툰 (구) | (교체됨) |
+| adventure-map-short-v8-src.png | 짧은 지도 v8 수채화 (951×1654, 긴 지도 v8과 한 세트, PATH 재추출) | adventure-map-short.webp |
 | map-bld-treehouse-v2.png | 지도 학원 건물 v7-1 (나무 위의 집, 흰 원→투명 펀칭) | map-bld-treehouse.webp |
 | map-bld-stonearch-v2.png | 지도 학원 건물 v7-2 (돌 아치문, 흰 원→투명 펀칭) | map-bld-stonearch.webp |
 | map-bld-tent-v2.png | 지도 학원 건물 v7-3 (탐험가 텐트, 흰 원→투명 펀칭) | map-bld-tent.webp |
