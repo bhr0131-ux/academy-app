@@ -49,8 +49,8 @@ export default function AdventureJournalCard({
       <img src="assets/journal-card.webp" alt="" draggable={false}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", filter: "drop-shadow(0 6px 14px rgba(74,90,37,0.22))" }} />
 
-      {/* 엠블럼 — 잎 리스 '안'에 들어가게 축소 (리스 지름의 ~60%, 사용자 미세조정) */}
-      <span style={{ position: "absolute", left: "30.5%", top: "19.5%", transform: "translate(-50%,-50%)",
+      {/* 엠블럼 — 잎 리스 '안'에 들어가게 축소, 리스 원 정중앙 정렬 (사용자 미세조정: +0.7%,+0.3%) */}
+      <span style={{ position: "absolute", left: "31.2%", top: "19.8%", transform: "translate(-50%,-50%)",
         fontSize: "clamp(22px, 8vw, 38px)", lineHeight: 1, pointerEvents: "none" }}>{icon}</span>
 
       {/* 제목 — 던전명(손글씨 크게) + 학원명(부제), 리스 우측 여백 (사용자 조정: 위로) */}
