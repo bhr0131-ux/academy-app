@@ -55,7 +55,7 @@ export default function AdventureJournalCard({
         fontSize: "clamp(22px, 8vw, 38px)", lineHeight: 1, pointerEvents: "none" }}>{icon}</span>
 
       {/* 제목 — 던전명(손글씨 크게) + 학원명(부제), 리스 우측 여백 */}
-      <div style={{ position: "absolute", left: "43%", right: "7%", top: "13%", height: "14%",
+      <div style={{ position: "absolute", left: "37%", right: "9%", top: "13%", height: "14%",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", pointerEvents: "none" }}>
         <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(23px, 7.9vw, 36px)",
           color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,255,255,0.7)",
@@ -65,26 +65,26 @@ export default function AdventureJournalCard({
       </div>
 
       {/* 탐험 시작 — 시각 + 남은시간을 한 줄로 (사용자 조정: 남은시간은 항상 시간 우측, 글자 축소) */}
-      <div style={{ position: "absolute", left: "30%", right: "7%", top: "41.2%", transform: "translateY(-50%)",
+      <div style={{ position: "absolute", left: "32.5%", right: "6%", top: "41.2%", transform: "translateY(-50%)",
         display: "flex", alignItems: "baseline", flexWrap: "wrap", columnGap: 8, rowGap: 0, pointerEvents: "none" }}>
         <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(20px, 6.8vw, 28px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap" }}>{time}</span>
         {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(13px, 4.3vw, 17px)", color: "#7A6E48", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{remain}</span>}
       </div>
 
       {/* 셔틀 — 버스 아이콘 옆 */}
-      <div style={{ position: "absolute", left: "30%", right: "9%", top: "56.1%", transform: "translateY(-50%)", textAlign: "left", pointerEvents: "none" }}>
+      <div style={{ position: "absolute", left: "32.5%", right: "8%", top: "56.1%", transform: "translateY(-50%)", textAlign: "left", pointerEvents: "none" }}>
         <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(20px, 6.8vw, 28px)", color: "#4E432A", lineHeight: 1.3,
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{shuttle}</p>
       </div>
 
       {/* 준비물 — 가방 아이콘 옆 체크 칩 (App이 토글 포함해 내려줌, 많으면 스크롤) */}
-      <div style={{ position: "absolute", left: "29.5%", right: "9%", top: "62.5%", height: "13%",
+      <div style={{ position: "absolute", left: "32%", right: "8%", top: "62.5%", height: "13%",
         display: "flex", flexWrap: "wrap", gap: 5, alignContent: "center", justifyContent: "flex-start", overflowY: "auto" }}>
         {supplies}
       </div>
 
       {/* 남은 미션 배너 값 — 타깃 아이콘 옆 (라벨 없음 → 문구를 온전히 표기) */}
-      <div style={{ position: "absolute", left: "31%", top: "83.4%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+      <div style={{ position: "absolute", left: "35.5%", top: "85%", transform: "translateY(-50%)", pointerEvents: "none" }}>
         <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(21px, 7.2vw, 30px)", color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
       </div>
     </div>
