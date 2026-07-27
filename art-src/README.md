@@ -55,4 +55,6 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | journal-card-v3-src.png | 모험일지 초록 노트 원화 v3 (구) | (교체됨) |
 | journal-card-v4-src.png | 모험일지 초록 노트 원화 v4 (장식 정리판, 모서리 검정→투명 펀칭 탑재) | journal-card.webp |
 | chest-open.png | 열린 보물상자 원화 (도착 시 지도의 닫힌 상자 위에 덮어 그림) | chest-open.webp |
+| coin-front.png | 금화 원화 정면 (상자 도착 연출, 뒤집히며 튀어오름) | coin-front.webp |
+| coin-tilt.png | 금화 원화 반측면 (상자 도착 연출, 구르듯 회전) | coin-tilt.webp |
 | map-walkers/{pink,apricot,green,purple,blue}-{boy,girl}.png | 지도 위를 걷는 탐험가 10종 (5테마×성별, 이모지 대체) | map-char/*.webp |
