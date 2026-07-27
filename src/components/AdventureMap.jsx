@@ -69,11 +69,11 @@ const MAP_LONG = {
   // (점 = 건물의 길 쪽 모서리 중앙 / 자리 좌표는 건물 밑동 기준이라 그림 높이의 35%만큼 아래로 보정)
   // 배정은 항상 시간순 = 지도 위→아래 (렌더 시 y 정렬). 긴 지도는 학원 4곳 이상일 때 사용.
   spots: {
-    4: [[38,30],[69.5,45,"bottom"],[73.5,56.5],[23,74]],
-    5: [[38,30],[69.5,45,"bottom"],[73.5,56.5],[23,74],[77.5,29.5]],
-    6: [[38,30],[69.5,45,"bottom"],[73.5,56.5],[23,74],[77.5,29.5],[37,60]],
-    7: [[38,30],[69.5,45,"bottom"],[73.5,56.5],[23,74],[77.5,29.5],[37,60],[44,26]],
-    8: [[38,30],[69.5,45,"bottom"],[73.5,56.5],[23,74],[77.5,29.5],[37,60],[44,26],[47.5,49.5]],
+    4: [[38,30],[69.5,45],[73.5,56.5],[23,74]],
+    5: [[38,30],[69.5,45],[73.5,56.5],[23,74],[77.5,29.5]],
+    6: [[38,30],[69.5,45],[73.5,56.5],[23,74],[77.5,29.5],[37,60]],
+    7: [[38,30],[69.5,45],[73.5,56.5],[23,74],[77.5,29.5],[37,60],[44,26]],
+    8: [[38,30],[69.5,45],[73.5,56.5],[23,74],[77.5,29.5],[37,60],[44,26],[47.5,49.5]],
   },
   // v9 수채화 원화 모래길 중심선 자동 추출(색 분류 스캔) 좌표 — 다리 구간은 목재라 수동 보간
   pointAt: mkPointAt([
@@ -310,8 +310,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
             style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: onPick ? "auto" : "none", cursor: onPick ? "pointer" : undefined }}>
             {/* 이름표 — 기본은 집 위(+9px 여유: 길에 안 걸치게), lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래. ldx=x미세보정 */}
             {!lp && (
-            <div style={{ ...chip, display: "inline-block", marginBottom: -3, position: "relative", left: ldx || 0, zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {label}
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: -3, position: "relative", left: ldx || 0, zIndex: 3 }}>
+              <div style={{ ...chip, maxWidth: "180%", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
             </div>
             )}
             {lp === "left" && (
@@ -332,8 +332,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", transition: "filter .4s ease", filter: pastFx + (d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))") }} />
             </div>
             {lp === "bottom" && (
-            <div style={{ ...chip, display: "inline-block", marginTop: -3, position: "relative", left: ldx || 0, zIndex: 3, maxWidth: "160%", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {label}
+            <div style={{ display: "flex", justifyContent: "center", marginTop: -3, position: "relative", left: ldx || 0, zIndex: 3 }}>
+              <div style={{ ...chip, maxWidth: "180%", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
             </div>
             )}
           </div>
