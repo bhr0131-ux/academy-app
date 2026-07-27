@@ -60,6 +60,7 @@ const MAP_LONG = {
   bg: "assets/adventure-map.webp",
   ar: "853 / 1844",
   chest: [52.5, 89],
+  arriveAt: [36, 90],          // 도착 시 아이가 서는 자리 — 상자 왼쪽 모래밭(상자를 가리지 않게)
   chestOpen: [54, 93.8, 20],   // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측
   cdy: 5.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   yr: 1844 / 853,
@@ -94,6 +95,7 @@ const MAP_SHORT = {
   bg: "assets/adventure-map-short.webp",
   ar: "952 / 1652",
   chest: [50, 86],
+  arriveAt: [32, 87.5],        // 도착 시 아이가 서는 자리 — 상자 왼쪽 모래밭(상자를 가리지 않게)
   chestOpen: [50.3, 90.9, 20], // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측
   cdy: 6.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   yr: 1652 / 952,
@@ -234,7 +236,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   }, [targetT]);
 
   const arrived = t >= 0.995 && (mode === "past" || lastEnded);
-  const [cx, cy] = arrived ? CHEST : pointAt(t); // 도착하면 상자 앞으로 착지
+  const [cx, cy] = arrived ? (M.arriveAt || CHEST) : pointAt(t); // 도착하면 상자 "옆"에 착지 (상자를 가리지 않게)
   const chestParty = mode === "past" || (mode === "today" && arrived);
 
   // ── 지나온 길 발자국 ──────────────────────────────────────
