@@ -3934,7 +3934,7 @@ export default function App() {
                       <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>🗺️ 탐험지도</span>
                       <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)"}}/>
                     </div>
-                    <div style={{margin:"-4px -16px 14px"}}>
+                    <div style={{margin:"-4px -16px 26px"}}>
                       <AdventureMap
                         items={ringItems}
                         fullBleed
@@ -4015,7 +4015,7 @@ export default function App() {
               })()}
               {/* 섹션 구분 — 탐험일지 (탐험 스킨 전용, 지도 아래·학원카드 위, 갈색톤 — 사용자 확정) */}
               {kidSkin!=="cute"&&(
-                <div style={{display:"flex",alignItems:"center",gap:12,margin:"18px 2px 14px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:12,margin:"28px 2px 14px"}}>
                   <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.4))"}}/>
                   <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>📜 탐험일지</span>
                   <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)"}}/>
