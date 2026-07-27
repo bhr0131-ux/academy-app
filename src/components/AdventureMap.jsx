@@ -379,9 +379,9 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       {/* ── 캐릭터 — 항상 길 위 (폴리라인 보간 위치) ── */}
       <div style={{ position: "absolute", left: `${cx}%`, top: `${cy}%`, transform: "translate(-50%,-86%)", animation: "amBob 2.4s ease-in-out infinite", pointerEvents: "none", zIndex: 3 }}>
         {isImg(charEmoji)
-          ? <img src={charEmoji} alt="" draggable={false} style={{ height: 46, width: "auto", display: "block", filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 4px 5px rgba(60,80,40,0.35))" }} />
+          ? <img src={charEmoji} alt="" draggable={false} style={{ height: 58, width: "auto", display: "block", filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 4px 5px rgba(60,80,40,0.35))" }} />
           : <span style={{ fontSize: 32, lineHeight: 1, display: "block", filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 4px 5px rgba(60,80,40,0.35))" }}>{charEmoji || "🦸"}</span>}
-        <div style={{ width: 26, height: 7, borderRadius: "50%", background: "rgba(60,80,40,0.3)", filter: "blur(2.5px)", margin: "-3px auto 0" }} />
+        <div style={{ width: 22, height: 6, borderRadius: "50%", background: "rgba(60,80,40,0.3)", filter: "blur(2.5px)", margin: "-2px auto 0" }} />
       </div>
     </div>
   );

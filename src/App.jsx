@@ -9,6 +9,7 @@ import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
+import { getMapWalker } from "./data/mapWalkers.js";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import PageFlip from "./components/PageFlip.jsx";
@@ -3939,11 +3940,7 @@ export default function App() {
                         fullBleed
                         onPick={setJournalAcId}
                         mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
-                        charEmoji={(()=>{
-                          const evo=getCharacterEvolution(childId);
-                          const g=curChild?.gender==="girl"?"girl":"boy";
-                          return evo?.avatar?.[g] || evo?.emoji || "";
-                        })()}
+                        charEmoji={getMapWalker(th.main, curChild?.gender)}
                       />
                     </div>
                     </>
@@ -3985,11 +3982,7 @@ export default function App() {
                       <AdventureMap
                         items={ringItems}
                         mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
-                        charEmoji={(()=>{
-                          const evo=getCharacterEvolution(childId);
-                          const g=curChild?.gender==="girl"?"girl":"boy";
-                          return evo?.avatar?.[g] || evo?.emoji || "";
-                        })()}
+                        charEmoji={getMapWalker(th.main, curChild?.gender)}
                       />
                       )}
                     </div>
