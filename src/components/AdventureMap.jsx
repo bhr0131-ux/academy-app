@@ -6,8 +6,8 @@
    · 학원은 사용자 제공 건물 PNG(webp 변환본)를 길 위에 Overlay만 한다.
    · 캐릭터는 길 폴리라인 위에서만, "시간 기준"으로 이동 (사용자 확정 B안):
        수업 시작 30분 전 출발 → 수업 중엔 그 학원 앞 → 마지막 수업 종료 후 보물상자.
-       (건물의 ✅·반짝임은 미션 완료 기준 유지)
-   · 완료한 학원 건물은 반짝이고, 전부 완료하면 보물상자에서 축하 효과.
+       (건물의 ✅·반짝임은 '수업 종료' 기준 — 미션 완료 여부와 무관)
+   · 수업이 끝난 학원 건물은 ✅·반짝임, 전부 끝나면 보물상자에서 축하 효과.
    · 원본 원화는 art-src/ (adventure-map-src.png, map-bld-*.png) 보관.
 
    props
@@ -203,7 +203,9 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
 
   // 건물 ✅·반짝임 판정: 미션이 있으면 전부 완료 기준, 없으면 수업 종료 시각 기준
   const passedByTime = (i) => mode === "past" || (mode === "today" && nowMin >= ends[i]);
-  const done = (a, i) => a.total > 0 ? a.done >= a.total : passedByTime(i);
+  // 건물 ✅·반짝임 = '수업이 끝났는지'만 본다 (사용자 확정: 미션 완료 여부와 무관).
+  // 미션 진행은 탐험일지·미션 탭에서 보므로, 지도는 '어디까지 다녀왔는지'만 나타낸다.
+  const done = (a, i) => passedByTime(i);
   // 보물상자 칩(🔒 n/N): '학원에 갔는지' 기준 (사용자 확정) — 수업 시작 시각에 도착하면 +1
   const doneCount = mode === "past" ? n : mode === "today" ? starts.filter(s => nowMin >= s).length : 0;
   const TRAVEL = 30; // 다음 수업 시작 몇 분 전에 출발하는지
