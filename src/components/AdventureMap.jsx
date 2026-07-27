@@ -60,7 +60,8 @@ const MAP_LONG = {
   bg: "assets/adventure-map.webp",
   ar: "853 / 1844",
   chest: [46.5, 89],
-  chestOpen: [48, 93.8, 20],   // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측
+  chestOpen: [48, 93.8, 17],   // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측(20→17 축소)
+  chestHide: [50.5, 89.2, 33, 14.5], // 배경에 그려진 '닫힌 상자'를 지울 모래 패치 [중심x%, 중심y%, 폭%, 높이%]
   cdy: 5.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   yr: 1844 / 853,
   bw: 18, fs: 17,   // 건물 표시 폭(%)·이모지 크기 (사용자 조정: 자리 8곳 배치에 맞춰 30% 축소)
@@ -98,7 +99,8 @@ const MAP_SHORT = {
   bg: "assets/adventure-map-short.webp",
   ar: "952 / 1652",
   chest: [45, 86],
-  chestOpen: [45, 90.9, 20], // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측
+  chestOpen: [45, 90.9, 17], // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측(20→17 축소)
+  chestHide: [47.5, 86.3, 33, 15], // 배경에 그려진 '닫힌 상자'를 지울 모래 패치 [중심x%, 중심y%, 폭%, 높이%]
   cdy: 6.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   yr: 1652 / 952,
   bw: 23, fs: 21,   // 짧은 지도는 건물을 한 단계 작게 (사용자 조정: 소폭 축소)
@@ -290,6 +292,20 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         }
       `}</style>
       <img src={M.bg} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+
+      {/* ── 도착 시 '닫힌 상자' 지우개 — 배경에 그려진 잠긴 상자가 열린 상자 뒤로 비쳐 보여서(사용자 지적)
+             사용자가 준 모래 텍스처 조각을 그 위에 덮는다. 가장자리는 타원 마스크로 흐려 이음매를 없앤다.
+             발자국·캐릭터보다 먼저 그려야 상자 앞 발자국이 지워지지 않는다 (배경 바로 위 레이어). ── */}
+      {chestParty && M.chestHide && (() => {
+        const [hx, hy, hw, hh] = M.chestHide;
+        const fade = "radial-gradient(ellipse closest-side at 50% 50%, #000 80%, transparent 100%)";
+        return (
+          <div style={{ position: "absolute", left: `${hx}%`, top: `${hy}%`, width: `${hw}%`, height: `${hh}%`,
+            transform: "translate(-50%,-50%)", pointerEvents: "none",
+            backgroundImage: "url(assets/chest-patch.webp)", backgroundSize: "100% 100%",
+            WebkitMaskImage: fade, maskImage: fade }} />
+        );
+      })()}
 
       {/* ── 길 발자국 — 지나온 길만 진한 갈색으로 표시, 남은 길은 숨김 (사용자 확정: 2단계 톤 철회) ── */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
