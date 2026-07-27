@@ -308,10 +308,11 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         return (
           <div key={ac.id} onClick={onPick ? () => onPick(ac.id) : undefined}
             style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: onPick ? "auto" : "none", cursor: onPick ? "pointer" : undefined }}>
-            {/* 이름표 — 기본은 집 위(+9px 여유: 길에 안 걸치게), lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래. ldx=x미세보정 */}
+            {/* 이름표 — 기본은 집 위, lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래. ldx=x미세보정.
+                flex 중앙정렬 + flexShrink:0 — 이름표가 건물 폭보다 넓어도 줄어들지 않고 양옆으로 균등하게 넘친다 */}
             {!lp && (
             <div style={{ display: "flex", justifyContent: "center", marginBottom: -3, position: "relative", left: ldx || 0, zIndex: 3 }}>
-              <div style={{ ...chip, maxWidth: "180%", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
+              <div style={{ ...chip, flexShrink: 0, maxWidth: "230%", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
             </div>
             )}
             {lp === "left" && (
@@ -333,7 +334,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
             </div>
             {lp === "bottom" && (
             <div style={{ display: "flex", justifyContent: "center", marginTop: -3, position: "relative", left: ldx || 0, zIndex: 3 }}>
-              <div style={{ ...chip, maxWidth: "180%", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
+              <div style={{ ...chip, flexShrink: 0, maxWidth: "230%", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
             </div>
             )}
           </div>
