@@ -19,12 +19,15 @@
      selectedId : string   현재 탐험일지에 표시 중인 학원
      onSelect   : (id)=>void
    ════════════════════════════════════════════════════════════════════════ */
+import { Fragment } from "react";
 
 const D = 38;           // 스탬프 원판 지름 px
 const EM = 21;          // 학원 이모지 크기 px
 const PER_ROW = 6;      // 한 줄에 넣을 학원 수 (건물 그림 제거로 5→6곳)
-const FPW = 14;         // 발자국 연결 구간 폭 px
-const CELL = 46;        // 학원 한 칸 폭 px (6칸 + 발자국 5구간 = 346px → 좁은 기기도 한 줄)
+const CELL = 46;        // 학원 한 칸 폭 px (고정)
+// 발자국 연결 구간은 '남는 폭을 나눠 갖는' 신축 구간 —
+// 학원이 적은 날은 넓게 벌어지고(최대 44px), 6곳이 꽉 차면 최소 14px까지 좁아진다.
+const FP_MIN = 14, FP_MAX = 44;
 
 export default function AdventureSpotPicker({ items = [], selectedId, onSelect }) {
   return (
@@ -38,17 +41,17 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
         <span style={{ flexShrink: 0, fontSize: 13.5, fontWeight: 900, letterSpacing: 0.4, color: "#8A6B47" }}>🧭 탐험장소</span>
         <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)" }} />
       </div>
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", flexWrap: "wrap", rowGap: 8, marginBottom: 4 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", flexWrap: "wrap", rowGap: 16, width: "100%", marginBottom: 10 }}>
         {items.map((it, i) => {
           const on = it.id === selectedId;
           const rowStart = i % PER_ROW === 0;
           // 진행 상태 = 테두리 색 (별도 배지 없이 색으로만 구분)
           const ring = it.passed ? "#7FA35A" : it.current ? "#D9A441" : "rgba(155,114,74,0.38)";
           return (
-            <div key={it.id} style={{ display: "flex", alignItems: "flex-start" }}>
-              {/* 칸 사이 연결 — 지도와 같은 발자국 트레일 (경로 느낌) */}
+            <Fragment key={it.id}>
+              {/* 칸 사이 연결 — 지도와 같은 발자국 트레일 (경로 느낌). 남는 폭만큼 늘어난다 */}
               {!rowStart && (
-                <span style={{ width: FPW, height: D, display: "flex", alignItems: "center", justifyContent: "center", gap: 3, flexShrink: 0 }}>
+                <span style={{ flex: `1 1 ${FP_MIN}px`, minWidth: FP_MIN, maxWidth: FP_MAX, height: D, display: "flex", alignItems: "center", justifyContent: "center", gap: 3 }}>
                   {[0, 1].map(k => (
                     <span key={k} style={{ display: "inline-block", transform: `translateY(${k % 2 ? 3 : -3}px) rotate(90deg)`, opacity: 0.75 }}>
                       <span style={{ display: "block", width: 4.4, height: 7.4, borderRadius: "50%", background: "#7E4E20" }} />
@@ -58,7 +61,7 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
                 </span>
               )}
               <button onClick={() => onSelect && onSelect(it.id)} className="jelly-tap"
-                style={{ background: "none", border: "none", padding: 0, cursor: "pointer", width: CELL, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                style={{ background: "none", border: "none", padding: 0, cursor: "pointer", width: CELL, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
                 {/* 스탬프 — 크림 원판 + 학원 이모지. 테두리 색이 곧 진행 상태 */}
                 <span style={{ position: "relative", width: D, height: D, borderRadius: "50%",
                   background: it.passed ? "#F2EEE2" : "#FFF9EC",
@@ -83,7 +86,7 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
                   width: "100%", textAlign: "center", wordBreak: "keep-all",
                   display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{it.name}</span>
               </button>
-            </div>
+            </Fragment>
           );
         })}
       </div>
