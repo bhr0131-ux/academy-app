@@ -183,7 +183,11 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       if (dd < bd) { bd = dd; bt = tt; }
     }
     return bt;
-  }).sort((a, b) => a - b);
+  });
+  // 앞으로만 이동하도록 단조 증가로 보정.
+  // (예전엔 .sort()로 오름차순 정렬했는데, 자리 배정이 '배열 순서'로 바뀐 뒤로는
+  //  정렬하면 학원과 정지 지점의 짝이 어긋난다 — 누적 최댓값으로 바꿔 짝을 유지한다)
+  for (let i = 1; i < stopT.length; i++) if (stopT[i] < stopT[i - 1]) stopT[i] = stopT[i - 1];
   // ── 시간 기준 이동 (B안) ──────────────────────────────────
   // 수업 시작 30분 전에 출발해 시작 시각에 도착, 수업이 끝나면 다음 학원으로. 마지막 수업 종료 후 보물상자로.
   const [, setTick] = useState(0);
