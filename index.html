@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="preload" href="/assets/fonts/ownglyph-euiyeonchae.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/assets/fonts/ownglyph-concon.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/stage-adventure-meadow.webp" as="image" fetchpriority="high" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>미션팡</title>
@@ -17,16 +16,10 @@
         font-style: normal;
         font-display: swap;
       }
-      /* 온글잎 콘콘체 — 타일 큰 제목용 / Pretendard SemiBold — 타일 작은 글씨용. 앱 내장(로컬).
-         (한글 폰트는 상용 2,780자로 서브셋 — 원본 6.2MB → 2.0MB, 첫 화면 지연 해소)
-         원본: art-src/font-ownglyph-concon.ttf, art-src/font-pretendard-semibold.otf */
-      @font-face {
-        font-family: 'OwnglyphConCon';
-        src: url('/assets/fonts/ownglyph-concon.woff2') format('woff2');
-        font-weight: normal;
-        font-style: normal;
-        font-display: swap;
-      }
+      /* Pretendard SemiBold — 타일 작은 글씨용. 앱 내장(로컬).
+         (한글 폰트는 상용 2,780자로 서브셋 — 원본 6.2MB → 1.1MB, 첫 화면 지연 해소)
+         콘콘체는 타일 제목 3개에만 쓰이면서 842KB를 차지해 제거하고 의연체로 통합했다.
+         원본: art-src/font-pretendard-semibold.otf */
       @font-face {
         font-family: 'PretendardSemiBold';
         src: url('/assets/fonts/pretendard-semibold.woff2') format('woff2');

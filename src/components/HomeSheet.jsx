@@ -7,7 +7,8 @@
    → 그 자리에 날짜바(dateNav)를 배치. 날짜바는 App이 탭별 톤으로 만들어 node로 내려준다.
 
    팔레트: 사용자 확정 수채화 톤 (Cloud 시트 / 타일은 크림·연갈색 — 숲 컨셉 통일)
-   폰트: 제목 온글잎 콘콘체 / 부제 Pretendard SemiBold (index.html @font-face)
+   폰트: 제목 온글잎 의연체(응원문구와 동일) / 부제 Pretendard SemiBold (index.html @font-face)
+   — 콘콘체는 이 3개 타일에만 쓰여 842KB를 차지해 제거하고 의연체로 통합 (첫 로드 -35%)
 
    props
      dateNav   : node                        날짜 이동 바 (App 제작, 탭별 색)
@@ -46,7 +47,7 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
               background:on?ac.bg:"#F8F2E6",
               boxShadow:"0 3px 11px rgba(155,114,74,0.10)"}}>
               <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
-              <b style={{display:"block",fontFamily:"'OwnglyphConCon','Noto Sans KR',sans-serif",fontSize:17,fontWeight:400,color:on?ac.text:"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
+              <b style={{display:"block",fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:18.5,fontWeight:400,color:on?ac.text:"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
               <small style={{display:"block",fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",fontSize:11.5,fontWeight:400,color:on?ac.text:"#7E8C7B",opacity:on?0.85:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
             </button>
           );
