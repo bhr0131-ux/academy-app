@@ -31,7 +31,7 @@ export const DEFAULT_LEVELS = [
   { level:20, name:"전설의 탐험가", minScore:6000,  emoji:"👑" },
 ];
 
-// 베이커리(cute) 모드 레벨 — 모험과 동일한 minScore 임계값을 공유하고
+// 베이커리(cute) 모드 레벨 — 탐험과 동일한 minScore 임계값을 공유하고
 // 이름/이모지만 갈아끼운다. (level 번호로 매칭)
 export const BAKERY_LEVELS = [
   { level:1,  name:"밀가루 요정",     emoji:"🌾" },
@@ -76,12 +76,12 @@ export const levelView = (lv, skin, gender) => {
 // 구조는 동일, 값만 모드별로 다름. 렌더부는 SKINS[mode] 를 참조.
 // ════════════════════════════════════════════════════════════
 export const SKINS = {
-  // ── 모험 모드 (기존) ──────────────────────────────────────
+  // ── 탐험 모드 (기존) ──────────────────────────────────────
   dungeon: {
     id:"dungeon",
-    name:"모험 게임",
+    name:"탐험 게임",
     selectEmoji:"🧭",
-    selectDesc:"탐험가가 되어 모험을 떠나자!",
+    selectDesc:"탐험가가 되어 길을 떠나자!",
     // 팔레트
     palette:{
       dark:"#15162E", dark2:"#20224A",
@@ -90,30 +90,30 @@ export const SKINS = {
       green:"#22C9A0", neon:"#6C63FF", red:"#FF5C7A",
       panelBg:"linear-gradient(160deg,#1B1D3A,#15162E)",
       panelText:"#FFFFFF", panelSub:"#A8AED0",
-      // 헤더(dark 배경) 위에 올라가는 요소 토큰 — 모험은 기존 흰색 룩 유지
+      // 헤더(dark 배경) 위에 올라가는 요소 토큰 — 탐험은 기존 흰색 룩 유지
       headerBg:"linear-gradient(135deg, #15162E, #20224A)", // dark→th.main 은 렌더부에서 합성, 여기는 폴백용
       onDark:"#FFFFFF", onDarkSub:"rgba(255,255,255,0.75)",
       chipBg:"rgba(255,255,255,0.16)", chipBorder:"rgba(255,255,255,0.35)",
       chipText:"#FFFFFF",
       bubble:"rgba(255,255,255,0.08)", divider:"rgba(255,255,255,0.1)",
-      // 모험식 '어두운 박스' 토큰 — 모험은 기존 어두운 룩 유지
+      // 탐험식 '어두운 박스' 토큰 — 탐험은 기존 어두운 룩 유지
       boxBg:"linear-gradient(135deg, #15162E, #20224A)",
       boxSolid:"#15162E",
       boxText:"#FFFFFF", boxSub:"rgba(255,255,255,0.72)",
       boxBorder:"rgba(255,255,255,0.1)",
       boxShadowCol:"rgba(20,22,46,0.33)",
-      // 화면 전체 바탕 — 모험은 기존 차가운 톤 유지
+      // 화면 전체 바탕 — 탐험은 기존 차가운 톤 유지
       appBg:null,
-      // 학원카드 내부 미션 강조박스 — 모험은 어두운(테마색 어둡게) 그대로
+      // 학원카드 내부 미션 강조박스 — 탐험은 어두운(테마색 어둡게) 그대로
       missionDark:true,
       radCard:20, radMid:18, radSmall:14,
     },
-    // 아이별 테마색(분홍·살구·연두·보라·파랑)을 모험 룩에 입히는 함수.
+    // 아이별 테마색(분홍·살구·연두·보라·파랑)을 탐험 룩에 입히는 함수.
     // static palette는 폴백이고, 실제 렌더링은 이 paletteFn 결과를 사용한다.
     paletteFn:(main)=>dungeonPalette(main),
     // 세계관 텍스트
     text:{
-      tabs:{ area:"🗺️ 모험", quest:"🎯 미션", character:"🧒 내 캐릭터" },
+      tabs:{ area:"🗺️ 탐험", quest:"🎯 미션", character:"🧒 내 캐릭터" },
       heroStatus:"HERO STATUS",
       dailyArea:"TODAY MISSION",
       todayQuest:"오늘의 미션",
@@ -127,23 +127,23 @@ export const SKINS = {
       restDay:"오늘은 미션이 없어요!",
       noQuest:"등록된 미션이 없어요",
       completeWord:"클리어",
-      // 모험 장소(학원 일정) 섹션
+      // 탐험 장소(학원 일정) 섹션
       areaTag:"🗺️ ADVENTURE MAP",
-      todayArea:"오늘의 모험 장소",
-      dateAreaSuffix:"모험 장소",   // "{날짜} 모험 장소"
-      noArea:"오늘은 모험 장소가 없어요",
+      todayArea:"오늘의 탐험 장소",
+      dateAreaSuffix:"탐험 장소",   // "{날짜} 탐험 장소"
+      noArea:"오늘은 탐험 장소가 없어요",
       noAreaEmoji:"😴",
       areaCountIcon:"🗺️",
       // 진행도별 응원 메시지
       progress:{
         rest:"오늘은 쉬어가는 날! 😴",
-        start:"오늘도 신나는 모험 출발! 🧭",
+        start:"오늘도 신나는 탐험 출발! 🧭",
         low:"좋아, 하나씩 해보자! 💪",
         high:"거의 다 왔어, 조금만 더! ✨",
         done:"오늘 미션 전부 클리어! ⭐",
       },
-      // 활동 기록(모험 기록) 라벨
-      logName:"모험 기록",
+      // 활동 기록(탐험 기록) 라벨
+      logName:"탐험 기록",
       log:{
         quest:{icon:"⚔️",title:"미션 클리어"},
         treasure:{icon:"🎁",title:"보물상자 오픈"},
@@ -151,12 +151,12 @@ export const SKINS = {
         level_bonus:{icon:"✨",title:"레벨업 보너스"},
         badge_reward:{icon:"🏆",title:"업적 보상"},
         manual:{icon:"✍️",title:"엄마 XP 조정"},
-        default:{icon:"📜",title:"모험 기록"},
+        default:{icon:"📜",title:"탐험 기록"},
       },
     },
-    // 완료 표시 = 기존 체크(모험은 도장 모티프 OFF)
+    // 완료 표시 = 기존 체크(탐험은 도장 모티프 OFF)
     stamp:{ on:false },
-    // 학원명 → 아이콘/라벨 매칭 (기존 모험 규칙)
+    // 학원명 → 아이콘/라벨 매칭 (기존 탐험 규칙)
     academyRules:[
       { kw:["영어","english","어학","파닉스","토익","토플"], icon:"📖", label:"마법 언어의 탑" },
       { kw:["수학","math","산수","연산","사고력"],            icon:"🔢", label:"숫자 미궁" },
@@ -171,7 +171,7 @@ export const SKINS = {
       { kw:["한자","중국어","일본어","제2외국어","스페인어"],  icon:"🀄", label:"동방 문자의 길" },
       { kw:["요리","쿠킹","베이킹"],                           icon:"🍳", label:"마녀의 부엌" },
     ],
-    academyDefault:{ icon:"🏰", label:"미지의 모험" },
+    academyDefault:{ icon:"🏰", label:"미지의 탐험" },
     // 완료 연출 타입
     clearEffect:"slash", // 검 베기 느낌
   },
@@ -184,7 +184,7 @@ export const SKINS = {
     selectDesc:"달콤한 가게의 주인이 되어 도장을 모으자!",
     // 팔레트 — 맑고 부드러운 톤 (연한 핑크·크림빛으로 화면 전반을 감싼다)
     palette:{
-      // dark/dark2 는 모험에선 어두운 배경이지만, 베이커리에선
+      // dark/dark2 는 탐험에선 어두운 배경이지만, 베이커리에선
       // '맑은 박스 위 진한 글씨색'으로만 의미를 가진다 (박스 배경은 boxBg 가 담당).
       dark:"#6B4A5C", dark2:"#A23E63",          // 코코아 / 진베리 (글씨·포인트)
       gold:"#F7A8C4", coin:"#FFC98A", xp:"#C3A0E6",
@@ -198,7 +198,7 @@ export const SKINS = {
       chipBg:"rgba(255,255,255,0.7)", chipBorder:"rgba(107,74,92,0.18)",
       chipText:"#6B4A5C",
       bubble:"rgba(255,255,255,0.5)", divider:"rgba(107,74,92,0.12)",
-      // 모험식 '어두운 박스'들이 참조하는 토큰 — 베이커리는 맑은 크림박스
+      // 탐험식 '어두운 박스'들이 참조하는 토큰 — 베이커리는 맑은 크림박스
       boxBg:"linear-gradient(135deg, #FFF3F8, #FBEDF4)",
       boxSolid:"#FFF3F8",
       boxText:"#6B4A5C", boxSub:"rgba(107,74,92,0.6)",
@@ -287,7 +287,7 @@ export const SKINS = {
       restDay:"오늘은 쉬는 날이에요! 🍪",
       noQuest:"아직 할 일이 없어요",
       completeWord:"도장 꾹",
-      // 모험 장소(학원 일정) 섹션 → 베이커리 톤
+      // 탐험 장소(학원 일정) 섹션 → 베이커리 톤
       areaTag:"",
       todayArea:"오늘의 거리",
       dateAreaSuffix:"들를 가게",   // "{날짜} 들를 가게"
@@ -322,7 +322,7 @@ export const SKINS = {
       ringText:"참잘했어요",   // 도장 테두리 문구(원형)
       anim:"stampDrop .5s cubic-bezier(.3,1.5,.5,1) both",
     },
-    // 학원명 → 베이커리/디저트 아이콘·라벨 (모험과 같은 12개 카테고리)
+    // 학원명 → 베이커리/디저트 아이콘·라벨 (탐험과 같은 12개 카테고리)
     academyRules:[
       { kw:["영어","english","어학","파닉스","토익","토플"], icon:"🍓", label:"딸기 알파벳 카페" },
       { kw:["수학","math","산수","연산","사고력"],            icon:"🍩", label:"도넛 숫자 가게" },
@@ -345,8 +345,8 @@ export const SKINS = {
 export const DEFAULT_SKIN = "dungeon";
 export const getSkin = (mode) => SKINS[mode] || SKINS[DEFAULT_SKIN];
 
-// ── 학원명 → 모험 아이콘/테마 자동 매칭 ─────────────────────
-// 학원 이름 속 키워드로 RPG 모험 느낌의 아이콘과 라벨을 자동 부여한다.
+// ── 학원명 → 탐험 아이콘/테마 자동 매칭 ─────────────────────
+// 학원 이름 속 키워드로 RPG 탐험 느낌의 아이콘과 라벨을 자동 부여한다.
 export const ACADEMY_DUNGEON_RULES = [
   { kw:["영어","english","어학","파닉스","토익","토플"],            icon:"📖", label:"마법 언어의 탑" },
   { kw:["수학","math","산수","연산","사고력"],                       icon:"🔢", label:"숫자 미궁" },
@@ -366,12 +366,12 @@ export const getAcademyDungeon = (name="") => {
   for(const r of ACADEMY_DUNGEON_RULES){
     if(r.kw.some(k=>n.includes(k.toLowerCase()))) return r;
   }
-  return { icon:"🏰", label:"미지의 모험" };
+  return { icon:"🏰", label:"미지의 탐험" };
 };
 
 // ── 스킨별 학원 아이콘/라벨 매칭 ───────────────────────────
 // 베이커리(cute) 모드는 SKINS.cute.academyRules/academyDefault 를 사용하고,
-// 그 외(모험 등)는 기존 getAcademyDungeon 규칙을 그대로 사용한다.
+// 그 외(탐험 등)는 기존 getAcademyDungeon 규칙을 그대로 사용한다.
 export const getAcademyTheme = (name="", skin=DEFAULT_SKIN) => {
   const s = SKINS[skin];
   if(s && s.academyRules){
@@ -384,9 +384,9 @@ export const getAcademyTheme = (name="", skin=DEFAULT_SKIN) => {
   return getAcademyDungeon(name);
 };
 
-// ── 오늘의 모험 지도 / 오늘의 빵집 지도 : 섬 경로 맵 ─────────────
+// ── 오늘의 탐험 지도 / 오늘의 빵집 지도 : 섬 경로 맵 ─────────────
 // 게임 레벨맵처럼 섬 위 구불구불한 길에 학원(스테이지)이 시간순으로 놓인다.
-// 모험 모드=밤의 섬(달·별·횃불 길), 베이커리 모드=캔디랜드.
+// 탐험 모드=밤의 섬(달·별·횃불 길), 베이커리 모드=캔디랜드.
 // 캐릭터가 현재 시각에 따라 길 위를 이동하고, 지나간 길은 밝아진다.
 export const _mapToMin = (t="") => { const [h,m]=String(t).split(":").map(Number); return (h||0)*60+(m||0); };
 
@@ -404,7 +404,7 @@ export const IslandMap = ({ items=[], night=true, mode="today", charEmoji="" }) 
     road:"#FFC85C", roadEdge:"#8F6B2A", roadDash:"#FFF2C9", roadDim:"#4A5468",
     nodeBg:"#FFFDF4", deco:["🌲","🏕️","🔥","🦉","⛰️"],
     labelBg:"rgba(12,20,38,.82)", labelText:"#FFFFFF", gold:"#FFD37A",
-    startIcon:"🏠", startLabel:"우리 집", goalIcon:"🏆", goalLabel:"모험 완료!",
+    startIcon:"🏠", startLabel:"우리 집", goalIcon:"🏆", goalLabel:"탐험 완료!",
     char:"🦸", doneMark:"⭐",
   } : {
     sea:"linear-gradient(180deg,#FFDCE9 0%,#FFC9DD 55%,#FFBAD3 100%)",
@@ -681,7 +681,7 @@ export const CHARACTER_EVOLUTIONS = [
 
 // ── 펫 진화 (한 길, 0→4단계). 보물상자에서 낮은 확률로 1단계씩 진화 ──
 export const PET_STAGES = [
-  { stage:0, emoji:"🥚", name:"신비한 알",     desc:"모든 모험의 시작" },
+  { stage:0, emoji:"🥚", name:"신비한 알",     desc:"모든 탐험의 시작" },
   { stage:1, emoji:"🐣", name:"아기 드래곤",   desc:"세상을 처음 만난 작은 용" },
   { stage:2, emoji:"🦎", name:"개구쟁이 드래곤", desc:"호기심 가득한 장난꾸러기" },
   { stage:3, emoji:"🐲", name:"늠름한 청룡",   desc:"용기와 책임감을 갖춘 수호자" },
@@ -695,7 +695,7 @@ export const PET_EVOLVE_LEGEND_PITY = 4;
 
 // 진화 단계별 격려 문구
 export const EVOLUTION_MESSAGES = {
-  "새싹 탐험가":   "작은 한 걸음에서 모험이 시작돼요.",
+  "새싹 탐험가":   "작은 한 걸음에서 탐험이 시작돼요.",
   "숲 탐험가":     "스스로 길을 찾는 힘이 자라고 있어요.",
   "바다 탐험가":   "넓은 세상으로 용감하게 나아가고 있어요.",
   "탐험 히어로":   "꿈을 향해 더 높이 날아오르고 있어요.",
@@ -704,11 +704,11 @@ export const EVOLUTION_MESSAGES = {
 
 // ════════════════════════════════════════════════════════════
 // 베이커리(cute) 모드 — 성장체 / 펫 / 설명 치환 데이터
-// 모험 구조(단계 수·minLevel·stage)는 그대로 두고 이름·이모지만 교체.
+// 탐험 구조(단계 수·minLevel·stage)는 그대로 두고 이름·이모지만 교체.
 // ════════════════════════════════════════════════════════════
 // 성장체 5단계 (CHARACTER_EVOLUTIONS 와 1:1 매칭, 남녀 공통 이모지)
 export const BAKERY_EVOLUTIONS = [
-  // 파티시에 성장 5단계 — 모험 모드(CHARACTER_EVOLUTIONS)와 동일한 레벨 구간: 1-4 / 5-8 / 9-12 / 13-16 / 17~
+  // 파티시에 성장 5단계 — 탐험 모드(CHARACTER_EVOLUTIONS)와 동일한 레벨 구간: 1-4 / 5-8 / 9-12 / 13-16 / 17~
   { minLevel:1,  name:"꼬마 제빵사",     avatar:{boy:"👦",girl:"👧"},      bg:"linear-gradient(135deg,#FFF1F6,#FFFBF8)" },
   { minLevel:5,  name:"견습 파티시에",   avatar:{boy:"🧑",girl:"👩"},      bg:"linear-gradient(135deg,#FFE8F1,#FFFBF8)" },
   { minLevel:9,  name:"실력파 파티시에", avatar:{boy:"👨‍🍳",girl:"👩‍🍳"},  bg:"linear-gradient(135deg,#FCE7F3,#FFFBF8)" },
@@ -743,7 +743,7 @@ export const BAKERY_PETS = [
 export const evoView = (evo, idx, skin) => {
   if(!evo) return evo;
   if(skin==="cute"){
-    // 모험·베이커리 모두 5단계로 통일(1:1 매칭). 방어적으로 마지막 단계 클램프는 유지.
+    // 탐험·베이커리 모두 5단계로 통일(1:1 매칭). 방어적으로 마지막 단계 클램프는 유지.
     const bi = Math.min(idx, BAKERY_EVOLUTIONS.length-1);
     const b = BAKERY_EVOLUTIONS[bi];
     if(b) return { ...evo, name:b.name, emoji:b.avatar?.girl||b.avatar?.boy, bg:b.bg,

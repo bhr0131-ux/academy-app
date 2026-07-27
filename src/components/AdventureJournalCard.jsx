@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════════
-   AdventureJournalCard — 모험일지 학원 카드 (양피지 노트 원화 오버레이)
+   AdventureJournalCard — 탐험일지 학원 카드 (양피지 노트 원화 오버레이)
    ────────────────────────────────────────────────────────────────────────
    사용자 원화(assets/journal-card.webp, 1181×1338)에 아이콘·라벨·구분선·
    하단 '남은 미션' 배너가 모두 그려져 있어, 이 컴포넌트는 값만 % 좌표로
@@ -21,7 +21,7 @@
 
 import { useRef } from "react";
 
-// 사용자 확정: 응원문구(오늘도 신나는 모험 출발!)와 같은 손글씨체 'Uiyeun'으로 통일 — 제목·값 모두
+// 사용자 확정: 응원문구(오늘도 신나는 탐험 출발!)와 같은 손글씨체 'Uiyeun'으로 통일 — 제목·값 모두
 const F_HAND = "'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif";
 const F_BODY = "'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif";
 

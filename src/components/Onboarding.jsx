@@ -21,15 +21,15 @@ export function ModeSelect({ onPick }){
           <p style={{fontSize:13.5,fontWeight:600,color:"#9A8FA8",margin:"8px 0 0",lineHeight:1.55}}>마음에 드는 세계를 골라주세요.<br/>한 번 고르면 바꿀 수 없으니 신중하게!</p>
         </div>
         <div style={{display:"flex",gap:13}}>
-          {/* 모험 게임 */}
+          {/* 탐험 게임 */}
           <div style={card("linear-gradient(155deg,#3A3470,#2E2F5C)","0 10px 24px rgba(58,52,112,0.32)")} onClick={()=>onPick("dungeon")}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#FFD166",marginBottom:6}}>1번</div>
             <div style={{fontSize:40,lineHeight:1,marginBottom:8}}>🧭</div>
-            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>모험<br/>게임</div>
-            <div style={{fontSize:12.5,fontWeight:600,color:"#C5C8E8",marginTop:9,lineHeight:1.5,flex:1}}>탐험가가 되어<br/>모험을 떠나요</div>
+            <div style={{fontSize:18,fontWeight:900,color:"#fff",letterSpacing:"-0.5px"}}>탐험<br/>게임</div>
+            <div style={{fontSize:12.5,fontWeight:600,color:"#C5C8E8",marginTop:9,lineHeight:1.5,flex:1}}>탐험가가 되어<br/>탐험을 떠나요</div>
             <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:14}}>
               <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>🧭 미션</span>
-              <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>🗺️ 모험 떠나기</span>
+              <span style={chip("rgba(255,209,102,0.18)","#FFD166")}>🗺️ 탐험 떠나기</span>
             </div>
           </div>
           {/* 베이커리 게임 */}

@@ -295,8 +295,8 @@ export default function App() {
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
-  const [journalAcId,            setJournalAcId]            = useState(null); // 모험일지 표시 학원 (null=시간 기준 자동)
-  // 모험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
+  const [journalAcId,            setJournalAcId]            = useState(null); // 탐험일지 표시 학원 (null=시간 기준 자동)
+  // 탐험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
   const pickJournalAc = (list, dayName, isToday) => {
     if (!list.length) return null;
     const withT = list.map(ac => {
@@ -375,7 +375,7 @@ export default function App() {
         for(let s=1;s<=5;s++){ const u=set?.[g]?.[s]; if(u) urls.push(u); }
       });
     });
-    // 모험 모드 무대 기본 배경(초원 등)도 프리로드 — 첫 진입 시 배경이 늦게 뜨는 것 방지
+    // 탐험 모드 무대 기본 배경(초원 등)도 프리로드 — 첫 진입 시 배경이 늦게 뜨는 것 방지
     ADV_STAGE_BG_ALL.forEach(u=>{ if(u) urls.push(u); });
     // requestIdleCallback 이 있으면 유휴 시간에, 없으면 다음 프레임에 순차 디코딩
     const run=()=>{
@@ -466,7 +466,7 @@ export default function App() {
       const savedSkin=await load("v6_kid_skin");         // 단일 스킨 (구버전, 마이그레이션용)
       // ── 구 '꾸미기 상점'의 장비/모자(hat) 카테고리 제거: 보유 기록 삭제 + 코인 환불 ──
       //  신규 '아바타 꾸미기'와 중복되어 이 상점에서 뺐으므로, 이미 구매한 아이의 코인을 돌려준다.
-      //  가격은 아이 스킨(모험/베이커리)·부모 오버라이드(decPrices)를 반영해 산정.
+      //  가격은 아이 스킨(탐험/베이커리)·부모 오버라이드(decPrices)를 반영해 산정.
       //  멱등: 보유목록에서 hat 아이템을 지우고 즉시 저장하므로 다음 실행에선 환불 대상이 없다.
       //  (avRefunds 반영부에서 코인+내역 처리 — RETIRED_AVATAR_ITEMS 방식과 동일)
       {
@@ -776,7 +776,7 @@ export default function App() {
 
   // 완료 순간 화면 중앙에 큰 보상 연출을 띄운다 (스크롤 위치와 무관하게 항상 보임, 아이 모드 전용)
   const CHEER_MSGS = ["대단해! 🎉","최고야! ⭐","멋지다! 💪","해냈어! 🔥","굿잡! 👍","완벽해! ✨","좋았어! 😆","척척박사! 🧠"];
-  // 미션 완료 효과음 — 음원 파일 없이 Web Audio로 생성 (베이커리: 말랑 팝 / 모험: 코인 획득)
+  // 미션 완료 효과음 — 음원 파일 없이 Web Audio로 생성 (베이커리: 말랑 팝 / 탐험: 코인 획득)
   const audioCtxRef=useRef(null);
   const playCompleteSound=()=>{
     try{
@@ -796,7 +796,7 @@ export default function App() {
       if(kidSkin==="cute"){ // 베이커리: 말랑 팝
         tone({freq:520,start:0,dur:0.16,type:"sine",gain:0.28,slideTo:920});
         tone({freq:1200,start:0.13,dur:0.2,type:"sine",gain:0.16});
-      } else {             // 모험: 코인 획득
+      } else {             // 탐험: 코인 획득
         tone({freq:988,start:0,dur:0.09,type:"square",gain:0.16});
         tone({freq:1318,start:0.08,dur:0.28,type:"square",gain:0.16});
       }
@@ -1062,8 +1062,8 @@ export default function App() {
 
   const showDevEvent=(type)=>{
     if(!DEV_MODE) return;
-    if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 모험 대장",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100 XP · 💎 +100 코인"}); return; }
-    if(type==="title"){ showGameEvent({type:"title",cert:true,emoji:"👑",title:"상장을 받았어요!",name:"황금 테스트러",desc:"임무를 50개나 끝까지 해낸 멋진 모험가에게 이 상장을 드립니다",rarity:"epic",reward:"⭐ +100 XP · 💎 +100 코인"}); return; }
+    if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 탐험 대장",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100 XP · 💎 +100 코인"}); return; }
+    if(type==="title"){ showGameEvent({type:"title",cert:true,emoji:"👑",title:"상장을 받았어요!",name:"황금 테스트러",desc:"임무를 50개나 끝까지 해낸 멋진 탐험가에게 이 상장을 드립니다",rarity:"epic",reward:"⭐ +100 XP · 💎 +100 코인"}); return; }
     if(type==="box"){ showGameEvent({type:"box",emoji:"📦",title:"보물상자 획득!",name:"일반상자",desc:`미션 ${TREASURE_MILESTONE.normal}개 달성 보상이에요!`,reward:"🎁 보물창고에서 열어보세요"}); return; }
     if(type==="treasure"){ setTreasureModal({emoji:"👑",boxName:"전설상자",rewardCoin:777,titleReward:{id:"dev_title",name:"황금 테스트러",emoji:"👑",rarity:"legendary"},headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"}); return; }
   };
@@ -1199,7 +1199,7 @@ export default function App() {
     // 가이드는 봤지만 모드를 아직 안 골랐으면 모드선택만 띄운다.
     const skinPicked=!!skinByChild[childId];   // 현재 아이가 모드를 골랐는지 (동기 판단)
     if(!skinPicked){
-      setShowModeSelect(true);                 // 즉시 모드선택 노출 (모험 화면 깜빡임 방지)
+      setShowModeSelect(true);                 // 즉시 모드선택 노출 (탐험 화면 깜빡임 방지)
     } else {
       (async()=>{
         const seen=await load("v6_kid_guide_seen");
@@ -1469,14 +1469,14 @@ export default function App() {
   };
   const getGenderEmoji = (child) => GENDER_THEME[child?.gender]?.emoji || GENDER_THEME.boy.emoji;
 
-  // 테마색은 모험·베이커리 모두 아이가 고른 색을 그대로 쓴다(아이 구분 유지).
+  // 테마색은 탐험·베이커리 모두 아이가 고른 색을 그대로 쓴다(아이 구분 유지).
   const th = getChildTheme(curChild);
-  const _T = getSkin(kidSkin).text;      // 현재 아이모드 스킨의 텍스트 세트(모험/베이커리)
-  // 어린이용(미취학~초1) 연령대는 영문을 못 읽으므로 모험모드 상태 라벨을 한글로 교체
+  const _T = getSkin(kidSkin).text;      // 현재 아이모드 스킨의 텍스트 세트(탐험/베이커리)
+  // 어린이용(미취학~초1) 연령대는 영문을 못 읽으므로 탐험모드 상태 라벨을 한글로 교체
   const T = (kidSkin!=="cute" && rewardAgeGroup==="kid")
     ? {..._T, clearShort:"완료", ready:"준비", clear:"완료", failed:"실패"}
     : _T;
-  const TM = getTerms(kidSkin);          // 현재 아이모드 재화/아이콘 용어(모험/베이커리)
+  const TM = getTerms(kidSkin);          // 현재 아이모드 재화/아이콘 용어(탐험/베이커리)
   const _skin = getSkin(kidSkin);
   const GP = _skin.paletteFn ? _skin.paletteFn(th.main) : _skin.palette;   // 테마색 적용 팔레트(없으면 정적)
   const ST = _skin.stamp || {on:false};  // 완료 도장(베이커리) 설정
@@ -1495,8 +1495,8 @@ export default function App() {
         border:"2px solid #fff",
         boxShadow:`0 5px 13px ${th.main}28, inset 0 1.5px 3px rgba(255,255,255,0.95)` }
     : fallback;
-  // 통일된 젤리 진행바 (베이커리). fallbackFill 로 모험/기타 색 유지.
-  // ── 모험 카드 '빛나는' 배경/오버레이 (모험 전용) ───────────
+  // 통일된 젤리 진행바 (베이커리). fallbackFill 로 탐험/기타 색 유지.
+  // ── 탐험 카드 '빛나는' 배경/오버레이 (탐험 전용) ───────────
   // 단조로운 남색 카드에 테마색 글로우 + 대각 광택을 더해 RPG 느낌으로.
   const dungeonShinyBg = kidSkin==="cute"
     ? `radial-gradient(120% 90% at 15% 0%, ${th.main}3a 0%, transparent 55%), radial-gradient(110% 80% at 100% 100%, ${dungeonTone(th.main,0)}88 0%, transparent 50%), linear-gradient(135deg, ${dungeonTone(th.main,28)}, ${dungeonTone(th.main,16)})`
@@ -1513,7 +1513,7 @@ export default function App() {
   );
   // 밤·숲속 캠프 무대 배경 — 하나로 연결된 풍경(동물의 숲 / 드림라이트 밸리 톤).
   // 구성: 밤하늘+작은 달+별 → 배경 전체에 깔린 둥근 숲 능선 2겹 → 부드러운 지면 → 캠핑 텐트+모닥불 → 캐릭터 발치 바닥빛(이전 대비 50%).
-  // 전부 한 SVG 좌표계(0~400 x 0~240)로 그려 요소들이 같은 장면처럼 연결됨. 모험 전용 / zIndex:0 / 캐릭터·텍스트는 위에 유지.
+  // 전부 한 SVG 좌표계(0~400 x 0~240)로 그려 요소들이 같은 장면처럼 연결됨. 탐험 전용 / zIndex:0 / 캐릭터·텍스트는 위에 유지.
   const DungeonScenery = ()=>{
     if(kidSkin==="cute") return null;
     // 현재 아이의 성별/진화단계로 배경 선택 (지금은 항상 초원, 확장 시 ADV_STAGE_BG_OF만 수정)
@@ -1533,11 +1533,11 @@ export default function App() {
     );
   };
 
-  // 구매한 '모험 배경' 6종의 뒷배경 풍경(SVG). 기본 캠프 무대 톤(깊은 남색) 위에 테마별 풍경을 깐다.
+  // 구매한 '탐험 배경' 6종의 뒷배경 풍경(SVG). 기본 캠프 무대 톤(깊은 남색) 위에 테마별 풍경을 깐다.
   // 떠다니는 이모지(아래 stageBgDeco 렌더)보다 뒤(zIndex:0), 캐릭터·텍스트보다 아래. 풍경은 은은하게(캐릭터가 주인공).
   const AdventureBgScenery = ({bgId})=>{
     const sc = GP.scenery||th.main;
-    // 배경별 하늘 그라데이션 + 풍경 inner SVG (모험=밤 톤 / 베이커리=파스텔 톤)
+    // 배경별 하늘 그라데이션 + 풍경 inner SVG (탐험=밤 톤 / 베이커리=파스텔 톤)
     const SK = {
       bg_sakura:  ["#16294C","#1C3A63"],
       bg_rainbow: ["#0E2746","#0A3A63"],
@@ -1554,10 +1554,10 @@ export default function App() {
       bbg_rainbow:    ["#FFF0F7","#FBE3FF"],
     };
     const isBakery = bgId && bgId.startsWith("bbg_");
-    if(!isBakery && kidSkin==="cute") return null;   // 모험 풍경은 모험 모드만
+    if(!isBakery && kidSkin==="cute") return null;   // 탐험 풍경은 탐험 모드만
     const sky = SK[bgId];
     if(!sky) return null; // 정의 안 된 배경은 풍경 없음
-    // 베이커리는 파스텔이라 테마색을 거의 안 섞고, 모험은 8%만 섞음
+    // 베이커리는 파스텔이라 테마색을 거의 안 섞고, 탐험은 8%만 섞음
     const mixF = isBakery ? 0.03 : 0.08;
     const skyTop = mixHex(sky[0], sc, mixF), skyBot = mixHex(sky[1], sc, mixF);
     const scenes = {
@@ -1863,7 +1863,7 @@ export default function App() {
         boxShadow:`0 8px 24px ${GP.boxShadowCol}, inset 0 1px 0 rgba(255,255,255,0.06)`,
         color:"#FFFFFF"
       };
-  // [모험] 캐릭터 탭 카드 — 즐기기·펫·상장 등 하단 카드를 청회색(Sky 계열)으로: 캐릭터 탭 테마와 통일.
+  // [탐험] 캐릭터 탭 카드 — 즐기기·펫·상장 등 하단 카드를 청회색(Sky 계열)으로: 캐릭터 탭 테마와 통일.
   //        초록 숲 카드(characterCardT) 대신 채도 낮은 블루로, 베이커리는 기존 스타일 그대로.
   const skyCard=(c1,c2)=> kidSkin==="cute" ? characterCardT : {
     ...characterCardT,
@@ -1993,7 +1993,7 @@ export default function App() {
   const getAdventureLogInfo=(item)=>{
     const L = T.log;
     if(!L) {
-      // 안전망(구버전 스킨): 기존 모험 라벨
+      // 안전망(구버전 스킨): 기존 탐험 라벨
       switch(item.type){
         case "homework": case "todo": case "quest": return {icon:"⚔️",title:"미션 클리어"};
         case "treasure": return {icon:"🎁",title:"보물상자 오픈"};
@@ -2001,13 +2001,13 @@ export default function App() {
         case "level_bonus": return {icon:"✨",title:"레벨업 보너스"};
         case "badge_reward": return {icon:"🏆",title:"업적 보상"};
         case "manual":   return {icon:"✍️",title:"엄마 XP 조정"};
-        default:         return {icon:"📜",title:"모험 기록"};
+        default:         return {icon:"📜",title:"탐험 기록"};
       }
     }
     const key = (item.type==="homework"||item.type==="todo") ? "quest" : item.type;
     return L[key] || L.default;
   };
-  // 모험 퀘스트 로그: 기록 종류별 왼쪽 컬러 바 색 (코인/XP/상자/펫진화/미션/업적 구분)
+  // 탐험 퀘스트 로그: 기록 종류별 왼쪽 컬러 바 색 (코인/XP/상자/펫진화/미션/업적 구분)
   const getDungeonLogBar=(item)=>{
     switch(item.type){
       case "treasure":     return "#6D88D6"; // 상자 = 파랑
@@ -2180,7 +2180,7 @@ export default function App() {
   const getCharMode       = (cid)=> charDisplayMode[cid] || DEFAULT_CHAR_DISPLAY_MODE;
 
   /* 아바타 베이스 몸체로 쓸 3단계 성장 캐릭터 이미지 경로.
-     현재 모드(모험/베이커리)·성별을 자동 반영한다. (아바타는 항상 stage 3 사용) */
+     현재 모드(탐험/베이커리)·성별을 자동 반영한다. (아바타는 항상 stage 3 사용) */
   const getAvatarBaseCharImg = (cid)=>{
     const g=(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy";
     const set=(kidSkin==="cute"?BAKERY_CHAR_IMG:ADV_CHAR_IMG)[g];
@@ -2342,7 +2342,7 @@ export default function App() {
       nextPetPity=Number(cur.legendPetPity||0)+1;
       if(nextPetPity>=PET_EVOLVE_LEGEND_PITY){ petGuaranteed=true; nextPetPity=0; }
     }
-    // ── 첫 상자 부화 보장 (모험 전용) ──
+    // ── 첫 상자 부화 보장 (탐험 전용) ──
     // 이 아이가 상자를 처음 여는 거라면(petHatched 플래그 없음) 등급/확률과 무관하게
     // 무조건 1단계 진화(알→아기 드래곤)시켜 "부화 순간"을 첫 보상으로 확정한다.
     // 이미 최종단계인 예외 케이스를 빼면 사실상 알→1단계 전환을 보장.
@@ -2385,7 +2385,7 @@ export default function App() {
       // 상장 획득 팝업은 상장 감지 useEffect가 일원화해 처리 (중복 방지)
       if(petEvolved){
         // 첫 상자에서 알→1단계로 깨어난 경우 = "부화 순간". 전용 카피로 이벤트를 특별하게.
-        // (첫 부화 보장은 모험 전용이므로 isFirstHatch 는 모험에서만 true)
+        // (첫 부화 보장은 탐험 전용이므로 isFirstHatch 는 탐험에서만 true)
         const isFirstHatch = firstHatch && curStage===0;
         setTimeout(()=>showGameEvent({
           type:"title",
@@ -2395,7 +2395,7 @@ export default function App() {
             : (kidSkin==="cute"?"펫이 자랐어요!":"펫 진화!"),
           name:petEvolved.to.name,
           desc:isFirstHatch
-            ? "알을 깨고 새로운 동료가 깨어났다!\n이제 함께 모험을 떠나자 🐣"
+            ? "알을 깨고 새로운 동료가 깨어났다!\n이제 함께 탐험을 떠나자 🐣"
             : petEvolved.to.desc,
           reward:`${petEvolved.from.emoji} → ${petEvolved.to.emoji} ${
             isFirstHatch
@@ -2477,7 +2477,7 @@ export default function App() {
     passedLevels.forEach(L=>{
       const LV=levelView(L,kidSkin,_g);
       const bonus=LEVEL_UP_REWARDS?.[L.level]||0;
-      // 진화 단계 상승 감지(모험·베이커리 공통) → 팝업에 '이전 → 진화' 비교 일러스트 + '진화' 타이틀
+      // 진화 단계 상승 감지(탐험·베이커리 공통) → 팝업에 '이전 → 진화' 비교 일러스트 + '진화' 타이틀
       const _evoUp=L.level>1&&ADV_CHAR_STAGE_OF(L.level)>ADV_CHAR_STAGE_OF(L.level-1);
       const _IMGSET=(kidSkin==="cute"?BAKERY_CHAR_IMG:ADV_CHAR_IMG)[_g==="girl"?"girl":"boy"];
       const _charImg=_evoUp?_IMGSET[ADV_CHAR_STAGE_OF(L.level)]:null;
@@ -2627,7 +2627,7 @@ export default function App() {
     if(kidSkin==="cute"){
       // 베이커리 전용 구간: 1-6 / 7-11 / 12-16 / 17~
       const bIdx=[...BAKERY_EVOLUTIONS].map((e,i)=>({...e,i})).reverse().find(e=>level>=e.minLevel)?.i ?? 0;
-      // 모험 성장체 객체(badge 등) 위에 베이커리 외형을 덮어씌움
+      // 탐험 성장체 객체(badge 등) 위에 베이커리 외형을 덮어씌움
       const baseEvo=CHARACTER_EVOLUTIONS[Math.min(bIdx,CHARACTER_EVOLUTIONS.length-1)];
       return evoView(baseEvo,bIdx,kidSkin);
     }
@@ -2747,7 +2747,7 @@ export default function App() {
       }};
     });
   };
-  // 준비물 챙김 체크 토글 (모험 카드 ✅/⬜ 칩) — 보상 없이 챙김 표시만
+  // 준비물 챙김 체크 토글 (탐험 카드 ✅/⬜ 칩) — 보상 없이 챙김 표시만
   const toggleSupplyChecked=(cid,academyId,date,name)=>{
     const entry=getDailyEntry(cid,academyId,date);
     const cur=entry.checkedSupplies||[];
@@ -2976,7 +2976,7 @@ export default function App() {
               <>
               <div style={kidSkin==="cute"
                 ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,borderRadius:34,padding:"17px",boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,color:GP.boxText,border:"2px solid #fff",marginBottom:12}
-                // 캐릭터 탭(모험): '호수' 느낌 — SkyLight(#B5DBEE) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 딥블루로 대비
+                // 캐릭터 탭(탐험): '호수' 느낌 — SkyLight(#B5DBEE) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 딥블루로 대비
                 :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 28%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 68% 16%, rgba(255,255,255,0.28), transparent), radial-gradient(1.3px 1.3px at 82% 64%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #CBE7F8, #B4DAF1)`,borderRadius:GP.radCard,padding:"17px",boxShadow:"0 10px 28px rgba(78,130,168,0.28)",color:"#355D76",border:"1px solid #7DB7D8",marginBottom:12}}>
                 {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"42%",background:"linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
                 <DungeonCardGlow/>
@@ -3033,12 +3033,12 @@ export default function App() {
                       </div>
                     </div>
                   );
-                  // 모험 구조로 통일: 진행바 → 보유코인/누적XP
+                  // 탐험 구조로 통일: 진행바 → 보유코인/누적XP
                   return <>{progressBlock}{coinXpBlock}</>;
                 })()}
-                {/* 성장 단계별 격려 문구 (모험 구조로 통일 — 양쪽 표시) */}
+                {/* 성장 단계별 격려 문구 (탐험 구조로 통일 — 양쪽 표시) */}
                 {(()=>{
-                  const msg=evoMsgView(evo.name,kidSkin)||EVOLUTION_MESSAGES["새싹 모험가"];
+                  const msg=evoMsgView(evo.name,kidSkin)||EVOLUTION_MESSAGES["새싹 탐험가"];
                   return (
                     <div style={{marginTop:16,marginBottom:4,position:"relative",zIndex:1}}>
                       <p style={{fontSize:12.5,fontWeight:700,margin:0,lineHeight:1.4,opacity:0.9,textAlign:"center"}}>“{msg}”</p>
@@ -3049,10 +3049,10 @@ export default function App() {
               </>
             );
     })();
-    // 날짜 이동 바 — 모험장소/미션 탭 공용. 모험=밝은 숲색, 미션=원목 브라운 (탭 테마 연동).
+    // 날짜 이동 바 — 탐험장소/미션 탭 공용. 탐험=밝은 숲색, 미션=원목 브라운 (탭 테마 연동).
     const dateNav=(()=>{
       const _dn=kidSkin!=="cute";
-      const _dnBg=childTab==="today"?"#6F8E63":childTab==="growth"?"#79A6BB":"#B38A60";  // 미션=그린·모험=브라운 (사용자 확정: 톤 맞교환)
+      const _dnBg=childTab==="today"?"#6F8E63":childTab==="growth"?"#79A6BB":"#B38A60";  // 미션=그린·탐험=브라운 (사용자 확정: 톤 맞교환)
       const _dnBtn=childTab==="today"?"#83A177":childTab==="growth"?"#8FB7C9":"#C69C6F";
       const _dnDeep=childTab==="today"?"#5C452C":childTab==="growth"?"#28495C":"#2F4A2C"; // 밝은 버튼 위 화살표·오늘 글씨용 진한 색 (가독성)
       return (
@@ -3074,16 +3074,16 @@ export default function App() {
     })();
     return (
       <div style={{fontFamily:kidSkin!=="cute"
-          // 모험: 본문 전체를 Pretendard로 통일 — 손글씨는 헤드라인(의연체)·타일 제목(콘콘체)만
+          // 탐험: 본문 전체를 Pretendard로 통일 — 손글씨는 헤드라인(의연체)·타일 제목(콘콘체)만
           ?"'PretendardSemiBold','Noto Sans KR','Apple SD Gothic Neo',sans-serif"
           :"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:kidSkin!=="cute"
-          // 모험(개방감): 루트 바탕도 시트와 같은 아이보리 — 시트·콘텐츠·바닥이 한 장의 종이처럼 이어짐 (카드만 색 유지)
+          // 탐험(개방감): 루트 바탕도 시트와 같은 아이보리 — 시트·콘텐츠·바닥이 한 장의 종이처럼 이어짐 (카드만 색 유지)
           ?"linear-gradient(180deg, #F0F3F3 0%, #EAEFE9 100%)"
           :(GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`)),backgroundSize:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden",wordBreak:"keep-all"}}>
         {/* 말랑한 배경 블롭 */}
         <div style={{position:"absolute",top:-40,right:-50,width:170,height:170,borderRadius:"50%",background:`radial-gradient(circle at 35% 35%, ${th.main}26, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 11s ease-in-out infinite",pointerEvents:"none",zIndex:0}}/>
         <div style={{position:"absolute",top:240,left:-60,width:150,height:150,borderRadius:"50%",background:`radial-gradient(circle at 50% 50%, ${GP.gold}24, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 14s ease-in-out infinite 1.5s",pointerEvents:"none",zIndex:0}}/>
-        {/* 동화책 모험 분위기: 아주 희미한 배경 데코 (모험모드 전용) */}
+        {/* 동화책 탐험 분위기: 아주 희미한 배경 데코 (탐험모드 전용) */}
         {kidSkin!=="cute"&&(()=>{
           const deco=[
             {e:"☁️",top:"6%",left:"8%",size:30,op:0.10},
@@ -3163,7 +3163,7 @@ export default function App() {
           <KidCoachmark th={th} skin={kidSkin} onFinish={()=>{ setShowKidCoachmark(false); save("v6_kid_guide_seen","1"); }} />
         )}
         {showModeSelect&&(
-          <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임 시작!":"🧭 모험 게임 시작!"); load("v6_kid_guide_seen").then(seen=>{ if(!seen) setTimeout(()=>setShowKidCoachmark(true),350); }); }} />
+          <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임 시작!":"🧭 탐험 게임 시작!"); load("v6_kid_guide_seen").then(seen=>{ if(!seen) setTimeout(()=>setShowKidCoachmark(true),350); }); }} />
         )}
 
         {/* ── 아이용 미션 추가 모달 ── */}
@@ -3287,7 +3287,7 @@ export default function App() {
                         if(grp.key==="border"){
                           items=items.map(it=> it.themed ? themedBorder(it, th) : it);
                         }
-                        // 베이커리 모드의 '배경'은 전용 6슬롯 배열을 사용(모험 4슬롯과 분리)
+                        // 베이커리 모드의 '배경'은 전용 6슬롯 배열을 사용(탐험 4슬롯과 분리)
                         if(kidSkin==="cute" && grp.key==="bg"){
                           items=BAKERY_BGS;
                         }
@@ -3303,9 +3303,9 @@ export default function App() {
                         const price=getDecorPrice(it);
                         const rc=(DECOR_RARITY[it.rarity]||DECOR_RARITY.common).color;
                         const canBuy=coin>=price;
-                        // 4단계 상태: 착용중 > 보유 > 구매가능 > 구매불가(코인부족) — 모험모드 카드/버튼/뱃지 공용
+                        // 4단계 상태: 착용중 > 보유 > 구매가능 > 구매불가(코인부족) — 탐험모드 카드/버튼/뱃지 공용
                         const state = equipped?"equipped":owned?"owned":canBuy?"available":"locked";
-                        // 모험모드: 카드 배경을 네이비로 통일하고 등급은 테두리+glow 로만 표현 (RPG 장비창 느낌)
+                        // 탐험모드: 카드 배경을 네이비로 통일하고 등급은 테두리+glow 로만 표현 (RPG 장비창 느낌)
                         const dungeon = kidSkin!=="cute";
                         let dr = dungeonDecorRarity(it.rarity);
                         // (통일 규칙) 테두리 아이템도 카드 오라는 등급색만 사용 — 아이템 고유색은 미리보기 썸네일에서만 표현
@@ -3316,7 +3316,7 @@ export default function App() {
                               border:`2px solid ${equipped?"#FFD976":dr.border}`,borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 0 22px rgba(255,217,118,.28), 0 6px 16px rgba(8,16,40,0.42), inset 0 1px 0 rgba(255,255,255,0.08)`:`${dr.glow}, 0 6px 16px rgba(8,16,40,0.42), inset 0 1px 0 rgba(255,255,255,0.06)`,opacity:state==="locked"?0.55:1,filter:state==="locked"?"grayscale(.25)":"none",display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden"}
                             :{background:equipped?`${th.main}14`:(owned?`${th.main}08`:C.card),border:`1.5px solid ${equipped?th.main:(owned?th.main+"66":rc+"44")}`,borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 6px 18px ${th.main}44`:`0 3px 10px ${rc}1f`,display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden"}}>
                             {(it.rarity==="legendary"||it.rarity==="epic")&&<div style={{position:"absolute",inset:0,background:dungeon?`radial-gradient(85% 55% at 50% 0%, ${dr.border}26, transparent 72%)`:`radial-gradient(80% 60% at 50% 0%, ${rc}1a, transparent 70%)`,pointerEvents:"none"}}/>}
-                            {/* 상태 뱃지 (우측 상단): 베이커리만 사용. 모험은 하단 액션 영역에서 표시 */}
+                            {/* 상태 뱃지 (우측 상단): 베이커리만 사용. 탐험은 하단 액션 영역에서 표시 */}
                             {!dungeon&&equipped?(
                               <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#0F1220",background:th.main,borderRadius:999,padding:"2px 8px",boxShadow:"0 2px 6px rgba(0,0,0,0.3)"}}>✓ 착용중</span>
                             ):(!dungeon&&owned)?(
@@ -3416,7 +3416,7 @@ export default function App() {
         <div style={kidSkin==="cute"
           ?{position:"relative",zIndex:1,background:`radial-gradient(130% 100% at 85% -20%, ${mixWhite(th.main,0.30)}, transparent 60%), ${GP.headerBg}`,
             padding:"18px 18px 20px",color:GP.onDark,borderRadius:"0 0 32px 32px",boxShadow:`0 10px 32px ${th.main}33`,overflow:"hidden"}
-          // 모험(목업형): 헤더를 장면 위 absolute 오버레이로 — 높이와 무관하게 배경이 화면 최상단까지 참
+          // 탐험(목업형): 헤더를 장면 위 absolute 오버레이로 — 높이와 무관하게 배경이 화면 최상단까지 참
           :{position:"absolute",top:0,left:0,right:0,zIndex:6,
             background:"linear-gradient(180deg, rgba(245,250,255,0.30) 0%, rgba(245,250,255,0.0) 62%, transparent 100%)",
             padding:"18px 18px 0",color:GP.onDark,pointerEvents:"none"}}>
@@ -3458,7 +3458,7 @@ export default function App() {
               );
             })()}
             <div style={{display:"flex",flexDirection:"column",gap:kidSkin==="cute"?7:9,alignItems:kidSkin==="cute"?"stretch":"flex-end"}}>
-              {/* [모험] 사용자 원화 원형 뱃지 버튼 2종 위아래 배치 (엄마용 / 아이 전환) — 베이커리는 기존 칩·셀렉트 유지 */}
+              {/* [탐험] 사용자 원화 원형 뱃지 버튼 2종 위아래 배치 (엄마용 / 아이 전환) — 베이커리는 기존 칩·셀렉트 유지 */}
               {kidSkin==="cute"?(
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
                 <button onClick={()=>{ setAppMode("parent"); setTab("home"); }}
@@ -3537,18 +3537,18 @@ export default function App() {
           // 무대 응원 말풍선: 배경 장착 시엔 배경 연출을 살리기 위해 숨김
           const hideStageCheer=!!stageBgDeco;
           const charAnim="floatHero 2.6s ease-in-out infinite -1.3s";
-          // 무대 배경: 모험은 다크 샤이니, 베이커리는 따뜻한 크림 스포트라이트
+          // 무대 배경: 탐험은 다크 샤이니, 베이커리는 따뜻한 크림 스포트라이트
           const stageBg=cute
             ?`radial-gradient(120% 95% at 50% 5%, #ffffff, ${mixWhite(th.main,0.5)} 50%, ${mixWhite(th.main,0.38)})`
             :(stageBorder
                 // 테두리 장착 시: 안쪽을 테마색 머금은 한 톤 밝은 다크로 → 화려한 프레임이 돋보임
                 ?`radial-gradient(125% 100% at 50% 0%, ${th.main}4a 0%, ${dungeonTone(th.main,40)} 42%, ${dungeonTone(th.main,22)} 100%)`
                 :`radial-gradient(120% 95% at 50% -10%, ${th.main}40 0%, transparent 55%), ${dungeonShinyBg}`);
-          // 무대 위 스포트라이트(캐릭터를 비추는 빛) — 모험은 위쪽에 따뜻한 골드 광원을 더해 차가운 블루 단조로움을 풀고 생기를 줌
+          // 무대 위 스포트라이트(캐릭터를 비추는 빛) — 탐험은 위쪽에 따뜻한 골드 광원을 더해 차가운 블루 단조로움을 풀고 생기를 줌
           const spotlight=cute
             ?"radial-gradient(ellipse 60% 50% at 50% 62%, rgba(255,255,255,0.55), transparent 70%)"
             :`radial-gradient(ellipse 70% 42% at 50% 30%, ${GP.gold||"#FFD166"}30, transparent 68%), radial-gradient(ellipse 58% 48% at 50% 60%, ${th.main}3d, transparent 72%)`;
-          // 모험(개방감): 테두리 장착 시에도 풀블리드 유지 — 프레임은 화면 가장자리 4px 림 + 글로우로만 표현
+          // 탐험(개방감): 테두리 장착 시에도 풀블리드 유지 — 프레임은 화면 가장자리 4px 림 + 글로우로만 표현
           return (
             <div style={{position:"relative",zIndex:1,margin:cute?"16px 16px 0":"0",borderRadius:cute?34:"0",padding:stageBorder?4:0,overflow:"hidden",
               background:stageBorder?stageBorder.grad:"transparent",
@@ -3566,23 +3566,23 @@ export default function App() {
                 </div>
               )}
             <div style={{position:"relative",borderRadius:cute?(stageBorder?30:34):"0",padding:cute?"18px 18px 16px":"120px 18px 26px",overflow:"hidden",
-              // 목업형(모험): 테두리 장착 여부와 무관하게 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림
+              // 목업형(탐험): 테두리 장착 여부와 무관하게 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림
               ...(!cute?{display:"flex",flexDirection:"column",justifyContent:"flex-end",minHeight:stageBorder?"calc(100vh - 213px)":"calc(100vh - 205px)",boxSizing:"border-box"}:{}),
               contain:"paint",   // 카드 내부의 애니메이션 리페인트를 카드 안으로 격리 → 헤더 등 바깥 UI 페인트 지연 방지
               background:stageBg,
-              // 모험(개방감): 테두리 없이 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
+              // 탐험(개방감): 테두리 없이 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
               border:stageBorder?"none":(cute?"2px solid #fff":"none"),
               boxShadow:cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:"none"}}>
-              {/* 모험 기본 풍경 (밤·숲속 캠프) — 배경 꾸미기 미장착 시 기본 배경으로 */}
+              {/* 탐험 기본 풍경 (밤·숲속 캠프) — 배경 꾸미기 미장착 시 기본 배경으로 */}
               {!cute&&!stageBgDeco&&<DungeonScenery/>}
               {/* 베이커리 기본 풍경 (하늘+해+구름+제과점) — 그대로 유지 */}
               {cute&&!stageBgDeco&&<BakeryScenery/>}
-              {/* 캐릭터 스포트라이트 — 모험/베이커리 공통이라 일단 유지 */}
+              {/* 캐릭터 스포트라이트 — 탐험/베이커리 공통이라 일단 유지 */}
               <div style={{position:"absolute",inset:0,background:spotlight,pointerEvents:"none",zIndex:0}}/>
-              {/* ── 장착 배경 꾸미기 (은은한 tint + 떠다니는 장식) — 모험·베이커리 공통 ── */}
-              {/* 구매 배경의 테마 풍경(모험: 숲/바다/섬/정글/공룡/우주, 베이커리: 벚꽃/딸기/별사탕/초콜릿/천상/무지개) */}
+              {/* ── 장착 배경 꾸미기 (은은한 tint + 떠다니는 장식) — 탐험·베이커리 공통 ── */}
+              {/* 구매 배경의 테마 풍경(탐험: 숲/바다/섬/정글/공룡/우주, 베이커리: 벚꽃/딸기/별사탕/초콜릿/천상/무지개) */}
               {stageBgDeco&&<AdventureBgScenery bgId={stageBgDeco.id}/>}
-              {/* 모험·베이커리 모두 구매한 배경 이모지를 흩뿌려 표시 */}
+              {/* 탐험·베이커리 모두 구매한 배경 이모지를 흩뿌려 표시 */}
               {stageBgDeco&&(()=>{
                 const own = (stageBgDeco.deco||[]).filter(Boolean);
                 if(own.length===0) return null;
@@ -3699,22 +3699,22 @@ export default function App() {
                   </>
                 );
               })()}
-              {/* 말풍선 — 진행도 멘트. 모험(개방감)은 헤더 텍스트로 대체되어 숨김. 베이커리만 캐릭터 위 말풍선 유지. */}
+              {/* 말풍선 — 진행도 멘트. 탐험(개방감)은 헤더 텍스트로 대체되어 숨김. 베이커리만 캐릭터 위 말풍선 유지. */}
               {!hideStageCheer&&cute&&(
               <div style={{position:"relative",zIndex:2,display:"flex",justifyContent:"center",marginBottom:2,marginTop:2}}>
                 <div style={{position:"relative",background:cute?`linear-gradient(160deg, ${mixWhite(th.main,0.88)}, ${mixWhite(th.main,0.78)})`:"#F5F1E8",color:cute?mixBlack(th.main,0.42):"#2A2A45",borderRadius:18,padding:"8px 16px",fontSize:14,fontWeight:900,boxShadow:cute?`0 6px 14px ${th.main}26, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"0 5px 14px rgba(0,0,0,0.22)",maxWidth:cute?"82%":"92%",whiteSpace:cute?"normal":"nowrap",textAlign:"center",lineHeight:1.35,
                   animation:"bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both",border:cute?`2px solid ${mixWhite(th.main,0.7)}`:"none"}}>
                   {msg}
-                  {/* 말풍선 꼬리 — 모험·베이커리 모두 가운데 아래(캐릭터 머리 방향) */}
+                  {/* 말풍선 꼬리 — 탐험·베이커리 모두 가운데 아래(캐릭터 머리 방향) */}
                   <div style={{position:"absolute",bottom:-7,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"8px solid transparent",borderRight:"8px solid transparent",borderTop:`8px solid ${cute?mixWhite(th.main,0.8):"#F5F1E8"}`}}/>
                 </div>
               </div>
               )}
-              {/* 캐릭터 무대 — 모험·베이커리 공통: 중앙 캐릭터+펫 / 레벨·상장은 하단 알약칩 줄로 통일 */}
+              {/* 캐릭터 무대 — 탐험·베이커리 공통: 중앙 캐릭터+펫 / 레벨·상장은 하단 알약칩 줄로 통일 */}
               <div style={{position:"relative",zIndex:2,display:"flex",alignItems:cute?"center":"stretch",justifyContent:cute?"center":"center",gap:8,marginTop:cute?16:12,minHeight:cute?104:245}}>
-                {/* ── 중앙(모험)·좌측(베이커리): 캐릭터 + 펫 ── */}
-                {/* [모험] 펫은 절대배치(우측 하단) → 캐릭터 본체가 화면 정중앙에 정확히 옴 / [베이커리] 기존 flex 나란히 유지 */}
-                {/* [모험] translateY 6→-14: 발끝이 하단 시트에 눌려 보여 캐릭터·펫을 화면 높이 약 3% 위로 (아바타/성장 공통 컨테이너라 함께 이동)
+                {/* ── 중앙(탐험)·좌측(베이커리): 캐릭터 + 펫 ── */}
+                {/* [탐험] 펫은 절대배치(우측 하단) → 캐릭터 본체가 화면 정중앙에 정확히 옴 / [베이커리] 기존 flex 나란히 유지 */}
+                {/* [탐험] translateY 6→-14: 발끝이 하단 시트에 눌려 보여 캐릭터·펫을 화면 높이 약 3% 위로 (아바타/성장 공통 컨테이너라 함께 이동)
                     X -14px: 펫이 오른쪽에 붙으면서 우측으로 쏠린 시각 무게중심 보정 (우측 뱃지 아이콘들과의 간격 확보) */}
                 <div style={{flex:1,minWidth:0,position:"relative",display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:14,transform:cute?undefined:"translate(-14px, -14px)"}}>
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
@@ -3723,7 +3723,7 @@ export default function App() {
               {/* 캐릭터+무기를 한 컨테이너로 묶어 같은 둥실(floatHero)로 통째로 움직인다 → 타이밍 100% 일치 */}
                       {/* 목업형: '캐릭터' 타일이 빠진 대신 캐릭터를 탭하면 내 캐릭터 탭이 열린다 (기능 보존) */}
                       <div onClick={cute?undefined:()=>setChildTab("growth")} style={{position:"relative",display:"inline-block",willChange:"transform",animation:charAnim,cursor:cute?undefined:"pointer"}}>
-                      {(()=>{ // AI 일러스트 캐릭터 — 모험/베이커리 모두 (진화 단계별 키 성장, 발끝 하단 정렬)
+                      {(()=>{ // AI 일러스트 캐릭터 — 탐험/베이커리 모두 (진화 단계별 키 성장, 발끝 하단 정렬)
                         const _st=ADV_CHAR_STAGE_OF(level.level); // 두 모드 동일 구간(1/5/9/13/17)
                         const _g=(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy";
                         const _SZ=cute?BAKERY_CHAR_SIZE:ADV_CHAR_SIZE;
@@ -3735,8 +3735,8 @@ export default function App() {
                           // [주의] flex 컨테이너에 넣으면 flex-shrink로 정사각형이 눌려 캐릭터가 통째로 축소된다(이전 버그).
                           // → 절대배치로 크기를 완전 고정: 바깥 div가 레이아웃 자리(실루엣 폭×실루엣 높이)만 차지하고,
                           //   아바타 정사각형은 그 중앙·발끝이 바깥 div 바닥선에 오도록 고정 → 펫도 옆에 붙고 접지도 정확.
-                          const _avSz=cute?Math.round(_sz*1.18):AVATAR_HOME_SIZE[_st]; // 모험: 독립 크기표(성장 캐릭터와 비연동) / 베이커리: 기존 비례 유지
-                          // [모험] 레이아웃 박스 높이를 성장 캐릭터(_sz)와 동일하게 → 모드 전환 시 무대 줄 높이가 같아져
+                          const _avSz=cute?Math.round(_sz*1.18):AVATAR_HOME_SIZE[_st]; // 탐험: 독립 크기표(성장 캐릭터와 비연동) / 베이커리: 기존 비례 유지
+                          // [탐험] 레이아웃 박스 높이를 성장 캐릭터(_sz)와 동일하게 → 모드 전환 시 무대 줄 높이가 같아져
                           //        배경 전체 크기·팻말 버튼·펫(알) 위치가 그대로 유지되고, 발끝도 같은 바닥선에 접지된다.
                           //        (아바타 그림 자체 크기는 _avSz 그대로 — 박스 위로만 넘치고 바닥 기준은 불변)
                           return (
@@ -3756,7 +3756,7 @@ export default function App() {
                       })()}
                       </div>
                     </div>
-                    {/* 발밑 바닥 원 (모험) — 공중부양 방지용 라이트 원. 밝은 테마 포인트색. */}
+                    {/* 발밑 바닥 원 (탐험) — 공중부양 방지용 라이트 원. 밝은 테마 포인트색. */}
                     {!cute&&(
                       <div style={{position:"absolute",left:"50%",bottom:-2,transform:"translateX(-50%)",width:150,height:44,pointerEvents:"none",zIndex:0,
                         background:`radial-gradient(ellipse 50% 50% at 50% 50%, ${GP.themePoint||th.main}80, ${GP.themePoint||th.main}33 45%, transparent 72%)`,filter:"blur(2px)"}}/>
@@ -3765,7 +3765,7 @@ export default function App() {
                     <div style={{position:"relative",zIndex:1,width:118,height:19,borderRadius:"50%",background:cute?"rgba(120,80,100,0.20)":"rgba(0,0,0,0.26)",filter:"blur(5px)",marginTop:-13,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                   </div>
                   {/* 펫 — 보조 역할이므로 캐릭터보다 작게(기존 40 → 34). 알 단계(0)엔 '곧 부화!'로 기대감 UP */}
-                  {/* [모험] 존재감 개선: 구석(우측 10%) → 캐릭터 발 옆(중앙+62px). 알 단계는 말풍선+반짝이+둥지+10초 간헐 흔들림(둥실 제거). */}
+                  {/* [탐험] 존재감 개선: 구석(우측 10%) → 캐릭터 발 옆(중앙+62px). 알 단계는 말풍선+반짝이+둥지+10초 간헐 흔들림(둥실 제거). */}
                   <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:62,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
                     {!cute&&pet.stage===0?(
                     <>
@@ -3785,7 +3785,7 @@ export default function App() {
                     </>
                     ):!cute?(
                     <>
-                      {/* [모험] 부화한 펫: 캐릭터 키 대비 존재감 확보 — 34→46px + 크림 외곽선 + 하단 말풍선 라벨 + 상시 반짝이 2~3개 */}
+                      {/* [탐험] 부화한 펫: 캐릭터 키 대비 존재감 확보 — 34→46px + 크림 외곽선 + 하단 말풍선 라벨 + 상시 반짝이 2~3개 */}
                       <div style={{position:"relative"}}>
                         <span style={{position:"absolute",top:-10,left:-17,fontSize:13,animation:"petSparkle 3.8s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
                         <span style={{position:"absolute",bottom:2,right:-16,fontSize:10,animation:"petSparkle 3.8s ease-in-out infinite -1.3s",pointerEvents:"none"}}>✨</span>
@@ -3808,18 +3808,18 @@ export default function App() {
                     )}
                   </div>
                 </div>
-                {/* 우측 칩 제거 — 베이커리도 모험처럼 캐릭터 중앙 + 레벨/상장 하단 알약칩으로 통일 */}
+                {/* 우측 칩 제거 — 베이커리도 탐험처럼 캐릭터 중앙 + 레벨/상장 하단 알약칩으로 통일 */}
               </div>
-              {/* ── 하단: 레벨·상장 정보 줄 (모험·베이커리 공용 알약칩) ── */}
+              {/* ── 하단: 레벨·상장 정보 줄 (탐험·베이커리 공용 알약칩) ── */}
               {(()=>{
                 const tr = TITLE_RARITY[title.rarity] || TITLE_RARITY.common;
-                const lvCol = cute ? mixBlack(th.main,0.22) : (GP.gold||"#FFD166"); // 베이커리=테마 진한색 / 모험=골드
+                const lvCol = cute ? mixBlack(th.main,0.22) : (GP.gold||"#FFD166"); // 베이커리=테마 진한색 / 탐험=골드
                 // 배경 꾸미기를 장착하면 무대카드가 어둡거나 색이 들어가므로, 그때만 칩을 어두운 배경+흰 글자로.
                 const onScene = !!stageBgDeco;
                 // 정보 칩: 동그란 이모지 + 라벨 (레벨/상장).
                 const InfoChip=({ring,emoji,text})=>{
-                  // 모험은 원래 어두운 칩. 베이커리는 칩 색은 그대로 두되, 배경 꾸미기 장착(무대 어두움) 시 글자만 밝게.
-                  const lightText = !cute || onScene;      // 글자를 흰색으로 (모험 / 배경 꾸미기 장착한 베이커리)
+                  // 탐험은 원래 어두운 칩. 베이커리는 칩 색은 그대로 두되, 배경 꾸미기 장착(무대 어두움) 시 글자만 밝게.
+                  const lightText = !cute || onScene;      // 글자를 흰색으로 (탐험 / 배경 꾸미기 장착한 베이커리)
                   const borderOpacity = cute
                     ? ((title.rarity==="common"||title.rarity==="legendary") ? "BB" : "77")
                     : "88";
@@ -3833,12 +3833,12 @@ export default function App() {
                   </div>
                   );
                 };
-                // [모험] 팻말 버튼은 우측 상단 뱃지로 이동 — 이 줄은 베이커리 칩 전용, 모험은 빈 줄(마진)만 남아 하단 여백 유지
+                // [탐험] 팻말 버튼은 우측 상단 뱃지로 이동 — 이 줄은 베이커리 칩 전용, 탐험은 빈 줄(마진)만 남아 하단 여백 유지
                 return (
                   <div style={{position:"relative",zIndex:2,marginTop:cute?10:4,marginBottom:cute?0:10,display:"flex",alignItems:"center",justifyContent:cute?"center":"flex-start",gap:8,flexWrap:"wrap"}}>
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
-                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 모험 모드는 우측 상단 원형 뱃지로 이동(사용자 확정), 베이커리(cute)만 여기 칩 유지 */}
+                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 탐험 모드는 우측 상단 원형 뱃지로 이동(사용자 확정), 베이커리(cute)만 여기 칩 유지 */}
                     {cute&&(
                     <button onClick={toggleCharDisplayMode}
                       style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
@@ -3886,11 +3886,11 @@ export default function App() {
               {tabEls}
             </div>
           );
-          // 모험: 하단 시트(레벨바+3타일) — 표시부는 HomeSheet 컴포넌트로 분리(CLAUDE.md 3번 점진 분리)
+          // 탐험: 하단 시트(레벨바+3타일) — 표시부는 HomeSheet 컴포넌트로 분리(CLAUDE.md 3번 점진 분리)
           const _cur=getChildLevel(childId);
           const _qp=getTodayQuestProgress(childId,childDate||TODAY);
           const _tiles=[
-            {k:"area",title:"모험",sub:`${childTodayAc.length}곳`,icon:"🗺️"},
+            {k:"area",title:"탐험",sub:`${childTodayAc.length}곳`,icon:"🗺️"},
             {k:"today",title:"미션",sub:_qp.total>0?`${_qp.total-Math.round(_qp.total*_qp.percent/100)}개 남음`:"지금 주세요",icon:"🎯"},
             {k:"growth",title:"캐릭터",sub:`레벨 ${_cur.level}`,icon:getGenderEmoji(curChild)},
           ];
@@ -3901,11 +3901,11 @@ export default function App() {
         })()}
 
         <div key={childTab} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:"#F0F3F3"}}>
-          {/* ── 모험장소 탭 (학원카드) ── */}
+          {/* ── 탐험장소 탭 (학원카드) ── */}
           {childTab==="area"&&(
             <>
               {kidSkin==="cute"&&<div style={{marginBottom:12}}>{dateNav}</div>}
-              {/* 오늘의 모험 장소 요약 카드 (가는 학원 이름 + 총 곳 수) */}
+              {/* 오늘의 탐험 장소 요약 카드 (가는 학원 이름 + 총 곳 수) */}
               {(()=>{
                 const total=childTodayAc.length;
                 // 링에 넘길 학원별 데이터(시각·수업길이·아이콘·미션완료율)
@@ -3922,16 +3922,16 @@ export default function App() {
                     done:doneCnt, total:totalCnt,
                   };
                 });
-                // [모험] 사용자 확정: '오늘의 모험 장소' 헤더·N곳 배지·올리브 카드 삭제 —
+                // [탐험] 사용자 확정: '오늘의 탐험 장소' 헤더·N곳 배지·올리브 카드 삭제 —
                 //        지도를 탭 바로 아래에서 화면 폭 풀블리드로 확장 (콘텐츠 패딩 상쇄)
                 if(kidSkin!=="cute"){
-                  if(total===0) return null; // 0곳이면 아래 '오늘은 모험 장소가 없어요' 박스만
+                  if(total===0) return null; // 0곳이면 아래 '오늘은 탐험 장소가 없어요' 박스만
                   return (
                     <>
-                    {/* 섹션 구분 — 모험지도 (캐릭터 탭 즐기기·내기록과 같은 디자인, 갈색톤 — 사용자 확정. 탭과의 여백 축소) */}
+                    {/* 섹션 구분 — 탐험지도 (캐릭터 탭 즐기기·내기록과 같은 디자인, 갈색톤 — 사용자 확정. 탭과의 여백 축소) */}
                     <div style={{display:"flex",alignItems:"center",gap:12,margin:"-4px 2px 12px"}}>
                       <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.4))"}}/>
-                      <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>🗺️ 모험지도</span>
+                      <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>🗺️ 탐험지도</span>
                       <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)"}}/>
                     </div>
                     <div style={{margin:"-4px -16px 14px"}}>
@@ -3949,7 +3949,7 @@ export default function App() {
                 return (
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
-                    // 모험 탭(모험): '풀숲 들판' 느낌 — Olive(#A9B448) 계열 그라데이션 + 은은한 종이 질감, 글씨는 딥올리브로 대비
+                    // 탐험 탭(탐험): '풀숲 들판' 느낌 — Olive(#A9B448) 계열 그라데이션 + 은은한 종이 질감, 글씨는 딥올리브로 대비
                     :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.3), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.25), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.25), transparent), linear-gradient(150deg, #CFE175, #C2D65B)`,border:"1px solid #8EA54A",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#48663D",boxShadow:"0 10px 30px rgba(90,102,44,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",boxSizing:"border-box",display:"flex",flexDirection:"column"}}>
                     <DungeonCardGlow/>
                     {kidSkin==="cute"&&<div style={{position:"absolute",top:0,left:0,right:0,height:"45%",background:"linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))",borderRadius:"34px 34px 50% 50%",pointerEvents:"none"}}/>}
@@ -3966,7 +3966,7 @@ export default function App() {
                     </div>
                     {total>0&&(
                     <div style={{position:"relative",marginTop:8}}>
-                      {/* 모험: 그림책 초원 맵(AdventureMap — 사용자 원화 배경+건물 오버레이) / 베이커리: 기존 캔디랜드 IslandMap 유지 */}
+                      {/* 탐험: 그림책 초원 맵(AdventureMap — 사용자 원화 배경+건물 오버레이) / 베이커리: 기존 캔디랜드 IslandMap 유지 */}
                       {kidSkin==="cute"?(
                       <IslandMap
                         items={ringItems}
@@ -3990,7 +3990,7 @@ export default function App() {
                   </div>
                 );
               })()}
-              {/* 탐험장소 선택 줄 — 시간순 학원을 지도 건물 아이콘으로 나열, 누르면 아래 모험일지에 표시 (사용자 확정) */}
+              {/* 탐험장소 선택 줄 — 시간순 학원을 지도 건물 아이콘으로 나열, 누르면 아래 탐험일지에 표시 (사용자 확정) */}
               {kidSkin!=="cute"&&childTodayAc.length>0&&(()=>{
                 const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
                 const jList=[...childTodayAc].sort((a,b)=>mOf(getClassTime(a,childTodayDN))-mOf(getClassTime(b,childTodayDN)));
@@ -4013,11 +4013,11 @@ export default function App() {
                   />
                 );
               })()}
-              {/* 섹션 구분 — 모험일지 (모험 스킨 전용, 지도 아래·학원카드 위, 갈색톤 — 사용자 확정) */}
+              {/* 섹션 구분 — 탐험일지 (탐험 스킨 전용, 지도 아래·학원카드 위, 갈색톤 — 사용자 확정) */}
               {kidSkin!=="cute"&&(
                 <div style={{display:"flex",alignItems:"center",gap:12,margin:"18px 2px 14px"}}>
                   <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.4))"}}/>
-                  <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>📜 모험일지</span>
+                  <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>📜 탐험일지</span>
                   <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)"}}/>
                 </div>
               )}
@@ -4029,7 +4029,7 @@ export default function App() {
                     <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
                   </div>
                 ):kidSkin!=="cute"?(()=>{
-                  // [모험] 양피지 탐험일지 — 선택된 학원 1곳만, 책장 넘김(PageFlip)으로 전환 (사용자 확정)
+                  // [탐험] 양피지 탐험일지 — 선택된 학원 1곳만, 책장 넘김(PageFlip)으로 전환 (사용자 확정)
                   const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
                   const jList=[...childTodayAc].sort((a,b)=>mOf(getClassTime(a,childTodayDN))-mOf(getClassTime(b,childTodayDN)));
                   const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
@@ -4085,7 +4085,7 @@ export default function App() {
                     const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
                     const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
                     const dungeon=getAcademyTheme(ac.name,kidSkin);
-                    // ── 모험 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ── (이 분기는 베이커리 전용, dk는 항상 false)
+                    // ── 탐험 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ── (이 분기는 베이커리 전용, dk는 항상 false)
                     const dk = kidSkin!=="cute";
                     // 카드 본체: 테마색을 머금은 다크. 헤더는 학원색을 살린 진한 톤.
                     const acCardBg = dk ? "linear-gradient(180deg, #3A4156 0%, #333A4C 100%)" : "#fff"; // 10% 밝게 + 남색기 완화
@@ -4095,7 +4095,7 @@ export default function App() {
                     const acInnerBorder = dk ? "rgba(255,255,255,0.12)" : C.border;
                     return (
                       <div key={ac.id} style={{borderRadius:dk?26:(ST.on?(GP.radMid||22):22),overflow:"hidden",marginBottom:14,background:acCardBg,border:dk?"1px solid rgba(255,255,255,0.10)":`2px solid ${ST.on?softTint(ac.color,0.55):ac.color+"40"}`,boxShadow:dk?"0 10px 26px rgba(0,0,0,0.18)":(ST.on?`0 6px 18px ${GP.boxShadowCol}`:`0 8px 26px ${ac.color}26, 0 2px 6px rgba(0,0,0,0.06)`)}}>
-                        {/* 헤더 - 모험:진한 그라데이션 / 베이커리:부드러운 학원색 파스텔 */}
+                        {/* 헤더 - 탐험:진한 그라데이션 / 베이커리:부드러운 학원색 파스텔 */}
                         <div style={{position:"relative",overflow:"hidden",background:ST.on?`linear-gradient(135deg, ${softTint(ac.color,0.50)}, ${softTint(ac.color,0.62)})`:`linear-gradient(135deg, ${mixBlack(ac.color,0.42)}, ${mixBlack(ac.color,0.18)})`,padding:"11px 15px",display:"flex",alignItems:"center",gap:12}}>
                           {/* 헤더 장식 빛무리/버블 (베이커리 모드에서만) */}
                           {ST.on&&<>
@@ -4106,7 +4106,7 @@ export default function App() {
                             {dungeon.icon}
                           </div>
                           <div style={{flex:1,minWidth:0,position:"relative"}}>
-                            {/* 모험 구조로 통일: 학원명(위) → 라벨(아래) + 남은시간 배지(우측 하단) */}
+                            {/* 탐험 구조로 통일: 학원명(위) → 라벨(아래) + 남은시간 배지(우측 하단) */}
                             <p style={{fontSize:dk?17:16,fontWeight:dk?400:900,margin:0,color:dk?"#fff":GP.boxText,textShadow:dk?"0 1px 3px rgba(0,0,0,0.25)":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.1}}>{ac.name}</p>
                             <p style={{fontSize:11.5,fontWeight:900,color:dk?"rgba(255,255,255,0.78)":GP.boxSub,margin:"3px 0 0",letterSpacing:1,paddingRight:96,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dungeon.label}</p>
                             {isChildToday&&(()=>{
@@ -4121,14 +4121,14 @@ export default function App() {
                         </div>
                         {/* 상세 정보 */}
                         <div style={{padding:"15px 16px 16px",background:dk?"linear-gradient(180deg, rgba(40,46,60,0.96), rgba(48,55,70,0.96))":"transparent"}}>
-                        {/* 시간 (모험 구조로 통일: 시작 시각만 / 남은시간은 헤더 배지로) */}
+                        {/* 시간 (탐험 구조로 통일: 시작 시각만 / 남은시간은 헤더 배지로) */}
                         <p style={{fontSize:16,fontWeight:900,color:acTx,margin:"0 0 12px"}}>🕓 {toKoreanTime(sc?.time)} 시작</p>
                         {shuttleText&&<p style={{fontSize:13,color:acSub,margin:"0 0 8px"}}>🚌 셔틀 · {shuttleText}</p>}
-                        {/* 준비물 (모험 구조로 통일: ✅/⬜ 토글 버튼으로 챙김 여부 체크) */}
+                        {/* 준비물 (탐험 구조로 통일: ✅/⬜ 토글 버튼으로 챙김 여부 체크) */}
                         <div style={{marginTop:8,display:"flex",alignItems:"baseline",flexWrap:"wrap",gap:"6px 8px"}}>
                           <p style={{fontSize:15,fontWeight:800,color:dk?"rgba(255,255,255,0.82)":acSub,margin:0,flexShrink:0}}>🎒 준비물</p>
                           <div style={{display:"flex",flexWrap:"wrap",gap:6,flex:1,minWidth:0}}>
-                            {/* 색 통일: 준비물 칩은 전부 학원색 계열, 챙기면 노랑 포인트 (모험) */}
+                            {/* 색 통일: 준비물 칩은 전부 학원색 계열, 챙기면 노랑 포인트 (탐험) */}
                             {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=>{
                               const checked=(entry.checkedSupplies||[]).includes(s);
                               return <button key={`b${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,s)} style={{fontSize:13,padding:"5px 12px",borderRadius:999,cursor:"pointer",background:checked?(dk?"rgba(246,209,143,0.22)":softTint(ac.color,0.62)):(dk?`${ac.color}1f`:`${ac.color}14`),border:checked?(dk?"1px solid #F6D18F":`1px solid ${ac.color}88`):`1px solid ${dk?ac.color+"55":ac.color+"33"}`,color:checked?(dk?"#FFE9BE":GP.boxText):(dk?softTint(ac.color,0.85):GP.boxText),fontWeight:800,transition:"all .15s"}}><span style={{fontSize:11,marginRight:1}}>{checked?"✅":"⬜"}</span> {s}</button>;
@@ -4189,7 +4189,7 @@ export default function App() {
                 return (
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
-                    // 미션 탭(모험): '모험 지도·모래 사장' 느낌 — Sand(#F6D18F) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 진갈색으로 대비
+                    // 미션 탭(탐험): '탐험 지도·모래 사장' 느낌 — Sand(#F6D18F) 계열 밝은 그라데이션 + 은은한 종이 질감, 글씨는 진갈색으로 대비
                     :{position:"relative",overflow:"hidden",background:`radial-gradient(1.3px 1.3px at 20% 30%, rgba(255,255,255,0.35), transparent), radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,0.3), transparent), radial-gradient(1.3px 1.3px at 84% 66%, rgba(255,255,255,0.3), transparent), linear-gradient(150deg, #CFE175, #C2D65B)`,border:"1px solid #8EA54A",borderRadius:GP.radCard,padding:"16px",marginBottom:14,color:"#48663D",boxShadow:"0 10px 30px rgba(90,102,44,0.28), inset 0 1px 0 rgba(255,255,255,0.35)",boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206}}>
                     <DungeonCardGlow/>
                     {/* 젤리 광택 */}
@@ -4239,7 +4239,7 @@ export default function App() {
                     <p style={{fontSize:13,fontWeight:700,color:kidSkin==="cute"?C.sub:"#7E8C7B",margin:0}}>푹 쉬어도 좋아요 😌</p>
                   </div>
                 );
-                // 미션 강조박스 색 — 모험:어두운 톤 / 베이커리:맑은 박스
+                // 미션 강조박스 색 — 탐험:어두운 톤 / 베이커리:맑은 박스
                 return (
                   <div style={{marginTop:2,marginBottom:14}}>
                     {/* 미션 아이템 목록 */}
@@ -4258,7 +4258,7 @@ export default function App() {
                                   {item.academyName}
                                 </p>
                               </div>
-                              {/* 준비 배지: 모험은 학원색 대신 팔레트 Sky 고정(#7BB5E6) — 쨍한 학원색이 튀지 않게 */}
+                              {/* 준비 배지: 탐험은 학원색 대신 팔레트 Sky 고정(#7BB5E6) — 쨍한 학원색이 튀지 않게 */}
                               <span style={{fontSize:11,fontWeight:900,color:item.done?"#7C8398":item.failed?"#8A8A9A":"#fff",background:item.done?"#E6E9F0":item.failed?"#ECEAF3":(kidSkin==="cute"?acCol:"#5E93C5"),border:`1px solid ${item.done?"#D2D7E2":item.failed?"#D8D7E5":(kidSkin==="cute"?"transparent":"#4E7FA9")}`,padding:"5px 12px",borderRadius:999,flexShrink:0,boxShadow:item.done||item.failed?"none":(kidSkin==="cute"?`0 6px 16px ${acCol}40`:"0 6px 16px rgba(94,147,197,0.35)")}}>
                                 {item.done?(ST.on?ST.face:"✓"):status.emoji} {status.label}
                               </span>
@@ -4324,7 +4324,7 @@ export default function App() {
               })()}
 
               {/* ── 미션 추가 버튼 (현재 보는 날짜) ── */}
-              {/* [모험] 미션 추가 버튼은 미션 탭 테마(그린 — 사용자 확정: 탭 톤 맞교환에 맞춤) */}
+              {/* [탐험] 미션 추가 버튼은 미션 탭 테마(그린 — 사용자 확정: 탭 톤 맞교환에 맞춤) */}
               {(childDate||TODAY)>=TODAY&&(
                   <button onClick={()=>{ setKidAddAcId(""); setKidAddText(""); setShowKidAddModal(true); }}
                     style={{width:"100%",...jellyBox({background:kidSkin==="cute"?GP.boxBg:"#8FA653",border:kidSkin==="cute"?`1px solid ${GP.boxBorder}`:"1px solid #9DB35F",borderRadius:16,boxShadow:kidSkin==="cute"?`0 6px 18px ${GP.boxShadowCol}`:"0 6px 18px rgba(90,102,44,0.32)"},{radius:18}),
@@ -4576,7 +4576,7 @@ export default function App() {
                       const unlocked=isTitleUnlocked(childId,title.id);
                       const selected=getSelectedTitle(childId).id===title.id;
                       const rarity=TITLE_RARITY[title.rarity||"common"];
-                      // 모험: 어두운 카드 + 등급 테두리/오라 / 베이커리: 밝은 파스텔
+                      // 탐험: 어두운 카드 + 등급 테두리/오라 / 베이커리: 밝은 파스텔
                       const cardBg   = dungeon ? (unlocked?rarity.dgrad:"linear-gradient(180deg,#2C3658 0%,#252E4C 100%)") : (unlocked?rarity.grad:CT.faint);
                       const cardBdr  = unlocked?rarity.borderClr:(dungeon?"#3E486B":C.border);
                       const restGlow = dungeon&&unlocked ? rarity.glow : "none";
@@ -4644,7 +4644,7 @@ export default function App() {
                 })()}
               </div>
 
-              {/* 모험 기록 카드 */}
+              {/* 탐험 기록 카드 */}
               <div style={skyCard("#7398A8","#648492")}>
                 <CharacterSectionHeader
                   dark={kidSkin!=="cute"}
@@ -5108,7 +5108,7 @@ export default function App() {
                     <button onClick={()=>stepDevLevel(-1)} style={devMiniBtn(C.red)}>◀ 레벨 -1</button>
                     <button onClick={()=>stepDevLevel(1)} style={devMiniBtn(C.green)}>레벨 +1 ▶</button>
                   </div>
-                  <p style={{fontSize:11,color:C.sub,margin:"10px 0 6px",fontWeight:700}}>진화 구간 바로 이동 (모험 5단계)</p>
+                  <p style={{fontSize:11,color:C.sub,margin:"10px 0 6px",fontWeight:700}}>진화 구간 바로 이동 (탐험 5단계)</p>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6}}>
                     {[1,5,9,13,17].map((lv,i)=>(
                       <button key={lv} onClick={()=>setDevLevel(lv)} style={{...devMiniBtn(i===4?GP.gold:C.purple),fontSize:11,padding:"9px 4px"}}>
@@ -5173,7 +5173,7 @@ export default function App() {
 
 
       {showModeSelect&&(
-        <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임으로 변경!":"🧭 모험 게임으로 변경!"); }} />
+        <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임으로 변경!":"🧭 탐험 게임으로 변경!"); }} />
       )}
 
       {showCoachmark&&(
@@ -6538,7 +6538,7 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* 모험기록 상세 */}
+                        {/* 탐험기록 상세 */}
                         <div style={parentInnerCard}>
                           <p style={parentInnerTitle}>📖 {T.logName||"활동 기록"}</p>
                           <p style={parentInnerSub}>

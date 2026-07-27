@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════════
-   AdventureMap — 모험 모드 '오늘의 모험 지도' (그림책 초원 맵)
+   AdventureMap — 탐험 모드 '오늘의 탐험 지도' (그림책 초원 맵)
    ────────────────────────────────────────────────────────────────────────
    · 배경(adventure-map.webp)은 완성 원화 그대로 사용 — 절대 가공하지 않는다.
      배경 속 상단 집 = 우리집(출발지), 하단 보물상자 = 오늘의 도착지.
@@ -23,7 +23,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // 이모지는 구멍 '뒤'에 크림 원판과 함께 깔려, 원화의 테두리가 이모지를 자연스럽게 감싼다.
 // k: 폭 보정 계수 — 원화 가로세로비가 달라도 표시 '높이'가 4종 동일해지도록 (질감 통일)
 // v7 크리스프 카툰 세트 (흰 원을 투명으로 뚫어 탑재 — 이모지가 뒤에서 비치도록)
-// ar: 원본 가로/세로 비 (모험장소 줄에서 '표시 높이'를 통일할 때 사용)
+// ar: 원본 가로/세로 비 (탐험장소 줄에서 '표시 높이'를 통일할 때 사용)
 const BUILDINGS = [
   { src: "assets/map-bld-treehouse.webp", cx: 57.2, cy: 49.9, d: 43.2, k: 0.87, ar: 190 / 220 },  // 나무 위의 집 (구멍 우측)
   { src: "assets/map-bld-stonearch.webp", cx: 48.5, cy: 51.2, d: 39.2, k: 0.95, ar: 251 / 220 },  // 돌 아치문
@@ -124,7 +124,7 @@ const MAP_SHORT = {
   ], 1652 / 952),
 };
 
-// 모험일지 '탐험장소' 선택 줄이 지도와 같은 건물 배정을 쓰도록 하는 헬퍼:
+// 탐험일지 '탐험장소' 선택 줄이 지도와 같은 건물 배정을 쓰도록 하는 헬퍼:
 // 시간순 i번째 학원 → 지도 자리(위→아래) i번째의 건물 (자리 고정 건물번호 bi 우선, 없으면 순환)
 export const journalBuildings = (n) => {
   const M = n <= 3 ? MAP_SHORT : MAP_LONG;
@@ -148,7 +148,7 @@ const CHEST_SPARKS = [
 const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
-// onPick: 학원 건물 탭 → 모험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
+// onPick: 학원 건물 탭 → 탐험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
 export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;

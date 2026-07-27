@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════════
-   AdventureSpotPicker — 모험일지 위 '모험장소' 선택 줄 (= 오늘의 진행 경로)
+   AdventureSpotPicker — 탐험일지 위 '탐험장소' 선택 줄 (= 오늘의 진행 경로)
    ────────────────────────────────────────────────────────────────────────
    위 지도와 같은 건물 그림을 쓰지만 시각 위계를 뒤집는다 (사용자 확정).
      · 지도   : 건물 > 정보   — 실제 장소를 지도에서 찾는 곳
@@ -15,7 +15,7 @@
 
    props
      items      : [{id,name,icon,passed,current}]  시간순 학원
-     selectedId : string   현재 모험일지에 표시 중인 학원
+     selectedId : string   현재 탐험일지에 표시 중인 학원
      onSelect   : (id)=>void
    ════════════════════════════════════════════════════════════════════════ */
 import { journalBuildings } from "./AdventureMap.jsx";
@@ -36,10 +36,10 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
       <style>{`
         @keyframes spNow{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
       `}</style>
-      {/* 섹션 구분 — 모험장소 (모험지도·모험일지 구분선과 동일 디자인·갈색톤) */}
+      {/* 섹션 구분 — 탐험장소 (탐험지도·탐험일지 구분선과 동일 디자인·갈색톤) */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "2px 2px 12px" }}>
         <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.4))" }} />
-        <span style={{ flexShrink: 0, fontSize: 13.5, fontWeight: 900, letterSpacing: 0.4, color: "#8A6B47" }}>🧭 모험장소</span>
+        <span style={{ flexShrink: 0, fontSize: 13.5, fontWeight: 900, letterSpacing: 0.4, color: "#8A6B47" }}>🧭 탐험장소</span>
         <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)" }} />
       </div>
       {/* 한 줄 최대 4곳 — 각 칸을 같은 폭으로 두고 '이모지 중심'을 칸 정중앙에 맞춘다.

@@ -14,8 +14,8 @@ export const GENDER_THEME = {
 };
 
 export const CHILD_THEME_COLORS = [
-  // 모험/베이커리 공통 5가지 테마색.
-  // 모험모드는 이 색을 화면 전체에 칠하지 않고, 밤하늘 베이스 위에 포인트로만 입힌다.
+  // 탐험/베이커리 공통 5가지 테마색.
+  // 탐험모드는 이 색을 화면 전체에 칠하지 않고, 밤하늘 베이스 위에 포인트로만 입힌다.
   { name:"분홍", main:"#FF6FA3", light:"#FCE7F1", lightTop:"#FFF7FB", grad:"linear-gradient(135deg,#FF6FA3,#FFB6CC)" },
   { name:"살구", main:"#FFB66B", light:"#FFF0DF", lightTop:"#FFFBF6", grad:"linear-gradient(135deg,#FF9F5A,#FFD68A)" },
   { name:"연두", main:"#7BE0A6", light:"#E7F8ED", lightTop:"#F7FFF9", grad:"linear-gradient(135deg,#63CF88,#B9F0D2)" },
@@ -123,11 +123,11 @@ export const softTint = (hex, wf, satBoost=0.92) => {
   const HX=(v)=>Math.max(0,Math.min(255,Math.round(v*255))).toString(16).padStart(2,"0").toUpperCase();
   return `#${HX(nr)}${HX(ng)}${HX(nb)}`;
 };
-// 모험 톤 생성: 남색 베이스(#1B1D2B)에 테마색을 은은히 섞어 '채도 낮은 차분한 다크'를 만든다.
-// 레퍼런스(배경 #1B1D2B~#3E4371)처럼 어느 테마색이든 모험 분위기를 유지하면서 색만 살짝 달라지게.
+// 탐험 톤 생성: 남색 베이스(#1B1D2B)에 테마색을 은은히 섞어 '채도 낮은 차분한 다크'를 만든다.
+// 레퍼런스(배경 #1B1D2B~#3E4371)처럼 어느 테마색이든 탐험 분위기를 유지하면서 색만 살짝 달라지게.
 // lift: 밝기 절대 가산(0=가장 깊은 배경, 클수록 밝은 카드). tf: 테마색 반영 강도(기본 0.16, 은은하게)
 /* ════════════════════════════════════════════════════════════════════════
-   SECTION 3. 테마/스킨 토큰 (모험·베이커리 팔레트)
+   SECTION 3. 테마/스킨 토큰 (탐험·베이커리 팔레트)
    ════════════════════════════════════════════════════════════════════════ */
 
 export const DUNGEON_BASE = [52, 70, 106]; // 밝은 저녁하늘 베이스 (살짝 밝게 +10 — 카드 분리감 ↑, 밤 무드 유지)
@@ -144,11 +144,11 @@ export const dungeonTone = (main, lift=0, tf=0.22) => {
   const HX=(v)=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0").toUpperCase();
   return `#${HX(r)}${HX(g)}${HX(b)}`;
 };
-// 모험모드 "보물상점" 전용 스타일 토큰 (아이템 상점 카드/지갑/아이콘) ----------
+// 탐험모드 "보물상점" 전용 스타일 토큰 (아이템 상점 카드/지갑/아이콘) ----------
 export const DUNGEON_SHOP = {
   walletBg: "linear-gradient(135deg, #243B6A 0%, #355490 100%)",
   walletBorder: "1px solid rgba(150, 190, 255, 0.28)",
-  // 목록 전체를 하나로 잇는 위→아래 그라데이션 (밝은 보물상자 블루 → 깊은 모험 네이비)
+  // 목록 전체를 하나로 잇는 위→아래 그라데이션 (밝은 보물상자 블루 → 깊은 탐험 네이비)
   listBg: "linear-gradient(180deg, #6D82A8 0%, #4F6593 45%, #38507F 100%)",
   listBorder: "1px solid rgba(210, 230, 255, 0.24)",
   listShadow: "0 10px 24px rgba(15, 35, 75, 0.28), inset 0 1px 0 rgba(255,255,255,0.14)",
@@ -164,7 +164,7 @@ export const DUNGEON_SHOP = {
   arrowBg: "rgba(255,255,255,0.14)",
   arrowColor: "#FFD166",
 };
-// 모험모드 아이템 상점 — 상태별 버튼/문구 톤 (반투명 다크 판타지 UI)
+// 탐험모드 아이템 상점 — 상태별 버튼/문구 톤 (반투명 다크 판타지 UI)
 // 대기중=보라빛 / 구매가능=초록빛 / 코인부족=어두운 비활성
 export const ITEM_ACTION_STYLE = {
   waiting: {
@@ -189,7 +189,7 @@ export const ITEM_ACTION_STYLE = {
     buttonShadow: "none",
   },
 };
-// 모험모드 "꾸미기 상점" 카드 전용 — 카드 배경은 네이비로 통일하고
+// 탐험모드 "꾸미기 상점" 카드 전용 — 카드 배경은 네이비로 통일하고
 // 등급은 테두리색 + glow 로만 구분 (WoW 인벤토리/장비창 느낌).
 // rarity 키: common(일반) / rare(희귀) / epic(영웅) / legendary(전설)
 export const DUNGEON_DECOR_CARD = {
@@ -227,7 +227,7 @@ export const getDungeonShopItemShadow = (grade="common") => {
   return "0 8px 18px rgba(20,40,85,0.3), inset 0 1.5px 0 rgba(255,255,255,0.24), inset 0 -8px 16px rgba(12,28,65,0.26)";
 };
 
-// 핵심 원칙: 모험은 항상 밤하늘/남색 베이스를 유지하고,
+// 핵심 원칙: 탐험은 항상 밤하늘/남색 베이스를 유지하고,
 // 분홍·살구·연두·보라·파랑은 진행바/버튼/테두리/글로우에만 입힌다.
 export const hexToRgb = (hex="#FFFFFF") => {
   const h = hex.replace("#","");
@@ -251,7 +251,7 @@ export const DUNGEON_THEME_PRESETS = [
   { key:"apricot", match:"#FFB66B", point:"#FFB66B", point2:"#FFD681", soft:"#FFE1B8", deep:"#33241A", scenery:"#BE6E38", aura:"rgba(255,182,107,0.34)", fan:["#C77C5B","#E8A17D","#F2C1A3"], job:"힐러" },
   { key:"green",   match:"#7BE0A6", point:"#7BE0A6", point2:"#B9F0D2", soft:"#D9FBE7", deep:"#223F32", scenery:"#78C58B", aura:"rgba(123,224,166,0.32)", fan:["#5E8A56","#7DBE70","#B0E59A"], job:"엘프" },
   { key:"purple",  match:"#A78BFA", point:"#A78BFA", point2:"#CDBDFF", soft:"#E4D9FF", deep:"#33285A", scenery:"#8E72E8", aura:"rgba(167,139,250,0.36)", fan:["#625298","#9079DF","#A491E5"], job:"마법사" },
-  { key:"blue",    match:"#60A8FF", point:"#60A8FF", point2:"#A9C9FF", soft:"#D7E8FF", deep:"#1E3356", scenery:"#5D8FEA", aura:"rgba(96,168,255,0.36)", fan:["#3D619A","#5A8EE3","#78A2E8"], job:"모험가" },
+  { key:"blue",    match:"#60A8FF", point:"#60A8FF", point2:"#A9C9FF", soft:"#D7E8FF", deep:"#1E3356", scenery:"#5D8FEA", aura:"rgba(96,168,255,0.36)", fan:["#3D619A","#5A8EE3","#78A2E8"], job:"탐험가" },
 ];
 export const getDungeonThemePreset = (main="#60A8FF") =>
   DUNGEON_THEME_PRESETS.reduce((best,p)=> colorDistance(main,p.match)<colorDistance(main,best.match)?p:best, DUNGEON_THEME_PRESETS[4]);
