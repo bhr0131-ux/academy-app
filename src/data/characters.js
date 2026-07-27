@@ -2,7 +2,7 @@ import { DEFAULT_SKIN, CHARACTER_EVOLUTIONS } from "./gameData.jsx";
 
 
 /* ════════════════════════════════════════════════════════════════════════
-   SECTION 4.5. 모험 모드 AI 일러스트 캐릭터 (남아/여아 × 진화 5단계)
+   SECTION 4.5. 탐험 모드 AI 일러스트 캐릭터 (남아/여아 × 진화 5단계)
    ────────────────────────────────────────────────────────────────────────
    - 380px WebP를 base64로 내장(오프라인 동작·단일 파일 배포 유지)
    - 진화 단계는 CHARACTER_EVOLUTIONS minLevel(1/5/9/13/17)과 1:1
@@ -21,7 +21,7 @@ export const AVATAR_HOME_SIZE={1:289,2:300,3:309,4:316,5:325};
 // 베이커리는 셰프 모자 탓에 몸 비중이 작아 단계별로 약간 상향 보정 (특히 3단계: 캔버스 폭 43%로 가장 슬림)
 export const BAKERY_CHAR_SIZE={1:232,2:248,3:264,4:270,5:282}; // 시안B 동일 기준
 
-// ── 모험 모드 무대 기본 배경 ────────────────────────────────
+// ── 탐험 모드 무대 기본 배경 ────────────────────────────────
 // 이미지는 Capacitor public/assets 폴더에 두고 경로로 참조 (base64 임베드 X → App.jsx 경량 유지).
 // 지금은 초원 1장. 나중에 성별/진화단계별로 늘릴 땐 ADV_STAGE_BG_OF 안만 바꾸면 됨.
 export const ADV_STAGE_BG_MEADOW = "/assets/stage-adventure-meadow.webp";
@@ -40,7 +40,7 @@ export const _charSet = (theme)=>({
 });
 export const ADV_CHAR_IMG = _charSet("adventure");
 export const BAKERY_CHAR_IMG = _charSet("bakery");
-// 베이커리 모드 캐릭터 (남아/여아 × 5단계) — 진화 구간은 모험과 동일(1/5/9/13/17)
+// 베이커리 모드 캐릭터 (남아/여아 × 5단계) — 진화 구간은 탐험과 동일(1/5/9/13/17)
 
 
 export const LEVEL_UP_REWARDS = {
@@ -48,7 +48,7 @@ export const LEVEL_UP_REWARDS = {
 };
 
 export const LEVEL_DESCRIPTION = {
-  1:"모험을 시작한 새싹 탐험가",
+  1:"탐험을 시작한 새싹 탐험가",
   2:"지도를 펼친 꼬마 탐험가",
   3:"호기심으로 가득한 탐험가",
   4:"척척 나아가는 씩씩한 탐험가",
@@ -199,7 +199,7 @@ export const getRandomTreasureCoin=(boxType)=>{
 
 export const UI_TEXT = {
   tabs:{
-    area:"🗺️ 모험",
+    area:"🗺️ 탐험",
     quest:"⚔️ 미션",
     character:"🧙 내 캐릭터",
   },
@@ -259,32 +259,32 @@ export const TITLE_RARITY = {
 };
 
 export const DEFAULT_TITLES = [
-  { id:"rookie", name:"꼬마 모험가", emoji:"🎗️", condition:"기본 상장", award:"드디어 모험의 첫걸음을 내디딘 꼬마 모험가에게 이 상장을 드립니다 🎗️", rarity:"common" },
+  { id:"rookie", name:"꼬마 탐험가", emoji:"🎗️", condition:"기본 상장", award:"드디어 탐험의 첫걸음을 내디딘 꼬마 탐험가에게 이 상장을 드립니다 🎗️", rarity:"common" },
   { id:"first_quest", name:"첫걸음 탐험가", emoji:"👣", condition:"첫 미션 완료", award:"첫 번째 임무를 용감하게 해낸 탐험가에게 이 상장을 드립니다 👣", rarity:"common" },
-  { id:"quest_10_title", name:"미션 입문자", emoji:"🎯", condition:"미션 10개 완료", award:"임무를 10개나 완수한 멋진 모험가에게 이 상장을 드립니다 🎯", rarity:"common" },
-  { id:"xp_100_title", name:"반짝 새싹", emoji:"🌱", condition:"100 XP 달성", award:"경험치 100을 모으며 쑥쑥 자라난 모험가에게 이 상장을 드립니다 🌱", rarity:"common" },
-  { id:"reward_1_title", name:"첫 쇼핑러", emoji:"🛒", condition:"첫 보상 구매", award:"열심히 모은 코인으로 첫 보상을 받은 모험가에게 이 상장을 드립니다 🛒", rarity:"common" },
+  { id:"quest_10_title", name:"미션 입문자", emoji:"🎯", condition:"미션 10개 완료", award:"임무를 10개나 완수한 멋진 탐험가에게 이 상장을 드립니다 🎯", rarity:"common" },
+  { id:"xp_100_title", name:"반짝 새싹", emoji:"🌱", condition:"100 XP 달성", award:"경험치 100을 모으며 쑥쑥 자라난 탐험가에게 이 상장을 드립니다 🌱", rarity:"common" },
+  { id:"reward_1_title", name:"첫 쇼핑러", emoji:"🛒", condition:"첫 보상 구매", award:"열심히 모은 코인으로 첫 보상을 받은 탐험가에게 이 상장을 드립니다 🛒", rarity:"common" },
 
   { id:"quest_hunter", name:"미션 탐험가", emoji:"🎯", condition:"미션 50개 완료", award:"임무를 50개나 끝까지 해낸 멋진 탐험가에게 이 상장을 드립니다 🎯", rarity:"rare" },
-  { id:"homework_master", name:"숙제왕", emoji:"📚", condition:"숙제 30개 완료", award:"숙제를 30개나 완수한 성실한 모험가에게 이 상장을 드립니다 📚", rarity:"rare" },
-  { id:"streak_3_title", name:"꾸준한 아이", emoji:"🔥", condition:"5일 연속 달성", award:"5일 연속 하루도 빠지지 않은 꾸준한 모험가에게 이 상장을 드립니다 🔥", rarity:"rare" },
-  { id:"xp_500_title", name:"성실 수련생", emoji:"📘", condition:"500 XP 달성", award:"경험치 500을 모으며 꾸준히 성장한 모험가에게 이 상장을 드립니다 📘", rarity:"rare" },
-  { id:"reward_3_title", name:"알뜰 쇼핑러", emoji:"🏷️", condition:"보상 5번 구매", award:"코인을 알뜰하게 모아 보상을 5번 받은 모험가에게 이 상장을 드립니다 🏷️", rarity:"rare" },
+  { id:"homework_master", name:"숙제왕", emoji:"📚", condition:"숙제 30개 완료", award:"숙제를 30개나 완수한 성실한 탐험가에게 이 상장을 드립니다 📚", rarity:"rare" },
+  { id:"streak_3_title", name:"꾸준한 아이", emoji:"🔥", condition:"5일 연속 달성", award:"5일 연속 하루도 빠지지 않은 꾸준한 탐험가에게 이 상장을 드립니다 🔥", rarity:"rare" },
+  { id:"xp_500_title", name:"성실 수련생", emoji:"📘", condition:"500 XP 달성", award:"경험치 500을 모으며 꾸준히 성장한 탐험가에게 이 상장을 드립니다 📘", rarity:"rare" },
+  { id:"reward_3_title", name:"알뜰 쇼핑러", emoji:"🏷️", condition:"보상 5번 구매", award:"코인을 알뜰하게 모아 보상을 5번 받은 탐험가에게 이 상장을 드립니다 🏷️", rarity:"rare" },
 
-  { id:"streak_master", name:"불꽃 루틴러", emoji:"⚡", condition:"10일 연속 달성", award:"10일 연속 임무를 해낸 불꽃 같은 모험가에게 이 상장을 드립니다 ⚡", rarity:"epic" },
-  { id:"quest_100_title", name:"집중의 신", emoji:"🧠", condition:"미션 100개 완료", award:"임무를 100개나 완수한 집중력 뛰어난 모험가에게 이 상장을 드립니다 🧠", rarity:"epic" },
-  { id:"champion", name:"모험 대장", emoji:"🏅", condition:"Lv.10 달성", award:"마침내 10레벨에 도달한 자랑스러운 모험 대장에게 이 상장을 드립니다 🏅", rarity:"epic" },
-  { id:"xp_3000_title", name:"빛나는 성장러", emoji:"🌟", condition:"3000 XP 달성", award:"경험치 3000을 모으며 눈부시게 성장한 모험가에게 이 상장을 드립니다 🌟", rarity:"epic" },
+  { id:"streak_master", name:"불꽃 루틴러", emoji:"⚡", condition:"10일 연속 달성", award:"10일 연속 임무를 해낸 불꽃 같은 탐험가에게 이 상장을 드립니다 ⚡", rarity:"epic" },
+  { id:"quest_100_title", name:"집중의 신", emoji:"🧠", condition:"미션 100개 완료", award:"임무를 100개나 완수한 집중력 뛰어난 탐험가에게 이 상장을 드립니다 🧠", rarity:"epic" },
+  { id:"champion", name:"탐험 대장", emoji:"🏅", condition:"Lv.10 달성", award:"마침내 10레벨에 도달한 자랑스러운 탐험 대장에게 이 상장을 드립니다 🏅", rarity:"epic" },
+  { id:"xp_3000_title", name:"빛나는 성장러", emoji:"🌟", condition:"3000 XP 달성", award:"경험치 3000을 모으며 눈부시게 성장한 탐험가에게 이 상장을 드립니다 🌟", rarity:"epic" },
   { id:"reward_30_title", name:"쇼핑 마스터", emoji:"💳", condition:"보상 30번 구매", award:"보상을 30번이나 받은 진정한 쇼핑 마스터에게 이 상장을 드립니다 💳", rarity:"epic" },
 
-  { id:"legend", name:"전설의 모험가", emoji:"👑", condition:"Lv.20 달성", award:"마침내 20레벨에 도달하여 모두의 모범이 된 전설의 모험가에게 이 상장을 드립니다 👑", rarity:"legendary" },
-  { id:"streak_30_title", name:"30일 전설", emoji:"☄️", condition:"30일 연속 달성", award:"30일 연속이라는 전설적인 기록을 세운 모험가에게 이 상장을 드립니다 ☄️", rarity:"legendary" },
+  { id:"legend", name:"전설의 탐험가", emoji:"👑", condition:"Lv.20 달성", award:"마침내 20레벨에 도달하여 모두의 모범이 된 전설의 탐험가에게 이 상장을 드립니다 👑", rarity:"legendary" },
+  { id:"streak_30_title", name:"30일 전설", emoji:"☄️", condition:"30일 연속 달성", award:"30일 연속이라는 전설적인 기록을 세운 탐험가에게 이 상장을 드립니다 ☄️", rarity:"legendary" },
   { id:"treasure_master", name:"보물 사냥꾼", emoji:"💰", condition:"보물상자 50개 오픈", award:"보물상자를 50개나 열어젖힌 최고의 보물 사냥꾼에게 이 상장을 드립니다 💰", rarity:"legendary" },
-  { id:"world_class", name:"월드클래스", emoji:"🌍", condition:"12000 XP 달성", award:"경험치 12000을 모은 세계 최고 수준의 모험가에게 이 상장을 드립니다 🌍", rarity:"legendary" },
-  { id:"quest_700_title", name:"미션의 신화", emoji:"🌌", condition:"미션 700개 완료", award:"임무를 700개나 완수하여 신화를 써낸 모험가에게 이 상장을 드립니다 🌌", rarity:"legendary" },
+  { id:"world_class", name:"월드클래스", emoji:"🌍", condition:"12000 XP 달성", award:"경험치 12000을 모은 세계 최고 수준의 탐험가에게 이 상장을 드립니다 🌍", rarity:"legendary" },
+  { id:"quest_700_title", name:"미션의 신화", emoji:"🌌", condition:"미션 700개 완료", award:"임무를 700개나 완수하여 신화를 써낸 탐험가에게 이 상장을 드립니다 🌌", rarity:"legendary" },
 ];
 
-// ── 베이커리(cute) 상장 치환 — 모험 상장 id 와 1:1 매칭 ──
+// ── 베이커리(cute) 상장 치환 — 탐험 상장 id 와 1:1 매칭 ──
 // 등급·획득조건(condition은 표시용)·rarity는 그대로, 이름/이모지만 교체.
 export const BAKERY_TITLE_MAP = {
   // common
@@ -339,10 +339,10 @@ export const DECOR_RARITY = {
   legendary: { color:"#F59E0B" },
 };
 // 테두리: 프로필 액자 테두리 색/광택 (emoji 는 상점 표시용 아이콘)
-// glow 는 모험(다크 무대)용, glowCute 는 베이커리(밝은 크림 무대)용 — 모드별로 빛번짐 색을 다르게 둔다.
+// glow 는 탐험(다크 무대)용, glowCute 는 베이커리(밝은 크림 무대)용 — 모드별로 빛번짐 색을 다르게 둔다.
 // 장비/모자: 상점에서 구매·보유·장착 가능. 캐릭터 외형은 진화 일러스트로만 표현되므로
 // 장착해도 캐릭터 위에 이모지로 표시되지는 않는다(getEquipped 에서 hat 그룹은 null 반환).
-// 모험 = 장비(도구), 베이커리 = 모자(머리 장식)로 같은 id를 이름/이모지만 치환해 재사용.
+// 탐험 = 장비(도구), 베이커리 = 모자(머리 장식)로 같은 id를 이름/이모지만 치환해 재사용.
 export const DECOR_HATS = [
   { id:"hat_light",   emoji:"🔦", name:"꼬마 손전등",  price:0,   rarity:"common",    weapon:true, bakery:{ emoji:"🍒", name:"체리 핀" } },
   { id:"hat_axe",     emoji:"🎒", name:"탐험가 배낭",  price:80,  rarity:"common",    weapon:true, bakery:{ emoji:"🎀", name:"리본" } },
@@ -351,12 +351,12 @@ export const DECOR_HATS = [
   { id:"hat_goggles", emoji:"📷", name:"카메라",      price:580, rarity:"epic",      weapon:true, bakery:{ emoji:"💎", name:"보석 티아라" } },
   { id:"hat_flame",   emoji:"🗺️", name:"보물 지도",   price:720, rarity:"legendary", weapon:true, bakery:{ emoji:"🎂", name:"케이크 모자" } },
 ];
-// 베이커리 모드 모자 진열 순서(모험과 분리). 가격·등급은 아래 슬롯 테이블을 따름.
+// 베이커리 모드 모자 진열 순서(탐험과 분리). 가격·등급은 아래 슬롯 테이블을 따름.
 export const BAKERY_HAT_ORDER = ["hat_light","hat_tophat","hat_star","hat_axe","hat_goggles","hat_flame"];
 export const BAKERY_HAT_PRICE = { hat_light:0, hat_tophat:80, hat_star:270, hat_axe:400, hat_goggles:580, hat_flame:870 };
 export const BAKERY_HAT_RARITY = { hat_light:"common", hat_tophat:"common", hat_star:"rare", hat_axe:"rare", hat_goggles:"epic", hat_flame:"legendary" };
 export const DECOR_BORDERS = [
-  // 테두리 4종 — 테마색(모험:다이아 / 베이커리:루비) · 실버 · 골드 · 무지개
+  // 테두리 4종 — 테마색(탐험:다이아 / 베이커리:루비) · 실버 · 골드 · 무지개
   // 테마 테두리: 아이가 고른 테마색(분홍/살구/연두/보라/파랑)을 그대로 따라간다. grad·glow 는 런타임에 themedBorder() 가 생성.
   { id:"bd_theme",   emoji:"💎", name:"테마",    price:120, rarity:"rare",      shimmer:true, themed:true, grad:"linear-gradient(115deg,#22D3EE 0%,#A5F3FC 22%,#FFFFFF 40%,#7DD3FC 58%,#67E8F9 76%,#C7F9FF 92%,#38BDF8 100%)", glow:"rgba(34,211,238,0.72)", glowCute:"rgba(120,200,220,0.36)" },
   { id:"bd_silver",  emoji:"🥈", name:"실버",    price:220, rarity:"rare",      shimmer:true, grad:"linear-gradient(115deg,#8A909C 0%,#C7CCD4 20%,#FFFFFF 38%,#D5D9E0 52%,#9CA3AF 70%,#EAECF0 86%,#B6BBC4 100%)", glow:"rgba(190,196,206,0.7)", glowCute:"rgba(150,156,168,0.35)" },
@@ -364,7 +364,7 @@ export const DECOR_BORDERS = [
   { id:"bd_legend",  emoji:"🌈", name:"무지개",  price:660, rarity:"legendary", rainbow:true, grad:"linear-gradient(115deg,#FF5E8A,#FF9F43,#FFE14D,#4ADE80,#38BDF8,#A78BFA,#FF5E8A)", glow:"rgba(167,139,250,0.75)", glowCute:"rgba(190,160,235,0.4)", bakery:{ emoji:"🌈", name:"무지개빛" } },
 ];
 // 배경: 프로필 카드 배경 장식 (장식 이모지 + 은은한 그라데이션 오버레이)
-// 기본(base) = 모험 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
+// 기본(base) = 탐험 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
 // darkStage: 장착 시 무대가 밤하늘 톤(어두움)으로 바뀌는 배경 — 무대 위 글씨(응원문구 등)를 밝은색으로 반전하는 기준.
 export const DECOR_BGS = [
   { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    darkStage:true, deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
@@ -374,7 +374,7 @@ export const DECOR_BGS = [
   { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      darkStage:true, deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
   { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:560, rarity:"legendary", darkStage:true, deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
 ];
-// 베이커리 전용 배경 6슬롯 (모험 4슬롯과 분리). deco[0]=메인(가장 자주 등장). 종류 4개↑면 무대카드 전체에 고르게 분산됨.
+// 베이커리 전용 배경 6슬롯 (탐험 4슬롯과 분리). deco[0]=메인(가장 자주 등장). 종류 4개↑면 무대카드 전체에 고르게 분산됨.
 export const BAKERY_BGS = [
   { id:"bbg_sakura",    emoji:"🌸", name:"벚꽃 마을",         price:110,  rarity:"common",    deco:["🌸","🏡","🌷","🌿"],          tint:"rgba(251,207,232,0.42)", bakeryOnly:true },
   { id:"bbg_strawberry",emoji:"🍓", name:"딸기 농장",         price:250,  rarity:"common",    deco:["🍓","🏡","🌿","🍓"],          tint:"rgba(254,202,202,0.40)", bakeryOnly:true },
@@ -384,7 +384,7 @@ export const BAKERY_BGS = [
   { id:"bbg_rainbow",   emoji:"🌈", name:"무지개 케이크 왕국",price:560, rarity:"legendary", deco:["🌈","🎂","🧁","🍭","⭐"],     tint:"rgba(196,181,253,0.36)", bakeryOnly:true },
 ];
 // 펫 스킨: 펫이 최종 진화(전설의 드래곤/유니콘) 했을 때 잠금 해제. 장착하면 펫 대신 이 동물 이모지로 보임(완성형).
-// 캐릭터 스킨과 동일한 구조 — petskin:true. 모험/베이커리 공용 이모지(동물은 두 모드 모두 자연스러움).
+// 캐릭터 스킨과 동일한 구조 — petskin:true. 탐험/베이커리 공용 이모지(동물은 두 모드 모두 자연스러움).
 export const DECOR_PET_SKINS = [
   { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:280, rarity:"rare",      petskin:true, bakery:{ name:"솜사탕 여우" } },
   { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:280, rarity:"rare",      petskin:true, bakery:{ name:"마시멜로 판다" } },
@@ -393,7 +393,7 @@ export const DECOR_PET_SKINS = [
   { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:470, rarity:"legendary", petskin:true, bakery:{ name:"꿀빛 사자" } },
   { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:470, rarity:"legendary", petskin:true, bakery:{ emoji:"🦋", name:"반짝 나비" } },
 ];
-// 베이커리 모드 펫 스킨 표시 순서 (모험 순서와 분리). 가격·등급은 슬롯(모험) 값을 그대로 따름.
+// 베이커리 모드 펫 스킨 표시 순서 (탐험 순서와 분리). 가격·등급은 슬롯(탐험) 값을 그대로 따름.
 // 순서: 솜사탕여우→마시멜로판다→노래하는새→반짝나비→딸기토끼→꿀빛사자
 export const BAKERY_PETSKIN_ORDER = ["pk_fox","pk_panda","pk_rabbit","pk_dragon","pk_butterfly","pk_lion"];
 export const DECOR_GROUPS = [
@@ -467,7 +467,7 @@ export const decorView = (d, skin) => {
 };
 
 // ── 모드별 용어(재화·아이콘) ─────────────────────────────
-// 모험: ⭐ XP / 💎 코인 / 🎁 보물상자
+// 탐험: ⭐ XP / 💎 코인 / 🎁 보물상자
 // 베이커리: ⭐ 경험치 / 🍪 쿠키 / 🎀 디저트상자 / 🎁 디저트 보관함
 export const TERMS = {
   dungeon: {
