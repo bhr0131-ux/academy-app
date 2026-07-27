@@ -60,6 +60,7 @@ const MAP_LONG = {
   bg: "assets/adventure-map.webp",
   ar: "853 / 1844",
   chest: [52.5, 89],
+  chestOpen: [54, 93.8, 24],   // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측
   cdy: 5.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   yr: 1844 / 853,
   bw: 18, fs: 17,   // 건물 표시 폭(%)·이모지 크기 (사용자 조정: 자리 8곳 배치에 맞춰 30% 축소)
@@ -93,6 +94,7 @@ const MAP_SHORT = {
   bg: "assets/adventure-map-short.webp",
   ar: "952 / 1652",
   chest: [50, 86],
+  chestOpen: [50.3, 90.9, 24], // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측
   cdy: 6.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   yr: 1652 / 952,
   bw: 23, fs: 21,   // 짧은 지도는 건물을 한 단계 작게 (사용자 조정: 소폭 축소)
@@ -129,6 +131,19 @@ export const journalBuildings = (n) => {
   const sp = M.spots[n] ? [...M.spots[n]].sort((a, b) => a[1] - b[1]) : Array.from({ length: n }, () => []);
   return sp.map((s, i) => BUILDINGS[(s[3] ?? i) % BUILDINGS.length]);
 };
+
+// 도착 연출: 열린 상자에서 튀어오르는 동전(x=상자 폭 %, s=지름 px, dx/up=궤적)과 반짝이
+const CHEST_COINS = [
+  { x: 30, s: 9,  dx: "-15px", dx2: "-22px", up: "-30px", dur: 1.9, delay: 0 },
+  { x: 43, s: 11, dx: "-5px",  dx2: "-9px",  up: "-44px", dur: 2.2, delay: 0.35 },
+  { x: 56, s: 8,  dx: "7px",   dx2: "13px",  up: "-34px", dur: 2.0, delay: 0.75 },
+  { x: 67, s: 10, dx: "17px",  dx2: "25px",  up: "-39px", dur: 2.3, delay: 1.1 },
+  { x: 49, s: 7,  dx: "1px",   dx2: "3px",   up: "-50px", dur: 2.1, delay: 1.5 },
+];
+const CHEST_SPARKS = [
+  { x: 16, y: 20, s: 14, d: 0 }, { x: 84, y: 26, s: 11, d: 0.6 }, { x: 50, y: 4, s: 12, d: 1.1 },
+  { x: 4, y: 58, s: 10, d: 1.6 }, { x: 92, y: 62, s: 12, d: 2.1 },
+];
 
 const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
@@ -241,6 +256,13 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         @keyframes amSpark{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.1)}}
         @keyframes amStar{0%{opacity:0;transform:translateY(4px) scale(.5)}40%{opacity:1;transform:translateY(-6px) scale(1.15)}100%{opacity:0;transform:translateY(-14px) scale(.8)}}
         @keyframes amGlow{0%,100%{opacity:.25}50%{opacity:.6}}
+        @keyframes amChestPop{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:1}}
+        @keyframes amCoin{
+          0%{transform:translate(-50%,0) scale(.4) rotate(0deg);opacity:0}
+          14%{opacity:1}
+          50%{transform:translate(calc(-50% + var(--dx)), var(--up)) scale(1) rotate(200deg);opacity:1}
+          100%{transform:translate(calc(-50% + var(--dx2)), 24px) scale(.7) rotate(400deg);opacity:0}
+        }
       `}</style>
       <img src={M.bg} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
 
@@ -317,14 +339,33 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       })}
 
       {/* ── 보물상자 축하 효과 (모두 완료 시 — 배경 속 상자 위에 겹치기만) ── */}
-      {chestParty && (
-        <div style={{ position: "absolute", left: `${CHEST[0]}%`, top: `${CHEST[1]}%`, transform: "translate(-50%,-50%)", width: "26%", aspectRatio: "1/0.8", pointerEvents: "none" }}>
-          <div style={{ position: "absolute", inset: "-12%", borderRadius: "50%", background: "radial-gradient(ellipse at 50% 55%, rgba(255,224,130,0.55), transparent 70%)", animation: "amGlow 2.2s ease-in-out infinite" }} />
-          {[["⭐", "6%", "-4%", 0], ["✨", "70%", "-10%", 0.5], ["🌟", "40%", "-22%", 1.0], ["✨", "-6%", "30%", 1.5], ["⭐", "86%", "36%", 2.0]].map(([e, l, tp, dl], i) => (
-            <span key={i} style={{ position: "absolute", left: l, top: tp, fontSize: 15, animation: `amStar 2.4s ease-in-out ${dl}s infinite` }}>{e}</span>
-          ))}
-        </div>
-      )}
+      {/* 도착하면 배경 속 닫힌 상자를 '열린 보물상자' 원화로 덮고, 동전·반짝이가 튀어오른다 (사용자 확정) */}
+      {chestParty && (() => {
+        const [ox, oy, ow] = M.chestOpen;
+        return (
+          <div style={{ position: "absolute", left: `${ox}%`, top: `${oy}%`, width: `${ow}%`, transform: "translate(-50%,-100%)", pointerEvents: "none", zIndex: 2 }}>
+            {/* 황금빛 후광 */}
+            <div style={{ position: "absolute", left: "50%", top: "52%", width: "165%", aspectRatio: "1 / 0.72", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "radial-gradient(ellipse at 50% 50%, rgba(255,214,90,0.5), transparent 70%)", animation: "amGlow 2.2s ease-in-out infinite" }} />
+            <img src="assets/chest-open.webp" alt="" draggable={false}
+              style={{ position: "relative", width: "100%", height: "auto", display: "block", transformOrigin: "50% 100%",
+                animation: "amChestPop .55s cubic-bezier(.34,1.56,.64,1) both",
+                filter: "drop-shadow(0 4px 6px rgba(60,80,40,0.35))" }} />
+            {/* 동전 튀어오름 — 상자 입구에서 위로 솟았다가 떨어지며 사라짐 */}
+            {CHEST_COINS.map((c, i) => (
+              <span key={i} style={{ position: "absolute", left: `${c.x}%`, top: "40%", width: c.s, height: c.s, borderRadius: "50%",
+                background: "radial-gradient(circle at 34% 28%, #FFF6C8, #F3C544 56%, #C68C1C)",
+                boxShadow: "0 0 2px rgba(120,80,10,0.5)",
+                "--dx": c.dx, "--dx2": c.dx2, "--up": c.up,
+                animation: `amCoin ${c.dur}s ease-out ${c.delay}s infinite` }} />
+            ))}
+            {/* 반짝이 */}
+            {CHEST_SPARKS.map((s, i) => (
+              <span key={i} style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, fontSize: s.s,
+                animation: `amSpark 2.4s ease-in-out ${s.d}s infinite` }}>✨</span>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* ── 보물상자 진행도 칩 — 🔒 n/N, 전부 완료하면 🔓. 상자 '아래' 배치 (사용자 확정) ── */}
       {n > 0 && mode !== "future" && (
