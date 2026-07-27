@@ -134,13 +134,15 @@ export const journalBuildings = (n) => {
   return sp.map((s, i) => BUILDINGS[(s[3] ?? i) % BUILDINGS.length]);
 };
 
-// 도착 연출: 열린 상자에서 튀어오르는 동전(x=상자 폭 %, s=지름 px, dx/up=궤적)과 반짝이
+// 도착 연출: 열린 상자에서 튀어오르는 동전(사용자 금화 원화)과 반짝이
+//   x=상자 폭 % / s=지름 px / dx·up=궤적 / spin=true면 앞뒤로 뒤집히는 정면 금화,
+//   false면 기울어진 금화가 제자리에서 구르듯 회전 (둘을 섞어야 흩날리는 느낌이 산다)
 const CHEST_COINS = [
-  { x: 30, s: 9,  dx: "-15px", dx2: "-22px", up: "-30px", dur: 1.9, delay: 0 },
-  { x: 43, s: 11, dx: "-5px",  dx2: "-9px",  up: "-44px", dur: 2.2, delay: 0.35 },
-  { x: 56, s: 8,  dx: "7px",   dx2: "13px",  up: "-34px", dur: 2.0, delay: 0.75 },
-  { x: 67, s: 10, dx: "17px",  dx2: "25px",  up: "-39px", dur: 2.3, delay: 1.1 },
-  { x: 49, s: 7,  dx: "1px",   dx2: "3px",   up: "-50px", dur: 2.1, delay: 1.5 },
+  { x: 30, s: 13, dx: "-15px", dx2: "-22px", up: "-30px", dur: 1.9, delay: 0,    spin: true },
+  { x: 43, s: 15, dx: "-5px",  dx2: "-9px",  up: "-44px", dur: 2.2, delay: 0.35, spin: false },
+  { x: 56, s: 12, dx: "7px",   dx2: "13px",  up: "-34px", dur: 2.0, delay: 0.75, spin: true },
+  { x: 67, s: 14, dx: "17px",  dx2: "25px",  up: "-39px", dur: 2.3, delay: 1.1,  spin: false },
+  { x: 49, s: 11, dx: "1px",   dx2: "3px",   up: "-50px", dur: 2.1, delay: 1.5,  spin: true },
 ];
 const CHEST_SPARKS = [
   { x: 16, y: 20, s: 14, d: 0 }, { x: 84, y: 26, s: 11, d: 0.6 }, { x: 50, y: 4, s: 12, d: 1.1 },
@@ -260,6 +262,12 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         @keyframes amGlow{0%,100%{opacity:.25}50%{opacity:.6}}
         @keyframes amChestPop{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:1}}
         @keyframes amCoin{
+          0%{transform:translate(-50%,0) scale(.4) rotateY(0deg);opacity:0}
+          14%{opacity:1}
+          50%{transform:translate(calc(-50% + var(--dx)), var(--up)) scale(1) rotateY(540deg);opacity:1}
+          100%{transform:translate(calc(-50% + var(--dx2)), 24px) scale(.7) rotateY(1080deg);opacity:0}
+        }
+        @keyframes amCoinRoll{
           0%{transform:translate(-50%,0) scale(.4) rotate(0deg);opacity:0}
           14%{opacity:1}
           50%{transform:translate(calc(-50% + var(--dx)), var(--up)) scale(1) rotate(200deg);opacity:1}
@@ -355,11 +363,11 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 filter: "drop-shadow(0 4px 6px rgba(60,80,40,0.35))" }} />
             {/* 동전 튀어오름 — 상자 입구에서 위로 솟았다가 떨어지며 사라짐 */}
             {CHEST_COINS.map((c, i) => (
-              <span key={i} style={{ position: "absolute", left: `${c.x}%`, top: "40%", width: c.s, height: c.s, borderRadius: "50%",
-                background: "radial-gradient(circle at 34% 28%, #FFF6C8, #F3C544 56%, #C68C1C)",
-                boxShadow: "0 0 2px rgba(120,80,10,0.5)",
-                "--dx": c.dx, "--dx2": c.dx2, "--up": c.up,
-                animation: `amCoin ${c.dur}s ease-out ${c.delay}s infinite` }} />
+              <img key={i} src={c.spin ? "assets/coin-front.webp" : "assets/coin-tilt.webp"} alt="" draggable={false}
+                style={{ position: "absolute", left: `${c.x}%`, top: "40%", width: c.s, height: "auto",
+                  filter: "drop-shadow(0 1px 2px rgba(120,80,10,0.45))",
+                  "--dx": c.dx, "--dx2": c.dx2, "--up": c.up,
+                  animation: `${c.spin ? "amCoin" : "amCoinRoll"} ${c.dur}s ease-out ${c.delay}s infinite` }} />
             ))}
             {/* 반짝이 */}
             {CHEST_SPARKS.map((s, i) => (
