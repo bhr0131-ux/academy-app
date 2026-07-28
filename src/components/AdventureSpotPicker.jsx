@@ -84,9 +84,9 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
                   boxShadow: on
                     ? "0 0 0 3px rgba(212,160,60,0.30), 0 3px 7px rgba(93,70,51,0.28)"
                     : "0 2px 5px rgba(93,70,51,0.18)" }}>
-                  <span style={{ fontSize: EM, lineHeight: 1,
-                    opacity: it.passed ? 0.82 : 1,
-                    filter: it.passed ? "saturate(0.55)" : "none" }}>{it.icon}</span>
+                  {/* 이모지는 지나온 칸도 원색 그대로 (사용자 확정 — 지도 건물과 같은 규칙).
+                      '지나왔다'는 표시는 원판 위의 빨간 깃발과 초록 테두리만으로 충분하다. */}
+                  <span style={{ fontSize: EM, lineHeight: 1 }}>{it.icon}</span>
                   {/* 지나온 학원 = 원판 위에 꽂은 깃발 (사용자 요청) — 정복한 지점 표시.
                       이모지 대신 CSS로 그려 지도 팔레트(초록 깃발·갈색 장대)와 톤을 맞춘다 */}
                   {it.passed && (
