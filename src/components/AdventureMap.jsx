@@ -24,6 +24,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // k: 폭 보정 계수 — 원화 가로세로비가 달라도 표시 '높이'가 4종 동일해지도록 (질감 통일)
 // v7 크리스프 카툰 세트 (흰 원을 투명으로 뚫어 탑재 — 이모지가 뒤에서 비치도록)
 // ar: 원본 가로/세로 비 (탐험장소 줄에서 '표시 높이'를 통일할 때 사용)
+// '다녀온 곳' 깃발 색 — 수채화 지도 위에서 한눈에 띄는 벽돌빛 빨강 (사용자 확정).
+// 탐험장소 줄(AdventureSpotPicker)의 깃발과 같은 값을 쓴다 — 두 곳이 같은 표시여서.
+export const FLAG_RED = "#C8452F";
 // fx·fy = '다녀온 학원' 깃발을 꽂을 지붕 마루 좌표 (그림 폭·높이 대비 %) — 원화에서 눈으로 실측
 const BUILDINGS = [
   { src: "assets/map-bld-treehouse.webp", cx: 57.2, cy: 49.9, d: 43.2, k: 0.87, ar: 190 / 220, fx: 44, fy: 23 },  // 나무 위의 집 (구멍 우측)
@@ -340,11 +343,9 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         const [x, y, lp, bi, ldx] = spots[i];
         const d = done(ac, i);
         const B = BUILDINGS[(bi ?? i) % BUILDINGS.length];
-        // 지나온 학원(수업 종료) 표현 — 사용자 확정: 투명도 대신 '채도'를 낮춘다.
-        // 투명도를 낮추면 배경 풀과 섞여 건물 형태가 지저분해지므로, 채도 -50%·명도 +5%·대비 -17%.
-        // 건물과 안쪽 이모지에 동일 적용 (이름표는 정보라 제외 — 배경만 톤다운)
+        // 지나온 학원(수업 종료) 표현 — 지붕의 빨간 깃발 하나로만 나타낸다 (사용자 확정).
+        // 예전엔 건물 채도를 -50% 낮췄지만, 다녀온 곳이 흐릿해 보여 철회. 건물은 항상 원색.
         const past = passedByTime(i);
-        const pastFx = past ? "saturate(0.5) brightness(1.05) contrast(0.83) " : "";
         const chip = past
           ? { background: "rgba(238,233,221,0.90)", border: "1px solid rgba(155,114,74,0.30)", borderRadius: 9, padding: "2px 8px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.14)" }
           : { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 8px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
@@ -384,11 +385,11 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 <span style={{ position: "absolute", top: "10%", right: "-9%", fontSize: 11, animation: "amSpark 2.8s ease-in-out infinite -1.2s", zIndex: 2 }}>✨</span>
               </>}
               {/* 구멍 뒤 크림 원판 + 학원 이모지 — 아이 학원카드와 같은 이모지를 항상 유지 (완료 표시는 이름표 ✅) */}
-              <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(M.fs * (B.es || 1)), lineHeight: 1, zIndex: 0, filter: pastFx || undefined, transition: "filter .4s ease" }}>
+              <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(M.fs * (B.es || 1)), lineHeight: 1, zIndex: 0 }}>
                 {ac.icon}
               </span>
               <img src={B.src} alt="" draggable={false}
-                style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", transition: "filter .4s ease", filter: pastFx + (d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))") }} />
+                style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", transition: "filter .4s ease", filter: (d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))") }} />
               {/* 5곳 이상: 시간만 남긴 이름표를 건물 바로 아래에 (사용자 확정).
                   흐름 밖(absolute)에 둬야 블록 높이가 안 변해 건물이 제자리에 그대로 있는다 */}
               {compact && !past && (
@@ -400,11 +401,11 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                   건물 그림은 채도를 낮추지만 깃발은 표시라 원색 유지 → 필터 밖(img 형제)에 그린다 */}
               {past && (
                 <span aria-hidden="true" style={{ position: "absolute", left: `${B.fx ?? 50}%`, top: `${B.fy ?? 18}%`,
-                  transform: "translateY(calc(-100% + 3px))", width: 12, height: 19, zIndex: 2 }}>
-                  <span style={{ position: "absolute", left: 0, bottom: 0, width: 2, height: 19, borderRadius: 1, background: "#7E4E20" }} />
-                  <span style={{ position: "absolute", left: 2, top: 0, width: 10, height: 8, background: "#7FA35A",
+                  transform: "translateY(calc(-100% + 3px))", width: 13, height: 25, zIndex: 2 }}>
+                  <span style={{ position: "absolute", left: 0, bottom: 0, width: 2, height: 25, borderRadius: 1, background: "#7E4E20" }} />
+                  <span style={{ position: "absolute", left: 2, top: 0, width: 11, height: 9, background: FLAG_RED,
                     clipPath: "polygon(0 0, 100% 0, 72% 50%, 100% 100%, 0 100%)", borderRadius: 1,
-                    filter: "drop-shadow(0 1px 1px rgba(60,80,40,0.35))" }} />
+                    filter: "drop-shadow(0 1px 1.5px rgba(60,50,40,0.35))" }} />
                 </span>
               )}
             </div>
