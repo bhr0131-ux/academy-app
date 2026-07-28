@@ -64,11 +64,12 @@ export default function AdventureJournalCard({
           color: "#7A6E48", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{name}</p>
       </div>
 
-      {/* 탐험 시작 — 시각 + 남은시간을 한 줄로 (사용자 조정: 남은시간은 항상 시간 우측, 글자 축소) */}
+      {/* 탐험 시작 — 시각은 왼쪽 밑줄 위, 남은시간은 줄 맨 오른쪽 끝에 (사용자 확정: 시각에 붙이지 말고 떼서 우측).
+          marginLeft:auto로 밀어 두면 남는 폭이 좁아졌을 때만 아랫줄로 내려가고, 그때도 우측 정렬이 유지된다. */}
       <div style={{ position: "absolute", left: "32.5%", right: "6%", top: "41.2%", transform: "translateY(-50%)",
-        display: "flex", alignItems: "baseline", flexWrap: "wrap", columnGap: 8, rowGap: 0, pointerEvents: "none" }}>
-        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(20px, 6.8vw, 28px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap" }}>{time}</span>
-        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(13px, 4.3vw, 17px)", color: "#7A6E48", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{remain}</span>}
+        display: "flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "space-between", columnGap: 8, rowGap: 0, pointerEvents: "none" }}>
+        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(20px, 6.8vw, 28px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap", flexShrink: 0 }}>{time}</span>
+        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(16px, 5.4vw, 22px)", color: "#7A6E48", whiteSpace: "nowrap", marginLeft: "auto", flexShrink: 0 }}>{remain}</span>}
       </div>
 
       {/* 셔틀 — 버스 아이콘 옆 */}

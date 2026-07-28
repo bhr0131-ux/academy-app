@@ -24,8 +24,10 @@ import { FLAG_RED } from "./AdventureMap.jsx";   // 깃발 색은 지도와 한 
 
 const D = 38;           // 스탬프 원판 지름 px
 const EM = 21;          // 학원 이모지 크기 px
-const PER_ROW = 6;      // 한 줄에 넣을 학원 수 (건물 그림 제거로 5→6곳)
 const CELL = 46;        // 학원 한 칸 폭 px (고정)
+// 줄 나누기 (사용자 확정): 4곳까지 한 줄, 5곳부터 두 줄로 나누되 윗줄을 한 개 더 많게.
+//   5=3+2 · 6=3+3 · 7=4+3 · 8=4+4  → 윗줄 개수 = ceil(n/2)
+const firstRowCount = (n) => (n <= 4 ? n : Math.ceil(n / 2));
 // 발자국 연결 구간은 '남는 폭을 나눠 갖는' 신축 구간 —
 // 학원이 적은 날은 넓게 벌어지고(최대 44px), 6곳이 꽉 차면 최소 14px까지 좁아진다.
 const FP_MIN = 20, FP_MAX = 52;  // 발자국 3개가 들어가도록 최소·최대 확대
@@ -33,6 +35,10 @@ const FP_MIN = 20, FP_MAX = 52;  // 발자국 3개가 들어가도록 최소·�
 export default function AdventureSpotPicker({ items = [], selectedId, onSelect }) {
   // 학원이 많아지면 칸 사이 신축 구간이 좁아져 발자국 3개가 뭉친다 → 5곳부터 2개로 (사용자 확정)
   const fpCount = items.length >= 5 ? 2 : 3;
+  const firstRow = firstRowCount(items.length);
+  // 줄을 flex-wrap에 맡기지 않고 직접 나눈다 — 줄바꿈 위치를 정확히 잡고, 줄 사이 간격도
+  // (깃발이 솟는 12px + 8px) 만큼만 정확히 주기 위해서.
+  const rows = [items.slice(0, firstRow), items.slice(firstRow)].filter(r => r.length);
   return (
     <div>
       <style>{`
@@ -44,11 +50,13 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
         <span style={{ flexShrink: 0, fontSize: 13.5, fontWeight: 900, letterSpacing: 0.4, color: "#8A6B47" }}>🧭 탐험장소</span>
         <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)" }} />
       </div>
-      {/* paddingTop — 지나온 칸의 깃발이 원판 위로 14px 솟으므로 윗줄과 부딪히지 않게 공간을 준다 */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", flexWrap: "wrap", rowGap: 20, paddingTop: 12, width: "100%", marginBottom: 16 }}>
-        {items.map((it, i) => {
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", marginBottom: 16 }}>
+      {rows.map((row, ri) => (
+      /* paddingTop — 지나온 칸의 깃발이 원판 위로 14px 솟으므로 윗줄과 부딪히지 않게 공간을 준다 */
+      <div key={ri} style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 12, width: "100%" }}>
+        {row.map((it, i) => {
           const on = it.id === selectedId;
-          const rowStart = i % PER_ROW === 0;
+          const rowStart = i === 0;
           // 진행 상태 = 테두리 색 (별도 배지 없이 색으로만 구분)
           const ring = it.passed ? "#7FA35A" : it.current ? "#D9A441" : "rgba(155,114,74,0.38)";
           return (
@@ -102,6 +110,8 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
             </Fragment>
           );
         })}
+      </div>
+      ))}
       </div>
     </div>
   );
