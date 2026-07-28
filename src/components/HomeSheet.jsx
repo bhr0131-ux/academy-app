@@ -15,11 +15,13 @@
    페이지 전체의 스크롤 모델을 갈아엎어야 하는데, 문서 스크롤 + sticky만으로도
    위 두 동작이 사용자 눈에는 똑같이 보인다 (손잡이 = '그 위치까지 스크롤' 버튼).
 
-   고정되는 건 '손잡이'와 '탭 줄' 둘이고, 그 사이의 날짜바는 같이 스크롤돼 사라진다
-   (사용자 확정: 날짜바는 안 보여도 되지만 손잡이는 남아 있어야 한다 — 다시 내려야 하니까).
-   손잡이와 탭 줄은 DOM에서 붙어 있지 않으므로 각각 sticky로 만들고,
-   탭 줄의 top을 손잡이 높이만큼 내려 둘이 위아래로 겹쳐 붙게 한다.
-   그 사이에 있는 날짜바는 자연스럽게 위로 밀려 올라가 손잡이 뒤로 숨는다(z-index 차이).
+   순서는 손잡이 → 탭 줄 → 날짜바 (사용자 확정: 날짜바를 탭 아래로).
+   고정되는 건 '손잡이'와 '탭 줄'까지고, 그 아래 날짜바는 같이 스크롤돼 탭 뒤로 숨는다
+   (날짜바는 안 보여도 되지만 손잡이는 남아 있어야 한다 — 다시 내려야 하니까).
+   손잡이와 탭 줄은 각각 sticky로 만들고, 탭 줄의 top을 손잡이 높이만큼 내려 위아래로 붙인다.
+
+   첫 화면은 '탭 줄 아래'에서 딱 끝난다 — 무대 높이를 화면에서 시트 머리만큼 뺀 값으로
+   잡아 두었다(index.html의 .amStageFill). 그래서 손잡이 한 번만 눌러도 탭이 화면 맨 위로 온다.
 
    ※ 세 조각을 형제로 내보낸다. 한 div로 감싸면 sticky가 그 부모 높이 안에서만
       붙을 수 있어(=시트 높이만큼) 사실상 동작하지 않는다.
@@ -103,12 +105,8 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
           <span style={{display:"block",width:44,height:5,borderRadius:999,background:"#D9DED7",margin:"0 auto"}}/>
         </button>
       </div>
-      {/* ── ② 날짜바 — 고정하지 않는다. 위로 밀려 올라가 손잡이 뒤로 숨는다 (z-index가 낮아서) ── */}
-      <div style={{position:"relative",zIndex:1,padding:"0 18px",background:"#F0F3F3"}}>
-        {dateNav}
-      </div>
-      {/* ── ③ 탭 줄 — 손잡이 바로 아래(top=손잡이 높이)에 붙어 계속 남는다 ── */}
-      <div style={{position:"sticky",top:gripH,zIndex:8,padding:"1px 18px 14px",background:"#F0F3F3",
+      {/* ── ② 탭 줄 — 손잡이 바로 아래(top=손잡이 높이)에 붙어 계속 남는다 ── */}
+      <div style={{position:"sticky",top:gripH,zIndex:8,padding:"1px 18px 10px",background:"#F0F3F3",
         // 붙으면 아래로 그림자를 깔아 '지나가는 내용'과 층을 나눈다
         boxShadow:stuck?"0 6px 16px -6px rgba(40,70,45,0.30)":"none",
         transition:"box-shadow .18s ease"}}>
@@ -129,6 +127,10 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
             );
           })}
         </div>
+      </div>
+      {/* ── ③ 날짜바 — 탭 아래 (사용자 확정). 고정하지 않아 위로 밀려 올라가 탭 뒤로 숨는다 (z-index가 낮아서) ── */}
+      <div style={{position:"relative",zIndex:1,padding:"0 18px 14px",background:"#F0F3F3"}}>
+        {dateNav}
       </div>
     </Fragment>
   );
