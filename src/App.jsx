@@ -3565,9 +3565,11 @@ export default function App() {
                   <div style={{position:"absolute",top:0,left:"-40%",width:"45%",height:"100%",background:`linear-gradient(105deg, transparent, rgba(255,255,255,${cute?0.6:0.85}), transparent)`,transform:"skewX(-18deg)",willChange:"transform",animation:"shineMove 4s ease-in-out infinite"}}/>
                 </div>
               )}
-            <div style={{position:"relative",borderRadius:cute?(stageBorder?30:34):"0",padding:cute?"18px 18px 16px":"120px 18px 26px",overflow:"hidden",
+            <div className={cute?undefined:(stageBorder?"amStageFill amStageFillBd":"amStageFill")}
+              style={{position:"relative",borderRadius:cute?(stageBorder?30:34):"0",padding:cute?"18px 18px 16px":"120px 18px 26px",overflow:"hidden",
               // 목업형(탐험): 테두리 장착 여부와 무관하게 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림
-              ...(!cute?{display:"flex",flexDirection:"column",justifyContent:"flex-end",minHeight:stageBorder?"calc(100vh - 213px)":"calc(100vh - 205px)",boxSizing:"border-box"}:{}),
+              // 높이는 index.html의 .amStageFill(=화면 높이 − 시트 머리)로 준다 — 첫 화면이 탭 줄에서 딱 끝나게.
+              ...(!cute?{display:"flex",flexDirection:"column",justifyContent:"flex-end",boxSizing:"border-box"}:{}),
               contain:"paint",   // 카드 내부의 애니메이션 리페인트를 카드 안으로 격리 → 헤더 등 바깥 UI 페인트 지연 방지
               background:stageBg,
               // 탐험(개방감): 테두리 없이 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
@@ -3900,7 +3902,7 @@ export default function App() {
           );
         })()}
 
-        <div key={childTab} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:"#F0F3F3"}}>
+        <div key={childTab} className={kidSkin==="cute"?undefined:"amTabFill"} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:"#F0F3F3"}}>
           {/* ── 탐험장소 탭 (학원카드) ── */}
           {childTab==="area"&&(
             <>
