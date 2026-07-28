@@ -75,13 +75,16 @@ const MAP_LONG = {
   //    자리를 옮길 때는 order 검증(길 t값이 배열 순서대로 증가)을 반드시 다시 할 것.
   // 건물번호(4번째 값)를 자리마다 고정한다 — 학원 수가 바뀌어도 같은 자리는 같은 건물로 보이게.
   spots: {
-    4: [[77.5,28,null,1],[43.7,47.6,null,0],[73.5,56.5,null,2],[22,74,null,3]],
+    // 건물번호는 '이웃끼리 같은 그림이 오지 않도록' 배정한다 (사용자: 2·3번 건물이 겹쳐 보임).
+    //   [44,33]과 마지막 [22,74]의 그림을 맞바꿔(0↔3) 나무집이 연달아 나오지 않게 함.
+    //   [31,38]은 그 여파로 [44,33]과 붙어 3이 겹쳐서 2(텐트)로 옮김.
+    4: [[77.5,28,null,1],[43.7,47.6,null,0],[73.5,56.5,null,2],[22,74,null,0]],
     // [44,26] → [44,33] (사용자: 아래로 7% — 집 계단을 이름표가 가려서). 길 t가 0.10→0.24로 밀려
     // 돌아치[77.5,28](t=0.13)보다 뒤가 되므로 배열에서도 한 칸 뒤로 — 시간 빠른 학원이 앞자리 유지.
-    5: [[77.5,28,null,1],[44,33,null,0],[43.7,47.6,null,0],[73.5,56.5,null,2],[22,74,null,3]],
-    6: [[77.5,28,null,1],[44,33,null,0],[31,38,null,3],[37,60,null,3],[73.5,56.5,null,2],[22,74,null,3]],
-    7: [[77.5,28,null,1],[44,33,null,0],[31,38,null,3],[43.7,47.6,null,0],[37,60,null,3],[73.5,56.5,null,2],[22,74,null,3]],
-    8: [[30,30,null,2],[77.5,28,null,1],[44,33,null,0],[31,38,null,3],[43.7,47.6,null,0],[37,60,null,3],[73.5,56.5,null,2],[22,74,null,3]],
+    5: [[77.5,28,null,1],[44,33,null,3],[43.7,47.6,null,0],[73.5,56.5,null,2],[22,74,null,0]],
+    6: [[77.5,28,null,1],[44,33,null,3],[31,38,null,2],[37,60,null,3],[73.5,56.5,null,2],[22,74,null,0]],
+    7: [[77.5,28,null,1],[44,33,null,3],[31,38,null,2],[43.7,47.6,null,0],[37,60,null,3],[73.5,56.5,null,2],[22,74,null,0]],
+    8: [[30,30,null,2],[77.5,28,null,1],[44,33,null,3],[31,38,null,2],[43.7,47.6,null,0],[37,60,null,3],[73.5,56.5,null,2],[22,74,null,0]],
   },
   // v9 수채화 원화 모래길 중심선 자동 추출(색 분류 스캔) 좌표 — 다리 구간은 목재라 수동 보간
   pointAt: mkPointAt([
@@ -167,6 +170,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   const n = sorted.length;
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
   const M = n <= 3 ? MAP_SHORT : MAP_LONG;
+  // 5곳 이상이면 이름표를 '시간만' 한 줄로 줄이고 건물 아래에 붙인다 (사용자 확정 — 지도가 빽빽해져서)
+  const compact = n >= 5;
   const pointAt = M.pointAt, CHEST = M.chest;
   // 학원 건물: 지도별 고정 자리(길 옆 잔디)를 위→아래(y) 순으로 정렬해 시간순 학원에 배정 (사용자 확정)
   // 프리셋 밖 개수는 길 위 균등 분배 폴백
@@ -347,13 +352,20 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           <span style={{ fontWeight: 700 }}>{d ? "✅ " : ""}{ac.name}</span>
           {ac.time ? <div style={{ fontSize: 10.5, marginTop: 1, color: "#3F2E1E" }}>🕘 {ac.time}</div> : null}
         </>);
+        // 5곳 이상(compact)은 한 줄 '아이콘 + 시간'만 — 완료 표시는 🕘를 ✅로 바꿔 폭을 늘리지 않는다
+        const timeLabel = <span style={{ fontSize: 10.5, color: "#3F2E1E" }}>{d ? "✅" : "🕘"} {ac.time || "-"}</span>;
         return (
           <div key={ac.id} onClick={onPick ? () => onPick(ac.id) : undefined}
             style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: onPick ? "auto" : "none", cursor: onPick ? "pointer" : undefined }}>
             {/* 이름표 — 기본은 집 위, lp==="left"=집 왼쪽 옆, lp==="bottom"=집 아래. ldx=x미세보정.
                 flex 중앙정렬 + flexShrink:0 — 이름표가 건물 폭보다 넓어도 줄어들지 않고 양옆으로 균등하게 넘친다 */}
+            {/* compact(5곳 이상)일 땐 이 자리를 '보이지 않게'만 두고 실제 이름표는 건물 아래에 그린다.
+                자리를 비우지 않고 남기는 이유: 자리 좌표는 [이름표+건물] 블록의 78% 지점 기준이라
+                이름표를 통째로 빼면 지금까지 맞춰 둔 건물 위치가 전부 위로 밀려 올라간다. */}
             {!lp && (
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: -3, position: "relative", left: ldx || 0, zIndex: 3 }}>
+            <div aria-hidden={compact || undefined}
+              style={{ display: "flex", justifyContent: "center", marginBottom: -3, position: "relative", left: ldx || 0, zIndex: 3,
+                visibility: compact ? "hidden" : undefined }}>
               <div style={{ ...chip, flexShrink: 0, maxWidth: "230%", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
             </div>
             )}
@@ -373,6 +385,13 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
               </span>
               <img src={B.src} alt="" draggable={false}
                 style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", transition: "filter .4s ease", filter: pastFx + (d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))") }} />
+              {/* 5곳 이상: 시간만 남긴 이름표를 건물 바로 아래에 (사용자 확정).
+                  흐름 밖(absolute)에 둬야 블록 높이가 안 변해 건물이 제자리에 그대로 있는다 */}
+              {compact && (
+                <div style={{ position: "absolute", left: "50%", top: "100%", transform: "translateX(-50%)", marginTop: -3, zIndex: 3 }}>
+                  <div style={{ ...chip }}>{timeLabel}</div>
+                </div>
+              )}
             </div>
             {lp === "bottom" && (
             <div style={{ display: "flex", justifyContent: "center", marginTop: -3, position: "relative", left: ldx || 0, zIndex: 3 }}>

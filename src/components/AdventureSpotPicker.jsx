@@ -41,7 +41,8 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
         <span style={{ flexShrink: 0, fontSize: 13.5, fontWeight: 900, letterSpacing: 0.4, color: "#8A6B47" }}>🧭 탐험장소</span>
         <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)" }} />
       </div>
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", flexWrap: "wrap", rowGap: 16, width: "100%", marginBottom: 16 }}>
+      {/* paddingTop — 지나온 칸의 깃발이 원판 위로 14px 솟으므로 윗줄과 부딪히지 않게 공간을 준다 */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", flexWrap: "wrap", rowGap: 20, paddingTop: 12, width: "100%", marginBottom: 16 }}>
         {items.map((it, i) => {
           const on = it.id === selectedId;
           const rowStart = i % PER_ROW === 0;
@@ -75,6 +76,15 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
                   <span style={{ fontSize: EM, lineHeight: 1,
                     opacity: it.passed ? 0.82 : 1,
                     filter: it.passed ? "saturate(0.55)" : "none" }}>{it.icon}</span>
+                  {/* 지나온 학원 = 원판 위에 꽂은 깃발 (사용자 요청) — 정복한 지점 표시.
+                      이모지 대신 CSS로 그려 지도 팔레트(초록 깃발·갈색 장대)와 톤을 맞춘다 */}
+                  {it.passed && (
+                    <span aria-hidden="true" style={{ position: "absolute", left: "50%", top: -14, width: 12, height: 17 }}>
+                      <span style={{ position: "absolute", left: 0, top: 0, width: 2, height: 17, borderRadius: 1, background: "#7E4E20" }} />
+                      <span style={{ position: "absolute", left: 2, top: 1.5, width: 10, height: 8, background: "#7FA35A",
+                        clipPath: "polygon(0 0, 100% 0, 72% 50%, 100% 100%, 0 100%)", borderRadius: 1 }} />
+                    </span>
+                  )}
                   {/* 현재 학원 반짝임 */}
                   {it.current && !it.passed && <>
                     <span style={{ position: "absolute", left: -7, top: -6, fontSize: 12, animation: "spNow 2.4s ease-in-out infinite" }}>✨</span>
