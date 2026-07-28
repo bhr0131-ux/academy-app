@@ -3075,8 +3075,8 @@ export default function App() {
     return (
       <div style={{fontFamily:kidSkin!=="cute"
           // 탐험: 본문 전체를 Pretendard로 통일 — 손글씨는 헤드라인(의연체)·타일 제목(콘콘체)만
-          ?"'PretendardSemiBold','Noto Sans KR','Apple SD Gothic Neo',sans-serif"
-          :"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:kidSkin!=="cute"
+          ?"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif"
+          :"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",background:kidSkin!=="cute"
           // 탐험(개방감): 루트 바탕도 시트와 같은 아이보리 — 시트·콘텐츠·바닥이 한 장의 종이처럼 이어짐 (카드만 색 유지)
           ?"linear-gradient(180deg, #F0F3F3 0%, #EAEFE9 100%)"
           :(GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`)),backgroundSize:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflow:"hidden",wordBreak:"keep-all"}}>
@@ -3447,9 +3447,9 @@ export default function App() {
               const _emoji=_em?_em[1]:"";
               // 꾸미기 배경(darkStage: 밤 톤) 장착 시 무대가 어두워짐 → 응원문구를 밝은 크림색+어두운 그림자로 반전해 가독성 유지
               const _onDark=!!getEquipped(childId,"bg")?.darkStage;
-              // 굵기: 가짜 볼드(700) 대신 원래 얇은 손글씨(400) + 0.4px 스트로크로 약 10~15%만 도톰하게
+              // 써라운드는 그 자체가 Bold(700) 폰트라 예전의 0.4px 스트로크 보정은 제거 (겹치면 뭉개진다)
               return (
-                <h1 style={{fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:28,fontWeight:400,WebkitTextStroke:_onDark?"0.4px #FFF3D9":"0.4px #5D4633",margin:"30px 0 0 30px",position:"relative",top:20,left:7,lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:_onDark?"#FFF3D9":"#5D4633",
+                <h1 style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:22,fontWeight:400,margin:"30px 0 0 30px",position:"relative",top:20,left:7,lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:_onDark?"#FFF3D9":"#5D4633",
                   // 밝은 무대: 흰 글로우 대신 옅은 웜브라운 그림자 — 흰 구름 위에서도 글자가 묻히지 않게
                   textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 2px rgba(93,70,51,0.30), 0 2px 10px rgba(93,70,51,0.18)"}}>
                   {_head}{_restText&&<><br/>{_restText}</>}
@@ -4046,8 +4046,8 @@ export default function App() {
                   const dungeon=getAcademyTheme(ac.name,kidSkin);
                   const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
                   const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
-                  const chipSty=(checked)=>({fontSize:17,padding:"3px 11px",borderRadius:999,cursor:"pointer",fontWeight:400,transition:"all .15s",
-                    fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",
+                  const chipSty=(checked)=>({fontSize:11,padding:"3px 11px",borderRadius:999,cursor:"pointer",fontWeight:400,transition:"all .15s",
+                    fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",
                     background:checked?"rgba(127,163,90,0.30)":"rgba(122,88,50,0.10)",
                     border:checked?"1.5px solid #7FA35A":"1px solid rgba(122,88,50,0.4)",
                     color:checked?"#3E5C28":"#5A4430"});
@@ -4993,7 +4993,7 @@ export default function App() {
   }
 
   return (
-    <div style={{fontFamily:"'Noto Sans KR','Apple SD Gothic Neo',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:90,wordBreak:"keep-all"}}>
+    <div style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:90,wordBreak:"keep-all"}}>
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
 
       {/* 토스트 */}

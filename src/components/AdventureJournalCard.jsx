@@ -21,9 +21,9 @@
 
 import { useRef } from "react";
 
-// 사용자 확정: 응원문구(오늘도 신나는 탐험 출발!)와 같은 손글씨체 'Uiyeun'으로 통일 — 제목·값 모두
-const F_HAND = "'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif";
-const F_BODY = "'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif";
+// 앱 전체 글씨체(카페24 써라운드)로 통일 — 제목·값 모두 (사용자 확정)
+const F_HAND = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
+const F_BODY = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
 // onPrev/onNext: 좌우 스와이프로 시간순 이전/다음 학원 일지로 전환 (App이 순환 이동 전달)
 // 카드가 학원 전환으로 다시 마운트될 때(key=학원 id) 페이지 넘김 애니메이션 재생
@@ -57,10 +57,10 @@ export default function AdventureJournalCard({
       {/* 제목 — 던전명(손글씨 크게) + 학원명(부제), 리스 우측 여백 */}
       <div style={{ position: "absolute", left: "37%", right: "9%", top: "13%", height: "14%",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(23px, 7.9vw, 36px)",
+        <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(12.7px, 4.3vw, 19.8px)",
           color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,255,255,0.7)",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{title}</p>
-        <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(15px, 5vw, 22px)",
+        <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(8.2px, 2.8vw, 12.1px)",
           color: "#7A6E48", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{name}</p>
       </div>
 
@@ -68,13 +68,13 @@ export default function AdventureJournalCard({
           marginLeft:auto로 밀어 두면 남는 폭이 좁아졌을 때만 아랫줄로 내려가고, 그때도 우측 정렬이 유지된다. */}
       <div style={{ position: "absolute", left: "32.5%", right: "6%", top: "41.2%", transform: "translateY(-50%)",
         display: "flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "space-between", columnGap: 8, rowGap: 0, pointerEvents: "none" }}>
-        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(20px, 6.8vw, 28px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap", flexShrink: 0 }}>{time}</span>
-        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(16px, 5.4vw, 22px)", color: "#7A6E48", whiteSpace: "nowrap", marginLeft: "auto", flexShrink: 0 }}>{remain}</span>}
+        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11px, 3.7vw, 15.4px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap", flexShrink: 0 }}>{time}</span>
+        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(8.8px, 3vw, 12.1px)", color: "#7A6E48", whiteSpace: "nowrap", marginLeft: "auto", flexShrink: 0 }}>{remain}</span>}
       </div>
 
       {/* 셔틀 — 버스 아이콘 옆 */}
       <div style={{ position: "absolute", left: "32.5%", right: "8%", top: "56.1%", transform: "translateY(-50%)", textAlign: "left", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(20px, 6.8vw, 28px)", color: "#4E432A", lineHeight: 1.3,
+        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11px, 3.7vw, 15.4px)", color: "#4E432A", lineHeight: 1.3,
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{shuttle}</p>
       </div>
 
@@ -86,7 +86,7 @@ export default function AdventureJournalCard({
 
       {/* 남은 미션 배너 값 — 타깃 아이콘 옆 (라벨 없음 → 문구를 온전히 표기) */}
       <div style={{ position: "absolute", left: "35.5%", top: "85%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(21px, 7.2vw, 30px)", color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
+        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11.6px, 4vw, 16.5px)", color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
       </div>
     </div>
   );

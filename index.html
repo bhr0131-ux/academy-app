@@ -2,30 +2,30 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <link rel="preload" href="/assets/fonts/ownglyph-euiyeonchae.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/cafe24-ssurround.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/stage-adventure-meadow.webp" as="image" fetchpriority="high" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>미션팡</title>
     <style>
-      /* 온글잎 의연체 — 홈 헤드라인 손글씨용. 앱 내장(로컬) 파일이라 오프라인(Capacitor)에서도 동작.
-         원본 TTF: art-src/font-ownglyph-euiyeonchae.ttf (재가공용, 배포 미포함) */
+      /* 카페24 써라운드 — 앱 전체 기본 글씨체 (사용자 확정). 앱 내장(로컬) 파일이라
+         오프라인(Capacitor)에서도 동작한다.
+         · 제작사 배포 woff2를 '그대로' 쓴다 — 전체 11,440자(392KB)로, 예전 두 폰트를
+           상용 2,780자로 서브셋한 합(1.13MB)보다도 작다. 서브셋을 안 하니 글자가 빠질 일도 없다.
+         · 단일 굵기(Bold/700) 폰트라 font-weight 범위를 넓게 열어 둔다.
+           이렇게 해야 브라우저가 굵게를 '합성'해서 뭉개는 일이 없다.
+         · 원본 OTF·라이선스: art-src/font-cafe24-ssurround.otf / -LICENSE.pdf (재가공용, 배포 미포함)
+         · 이전 폰트(온글잎 의연체·Pretendard SemiBold)는 art-src에 원본이 남아 있어 되돌릴 수 있다. */
       @font-face {
-        font-family: 'Uiyeun';
-        src: url('/assets/fonts/ownglyph-euiyeonchae.woff2') format('woff2');
-        font-weight: normal;
+        font-family: 'Cafe24Ssurround';
+        src: url('/assets/fonts/cafe24-ssurround.woff2') format('woff2');
+        font-weight: 100 900;
         font-style: normal;
         font-display: swap;
       }
-      /* Pretendard SemiBold — 타일 작은 글씨용. 앱 내장(로컬).
-         (한글 폰트는 상용 2,780자로 서브셋 — 원본 6.2MB → 1.1MB, 첫 화면 지연 해소)
-         콘콘체는 타일 제목 3개에만 쓰이면서 842KB를 차지해 제거하고 의연체로 통합했다.
-         원본: art-src/font-pretendard-semibold.otf */
-      @font-face {
-        font-family: 'PretendardSemiBold';
-        src: url('/assets/fonts/pretendard-semibold.woff2') format('woff2');
-        font-weight: normal;
-        font-style: normal;
-        font-display: swap;
+      /* 전역 기본 — 컴포넌트가 따로 지정하지 않은 글자도 모두 이 폰트로 (사용자: 전체적으로 변경).
+         이모지는 이 폰트에 글리프가 없어 시스템 이모지 폰트로 자동 폴백된다. */
+      html, body, button, input, textarea, select {
+        font-family: 'Cafe24Ssurround', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
       }
     </style>
   </head>

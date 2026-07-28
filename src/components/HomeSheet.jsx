@@ -47,8 +47,8 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
               background:on?ac.bg:"#F8F2E6",
               boxShadow:"0 3px 11px rgba(155,114,74,0.10)"}}>
               <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
-              <b style={{display:"block",fontFamily:"'Uiyeun','Noto Sans KR','Apple SD Gothic Neo',sans-serif",fontSize:18.5,fontWeight:400,color:on?ac.text:"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
-              <small style={{display:"block",fontFamily:"'PretendardSemiBold','Noto Sans KR',sans-serif",fontSize:11.5,fontWeight:400,color:on?ac.text:"#7E8C7B",opacity:on?0.85:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
+              <b style={{display:"block",fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:15.5,fontWeight:400,color:on?ac.text:"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
+              <small style={{display:"block",fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:11.5,fontWeight:400,color:on?ac.text:"#7E8C7B",opacity:on?0.85:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
             </button>
           );
         })}
