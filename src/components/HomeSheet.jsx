@@ -15,13 +15,18 @@
    페이지 전체의 스크롤 모델을 갈아엎어야 하는데, 문서 스크롤 + sticky만으로도
    위 두 동작이 사용자 눈에는 똑같이 보인다 (손잡이 = '그 위치까지 스크롤' 버튼).
 
-   ※ 고정되는 건 '탭 줄'만이다. 손잡이·날짜바까지 같이 고정하면 머리가 화면의 25%를
-      차지해 버려서(실측 197px/800px), 탭 줄만 남기고 위쪽은 같이 스크롤되게 했다.
-   ※ 그래서 두 조각(윗부분/탭줄)을 형제로 내보낸다. 한 div로 감싸면 sticky가
-      그 부모 높이 안에서만 붙을 수 있어(=시트 높이만큼) 사실상 동작하지 않는다.
+   고정되는 건 '손잡이'와 '탭 줄' 둘이고, 그 사이의 날짜바는 같이 스크롤돼 사라진다
+   (사용자 확정: 날짜바는 안 보여도 되지만 손잡이는 남아 있어야 한다 — 다시 내려야 하니까).
+   손잡이와 탭 줄은 DOM에서 붙어 있지 않으므로 각각 sticky로 만들고,
+   탭 줄의 top을 손잡이 높이만큼 내려 둘이 위아래로 겹쳐 붙게 한다.
+   그 사이에 있는 날짜바는 자연스럽게 위로 밀려 올라가 손잡이 뒤로 숨는다(z-index 차이).
+
+   ※ 세 조각을 형제로 내보낸다. 한 div로 감싸면 sticky가 그 부모 높이 안에서만
+      붙을 수 있어(=시트 높이만큼) 사실상 동작하지 않는다.
    ※ sticky가 먹으려면 조상에 overflow:hidden이 없어야 한다 → App 루트를 overflow-x:clip으로 두었다.
       (clip은 hidden과 달리 스크롤 컨테이너를 만들지 않아 sticky가 살아 있다)
    ※ 붙을 때 크기를 바꾸지 않는다 — 높이가 변하면 그만큼 아래 내용이 튀어 스크롤이 흔들린다.
+   ※ 탭 칸은 글자만 남겼다(사용자 확정) — 이모지·부제를 빼 고정되는 머리 높이를 줄인다.
 
    팔레트: 사용자 확정 수채화 톤 (Cloud 시트 / 타일은 크림·연갈색 — 숲 컨셉 통일)
    폰트: 앱 전역 글씨체(카페24 써라운드) — index.html에서 지정
@@ -46,20 +51,22 @@ const TILE_ACCENT = {
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
 export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) {
-  const sheetRef = useRef(null);
+  const gripRef = useRef(null);   // 손잡이 조각 (top:0에 붙는다)
   const dragY = useRef(null);
-  // stuck = 시트가 화면 맨 위에 붙은 상태 / anchorY = 붙기 직전의 문서상 위치(손잡이가 데려갈 목적지)
+  // stuck = 손잡이가 화면 맨 위에 붙은 상태 / anchorY = 붙기 직전의 문서상 위치(손잡이가 데려갈 목적지)
   const [stuck, setStuck] = useState(false);
+  const [gripH, setGripH] = useState(30);   // 손잡이 조각 높이 = 탭 줄이 붙을 위치
   const anchorY = useRef(0);
 
   useEffect(() => {
-    const el = sheetRef.current;
+    const el = gripRef.current;
     if (!el) return;
     const onScroll = () => {
-      const top = el.getBoundingClientRect().top;
-      setStuck(top <= 0.5);
+      const r = el.getBoundingClientRect();
+      setStuck(r.top <= 0.5);
+      setGripH(Math.round(r.height));
       // 떨어져 있을 때만 기준선을 갱신 — 붙어 있을 땐 top이 늘 0이라, 다시 재면 값이 망가진다
-      if (top > 0.5) anchorY.current = window.scrollY + top;
+      if (r.top > 0.5) anchorY.current = window.scrollY + r.top;
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -76,11 +83,11 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
 
   return (
     <Fragment>
-      {/* ── 시트 윗부분 (손잡이 + 날짜바) — 같이 스크롤돼 올라간다 ── */}
-      <div style={{position:"relative",zIndex:3,margin:0,marginTop:-24,padding:"18px 18px 0",
-        borderRadius:"30px 30px 0 0",background:"#F0F3F3", // Cloud — 순백 대신 수채화와 이어지는 아이보리·회색
-        boxShadow:"0 -10px 30px -12px rgba(40,70,45,0.30)"}}>
-        {/* 시트 손잡이 — 위로 끌거나 탭하면 탭 줄이 맨 위로, 아래로 끌거나 다시 탭하면 제자리로 (사용자 요청) */}
+      {/* ── ① 손잡이 — 맨 위(top:0)에 붙어 계속 남는다. 위로 끌거나 탭하면 올리고, 아래로 끌거나 다시 탭하면 내린다 ── */}
+      <div ref={gripRef} style={{position:"sticky",top:0,zIndex:9,margin:0,marginTop:-24,padding:"18px 18px 7px",
+        borderRadius:stuck?0:"30px 30px 0 0",background:"#F0F3F3", // Cloud — 순백 대신 수채화와 이어지는 아이보리·회색
+        boxShadow:stuck?"none":"0 -10px 30px -12px rgba(40,70,45,0.30)",
+        transition:"border-radius .18s ease"}}>
         <button type="button" onClick={()=>(stuck?collapse():expand())}
           aria-label={stuck?"시트 내리기":"시트 올리기"}
           onTouchStart={(e)=>{ dragY.current=e.touches[0].clientY; }}
@@ -91,33 +98,33 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
             // 18px 넘게 끈 건 방향대로, 그보다 짧으면 탭으로 보고 onClick에 맡긴다
             if(dy<-18) expand(); else if(dy>18) collapse();
           }}
-          style={{display:"block",width:"100%",background:"none",border:"none",padding:"0 0 7px",margin:"-4px 0 0",
+          style={{display:"block",width:"100%",background:"none",border:"none",padding:0,
             cursor:"pointer",touchAction:"none",WebkitTapHighlightColor:"transparent"}}>
           <span style={{display:"block",width:44,height:5,borderRadius:999,background:"#D9DED7",margin:"0 auto"}}/>
         </button>
-        {/* 날짜바 — 레벨·이름 줄 자리 (탭별 톤은 App의 dateNav가 담당) */}
+      </div>
+      {/* ── ② 날짜바 — 고정하지 않는다. 위로 밀려 올라가 손잡이 뒤로 숨는다 (z-index가 낮아서) ── */}
+      <div style={{position:"relative",zIndex:1,padding:"0 18px",background:"#F0F3F3"}}>
         {dateNav}
       </div>
-      {/* ── 탭 줄 — 화면 맨 위에 닿으면 여기서 고정된다 (아래 내용만 지나간다) ── */}
-      <div ref={sheetRef} style={{position:"sticky",top:0,zIndex:8,padding:"6px 18px 22px",background:"#F0F3F3",
+      {/* ── ③ 탭 줄 — 손잡이 바로 아래(top=손잡이 높이)에 붙어 계속 남는다 ── */}
+      <div style={{position:"sticky",top:gripH,zIndex:8,padding:"1px 18px 14px",background:"#F0F3F3",
         // 붙으면 아래로 그림자를 깔아 '지나가는 내용'과 층을 나눈다
         boxShadow:stuck?"0 6px 16px -6px rgba(40,70,45,0.30)":"none",
         transition:"box-shadow .18s ease"}}>
-        {/* 3 타일 (탐험/미션/캐릭터) = 탭 선택 — 아이콘 위·세로 중앙 정렬 */}
+        {/* 탭 3개 (탐험/미션/캐릭터) — 글자만 (사용자 확정: 이모지·부제를 빼 높이를 줄임) */}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
           {tiles.map(t=>{
             const on=activeTab===t.k;
             const ac=TILE_ACCENT[t.k]||TILE_ACCENT.area;
             return (
               <button key={t.k} onClick={()=>onSelect&&onSelect(t.k)} className="jelly-tap" style={{
-                display:"flex",flexDirection:"column",alignItems:"center",gap:5,textAlign:"center",cursor:"pointer",
-                padding:"14px 8px 12px",borderRadius:22,minWidth:0,
+                display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",cursor:"pointer",
+                padding:"9px 8px",borderRadius:16,minWidth:0,
                 border:on?`2px solid ${ac.border}`:"1.5px solid #D8C9A8",
                 background:on?ac.bg:"#F8F2E6",
                 boxShadow:"0 3px 11px rgba(155,114,74,0.10)"}}>
-                <span style={{fontSize:30,lineHeight:1}}>{t.icon}</span>
-                <b style={{display:"block",fontFamily:F,fontSize:15.5,fontWeight:400,color:on?ac.text:"#4B3A2F",marginTop:3,lineHeight:1.1}}>{t.title}</b>
-                <small style={{display:"block",fontFamily:F,fontSize:11.5,fontWeight:400,color:on?ac.text:"#7E8C7B",opacity:on?0.85:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{t.sub}</small>
+                <b style={{fontFamily:F,fontSize:16,fontWeight:400,color:on?ac.text:"#4B3A2F",lineHeight:1.2,whiteSpace:"nowrap"}}>{t.title}</b>
               </button>
             );
           })}
