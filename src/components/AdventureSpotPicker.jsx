@@ -20,6 +20,7 @@
      onSelect   : (id)=>void
    ════════════════════════════════════════════════════════════════════════ */
 import { Fragment } from "react";
+import { FLAG_RED } from "./AdventureMap.jsx";   // 깃발 색은 지도와 한 곳에서 관리 (두 곳이 같은 표시)
 
 const D = 38;           // 스탬프 원판 지름 px
 const EM = 21;          // 학원 이모지 크기 px
@@ -83,7 +84,7 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
                   {it.passed && (
                     <span aria-hidden="true" style={{ position: "absolute", left: "50%", top: -14, width: 12, height: 17 }}>
                       <span style={{ position: "absolute", left: 0, top: 0, width: 2, height: 17, borderRadius: 1, background: "#7E4E20" }} />
-                      <span style={{ position: "absolute", left: 2, top: 1.5, width: 10, height: 8, background: "#7FA35A",
+                      <span style={{ position: "absolute", left: 2, top: 1.5, width: 10, height: 8, background: FLAG_RED,
                         clipPath: "polygon(0 0, 100% 0, 72% 50%, 100% 100%, 0 100%)", borderRadius: 1 }} />
                     </span>
                   )}
