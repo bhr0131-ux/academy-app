@@ -24,11 +24,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // k: 폭 보정 계수 — 원화 가로세로비가 달라도 표시 '높이'가 4종 동일해지도록 (질감 통일)
 // v7 크리스프 카툰 세트 (흰 원을 투명으로 뚫어 탑재 — 이모지가 뒤에서 비치도록)
 // ar: 원본 가로/세로 비 (탐험장소 줄에서 '표시 높이'를 통일할 때 사용)
+// fx·fy = '다녀온 학원' 깃발을 꽂을 지붕 마루 좌표 (그림 폭·높이 대비 %) — 원화에서 눈으로 실측
 const BUILDINGS = [
-  { src: "assets/map-bld-treehouse.webp", cx: 57.2, cy: 49.9, d: 43.2, k: 0.87, ar: 190 / 220 },  // 나무 위의 집 (구멍 우측)
-  { src: "assets/map-bld-stonearch.webp", cx: 48.5, cy: 51.2, d: 39.2, k: 0.95, ar: 251 / 220 },  // 돌 아치문
-  { src: "assets/map-bld-tent.webp",      cx: 51.3, cy: 56.1, d: 39.3, k: 0.95, ar: 228 / 220, es: 1.05 },  // 탐험가 텐트 (es: 이모지 5% 확대 — 책 글리프가 작아 보이는 착시 보정)
-  { src: "assets/map-bld-tikihut.webp",   cx: 48.5, cy: 53.8, d: 40.6, k: 0.92, ar: 235 / 220 },  // 티키 초가 오두막
+  { src: "assets/map-bld-treehouse.webp", cx: 57.2, cy: 49.9, d: 43.2, k: 0.87, ar: 190 / 220, fx: 44, fy: 23 },  // 나무 위의 집 (구멍 우측)
+  { src: "assets/map-bld-stonearch.webp", cx: 48.5, cy: 51.2, d: 39.2, k: 0.95, ar: 251 / 220, fx: 45, fy: 17 },  // 돌 아치문
+  { src: "assets/map-bld-tent.webp",      cx: 51.3, cy: 56.1, d: 39.3, k: 0.95, ar: 228 / 220, es: 1.05, fx: 50, fy: 13 },  // 탐험가 텐트 (es: 이모지 5% 확대 — 책 글리프가 작아 보이는 착시 보정 / 깃발은 원화 자체 깃대 끝에 이어 꽂는다)
+  { src: "assets/map-bld-tikihut.webp",   cx: 48.5, cy: 53.8, d: 40.6, k: 0.92, ar: 235 / 220, fx: 50, fy: 19 },  // 티키 초가 오두막
 ];
 
 // 폴리라인 누적 길이 → t(0~1)로 좌표 보간하는 함수 생성 (지도별로 각각)
@@ -352,8 +353,11 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           <span style={{ fontWeight: 700 }}>{d ? "✅ " : ""}{ac.name}</span>
           {ac.time ? <div style={{ fontSize: 10.5, marginTop: 1, color: "#3F2E1E" }}>🕘 {ac.time}</div> : null}
         </>);
-        // 5곳 이상(compact)은 한 줄 '아이콘 + 시간'만 — 완료 표시는 🕘를 ✅로 바꿔 폭을 늘리지 않는다
-        const timeLabel = <span style={{ fontSize: 10.5, color: "#3F2E1E" }}>{d ? "✅" : "🕘"} {ac.time || "-"}</span>;
+        // 5곳 이상(compact)은 한 줄 '아이콘 + 시간'만
+        const timeLabel = <span style={{ fontSize: 10.5, color: "#3F2E1E" }}>🕘 {ac.time || "-"}</span>;
+        // 다녀온 학원은 이름표를 떼고 지붕에 깃발을 꽂는다 (사용자 확정 — 탐험장소 줄과 같은 표현).
+        // 단 '떼기'는 visibility로만 — 자리 좌표가 [이름표+건물] 블록 기준이라 통째로 빼면 건물이 밀린다.
+        const labelOff = compact || past;
         return (
           <div key={ac.id} onClick={onPick ? () => onPick(ac.id) : undefined}
             style={{ position: "absolute", left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-78%)", width: `${M.bw * (B.k || 1)}%`, textAlign: "center", pointerEvents: onPick ? "auto" : "none", cursor: onPick ? "pointer" : undefined }}>
@@ -363,13 +367,13 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 자리를 비우지 않고 남기는 이유: 자리 좌표는 [이름표+건물] 블록의 78% 지점 기준이라
                 이름표를 통째로 빼면 지금까지 맞춰 둔 건물 위치가 전부 위로 밀려 올라간다. */}
             {!lp && (
-            <div aria-hidden={compact || undefined}
+            <div aria-hidden={labelOff || undefined}
               style={{ display: "flex", justifyContent: "center", marginBottom: -3, position: "relative", left: ldx || 0, zIndex: 3,
-                visibility: compact ? "hidden" : undefined }}>
+                visibility: labelOff ? "hidden" : undefined }}>
               <div style={{ ...chip, flexShrink: 0, maxWidth: "230%", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
             </div>
             )}
-            {lp === "left" && (
+            {lp === "left" && !past && (
             <div style={{ ...chip, position: "absolute", right: "74%", top: "15%", marginRight: 3, zIndex: 3 }}>
               {label}
             </div>
@@ -387,14 +391,27 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", transition: "filter .4s ease", filter: pastFx + (d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))") }} />
               {/* 5곳 이상: 시간만 남긴 이름표를 건물 바로 아래에 (사용자 확정).
                   흐름 밖(absolute)에 둬야 블록 높이가 안 변해 건물이 제자리에 그대로 있는다 */}
-              {compact && (
+              {compact && !past && (
                 <div style={{ position: "absolute", left: "50%", top: "100%", transform: "translateX(-50%)", marginTop: -3, zIndex: 3 }}>
                   <div style={{ ...chip }}>{timeLabel}</div>
                 </div>
               )}
+              {/* 다녀온 학원 = 지붕에 꽂은 깃발 (탐험장소 줄의 깃발과 같은 모양·색).
+                  건물 그림은 채도를 낮추지만 깃발은 표시라 원색 유지 → 필터 밖(img 형제)에 그린다 */}
+              {past && (
+                <span aria-hidden="true" style={{ position: "absolute", left: `${B.fx ?? 50}%`, top: `${B.fy ?? 18}%`,
+                  transform: "translateY(calc(-100% + 3px))", width: 12, height: 19, zIndex: 2 }}>
+                  <span style={{ position: "absolute", left: 0, bottom: 0, width: 2, height: 19, borderRadius: 1, background: "#7E4E20" }} />
+                  <span style={{ position: "absolute", left: 2, top: 0, width: 10, height: 8, background: "#7FA35A",
+                    clipPath: "polygon(0 0, 100% 0, 72% 50%, 100% 100%, 0 100%)", borderRadius: 1,
+                    filter: "drop-shadow(0 1px 1px rgba(60,80,40,0.35))" }} />
+                </span>
+              )}
             </div>
             {lp === "bottom" && (
-            <div style={{ display: "flex", justifyContent: "center", marginTop: -3, position: "relative", left: ldx || 0, zIndex: 3 }}>
+            <div aria-hidden={past || undefined}
+              style={{ display: "flex", justifyContent: "center", marginTop: -3, position: "relative", left: ldx || 0, zIndex: 3,
+                visibility: past ? "hidden" : undefined }}>
               <div style={{ ...chip, flexShrink: 0, maxWidth: "230%", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
             </div>
             )}

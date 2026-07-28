@@ -30,6 +30,8 @@ const CELL = 46;        // 학원 한 칸 폭 px (고정)
 const FP_MIN = 20, FP_MAX = 52;  // 발자국 3개가 들어가도록 최소·최대 확대
 
 export default function AdventureSpotPicker({ items = [], selectedId, onSelect }) {
+  // 학원이 많아지면 칸 사이 신축 구간이 좁아져 발자국 3개가 뭉친다 → 5곳부터 2개로 (사용자 확정)
+  const fpCount = items.length >= 5 ? 2 : 3;
   return (
     <div>
       <style>{`
@@ -53,7 +55,7 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
               {/* 칸 사이 연결 — 지도와 같은 발자국 트레일 (경로 느낌). 남는 폭만큼 늘어난다 */}
               {!rowStart && (
                 <span style={{ flex: `1 1 ${FP_MIN}px`, minWidth: FP_MIN, maxWidth: FP_MAX, height: D, display: "flex", alignItems: "center", justifyContent: "center", gap: 3 }}>
-                  {[0, 1, 2].map(k => (
+                  {Array.from({ length: fpCount }, (_, k) => k).map(k => (
                     <span key={k} style={{ display: "inline-block", transform: `translateY(${k % 2 ? 3 : -3}px) rotate(90deg)`, opacity: 0.75 }}>
                       <span style={{ display: "block", width: 4.4, height: 7.4, borderRadius: "50%", background: "#7E4E20" }} />
                       <span style={{ display: "block", width: 2.7, height: 2.7, borderRadius: "50%", background: "#7E4E20", margin: "1px auto 0" }} />
