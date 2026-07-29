@@ -3621,6 +3621,11 @@ export default function App() {
              수치는 안 건드린다 — 발견이 펫과 이어져 있다는 '기분'만 주는 연출이다. */
           const _petDe=getDiscoveryOn(discoveryData,childId,childDate||TODAY);
           const petHeart=!!(_petDe&&getDiscovery(_petDe.id)?.pet);
+          /* 펫 가로 위치 — 성장 캐릭터는 진화할수록 원화 폭이 넓어져(1단계 452px → 4단계 554px)
+             고정 62px면 부츠에 붙는다 (사용자 지적). 단계별로 벌린다.
+             아바타(꾸미기) 모드는 캔버스 폭이 거의 안 변해 기존 62 유지. */
+          const PET_DX={1:62,2:76,3:86,4:98,5:102};
+          const petDx=getCharMode(childId)===CHAR_DISPLAY_AVATAR?62:(PET_DX[ADV_CHAR_STAGE_OF(getChildLevel(childId).level)]||62);
           const title=getSelectedTitle(childId);
           const cute=kidSkin==="cute";
           const stageBgDeco=getEquipped(childId,"bg");
@@ -3863,7 +3868,7 @@ export default function App() {
                   </div>
                   {/* 펫 — 보조 역할이므로 캐릭터보다 작게(기존 40 → 34). 알 단계(0)엔 '곧 부화!'로 기대감 UP */}
                   {/* [탐험] 존재감 개선: 구석(우측 10%) → 캐릭터 발 옆(중앙+62px). 알 단계는 말풍선+반짝이+둥지+10초 간헐 흔들림(둥실 제거). */}
-                  <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:62,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
+                  <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:petDx,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
                     {/* (이동됨) 오늘의 발견 말풍선 — 펫 옆이 아니라 탐험지도 위 '아이 머리 위'에 뜬다.
                         아이가 보물상자 옆에 도착해 상자가 열린 다음에 나온다 (사용자 확정 → AdventureMap의 bubble prop). */}
                     {/* "먹이 +1" 연출은 지도 발견 지점 위로 이동 (사용자 확정 — 펫이 화면에
