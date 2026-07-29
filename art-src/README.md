@@ -34,7 +34,8 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | base-girl.webp | 여아 아바타 베이스 원화 v2 (교체됨) | — |
 | boots-explorer-sockless.webp | 탐험 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/explorer-boots.webp |
 | boots-cream-sockless.webp | 크림 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/cream-boots.webp |
-| hat-explorer-wearing.webp | 탐험 헬멧 착용 원화 | avatar/hat/explorer-helmet.webp |
+| hat-explorer-v2.webp | 탐험 헬멧 착용 원화 v2 (현행 — 머리 부분을 잘라내고 '모자만' 남겨 탑재) | avatar/hat/explorer-helmet.webp |
+| hat-explorer-wearing.webp | 탐험 헬멧 착용 원화 v1 (교체됨) | — |
 | boots-explorer-sockless-v2.webp | 탐험 부츠 착용 원화 (맨발목 v2, 최종 승인본) | avatar/shoes/explorer-boots.webp |
 | boots-green-wearing-v2.webp | 새싹 부츠 착용 원화 (v2, 현행 승인본) | avatar/shoes/green-boots.webp |
 | btn-parent-badge-v2.webp | '엄마용' 원형 뱃지 v2 (엄마 얼굴, 현행) | btn-parent.webp |
