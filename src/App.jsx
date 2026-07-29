@@ -12,6 +12,7 @@ import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscove
 import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
+import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import PageFlip from "./components/PageFlip.jsx";
@@ -4337,6 +4338,20 @@ export default function App() {
               {(()=>{
                 const q=getTodayQuestProgress(childId,childDate||TODAY);
                 const ready=q.total-q.done-q.failed;
+                /* [탐험] 진행률 카드 대신 '하루 한 탐험' 씬 (사용자 기획서 확정 —
+                   %·진행바가 아니라 미션 하나 끝낼 때마다 탐험가가 실제로 이동한다).
+                   기존 진행률 카드는 베이커리에서 그대로 쓴다. */
+                if(kidSkin!=="cute"){
+                  return (
+                    <ExpeditionTrack
+                      day={childTodayDN}
+                      done={q.done}
+                      total={q.total}
+                      charImg={getMapWalker(th.main, curChild?.gender)}
+                      gender={curChild?.gender==="girl"?"girl":"boy"}
+                    />
+                  );
+                }
                 return (
                   <div style={kidSkin==="cute"
                     ?{position:"relative",overflow:"hidden",background:`linear-gradient(160deg, ${mixWhite(th.main,0.55)}, ${mixWhite(th.main,0.32)})`,border:`2px solid #fff`,borderRadius:34,padding:"16px",marginBottom:14,color:GP.boxText,boxShadow:`0 14px 30px ${th.main}3a, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -8px 18px ${th.main}22`,boxSizing:"border-box",display:"flex",flexDirection:"column",justifyContent:"space-between",minHeight:206,animation:"jellyIn .5s cubic-bezier(.34,1.56,.64,1) both"}
