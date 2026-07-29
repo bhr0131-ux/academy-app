@@ -8,6 +8,28 @@ import {
 /* 탭 순서는 데이터(SHOP_SLOT_ORDER)에서만 관리한다 — 배경·효과는 거기서 이미 빠져 있다. */
 const SHOP_SLOTS = SHOP_SLOT_ORDER.map(getSlot).filter(Boolean);
 
+/* 카드 그림 — item.thumb 이 있으면 그림, 없거나 로드 실패면 기존 이모지로 폴백.
+   높이만 고정하고 폭은 그림 비율대로 두어(모자는 가로로 넓고 부츠는 세로로 길다)
+   카드마다 크기가 들쭉날쭉해 보이지 않게 한다. */
+function ItemThumb({ item }) {
+  const [failed, setFailed] = useState(false);
+  const BOX = 46;
+  if (item.thumb && !failed) {
+    return (
+      <div style={{ height: BOX, marginTop: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <img
+          src={"/" + item.thumb.replace(/^\/+/, "")}
+          alt={item.label}
+          onError={() => setFailed(true)}
+          draggable={false}
+          style={{ height: "100%", width: "auto", objectFit: "contain", pointerEvents: "none" }}
+        />
+      </div>
+    );
+  }
+  return <div style={{ height: BOX, marginTop: 10, fontSize: 34, lineHeight: `${BOX}px` }}>{item.emoji}</div>;
+}
+
 /* ════════════════════════════════════════════════════════════════════════
    EquipmentShop — 꾸미기 아바타 상점 모달
    ────────────────────────────────────────────────────────────────────────
@@ -61,7 +83,7 @@ export default function EquipmentShop({
     if (!open) return;
     const seen = new Set();
     for (const s of SHOP_SLOTS) for (const it of getItemsBySlot(s.key)) {
-      for (const p of [it.img, it.imgGirl]) {
+      for (const p of [it.img, it.imgGirl, it.thumb]) {
         if (!p || seen.has(p)) continue;
         seen.add(p);
         const img = new Image();
@@ -210,8 +232,8 @@ export default function EquipmentShop({
                   </span>
                 )}
 
-                {/* 파츠 아이콘 (이모지 대표) */}
-                <div style={{ fontSize: 34, lineHeight: 1, marginTop: 12 }}>{item.emoji}</div>
+                {/* 파츠 아이콘 — 그림(thumb) 우선, 없거나 로드 실패면 이모지 */}
+                <ItemThumb item={item} />
 
                 {/* 이름 */}
                 <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: C.text }}>{item.label}</p>

@@ -104,7 +104,8 @@ export const AVATAR_RARITY = {
    각 아이템: id / slot / label / emoji(폴백) / price / rarity / theme /
              img(1024 정렬 webp) / starter(기본 지급) / z(슬롯 기본 z 덮어쓰기) /
              imgGirl(여아 전용 그림 — 얼굴째 덮는 모자처럼 성별 얼굴이 필요한 장비용,
-                     없으면 img를 남녀 공용으로 쓴다)                        */
+                     없으면 img를 남녀 공용으로 쓴다) /
+             thumb(상점 카드 그림 — 없으면 emoji로 폴백)                     */
 export const AVATAR_CATALOG = [
   /* 배경 — 제거됨 (구 '꾸미기 상점'의 배경과 중복되어 아바타 꾸미기에서는 다루지 않음).
      기존 구매자는 로드 시 코인 환불(App의 RETIRED_AVATAR_ITEMS 처리). 기본 배경은
@@ -113,28 +114,31 @@ export const AVATAR_CATALOG = [
   /* 초기 장비 6종 — 탐험 테마 */
   // 모자 4종 — 전부 hidesHead: 베이스 머리를 지우고 이 그림(모자+얼굴)으로 대체한다.
   //   원화의 눈 간격을 베이스 머리(124.5)에 맞춰 키우고, 턱 끝을 y=404·중심 x=506에 정렬해 탑재.
-  { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/explorer-helmet.webp", imgGirl: "assets/avatar/hat/explorer-helmet-girl.webp", hidesHead: true },
-  { id: "hat_safari",     slot: "hat",   label: "사파리 모자", emoji: "⛑️", price: 180, rarity: "rare",   theme: "adventure", img: "assets/avatar/hat/safari-brown.webp",    imgGirl: "assets/avatar/hat/safari-brown-girl.webp", hidesHead: true },
+  { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/explorer-helmet.webp", imgGirl: "assets/avatar/hat/explorer-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_explorer.webp" },
+  { id: "hat_safari",     slot: "hat",   label: "사파리 모자", emoji: "⛑️", price: 180, rarity: "rare",   theme: "adventure", img: "assets/avatar/hat/safari-brown.webp",    imgGirl: "assets/avatar/hat/safari-brown-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_safari.webp" },
   /* 비행사(방한) 모자 — 겨울 시즌·설원 맵 전용으로 빼 둔다 (사용자 확정).
      그림·데이터는 그대로 두고 ACTIVE_SEASONS에 "winter"를 넣는 순간 상점에 다시 나온다. */
   { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp",     imgGirl: "assets/avatar/hat/aviator-cap-girl.webp",  hidesHead: true, season: "winter" },
-  { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true },
+  { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_blossom.webp" },
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp" },
   { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp" },
   /* 하의 3종 — 베이스의 초록 반바지를 완전히 덮도록 배치했다. 초록이 1px도 새지 않는
      (배율, 좌상단)을 탐색해서 정한 값이라 임의로 바꾸면 가랑이 사이로 초록이 비친다. */
-  { id: "bottom_khaki",   slot: "bottom", label: "카키 반바지", emoji: "🩳", price: 130, rarity: "common", theme: "adventure", img: "assets/avatar/bottom/khaki-cargo.webp" },
-  { id: "bottom_cream",   slot: "bottom", label: "크림 반바지", emoji: "🩳", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/cream-cargo.webp" },
-  { id: "bottom_denim",   slot: "bottom", label: "데님 반바지", emoji: "🩳", price: 170, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/denim-shorts.webp" },
-  { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp" },
-  { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp" },
-  { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp" },
+  { id: "bottom_khaki",   slot: "bottom", label: "카키 반바지", emoji: "🩳", price: 130, rarity: "common", theme: "adventure", img: "assets/avatar/bottom/khaki-cargo.webp", thumb: "assets/avatar/thumb/bottom_khaki.webp" },
+  { id: "bottom_cream",   slot: "bottom", label: "크림 반바지", emoji: "🩳", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/cream-cargo.webp", thumb: "assets/avatar/thumb/bottom_cream.webp" },
+  { id: "bottom_denim",   slot: "bottom", label: "데님 반바지", emoji: "🩳", price: 170, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/denim-shorts.webp", thumb: "assets/avatar/thumb/bottom_denim.webp" },
+  /* 신발 3종 — 좌·우 짝을 따로 배치해 남녀 각각 손으로 맞춘 값이다(사용자 확정).
+     soleY/soleYGirl = 그 신발을 신었을 때의 밑창 높이. 접지 그림자가 이 값을 따라간다
+     (맨발보다 30~45px 아래라, 안 쓰면 신발만 그림자 밖으로 나간다). */
+  { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp", imgGirl: "assets/avatar/shoes/explorer-boots-girl.webp", soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots.webp" },
+  { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp",    imgGirl: "assets/avatar/shoes/green-boots-girl.webp",    soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
+  { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp",    imgGirl: "assets/avatar/shoes/cream-boots-girl.webp",    soleY: 966, soleYGirl: 966, thumb: "assets/avatar/thumb/shoes_boots_sand.webp" },
   { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp" },
   /* 탐험 배낭 — 원화가 '앞에서 본 어깨끈'(침낭 롤 + 버클 + 칼집)이라 캐릭터 뒤(z15)에 그리면
      몸통에 완전히 가려진다. 그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
-  { id: "back_backpack",       slot: "back", label: "탐험 배낭", emoji: "🎒", price: 250, rarity: "epic", theme: "adventure", img: "assets/avatar/back/explorer-straps.webp", z: 37 },
-  { id: "back_backpack_sky",   slot: "back", label: "하늘 배낭", emoji: "🎒", price: 270, rarity: "epic", theme: "adventure", img: "assets/avatar/back/sky-straps.webp",      z: 37 },
-  { id: "back_backpack_cream", slot: "back", label: "크림 배낭", emoji: "🎒", price: 290, rarity: "epic", theme: "adventure", img: "assets/avatar/back/cream-straps.webp",    z: 37 },
+  { id: "back_backpack",       slot: "back", label: "탐험 배낭", emoji: "🎒", price: 250, rarity: "epic", theme: "adventure", img: "assets/avatar/back/explorer-straps.webp", z: 37, thumb: "assets/avatar/thumb/back_backpack.webp" },
+  { id: "back_backpack_sky",   slot: "back", label: "하늘 배낭", emoji: "🎒", price: 270, rarity: "epic", theme: "adventure", img: "assets/avatar/back/sky-straps.webp",      z: 37, thumb: "assets/avatar/thumb/back_backpack_sky.webp" },
+  { id: "back_backpack_cream", slot: "back", label: "크림 배낭", emoji: "🎒", price: 290, rarity: "epic", theme: "adventure", img: "assets/avatar/back/cream-straps.webp",    z: 37, thumb: "assets/avatar/thumb/back_backpack_cream.webp" },
 ];
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
