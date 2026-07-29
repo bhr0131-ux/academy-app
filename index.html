@@ -42,6 +42,17 @@
          '탭이 맨 위에 붙었을 때 화면을 채울 만큼'(화면 − 손잡이30 − 탭52)을 최소로 보장한다. */
       .amTabFill { min-height: calc(100vh - 82px); }
       @supports (height: 100svh) { .amTabFill { min-height: calc(100svh - 82px); } }
+      /* 오늘의 발견 연출 — 보통은 톡 떠오르기(0.5초), 전설만 커졌다 작아지기(3초).
+         전설을 매일 보면 특별하지 않으므로 확률은 데이터에서 낮게 잡았다. */
+      @keyframes discoRise { from { opacity:0; transform:translateY(6px) scale(.92); } to { opacity:1; transform:none; } }
+      @keyframes discoPop {
+        0%   { opacity:0; transform:translateY(8px) scale(.8); }
+        12%  { opacity:1; transform:translateY(0) scale(1.14); }
+        22%  { transform:scale(1); }
+        70%  { transform:scale(1.05); }
+        100% { transform:scale(1); }
+      }
+      @keyframes discoTwinkle { 0%,100% { opacity:.25; transform:scale(.8); } 50% { opacity:1; transform:scale(1.25); } }
     </style>
   </head>
   <body>
