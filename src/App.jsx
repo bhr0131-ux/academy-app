@@ -7,7 +7,6 @@ import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark 
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
-import DiscoveryBubble from "./components/DiscoveryBubble.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
 import { DISCOVERY_KEY, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollSparkT } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
@@ -302,7 +301,7 @@ export default function App() {
   /* 오늘의 발견 — 지도 발견 지점을 지나간 날 하루 1개 (미션과 무관). 저장은 새 키(v6_discoveries)로만. */
   const [discoveryData,         setDiscoveryData]          = useState({});
   const [openDiscoveryBook,     setOpenDiscoveryBook]      = useState(false);
-  const [discoveryPop,          setDiscoveryPop]           = useState(null);  // 방금 새로 발견한 날짜 (등장 연출용)
+  /* (삭제됨) discoveryPop — 머리 위 말풍선 전용 상태였는데 말풍선을 빼며 같이 제거 (사용자 확정) */
   // 탐험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
   const pickJournalAc = (list, dayName, isToday) => {
     if (!list.length) return null;
@@ -651,7 +650,7 @@ export default function App() {
     if(!loaded||!childId) return;
     if(getDiscoveryOn(discoveryData,childId,d)) return;
     const {isNew,next}=recordDiscovery(discoveryData,childId,d);
-    if(isNew){ setDiscoveryData(next); setDiscoveryPop(d); }
+    if(isNew) setDiscoveryData(next);
     /* 펫 연결 발견의 "먹이 +1" 연출은 지도 발견 지점 위에서 나온다 (사용자 확정 —
        펫이 화면에 안 보일 때가 많아서. AdventureMap의 spark.gain). 펫 말풍선 ❤️는 유지. */
   };
@@ -3990,13 +3989,8 @@ export default function App() {
                         onPick={setJournalAcId}
                         mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
                         charEmoji={getMapWalker(th.main, curChild?.gender)}
-                        bubble={(()=>{
-                          // 오늘의 발견 말풍선 — 탐험을 끝낸 날에만. 지도 안에서 '상자가 열린 뒤'에 띄운다.
-                          const _dd=childDate||TODAY;
-                          const _de=getDiscoveryOn(discoveryData,childId,_dd);
-                          if(!_de) return null;
-                          return <DiscoveryBubble id={_de.id} isNew={discoveryPop===_dd} onDone={()=>setDiscoveryPop(null)} />;
-                        })()}
+                        /* (삭제됨) 아이 머리 위 발견 말풍선(bubble) — 무대의 발견 한 줄과
+                           중복이라 뺐다 (사용자 확정). 발견 표시는 발견 지점 칩이 계속 맡는다. */
                         spark={(()=>{
                           // 길 위 '오늘의 발견' 지점 — 자리는 날마다 다르고(고정 시드), 발견 전엔 ✨만.
                           // gain: 펫 연결 발견이면 발견 팝 순간 "🍖 먹이 +1"이 그 물건 위로 떠오른다.

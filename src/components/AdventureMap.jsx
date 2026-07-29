@@ -14,8 +14,6 @@
      items    : [{id,name,time,icon,done,total}]  오늘 가는 학원들 (App이 계산)
      mode     : "today" | "past" | "future"       past=모두 통과, future=출발 전
      charEmoji: string                            캐릭터 (이미지 경로 또는 이모지)
-     bubble   : ReactNode                         아이 머리 위 말풍선 ('오늘의 발견')
-                                                  — 보물상자가 열린 뒤에만 띄운다 (사용자 확정)
      spark    : {t, emoji, found, gain}           길 위 '오늘의 발견' 지점 (사용자 확정 ②)
                                                   t=길 진행률, found=오늘 발견 기록됨,
                                                   gain=펫 연결이면 {kind,amount} ("먹이 +1" 연출)
@@ -180,12 +178,8 @@ const CHEST_SPARKS = [
 const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
-// 도착 연출 순서(사용자 확정): 아이가 상자 옆에 도착 → 상자가 열림 → 그 다음 말풍선.
-// 상자 팝 애니메이션이 0.55초라, 그게 끝나고 잠깐 뒤(=0.95초)에 말풍선을 띄운다.
-const BUBBLE_DELAY = 950;
-
 // onPick: 학원 건물 탭 → 탐험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
-export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, bubble = null, spark = null, onSparkPass = null }) {
+export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, spark = null, onSparkPass = null }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
@@ -278,18 +272,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   // (예전엔 도착 순간 좌표를 갈아끼워 순간이동처럼 보였다)
   const [cx, cy] = pointAt(t);
   const chestParty = mode === "past" || (mode === "today" && arrived);
-
-  // 머리 위 말풍선 — 상자가 열리고 나서야 뜬다. 걸어가는 동안 미리 떠 있으면
-  // "도착해서 상자를 열었더니 뭔가 있었다"는 순서가 무너진다 (사용자 확정).
-  // (deps는 bubble 자체가 아니라 '있는지'만 본다 — 엘리먼트는 App이 렌더할 때마다
-  //  새 객체라, 그대로 쓰면 App이 리렌더될 때마다 말풍선이 사라졌다 다시 뜬다)
-  const hasBubble = !!bubble;
-  const [showBubble, setShowBubble] = useState(false);
-  useEffect(() => {
-    if (!hasBubble || !chestParty) { setShowBubble(false); return; }
-    const to = setTimeout(() => setShowBubble(true), BUBBLE_DELAY);
-    return () => clearTimeout(to);
-  }, [hasBubble, chestParty]);
+  // (삭제됨) 아이 머리 위 발견 말풍선 — 무대의 발견 한 줄과 중복이라 뺐다 (사용자 확정).
+  // 대신 발견 지점의 "{이모지} 발견!" 칩이 사라지지 않고 계속 남는다.
 
   // ── 길 위 '오늘의 발견' 지점 (사용자 확정 ②) ──────────────────────────
   // 발견 전엔 ✨만 깜빡인다(예고 — 뭐가 나올지는 안 보여준다). 아이가 그 위를
@@ -309,14 +293,16 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sparkTimePassed, spark?.found]);
   const sparkDone = !!(spark?.found && sparkT !== null && t >= sparkT - 0.001);
-  // 과거 날짜처럼 '이미 지난 채로' 열었으면 팝 없이 바로 안착 — 팝은 지나가는 순간에만
+  // sparkPop = '지나가는 순간' 2.3초 창 — "펫 먹이 +1" 떠오르기 전용.
+  // 과거 날짜처럼 '이미 지난 채로' 열었으면 재생하지 않는다 (지나가는 순간에만).
+  // ("발견!" 칩은 이와 별개로, 한 번 뜨면 그날 내내 남는다 — 사용자 확정)
   const sparkInit = useRef(null);
   if (sparkInit.current === null && sparkT !== null) sparkInit.current = sparkDone;
   const [sparkPop, setSparkPop] = useState(false);
   useEffect(() => {
     if (!sparkDone || sparkInit.current) return;
     setSparkPop(true);
-    const to = setTimeout(() => setSparkPop(false), 2000);
+    const to = setTimeout(() => setSparkPop(false), 2300);
     return () => clearTimeout(to);
   }, [sparkDone]);
 
@@ -365,10 +351,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         }
         @keyframes amFound{
           0%{opacity:0;transform:translateX(-50%) translateY(4px) scale(.5)}
-          12%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.12)}
-          22%{transform:translateX(-50%) scale(1)}
-          78%{opacity:1}
-          100%{opacity:0;transform:translateX(-50%) translateY(-9px)}
+          60%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.12)}
+          100%{opacity:1;transform:translateX(-50%) scale(1)}
         }
         @keyframes amCoinRoll{
           0%{transform:translate(-50%,0) scale(.4) rotate(0deg);opacity:0}
@@ -538,22 +522,22 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         const base = { position: "absolute", left: `${sx}%`, top: `${sy}%`, pointerEvents: "none", zIndex: 2 };
         if (sparkDone) return (
           <div style={{ ...base, transform: "translate(-50%,-50%)" }}>
-            {sparkPop && (
-              <div style={{ position: "absolute", left: "50%", bottom: "100%", transform: "translateX(-50%)", marginBottom: 3,
-                background: "rgba(255,251,240,0.95)", border: "1px solid rgba(212,160,60,0.65)", borderRadius: 999,
-                padding: "2px 8px", fontSize: 10.5, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap",
-                boxShadow: "0 2px 6px rgba(60,80,40,0.25)", animation: "amFound 2s ease-out both" }}>
-                {spark.emoji} 발견!
-              </div>
-            )}
-            {/* 펫 연결 발견 — 발견 순간 "🍖 먹이 +1"이 물건 위로 떠오르다 사라진다 (사용자 확정:
-                펫은 화면에 안 보일 때가 많아 무대가 아니라 여기서. 칩 없이 글자만) */}
+            {/* "{이모지} 발견!" 칩 — 한 번 뜨면 사라지지 않고 그날 내내 남는다 (사용자 확정:
+                머리 위 말풍선을 뺀 대신 이 칩이 발견 표시를 맡는다). 등장만 팝(amFound). */}
+            <div style={{ position: "absolute", left: "50%", bottom: "100%", transform: "translateX(-50%)", marginBottom: 3,
+              background: "rgba(255,251,240,0.95)", border: "1px solid rgba(212,160,60,0.65)", borderRadius: 999,
+              padding: "2px 8px", fontSize: 10.5, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap",
+              boxShadow: "0 2px 6px rgba(60,80,40,0.25)", animation: "amFound .55s ease-out both" }}>
+              {spark.emoji} 발견!
+            </div>
+            {/* 펫 연결 발견 — 지나가는 순간에만 "🍖 펫 먹이 +1"이 물건 위로 떠오르다 사라진다
+                (사용자 확정: 펫은 화면에 안 보일 때가 많아 무대가 아니라 여기서. 칩 없이 글자만) */}
             {sparkPop && spark.gain && (
               <div style={{ position: "absolute", left: "50%", bottom: "100%", marginBottom: 26,
                 whiteSpace: "nowrap", fontSize: 11, fontWeight: 900, color: "#B4551D",
                 textShadow: "0 0 3px rgba(255,251,240,0.95), 0 0 5px rgba(255,251,240,0.9), 0 1px 2px rgba(255,251,240,0.9)",
                 animation: "amGainUp 2.2s ease-out both" }}>
-                {spark.gain.kind === "먹이" ? "🍖" : "❤️"} {spark.gain.kind} +{spark.gain.amount}
+                {spark.gain.kind === "먹이" ? "🍖" : "❤️"} 펫 {spark.gain.kind} +{spark.gain.amount}
               </div>
             )}
             <span style={{ fontSize: 13, lineHeight: 1, display: "block",
@@ -569,16 +553,6 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
 
       {/* ── 캐릭터 — 항상 길 위 (폴리라인 보간 위치) ── */}
       <div style={{ position: "absolute", left: `${cx}%`, top: `${cy}%`, transform: "translate(-50%,-86%)", animation: "amBob 2.4s ease-in-out infinite", pointerEvents: "none", zIndex: 3 }}>
-        {/* 머리 위 말풍선 — 흐름 밖(absolute)에 둬야 캐릭터가 아래로 밀리지 않는다.
-            아이와 같이 둥실거리도록 캐릭터 div 안에 넣는다.
-            width를 못 박는 이유: 이 div의 기준 상자가 캐릭터(폭 ≈ 46px)라,
-            폭을 안 주면 말풍선이 그 폭에 눌려 글자마다 줄바꿈된다. */}
-        {showBubble && (
-          <div style={{ position: "absolute", left: "50%", bottom: "100%", transform: "translateX(-50%)",
-            width: 168, display: "flex", justifyContent: "center", marginBottom: 5, zIndex: 4 }}>
-            {bubble}
-          </div>
-        )}
         {isImg(charEmoji)
           ? <img src={charEmoji} alt="" draggable={false} style={{ height: 68, width: "auto", display: "block", filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 4px 5px rgba(60,80,40,0.35))" }} />
           : <span style={{ fontSize: 32, lineHeight: 1, display: "block", filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 4px 5px rgba(60,80,40,0.35))" }}>{charEmoji || "🦸"}</span>}
