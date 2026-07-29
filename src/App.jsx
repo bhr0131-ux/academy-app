@@ -3489,8 +3489,9 @@ export default function App() {
                   textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 2px rgba(93,70,51,0.30), 0 2px 10px rgba(93,70,51,0.18)"}}>
                   {_lines.map((ln,i)=><Fragment key={i}>{i>0&&<br/>}{ln}</Fragment>)}
                   {_emoji&&<span style={{fontSize:"0.64em",verticalAlign:"baseline",marginLeft:3}}>{_emoji}</span>}
-                  {_ddi&&<span style={{display:"block",fontSize:13.5,marginTop:9,opacity:0.96}}>{_ddi.emoji} {_ddi.msg}</span>}
-                  {_dev&&<span style={{display:"block",fontSize:13.5,marginTop:_ddi?4:9,opacity:0.9}}>{_dev.emoji} {_dev.msg}</span>}
+                  {/* 발견·만남 줄은 응원 문구에서 한 뼘 떨어뜨린다 (사용자 조정: 9→18px) */}
+                  {_ddi&&<span style={{display:"block",fontSize:13.5,marginTop:18,opacity:0.96}}>{_ddi.emoji} {_ddi.msg}</span>}
+                  {_dev&&<span style={{display:"block",fontSize:13.5,marginTop:_ddi?4:18,opacity:0.9}}>{_dev.emoji} {_dev.msg}</span>}
                 </h1>
               );
             })()}
