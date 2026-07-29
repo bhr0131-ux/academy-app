@@ -126,9 +126,12 @@ export const AVATAR_CATALOG = [
   { id: "bottom_khaki",   slot: "bottom", label: "카키 반바지", emoji: "🩳", price: 130, rarity: "common", theme: "adventure", img: "assets/avatar/bottom/khaki-cargo.webp" },
   { id: "bottom_cream",   slot: "bottom", label: "크림 반바지", emoji: "🩳", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/cream-cargo.webp" },
   { id: "bottom_denim",   slot: "bottom", label: "데님 반바지", emoji: "🩳", price: 170, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/denim-shorts.webp" },
-  { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp" },
-  { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp" },
-  { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp" },
+  /* 신발 3종 — 좌·우 짝을 따로 배치해 남녀 각각 손으로 맞춘 값이다(사용자 확정).
+     soleY/soleYGirl = 그 신발을 신었을 때의 밑창 높이. 접지 그림자가 이 값을 따라간다
+     (맨발보다 30~45px 아래라, 안 쓰면 신발만 그림자 밖으로 나간다). */
+  { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp", imgGirl: "assets/avatar/shoes/explorer-boots-girl.webp", soleY: 966, soleYGirl: 981 },
+  { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp",    imgGirl: "assets/avatar/shoes/green-boots-girl.webp",    soleY: 966, soleYGirl: 981 },
+  { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp",    imgGirl: "assets/avatar/shoes/cream-boots-girl.webp",    soleY: 966, soleYGirl: 966 },
   { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp" },
   /* 탐험 배낭 — 원화가 '앞에서 본 어깨끈'(침낭 롤 + 버클 + 칼집)이라 캐릭터 뒤(z15)에 그리면
      몸통에 완전히 가려진다. 그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */

@@ -149,21 +149,24 @@ function BaseCharacter({ baseCharImg, size, gender = "boy", hideHead = false }) 
    캐릭터가 바닥에 닿아 보이게 발밑에 깔아 주는 타원 그림자.
 
    비율은 전부 '1024 캔버스 안에서 실측한 값' 기준이다 (뷰어 상자 = 캔버스 1024).
-     · 바닥선 : 맨발 y934(남)·936(여) / 신발 밑창도 y936(앵커로 통일) → 937 을 중심으로
+     · 바닥선 : 맨발 y934(남)·936(여). 신발을 신으면 그 신발의 밑창(soleY/soleYGirl)을 따라간다
+                — 신발마다 밑창 높이가 달라 고정값을 쓰면 신발만 그림자 밖으로 나간다.
      · 발 폭  : 맨발 205~211px, 부츠 220~230px (캔버스의 20~22.5%)
    그림자 폭은 부츠 발 폭보다 살짝 넓게 잡아 발 바깥으로 조금 번지게 한다.
    퍼센트는 상자 한 변(size) 대비. */
-const SHADOW = { w: 0.235, h: 0.055, cy: 937 / 1024, blur: 0.010 };
+const SHADOW = { w: 0.235, h: 0.055, blur: 0.010 };
+const BARE_SOLE = 935;   // 맨발 바닥 (남 934 · 여 936의 가운데)
 
-function GroundShadow({ size }) {
+function GroundShadow({ size, soleY = BARE_SOLE }) {
   const w = Math.round(size * SHADOW.w);
   const h = Math.max(4, Math.round(size * SHADOW.h));
+  const cy = (soleY + 2) / 1024;   // 밑창보다 2px 아래를 그림자 중심으로
   return (
     <div
       aria-hidden
       style={{
         position: "absolute", left: "50%",
-        bottom: Math.round((1 - SHADOW.cy) * size - h / 2),
+        bottom: Math.round((1 - cy) * size - h / 2),
         transform: "translateX(-50%)",
         width: w, height: h, borderRadius: "50%",
         /* 가운데를 넓게 유지하다 바깥에서 빠르게 사라진다 — 중심만 진한 그라디언트는
@@ -187,6 +190,11 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
   /* 얼굴째 덮는 장비(모자 등)를 쓰면 베이스 머리를 그리지 않는다.
      단, 그 그림이 '로드 완료된 뒤에만' 숨긴다 — 처음 장착하는 순간 이미지가 아직
      안 받아진 상태에서 머리부터 지우면 머리 없는 아이가 한 박자 보인다. */
+  /* 접지 그림자 높이 — 신발을 신었으면 그 신발의 밑창, 맨발이면 기본 바닥선 */
+  const shoeItem = layers.find((l) => l.slot === "shoes")?.item || null;
+  const soleY = (gender === "girl" ? shoeItem?.soleYGirl : shoeItem?.soleY)
+    ?? shoeItem?.soleY ?? BARE_SOLE;
+
   const hidesHeadItem = layers.find((l) => l.item?.hidesHead)?.item || null;
   const hidesHeadSrc = hidesHeadItem ? equipSrc(hidesHeadItem, gender) : null;
   const [readySrc, setReadySrc] = useState(null);
@@ -225,7 +233,7 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
         />
       )}
       {/* 접지 그림자 — 배경 위, 베이스 캐릭터 아래 */}
-      {showShadow && <GroundShadow size={size} />}
+      {showShadow && <GroundShadow size={size} soleY={soleY} />}
       {/* 뒤쪽 레이어(배경·등 장비) → 베이스 캐릭터 → 앞쪽 레이어 순서로 z 배치 */}
       {layers.map((layer) => (
         <div key={layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex }}>
