@@ -34,6 +34,13 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 땋은 머리까지 붙어버려 실패한다).
 **신발 탑재 공식** — 현행 신발 에셋의 bbox 안에 비율 유지로 넣되 **바닥(y1)을 일치**시킨다
 (발이 뜨거나 파묻히지 않게). 현행 기준 바닥 y — 탐험 946 / 새싹·크림 947.
+**하의 탑재 공식** — 베이스 몸통에 초록 반바지가 그려져 있어, 새 바지는 그 초록을
+**1px도 남기지 않고 덮어야** 한다(가랑이 사이로 초록 실선이 비친다). 베이스 초록 픽셀
+마스크(남녀 합집합)를 만들고, **커버 100%를 만족하는 것 중 삐져나감이 가장 적은
+(배율, 좌상단)** 을 탐색해서 정한다. 현행 — 카키 195×173 @(412,549) / 크림 193×174
+@(411,562) / 데님 190×152 @(414,568). 초록 마스크 y579~713(남) · y573~709(여).
+(알파를 2~3px 팽창시켜 덮는 방법도 시도했지만 가장자리가 너덜너덜해져 폐기했다.
+배율을 조금 키워 덮는 쪽이 깔끔하다.)
 **어깨끈(배낭) 탑재 공식** — 원화가 '앞에서 본 어깨끈'이면 등 슬롯 기본 z(15, 캐릭터 뒤)로는
 몸통에 가려진다. 카탈로그 아이템에 `z: 37`(상의 35 위·목장식 40 아래)을 달아 앞으로 끌어온다.
 배치는 침낭 롤이 어깨선에 얹히게 — 탐험 배낭은 배율 0.88, 좌상단 (408, 414)에 탑재.
@@ -91,6 +98,9 @@ IoU 최적값은 끈이 짧아진다 — 끈 길이를 기준으로 272×199 @38
 | hat-aviator-cap-girl.webp | 비행사 모자 원화 여아 (현행, imgGirl) | avatar/hat/aviator-cap-girl.webp |
 | hat-blossom.webp | 꽃 헬멧 원화 남아 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
 | hat-blossom-helmet-girl.webp | 꽃 헬멧 원화 여아 (현행, imgGirl) | avatar/hat/blossom-helmet-girl.webp |
+| bottom-khaki-cargo.webp | 카키 반바지 원화 (벨트 달린 카고) | avatar/bottom/khaki-cargo.webp |
+| bottom-cream-cargo.webp | 크림 반바지 원화 (카고) | avatar/bottom/cream-cargo.webp |
+| bottom-denim-shorts.webp | 데님 반바지 원화 (밑단 롤업) | avatar/bottom/denim-shorts.webp |
 | back-explorer-straps.webp | 탐험 배낭 원화 (초록 롤 + 갈색 가죽끈, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
 | back-sky-straps.webp | 하늘 배낭 원화 (파랑 롤 + 갈색 가죽끈) | avatar/back/sky-straps.webp |
 | back-cream-straps.webp | 크림 배낭 원화 (크림 롤 + 캔버스끈, 체커보드 배경 제거) | avatar/back/cream-straps.webp |

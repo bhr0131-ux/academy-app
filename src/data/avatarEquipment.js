@@ -115,6 +115,11 @@ export const AVATAR_CATALOG = [
   { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true },
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp" },
   { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp" },
+  /* 하의 3종 — 베이스의 초록 반바지를 완전히 덮도록 배치했다. 초록이 1px도 새지 않는
+     (배율, 좌상단)을 탐색해서 정한 값이라 임의로 바꾸면 가랑이 사이로 초록이 비친다. */
+  { id: "bottom_khaki",   slot: "bottom", label: "카키 반바지", emoji: "🩳", price: 130, rarity: "common", theme: "adventure", img: "assets/avatar/bottom/khaki-cargo.webp" },
+  { id: "bottom_cream",   slot: "bottom", label: "크림 반바지", emoji: "🩳", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/cream-cargo.webp" },
+  { id: "bottom_denim",   slot: "bottom", label: "데님 반바지", emoji: "🩳", price: 170, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/denim-shorts.webp" },
   { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp" },
   { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp" },
   { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp" },
