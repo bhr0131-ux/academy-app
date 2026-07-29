@@ -8,6 +8,11 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 **보관 형식**: 원본은 **webp(q92)** 로 저장한다. PNG로 두면 저장소가 빠르게 커진다
 (58장 63MB → 8MB). 화질 손실은 재가공에 지장 없는 수준.
 
+**아바타 베이스 교체 규칙**: 모자·신발·상의 등 장비 그림은 1024×1024 안에서
+'베이스가 있던 자리'에 맞춰 그려져 있다. 그래서 베이스를 새로 넣을 땐 반드시
+**현행 베이스의 bbox(키·중심x·발끝)에 맞춰 배율·위치를 잡아야** 장비가 어긋나지 않는다.
+현행 기준값 — 남아 x365~657 / y122~935, 여아 x349~673 / y121~936 (중심x 511).
+
 **정리 이력**: 교체·은퇴된 원본 26개(37MB)는 작업 폴더에서 삭제했다.
 필요하면 git 히스토리에서 되살릴 수 있다 — `git log --all --diff-filter=D --name-only -- art-src`
 
@@ -23,8 +28,10 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 
 | 파일 | 용도 | 탑재 에셋 |
 |---|---|---|
-| base-boy.webp | 남아 아바타 베이스 원화 (신규 교체본, 배경 제거·정렬 탑재) | avatar/base/default.webp |
-| base-girl.webp | 여아 아바타 베이스 원화 (신규 교체본, 배경 제거·정렬 탑재) | avatar/base/default-girl.webp |
+| base-boy-v3.webp | 남아 아바타 베이스 원화 v3 (현행 — 배경 제거·현행 bbox에 맞춰 정렬 탑재) | avatar/base/default.webp |
+| base-girl-v3.webp | 여아 아바타 베이스 원화 v3 (현행 — 배경 제거·현행 bbox에 맞춰 정렬 탑재) | avatar/base/default-girl.webp |
+| base-boy.webp | 남아 아바타 베이스 원화 v2 (교체됨) | — |
+| base-girl.webp | 여아 아바타 베이스 원화 v2 (교체됨) | — |
 | boots-explorer-sockless.webp | 탐험 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/explorer-boots.webp |
 | boots-cream-sockless.webp | 크림 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/cream-boots.webp |
 | hat-explorer-wearing.webp | 탐험 헬멧 착용 원화 | avatar/hat/explorer-helmet.webp |
