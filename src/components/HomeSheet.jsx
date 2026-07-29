@@ -7,13 +7,15 @@
    → 그 자리에 날짜바(dateNav)를 배치. 날짜바는 App이 탭별 톤으로 만들어 node로 내려준다.
 
    ── 시트 동작 (사용자 요청: 코웨이 앱처럼) ─────────────────────────────
-   1) 손잡이(짧은 가로바)를 위로 끌거나 탭하면 시트가 화면 맨 위까지 올라온다.
-      아래로 끌거나 다시 탭하면 무대(캐릭터 화면)가 보이는 처음 자리로 돌아간다.
+   1) 손잡이(짧은 가로바)를 끌면 시트가 손가락을 따라 실시간으로 움직이고,
+      손을 떼면 기세·위치를 보고 '맨 위' 또는 '처음 자리'로 붙는다. 탭만 해도 오간다.
    2) 시트가 맨 위에 닿으면 그대로 '고정'돼, 아래 내용을 아무리 스크롤해도 탭이 계속 보인다.
 
-   구현은 position:sticky 하나로 끝낸다. 진짜 바텀시트(fixed + 내부 스크롤)로 만들면
-   페이지 전체의 스크롤 모델을 갈아엎어야 하는데, 문서 스크롤 + sticky만으로도
-   위 두 동작이 사용자 눈에는 똑같이 보인다 (손잡이 = '그 위치까지 스크롤' 버튼).
+   구현은 문서 스크롤 + position:sticky다. 진짜 바텀시트(fixed + 내부 스크롤)로 만들면
+   페이지 전체의 스크롤 모델을 갈아엎어야 하는데, 얻는 건 '손가락 따라오는 감촉' 하나뿐이고
+   그건 아래 드래그 처리(손가락 위치만큼 window.scrollTo)로 이미 낸다.
+   반면 내부 스크롤로 바꾸면 브라우저 주소창이 안 접히고 iOS 관성이 어색해지는 등
+   잃는 게 더 많아 이 구조를 택했다 (사용자와 함께 검토·확정).
 
    순서는 손잡이 → 탭 줄 → 날짜바 (사용자 확정: 날짜바를 탭 아래로).
    고정되는 건 '손잡이'와 '탭 줄'까지고, 그 아래 날짜바는 같이 스크롤돼 탭 뒤로 숨는다
@@ -54,7 +56,8 @@ const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
 export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) {
   const gripRef = useRef(null);   // 손잡이 조각 (top:0에 붙는다)
-  const dragY = useRef(null);
+  const drag = useRef(null);          // 드래그 중 상태 {시작Y, 시작스크롤, 움직임여부, 속도}
+  const justDragged = useRef(false);  // 드래그로 끝났으면 뒤따라오는 click을 무시
   // stuck = 손잡이가 화면 맨 위에 붙은 상태 / anchorY = 붙기 직전의 문서상 위치(손잡이가 데려갈 목적지)
   const [stuck, setStuck] = useState(false);
   const [gripH, setGripH] = useState(30);   // 손잡이 조각 높이 = 탭 줄이 붙을 위치
@@ -83,6 +86,38 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
   const expand = () => go(anchorY.current);   // 시트를 화면 맨 위로
   const collapse = () => go(0);               // 무대가 보이는 처음 자리로
 
+  // ── 손잡이 드래그 — 손가락을 따라 시트가 실시간으로 움직인다 (사용자 확정) ──
+  // 손잡이에 touch-action:none을 줘서 브라우저 기본 스크롤을 끄고 우리가 직접 굴린다.
+  // 움직이는 범위는 [처음 자리(0) ~ 맨 위(anchorY)] 로 묶는다 — 손잡이는 시트 여닫기 전용이고,
+  // 그보다 더 보는 건 내용 쪽을 스크롤하는 일이라 서로 섞이지 않게 한다.
+  const onDragStart = (e) => {
+    const t = e.touches[0];
+    justDragged.current = false;   // 새 동작이 시작되면 이전 드래그 흔적을 지운다
+    drag.current = { y0: t.clientY, s0: window.scrollY, moved: false, lastY: t.clientY, lastT: e.timeStamp, v: 0 };
+  };
+  const onDragMove = (e) => {
+    const d = drag.current; if (!d) return;
+    const t = e.touches[0];
+    const dy = d.y0 - t.clientY;                    // 위로 끌면 +
+    if (!d.moved && Math.abs(dy) < 6) return;       // 손 떨림은 탭으로 본다
+    d.moved = true;
+    const dt = e.timeStamp - d.lastT;
+    if (dt > 0) d.v = (d.lastY - t.clientY) / dt;   // px/ms — 놓는 순간의 기세
+    d.lastY = t.clientY; d.lastT = e.timeStamp;
+    window.scrollTo(0, Math.max(0, Math.min(anchorY.current, d.s0 + dy)));
+  };
+  const onDragEnd = () => {
+    const d = drag.current; drag.current = null;
+    if (!d || !d.moved) return;                     // 그냥 탭 → onClick이 처리
+    // 드래그 뒤에 따라오는 click 한 번만 무시한다. 타이머로도 풀어 주지 않으면
+    // 그 플래그가 계속 남아 '한참 뒤의 진짜 탭'까지 삼켜 버린다 (실제로 겪은 버그)
+    justDragged.current = true;
+    setTimeout(() => { justDragged.current = false; }, 400);
+    const max = anchorY.current;
+    // 튕기듯 놓으면(0.35px/ms 이상) 그 방향으로, 아니면 가까운 쪽으로 붙인다
+    go(Math.abs(d.v) > 0.35 ? (d.v > 0 ? max : 0) : (window.scrollY > max / 2 ? max : 0));
+  };
+
   return (
     <Fragment>
       {/* ── ① 손잡이 — 맨 위(top:0)에 붙어 계속 남는다. 위로 끌거나 탭하면 올리고, 아래로 끌거나 다시 탭하면 내린다 ── */}
@@ -90,16 +125,10 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
         borderRadius:stuck?0:"30px 30px 0 0",background:"#F0F3F3", // Cloud — 순백 대신 수채화와 이어지는 아이보리·회색
         boxShadow:stuck?"none":"0 -10px 30px -12px rgba(40,70,45,0.30)",
         transition:"border-radius .18s ease"}}>
-        <button type="button" onClick={()=>(stuck?collapse():expand())}
+        <button type="button"
+          onClick={()=>{ if(justDragged.current){ justDragged.current=false; return; } stuck?collapse():expand(); }}
           aria-label={stuck?"시트 내리기":"시트 올리기"}
-          onTouchStart={(e)=>{ dragY.current=e.touches[0].clientY; }}
-          onTouchEnd={(e)=>{
-            const y0=dragY.current; dragY.current=null;
-            if(y0==null) return;
-            const dy=e.changedTouches[0].clientY-y0;
-            // 18px 넘게 끈 건 방향대로, 그보다 짧으면 탭으로 보고 onClick에 맡긴다
-            if(dy<-18) expand(); else if(dy>18) collapse();
-          }}
+          onTouchStart={onDragStart} onTouchMove={onDragMove} onTouchEnd={onDragEnd} onTouchCancel={onDragEnd}
           style={{display:"block",width:"100%",background:"none",border:"none",padding:0,
             cursor:"pointer",touchAction:"none",WebkitTapHighlightColor:"transparent"}}>
           <span style={{display:"block",width:44,height:5,borderRadius:999,background:"#D9DED7",margin:"0 auto"}}/>
