@@ -3758,13 +3758,18 @@ export default function App() {
                       })()}
                       </div>
                     </div>
-                    {/* 발밑 바닥 원 (탐험) — 공중부양 방지용 라이트 원. 밝은 테마 포인트색. */}
-                    {!cute&&(
+                    {/* 발밑 바닥 원 (탐험) — 공중부양 방지용 라이트 원. 밝은 테마 포인트색.
+                        아바타 모드에선 끈다: 접지 그림자(AvatarViewer)가 같은 역할을 하는데,
+                        밝은 테마색 원이 그 위에 깔리면 그림자가 묻혀 안 보인다. 성장 캐릭터는 그대로. */}
+                    {!cute&&getCharMode(childId)!==CHAR_DISPLAY_AVATAR&&(
                       <div style={{position:"absolute",left:"50%",bottom:-2,transform:"translateX(-50%)",width:150,height:44,pointerEvents:"none",zIndex:0,
                         background:`radial-gradient(ellipse 50% 50% at 50% 50%, ${GP.themePoint||th.main}80, ${GP.themePoint||th.main}33 45%, transparent 72%)`,filter:"blur(2px)"}}/>
                     )}
-                    {/* 바닥 그림자 — 발에 밀착된 접지 그림자 (marginTop을 크게 당겨 부츠 바로 밑에 붙임) */}
-                    <div style={{position:"relative",zIndex:1,width:118,height:19,borderRadius:"50%",background:cute?"rgba(120,80,100,0.20)":"rgba(0,0,0,0.26)",filter:"blur(5px)",marginTop:-13,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
+                    {/* 바닥 그림자 — 발에 밀착된 접지 그림자 (marginTop을 크게 당겨 부츠 바로 밑에 붙임)
+                        아바타 모드에선 AvatarViewer가 자기 발끝 좌표에 맞춰 직접 그리므로 여기선 생략(이중 그림자 방지). */}
+                    {getCharMode(childId)!==CHAR_DISPLAY_AVATAR&&(
+                      <div style={{position:"relative",zIndex:1,width:118,height:19,borderRadius:"50%",background:cute?"rgba(120,80,100,0.20)":"rgba(0,0,0,0.26)",filter:"blur(5px)",marginTop:-13,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
+                    )}
                   </div>
                   {/* 펫 — 보조 역할이므로 캐릭터보다 작게(기존 40 → 34). 알 단계(0)엔 '곧 부화!'로 기대감 UP */}
                   {/* [탐험] 존재감 개선: 구석(우측 10%) → 캐릭터 발 옆(중앙+62px). 알 단계는 말풍선+반짝이+둥지+10초 간헐 흔들림(둥실 제거). */}
