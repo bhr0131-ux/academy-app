@@ -8,7 +8,7 @@ import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./comp
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
-import { DISCOVERY_KEY, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollSparkT } from "./data/discoveries.js";
+import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollSparkT } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
@@ -907,6 +907,60 @@ export default function App() {
     const key=boxType==="legend"?"legendBox":boxType==="rare"?"rareBox":"normalBox";
     setTreasureData(prev=>({...prev,[childId]:{...cur,[key]:Number(cur[key]||0)+1}}));
     showToast(boxType==="legend"?"👑 전설상자 +1":boxType==="rare"?"🎁 희귀상자 +1":"📦 일반상자 +1");
+  };
+
+  // ── 개발자: 오늘의 발견 · 도감 테스트 ──────────────────────────────────
+  /* 보는 날짜(childDate)의 발견을 즉시 기록 — 지도에서 지나간 것과 똑같은 룰(고정 시드) */
+  const devDiscoverNow=()=>{
+    if(!DEV_MODE) return;
+    const d=childDate||TODAY;
+    if(getDiscoveryOn(discoveryData,childId,d)){ showToast("이미 이날 발견이 있어요 — 먼저 지우세요"); return; }
+    const {next,entry}=recordDiscovery(discoveryData,childId,d);
+    setDiscoveryData(next);
+    const dd=getDiscovery(entry.id);
+    showToast(`${dd.emoji} ${dd.name} 발견!`);
+  };
+  /* 보는 날짜의 발견을 원하는 것으로 강제 교체 (전설 연출·펫 먹이 연출 테스트용) */
+  const devDiscoverAs=(id)=>{
+    if(!DEV_MODE) return;
+    const d=childDate||TODAY;
+    const log=(discoveryData?.[childId]?.log||[]).filter(e=>e.d!==d);
+    setDiscoveryData({...discoveryData,[childId]:{...(discoveryData?.[childId]||{}),log:[...log,{d,id}]}});
+    const dd=getDiscovery(id);
+    showToast(`${dd.emoji} 이날 발견을 '${dd.name}'(으)로 바꿨어요`);
+  };
+  /* 보는 날짜의 발견 삭제 → ✨ 예고로 돌아가고, 다시 지나가면 재발견 (연출 반복 테스트) */
+  const devClearTodayDiscovery=()=>{
+    if(!DEV_MODE) return;
+    const d=childDate||TODAY;
+    const log=(discoveryData?.[childId]?.log||[]).filter(e=>e.d!==d);
+    setDiscoveryData({...discoveryData,[childId]:{...(discoveryData?.[childId]||{}),log}});
+    showToast("이날 발견을 지웠어요 — 탐험 탭을 다시 열면 재발견돼요");
+  };
+  /* 지난 n일 발견 기록 심기 — 실제 룰과 같은 고정 시드라 날짜별 결과도 실제와 동일 */
+  const devFillDiscoveryDays=(n)=>{
+    if(!DEV_MODE) return;
+    let data=discoveryData;
+    for(let i=1;i<=n;i++){
+      const ds=addDays(TODAY,-i);
+      if(getDiscoveryOn(data,childId,ds)) continue;
+      data=recordDiscovery(data,childId,ds).next;
+    }
+    setDiscoveryData(data);
+    showToast(`지난 ${n}일 발견 기록을 심었어요`);
+  };
+  /* 도감 전 종류(59종) 채우기 — 종류마다 과거 날짜 하나씩 (완성 도장·진행바 테스트) */
+  const devFillDiscoveryAll=()=>{
+    if(!DEV_MODE) return;
+    const log=DISCOVERIES.map((it,i)=>({d:addDays(TODAY,-(DISCOVERIES.length-i)),id:it.id}));
+    setDiscoveryData({...discoveryData,[childId]:{...(discoveryData?.[childId]||{}),log}});
+    showToast(`도감 ${DISCOVERIES.length}종을 모두 채웠어요`);
+  };
+  /* 현재 아이 도감 통째로 초기화 */
+  const devResetDiscovery=()=>{
+    if(!DEV_MODE) return;
+    setDiscoveryData({...discoveryData,[childId]:{log:[]}});
+    showToast("도감을 초기화했어요");
   };
 
   // ── 개발자: 연속 달성 N일 생성 (과거 N일치 미션을 전부 완료 처리 + 더미 보장) ──
@@ -5239,6 +5293,24 @@ export default function App() {
                 </div>
 
                 <button onClick={()=>unlockAllTitlesForDev(childId)} style={devBtn("#F59E0B")}>👑 모든 상장 받기</button>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>🌿 오늘의 발견 · 도감 (보는 날짜 {fmt(childDate)} · 현재 {getCollectedCount(discoveryData,childId)}/{DISCOVERIES.length}종)</p>
+                  <p style={{fontSize:11,color:C.sub,margin:"0 0 8px",fontWeight:600,lineHeight:1.4}}>발견은 미션과 무관 — 지도에서 발견 지점을 지나면 자동 기록. 아래 버튼은 그 기록을 흉내내거나 되돌립니다</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
+                    <button onClick={devDiscoverNow} style={devMiniBtn(C.green)}>🌼 이날 발견 즉시</button>
+                    <button onClick={devClearTodayDiscovery} style={devMiniBtn(C.red)}>↩️ 이날 발견 취소</button>
+                    <button onClick={()=>devDiscoverAs("feather_rainbow")} style={devMiniBtn(GP.gold)}>🌈 전설로 교체</button>
+                    <button onClick={()=>devDiscoverAs("banana")} style={devMiniBtn(C.orange)}>🍌 펫먹이로 교체</button>
+                  </div>
+                  <p style={{fontSize:11,color:C.sub,margin:"10px 0 6px",fontWeight:700}}>도감 채우기 (실제 룰과 같은 날짜별 고정 시드)</p>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+                    <button onClick={()=>devFillDiscoveryDays(7)} style={devMiniBtn(C.purple)}>7일</button>
+                    <button onClick={()=>devFillDiscoveryDays(30)} style={devMiniBtn(C.purple)}>30일</button>
+                    <button onClick={devFillDiscoveryAll} style={devMiniBtn(GP.gold)}>전종류</button>
+                    <button onClick={devResetDiscovery} style={devMiniBtn(C.red)}>초기화</button>
+                  </div>
+                </div>
 
                 <div style={devGroup}>
                   <p style={devGroupTitle}>이벤트 팝업 테스트</p>
