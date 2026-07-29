@@ -3797,19 +3797,9 @@ export default function App() {
                   {/* 펫 — 보조 역할이므로 캐릭터보다 작게(기존 40 → 34). 알 단계(0)엔 '곧 부화!'로 기대감 UP */}
                   {/* [탐험] 존재감 개선: 구석(우측 10%) → 캐릭터 발 옆(중앙+62px). 알 단계는 말풍선+반짝이+둥지+10초 간헐 흔들림(둥실 제거). */}
                   <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:62,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
-                    {/* 오늘의 발견 말풍선 — 탐험을 끝낸 날에만 펫 위에 뜬다. 항상 있으면 특별함이 없다(사용자 확정).
-                        알 단계('곧 부화!' 말풍선)와 겹치지 않게, 발견이 있으면 발견 쪽을 우선한다. */}
-                    {(()=>{
-                      const _dd=childDate||TODAY;
-                      const _de=getDiscoveryOn(discoveryData,childId,_dd);
-                      if(!_de) return null;
-                      /* 펫은 화면 중앙+62px에 있어 말풍선이 오른쪽으로 치우친다.
-                         캐릭터와 펫 사이로 조금 당겨 화면 안에 들어오게 한다. */
-                      return <div style={{marginBottom:5,transform:"translateX(-30px)"}}>
-                        <DiscoveryBubble id={_de.id} isNew={discoveryPop===_dd} onDone={()=>setDiscoveryPop(null)} />
-                      </div>;
-                    })()}
-                    {!cute&&pet.stage===0&&!getDiscoveryOn(discoveryData,childId,childDate||TODAY)?(
+                    {/* (이동됨) 오늘의 발견 말풍선 — 펫 옆이 아니라 탐험지도 위 '아이 머리 위'에 뜬다.
+                        아이가 보물상자 옆에 도착해 상자가 열린 다음에 나온다 (사용자 확정 → AdventureMap의 bubble prop). */}
+                    {!cute&&pet.stage===0?(
                     <>
                       {/* 말풍선 — 알 위 (사용자 확정: 위가 더 귀여움), 간격 14→3px + 살짝 우측: 알과 한 덩어리로 보이게 */}
                       <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"4px 9px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:3,transform:"translateX(4px)"}}>
@@ -3983,6 +3973,13 @@ export default function App() {
                         onPick={setJournalAcId}
                         mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
                         charEmoji={getMapWalker(th.main, curChild?.gender)}
+                        bubble={(()=>{
+                          // 오늘의 발견 말풍선 — 탐험을 끝낸 날에만. 지도 안에서 '상자가 열린 뒤'에 띄운다.
+                          const _dd=childDate||TODAY;
+                          const _de=getDiscoveryOn(discoveryData,childId,_dd);
+                          if(!_de) return null;
+                          return <DiscoveryBubble id={_de.id} isNew={discoveryPop===_dd} onDone={()=>setDiscoveryPop(null)} />;
+                        })()}
                       />
                     </div>
                     </>
