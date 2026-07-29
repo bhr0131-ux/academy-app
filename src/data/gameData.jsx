@@ -355,8 +355,10 @@ export const SKINS = {
      · 저장된 'cute' 스킨 반영 → 끈 동안에도 탐험으로 표시만 하고,
        저장값(v6_kid_skin_map)은 절대 지우지 않는다 (켜면 그대로 복귀)
    끈 동안 새 아이에게 스킨을 자동 저장하지 않는다 — 저장해 버리면
-   나중에 베이커리가 열려도 선택 화면이 영영 안 뜬다. */
-export const BAKERY_ENABLED = false;
+   나중에 베이커리가 열려도 선택 화면이 영영 안 뜬다.
+   [현재 켜짐] 베이커리 쓰는 아이가 있을 수 있어 다시 열어둠 (사용자 확정).
+   탐험 단독 출시로 갈 때 이 값만 false로. */
+export const BAKERY_ENABLED = true;
 
 export const DEFAULT_SKIN = "dungeon";
 export const getSkin = (mode) => SKINS[mode] || SKINS[DEFAULT_SKIN];
