@@ -22,6 +22,11 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 몸통에 가려진다. 카탈로그 아이템에 `z: 37`(상의 35 위·목장식 40 아래)을 달아 앞으로 끌어온다.
 배치는 침낭 롤이 어깨선에 얹히게 — 탐험 배낭은 배율 0.88, 좌상단 (408, 414)에 탑재.
 왼쪽 롤의 끝이 몸통 실루엣 가장자리(x≈408)와 맞아떨어져 잘린 티가 안 난다.
+**색 변형 정렬법** — 같은 구도의 다른 색 원화는 눈으로 맞추지 말고 **기존 탑재본과의
+알파 IoU를 최대화**하는 (배율, 좌상단)을 탐색해서 정한다. 크림은 IoU 0.91로 그대로 채택
+(238×202 @408,412). 파랑은 원화가 두 끈을 더 벌려 그려서(가로세로비 1.37 vs 1.18)
+IoU 최적값은 끈이 짧아진다 — 끈 길이를 기준으로 272×199 @388,412로 조정했다.
+설치본 바닥 y: 초록 615 / 파랑 611 / 크림 614.
 몸통 기준값(남녀 거의 동일) — 어깨선 y≈450~470 · 셔츠 중심 x≈508 · 반바지 시작 y≈576.
 
 **아바타 베이스 교체 규칙**: 모자·신발·상의 등 장비 그림은 1024×1024 안에서
@@ -66,7 +71,9 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | hat-safari-brown.webp | 사파리 모자 원화 (현행, hidesHead) | avatar/hat/safari-brown.webp |
 | hat-aviator-cap.webp | 비행사 모자 원화 (현행, hidesHead) | avatar/hat/aviator-cap.webp |
 | hat-blossom.webp | 꽃 헬멧 원화 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
-| back-explorer-straps.webp | 탐험 배낭 원화 (앞에서 본 어깨끈 — 침낭 롤·버클·칼집, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
+| back-explorer-straps.webp | 탐험 배낭 원화 (초록 롤 + 갈색 가죽끈, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
+| back-sky-straps.webp | 하늘 배낭 원화 (파랑 롤 + 갈색 가죽끈) | avatar/back/sky-straps.webp |
+| back-cream-straps.webp | 크림 배낭 원화 (크림 롤 + 캔버스끈, 체커보드 배경 제거) | avatar/back/cream-straps.webp |
 | hat-explorer-v2.webp / hat-explorer-wearing.webp | 탐험 헬멧 원화 v2·v1 (교체됨) | — |
 | boots-*-sockless*.webp / boots-green-wearing-v2.webp | 부츠 원화 v1·v2 (교체됨) | — |
 | btn-parent-badge-v2.webp | '엄마용' 원형 뱃지 v2 (엄마 얼굴, 현행) | btn-parent.webp |

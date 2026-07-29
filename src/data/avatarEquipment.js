@@ -119,7 +119,9 @@ export const AVATAR_CATALOG = [
   { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp" },
   /* 탐험 배낭 — 원화가 '앞에서 본 어깨끈'(침낭 롤 + 버클 + 칼집)이라 캐릭터 뒤(z15)에 그리면
      몸통에 완전히 가려진다. 그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
-  { id: "back_backpack",  slot: "back",  label: "탐험 배낭",   emoji: "🎒", price: 250, rarity: "epic",   theme: "adventure", img: "assets/avatar/back/explorer-straps.webp", z: 37 },
+  { id: "back_backpack",       slot: "back", label: "탐험 배낭", emoji: "🎒", price: 250, rarity: "epic", theme: "adventure", img: "assets/avatar/back/explorer-straps.webp", z: 37 },
+  { id: "back_backpack_sky",   slot: "back", label: "하늘 배낭", emoji: "🎒", price: 270, rarity: "epic", theme: "adventure", img: "assets/avatar/back/sky-straps.webp",      z: 37 },
+  { id: "back_backpack_cream", slot: "back", label: "크림 배낭", emoji: "🎒", price: 290, rarity: "epic", theme: "adventure", img: "assets/avatar/back/cream-straps.webp",    z: 37 },
 ];
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
