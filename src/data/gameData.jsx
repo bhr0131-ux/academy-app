@@ -347,6 +347,17 @@ export const SKINS = {
     clearEffect:"stamp", // 도장 꾹 찍기
   },
 };
+/* ── 베이커리 모드 출시 스위치 (사용자 확정 2026-07-29) ──────────────────
+   탐험 모드만 먼저 출시한다. 베이커리는 완성되면 유료로 추가 예정.
+   다시 열 때는 이 값만 true로 바꾸면 된다 — 이 플래그가 가리는 것:
+     · 아이 첫 진입의 모드 선택 화면(ModeSelect)  → 끈 동안엔 탐험으로 바로 시작
+     · 설정의 '게임 디자인 선택' 카드
+     · 저장된 'cute' 스킨 반영 → 끈 동안에도 탐험으로 표시만 하고,
+       저장값(v6_kid_skin_map)은 절대 지우지 않는다 (켜면 그대로 복귀)
+   끈 동안 새 아이에게 스킨을 자동 저장하지 않는다 — 저장해 버리면
+   나중에 베이커리가 열려도 선택 화면이 영영 안 뜬다. */
+export const BAKERY_ENABLED = false;
+
 export const DEFAULT_SKIN = "dungeon";
 export const getSkin = (mode) => SKINS[mode] || SKINS[DEFAULT_SKIN];
 
