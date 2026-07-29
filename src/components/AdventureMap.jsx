@@ -450,10 +450,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
             </div>
             )}
             <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
-              {d && <>
-                <span style={{ position: "absolute", top: "-6%", left: "-8%", fontSize: 14, animation: "amSpark 2.8s ease-in-out infinite", zIndex: 2 }}>✨</span>
-                <span style={{ position: "absolute", top: "10%", right: "-9%", fontSize: 11, animation: "amSpark 2.8s ease-in-out infinite -1.2s", zIndex: 2 }}>✨</span>
-              </>}
+              {/* (삭제됨) 수업 종료 건물의 ✨ 반짝이 — 길 위 '발견 지점' ✨와 헷갈려서 뺐다
+                  (사용자 확정). 완료 표시는 지붕 깃발 + 골드 글로우로 충분하다. */}
               {/* 구멍 뒤 크림 원판 + 학원 이모지 — 아이 학원카드와 같은 이모지를 항상 유지 (완료 표시는 이름표 ✅) */}
               <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(M.fs * (B.es || 1)), lineHeight: 1, zIndex: 0 }}>
                 {ac.icon}
