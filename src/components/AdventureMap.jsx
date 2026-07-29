@@ -19,6 +19,10 @@
                                                   gain=펫 연결이면 {kind,amount} ("먹이 +1" 연출)
      onSparkPass : ()=>void                       캐릭터가 발견 지점을 '시간 기준'으로
                                                   지나간 순간 (App이 여기서 발견을 기록)
+     eventId  : string|null                       오늘의 랜덤 이벤트 id (ev_monkey 등).
+                                                  원화 속 그 동물 머리 위에 👋 말풍선.
+                                                  나비·거북이·무지개는 원화에 없어 아직
+                                                  안 그린다 (사용자가 그림 주면 심을 것)
    ════════════════════════════════════════════════════════════════════════ */
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -72,6 +76,8 @@ const MAP_LONG = {
   chestOpen: [48, 93.8, 17],   // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측(20→17 축소)
   chestHide: [50.5, 89.2, 33, 14.5], // 배경에 그려진 '닫힌 상자'를 지울 모래 패치 [중심x%, 중심y%, 폭%, 높이%]
   cdy: 5.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
+  // 원화에 그려진 동물들의 머리 위 좌표 (%) — 랜덤 이벤트 날 👋 말풍선 자리 (그리드 실측)
+  animals: { ev_parrot: [79, 16.5], ev_monkey: [79.5, 38.5], ev_toucan: [15, 62.5], ev_boar: [76, 63.5], ev_frog: [13.5, 73.5] },
   yr: 1844 / 853,
   bw: 18, fs: 17,   // 건물 표시 폭(%)·이모지 크기 (사용자 조정: 자리 8곳 배치에 맞춰 30% 축소)
   fpk: 46,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 64→46)
@@ -122,6 +128,8 @@ const MAP_SHORT = {
   chestOpen: [45, 90.9, 17], // 도착 시 덮어 그릴 '열린 상자' [중심x%, 바닥y%, 폭%] — 합성 실측(20→17 축소)
   chestHide: [47.5, 86.3, 33, 15], // 배경에 그려진 '닫힌 상자'를 지울 모래 패치 [중심x%, 중심y%, 폭%, 높이%]
   cdy: 6.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
+  // 원화에 그려진 동물들의 머리 위 좌표 (%) — 랜덤 이벤트 날 👋 말풍선 자리 (그리드 실측)
+  animals: { ev_parrot: [81, 15.5], ev_monkey: [79.5, 39.5], ev_toucan: [16, 63.5], ev_boar: [73.5, 65], ev_frog: [15, 75] },
   yr: 1652 / 952,
   bw: 23, fs: 21,   // 짧은 지도는 건물을 한 단계 작게 (사용자 조정: 소폭 축소)
   fpk: 36,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 50→36)
@@ -179,7 +187,7 @@ const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); ret
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
 // onPick: 학원 건물 탭 → 탐험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
-export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, spark = null, onSparkPass = null }) {
+export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, spark = null, onSparkPass = null, eventId = null }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
@@ -338,6 +346,10 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           14%{opacity:1}
           50%{transform:translate(calc(-50% + var(--dx)), var(--up)) scale(1) rotateY(540deg);opacity:1}
           100%{transform:translate(calc(-50% + var(--dx2)), 24px) scale(.7) rotateY(1080deg);opacity:0}
+        }
+        @keyframes amWave{
+          0%,100%{transform:translate(-50%,-100%) translateY(0)}
+          50%{transform:translate(-50%,-100%) translateY(-3px)}
         }
         @keyframes amSparkTease{
           0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.72) rotate(-8deg)}
@@ -515,6 +527,26 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           {doneCount >= n ? "🔓" : "🔒"} {doneCount}/{n}
         </div>
       )}
+
+      {/* ── 랜덤 이벤트 — 오늘 만난 동물 머리 위 👋 말풍선 (사용자 확정) ──
+             이벤트는 날짜 고정 시드라 하루 종일 같은 동물이 인사한다. 발견 여부와
+             무관하게 종일 보여준다 — 지도를 보는 재미가 목적이라서. ── */}
+      {eventId && M.animals?.[eventId] && (() => {
+        const [ax, ay] = M.animals[eventId];
+        return (
+          <div style={{ position: "absolute", left: `${ax}%`, top: `${ay}%`,
+            animation: "amWave 2s ease-in-out infinite", pointerEvents: "none", zIndex: 2 }}>
+            <div style={{ position: "relative", background: "rgba(255,251,240,0.95)", border: "1px solid rgba(155,114,74,0.4)",
+              borderRadius: 999, padding: "2px 6px", fontSize: 11, lineHeight: 1.3,
+              boxShadow: "0 2px 5px rgba(60,80,40,0.25)" }}>
+              👋
+              <span style={{ position: "absolute", left: "50%", bottom: -4, transform: "translateX(-50%)", width: 0, height: 0,
+                borderLeft: "4px solid transparent", borderRight: "4px solid transparent",
+                borderTop: "4px solid rgba(255,251,240,0.95)" }} />
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── 길 위 '오늘의 발견' 지점 — 발견 전 ✨ 깜빡임 / 지나가면 발견 팝 → 이모지 안착 ── */}
       {spark && sparkT !== null && (() => {
