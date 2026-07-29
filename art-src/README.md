@@ -20,8 +20,14 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 **여아 전용 모자** — 남녀 얼굴 크기가 달라(눈 간격 124.5 vs 111.0) 같은 모자 그림을
 공유하면 여아 얼굴이 남아 얼굴로 바뀐다. 여아 원화가 있으면 카탈로그에 `imgGirl`을 달고
 여아 머리 기준(간격 111.0 · 중심 510,309)에 맞춰 따로 탑재한다. 뷰어가 성별로 골라 그린다.
-현행 — 사파리 361×358 @(327,99) / 비행사 307×353 @(357,106).
-아직 여아 원화가 없는 모자(탐험 헬멧·꽃 헬멧)는 남녀 공용 그림을 그대로 쓴다.
+현행 여아 4종 — 사파리 361×358 @(327,107) / 비행사 307×353 @(357,112)
+/ 꽃 367×352 @(322,112) / 탐험 368×352 @(320,109).
+**목 이음매 보정(중요)** — 눈 기준으로만 맞추면 모자 그림의 턱이 베이스보다 높게 그려져 있어
+턱과 목 사이에 4~12px 투명 슬릿이 생긴다. 표시 240px에서도 배경색이 비쳐 보인다.
+그래서 눈 정렬 후 **'목 열'(몸통 최상단 y로부터 3px 이내로 시작하는 열, 여아 x481~536)에서
+빈틈이 0 이하가 될 때까지 모자를 내린다.** 남아 4종도 같은 이유로 정수 픽셀만큼 내려 보정했다
+(탐험 +6 / 사파리 +5 / 비행사 +12 / 꽃 +4 — 리샘플 없는 정수 이동이라 화질 손실 없음).
+눈이 몇 px 내려가지만(표시 200px 기준 1~2px) 목이 끊겨 보이는 쪽이 훨씬 눈에 띈다.
 **눈 검출 방법** — 어두운 픽셀 연결요소를 잡되, 눈동자 하이라이트 때문에 한쪽 눈이
 두 조각으로 갈라지는 일이 있다. bbox가 4px 이내로 붙은 조각을 합친 뒤
 '좌우 폭이 비슷하고 y가 맞는 쌍'을 고르면 안정적이다 (병합 간격을 10px로 키우면
@@ -77,12 +83,14 @@ IoU 최적값은 끈이 짧아진다 — 끈 길이를 기준으로 272×199 @38
 | boots-explorer-v3.webp | 탐험 부츠 원화 v3 (현행) | avatar/shoes/explorer-boots.webp |
 | boots-green-v3.webp | 새싹 부츠 원화 v3 (현행) | avatar/shoes/green-boots.webp |
 | boots-cream-v3.webp | 크림 부츠 원화 v3 (현행) | avatar/shoes/cream-boots.webp |
-| hat-explorer-v3.webp | 탐험 헬멧 원화 v3 (현행, hidesHead) | avatar/hat/explorer-helmet.webp |
+| hat-explorer-v3.webp | 탐험 헬멧 원화 남아 v3 (현행, hidesHead) | avatar/hat/explorer-helmet.webp |
+| hat-explorer-helmet-girl.webp | 탐험 헬멧 원화 여아 (현행, imgGirl) | avatar/hat/explorer-helmet-girl.webp |
 | hat-safari-brown.webp | 사파리 모자 원화 남아 (현행, hidesHead) | avatar/hat/safari-brown.webp |
 | hat-safari-brown-girl.webp | 사파리 모자 원화 여아 (현행, imgGirl) | avatar/hat/safari-brown-girl.webp |
 | hat-aviator-cap.webp | 비행사 모자 원화 남아 (현행, hidesHead) | avatar/hat/aviator-cap.webp |
 | hat-aviator-cap-girl.webp | 비행사 모자 원화 여아 (현행, imgGirl) | avatar/hat/aviator-cap-girl.webp |
-| hat-blossom.webp | 꽃 헬멧 원화 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
+| hat-blossom.webp | 꽃 헬멧 원화 남아 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
+| hat-blossom-helmet-girl.webp | 꽃 헬멧 원화 여아 (현행, imgGirl) | avatar/hat/blossom-helmet-girl.webp |
 | back-explorer-straps.webp | 탐험 배낭 원화 (초록 롤 + 갈색 가죽끈, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
 | back-sky-straps.webp | 하늘 배낭 원화 (파랑 롤 + 갈색 가죽끈) | avatar/back/sky-straps.webp |
 | back-cream-straps.webp | 크림 배낭 원화 (크림 롤 + 캔버스끈, 체커보드 배경 제거) | avatar/back/cream-straps.webp |
