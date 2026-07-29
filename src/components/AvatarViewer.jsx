@@ -12,7 +12,7 @@ import {
    한다. 슬롯별 위치 보정 코드는 존재하지 않는다. (CHARACTER_SPEC 준수)
 
    폴백 체인
-     · 장비: img 로드 실패 → 슬롯별 emojiPos 위치에 대표 이모지
+     · 장비: imgGirl(여아 전용, 있을 때) → img → 슬롯별 emojiPos 위치에 대표 이모지
      · 베이스: 몸통+머리 2장 → (로드 실패 시) 합본 1장 → baseCharImg(성장 3단계) → 이모지
 
    머리 숨김
@@ -30,10 +30,15 @@ import {
      baseCharImg : string|null  베이스 아트 미제작 시 폴백용 성장 캐릭터
    ════════════════════════════════════════════════════════════════════════ */
 
-/* 장비 레이어 1장 — 이미지 우선, 실패 시 슬롯 지정 위치에 이모지 */
-function AvatarLayer({ item, emojiPos, size }) {
+/* 장비 레이어 1장 — 이미지 우선, 실패 시 슬롯 지정 위치에 이모지
+   imgGirl이 있으면 여아일 때 그 그림을 쓴다 (모자처럼 얼굴째 덮는 장비는
+   성별 얼굴이 따로 필요하다). 로드 실패 시 공용 img → 이모지 순으로 내려간다. */
+function AvatarLayer({ item, emojiPos, size, gender = "boy" }) {
   const [imgFailed, setImgFailed] = useState(false);
-  const showImg = item.img && !imgFailed;
+  const [girlFailed, setGirlFailed] = useState(false);
+  const useGirl = gender === "girl" && item.imgGirl && !girlFailed;
+  const src = useGirl ? item.imgGirl : item.img;
+  const showImg = src && !imgFailed;
   const isBackground = item.slot === "background";
 
   /* 배경은 이미지 없으면 아무것도 안 그림 (뒤의 기본 배경이 보이게) */
@@ -42,9 +47,10 @@ function AvatarLayer({ item, emojiPos, size }) {
   if (showImg) {
     return (
       <img
-        src={"/" + item.img.replace(/^\/+/, "")}
+        key={src}
+        src={"/" + src.replace(/^\/+/, "")}
         alt={item.label}
-        onError={() => setImgFailed(true)}
+        onError={() => (useGirl ? setGirlFailed(true) : setImgFailed(true))}
         draggable={false}
         style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
@@ -166,7 +172,7 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
       {/* 뒤쪽 레이어(배경·등 장비) → 베이스 캐릭터 → 앞쪽 레이어 순서로 z 배치 */}
       {layers.map((layer) => (
         <div key={layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex }}>
-          <AvatarLayer item={layer.item} emojiPos={layer.emojiPos} size={size} />
+          <AvatarLayer item={layer.item} emojiPos={layer.emojiPos} size={size} gender={gender} />
         </div>
       ))}
       <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z }}>

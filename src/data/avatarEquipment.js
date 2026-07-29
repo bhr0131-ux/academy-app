@@ -98,7 +98,9 @@ export const AVATAR_RARITY = {
    배경 3종은 v1에서 그대로 승계(id·가격 동일 → 마이그레이션 시 보유 이전).
 
    각 아이템: id / slot / label / emoji(폴백) / price / rarity / theme /
-             img(1024 정렬 webp) / starter(기본 지급) / z(슬롯 기본 z 덮어쓰기) */
+             img(1024 정렬 webp) / starter(기본 지급) / z(슬롯 기본 z 덮어쓰기) /
+             imgGirl(여아 전용 그림 — 얼굴째 덮는 모자처럼 성별 얼굴이 필요한 장비용,
+                     없으면 img를 남녀 공용으로 쓴다)                        */
 export const AVATAR_CATALOG = [
   /* 배경 — 제거됨 (구 '꾸미기 상점'의 배경과 중복되어 아바타 꾸미기에서는 다루지 않음).
      기존 구매자는 로드 시 코인 환불(App의 RETIRED_AVATAR_ITEMS 처리). 기본 배경은
@@ -108,8 +110,8 @@ export const AVATAR_CATALOG = [
   // 모자 4종 — 전부 hidesHead: 베이스 머리를 지우고 이 그림(모자+얼굴)으로 대체한다.
   //   원화의 눈 간격을 베이스 머리(124.5)에 맞춰 키우고, 턱 끝을 y=404·중심 x=506에 정렬해 탑재.
   { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/explorer-helmet.webp", hidesHead: true },
-  { id: "hat_safari",     slot: "hat",   label: "사파리 모자", emoji: "⛑️", price: 180, rarity: "rare",   theme: "adventure", img: "assets/avatar/hat/safari-brown.webp",    hidesHead: true },
-  { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp",     hidesHead: true },
+  { id: "hat_safari",     slot: "hat",   label: "사파리 모자", emoji: "⛑️", price: 180, rarity: "rare",   theme: "adventure", img: "assets/avatar/hat/safari-brown.webp",    imgGirl: "assets/avatar/hat/safari-brown-girl.webp", hidesHead: true },
+  { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp",     imgGirl: "assets/avatar/hat/aviator-cap-girl.webp",  hidesHead: true },
   { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp",  hidesHead: true },
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp" },
   { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp" },

@@ -14,8 +14,18 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 그 자리에 장비 그림만 얹는다 — 베이스 머리 위에 덮어 씌우면 크기가 조금만 어긋나도
 턱선·귀선이 겹쳐 보이던 문제가 이 구조로 원천 해결된다.
 남아 머리/몸통 경계 y=404(턱 끝, 중심 x=506) · 여아 y≈395.
-**얼굴 덮는 장비 탑재 공식** — 원화의 눈 간격을 베이스 머리(124.5)에 맞춰 배율을 잡고,
-턱 끝을 y=404 · 중심 x=506 에 정렬한다. 모자 4종 모두 이 방식(배율 1.08~1.13).
+**얼굴 덮는 장비 탑재 공식** — 원화의 눈 간격을 베이스 머리에 맞춰 배율을 잡고,
+턱 끝을 y=404 · 중심 x=506 에 정렬한다. 남아 모자 4종 모두 이 방식(배율 1.08~1.13).
+기준 눈(bbox 중심 기준) — 남아 머리 간격 124.5 / 여아 머리 간격 111.0 · 중심 (510, 309).
+**여아 전용 모자** — 남녀 얼굴 크기가 달라(눈 간격 124.5 vs 111.0) 같은 모자 그림을
+공유하면 여아 얼굴이 남아 얼굴로 바뀐다. 여아 원화가 있으면 카탈로그에 `imgGirl`을 달고
+여아 머리 기준(간격 111.0 · 중심 510,309)에 맞춰 따로 탑재한다. 뷰어가 성별로 골라 그린다.
+현행 — 사파리 361×358 @(327,99) / 비행사 307×353 @(357,106).
+아직 여아 원화가 없는 모자(탐험 헬멧·꽃 헬멧)는 남녀 공용 그림을 그대로 쓴다.
+**눈 검출 방법** — 어두운 픽셀 연결요소를 잡되, 눈동자 하이라이트 때문에 한쪽 눈이
+두 조각으로 갈라지는 일이 있다. bbox가 4px 이내로 붙은 조각을 합친 뒤
+'좌우 폭이 비슷하고 y가 맞는 쌍'을 고르면 안정적이다 (병합 간격을 10px로 키우면
+땋은 머리까지 붙어버려 실패한다).
 **신발 탑재 공식** — 현행 신발 에셋의 bbox 안에 비율 유지로 넣되 **바닥(y1)을 일치**시킨다
 (발이 뜨거나 파묻히지 않게). 현행 기준 바닥 y — 탐험 946 / 새싹·크림 947.
 **어깨끈(배낭) 탑재 공식** — 원화가 '앞에서 본 어깨끈'이면 등 슬롯 기본 z(15, 캐릭터 뒤)로는
@@ -68,8 +78,10 @@ IoU 최적값은 끈이 짧아진다 — 끈 길이를 기준으로 272×199 @38
 | boots-green-v3.webp | 새싹 부츠 원화 v3 (현행) | avatar/shoes/green-boots.webp |
 | boots-cream-v3.webp | 크림 부츠 원화 v3 (현행) | avatar/shoes/cream-boots.webp |
 | hat-explorer-v3.webp | 탐험 헬멧 원화 v3 (현행, hidesHead) | avatar/hat/explorer-helmet.webp |
-| hat-safari-brown.webp | 사파리 모자 원화 (현행, hidesHead) | avatar/hat/safari-brown.webp |
-| hat-aviator-cap.webp | 비행사 모자 원화 (현행, hidesHead) | avatar/hat/aviator-cap.webp |
+| hat-safari-brown.webp | 사파리 모자 원화 남아 (현행, hidesHead) | avatar/hat/safari-brown.webp |
+| hat-safari-brown-girl.webp | 사파리 모자 원화 여아 (현행, imgGirl) | avatar/hat/safari-brown-girl.webp |
+| hat-aviator-cap.webp | 비행사 모자 원화 남아 (현행, hidesHead) | avatar/hat/aviator-cap.webp |
+| hat-aviator-cap-girl.webp | 비행사 모자 원화 여아 (현행, imgGirl) | avatar/hat/aviator-cap-girl.webp |
 | hat-blossom.webp | 꽃 헬멧 원화 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
 | back-explorer-straps.webp | 탐험 배낭 원화 (초록 롤 + 갈색 가죽끈, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
 | back-sky-straps.webp | 하늘 배낭 원화 (파랑 롤 + 갈색 가죽끈) | avatar/back/sky-straps.webp |
