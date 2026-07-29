@@ -13,8 +13,11 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 모자처럼 얼굴째 덮는 장비는 카탈로그에 `hidesHead: true`를 달면 머리 장을 아예 안 그리고
 그 자리에 장비 그림만 얹는다 — 베이스 머리 위에 덮어 씌우면 크기가 조금만 어긋나도
 턱선·귀선이 겹쳐 보이던 문제가 이 구조로 원천 해결된다.
-남아 머리/몸통 경계 y=403(턱 끝) · 여아 y=405. 얼굴 덮는 장비는 **턱 끝을 이 y에 맞추고
-얼굴 최대폭을 243(남)/241(여)에 맞추면** 목이 자연스럽게 이어진다.
+남아 머리/몸통 경계 y=404(턱 끝, 중심 x=506) · 여아 y≈405.
+**얼굴 덮는 장비 탑재 공식** — 원화의 눈 간격을 베이스 머리(124.5)에 맞춰 배율을 잡고,
+턱 끝을 y=404 · 중심 x=506 에 정렬한다. 모자 4종 모두 이 방식(배율 1.08~1.13).
+**신발 탑재 공식** — 현행 신발 에셋의 bbox 안에 비율 유지로 넣되 **바닥(y1)을 일치**시킨다
+(발이 뜨거나 파묻히지 않게). 현행 기준 바닥 y — 탐험 946 / 새싹·크림 947.
 
 **아바타 베이스 교체 규칙**: 모자·신발·상의 등 장비 그림은 1024×1024 안에서
 '베이스가 있던 자리'에 맞춰 그려져 있다. 그래서 베이스를 새로 넣을 땐 반드시
@@ -46,12 +49,15 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | base-girl-v3.webp | 여아 아바타 베이스 원화 v3 (현행 — 배경 제거·현행 bbox에 맞춰 정렬 탑재) | avatar/base/default-girl.webp |
 | base-boy.webp | 남아 아바타 베이스 원화 v2 (교체됨) | — |
 | base-girl.webp | 여아 아바타 베이스 원화 v2 (교체됨) | — |
-| boots-explorer-sockless.webp | 탐험 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/explorer-boots.webp |
-| boots-cream-sockless.webp | 크림 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/cream-boots.webp |
-| hat-explorer-v2.webp | 탐험 헬멧 착용 원화 v2 (현행 — 머리 장을 숨기고 이 그림으로 대체, hidesHead) | avatar/hat/explorer-helmet.webp |
-| hat-explorer-wearing.webp | 탐험 헬멧 착용 원화 v1 (교체됨) | — |
-| boots-explorer-sockless-v2.webp | 탐험 부츠 착용 원화 (맨발목 v2, 최종 승인본) | avatar/shoes/explorer-boots.webp |
-| boots-green-wearing-v2.webp | 새싹 부츠 착용 원화 (v2, 현행 승인본) | avatar/shoes/green-boots.webp |
+| boots-explorer-v3.webp | 탐험 부츠 원화 v3 (현행) | avatar/shoes/explorer-boots.webp |
+| boots-green-v3.webp | 새싹 부츠 원화 v3 (현행) | avatar/shoes/green-boots.webp |
+| boots-cream-v3.webp | 크림 부츠 원화 v3 (현행) | avatar/shoes/cream-boots.webp |
+| hat-explorer-v3.webp | 탐험 헬멧 원화 v3 (현행, hidesHead) | avatar/hat/explorer-helmet.webp |
+| hat-safari-brown.webp | 사파리 모자 원화 (현행, hidesHead) | avatar/hat/safari-brown.webp |
+| hat-aviator-cap.webp | 비행사 모자 원화 (현행, hidesHead) | avatar/hat/aviator-cap.webp |
+| hat-blossom.webp | 꽃 헬멧 원화 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
+| hat-explorer-v2.webp / hat-explorer-wearing.webp | 탐험 헬멧 원화 v2·v1 (교체됨) | — |
+| boots-*-sockless*.webp / boots-green-wearing-v2.webp | 부츠 원화 v1·v2 (교체됨) | — |
 | btn-parent-badge-v2.webp | '엄마용' 원형 뱃지 v2 (엄마 얼굴, 현행) | btn-parent.webp |
 | btn-child-switch-badge-v2.webp | 아이 전환 원형 뱃지 v2 (남매, 2명 이상일 때만 노출, 현행) | btn-child-switch.webp |
 | btn-my-avatar-badge.webp | '내 아바타' 원형 뱃지 (초록 실루엣, 현행 — 팻말에서 교체) | btn-my-avatar.webp |
