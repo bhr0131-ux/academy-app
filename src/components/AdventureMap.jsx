@@ -16,6 +16,8 @@
      charEmoji: string                            캐릭터 (이미지 경로 또는 이모지)
      bubble   : ReactNode                         아이 머리 위 말풍선 ('오늘의 발견')
                                                   — 보물상자가 열린 뒤에만 띄운다 (사용자 확정)
+     spark    : {t, emoji, found}                 길 위 '오늘의 발견' 지점 (사용자 확정 ②)
+                                                  t=길 진행률, found=오늘 발견 기록됨
    ════════════════════════════════════════════════════════════════════════ */
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -180,7 +182,7 @@ const isImg = (s) => typeof s === "string" && s.includes("assets/");
 const BUBBLE_DELAY = 950;
 
 // onPick: 학원 건물 탭 → 탐험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
-export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, bubble = null }) {
+export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, bubble = null, spark = null }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
@@ -286,6 +288,22 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
     return () => clearTimeout(to);
   }, [hasBubble, chestParty]);
 
+  // ── 길 위 '오늘의 발견' 지점 (사용자 확정 ②) ──────────────────────────
+  // 발견 전엔 ✨만 깜빡인다(예고 — 뭐가 나올지는 안 보여준다). 오늘 발견이
+  // 기록된 뒤 캐릭터가 그 위를 지나면 "{이모지} 발견!" 팝(2초) 후 이모지가 남는다.
+  const sparkT = spark?.t ?? null;
+  const sparkDone = !!(spark?.found && sparkT !== null && t >= sparkT - 0.001);
+  // 과거 날짜처럼 '이미 지난 채로' 열었으면 팝 없이 바로 안착 — 팝은 지나가는 순간에만
+  const sparkInit = useRef(null);
+  if (sparkInit.current === null && sparkT !== null) sparkInit.current = sparkDone;
+  const [sparkPop, setSparkPop] = useState(false);
+  useEffect(() => {
+    if (!sparkDone || sparkInit.current) return;
+    setSparkPop(true);
+    const to = setTimeout(() => setSparkPop(false), 2000);
+    return () => clearTimeout(to);
+  }, [sparkDone]);
+
   // ── 지나온 길 발자국 ──────────────────────────────────────
   // 모래길 중심선(pointAt)을 등간격 샘플링해 발자국을 전부 깔아두고,
   // 캐릭터 진행률(t)까지만 보이게 한다 → 이동 트윈을 따라 톡톡 나타나는 연출.
@@ -318,6 +336,13 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           14%{opacity:1}
           50%{transform:translate(calc(-50% + var(--dx)), var(--up)) scale(1) rotateY(540deg);opacity:1}
           100%{transform:translate(calc(-50% + var(--dx2)), 24px) scale(.7) rotateY(1080deg);opacity:0}
+        }
+        @keyframes amFound{
+          0%{opacity:0;transform:translateX(-50%) translateY(4px) scale(.5)}
+          12%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.12)}
+          22%{transform:translateX(-50%) scale(1)}
+          78%{opacity:1}
+          100%{opacity:0;transform:translateX(-50%) translateY(-9px)}
         }
         @keyframes amCoinRoll{
           0%{transform:translate(-50%,0) scale(.4) rotate(0deg);opacity:0}
@@ -480,6 +505,28 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           {doneCount >= n ? "🔓" : "🔒"} {doneCount}/{n}
         </div>
       )}
+
+      {/* ── 길 위 '오늘의 발견' 지점 — 발견 전 ✨ 깜빡임 / 지나가면 발견 팝 → 이모지 안착 ── */}
+      {spark && sparkT !== null && (() => {
+        const [sx, sy] = pointAt(sparkT);
+        const base = { position: "absolute", left: `${sx}%`, top: `${sy}%`, pointerEvents: "none", zIndex: 2 };
+        if (sparkDone) return (
+          <div style={{ ...base, transform: "translate(-50%,-50%)" }}>
+            {sparkPop && (
+              <div style={{ position: "absolute", left: "50%", bottom: "100%", transform: "translateX(-50%)", marginBottom: 3,
+                background: "rgba(255,251,240,0.95)", border: "1px solid rgba(212,160,60,0.65)", borderRadius: 999,
+                padding: "2px 8px", fontSize: 10.5, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap",
+                boxShadow: "0 2px 6px rgba(60,80,40,0.25)", animation: "amFound 2s ease-out both" }}>
+                {spark.emoji} 발견!
+              </div>
+            )}
+            <span style={{ fontSize: 13, lineHeight: 1, display: "block",
+              filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 2px 3px rgba(60,80,40,0.3))" }}>{spark.emoji}</span>
+          </div>
+        );
+        return <span style={{ ...base, transform: "translate(-50%,-50%)", fontSize: 12, lineHeight: 1,
+          animation: "amSpark 2.2s ease-in-out infinite" }}>✨</span>;
+      })()}
 
       {/* ── 캐릭터 — 항상 길 위 (폴리라인 보간 위치) ── */}
       <div style={{ position: "absolute", left: `${cx}%`, top: `${cy}%`, transform: "translate(-50%,-86%)", animation: "amBob 2.4s ease-in-out infinite", pointerEvents: "none", zIndex: 3 }}>

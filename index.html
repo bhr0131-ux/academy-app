@@ -53,6 +53,13 @@
         100% { transform:scale(1); }
       }
       @keyframes discoTwinkle { 0%,100% { opacity:.25; transform:scale(.8); } 50% { opacity:1; transform:scale(1.25); } }
+      /* 펫 연결 발견 순간 — "먹이 +1"이 펫 위로 살짝 올라가다 사라진다 (left:50% 기준이라 X는 -50% 유지) */
+      @keyframes petGainUp {
+        0%   { opacity:0; transform:translate(-50%,6px) scale(.7); }
+        18%  { opacity:1; transform:translate(-50%,0) scale(1.1); }
+        30%  { transform:translate(-50%,-2px) scale(1); }
+        100% { opacity:0; transform:translate(-50%,-26px) scale(1); }
+      }
     </style>
   </head>
   <body>

@@ -9,7 +9,7 @@ import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import DiscoveryBubble from "./components/DiscoveryBubble.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
-import { DISCOVERY_KEY, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount } from "./data/discoveries.js";
+import { DISCOVERY_KEY, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollSparkT } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
@@ -303,6 +303,7 @@ export default function App() {
   const [discoveryData,         setDiscoveryData]          = useState({});
   const [openDiscoveryBook,     setOpenDiscoveryBook]      = useState(false);
   const [discoveryPop,          setDiscoveryPop]           = useState(null);  // 방금 새로 발견한 날짜 (등장 연출용)
+  const [petGainPop,            setPetGainPop]             = useState(null);  // 펫 연결 발견 순간 "먹이 +1" 떠오르기 {d,kind,amount}
   // 탐험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
   const pickJournalAc = (list, dayName, isToday) => {
     if (!list.length) return null;
@@ -651,9 +652,21 @@ export default function App() {
     const q=getTodayQuestProgress(childId,d);
     if(!(q.total>0&&q.percent>=100)) return;
     if(getDiscoveryOn(discoveryData,childId,d)) return;
-    const {next,isNew}=recordDiscovery(discoveryData,childId,d);
-    if(isNew){ setDiscoveryData(next); setDiscoveryPop(d); }
+    const {next,entry,isNew}=recordDiscovery(discoveryData,childId,d);
+    if(isNew){
+      setDiscoveryData(next); setDiscoveryPop(d);
+      /* 펫 연결 발견(pet 필드)이면 "먹이 +1"이 떠올랐다 사라진다 (사용자 확정 ④ —
+         실제 펫 수치엔 반영하지 않는 연출 전용. 그날 펫 말풍선은 ❤️로 바뀐다) */
+      const _pd=getDiscovery(entry.id);
+      if(_pd?.pet) setPetGainPop({d,kind:_pd.pet.kind,amount:_pd.pet.amount});
+    }
   },[loaded,childId,childDate,dailyData,discoveryData]);
+  /* "먹이 +1" 연출은 한 번만 — 2.3초 뒤 스스로 사라진다 */
+  useEffect(()=>{
+    if(!petGainPop) return;
+    const t=setTimeout(()=>setPetGainPop(null),2300);
+    return ()=>clearTimeout(t);
+  },[petGainPop]);
   useEffect(()=>{ if(loaded) save("v6_tmpl",templates); },[templates,loaded]);
   useEffect(()=>{ if(loaded) save("v6_cid",childId); },[childId,loaded]);
   useEffect(()=>{ if(loaded) save("v6_vac",vacations); },[vacations,loaded]);
@@ -3476,6 +3489,11 @@ export default function App() {
               const _lines=(_em?_msg.slice(0,_em.index):_msg).trimEnd().split("\n");
               // 꾸미기 배경(darkStage: 밤 톤) 장착 시 무대가 어두워짐 → 응원문구를 밝은 크림색+어두운 그림자로 반전해 가독성 유지
               const _onDark=!!getEquipped(childId,"bg")?.darkStage;
+              /* "전부 클리어!"만 있으면 심심하다 (사용자 확정 ⑥) — 끝낸 날엔 그 아래에
+                 오늘의 발견 한 줄 + (이벤트 있는 날이면) 만남 한 줄을 작게 붙인다 */
+              const _dde=getDiscoveryOn(discoveryData,childId,childDate||TODAY);
+              const _ddi=_dde?getDiscovery(_dde.id):null;
+              const _dev=_dde?rollEvent(childId,childDate||TODAY):null;
               // 써라운드는 그 자체가 Bold(700) 폰트라 예전의 0.4px 스트로크 보정은 제거 (겹치면 뭉개진다)
               return (
                 <h1 style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:22,fontWeight:400,margin:"30px 0 0 30px",position:"relative",top:20,left:7,lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:_onDark?"#FFF3D9":"#5D4633",
@@ -3483,6 +3501,8 @@ export default function App() {
                   textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 2px rgba(93,70,51,0.30), 0 2px 10px rgba(93,70,51,0.18)"}}>
                   {_lines.map((ln,i)=><Fragment key={i}>{i>0&&<br/>}{ln}</Fragment>)}
                   {_emoji&&<span style={{fontSize:"0.64em",verticalAlign:"baseline",marginLeft:3}}>{_emoji}</span>}
+                  {_ddi&&<span style={{display:"block",fontSize:13.5,marginTop:9,opacity:0.96}}>{_ddi.emoji} {_ddi.msg}</span>}
+                  {_dev&&<span style={{display:"block",fontSize:13.5,marginTop:_ddi?4:9,opacity:0.9}}>{_dev.emoji} {_dev.msg}</span>}
                 </h1>
               );
             })()}
@@ -3554,6 +3574,10 @@ export default function App() {
           const q=getTodayQuestProgress(childId,childDate||TODAY);
           const level=getChildLevel(childId);
           const pet=getPet(childId);
+          /* 오늘의 발견이 펫 연결(pet 필드) 발견인 날은 펫 말풍선이 ❤️가 된다 (사용자 확정 ④).
+             수치는 안 건드린다 — 발견이 펫과 이어져 있다는 '기분'만 주는 연출이다. */
+          const _petDe=getDiscoveryOn(discoveryData,childId,childDate||TODAY);
+          const petHeart=!!(_petDe&&getDiscovery(_petDe.id)?.pet);
           const title=getSelectedTitle(childId);
           const cute=kidSkin==="cute";
           const stageBgDeco=getEquipped(childId,"bg");
@@ -3799,11 +3823,20 @@ export default function App() {
                   <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:62,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
                     {/* (이동됨) 오늘의 발견 말풍선 — 펫 옆이 아니라 탐험지도 위 '아이 머리 위'에 뜬다.
                         아이가 보물상자 옆에 도착해 상자가 열린 다음에 나온다 (사용자 확정 → AdventureMap의 bubble prop). */}
+                    {/* 펫 연결 발견 순간 — "먹이 +1"이 펫 위로 살짝 올라가다 사라진다 (사용자 확정 ④) */}
+                    {!cute&&petGainPop&&petGainPop.d===(childDate||TODAY)&&(
+                      <div style={{position:"absolute",bottom:"100%",left:"50%",marginBottom:pet.stage===0?8:46,whiteSpace:"nowrap",
+                        fontSize:12.5,fontWeight:900,color:"#FFF3D9",textShadow:"0 1px 3px rgba(0,0,0,0.55)",
+                        animation:"petGainUp 2.2s ease-out both",pointerEvents:"none",zIndex:3}}>
+                        {petGainPop.kind==="먹이"?"🍖":"❤️"} {petGainPop.kind} +{petGainPop.amount}
+                      </div>
+                    )}
                     {!cute&&pet.stage===0?(
                     <>
-                      {/* 말풍선 — 알 위 (사용자 확정: 위가 더 귀여움), 간격 14→3px + 살짝 우측: 알과 한 덩어리로 보이게 */}
+                      {/* 말풍선 — 알 위 (사용자 확정: 위가 더 귀여움), 간격 14→3px + 살짝 우측: 알과 한 덩어리로 보이게.
+                          펫 연결 발견을 한 날은 ❤️ (알도 기뻐한다) */}
                       <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"4px 9px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:3,transform:"translateX(4px)"}}>
-                        곧 부화! 🐣
+                        {petHeart?"❤️":"곧 부화! 🐣"}
                         <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
                       </div>
                       {/* 알 + 반짝이 (5초 주기: 반짝 → 살짝 흔들). 크림 외곽선으로 초록 배경에서 분리 */}
@@ -3825,9 +3858,10 @@ export default function App() {
                         <div style={{fontSize:46,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 6px 8px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
                       </div>
                       <div style={{width:34,height:8,borderRadius:"50%",background:"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
-                      {/* 말풍선 — 펫 위 (사용자 확정: 알 말풍선과 통일), 꼬리는 아래로. 간격 14→18px (사용자 조정) */}
+                      {/* 말풍선 — 펫 위 (사용자 확정: 알 말풍선과 통일), 꼬리는 아래로. 간격 14→18px (사용자 조정).
+                          펫 연결 발견을 한 날은 ❤️로 바뀐다 (사용자 확정 ④) */}
                       <div style={{position:"absolute",bottom:"100%",left:"50%",transform:"translateX(-50%)",marginBottom:18,background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"3px 8px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap"}}>
-                        🐾 펫
+                        {petHeart?"❤️":"🐾 펫"}
                         <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
                       </div>
                     </>
@@ -3979,6 +4013,13 @@ export default function App() {
                           const _de=getDiscoveryOn(discoveryData,childId,_dd);
                           if(!_de) return null;
                           return <DiscoveryBubble id={_de.id} isNew={discoveryPop===_dd} onDone={()=>setDiscoveryPop(null)} />;
+                        })()}
+                        spark={(()=>{
+                          // 길 위 '오늘의 발견' 지점 — 자리는 날마다 다르고(고정 시드), 발견 전엔 ✨만.
+                          const _dd=childDate||TODAY;
+                          const _de=getDiscoveryOn(discoveryData,childId,_dd);
+                          const _d=_de?getDiscovery(_de.id):null;
+                          return {t:rollSparkT(childId,_dd),emoji:_d?.emoji||null,found:!!_d};
                         })()}
                       />
                     </div>

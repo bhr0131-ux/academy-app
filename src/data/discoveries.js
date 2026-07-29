@@ -180,6 +180,37 @@ export function rollDiscovery(childId, dateStr) {
    ("오늘은 반짝이는 걸 찾을 것 같아!" → 아이가 기대하며 시작한다) */
 export const getTodayHint = (childId, dateStr) => rollDiscovery(childId, dateStr).hint;
 
+/* ── 랜덤 이벤트 (사용자 확정 ⑤) ────────────────────────────────────────
+   발견과 별개로, 아주 가끔(15%) 길에서 겪는 작은 사건. 매일 나오면 특별함이
+   없어서 확률을 낮게 잡았다 (사용자: 10~20%).
+   '획득'은 없다 — 획득이 생기면 발견(도감)과 겹쳐 복잡해진다. 만남·인사만.
+   동물들은 지도 원화에 실제로 그려져 있는 친구들이다 (원숭이·앵무새·개구리·멧돼지…).
+   [주의] 목록의 순서·개수를 바꾸면 과거 날짜의 이벤트도 바뀐다 — 저장하지 않고
+   그날그날 다시 계산하기 때문. 지난 추억 표시가 달라지므로 확정 후엔 고정할 것. */
+export const DISCO_EVENTS = [
+  { id: "ev_monkey",  emoji: "🐒", msg: "원숭이가 나무에서 손을 흔들었어!" },
+  { id: "ev_parrot",  emoji: "🦜", msg: "앵무새가 길을 알려 줬어!" },
+  { id: "ev_frog",    emoji: "🐸", msg: "개구리와 인사했어!" },
+  { id: "ev_boar",    emoji: "🐗", msg: "멧돼지를 조심조심 지나갔어!" },
+  { id: "ev_rainbow", emoji: "🌈", msg: "하늘에 무지개가 떴어!" },
+  { id: "ev_butterfly", emoji: "🦋", msg: "나비들이 길 안내를 해 줬어!" },
+  { id: "ev_turtle",  emoji: "🐢", msg: "거북이가 느릿느릿 응원해 줬어!" },
+  { id: "ev_toucan",  emoji: "🐦", msg: "큰부리새가 노래를 불러 줬어!" },
+];
+export function rollEvent(childId, dateStr) {
+  const h = hash32(`${childId}|${dateStr}|event`);
+  if (h % 100 >= 15) return null;                       // 15%만 이벤트가 있는 날
+  return DISCO_EVENTS[(h >>> 8) % DISCO_EVENTS.length]; // 발견처럼 다른 비트로 종류 결정
+}
+
+/* ── 지도 발견 지점 (사용자 확정 ②) ─────────────────────────────────────
+   길 중간(진행률 32~74%)의 한 지점. 날마다 자리가 바뀌어야 "오늘은 어디서
+   찾을까?"가 생긴다. 캐릭터가 이 지점을 지나면 지도에서 발견 팝이 뜬다. */
+export function rollSparkT(childId, dateStr) {
+  const h = hash32(`${childId}|${dateStr}|spark`);
+  return 0.32 + (h % 1000) / 1000 * 0.42;
+}
+
 /* ── 저장 데이터 순수 로직 ───────────────────────────────────────────── */
 /* 저장된 기록을 읽을 때 구 id를 새 id로 바꿔서 돌려준다 (원본은 그대로 둔다) */
 export const getDiscoveryLog = (data, childId) =>
