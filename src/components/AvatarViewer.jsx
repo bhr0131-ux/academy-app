@@ -139,7 +139,41 @@ function BaseCharacter({ baseCharImg, size, gender = "boy", hideHead = false }) 
   );
 }
 
-export default function AvatarViewer({ equipped = {}, size = 200, showFrame = true, showBg = true, baseCharImg = null, gender = "boy" }) {
+/* ── 접지 그림자 ──────────────────────────────────────────────────────
+   캐릭터가 바닥에 닿아 보이게 발밑에 깔아 주는 타원 그림자.
+
+   비율은 전부 '1024 캔버스 안에서 실측한 값' 기준이다 (뷰어 상자 = 캔버스 1024).
+     · 바닥선 : 맨발 y934(남)·936(여) / 신발 신으면 y946~947 → 가운데인 941 을 중심으로
+     · 발 폭  : 맨발 205~211px, 부츠 232~241px (캔버스의 20~23.5%)
+   그림자 폭은 부츠 발 폭보다 살짝 넓게 잡아 발 바깥으로 조금 번지게 한다.
+   퍼센트는 상자 한 변(size) 대비. */
+const SHADOW = { w: 0.245, h: 0.055, cy: 941 / 1024, blur: 0.010 };
+
+function GroundShadow({ size }) {
+  const w = Math.round(size * SHADOW.w);
+  const h = Math.max(4, Math.round(size * SHADOW.h));
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: "absolute", left: "50%",
+        bottom: Math.round((1 - SHADOW.cy) * size - h / 2),
+        transform: "translateX(-50%)",
+        width: w, height: h, borderRadius: "50%",
+        /* 가운데를 넓게 유지하다 바깥에서 빠르게 사라진다 — 중심만 진한 그라디언트는
+           블러를 먹이면 거의 안 보인다(실측). 기존 성장 캐릭터 그림자가 '단색'인 것과 같은 이유. */
+        background: "radial-gradient(ellipse at center," +
+          " rgba(60,45,25,0.42) 0%, rgba(60,45,25,0.38) 42%," +
+          " rgba(60,45,25,0.20) 66%, transparent 82%)",
+        filter: `blur(${Math.max(2, Math.round(size * SHADOW.blur))}px)`,
+        zIndex: AVATAR_BASE_Z - 2,   // 베이스 캐릭터 뒤
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
+export default function AvatarViewer({ equipped = {}, size = 200, showFrame = true, showBg = true, baseCharImg = null, gender = "boy", showShadow = true }) {
   /* showBg=false면 배경 슬롯 장비도 함께 생략 — 홈 무대 씬 위에 사각 배경이 겹치는 것 방지 */
   const layers = getAvatarLayers(equipped).filter(
     (layer) => showBg || layer.item?.slot !== "background"
@@ -169,6 +203,8 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
                    objectFit: "cover", objectPosition: "center 72%", pointerEvents: "none" }}
         />
       )}
+      {/* 접지 그림자 — 배경 위, 베이스 캐릭터 아래 */}
+      {showShadow && <GroundShadow size={size} />}
       {/* 뒤쪽 레이어(배경·등 장비) → 베이스 캐릭터 → 앞쪽 레이어 순서로 z 배치 */}
       {layers.map((layer) => (
         <div key={layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex }}>
