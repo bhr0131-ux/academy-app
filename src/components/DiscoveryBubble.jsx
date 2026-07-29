@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { DISCOVERY_RARITY, getDiscovery } from "../data/discoveries.js";
 
 /* ════════════════════════════════════════════════════════════════════════
-   DiscoveryBubble — 무대 펫 옆 '오늘의 발견' 말풍선
+   DiscoveryBubble — 탐험지도 위 아이 머리 위 '오늘의 발견' 말풍선
    ────────────────────────────────────────────────────────────────────────
    탐험을 끝낸 날에만 뜬다. 항상 떠 있으면 특별함이 없어진다(사용자 확정).
+   띄우는 시점은 AdventureMap이 정한다 — 아이가 보물상자 옆에 도착하고
+   상자가 열린 다음(사용자 확정). 예전엔 무대 펫 옆에 있었다.
 
    연출은 두 단계로만 나눈다 — 복잡하게 만들지 않는 게 원칙이다.
      · 보통/귀함 : 말풍선이 톡 떠오른다 (0.5초)
@@ -52,8 +54,9 @@ export default function DiscoveryBubble({ id, isNew = false, onDone }) {
         color: "#5D4633", fontSize: 11.5, fontWeight: 900,
         padding: "5px 10px", borderRadius: 12,
         /* 문구가 길어도 화면 밖으로 나가지 않게 폭을 잡고 줄바꿈을 허용한다.
-           펫 자리(화면 중앙+62px)에 붙어 있어서 nowrap이면 오른쪽으로 잘려 나간다. */
-        maxWidth: 150, whiteSpace: "normal", textAlign: "center", lineHeight: 1.35,
+           지도 도착 지점(가로 64%)에 뜨므로, 폭 168px이면 화면 폭 360px에서도
+           오른쪽이 잘리지 않으면서 대부분의 문구가 두 줄에 들어간다. */
+        maxWidth: 168, whiteSpace: "normal", textAlign: "center", lineHeight: 1.35,
         border: legend ? `1.5px solid ${rc.color}` : "none",
         boxShadow: legend ? `0 3px 12px ${rc.color}66` : "0 2px 7px rgba(93,70,51,0.28)",
         animation: isNew ? (legend ? "discoPop 3s ease-out" : "discoRise .5s ease-out") : "none",
