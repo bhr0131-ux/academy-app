@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   getAvatarLayers, DEFAULT_AVATAR_BG, AVATAR_BASE_IMG, AVATAR_BASE_IMG_GIRL, AVATAR_BASE_EMOJI, AVATAR_BASE_Z,
   AVATAR_BASE_BODY_IMG, AVATAR_BASE_HEAD_IMG, AVATAR_BASE_BODY_IMG_GIRL, AVATAR_BASE_HEAD_IMG_GIRL,
@@ -19,6 +19,8 @@ import {
      hidesHead가 붙은 장비(모자 등)를 착용하면 베이스의 '머리' 장을 아예 안 그린다.
      그 장비 그림이 모자와 얼굴을 함께 담고 있어 머리를 대신하기 때문. 예전처럼 베이스
      머리 위에 덮어 씌우면 크기가 조금만 어긋나도 턱선·귀선이 겹쳐 보였다.
+     [중요] 머리는 그 모자 그림이 '실제로 로드된 뒤에만' 숨긴다. 바로 숨기면 처음
+     구매·장착하는 순간(이미지가 아직 안 받아진 상태) 머리 없는 아이가 잠깐 보인다.
 
    props
      equipped    : { [slot]: itemId | null }
@@ -33,6 +35,10 @@ import {
 /* 장비 레이어 1장 — 이미지 우선, 실패 시 슬롯 지정 위치에 이모지
    imgGirl이 있으면 여아일 때 그 그림을 쓴다 (모자처럼 얼굴째 덮는 장비는
    성별 얼굴이 따로 필요하다). 로드 실패 시 공용 img → 이모지 순으로 내려간다. */
+/* 장비 그림 경로 — 여아면 imgGirl 우선. 뷰어와 레이어가 같은 규칙을 써야 하므로 함수로 뺀다. */
+export const equipSrc = (item, gender) =>
+  (gender === "girl" && item?.imgGirl) ? item.imgGirl : item?.img;
+
 function AvatarLayer({ item, emojiPos, size, gender = "boy" }) {
   const [imgFailed, setImgFailed] = useState(false);
   const [girlFailed, setGirlFailed] = useState(false);
@@ -178,8 +184,23 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
   const layers = getAvatarLayers(equipped).filter(
     (layer) => showBg || layer.item?.slot !== "background"
   );
-  // 얼굴째 덮는 장비(모자 등)를 쓰면 베이스 머리를 그리지 않는다
-  const hideHead = layers.some((l) => l.item?.hidesHead);
+  /* 얼굴째 덮는 장비(모자 등)를 쓰면 베이스 머리를 그리지 않는다.
+     단, 그 그림이 '로드 완료된 뒤에만' 숨긴다 — 처음 장착하는 순간 이미지가 아직
+     안 받아진 상태에서 머리부터 지우면 머리 없는 아이가 한 박자 보인다. */
+  const hidesHeadItem = layers.find((l) => l.item?.hidesHead)?.item || null;
+  const hidesHeadSrc = hidesHeadItem ? equipSrc(hidesHeadItem, gender) : null;
+  const [readySrc, setReadySrc] = useState(null);
+  useEffect(() => {
+    if (!hidesHeadSrc) { setReadySrc(null); return; }
+    let alive = true;
+    const img = new Image();
+    img.onload = () => { if (alive) setReadySrc(hidesHeadSrc); };
+    img.onerror = () => { if (alive) setReadySrc(null); };   // 실패하면 머리를 유지한다
+    img.src = "/" + hidesHeadSrc.replace(/^\/+/, "");
+    if (img.complete && img.naturalWidth > 0) setReadySrc(hidesHeadSrc); // 캐시된 경우 즉시
+    return () => { alive = false; };
+  }, [hidesHeadSrc]);
+  const hideHead = !!hidesHeadSrc && readySrc === hidesHeadSrc;
 
   return (
     <div

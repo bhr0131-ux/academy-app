@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { C } from "../data/tokens.js";
 import AvatarViewer from "./AvatarViewer.jsx";
 import {
-  AVATAR_SLOTS, AVATAR_RARITY, AVATAR_THEMES, getItemsBySlot, getSlot,
+  AVATAR_RARITY, AVATAR_THEMES, SHOP_SLOT_ORDER, getItemsBySlot, getSlot,
 } from "../data/avatarEquipment.js";
 
-/* 배경 카테고리는 구 '꾸미기 상점'과 중복되어 아바타 꾸미기에서는 제외한다. */
-const SHOP_SLOTS = AVATAR_SLOTS.filter((s) => s.key !== "background");
+/* 탭 순서는 데이터(SHOP_SLOT_ORDER)에서만 관리한다 — 배경·효과는 거기서 이미 빠져 있다. */
+const SHOP_SLOTS = SHOP_SLOT_ORDER.map(getSlot).filter(Boolean);
 
 /* ════════════════════════════════════════════════════════════════════════
    EquipmentShop — 꾸미기 아바타 상점 모달
@@ -31,6 +31,23 @@ export default function EquipmentShop({
   open, onClose, coins = 0, owned = [], equipped = {}, onBuy, onToggle, baseCharImg = null, gender = "boy",
 }) {
   const [activeSlot, setActiveSlot] = useState(SHOP_SLOTS[0].key);
+
+  /* 상점을 열면 취급 아이템 그림을 미리 받아 둔다.
+     구매 직후 장착할 때 그림이 아직 없어 한 박자 늦게 나타나는 걸 막는다
+     (특히 모자는 베이스 머리를 대신하는 그림이라 지연이 그대로 티가 난다). */
+  useEffect(() => {
+    if (!open) return;
+    const seen = new Set();
+    for (const s of SHOP_SLOTS) for (const it of getItemsBySlot(s.key)) {
+      for (const p of [it.img, it.imgGirl]) {
+        if (!p || seen.has(p)) continue;
+        seen.add(p);
+        const img = new Image();
+        img.src = "/" + p.replace(/^\/+/, "");
+      }
+    }
+  }, [open]);
+
   if (!open) return null;
 
   const items = getItemsBySlot(activeSlot);

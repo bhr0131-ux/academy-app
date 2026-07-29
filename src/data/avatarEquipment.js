@@ -80,6 +80,10 @@ export const AVATAR_SLOTS = [
 /* 베이스 캐릭터가 그려지는 z (등 장비 뒤/신발 앞 사이) — 뷰어에서 사용 */
 export const AVATAR_BASE_Z = 20;
 
+/* 꾸미기 상점 탭 순서 (사용자 확정) — 위 AVATAR_SLOTS의 렌더 z 순서와는 별개다.
+   '배경'은 구 꾸미기 상점과 중복되어 제외, '효과'도 제외(사용자 확정). */
+export const SHOP_SLOT_ORDER = ["hat", "shoes", "top", "bottom", "back", "neck", "face", "hand"];
+
 export const AVATAR_SLOT_KEYS = AVATAR_SLOTS.map(s => s.key);
 export const getSlot = (key) => AVATAR_SLOTS.find(s => s.key === key) || null;
 
