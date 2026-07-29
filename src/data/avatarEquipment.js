@@ -132,7 +132,7 @@ export const AVATAR_CATALOG = [
      (맨발보다 30~45px 아래라, 안 쓰면 신발만 그림자 밖으로 나간다). */
   { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp", imgGirl: "assets/avatar/shoes/explorer-boots-girl.webp", soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots.webp" },
   { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp",    imgGirl: "assets/avatar/shoes/green-boots-girl.webp",    soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
-  { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp",    imgGirl: "assets/avatar/shoes/cream-boots-girl.webp",    soleY: 966, soleYGirl: 966, thumb: "assets/avatar/thumb/shoes_boots_sand.webp" },
+  { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp",    imgGirl: "assets/avatar/shoes/cream-boots-girl.webp",    soleY: 966, soleYGirl: 968, thumb: "assets/avatar/thumb/shoes_boots_sand.webp" },
   { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp" },
   /* 탐험 배낭 — 원화가 '앞에서 본 어깨끈'(침낭 롤 + 버클 + 칼집)이라 캐릭터 뒤(z15)에 그리면
      몸통에 완전히 가려진다. 그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
