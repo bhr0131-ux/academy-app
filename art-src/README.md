@@ -13,8 +13,11 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 **현행 베이스의 bbox(키·중심x·발끝)에 맞춰 배율·위치를 잡아야** 장비가 어긋나지 않는다.
 현행 기준값 — 남아 x365~657 / y122~935, 여아 x349~673 / y121~936 (중심x 511).
 눈 위치(장비 정렬 기준) — 남아 간격 96.8·중심 (512, 321) / 여아 간격 106.8·중심 (510, 303).
-얼굴을 덮는 장비(모자 등)는 **큰 쪽(여아) 기준보다 살짝 크게** 잡아야 두 성별 모두
-베이스 얼굴이 삐져나오지 않는다 (현행 탐험 헬멧 = 원화의 0.97배).
+얼굴을 덮는 장비(모자 등)의 배율은 **눈 간격이 아니라 '베이스 윤곽선이 안 삐져나오는 최소 배율'** 로
+정한다. 눈 간격으로 맞추면 얼굴 폭 비율이 달라 턱선·귀선이 겹쳐 보인다(실제로 겪음).
+검증법: 베이스의 검은 윤곽선 픽셀 중 오버레이 밖에 남는 개수를 세어 0이 되는 배율을 찾는다.
+  남아 — 0.97배 554개 남음 → 1.05배 0개 (여아는 양갈래가 밖에 남는 게 정상이라 0이 안 된다)
+현행 탐험 헬멧 = 원화의 1.05배, 눈 중심 (511, 312)에 정렬.
 
 **정리 이력**: 교체·은퇴된 원본 26개(37MB)는 작업 폴더에서 삭제했다.
 필요하면 git 히스토리에서 되살릴 수 있다 — `git log --all --diff-filter=D --name-only -- art-src`
@@ -37,7 +40,7 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | base-girl.webp | 여아 아바타 베이스 원화 v2 (교체됨) | — |
 | boots-explorer-sockless.webp | 탐험 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/explorer-boots.webp |
 | boots-cream-sockless.webp | 크림 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/cream-boots.webp |
-| hat-explorer-v2.webp | 탐험 헬멧 착용 원화 v2 (현행 — 얼굴째 덮는 방식으로 탑재, 배율 0.97) | avatar/hat/explorer-helmet.webp |
+| hat-explorer-v2.webp | 탐험 헬멧 착용 원화 v2 (현행 — 얼굴째 덮는 방식, 배율 1.05) | avatar/hat/explorer-helmet.webp |
 | hat-explorer-wearing.webp | 탐험 헬멧 착용 원화 v1 (교체됨) | — |
 | boots-explorer-sockless-v2.webp | 탐험 부츠 착용 원화 (맨발목 v2, 최종 승인본) | avatar/shoes/explorer-boots.webp |
 | boots-green-wearing-v2.webp | 새싹 부츠 착용 원화 (v2, 현행 승인본) | avatar/shoes/green-boots.webp |
