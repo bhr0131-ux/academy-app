@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   DISCOVERY_RARITY, DISCOVERY_TOTAL,
-  getCollectionByCategory, getCollectedCount, getDiscoveryLog, getDiscovery,
+  getCollectionByCategory, getCollectedCount, getDiscoveryLog, getDiscovery, rollEvent,
 } from "../data/discoveries.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -135,6 +135,9 @@ export default function DiscoveryBook({ open, onClose, data, childId, childName 
                 const d = getDiscovery(e.id);
                 if (!d) return null;
                 const rc = DISCOVERY_RARITY[d.rarity] || DISCOVERY_RARITY.common;
+                /* 그날 랜덤 이벤트(만남)도 추억으로 같이 보여준다 — 고정 시드라
+                   저장 없이 날짜만으로 다시 계산된다 ("앵무새 만난 날" 기억용) */
+                const ev = rollEvent(childId, e.d);
                 return (
                   <div key={`${e.d}-${i}`} style={{
                     display: "flex", alignItems: "center", gap: 10,
@@ -142,7 +145,10 @@ export default function DiscoveryBook({ open, onClose, data, childId, childName 
                     background: "#fff", border: `1px solid ${rc.color}33`,
                   }}>
                     <span style={{ fontSize: 20 }}>{d.emoji}</span>
-                    <span style={{ flex: 1, fontSize: 12.5, fontWeight: 800, color: "#5A4430" }}>{d.name}</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontSize: 12.5, fontWeight: 800, color: "#5A4430" }}>{d.name}</span>
+                      {ev && <span style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#A2917C", marginTop: 1 }}>{ev.emoji} {ev.msg}</span>}
+                    </span>
                     {d.rarity !== "common" && (
                       <span style={{ fontSize: 9.5, fontWeight: 900, color: rc.color }}>{rc.label}</span>
                     )}
