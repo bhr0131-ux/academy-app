@@ -1,5 +1,5 @@
 import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
-import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, getSkin, getAcademyTheme, IslandMap, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
+import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime } from "./data/sampleData.js";
@@ -356,7 +356,10 @@ export default function App() {
   const [newAbs,                 setNewAbs]                 = useState(initUi.newAbs);
   const [toast,                  setToast]                  = useState(initUi.toast);
 
-  const kidSkin = (skinByChild[childId] && SKINS[skinByChild[childId]]) ? skinByChild[childId] : DEFAULT_SKIN;
+  /* 베이커리 미출시 동안엔 저장값이 'cute'여도 탐험으로 표시한다.
+     저장값은 건드리지 않으므로 BAKERY_ENABLED를 켜면 그대로 복귀한다. */
+  const kidSkin = !BAKERY_ENABLED ? DEFAULT_SKIN
+    : (skinByChild[childId] && SKINS[skinByChild[childId]]) ? skinByChild[childId] : DEFAULT_SKIN;
   // 현재 아이의 스킨을 바꾸는 헬퍼 (모드 선택 시 사용)
   const setKidSkin = (skin)=> setSkinByChild(prev=>({...prev,[childId]:skin}));
 
@@ -1273,7 +1276,9 @@ export default function App() {
     // 아이모드 첫 진입 흐름: 모드선택 먼저 → (모드 고르면) 코치마크를 그 모드에 맞춰 노출.
     // 가이드는 봤지만 모드를 아직 안 골랐으면 모드선택만 띄운다.
     const skinPicked=!!skinByChild[childId];   // 현재 아이가 모드를 골랐는지 (동기 판단)
-    if(!skinPicked){
+    /* 베이커리 미출시 동안엔 모드 선택을 건너뛰고 탐험으로 바로 시작한다.
+       스킨을 자동 저장하지 않는다 — 나중에 베이커리가 열리면 그때 선택 화면이 뜨도록. */
+    if(BAKERY_ENABLED && !skinPicked){
       setShowModeSelect(true);                 // 즉시 모드선택 노출 (탐험 화면 깜빡임 방지)
     } else {
       (async()=>{
@@ -3237,7 +3242,7 @@ export default function App() {
         {showKidCoachmark&&(
           <KidCoachmark th={th} skin={kidSkin} onFinish={()=>{ setShowKidCoachmark(false); save("v6_kid_guide_seen","1"); }} />
         )}
-        {showModeSelect&&(
+        {BAKERY_ENABLED&&showModeSelect&&(
           <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임 시작!":"🧭 탐험 게임 시작!"); load("v6_kid_guide_seen").then(seen=>{ if(!seen) setTimeout(()=>setShowKidCoachmark(true),350); }); }} />
         )}
 
@@ -5336,7 +5341,7 @@ export default function App() {
         )}
 
 
-      {showModeSelect&&(
+      {BAKERY_ENABLED&&showModeSelect&&(
         <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임으로 변경!":"🧭 탐험 게임으로 변경!"); }} />
       )}
 
@@ -6892,7 +6897,8 @@ export default function App() {
               </button>
             </div>
 
-            {!skinByChild[childId] && (
+            {/* 게임 디자인 선택 — 베이커리 미출시 동안 숨김 (BAKERY_ENABLED) */}
+            {BAKERY_ENABLED && !skinByChild[childId] && (
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
               <button
                 onClick={()=>{ setShowSettingsModal(false); setShowModeSelect(true); }}
