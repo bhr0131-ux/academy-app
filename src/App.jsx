@@ -7,6 +7,9 @@ import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark 
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
+import DiscoveryBubble from "./components/DiscoveryBubble.jsx";
+import DiscoveryBook from "./components/DiscoveryBook.jsx";
+import { DISCOVERY_KEY, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
@@ -296,6 +299,10 @@ export default function App() {
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
   const [journalAcId,            setJournalAcId]            = useState(null); // 탐험일지 표시 학원 (null=시간 기준 자동)
+  /* 오늘의 발견 — 탐험을 끝낸 날 하루 1개. 저장은 새 키(v6_discoveries)로만. */
+  const [discoveryData,         setDiscoveryData]          = useState({});
+  const [openDiscoveryBook,     setOpenDiscoveryBook]      = useState(false);
+  const [discoveryPop,          setDiscoveryPop]           = useState(null);  // 방금 새로 발견한 날짜 (등장 연출용)
   // 탐험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
   const pickJournalAc = (list, dayName, isToday) => {
     if (!list.length) return null;
@@ -402,7 +409,7 @@ export default function App() {
       const ch=await load("v6_children"), ac=await load("v6_ac"), ab=await load("v6_abs"),
             p=await load("v6_paid"), dm=await load("v6_dm"), dd=await load("v6_daily"),
             bsk=await load("v6_base_seeded"),
-            petD=await load("v6_pet"),
+            petD=await load("v6_pet"), discD=await load(DISCOVERY_KEY),
             tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac"),
             pin=await load("v6_parent_pin"), score=await load("v6_score"),
             reward=await load("v6_reward"), rewardReq=await load("v6_reward_requests"),
@@ -540,6 +547,7 @@ export default function App() {
       if(p) setPaidStatus(p); if(dm) setDayMemos(dm); if(dd) setDailyData(dd);
       if(bsk) setBaseSeededKeys(bsk);
       if(petD) setPetData(petD);
+      if(discD) setDiscoveryData(discD);
       if(savedSkinMap && typeof savedSkinMap==="object"){
         setSkinByChild(savedSkinMap);
       } else if(savedSkin && SKINS[savedSkin] && ch){
@@ -633,6 +641,19 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_daily",dailyData); },[dailyData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_base_seeded",baseSeededKeys); },[baseSeededKeys,loaded]);
   useEffect(()=>{ if(loaded) save("v6_pet",petData); },[petData,loaded]);
+  useEffect(()=>{ if(loaded) save(DISCOVERY_KEY,discoveryData); },[discoveryData,loaded]);
+  /* 오늘의 발견 — 오늘 미션을 전부 끝낸 순간 하루 1개를 기록한다.
+     · 무엇이 나올지는 (아이, 날짜) 고정 시드라 다시 그려도 새로고침해도 안 바뀐다.
+     · 이미 그날 기록이 있으면 아무것도 안 한다 → discoveryData를 의존성에 넣어도 루프가 안 생긴다. */
+  useEffect(()=>{
+    if(!loaded||!childId) return;
+    const d=childDate||TODAY;
+    const q=getTodayQuestProgress(childId,d);
+    if(!(q.total>0&&q.percent>=100)) return;
+    if(getDiscoveryOn(discoveryData,childId,d)) return;
+    const {next,isNew}=recordDiscovery(discoveryData,childId,d);
+    if(isNew){ setDiscoveryData(next); setDiscoveryPop(d); }
+  },[loaded,childId,childDate,dailyData,discoveryData]);
   useEffect(()=>{ if(loaded) save("v6_tmpl",templates); },[templates,loaded]);
   useEffect(()=>{ if(loaded) save("v6_cid",childId); },[childId,loaded]);
   useEffect(()=>{ if(loaded) save("v6_vac",vacations); },[vacations,loaded]);
@@ -3411,6 +3432,14 @@ export default function App() {
           onBuy={buyAvatarItem}
           onToggle={toggleAvatarItem}
         />
+        {/* 발견 도감 — 탐험일지의 '도감' 버튼으로 연다 */}
+        <DiscoveryBook
+          open={openDiscoveryBook}
+          onClose={()=>setOpenDiscoveryBook(false)}
+          data={discoveryData}
+          childId={childId}
+          childName={children.find(c=>c.id===childId)?.name||""}
+        />
 
         {/* 아이용 헤더 - RPG 상태창 */}
         <div style={kidSkin==="cute"
@@ -3768,7 +3797,19 @@ export default function App() {
                   {/* 펫 — 보조 역할이므로 캐릭터보다 작게(기존 40 → 34). 알 단계(0)엔 '곧 부화!'로 기대감 UP */}
                   {/* [탐험] 존재감 개선: 구석(우측 10%) → 캐릭터 발 옆(중앙+62px). 알 단계는 말풍선+반짝이+둥지+10초 간헐 흔들림(둥실 제거). */}
                   <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:62,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
-                    {!cute&&pet.stage===0?(
+                    {/* 오늘의 발견 말풍선 — 탐험을 끝낸 날에만 펫 위에 뜬다. 항상 있으면 특별함이 없다(사용자 확정).
+                        알 단계('곧 부화!' 말풍선)와 겹치지 않게, 발견이 있으면 발견 쪽을 우선한다. */}
+                    {(()=>{
+                      const _dd=childDate||TODAY;
+                      const _de=getDiscoveryOn(discoveryData,childId,_dd);
+                      if(!_de) return null;
+                      /* 펫은 화면 중앙+62px에 있어 말풍선이 오른쪽으로 치우친다.
+                         캐릭터와 펫 사이로 조금 당겨 화면 안에 들어오게 한다. */
+                      return <div style={{marginBottom:5,transform:"translateX(-30px)"}}>
+                        <DiscoveryBubble id={_de.id} isNew={discoveryPop===_dd} onDone={()=>setDiscoveryPop(null)} />
+                      </div>;
+                    })()}
+                    {!cute&&pet.stage===0&&!getDiscoveryOn(discoveryData,childId,childDate||TODAY)?(
                     <>
                       {/* 말풍선 — 알 위 (사용자 확정: 위가 더 귀여움), 간격 14→3px + 살짝 우측: 알과 한 덩어리로 보이게 */}
                       <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:11,fontWeight:900,padding:"4px 9px",borderRadius:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:3,transform:"translateX(4px)"}}>
@@ -4022,6 +4063,32 @@ export default function App() {
                   <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)"}}/>
                 </div>
               )}
+              {/* 오늘의 발견 한 줄 — 끝냈으면 무엇을 찾았는지, 아직이면 펫이 흘리는 힌트.
+                  힌트는 오늘 발견의 hint라 "오늘은 반짝이는 걸 찾을 것 같아!" → 기대하며 시작하게 된다. */}
+              {kidSkin!=="cute"&&(()=>{
+                const _dd=childDate||TODAY;
+                const _de=getDiscoveryOn(discoveryData,childId,_dd);
+                const _d=_de?getDiscovery(_de.id):null;
+                return (
+                  <div style={{display:"flex",alignItems:"center",gap:9,margin:"0 2px 14px",padding:"9px 13px",borderRadius:14,
+                    background:_d?"rgba(255,255,255,0.72)":"rgba(138,107,71,0.07)",
+                    border:_d?"1.5px solid rgba(138,107,71,0.32)":"1.5px dashed rgba(138,107,71,0.3)"}}>
+                    <span style={{fontSize:19,flexShrink:0}}>{_d?_d.emoji:"🐾"}</span>
+                    <div style={{flex:1,minWidth:0}}>
+                      <p style={{margin:0,fontSize:10.5,fontWeight:900,color:"#A2917C",letterSpacing:0.3}}>🌿 오늘의 발견</p>
+                      <p style={{margin:"1px 0 0",fontSize:13,fontWeight:800,color:_d?"#5A4430":"#8C7E6B",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                        {_d?_d.name:getTodayHint(childId,_dd)}
+                      </p>
+                    </div>
+                    <button onClick={()=>setOpenDiscoveryBook(true)}
+                      style={{flexShrink:0,border:"1.5px solid rgba(138,107,71,0.4)",background:"#fff",color:"#6B523A",
+                        borderRadius:999,padding:"6px 11px",fontSize:11.5,fontWeight:900,cursor:"pointer",
+                        fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif"}}>
+                      📖 도감 {getCollectedCount(discoveryData,childId)}
+                    </button>
+                  </div>
+                );
+              })()}
               {/* 오늘 학원 일정 섹션 */}
               <div style={{marginTop:2,marginBottom:14}}>
                 {childTodayAc.length===0?(
