@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { C } from "../data/tokens.js";
 import AvatarViewer from "./AvatarViewer.jsx";
 import {
-  AVATAR_RARITY, AVATAR_THEMES, SHOP_SLOT_ORDER, getItemsBySlot, getSlot,
+  AVATAR_RARITY, SHOP_SLOT_ORDER, getItemsBySlot, getSlot,
 } from "../data/avatarEquipment.js";
 
 /* 탭 순서는 데이터(SHOP_SLOT_ORDER)에서만 관리한다 — 배경·효과는 거기서 이미 빠져 있다. */
@@ -13,10 +13,10 @@ const SHOP_SLOTS = SHOP_SLOT_ORDER.map(getSlot).filter(Boolean);
    카드마다 크기가 들쭉날쭉해 보이지 않게 한다. */
 function ItemThumb({ item }) {
   const [failed, setFailed] = useState(false);
-  const BOX = 46;
+  const BOX = 54;
   if (item.thumb && !failed) {
     return (
-      <div style={{ height: BOX, marginTop: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ height: BOX, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img
           src={"/" + item.thumb.replace(/^\/+/, "")}
           alt={item.label}
@@ -27,7 +27,7 @@ function ItemThumb({ item }) {
       </div>
     );
   }
-  return <div style={{ height: BOX, marginTop: 10, fontSize: 34, lineHeight: `${BOX}px` }}>{item.emoji}</div>;
+  return <div style={{ height: BOX, marginTop: 2, fontSize: 34, lineHeight: `${BOX}px` }}>{item.emoji}</div>;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -199,7 +199,6 @@ export default function EquipmentShop({
             const isPreviewing = !isOwned && preview[item.slot] === item.id;
             const canAfford = coins >= item.price;
             const rar = AVATAR_RARITY[item.rarity] || AVATAR_RARITY.common;
-            const thm = AVATAR_THEMES[item.theme] || null;
 
             return (
               <div
@@ -213,24 +212,8 @@ export default function EquipmentShop({
                   position: "relative",
                 }}
               >
-                {/* 희귀도 배지 */}
-                <span style={{
-                  position: "absolute", top: 6, left: 6, fontSize: 9, fontWeight: 800,
-                  color: "#fff", background: rar.color, padding: "2px 6px", borderRadius: 999,
-                }}>
-                  {rar.label}
-                </span>
-
-                {/* 테마 배지 (공용은 생략) */}
-                {thm && item.theme !== "common" && (
-                  <span style={{
-                    position: "absolute", top: 6, right: 6, fontSize: 9, fontWeight: 800,
-                    color: thm.color, background: thm.color + "1A",
-                    padding: "2px 6px", borderRadius: 999,
-                  }}>
-                    {thm.emoji} {thm.label}
-                  </span>
-                )}
+                {/* (삭제됨) 희귀도·테마 배지 — 그림 위를 가려서 뺐다 (사용자 확정).
+                    희귀도는 카드 테두리 색으로만 남는다. */}
 
                 {/* 파츠 아이콘 — 그림(thumb) 우선, 없거나 로드 실패면 이모지 */}
                 <ItemThumb item={item} />
