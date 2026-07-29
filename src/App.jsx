@@ -4055,6 +4055,7 @@ export default function App() {
                           return {t:rollSparkT(childId,_dd),emoji:_d?.emoji||null,found:!!_d,gain:_d?.pet||null};
                         })()}
                         onSparkPass={()=>handleSparkPass(childDate||TODAY)}
+                        eventId={rollEvent(childId,childDate||TODAY)?.id||null}
                       />
                     </div>
                     </>
