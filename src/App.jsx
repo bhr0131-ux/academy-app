@@ -303,7 +303,6 @@ export default function App() {
   const [discoveryData,         setDiscoveryData]          = useState({});
   const [openDiscoveryBook,     setOpenDiscoveryBook]      = useState(false);
   const [discoveryPop,          setDiscoveryPop]           = useState(null);  // 방금 새로 발견한 날짜 (등장 연출용)
-  const [petGainPop,            setPetGainPop]             = useState(null);  // 펫 연결 발견 순간 "먹이 +1" 떠오르기 {d,kind,amount}
   // 탐험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
   const pickJournalAc = (list, dayName, isToday) => {
     if (!list.length) return null;
@@ -651,21 +650,11 @@ export default function App() {
   const handleSparkPass=(d)=>{
     if(!loaded||!childId) return;
     if(getDiscoveryOn(discoveryData,childId,d)) return;
-    const {next,entry,isNew}=recordDiscovery(discoveryData,childId,d);
-    if(isNew){
-      setDiscoveryData(next); setDiscoveryPop(d);
-      /* 펫 연결 발견(pet 필드)이면 "먹이 +1"이 떠올랐다 사라진다 (사용자 확정 ④ —
-         실제 펫 수치엔 반영하지 않는 연출 전용. 그날 펫 말풍선은 ❤️로 바뀐다) */
-      const _pd=getDiscovery(entry.id);
-      if(_pd?.pet) setPetGainPop({d,kind:_pd.pet.kind,amount:_pd.pet.amount});
-    }
+    const {isNew,next}=recordDiscovery(discoveryData,childId,d);
+    if(isNew){ setDiscoveryData(next); setDiscoveryPop(d); }
+    /* 펫 연결 발견의 "먹이 +1" 연출은 지도 발견 지점 위에서 나온다 (사용자 확정 —
+       펫이 화면에 안 보일 때가 많아서. AdventureMap의 spark.gain). 펫 말풍선 ❤️는 유지. */
   };
-  /* "먹이 +1" 연출은 한 번만 — 2.3초 뒤 스스로 사라진다 */
-  useEffect(()=>{
-    if(!petGainPop) return;
-    const t=setTimeout(()=>setPetGainPop(null),2300);
-    return ()=>clearTimeout(t);
-  },[petGainPop]);
   useEffect(()=>{ if(loaded) save("v6_tmpl",templates); },[templates,loaded]);
   useEffect(()=>{ if(loaded) save("v6_cid",childId); },[childId,loaded]);
   useEffect(()=>{ if(loaded) save("v6_vac",vacations); },[vacations,loaded]);
@@ -3823,14 +3812,8 @@ export default function App() {
                   <div style={{position:cute?"relative":"absolute",left:cute?undefined:"50%",marginLeft:cute?undefined:62,bottom:cute?undefined:6,display:"flex",flexDirection:"column",alignItems:"center",marginBottom:cute?8:0}}>
                     {/* (이동됨) 오늘의 발견 말풍선 — 펫 옆이 아니라 탐험지도 위 '아이 머리 위'에 뜬다.
                         아이가 보물상자 옆에 도착해 상자가 열린 다음에 나온다 (사용자 확정 → AdventureMap의 bubble prop). */}
-                    {/* 펫 연결 발견 순간 — "먹이 +1"이 펫 위로 살짝 올라가다 사라진다 (사용자 확정 ④) */}
-                    {!cute&&petGainPop&&petGainPop.d===(childDate||TODAY)&&(
-                      <div style={{position:"absolute",bottom:"100%",left:"50%",marginBottom:pet.stage===0?8:46,whiteSpace:"nowrap",
-                        fontSize:12.5,fontWeight:900,color:"#FFF3D9",textShadow:"0 1px 3px rgba(0,0,0,0.55)",
-                        animation:"petGainUp 2.2s ease-out both",pointerEvents:"none",zIndex:3}}>
-                        {petGainPop.kind==="먹이"?"🍖":"❤️"} {petGainPop.kind} +{petGainPop.amount}
-                      </div>
-                    )}
+                    {/* "먹이 +1" 연출은 지도 발견 지점 위로 이동 (사용자 확정 — 펫이 화면에
+                        안 보일 때가 많아서). 여기엔 그날의 ❤️ 말풍선만 남는다. */}
                     {!cute&&pet.stage===0?(
                     <>
                       {/* 말풍선 — 알 위 (사용자 확정: 위가 더 귀여움), 간격 14→3px + 살짝 우측: 알과 한 덩어리로 보이게.
@@ -4016,10 +3999,11 @@ export default function App() {
                         })()}
                         spark={(()=>{
                           // 길 위 '오늘의 발견' 지점 — 자리는 날마다 다르고(고정 시드), 발견 전엔 ✨만.
+                          // gain: 펫 연결 발견이면 발견 팝 순간 "🍖 먹이 +1"이 그 물건 위로 떠오른다.
                           const _dd=childDate||TODAY;
                           const _de=getDiscoveryOn(discoveryData,childId,_dd);
                           const _d=_de?getDiscovery(_de.id):null;
-                          return {t:rollSparkT(childId,_dd),emoji:_d?.emoji||null,found:!!_d};
+                          return {t:rollSparkT(childId,_dd),emoji:_d?.emoji||null,found:!!_d,gain:_d?.pet||null};
                         })()}
                         onSparkPass={()=>handleSparkPass(childDate||TODAY)}
                       />

@@ -16,8 +16,9 @@
      charEmoji: string                            캐릭터 (이미지 경로 또는 이모지)
      bubble   : ReactNode                         아이 머리 위 말풍선 ('오늘의 발견')
                                                   — 보물상자가 열린 뒤에만 띄운다 (사용자 확정)
-     spark    : {t, emoji, found}                 길 위 '오늘의 발견' 지점 (사용자 확정 ②)
-                                                  t=길 진행률, found=오늘 발견 기록됨
+     spark    : {t, emoji, found, gain}           길 위 '오늘의 발견' 지점 (사용자 확정 ②)
+                                                  t=길 진행률, found=오늘 발견 기록됨,
+                                                  gain=펫 연결이면 {kind,amount} ("먹이 +1" 연출)
      onSparkPass : ()=>void                       캐릭터가 발견 지점을 '시간 기준'으로
                                                   지나간 순간 (App이 여기서 발견을 기록)
    ════════════════════════════════════════════════════════════════════════ */
@@ -352,6 +353,16 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           50%{transform:translate(calc(-50% + var(--dx)), var(--up)) scale(1) rotateY(540deg);opacity:1}
           100%{transform:translate(calc(-50% + var(--dx2)), 24px) scale(.7) rotateY(1080deg);opacity:0}
         }
+        @keyframes amSparkTease{
+          0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(.9)}
+          50%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}
+        }
+        @keyframes amGainUp{
+          0%{opacity:0;transform:translateX(-50%) translateY(5px) scale(.7)}
+          16%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.08)}
+          30%{transform:translateX(-50%) translateY(-2px) scale(1)}
+          100%{opacity:0;transform:translateX(-50%) translateY(-24px) scale(1)}
+        }
         @keyframes amFound{
           0%{opacity:0;transform:translateX(-50%) translateY(4px) scale(.5)}
           12%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.12)}
@@ -535,12 +546,25 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 {spark.emoji} 발견!
               </div>
             )}
+            {/* 펫 연결 발견 — 발견 순간 "🍖 먹이 +1"이 물건 위로 떠오르다 사라진다 (사용자 확정:
+                펫은 화면에 안 보일 때가 많아 무대가 아니라 여기서. 칩 없이 글자만) */}
+            {sparkPop && spark.gain && (
+              <div style={{ position: "absolute", left: "50%", bottom: "100%", marginBottom: 26,
+                whiteSpace: "nowrap", fontSize: 11, fontWeight: 900, color: "#B4551D",
+                textShadow: "0 0 3px rgba(255,251,240,0.95), 0 0 5px rgba(255,251,240,0.9), 0 1px 2px rgba(255,251,240,0.9)",
+                animation: "amGainUp 2.2s ease-out both" }}>
+                {spark.gain.kind === "먹이" ? "🍖" : "❤️"} {spark.gain.kind} +{spark.gain.amount}
+              </div>
+            )}
             <span style={{ fontSize: 13, lineHeight: 1, display: "block",
               filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 2px 3px rgba(60,80,40,0.3))" }}>{spark.emoji}</span>
           </div>
         );
-        return <span style={{ ...base, transform: "translate(-50%,-50%)", fontSize: 12, lineHeight: 1,
-          animation: "amSpark 2.2s ease-in-out infinite" }}>✨</span>;
+        /* 발견 전 예고 ✨ — 언제든 또렷하게 보여야 한다 (사용자 확정). amSpark는 절반이
+           투명(opacity 0)이라 눈에 안 띄어서, 항상 보이는 은은한 펄스(0.6~1)로 따로 쓴다. */
+        return <span style={{ ...base, fontSize: 14, lineHeight: 1,
+          filter: "drop-shadow(0 0 2px rgba(255,251,240,0.95)) drop-shadow(0 1px 3px rgba(60,80,40,0.35))",
+          animation: "amSparkTease 1.8s ease-in-out infinite" }}>✨</span>;
       })()}
 
       {/* ── 캐릭터 — 항상 길 위 (폴리라인 보간 위치) ── */}
