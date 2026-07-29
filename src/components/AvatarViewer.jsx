@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   getAvatarLayers, DEFAULT_AVATAR_BG, AVATAR_BASE_IMG, AVATAR_BASE_IMG_GIRL, AVATAR_BASE_EMOJI, AVATAR_BASE_Z,
+  AVATAR_BASE_BODY_IMG, AVATAR_BASE_HEAD_IMG, AVATAR_BASE_BODY_IMG_GIRL, AVATAR_BASE_HEAD_IMG_GIRL,
 } from "../data/avatarEquipment.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -12,7 +13,12 @@ import {
 
    폴백 체인
      · 장비: img 로드 실패 → 슬롯별 emojiPos 위치에 대표 이모지
-     · 베이스: AVATAR_BASE_IMG 실패 → baseCharImg(성장 3단계) → 이모지
+     · 베이스: 몸통+머리 2장 → (로드 실패 시) 합본 1장 → baseCharImg(성장 3단계) → 이모지
+
+   머리 숨김
+     hidesHead가 붙은 장비(모자 등)를 착용하면 베이스의 '머리' 장을 아예 안 그린다.
+     그 장비 그림이 모자와 얼굴을 함께 담고 있어 머리를 대신하기 때문. 예전처럼 베이스
+     머리 위에 덮어 씌우면 크기가 조금만 어긋나도 턱선·귀선이 겹쳐 보였다.
 
    props
      equipped    : { [slot]: itemId | null }
@@ -68,11 +74,31 @@ function AvatarLayer({ item, emojiPos, size }) {
   );
 }
 
-/* 베이스 캐릭터 — 아바타 전용 아트 → 성장 캐릭터 → 이모지 폴백 */
-function BaseCharacter({ baseCharImg, size, gender = "boy" }) {
-  const [baseFailed, setBaseFailed] = useState(false);
-  const baseSrc = gender === "girl" ? AVATAR_BASE_IMG_GIRL : AVATAR_BASE_IMG;
+/* 베이스 캐릭터 — 몸통+머리 2장 → 합본 1장 → 성장 캐릭터 → 이모지 폴백 */
+function BaseCharacter({ baseCharImg, size, gender = "boy", hideHead = false }) {
+  const [baseFailed, setBaseFailed] = useState(false);   // 합본까지 실패
+  const [splitFailed, setSplitFailed] = useState(false); // 분리본만 실패 → 합본으로
+  const girl = gender === "girl";
+  const baseSrc = girl ? AVATAR_BASE_IMG_GIRL : AVATAR_BASE_IMG;
+  const bodySrc = girl ? AVATAR_BASE_BODY_IMG_GIRL : AVATAR_BASE_BODY_IMG;
+  const headSrc = girl ? AVATAR_BASE_HEAD_IMG_GIRL : AVATAR_BASE_HEAD_IMG;
+  const imgStyle = { position: "absolute", inset: 0, width: "100%", height: "100%",
+    objectFit: "contain", pointerEvents: "none" };
+  // 그림자는 두 장을 감싼 div에 한 번만 — 장마다 걸면 머리 그림자가 몸통 위에 진다
+  const shadow = { position: "absolute", inset: 0, filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.20))" };
 
+  if (!baseFailed && !splitFailed) {
+    return (
+      <div style={shadow}>
+        <img src={"/" + bodySrc.replace(/^\/+/, "")} alt="아바타"
+          onError={() => setSplitFailed(true)} draggable={false} style={imgStyle} />
+        {!hideHead && (
+          <img src={"/" + headSrc.replace(/^\/+/, "")} alt=""
+            onError={() => setSplitFailed(true)} draggable={false} style={imgStyle} />
+        )}
+      </div>
+    );
+  }
   if (!baseFailed) {
     return (
       <img
@@ -80,11 +106,7 @@ function BaseCharacter({ baseCharImg, size, gender = "boy" }) {
         alt="아바타"
         onError={() => setBaseFailed(true)}
         draggable={false}
-        style={{
-          position: "absolute", inset: 0, width: "100%", height: "100%",
-          objectFit: "contain", pointerEvents: "none",
-          filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.20))",
-        }}
+        style={{ ...imgStyle, filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.20))" }}
       />
     );
   }
@@ -116,6 +138,8 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
   const layers = getAvatarLayers(equipped).filter(
     (layer) => showBg || layer.item?.slot !== "background"
   );
+  // 얼굴째 덮는 장비(모자 등)를 쓰면 베이스 머리를 그리지 않는다
+  const hideHead = layers.some((l) => l.item?.hidesHead);
 
   return (
     <div
@@ -146,7 +170,7 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
         </div>
       ))}
       <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z }}>
-        <BaseCharacter baseCharImg={baseCharImg} size={size} gender={gender} />
+        <BaseCharacter baseCharImg={baseCharImg} size={size} gender={gender} hideHead={hideHead} />
       </div>
     </div>
   );

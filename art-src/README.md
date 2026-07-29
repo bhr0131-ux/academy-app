@@ -8,16 +8,22 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 **보관 형식**: 원본은 **webp(q92)** 로 저장한다. PNG로 두면 저장소가 빠르게 커진다
 (58장 63MB → 8MB). 화질 손실은 재가공에 지장 없는 수준.
 
+**아바타 베이스 구조**: 베이스는 **'몸통'과 '머리' 두 장**으로 나뉘어 있다
+(base/body.webp + base/head.webp, 여아는 -girl). 합본(default.webp)은 로드 실패 시 폴백용.
+모자처럼 얼굴째 덮는 장비는 카탈로그에 `hidesHead: true`를 달면 머리 장을 아예 안 그리고
+그 자리에 장비 그림만 얹는다 — 베이스 머리 위에 덮어 씌우면 크기가 조금만 어긋나도
+턱선·귀선이 겹쳐 보이던 문제가 이 구조로 원천 해결된다.
+남아 머리/몸통 경계 y=403(턱 끝) · 여아 y=405. 얼굴 덮는 장비는 **턱 끝을 이 y에 맞추고
+얼굴 최대폭을 243(남)/241(여)에 맞추면** 목이 자연스럽게 이어진다.
+
 **아바타 베이스 교체 규칙**: 모자·신발·상의 등 장비 그림은 1024×1024 안에서
 '베이스가 있던 자리'에 맞춰 그려져 있다. 그래서 베이스를 새로 넣을 땐 반드시
 **현행 베이스의 bbox(키·중심x·발끝)에 맞춰 배율·위치를 잡아야** 장비가 어긋나지 않는다.
 현행 기준값 — 남아 x365~657 / y122~935, 여아 x349~673 / y121~936 (중심x 511).
 눈 위치(장비 정렬 기준) — 남아 간격 96.8·중심 (512, 321) / 여아 간격 106.8·중심 (510, 303).
-얼굴을 덮는 장비(모자 등)의 배율은 **눈 간격이 아니라 '베이스 윤곽선이 안 삐져나오는 최소 배율'** 로
-정한다. 눈 간격으로 맞추면 얼굴 폭 비율이 달라 턱선·귀선이 겹쳐 보인다(실제로 겪음).
-검증법: 베이스의 검은 윤곽선 픽셀 중 오버레이 밖에 남는 개수를 세어 0이 되는 배율을 찾는다.
-  남아 — 0.97배 554개 남음 → 1.05배 0개 (여아는 양갈래가 밖에 남는 게 정상이라 0이 안 된다)
-현행 탐험 헬멧 = 원화의 1.05배, 눈 중심 (511, 312)에 정렬.
+(옛 방식 기록 — 머리 장을 안 그리기 전에는 얼굴 덮는 장비를 '베이스 윤곽선이 안 삐져나오는
+최소 배율'로 키워야 했다. 지금은 머리를 아예 안 그리므로 그런 여유가 필요 없고,
+턱 끝·얼굴폭만 맞추면 된다.)
 
 **정리 이력**: 교체·은퇴된 원본 26개(37MB)는 작업 폴더에서 삭제했다.
 필요하면 git 히스토리에서 되살릴 수 있다 — `git log --all --diff-filter=D --name-only -- art-src`
@@ -34,13 +40,15 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 
 | 파일 | 용도 | 탑재 에셋 |
 |---|---|---|
-| base-boy-v3.webp | 남아 아바타 베이스 원화 v3 (현행 — 배경 제거·현행 bbox에 맞춰 정렬 탑재) | avatar/base/default.webp |
+| base-boy-v4-head.webp | 남아 머리 원화 v4 (현행 — 몸통과 이어 붙여 탑재) | avatar/base/head.webp |
+| base-boy-v4-body.webp | 남아 몸통 원화 v4 (현행 — 머리와 이어 붙여 탑재) | avatar/base/body.webp |
+| base-boy-v3.webp | 남아 아바타 베이스 원화 v3 (교체됨) | — |
 | base-girl-v3.webp | 여아 아바타 베이스 원화 v3 (현행 — 배경 제거·현행 bbox에 맞춰 정렬 탑재) | avatar/base/default-girl.webp |
 | base-boy.webp | 남아 아바타 베이스 원화 v2 (교체됨) | — |
 | base-girl.webp | 여아 아바타 베이스 원화 v2 (교체됨) | — |
 | boots-explorer-sockless.webp | 탐험 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/explorer-boots.webp |
 | boots-cream-sockless.webp | 크림 부츠 착용 원화 (맨발목, 현행) | avatar/shoes/cream-boots.webp |
-| hat-explorer-v2.webp | 탐험 헬멧 착용 원화 v2 (현행 — 얼굴째 덮는 방식, 배율 1.05) | avatar/hat/explorer-helmet.webp |
+| hat-explorer-v2.webp | 탐험 헬멧 착용 원화 v2 (현행 — 머리 장을 숨기고 이 그림으로 대체, hidesHead) | avatar/hat/explorer-helmet.webp |
 | hat-explorer-wearing.webp | 탐험 헬멧 착용 원화 v1 (교체됨) | — |
 | boots-explorer-sockless-v2.webp | 탐험 부츠 착용 원화 (맨발목 v2, 최종 승인본) | avatar/shoes/explorer-boots.webp |
 | boots-green-wearing-v2.webp | 새싹 부츠 착용 원화 (v2, 현행 승인본) | avatar/shoes/green-boots.webp |
