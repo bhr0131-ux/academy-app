@@ -13,7 +13,7 @@ const SHOP_SLOTS = SHOP_SLOT_ORDER.map(getSlot).filter(Boolean);
    카드마다 크기가 들쭉날쭉해 보이지 않게 한다. */
 function ItemThumb({ item }) {
   const [failed, setFailed] = useState(false);
-  const BOX = 46;
+  const BOX = 54;
   if (item.thumb && !failed) {
     return (
       <div style={{ height: BOX, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
