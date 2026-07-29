@@ -70,8 +70,13 @@ IoU 최적값은 끈이 짧아진다 — 끈 길이를 기준으로 272×199 @38
 **흰 테두리(halo) 제거 — 알파 1px 침식**: 배경 제거 때 가장자리에 '밝고 반투명한' 픽셀이
 남으면 배경 위에서 흰 실선처럼 도드라진다. 진단은 `0<alpha<248` 이면서 밝기>205 인 픽셀 수로
 한다 — 남아는 머리 1158개·몸통 2534개나 있었고, 여아는 0개(하드 알파)라 원래 깨끗했다.
-고치는 법은 알파에 3×3 최소필터(1px 침식)를 한 번 먹이는 것. 남아 기준 밝은 반투명이
-1158→210 / 2534→484 로 줄고 팔·어깨 바깥선의 흰 점선이 사라진다.
+**침식은 쓰지 말 것(중요)** — 1px 침식으로는 덜 지워지고, 2px까지 하면 양말처럼 외곽선이
+반투명하게 그려진 곳에서 **외곽선 자체가 사라진다**. 알파를 건드리는 방법은 전부 같은 위험이 있다.
+**올바른 방법 = 색만 고치기**: 반투명 픽셀 중 '가장 가까운 불투명 픽셀보다 25 이상 밝은' 것만
+골라 그 이웃의 RGB로 바꾼다. 알파를 안 건드리니 실루엣이 안 줄고, 원래 어두운 반투명 외곽선은
+조건에 안 걸려 그대로 남는다. 판정·수정 모두 이 지표 하나로 된다(수정 후 0이 되면 끝).
+2026-07 일괄 보정 — 아바타 에셋 17장에서 17,516px 보정(모자 8·배낭 2·하의 3·신발 2·남아 베이스 2).
+여아 베이스와 하늘 배낭·크림 부츠는 하드 알파라 원래 0이었다.
 실루엣 외곽선 두께는 머리·몸통 모두 3px로 원래 같았다 — '몸 선이 얇아 보이던' 건
 halo가 외곽선을 흐려서 생긴 착시였다.
 (옛 방식 기록 — 머리 장을 안 그리기 전에는 얼굴 덮는 장비를 '베이스 윤곽선이 안 삐져나오는
@@ -108,8 +113,8 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | hat-explorer-helmet-girl.webp | 탐험 헬멧 원화 여아 (현행, imgGirl) | avatar/hat/explorer-helmet-girl.webp |
 | hat-safari-brown.webp | 사파리 모자 원화 남아 (현행, hidesHead) | avatar/hat/safari-brown.webp |
 | hat-safari-brown-girl.webp | 사파리 모자 원화 여아 (현행, imgGirl) | avatar/hat/safari-brown-girl.webp |
-| hat-aviator-cap.webp | 비행사 모자 원화 남아 (현행, hidesHead) | avatar/hat/aviator-cap.webp |
-| hat-aviator-cap-girl.webp | 비행사 모자 원화 여아 (현행, imgGirl) | avatar/hat/aviator-cap-girl.webp |
+| hat-aviator-cap.webp | 비행사 모자 원화 남아 (**겨울 시즌 보관** — season:"winter", 상점 미노출) | avatar/hat/aviator-cap.webp |
+| hat-aviator-cap-girl.webp | 비행사 모자 원화 여아 (**겨울 시즌 보관**) | avatar/hat/aviator-cap-girl.webp |
 | hat-blossom.webp | 꽃 헬멧 원화 남아 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
 | hat-blossom-helmet-girl.webp | 꽃 헬멧 원화 여아 (현행, imgGirl) | avatar/hat/blossom-helmet-girl.webp |
 | bottom-khaki-cargo.webp | 카키 반바지 원화 (벨트 달린 카고) | avatar/bottom/khaki-cargo.webp |

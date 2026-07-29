@@ -3758,13 +3758,7 @@ export default function App() {
                       })()}
                       </div>
                     </div>
-                    {/* 발밑 바닥 원 (탐험) — 공중부양 방지용 라이트 원. 밝은 테마 포인트색.
-                        아바타 모드에선 끈다: 접지 그림자(AvatarViewer)가 같은 역할을 하는데,
-                        밝은 테마색 원이 그 위에 깔리면 그림자가 묻혀 안 보인다. 성장 캐릭터는 그대로. */}
-                    {!cute&&getCharMode(childId)!==CHAR_DISPLAY_AVATAR&&(
-                      <div style={{position:"absolute",left:"50%",bottom:-2,transform:"translateX(-50%)",width:150,height:44,pointerEvents:"none",zIndex:0,
-                        background:`radial-gradient(ellipse 50% 50% at 50% 50%, ${GP.themePoint||th.main}80, ${GP.themePoint||th.main}33 45%, transparent 72%)`,filter:"blur(2px)"}}/>
-                    )}
+                    {/* (삭제됨) 발밑 테마색 라이트 원 — 공중부양 방지용이었으나 접지 그림자로 대체. 사용자 확정. */}
                     {/* 바닥 그림자 — 발에 밀착된 접지 그림자 (marginTop을 크게 당겨 부츠 바로 밑에 붙임)
                         아바타 모드에선 AvatarViewer가 자기 발끝 좌표에 맞춰 직접 그리므로 여기선 생략(이중 그림자 방지). */}
                     {getCharMode(childId)!==CHAR_DISPLAY_AVATAR&&(

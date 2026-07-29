@@ -111,7 +111,9 @@ export const AVATAR_CATALOG = [
   //   원화의 눈 간격을 베이스 머리(124.5)에 맞춰 키우고, 턱 끝을 y=404·중심 x=506에 정렬해 탑재.
   { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/explorer-helmet.webp", imgGirl: "assets/avatar/hat/explorer-helmet-girl.webp", hidesHead: true },
   { id: "hat_safari",     slot: "hat",   label: "사파리 모자", emoji: "⛑️", price: 180, rarity: "rare",   theme: "adventure", img: "assets/avatar/hat/safari-brown.webp",    imgGirl: "assets/avatar/hat/safari-brown-girl.webp", hidesHead: true },
-  { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp",     imgGirl: "assets/avatar/hat/aviator-cap-girl.webp",  hidesHead: true },
+  /* 비행사(방한) 모자 — 겨울 시즌·설원 맵 전용으로 빼 둔다 (사용자 확정).
+     그림·데이터는 그대로 두고 ACTIVE_SEASONS에 "winter"를 넣는 순간 상점에 다시 나온다. */
+  { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp",     imgGirl: "assets/avatar/hat/aviator-cap-girl.webp",  hidesHead: true, season: "winter" },
   { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true },
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp" },
   { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp" },
@@ -133,7 +135,17 @@ export const AVATAR_CATALOG = [
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
 export const getAvatarItem  = (id) => AVATAR_CATALOG.find(it => it.id === id) || null;
-export const getItemsBySlot = (slotKey) => AVATAR_CATALOG.filter(it => it.slot === slotKey);
+/* ── 시즌 아이템 ────────────────────────────────────────────────────────
+   season이 붙은 아이템은 그 시즌이 열렸을 때만 상점에 나온다. 지금 열린 시즌은 없다.
+   겨울 이벤트·설원 맵을 만들 때 여기에 "winter"를 넣으면 그대로 살아난다
+   (그림·id·가격 전부 유지 → 이미 산 아이는 계속 착용 가능).                      */
+export const ACTIVE_SEASONS = [];
+export const isItemInSeason = (it) => !it.season || ACTIVE_SEASONS.includes(it.season);
+
+/* 상점 목록 — 시즌이 안 열린 아이템은 빼고 보여 준다.
+   (getAvatarItem/레이어 조회는 시즌과 무관하게 그대로 동작 → 보유·착용 데이터 안 깨짐) */
+export const getItemsBySlot = (slotKey) =>
+  AVATAR_CATALOG.filter(it => it.slot === slotKey && isItemInSeason(it));
 export const STARTER_ITEM_IDS = AVATAR_CATALOG.filter(it => it.starter).map(it => it.id);
 
 /** 신규 사용자 기본 장착: 스타터(하늘 배경)만. 장비 슬롯은 전부 비움 */
