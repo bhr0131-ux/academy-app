@@ -299,7 +299,7 @@ export default function App() {
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
   const [journalAcId,            setJournalAcId]            = useState(null); // 탐험일지 표시 학원 (null=시간 기준 자동)
-  /* 오늘의 발견 — 탐험을 끝낸 날 하루 1개. 저장은 새 키(v6_discoveries)로만. */
+  /* 오늘의 발견 — 지도 발견 지점을 지나간 날 하루 1개 (미션과 무관). 저장은 새 키(v6_discoveries)로만. */
   const [discoveryData,         setDiscoveryData]          = useState({});
   const [openDiscoveryBook,     setOpenDiscoveryBook]      = useState(false);
   const [discoveryPop,          setDiscoveryPop]           = useState(null);  // 방금 새로 발견한 날짜 (등장 연출용)
@@ -643,14 +643,13 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_base_seeded",baseSeededKeys); },[baseSeededKeys,loaded]);
   useEffect(()=>{ if(loaded) save("v6_pet",petData); },[petData,loaded]);
   useEffect(()=>{ if(loaded) save(DISCOVERY_KEY,discoveryData); },[discoveryData,loaded]);
-  /* 오늘의 발견 — 오늘 미션을 전부 끝낸 순간 하루 1개를 기록한다.
+  /* 오늘의 발견 — 하루 1개. [사용자 확정] 미션과 무관하다.
+     지도 위 아이가 '이전 학원을 마치고 이동하며 발견 지점을 지나간 순간'
+     (AdventureMap의 시간 기준 판정 → onSparkPass) 기록한다.
      · 무엇이 나올지는 (아이, 날짜) 고정 시드라 다시 그려도 새로고침해도 안 바뀐다.
-     · 이미 그날 기록이 있으면 아무것도 안 한다 → discoveryData를 의존성에 넣어도 루프가 안 생긴다. */
-  useEffect(()=>{
+     · 이미 그날 기록이 있으면 아무것도 안 한다 (하루 1개 가드). */
+  const handleSparkPass=(d)=>{
     if(!loaded||!childId) return;
-    const d=childDate||TODAY;
-    const q=getTodayQuestProgress(childId,d);
-    if(!(q.total>0&&q.percent>=100)) return;
     if(getDiscoveryOn(discoveryData,childId,d)) return;
     const {next,entry,isNew}=recordDiscovery(discoveryData,childId,d);
     if(isNew){
@@ -660,7 +659,7 @@ export default function App() {
       const _pd=getDiscovery(entry.id);
       if(_pd?.pet) setPetGainPop({d,kind:_pd.pet.kind,amount:_pd.pet.amount});
     }
-  },[loaded,childId,childDate,dailyData,discoveryData]);
+  };
   /* "먹이 +1" 연출은 한 번만 — 2.3초 뒤 스스로 사라진다 */
   useEffect(()=>{
     if(!petGainPop) return;
@@ -3489,8 +3488,9 @@ export default function App() {
               const _lines=(_em?_msg.slice(0,_em.index):_msg).trimEnd().split("\n");
               // 꾸미기 배경(darkStage: 밤 톤) 장착 시 무대가 어두워짐 → 응원문구를 밝은 크림색+어두운 그림자로 반전해 가독성 유지
               const _onDark=!!getEquipped(childId,"bg")?.darkStage;
-              /* "전부 클리어!"만 있으면 심심하다 (사용자 확정 ⑥) — 끝낸 날엔 그 아래에
-                 오늘의 발견 한 줄 + (이벤트 있는 날이면) 만남 한 줄을 작게 붙인다 */
+              /* "전부 클리어!"만 있으면 심심하다 (사용자 확정 ⑥) — 발견 지점을 지나간
+                 날엔 그 아래에 오늘의 발견 한 줄 + (이벤트 날) 만남 한 줄을 작게 붙인다.
+                 발견은 미션과 무관하므로 미션 진행 문구("조금만 더!") 아래에도 붙을 수 있다. */
               const _dde=getDiscoveryOn(discoveryData,childId,childDate||TODAY);
               const _ddi=_dde?getDiscovery(_dde.id):null;
               const _dev=_dde?rollEvent(childId,childDate||TODAY):null;
@@ -4021,6 +4021,7 @@ export default function App() {
                           const _d=_de?getDiscovery(_de.id):null;
                           return {t:rollSparkT(childId,_dd),emoji:_d?.emoji||null,found:!!_d};
                         })()}
+                        onSparkPass={()=>handleSparkPass(childDate||TODAY)}
                       />
                     </div>
                     </>
@@ -4101,7 +4102,7 @@ export default function App() {
                   <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)"}}/>
                 </div>
               )}
-              {/* 오늘의 발견 한 줄 — 끝냈으면 무엇을 찾았는지, 아직이면 펫이 흘리는 힌트.
+              {/* 오늘의 발견 한 줄 — 발견 지점을 지나갔으면 무엇을 찾았는지, 아직이면 펫이 흘리는 힌트.
                   힌트는 오늘 발견의 hint라 "오늘은 반짝이는 걸 찾을 것 같아!" → 기대하며 시작하게 된다. */}
               {kidSkin!=="cute"&&(()=>{
                 const _dd=childDate||TODAY;

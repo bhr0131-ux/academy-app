@@ -18,6 +18,8 @@
                                                   — 보물상자가 열린 뒤에만 띄운다 (사용자 확정)
      spark    : {t, emoji, found}                 길 위 '오늘의 발견' 지점 (사용자 확정 ②)
                                                   t=길 진행률, found=오늘 발견 기록됨
+     onSparkPass : ()=>void                       캐릭터가 발견 지점을 '시간 기준'으로
+                                                  지나간 순간 (App이 여기서 발견을 기록)
    ════════════════════════════════════════════════════════════════════════ */
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -182,7 +184,7 @@ const isImg = (s) => typeof s === "string" && s.includes("assets/");
 const BUBBLE_DELAY = 950;
 
 // onPick: 학원 건물 탭 → 탐험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
-export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, bubble = null, spark = null }) {
+export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, bubble = null, spark = null, onSparkPass = null }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
@@ -289,9 +291,22 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   }, [hasBubble, chestParty]);
 
   // ── 길 위 '오늘의 발견' 지점 (사용자 확정 ②) ──────────────────────────
-  // 발견 전엔 ✨만 깜빡인다(예고 — 뭐가 나올지는 안 보여준다). 오늘 발견이
-  // 기록된 뒤 캐릭터가 그 위를 지나면 "{이모지} 발견!" 팝(2초) 후 이모지가 남는다.
+  // 발견 전엔 ✨만 깜빡인다(예고 — 뭐가 나올지는 안 보여준다). 아이가 그 위를
+  // 지나는 순간 발견이 기록되고, "{이모지} 발견!" 팝(2초) 후 이모지가 남는다.
+  //
+  // [사용자 확정] 발견은 미션과 무관하다 — '이전 학원을 마치고 이동하며 그 지점을
+  // 지나갔는가'(시간 기준)로만 정한다. 그래서 판정은 눈에 보이는 트윈 t가 아니라
+  // 시간으로 계산한 targetT로 한다 (트윈은 열 때마다 0부터 다시 걷는 연출일 뿐이다).
   const sparkT = spark?.t ?? null;
+  const sparkTimePassed = sparkT !== null &&
+    (mode === "past" || (mode === "today" && targetT >= sparkT - 0.001));
+  useEffect(() => {
+    if (!spark || spark.found || !sparkTimePassed || !onSparkPass) return;
+    onSparkPass();
+    // onSparkPass는 App이 매 렌더 새로 만드는 함수라 deps에 넣으면 매번 다시 돈다.
+    // 기록되면 spark.found가 true가 되어 다시 부르지 않는다 (App 쪽 하루 1개 가드도 있음).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sparkTimePassed, spark?.found]);
   const sparkDone = !!(spark?.found && sparkT !== null && t >= sparkT - 0.001);
   // 과거 날짜처럼 '이미 지난 채로' 열었으면 팝 없이 바로 안착 — 팝은 지나가는 순간에만
   const sparkInit = useRef(null);
