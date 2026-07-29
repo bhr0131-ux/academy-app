@@ -32,6 +32,28 @@ export default function EquipmentShop({
 }) {
   const [activeSlot, setActiveSlot] = useState(SHOP_SLOTS[0].key);
 
+  /* 미리보기 — 아직 안 산 파츠를 '입혀만' 보는 상태. { [slot]: itemId }
+     슬롯당 하나씩이라 여러 슬롯을 동시에 걸쳐 볼 수 있다(모자+신발 같이 보기).
+     실제 장착 상태(equipped)는 건드리지 않고, 미리보기 화면에만 얹는다. */
+  const [preview, setPreview] = useState({});
+  const previewEquipped = { ...equipped, ...preview };
+
+  /* 상점을 닫으면 미리보기는 초기화 — 다음에 열었을 때 입어보던 게 남아 있으면 헷갈린다 */
+  useEffect(() => { if (!open) setPreview({}); }, [open]);
+
+  /* 산 파츠는 App이 바로 장착시키므로 미리보기에서 뺀다 (중복 표시 방지) */
+  useEffect(() => {
+    setPreview((prev) => {
+      const next = {};
+      let changed = false;
+      for (const [slot, id] of Object.entries(prev)) {
+        if (owned.includes(id)) { changed = true; continue; }
+        next[slot] = id;
+      }
+      return changed ? next : prev;
+    });
+  }, [owned]);
+
   /* 상점을 열면 취급 아이템 그림을 미리 받아 둔다.
      구매 직후 장착할 때 그림이 아직 없어 한 박자 늦게 나타나는 걸 막는다
      (특히 모자는 베이스 머리를 대신하는 그림이라 지연이 그대로 티가 난다). */
@@ -90,8 +112,25 @@ export default function EquipmentShop({
         </div>
 
         {/* 미리보기 */}
-        <div style={{ padding: "16px 20px 8px", display: "flex", justifyContent: "center" }}>
-          <AvatarViewer equipped={equipped} size={150} baseCharImg={baseCharImg} gender={gender} />
+        <div style={{ padding: "16px 20px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <AvatarViewer equipped={previewEquipped} size={150} baseCharImg={baseCharImg} gender={gender} />
+          {/* 입어보는 중 표시 + 한 번에 벗기 (안 사고 빠져나올 길) */}
+          {Object.keys(preview).length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: C.purple }}>
+                👀 입어보는 중 {Object.keys(preview).length}개
+              </span>
+              <button
+                onClick={() => setPreview({})}
+                style={{
+                  border: "none", borderRadius: 999, padding: "4px 10px", cursor: "pointer",
+                  fontSize: 11, fontWeight: 800, background: C.purpleL || "#F1ECFF", color: C.purple,
+                }}
+              >
+                벗기
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 슬롯 탭 (가로 스크롤) */}
@@ -135,6 +174,7 @@ export default function EquipmentShop({
           {items.map((item) => {
             const isOwned = owned.includes(item.id);
             const isEquipped = equipped[item.slot] === item.id;
+            const isPreviewing = !isOwned && preview[item.slot] === item.id;
             const canAfford = coins >= item.price;
             const rar = AVATAR_RARITY[item.rarity] || AVATAR_RARITY.common;
             const thm = AVATAR_THEMES[item.theme] || null;
@@ -143,9 +183,10 @@ export default function EquipmentShop({
               <div
                 key={item.id}
                 style={{
-                  border: `2px solid ${isEquipped ? C.purple : rar.color + "44"}`,
+                  border: isPreviewing ? `2px dashed ${C.purple}`
+                        : `2px solid ${isEquipped ? C.purple : rar.color + "44"}`,
                   borderRadius: 16, padding: "10px 8px", textAlign: "center",
-                  background: isEquipped ? (C.purpleL || "#F5F0FF") : "#fff",
+                  background: (isEquipped || isPreviewing) ? (C.purpleL || "#F5F0FF") : "#fff",
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                   position: "relative",
                 }}
@@ -175,21 +216,35 @@ export default function EquipmentShop({
                 {/* 이름 */}
                 <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: C.text }}>{item.label}</p>
 
-                {/* 액션 버튼 */}
+                {/* 액션 버튼 — 안 산 파츠는 '보기'(입어보기) → 눌러서 입혀보면 '구매'로 바뀐다.
+                    같은 슬롯의 다른 파츠를 보기하면 그쪽으로 넘어가고, 이 카드는 다시 '보기'가 된다. */}
                 {!isOwned ? (
-                  <button
-                    onClick={() => canAfford && onBuy && onBuy(item.id)}
-                    disabled={!canAfford}
-                    style={{
-                      width: "100%", border: "none", borderRadius: 10, padding: "7px 4px",
-                      fontWeight: 800, fontSize: 12,
-                      cursor: canAfford ? "pointer" : "not-allowed",
-                      background: canAfford ? C.purple : "#E5E5EA",
-                      color: canAfford ? "#fff" : "#A0A0A8",
-                    }}
-                  >
-                    🪙 {item.price}
-                  </button>
+                  !isPreviewing ? (
+                    <button
+                      onClick={() => setPreview((p) => ({ ...p, [item.slot]: item.id }))}
+                      style={{
+                        width: "100%", border: `2px solid ${C.purple}`, borderRadius: 10, padding: "5px 4px",
+                        fontWeight: 800, fontSize: 12, cursor: "pointer",
+                        background: "#fff", color: C.purple,
+                      }}
+                    >
+                      👀 입어보기
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => canAfford && onBuy && onBuy(item.id)}
+                      disabled={!canAfford}
+                      style={{
+                        width: "100%", border: "none", borderRadius: 10, padding: "7px 4px",
+                        fontWeight: 800, fontSize: 12,
+                        cursor: canAfford ? "pointer" : "not-allowed",
+                        background: canAfford ? C.purple : "#E5E5EA",
+                        color: canAfford ? "#fff" : "#A0A0A8",
+                      }}
+                    >
+                      🪙 {item.price}
+                    </button>
+                  )
                 ) : (
                   <button
                     onClick={() => onToggle && onToggle(item.id)}
