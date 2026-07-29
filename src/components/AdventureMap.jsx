@@ -340,8 +340,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           100%{transform:translate(calc(-50% + var(--dx2)), 24px) scale(.7) rotateY(1080deg);opacity:0}
         }
         @keyframes amSparkTease{
-          0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(.9)}
-          50%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}
+          0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.72) rotate(-8deg)}
+          50%{opacity:1;transform:translate(-50%,-50%) scale(1.3) rotate(8deg)}
         }
         @keyframes amGainUp{
           0%{opacity:0;transform:translateX(-50%) translateY(5px) scale(.7)}
@@ -544,11 +544,20 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
               filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 2px 3px rgba(60,80,40,0.3))" }}>{spark.emoji}</span>
           </div>
         );
-        /* 발견 전 예고 ✨ — 언제든 또렷하게 보여야 한다 (사용자 확정). amSpark는 절반이
-           투명(opacity 0)이라 눈에 안 띄어서, 항상 보이는 은은한 펄스(0.6~1)로 따로 쓴다. */
-        return <span style={{ ...base, fontSize: 14, lineHeight: 1,
-          filter: "drop-shadow(0 0 2px rgba(255,251,240,0.95)) drop-shadow(0 1px 3px rgba(60,80,40,0.35))",
-          animation: "amSparkTease 1.8s ease-in-out infinite" }}>✨</span>;
+        /* 발견 전 예고 ✨ — 언제든 보이면서 '반짝반짝'해야 한다 (사용자 확정 2건).
+           큰 ✨는 절반 아래로 안 어두워지는 펄스(0.45~1 + 크기·기울기 출렁임),
+           작은 ✨는 반대 위상으로 완전히 껐다 켜져(amSpark) 둘이 번갈아 반짝인다
+           — 한쪽이 어두울 때 다른 쪽이 빛나서 정지해 보이는 순간이 없다. */
+        return (
+          <div style={{ ...base, transform: "translate(-50%,-50%)", width: 0, height: 0 }}>
+            <span style={{ position: "absolute", left: 0, top: 0, fontSize: 15, lineHeight: 1, display: "block",
+              filter: "drop-shadow(0 0 3px rgba(255,205,90,0.95)) drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 1px 3px rgba(60,80,40,0.35))",
+              animation: "amSparkTease 1.3s ease-in-out infinite" }}>✨</span>
+            <span style={{ position: "absolute", left: 8, top: -11, fontSize: 9, lineHeight: 1, display: "block",
+              filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9))",
+              animation: "amSpark 1.3s ease-in-out -0.65s infinite" }}>✨</span>
+          </div>
+        );
       })()}
 
       {/* ── 캐릭터 — 항상 길 위 (폴리라인 보간 위치) ── */}
