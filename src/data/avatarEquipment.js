@@ -98,7 +98,7 @@ export const AVATAR_RARITY = {
    배경 3종은 v1에서 그대로 승계(id·가격 동일 → 마이그레이션 시 보유 이전).
 
    각 아이템: id / slot / label / emoji(폴백) / price / rarity / theme /
-             img(1024 정렬 webp) / starter(기본 지급)                     */
+             img(1024 정렬 webp) / starter(기본 지급) / z(슬롯 기본 z 덮어쓰기) */
 export const AVATAR_CATALOG = [
   /* 배경 — 제거됨 (구 '꾸미기 상점'의 배경과 중복되어 아바타 꾸미기에서는 다루지 않음).
      기존 구매자는 로드 시 코인 환불(App의 RETIRED_AVATAR_ITEMS 처리). 기본 배경은
@@ -117,7 +117,9 @@ export const AVATAR_CATALOG = [
   { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp" },
   { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp" },
   { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp" },
-  { id: "back_backpack",  slot: "back",  label: "탐험 배낭",   emoji: "🎒", price: 250, rarity: "epic",   theme: "adventure", img: "assets/avatar/back/purple-backpack.webp" },
+  /* 탐험 배낭 — 원화가 '앞에서 본 어깨끈'(침낭 롤 + 버클 + 칼집)이라 캐릭터 뒤(z15)에 그리면
+     몸통에 완전히 가려진다. 그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
+  { id: "back_backpack",  slot: "back",  label: "탐험 배낭",   emoji: "🎒", price: 250, rarity: "epic",   theme: "adventure", img: "assets/avatar/back/explorer-straps.webp", z: 37 },
 ];
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
@@ -214,7 +216,9 @@ export const getAvatarLayers = (equippedMap = {}) => {
     .map(slot => {
       const id = equippedMap[slot.key];
       const item = id ? getAvatarItem(id) : null;
-      return item ? { slot: slot.key, item, zIndex: slot.zIndex, emojiPos: slot.emojiPos } : null;
+      /* 아이템에 z가 있으면 슬롯 기본 z보다 우선 — 원화가 '앞에서 본 모습'이라
+         슬롯 기본 순서로는 몸통에 가려지는 장비(탐험 배낭의 어깨끈 등)를 위해. */
+      return item ? { slot: slot.key, item, zIndex: item.z ?? slot.zIndex, emojiPos: slot.emojiPos } : null;
     })
     .filter(Boolean)
     .sort((a, b) => a.zIndex - b.zIndex);
