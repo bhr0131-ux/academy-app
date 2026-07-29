@@ -18,6 +18,11 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 턱 끝을 y=404 · 중심 x=506 에 정렬한다. 모자 4종 모두 이 방식(배율 1.08~1.13).
 **신발 탑재 공식** — 현행 신발 에셋의 bbox 안에 비율 유지로 넣되 **바닥(y1)을 일치**시킨다
 (발이 뜨거나 파묻히지 않게). 현행 기준 바닥 y — 탐험 946 / 새싹·크림 947.
+**어깨끈(배낭) 탑재 공식** — 원화가 '앞에서 본 어깨끈'이면 등 슬롯 기본 z(15, 캐릭터 뒤)로는
+몸통에 가려진다. 카탈로그 아이템에 `z: 37`(상의 35 위·목장식 40 아래)을 달아 앞으로 끌어온다.
+배치는 침낭 롤이 어깨선에 얹히게 — 탐험 배낭은 배율 0.88, 좌상단 (408, 414)에 탑재.
+왼쪽 롤의 끝이 몸통 실루엣 가장자리(x≈408)와 맞아떨어져 잘린 티가 안 난다.
+몸통 기준값(남녀 거의 동일) — 어깨선 y≈450~470 · 셔츠 중심 x≈508 · 반바지 시작 y≈576.
 
 **아바타 베이스 교체 규칙**: 모자·신발·상의 등 장비 그림은 1024×1024 안에서
 '베이스가 있던 자리'에 맞춰 그려져 있다. 그래서 베이스를 새로 넣을 땐 반드시
@@ -61,6 +66,7 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 | hat-safari-brown.webp | 사파리 모자 원화 (현행, hidesHead) | avatar/hat/safari-brown.webp |
 | hat-aviator-cap.webp | 비행사 모자 원화 (현행, hidesHead) | avatar/hat/aviator-cap.webp |
 | hat-blossom.webp | 꽃 헬멧 원화 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
+| back-explorer-straps.webp | 탐험 배낭 원화 (앞에서 본 어깨끈 — 침낭 롤·버클·칼집, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
 | hat-explorer-v2.webp / hat-explorer-wearing.webp | 탐험 헬멧 원화 v2·v1 (교체됨) | — |
 | boots-*-sockless*.webp / boots-green-wearing-v2.webp | 부츠 원화 v1·v2 (교체됨) | — |
 | btn-parent-badge-v2.webp | '엄마용' 원형 뱃지 v2 (엄마 얼굴, 현행) | btn-parent.webp |
