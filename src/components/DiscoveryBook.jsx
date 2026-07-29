@@ -127,7 +127,7 @@ export default function DiscoveryBook({ open, onClose, data, childId, childName 
 
           {log.length === 0 ? (
             <p style={{ textAlign: "center", color: "#A2917C", fontSize: 12.5, fontWeight: 700, padding: "18px 0 24px" }}>
-              아직 발견한 게 없어요.<br />오늘 미션을 다 끝내면 무언가 발견할 수 있어요!
+              아직 발견한 게 없어요.<br />탐험 길을 걷다 보면 무언가 발견할 수 있어요!
             </p>
           ) : (
             <div style={{ paddingBottom: 10 }}>
