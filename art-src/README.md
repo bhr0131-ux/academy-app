@@ -154,3 +154,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | coin-front.webp | 금화 원화 정면 (상자 도착 연출, 뒤집히며 튀어오름) | coin-front.webp |
 | coin-tilt.webp | 금화 원화 반측면 (상자 도착 연출, 구르듯 회전) | coin-tilt.webp |
 | map-walkers/{pink,apricot,green,purple,blue}-{boy,girl}.webp | 지도 위를 걷는 탐험가 10종 (5테마×성별, 이모지 대체) | map-char/*.webp |
+| map-bld-v8/treehouse2-src.png | 지도 학원 건물 v8-1 (나무 위의 집, 구멍 투명 제공됨) | map-bld-treehouse2.webp |
+| map-bld-v8/stonearch2-src.png | 지도 학원 건물 v8-2 (돌 아치문+팻말, 구멍 투명 제공됨) | map-bld-stonearch2.webp |
+| map-bld-v8/tent2-src.png | 지도 학원 건물 v8-3 (텐트+모닥불·배낭·랜턴, 흰 원→투명 펀칭) | map-bld-tent2.webp |
+| map-bld-v8/tikihut2-src.png | 지도 학원 건물 v8-4 (티키 초가+항아리, 구멍 투명 제공됨) | map-bld-tikihut2.webp |

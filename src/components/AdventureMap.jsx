@@ -37,11 +37,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // 탐험장소 줄(AdventureSpotPicker)의 깃발과 같은 값을 쓴다 — 두 곳이 같은 표시여서.
 export const FLAG_RED = "#C8452F";
 // fx·fy = '다녀온 학원' 깃발을 꽂을 지붕 마루 좌표 (그림 폭·높이 대비 %) — 원화에서 눈으로 실측
+// v8 세트 (사용자 원화 2026-07-29 — 원본 art-src/map-bld-v8/). 구 v7 webp는 롤백 대비 보존.
+// 구멍(cx·cy·d)은 투명 블롭 flood-fill 실측. k = 0.9×ar → 4종의 표시 '높이'가 같아진다.
 const BUILDINGS = [
-  { src: "assets/map-bld-treehouse.webp", cx: 57.2, cy: 49.9, d: 43.2, k: 0.87, ar: 190 / 220, fx: 44, fy: 23 },  // 나무 위의 집 (구멍 우측)
-  { src: "assets/map-bld-stonearch.webp", cx: 48.5, cy: 51.2, d: 39.2, k: 0.95, ar: 251 / 220, fx: 45, fy: 17 },  // 돌 아치문
-  { src: "assets/map-bld-tent.webp",      cx: 51.3, cy: 56.1, d: 39.3, k: 0.95, ar: 228 / 220, es: 1.05, fx: 50, fy: 13 },  // 탐험가 텐트 (es: 이모지 5% 확대 — 책 글리프가 작아 보이는 착시 보정 / 깃발은 원화 자체 깃대 끝에 이어 꽂는다)
-  { src: "assets/map-bld-tikihut.webp",   cx: 48.5, cy: 53.8, d: 40.6, k: 0.92, ar: 235 / 220, fx: 50, fy: 19 },  // 티키 초가 오두막
+  { src: "assets/map-bld-treehouse2.webp", cx: 60.1, cy: 51.8, d: 45.1, k: 0.84, ar: 488 / 526, fx: 60, fy: 7 },   // 나무 위의 집 (구멍 우측, 자체 깃대 끝에 깃발)
+  { src: "assets/map-bld-stonearch2.webp", cx: 50.7, cy: 50.1, d: 40.9, k: 1.09, ar: 595 / 493, fx: 48, fy: 10 },  // 돌 아치문
+  { src: "assets/map-bld-tent2.webp",      cx: 51.3, cy: 57.5, d: 36.0, k: 0.96, ar: 393 / 367, fx: 50, fy: 7 },   // 탐험가 텐트 (모닥불·배낭·랜턴)
+  { src: "assets/map-bld-tikihut2.webp",   cx: 49.3, cy: 55.7, d: 41.7, k: 1.03, ar: 539 / 473, fx: 48, fy: 8 },   // 티키 초가 오두막
 ];
 
 // 폴리라인 누적 길이 → t(0~1)로 좌표 보간하는 함수 생성 (지도별로 각각)
@@ -131,7 +133,7 @@ const MAP_SHORT = {
   // 원화에 그려진 동물들의 머리 위 좌표 (%) — 랜덤 이벤트 날 👋 말풍선 자리 (그리드 실측)
   animals: { ev_parrot: [81, 15.5], ev_monkey: [79.5, 39.5], ev_toucan: [16, 63.5], ev_boar: [73.5, 65], ev_frog: [15, 75] },
   yr: 1652 / 952,
-  bw: 23, fs: 21,   // 짧은 지도는 건물을 한 단계 작게 (사용자 조정: 소폭 축소)
+  bw: 21, fs: 19,   // 짧은 지도 건물 크기 (사용자 조정: v8 세트에서 약간 더 축소 23→21)
   fpk: 36,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 50→36)
   deco: [[70,91,"🐚",13,-15]], // 상자 아래 빈 공간 소품 딱 하나 (사용자 요청: 과하지 않게)
   // 사용자 지정 자리 ①②③ — 숫자는 '사용할 자리 개수' (1곳=①만, 2곳=①②, 3곳=①②③).
