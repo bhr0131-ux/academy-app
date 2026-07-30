@@ -31,9 +31,13 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
   const arrived = total > 0 && done >= total;
 
   /* 위치: 출발 10% → 도착 76% (도착 지점 90% 왼쪽 — 성공 포즈가 넓어도 안 겹치게).
+     배경 원화가 있는 씬은 그림에 맞춘 x0/x1·높이(charB/goalB)를 쓴다.
      미션이 없으면 출발점에 서 있다. */
   const t = total > 0 ? Math.min(1, done / total) : 0;
-  const x = 10 + t * 66;
+  const x0 = sc.x0 ?? 10, x1 = sc.x1 ?? 76;
+  const x = x0 + t * (x1 - x0);
+  const charBottom = sc.charB ?? sc.groundH * 0.35;
+  const goalBottom = sc.goalB ?? sc.groundH * 0.55;
 
   /* 방금 이동했는지 — 이동 중에만 걷기 기울임, 도착 순간 점프.
      left 트랜지션(1.4s)과 같은 시간만 walking 상태를 켠다. */
@@ -85,7 +89,7 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
 
         {/* ── 도착 지점 (오른쪽 고정) — 도착해도 목표물은 그대로, 변신·폭죽 없음 (사용자 확정:
                "그냥 도착하면 점프하고 탐험 성공!") ── */}
-        <div style={{ position: "absolute", left: "90%", bottom: `${sc.groundH * 0.55}%`,
+        <div style={{ position: "absolute", left: "90%", bottom: `${goalBottom}%`,
           transform: "translateX(-50%)", textAlign: "center", pointerEvents: "none" }}>
           <span style={{ fontSize: 34, lineHeight: 1, display: "block",
             filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.2))",
@@ -95,7 +99,7 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
         </div>
 
         {/* ── 탐험가 — 미션 완료 수만큼 오른쪽으로 (진짜 '이동'이 핵심) ── */}
-        <div style={{ position: "absolute", left: `${x}%`, bottom: `${sc.groundH * 0.35}%`,
+        <div style={{ position: "absolute", left: `${x}%`, bottom: `${charBottom}%`,
           transform: "translateX(-50%)", transition: "left 1.4s cubic-bezier(.45,.05,.35,1)",
           pointerEvents: "none", zIndex: 2 }}>
           <div style={{ position: "relative",
