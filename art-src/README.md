@@ -162,3 +162,4 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/bg/bg-river-src.png | 탐험 씬 배경 1호 — 강 (월요일, 1536×1024 가로형·중앙 비움) | expedition/bg-river.webp |
 | expedition/char/common-idle-src.png | 탐험 씬 기본 서있기 포즈 (미션 0개일 때 출발지 대기 — halo 보정 후 탑재) | expedition/char/common-idle.webp |
 | expedition/bg/bg-river-v2-src.png | 강 배경 v2 (1657×944 — v1 교체, 현행) | expedition/bg-river.webp |
+| expedition/bg/bg-forest-src.png | 숲길 배경 (수요일, 1657×944 — 흙길 중앙 비움·사슴 장식) | expedition/bg-forest.webp |

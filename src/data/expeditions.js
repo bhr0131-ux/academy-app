@@ -77,7 +77,10 @@ export const EXPEDITIONS = {
       deco:[[7,26,"🏔️",30],[14,64,"🌲",18],[92,24,"☁️",18],[88,64,"🪨",15],[5,84,"🌼",11]] } },
   "수": { key:"forest", title:"숲을 통과하자!", emoji:"🌳",
     pose:"walk", item:"compass", goal:"🏡",
+    bgImg:"assets/expedition/bg-forest.webp",   // 사용자 배경 원화 (원본 art-src/expedition/bg/)
     scene:{ sky:["#D8EFC9","#F0F6E2"], ground:["#9CBF7C","#7BA45E"], groundH:36,
+      /* 흙길이 카드 하단 1/3을 가로지른다 — 길 위에 발이 닿게 */
+      charB:24, goalB:27, x0:10, x1:84,
       deco:[[6,28,"🌳",28],[14,62,"🍄",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🦋",11]] } },
   "목": { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
     pose:"walk", item:"torch", goal:"🌕",
