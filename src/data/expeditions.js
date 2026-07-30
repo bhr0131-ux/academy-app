@@ -59,7 +59,7 @@ export const ADVENTURE_ITEMS = {
            deco: [x%, y%, 이모지, 크기px] (x는 0~22 또는 78~100만 쓸 것)          */
 export const EXPEDITIONS = {
   "월": { key:"river", title:"강을 건너자!", emoji:"🌊",
-    pose:"ride", mount:"canoe", goal:"⛺",
+    pose:"swim", goal:"⛺",   // 기획 원안(강=수영)으로 복원 — 수영 원화 도착
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
       deco:[[6,30,"🌳",26],[13,66,"🌿",15],[93,28,"🌲",24],[87,66,"🪨",14],[8,84,"💧",11],[94,84,"🐟",12]] } },
   "화": { key:"mountain", title:"산 정상에 오르자!", emoji:"🏔️",
@@ -73,11 +73,11 @@ export const EXPEDITIONS = {
   "목": { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
     pose:"walk", item:"torch", goal:"🌕",
     scene:{ sky:["#4D4661","#6B617E"], ground:["#5D5470","#443C55"], groundH:34,
-      deco:[[6,26,"🪨",22],[13,64,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
+      deco:[[6,26,"🪨",22],[13,80,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
   "금": { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
-    pose:"ride", mount:"camel", goal:"🏜️",
+    pose:"ride", mount:"camel", goal:"🌴",   // 도착 = 오아시스 야자수 (🏜️는 액자처럼 보여 교체)
     scene:{ sky:["#FBE3B7","#FDF2DC"], ground:["#EBCB8B","#D9B26C"], groundH:36,
-      deco:[[7,30,"🌵",22],[14,66,"🪨",13],[92,28,"🌴",24],[87,66,"🌵",15],[6,84,"🦂",10]] } },
+      deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   "토": { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
     pose:"ride", mount:"sailboat", goal:"🏝️",
     scene:{ sky:["#BEE4F5","#E9F6F0"], ground:["#6FBDDD","#4E9FC6"], groundH:40,
@@ -90,6 +90,14 @@ export const EXPEDITIONS = {
 
 export const getExpedition = (dayName) => EXPEDITIONS[dayName] || EXPEDITIONS["일"];
 
-/* 캐릭터 포즈 원화 경로 (원화가 오면 채운다 — 지금은 null이라 지도 워커+이모지 폴백)
-   예: CHAR_IMG.walk = { boy:"assets/expedition/char/boy-walk.webp", girl:... } */
-export const CHAR_IMG = { walk:null, swim:null, ride:null, success:null };
+/* 캐릭터 포즈 원화 (사용자 원화 2026-07-30 — 원본 art-src/expedition/char/).
+   [사용자 확정] 지금은 남자아이 원화 하나를 남녀 공용으로 쓴다 — 여아 원화가
+   오면 girl 경로만 교체하면 된다. halo 보정(반투명 흰 픽셀 재색칠) 적용됨.
+   ride(공용 앉기)는 아직 없다 → 컴포넌트가 walk로 대체하고, 오면 여기만 채운다. */
+const _CP = "assets/expedition/char/";
+export const CHAR_IMG = {
+  walk:    { boy: _CP+"common-walk.webp",    girl: _CP+"common-walk.webp" },
+  swim:    { boy: _CP+"common-swim.webp",    girl: _CP+"common-swim.webp" },
+  ride:    null,
+  success: { boy: _CP+"common-success.webp", girl: _CP+"common-success.webp" },
+};

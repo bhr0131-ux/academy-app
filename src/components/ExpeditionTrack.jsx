@@ -24,14 +24,16 @@ import { getExpedition, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG } from "../data/expedi
 export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = "", gender = "boy" }) {
   const exp = getExpedition(day);
   const sc = exp.scene;
-  const mount = exp.pose === "ride" ? MOUNTS[exp.mount] : null;
+  /* 탈것은 '공용 탑승(앉기) 원화'가 있을 때만 그린다 — 걷는 캐릭터 발밑에
+     탈것 이모지만 깔면 어정쩡해서 (사용자 원화 오면 CHAR_IMG.ride만 채우면 됨) */
+  const mount = exp.pose === "ride" && CHAR_IMG.ride ? MOUNTS[exp.mount] : null;
   const item = exp.item ? ADVENTURE_ITEMS[exp.item] : null;
   const arrived = total > 0 && done >= total;
 
-  /* 위치: 출발 10% → 도착 80% (도착 지점 90% 바로 왼쪽에 멈춰 겹치지 않게).
+  /* 위치: 출발 10% → 도착 76% (도착 지점 90% 왼쪽 — 성공 포즈가 넓어도 안 겹치게).
      미션이 없으면 출발점에 서 있다. */
   const t = total > 0 ? Math.min(1, done / total) : 0;
-  const x = 10 + t * 70;
+  const x = 10 + t * 66;
 
   /* 방금 이동했는지 — 이동 중에만 걷기 기울임, 도착 순간 점프.
      left 트랜지션(1.4s)과 같은 시간만 walking 상태를 켠다. */
@@ -47,7 +49,10 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
 
   const dark = !!sc.dark;
   const inkSub = dark ? "rgba(240,240,250,0.75)" : "rgba(90,68,48,0.75)";
-  const charB = CHAR_IMG[exp.pose]?.[gender] || null;   // 포즈 원화 (오면 우선)
+  /* 포즈 원화 선택 — 도착하면 성공 포즈(만세). ride 원화가 아직 없어 걷기로 대체.
+     원화가 하나도 없으면 지도 워커(charImg) 폴백. */
+  const poseKey = arrived ? "success" : exp.pose;
+  const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG.walk?.[gender] || null;
 
   return (
     <div style={{ position: "relative", overflow: "hidden", borderRadius: 22, marginBottom: 14,
@@ -97,8 +102,9 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
             animation: arrived ? "expJump 1.5s ease-in-out infinite"
               : walking ? "expWalk 0.45s ease-in-out infinite"
               : "expBob 2.6s ease-in-out infinite" }}>
-            {/* 탑승: 탈것 위에 공용 탑승 위치(캐릭터를 탈것 위로 띄움) */}
-            {mount && (
+            {/* 탑승: 탈것 위에 공용 탑승 위치(캐릭터를 탈것 위로 띄움).
+                도착하면 탈것에서 내려 성공 포즈만 (만세하는데 탈것 위면 어색해서) */}
+            {mount && !arrived && (
               <span style={{ position: "absolute", left: "50%", bottom: -8, transform: "translateX(-50%)",
                 fontSize: 30, lineHeight: 1, zIndex: 0,
                 filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.25))" }}>
@@ -107,7 +113,7 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
             )}
             <img src={charB || charImg} alt="" draggable={false}
               style={{ position: "relative", zIndex: 1, height: 54, width: "auto", display: "block",
-                margin: "0 auto", marginBottom: mount ? 14 : 0,
+                margin: "0 auto", marginBottom: mount && !arrived ? 14 : 0,
                 filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 3px 4px rgba(0,0,0,0.3))" }} />
             {/* 아이템: 걷기 캐릭터에 이모지 배지만 추가 (별도 캐릭터 안 만듦) */}
             {item && !mount && (
