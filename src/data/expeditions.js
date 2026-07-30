@@ -65,6 +65,8 @@ export const EXPEDITIONS = {
       /* 배경 원화 전용 위치 보정: 양쪽 잔디 사이 물길이 중앙이라
          charB/goalB(bottom%)·x0/x1(이동 구간)을 그림에 맞춘다 */
       charB:6, goalB:22, x0:9, x1:84,
+      /* 출발 전(미션 0개)엔 왼쪽 둑 잔디 위에 서 있는다 — 물 위에 서 있으면 이상해서 */
+      xi:15, iB:30,
       deco:[[6,30,"🌳",26],[13,66,"🌿",15],[93,28,"🌲",24],[87,66,"🪨",14],[8,84,"💧",11],[94,84,"🐟",12]] } },
   "화": { key:"mountain", title:"산 정상에 오르자!", emoji:"🏔️",
     pose:"walk", item:"rope", goal:"🚩",
@@ -100,6 +102,7 @@ export const getExpedition = (dayName) => EXPEDITIONS[dayName] || EXPEDITIONS["�
    ride(공용 앉기)는 아직 없다 → 컴포넌트가 walk로 대체하고, 오면 여기만 채운다. */
 const _CP = "assets/expedition/char/";
 export const CHAR_IMG = {
+  idle:    { boy: _CP+"common-idle.webp",    girl: _CP+"common-idle.webp" },   // 미션 0개 — 출발지 기본 자세 (사용자 확정)
   walk:    { boy: _CP+"common-walk.webp",    girl: _CP+"common-walk.webp" },
   swim:    { boy: _CP+"common-swim.webp",    girl: _CP+"common-swim.webp" },
   ride:    null,

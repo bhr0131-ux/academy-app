@@ -53,10 +53,16 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
 
   const dark = !!sc.dark;
   const inkSub = dark ? "rgba(240,240,250,0.75)" : "rgba(90,68,48,0.75)";
-  /* 포즈 원화 선택 — 도착하면 성공 포즈(만세). ride 원화가 아직 없어 걷기로 대체.
+  /* 포즈 원화 선택 (사용자 확정) —
+       미션 0개 = 출발지에서 '기본 서있기(idle)' / 이동 중 = 걷기·수영 /
+       도착 = 성공(만세). ride 원화가 아직 없어 걷기로 대체.
      원화가 하나도 없으면 지도 워커(charImg) 폴백. */
-  const poseKey = arrived ? "success" : exp.pose;
+  const idle = !arrived && done === 0;
+  const poseKey = arrived ? "success" : idle ? "idle" : exp.pose;
   const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG.walk?.[gender] || null;
+  /* 출발 전엔 씬별 대기 위치(xi/iB — 강은 둑 위)가 있으면 거기 선다 */
+  const xPos = idle ? (sc.xi ?? x0) : x;
+  const bottomPos = idle ? (sc.iB ?? charBottom) : charBottom;
 
   return (
     <div style={{ position: "relative", overflow: "hidden", borderRadius: 22, marginBottom: 14,
@@ -99,8 +105,8 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
         </div>
 
         {/* ── 탐험가 — 미션 완료 수만큼 오른쪽으로 (진짜 '이동'이 핵심) ── */}
-        <div style={{ position: "absolute", left: `${x}%`, bottom: `${charBottom}%`,
-          transform: "translateX(-50%)", transition: "left 1.4s cubic-bezier(.45,.05,.35,1)",
+        <div style={{ position: "absolute", left: `${xPos}%`, bottom: `${bottomPos}%`,
+          transform: "translateX(-50%)", transition: "left 1.4s cubic-bezier(.45,.05,.35,1), bottom 1.4s cubic-bezier(.45,.05,.35,1)",
           pointerEvents: "none", zIndex: 2 }}>
           <div style={{ position: "relative",
             animation: arrived ? "expJump 1.5s ease-in-out infinite"
