@@ -160,3 +160,4 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | map-bld-v8/tikihut2-src.png | 지도 학원 건물 v8-4 (티키 초가+항아리, 구멍 투명 제공됨) | map-bld-tikihut2.webp |
 | expedition/char/common-{walk,swim,success}-src.png | 탐험 씬 캐릭터 포즈 3종 (남아 원화 — 당분간 남녀 공용, halo 보정 후 탑재) | expedition/char/common-*.webp |
 | expedition/bg/bg-river-src.png | 탐험 씬 배경 1호 — 강 (월요일, 1536×1024 가로형·중앙 비움) | expedition/bg-river.webp |
+| expedition/char/common-idle-src.png | 탐험 씬 기본 서있기 포즈 (미션 0개일 때 출발지 대기 — halo 보정 후 탑재) | expedition/char/common-idle.webp |
