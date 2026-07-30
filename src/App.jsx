@@ -3993,13 +3993,17 @@ export default function App() {
                    기존 진행률 카드는 베이커리에서 그대로 쓴다. */
                 if(kidSkin!=="cute"){
                   return (
-                    <ExpeditionTrack
-                      day={childTodayDN}
-                      done={q.done}
-                      total={q.total}
-                      charImg={getMapWalker(th.main, curChild?.gender)}
-                      gender={curChild?.gender==="girl"?"girl":"boy"}
-                    />
+                    /* 풀블리드 — 콘텐츠 패딩(16px) 상쇄해 양옆 꽉 차게 (사용자 확정) */
+                    <div style={{margin:"0 -16px 0"}}>
+                      <ExpeditionTrack
+                        day={childTodayDN}
+                        done={q.done}
+                        total={q.total}
+                        charImg={getMapWalker(th.main, curChild?.gender)}
+                        gender={curChild?.gender==="girl"?"girl":"boy"}
+                        fullBleed
+                      />
+                    </div>
                   );
                 }
                 return (
