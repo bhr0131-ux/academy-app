@@ -113,7 +113,7 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
 
         {/* ── 도착 지점 (오른쪽 고정) — 도착해도 목표물은 그대로, 변신·폭죽 없음 (사용자 확정:
                "그냥 도착하면 점프하고 탐험 성공!") ── */}
-        <div style={{ position: "absolute", left: "90%", bottom: `${goalBottom}%`,
+        <div style={{ position: "absolute", left: `${sc.gx ?? 90}%`, bottom: `${goalBottom}%`,
           transform: "translateX(-50%)", textAlign: "center", pointerEvents: "none" }}>
           {/* 깃발 원화(goalImg)가 있으면 깃발, 없으면 이모지 (사용자 확정) */}
           {exp.goalImg ? (
