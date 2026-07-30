@@ -69,17 +69,17 @@ export const EXPEDITIONS = {
       /* 출발 전(미션 0개) 대기 자리 — 도착 텐트(x90·bottom22)와 같은 높이·좌우 대칭
          (사용자 확정: 출발지는 도착이랑 일직선) */
       xi:10.5, iB:22,
-      /* 도착 후 만세 자리 — 물이 아니라 땅(잔디) 위 (사용자 확정) */
-      xa:84, aB:26,
+      /* 도착 후 만세 높이 — 물이 아니라 땅(잔디) 위 (사용자 확정). x는 깃발 앞(기본값) */
+      aB:26,
       deco:[[6,30,"🌳",26],[13,66,"🌿",15],[93,28,"🌲",24],[87,66,"🪨",14],[8,84,"💧",11],[94,84,"🐟",12]] } },
-  "화": { key:"mountain", title:"산 정상에 오르자!", emoji:"🏔️",
+  "화": { key:"mountain", title:"바위산에 오르자!", emoji:"🏔️",
     pose:"walk", item:"rope", goal:"🚩", goalImg:"assets/expedition/flag/red.webp",   // 정상 정복 = 빨간 깃발
     bgImg:"assets/expedition/bg-mountain.webp",   // 사용자 배경 원화 (바위산 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#CDE6F5","#F2EFE2"], ground:["#B9C9A0","#8FA878"], groundH:38,
       /* 대각선 등반 — 왼쪽 아래 모랫길에서 돌계단을 따라 오른쪽 위 정상으로.
          charB(출발 높이)→charB1(도착 높이)을 진행률에 따라 보간한다 */
       charB:6, charB1:56, goalB:60, x0:12, x1:79,
-      xi:12, iB:6, xa:79, aB:56,
+      xi:12, iB:6, aB:56,
       deco:[[7,26,"🏔️",30],[14,64,"🌲",18],[92,24,"☁️",18],[88,64,"🪨",15],[5,84,"🌼",11]] } },
   "수": { key:"forest", title:"숲을 통과하자!", emoji:"🌳",
     pose:"walk", item:"compass", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발

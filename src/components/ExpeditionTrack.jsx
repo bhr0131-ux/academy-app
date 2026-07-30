@@ -74,9 +74,10 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
   const celebrating = arrived && !moving;
   const poseKey = celebrating ? "success" : idle ? "idle" : exp.pose;
   const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG.walk?.[gender] || null;
-  /* 출발 전엔 대기 위치(xi/iB — 강은 둑 위), 도착해 만세할 땐 도착 위치(xa/aB —
-     강은 물에서 둑으로 올라와 텐트 옆)로. 없으면 이동 경로 값 그대로. */
-  const xPos = idle ? (sc.xi ?? x0) : celebrating ? (sc.xa ?? x1) : x;
+  /* 출발 전엔 대기 위치(xi/iB — 강은 둑 위)로. 도착해 만세할 땐 '깃발 바로 앞'이 기본
+     (사용자 확정: 깃발이 뒤, 캐릭터가 앞 — 캐릭터 zIndex가 높아 겹치면 앞에 선다).
+     씬별로 xa로 재정의 가능. */
+  const xPos = idle ? (sc.xi ?? x0) : celebrating ? (sc.xa ?? ((sc.gx ?? 90) - 2)) : x;
   const bottomPos = idle ? (sc.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
 
   return (
