@@ -36,7 +36,9 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
   const t = total > 0 ? Math.min(1, done / total) : 0;
   const x0 = sc.x0 ?? 10, x1 = sc.x1 ?? 76;
   const x = x0 + t * (x1 - x0);
-  const charBottom = sc.charB ?? sc.groundH * 0.35;
+  /* charB1이 있으면 이동하며 높이도 보간 — 산처럼 오르막 씬용 (없으면 수평 이동) */
+  const cb0 = sc.charB ?? sc.groundH * 0.35;
+  const charBottom = sc.charB1 != null ? cb0 + t * (sc.charB1 - cb0) : cb0;
   const goalBottom = sc.goalB ?? sc.groundH * 0.55;
 
   /* 방금 이동했는지 — 이동 중에만 걷기 기울임, 도착 순간 점프.

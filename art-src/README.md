@@ -164,3 +164,4 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/bg/bg-river-v2-src.png | 강 배경 v2 (1657×944 — v1 교체, 현행) | expedition/bg-river.webp |
 | expedition/bg/bg-forest-src.png | 숲길 배경 (수요일, 1657×944 — 흙길 중앙 비움·사슴 장식) | expedition/bg-forest.webp |
 | expedition/flag/{red,blue,green,yellow}-src.png | 도착 깃발 4색 (빨강 잎가지·파랑 물방울·초록 잎·노랑 별 — halo 보정 후 탑재) | expedition/flag/*.webp |
+| expedition/bg/bg-mountain-src.png | 바위산 배경 (화요일, 1536×1024 — 돌계단 대각선 등반) | expedition/bg-mountain.webp |
