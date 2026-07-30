@@ -21,7 +21,7 @@ import { getExpedition, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG } from "../data/expedi
      charImg  : 걷기 캐릭터 이미지 (지도 워커 — 테마색·성별 반영)
      gender   : "boy" | "girl" (원화 도입 후 사용)
    ════════════════════════════════════════════════════════════════════════ */
-export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = "", gender = "boy" }) {
+export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = "", gender = "boy", fullBleed = false }) {
   const exp = getExpedition(day);
   const sc = exp.scene;
   /* 탈것은 '공용 탑승(앉기) 원화'가 있을 때만 그린다 — 걷는 캐릭터 발밑에
@@ -73,8 +73,11 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
   const bottomPos = idle ? (sc.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
 
   return (
-    <div style={{ position: "relative", overflow: "hidden", borderRadius: 22, marginBottom: 14,
-      border: dark ? "1px solid #3A3450" : "1px solid rgba(155,114,74,0.35)",
+    <div style={{ position: "relative", overflow: "hidden", borderRadius: fullBleed ? 0 : 22, marginBottom: 14,
+      /* 풀블리드(사용자 확정: 양옆 꽉 차게)일 땐 위아래 선만 남긴다 */
+      border: fullBleed ? "none" : dark ? "1px solid #3A3450" : "1px solid rgba(155,114,74,0.35)",
+      borderTop: fullBleed ? (dark ? "1px solid #3A3450" : "1px solid rgba(155,114,74,0.35)") : undefined,
+      borderBottom: fullBleed ? (dark ? "1px solid #3A3450" : "1px solid rgba(155,114,74,0.35)") : undefined,
       boxShadow: "0 10px 26px rgba(60,50,30,0.2)" }}>
       <style>{`
         @keyframes expBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
@@ -83,7 +86,7 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
       `}</style>
 
       {/* ── 배경 — 원화(bgImg)가 오면 그림, 지금은 CSS 하늘+땅 (중앙 비움 규칙) ── */}
-      <div style={{ position: "relative", height: 168,
+      <div style={{ position: "relative", height: 220,
         background: `linear-gradient(180deg, ${sc.sky[0]}, ${sc.sky[1]})` }}>
         {exp.bgImg && (
           <img src={exp.bgImg} alt="" draggable={false}
@@ -153,9 +156,12 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
             border: dark ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(155,114,74,0.35)",
             borderRadius: 12, padding: "5px 11px",
             boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}>
-            <p style={{ margin: 0, fontSize: 10, fontWeight: 900, letterSpacing: 0.5, color: inkSub }}>오늘의 탐험</p>
-            <p style={{ margin: "1px 0 0", fontSize: 14.5, fontWeight: 900,
-              color: dark ? "#F5F2FF" : "#4B3A2F" }}>{exp.emoji} {exp.title}</p>
+            {/* 한 줄 표기 (사용자 확정: 줄바꿈 없이, 글씨 크기는 그대로) */}
+            <p style={{ margin: 0, whiteSpace: "nowrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 0.5, color: inkSub }}>오늘의 탐험</span>
+              <span style={{ fontSize: 14.5, fontWeight: 900, marginLeft: 7,
+                color: dark ? "#F5F2FF" : "#4B3A2F" }}>{exp.emoji} {exp.title}</span>
+            </p>
           </div>
           {total > 0 && (
             <div style={{ background: dark ? "rgba(30,26,45,0.72)" : "rgba(255,251,240,0.88)",
