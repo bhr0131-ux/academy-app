@@ -6,13 +6,13 @@ import { getExpedition, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG } from "../data/expedi
    ────────────────────────────────────────────────────────────────────────
    진행률 바를 그리지 않는다. 미션 k/n 완료 = 캐릭터가 길의 k/n 지점에
    '서 있는' 것이고, 하나 끝낼 때마다 다음 지점으로 걸어간다(트윈).
-   마지막 미션 완료 = 도착 → 성공 포즈(점프) + 축하 연출.
+   마지막 미션 완료 = 도착 → 점프 + '탐험 성공!' 칩만 (사용자 확정: 변신·폭죽 없음).
 
    포즈는 4종 개념(걷기/수영/탑승/성공)만 쓴다. 지금은 원화가 없어
      · 걷기/탑승 = 지도 걷기 캐릭터(charImg) 재사용
      · 탑승 = 탈것 이모지 위에 캐릭터를 얹음 (공용 탑승 위치)
      · 아이템 = 캐릭터 옆에 이모지 배지
-     · 성공 = 점프 애니메이션 + 🎉
+     · 성공 = 점프 애니메이션
    CHAR_IMG·MOUNTS[].img·bgImg가 채워지면 그대로 그림으로 바뀐다.
 
    props
@@ -57,8 +57,6 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
         @keyframes expBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
         @keyframes expWalk{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
         @keyframes expJump{0%,100%{transform:translateY(0)}30%{transform:translateY(-14px)}55%{transform:translateY(0)}70%{transform:translateY(-7px)}85%{transform:translateY(0)}}
-        @keyframes expGoalPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
-        @keyframes expConfetti{0%{opacity:0;transform:translateY(2px) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translateY(-22px) scale(1.05)}}
       `}</style>
 
       {/* ── 배경 — 원화(bgImg)가 오면 그림, 지금은 CSS 하늘+땅 (중앙 비움 규칙) ── */}
@@ -80,18 +78,15 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
             pointerEvents: "none" }}>{em}</span>
         ))}
 
-        {/* ── 도착 지점 (오른쪽 고정) ── */}
+        {/* ── 도착 지점 (오른쪽 고정) — 도착해도 목표물은 그대로, 변신·폭죽 없음 (사용자 확정:
+               "그냥 도착하면 점프하고 탐험 성공!") ── */}
         <div style={{ position: "absolute", left: "90%", bottom: `${sc.groundH * 0.55}%`,
           transform: "translateX(-50%)", textAlign: "center", pointerEvents: "none" }}>
           <span style={{ fontSize: 34, lineHeight: 1, display: "block",
             filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.2))",
-            animation: arrived ? "expGoalPulse 1.1s ease-in-out infinite" : "expBob 2.6s ease-in-out infinite" }}>
-            {arrived ? exp.goalDone : exp.goal}
+            animation: "expBob 2.6s ease-in-out infinite" }}>
+            {exp.goal}
           </span>
-          {arrived && ["🎉", "✨", "🎊", "⭐"].map((s, i) => (
-            <span key={i} style={{ position: "absolute", left: `${[-16, 34, -6, 26][i]}px`, top: `${[-10, -14, -26, -30][i]}px`,
-              fontSize: 13, animation: `expConfetti 1.6s ease-out ${i * 0.28}s infinite` }}>{s}</span>
-          ))}
         </div>
 
         {/* ── 탐험가 — 미션 완료 수만큼 오른쪽으로 (진짜 '이동'이 핵심) ── */}
