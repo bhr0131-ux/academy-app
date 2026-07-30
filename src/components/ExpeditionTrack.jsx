@@ -56,9 +56,16 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
   /* 포즈 원화 선택 (사용자 확정) —
        미션 0개 = 출발지에서 '기본 서있기(idle)' / 이동 중 = 걷기·수영 /
        도착 = 성공(만세). ride 원화가 아직 없어 걷기로 대체.
+     [사용자 확정] 미션이 1개뿐이어도 완료 순간 바로 만세가 아니라,
+     이동하는 1.4초 동안은 수영/걷기로 건너가고 도착한 뒤에 만세.
+     → celebrating = 도착했고 '이동이 끝난' 상태.
      원화가 하나도 없으면 지도 워커(charImg) 폴백. */
   const idle = !arrived && done === 0;
-  const poseKey = arrived ? "success" : idle ? "idle" : exp.pose;
+  /* walking은 이펙트(페인트 후)에서 켜져서, 완료 직후 첫 렌더에 만세가 한 프레임
+     번쩍일 수 있다 → prevT와 다른 렌더(=이동 시작 프레임)도 이동 중으로 본다. */
+  const moving = walking || t !== prevT.current;
+  const celebrating = arrived && !moving;
+  const poseKey = celebrating ? "success" : idle ? "idle" : exp.pose;
   const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG.walk?.[gender] || null;
   /* 출발 전엔 씬별 대기 위치(xi/iB — 강은 둑 위)가 있으면 거기 선다 */
   const xPos = idle ? (sc.xi ?? x0) : x;
@@ -109,12 +116,12 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
           transform: "translateX(-50%)", transition: "left 1.4s cubic-bezier(.45,.05,.35,1), bottom 1.4s cubic-bezier(.45,.05,.35,1)",
           pointerEvents: "none", zIndex: 2 }}>
           <div style={{ position: "relative",
-            animation: arrived ? "expJump 1.5s ease-in-out infinite"
-              : walking ? "expWalk 0.45s ease-in-out infinite"
+            animation: celebrating ? "expJump 1.5s ease-in-out infinite"
+              : moving ? "expWalk 0.45s ease-in-out infinite"
               : "expBob 2.6s ease-in-out infinite" }}>
             {/* 탑승: 탈것 위에 공용 탑승 위치(캐릭터를 탈것 위로 띄움).
-                도착하면 탈것에서 내려 성공 포즈만 (만세하는데 탈것 위면 어색해서) */}
-            {mount && !arrived && (
+                도착해 이동이 끝나면 탈것에서 내려 성공 포즈만 (만세하는데 탈것 위면 어색해서) */}
+            {mount && !celebrating && (
               <span style={{ position: "absolute", left: "50%", bottom: -8, transform: "translateX(-50%)",
                 fontSize: 30, lineHeight: 1, zIndex: 0,
                 filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.25))" }}>
@@ -123,7 +130,7 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
             )}
             <img src={charB || charImg} alt="" draggable={false}
               style={{ position: "relative", zIndex: 1, height: 54, width: "auto", display: "block",
-                margin: "0 auto", marginBottom: mount && !arrived ? 14 : 0,
+                margin: "0 auto", marginBottom: mount && !celebrating ? 14 : 0,
                 filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 3px 4px rgba(0,0,0,0.3))" }} />
             {/* 아이템: 걷기 캐릭터에 이모지 배지만 추가 (별도 캐릭터 안 만듦) */}
             {item && !mount && (
