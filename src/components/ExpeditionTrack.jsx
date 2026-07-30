@@ -42,9 +42,11 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
   /* 방금 이동했는지 — 이동 중에만 걷기 기울임, 도착 순간 점프.
      left 트랜지션(1.4s)과 같은 시간만 walking 상태를 켠다. */
   const [walking, setWalking] = useState(false);
+  const [back, setBack] = useState(false);      // 뒤로 가는 중(미션 취소) — 좌우 반전용
   const prevT = useRef(t);
   useEffect(() => {
     if (t === prevT.current) return;
+    setBack(t < prevT.current);
     prevT.current = t;
     setWalking(true);
     const to = setTimeout(() => setWalking(false), 1450);
@@ -60,10 +62,13 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
      이동하는 1.4초 동안은 수영/걷기로 건너가고 도착한 뒤에 만세.
      → celebrating = 도착했고 '이동이 끝난' 상태.
      원화가 하나도 없으면 지도 워커(charImg) 폴백. */
-  const idle = !arrived && done === 0;
   /* walking은 이펙트(페인트 후)에서 켜져서, 완료 직후 첫 렌더에 만세가 한 프레임
      번쩍일 수 있다 → prevT와 다른 렌더(=이동 시작 프레임)도 이동 중으로 본다. */
   const moving = walking || t !== prevT.current;
+  /* [사용자 확정] 미션을 취소해서 뒤로 갈 때도 수영/걷기로 돌아간다 —
+     idle(출발지 대기)은 이동이 끝난 뒤에만. 뒤로 갈 땐 좌우 반전(왼쪽 보기). */
+  const idle = !arrived && done === 0 && !moving;
+  const facingLeft = t !== prevT.current ? t < prevT.current : (walking && back);
   const celebrating = arrived && !moving;
   const poseKey = celebrating ? "success" : idle ? "idle" : exp.pose;
   const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG.walk?.[gender] || null;
@@ -134,6 +139,7 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
             )}
             <img src={charB || charImg} alt="" draggable={false}
               style={{ position: "relative", zIndex: 1, height: 64, width: "auto", display: "block",
+                transform: facingLeft ? "scaleX(-1)" : undefined,   // 뒤로 갈 땐 왼쪽을 본다 (기획: 좌우 반전)
                 margin: "0 auto", marginBottom: mount && !celebrating ? 14 : 0,
                 filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 3px 4px rgba(0,0,0,0.3))" }} />
             {/* 아이템: 걷기 캐릭터에 이모지 배지만 추가 (별도 캐릭터 안 만듦) */}
