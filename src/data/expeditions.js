@@ -54,12 +54,13 @@ export const ADVENTURE_ITEMS = {
    pose  : walk | ride  (수영은 강이지만 v1은 카누 탑승 — 수영 원화가 오면 swim으로 교체)
    mount : pose가 ride일 때 MOUNTS 키
    item  : 걷기에 얹는 ADVENTURE_ITEMS 키 (기획 예시: 동굴=횃불 · 숲=나침반 · 사막=물병 · 보물=지도)
-   goal  : 오른쪽 도착 지점 (도착해도 변신 없음 — 사용자 확정)
+   goal  : 오른쪽 도착 지점 이모지 (goalImg 깃발 원화가 있으면 그걸 우선 — 사용자 확정)
+   goalImg: 도착 깃발 원화 — 빨강=산·사막 / 파랑=강·바다 / 초록=숲 / 노랑=동굴·유적
    scene : CSS 폴백 배경 — sky·ground 그라데이션, 장식은 가장자리만(중앙 비움 규칙)
            deco: [x%, y%, 이모지, 크기px] (x는 0~22 또는 78~100만 쓸 것)          */
 export const EXPEDITIONS = {
   "월": { key:"river", title:"강을 건너자!", emoji:"🌊",
-    pose:"swim", goal:"⛺",   // 기획 원안(강=수영)으로 복원 — 수영 원화 도착
+    pose:"swim", goal:"⛺", goalImg:"assets/expedition/flag/blue.webp",   // 도착 = 물방울 깃발 (사용자 원화)
     bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 (원본 art-src/expedition/bg/)
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
       /* 배경 원화 전용 위치 보정: 양쪽 잔디 사이 물길이 중앙이라
@@ -72,30 +73,30 @@ export const EXPEDITIONS = {
       xa:83, aB:21,
       deco:[[6,30,"🌳",26],[13,66,"🌿",15],[93,28,"🌲",24],[87,66,"🪨",14],[8,84,"💧",11],[94,84,"🐟",12]] } },
   "화": { key:"mountain", title:"산 정상에 오르자!", emoji:"🏔️",
-    pose:"walk", item:"rope", goal:"🚩",
+    pose:"walk", item:"rope", goal:"🚩", goalImg:"assets/expedition/flag/red.webp",   // 정상 정복 = 빨간 깃발
     scene:{ sky:["#CDE6F5","#F2EFE2"], ground:["#B9C9A0","#8FA878"], groundH:38,
       deco:[[7,26,"🏔️",30],[14,64,"🌲",18],[92,24,"☁️",18],[88,64,"🪨",15],[5,84,"🌼",11]] } },
   "수": { key:"forest", title:"숲을 통과하자!", emoji:"🌳",
-    pose:"walk", item:"compass", goal:"🏡",
+    pose:"walk", item:"compass", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
     bgImg:"assets/expedition/bg-forest.webp",   // 사용자 배경 원화 (원본 art-src/expedition/bg/)
     scene:{ sky:["#D8EFC9","#F0F6E2"], ground:["#9CBF7C","#7BA45E"], groundH:36,
       /* 흙길이 카드 하단 1/3을 가로지른다 — 길 위에 발이 닿게 */
-      charB:24, goalB:27, x0:10, x1:84,
+      charB:24, goalB:27, x0:10, x1:81,
       deco:[[6,28,"🌳",28],[14,62,"🍄",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🦋",11]] } },
   "목": { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
-    pose:"walk", item:"torch", goal:"🌕",
+    pose:"walk", item:"torch", goal:"🌕", goalImg:"assets/expedition/flag/yellow.webp",   // 어둠 속 별 깃발
     scene:{ sky:["#4D4661","#6B617E"], ground:["#5D5470","#443C55"], groundH:34,
       deco:[[6,26,"🪨",22],[13,80,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
   "금": { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
-    pose:"ride", mount:"camel", goal:"🌴",   // 도착 = 오아시스 야자수 (🏜️는 액자처럼 보여 교체)
+    pose:"ride", mount:"camel", goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
     scene:{ sky:["#FBE3B7","#FDF2DC"], ground:["#EBCB8B","#D9B26C"], groundH:36,
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   "토": { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
-    pose:"ride", mount:"sailboat", goal:"🏝️",
+    pose:"ride", mount:"sailboat", goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
     scene:{ sky:["#BEE4F5","#E9F6F0"], ground:["#6FBDDD","#4E9FC6"], groundH:40,
       deco:[[6,28,"☁️",18],[13,64,"🐚",12],[93,26,"🌴",24],[88,66,"🐬",14],[8,84,"🫧",11]] } },
   "일": { key:"ruins", title:"보물상자를 찾자!", emoji:"🎁",
-    pose:"walk", item:"map", goal:"🎁",
+    pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
     scene:{ sky:["#E4D9C3","#F4EDDD"], ground:["#C8B48E","#AE9770"], groundH:36,
       deco:[[6,26,"🏛️",26],[14,64,"🪨",14],[93,28,"🗿",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
 };

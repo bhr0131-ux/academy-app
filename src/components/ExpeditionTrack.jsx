@@ -113,11 +113,19 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
                "그냥 도착하면 점프하고 탐험 성공!") ── */}
         <div style={{ position: "absolute", left: "90%", bottom: `${goalBottom}%`,
           transform: "translateX(-50%)", textAlign: "center", pointerEvents: "none" }}>
-          <span style={{ fontSize: 38, lineHeight: 1, display: "block",
-            filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.2))",
-            animation: "expBob 2.6s ease-in-out infinite" }}>
-            {exp.goal}
-          </span>
+          {/* 깃발 원화(goalImg)가 있으면 깃발, 없으면 이모지 (사용자 확정) */}
+          {exp.goalImg ? (
+            <img src={exp.goalImg} alt="" draggable={false}
+              style={{ height: 56, width: "auto", display: "block", margin: "0 auto",
+                filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.25))",
+                animation: "expBob 2.6s ease-in-out infinite" }} />
+          ) : (
+            <span style={{ fontSize: 38, lineHeight: 1, display: "block",
+              filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.2))",
+              animation: "expBob 2.6s ease-in-out infinite" }}>
+              {exp.goal}
+            </span>
+          )}
         </div>
 
         {/* ── 탐험가 — 미션 완료 수만큼 오른쪽으로 (진짜 '이동'이 핵심) ── */}
