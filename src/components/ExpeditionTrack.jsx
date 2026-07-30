@@ -67,9 +67,10 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
   const celebrating = arrived && !moving;
   const poseKey = celebrating ? "success" : idle ? "idle" : exp.pose;
   const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG.walk?.[gender] || null;
-  /* 출발 전엔 씬별 대기 위치(xi/iB — 강은 둑 위)가 있으면 거기 선다 */
-  const xPos = idle ? (sc.xi ?? x0) : x;
-  const bottomPos = idle ? (sc.iB ?? charBottom) : charBottom;
+  /* 출발 전엔 대기 위치(xi/iB — 강은 둑 위), 도착해 만세할 땐 도착 위치(xa/aB —
+     강은 물에서 둑으로 올라와 텐트 옆)로. 없으면 이동 경로 값 그대로. */
+  const xPos = idle ? (sc.xi ?? x0) : celebrating ? (sc.xa ?? x1) : x;
+  const bottomPos = idle ? (sc.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
 
   return (
     <div style={{ position: "relative", overflow: "hidden", borderRadius: 22, marginBottom: 14,
@@ -104,7 +105,7 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
                "그냥 도착하면 점프하고 탐험 성공!") ── */}
         <div style={{ position: "absolute", left: "90%", bottom: `${goalBottom}%`,
           transform: "translateX(-50%)", textAlign: "center", pointerEvents: "none" }}>
-          <span style={{ fontSize: 34, lineHeight: 1, display: "block",
+          <span style={{ fontSize: 38, lineHeight: 1, display: "block",
             filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.2))",
             animation: "expBob 2.6s ease-in-out infinite" }}>
             {exp.goal}
@@ -129,7 +130,7 @@ export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = ""
               </span>
             )}
             <img src={charB || charImg} alt="" draggable={false}
-              style={{ position: "relative", zIndex: 1, height: 54, width: "auto", display: "block",
+              style={{ position: "relative", zIndex: 1, height: 64, width: "auto", display: "block",
                 margin: "0 auto", marginBottom: mount && !celebrating ? 14 : 0,
                 filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 3px 4px rgba(0,0,0,0.3))" }} />
             {/* 아이템: 걷기 캐릭터에 이모지 배지만 추가 (별도 캐릭터 안 만듦) */}
