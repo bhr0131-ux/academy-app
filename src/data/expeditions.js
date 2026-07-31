@@ -223,10 +223,13 @@ export const EXPEDITIONS = {
     mounts:["horse","balloon","deer","donkey","unicorn"],
     /* [사용자 확정] 초원은 '달리기' — 전용 달리기 원화 + 이동 속도도 조금 빠르게(moveMs) */
     pose:"run", moveMs:1000, goal:"🏁", goalImg:"assets/expedition/flag/yellow.webp",   // 결승선 = 별 깃발
-    bgImg:"assets/expedition/bg-meadow.webp",   // 사용자 배경 원화 (양·풍차 초원 — 원본 art-src/expedition/bg/)
+    bgImg:"assets/expedition/bg-meadow.webp",   // 사용자 배경 원화 v2 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#BDE3F7","#EAF6E0"], ground:["#A5D06A","#8CBE52"], groundH:38,
-      /* 탁 트인 풀밭을 달린다 — 양(중앙)은 장식, 풍차 언덕이 도착 방향 */
-      charB:24, goalB:28, x0:10, x1:81,
+      bgAR:1.4,
+      /* 탁 트인 풀밭(bottom 0~25%)을 달린다 — 오른쪽으로 갈수록 언덕이 올라와 살짝 오르막 */
+      charB:14, charB1:20, x0:15, x1:76,
+      xi:15, iB:14,
+      xa:80, aB:21, gx:88, goalB:24,
       deco:[[6,30,"🌳",26],[14,66,"🌼",13],[93,26,"🌻",18],[87,66,"🌿",14],[8,84,"🦋",11]] } },
   /* [사용자 확정 2026-07-31] 유적 → 보물섬으로 교체 (제목 '보물상자를 찾자!'는 그대로).
      키도 ruins → treasure 로 바꿨다 — 저장되는 값이 아니라 안전하다. */
