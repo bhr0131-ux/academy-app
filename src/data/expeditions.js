@@ -7,42 +7,61 @@
      · 미션 n개 중 k개 완료 → 캐릭터가 길의 k/n 지점에 서 있다
      · 마지막 미션 완료 → 도착 + 성공 연출
 
-   ── 포즈는 4종 기본 (사용자 확정 — 제작 효율) ──────────────────────────
-     walk(걷기) · swim(수영) · ride(공용 탑승 1자세) · success(성공 공용)
-     + idle(출발지 대기) · run(초원 전용 달리기) 원화가 추가로 들어와 있다.
-   탈것(Riding Sheet 20종)·아이템(Adventure Item 13종)은 캐릭터를 새로
-   그리지 않고 PNG만 교체/추가한다. 발견물은 이모지 그대로 (별도 PNG 없음).
+   ── 포즈 원화 (사용자 확정 — 제작 효율) ────────────────────────────────
+     walk(걷기) · swim(수영) · success(성공 공용) · idle(출발지 대기) · run(초원 달리기)
+   탑승은 별도 포즈가 아니라 '탈것+앉은 캐릭터'가 한 장인 Riding Sheet(32종)로 대체한다 —
+   그 한 장이 캐릭터 그림을 통째로 대신한다. 아이템(13종)은 걷기 캐릭터에 배지만 얹는다.
+   발견물은 이모지 그대로 (별도 PNG 없음).
    캐릭터는 항상 오른쪽을 향한다 (왼쪽 필요 시 좌우 반전).
 
    ── 원화 드롭인 규약 (그림이 오면 데이터에 경로만 채우면 된다) ─────────
      배경   : public/assets/expedition/bg-{key}.webp   → 각 항목의 bgImg 필드
               (가로형 · 출발 왼쪽 · 도착 오른쪽 · 중앙 비움 · 글자/캐릭터 없음)
      캐릭터 : public/assets/expedition/char/{gender}-{pose}.webp → CHAR_IMG
-     탈것   : public/assets/expedition/ride/{mount}.webp → MOUNTS[].img
-              (같은 시점·크기·중심·탑승 높이 — 공용 탑승 포즈 하나로 전부 커버)
+     탈것   : public/assets/expedition/ride/{mount}.webp → RIDE_READY 배열에 키 추가
+              (탈것+앉은 캐릭터 한 장 · 오른쪽 3/4 시점 · 앉기 높이 통일 — 시트 규칙)
      아이템 : public/assets/expedition/item/{item}.webp → ITEMS[].img
    지금은 원화가 없어 지도용 걷기 캐릭터(mapWalkers) + 이모지 + CSS 배경으로
    동작한다. img 필드가 채워지면 컴포넌트가 자동으로 그림을 쓴다.
    원본 원화는 art-src/expedition/ 에 보관할 것 (CLAUDE.md 5).
    ════════════════════════════════════════════════════════════════════════ */
 
-/* ── Riding Sheet (24종) — 탈것은 이모지/PNG 교체만, 탑승 포즈는 공용 ──
-   [주의] 키 이름은 씬별 mounts 목록·순환 계산에 쓰이므로 바꾸지 말 것. 새 탈것은 뒤에 추가. */
+/* ── Riding Sheet — 탑승 그림 32종 (사용자 시트 v1.0 20종 + 신규 12종) ──
+   [중요] 탑승 원화는 '탈것 + 캐릭터(공용 앉기 자세)'가 한 장에 함께 그려져 있다.
+   그래서 캐릭터를 따로 겹치지 않고, img가 있으면 그 한 장이 캐릭터를 통째로 대신한다.
+     · 규격: 1024×1024 투명 PNG · 오른쪽 3/4 시점 · 앉기 높이 통일 (시트 공통 규칙)
+     · 드롭인: public/assets/expedition/ride/{키}.webp 로 넣고 아래 img만 채우면 끝.
+       원본은 art-src/expedition/ride/ 에 webp(q92)로 보관 (CLAUDE.md 5).
+     · img가 없는 탈것은 그날 순환에서 자동으로 건너뛰고 기본 이동(걷기·수영)이 된다
+       → 그림을 하나씩 받아도 그날그날 바로 살아난다.
+   [주의] 키 이름은 씬별 mounts 목록·순환 계산에 쓰이므로 바꾸지 말 것. 새 탈것은 뒤에 추가.
+   번호는 사용자 시트의 번호와 같다 (그림 받을 때 대조용). */
+const _RP = "assets/expedition/ride/";
 export const MOUNTS = {
-  /* 물 */    canoe:{ emoji:"🛶", name:"카누" }, raft:{ emoji:"🪵", name:"뗏목" },
-  sailboat:{ emoji:"⛵", name:"범선" }, ship:{ emoji:"🚢", name:"큰배" },
-  dolphin:{ emoji:"🐬", name:"돌고래" }, turtle:{ emoji:"🐢", name:"거북이" },
-  /* 육상 */  horse:{ emoji:"🐴", name:"말" }, donkey:{ emoji:"🫏", name:"당나귀" },
-  deer:{ emoji:"🦌", name:"사슴" }, camel:{ emoji:"🐪", name:"낙타" },
-  goat:{ emoji:"🐐", name:"산양" }, cablecar:{ emoji:"🚠", name:"케이블카" },
-  /* 하늘 */  eagle:{ emoji:"🦅", name:"독수리" }, balloon:{ emoji:"🎈", name:"열기구" },
-  cloud:{ emoji:"☁️", name:"구름" }, rocket:{ emoji:"🚀", name:"로켓" },
-  /* 판타지 */ dragon:{ emoji:"🐉", name:"드래곤" }, unicorn:{ emoji:"🦄", name:"유니콘" },
-  carpet:{ emoji:"🧞", name:"마법양탄자" }, sled:{ emoji:"🛷", name:"썰매" },
-  /* 사용자 기획서 2026-07-31 추가 — 동굴·우주 전용 */
-  minecart:{ emoji:"🚋", name:"광산 수레" }, bat:{ emoji:"🦇", name:"박쥐" },
-  crystal:{ emoji:"💎", name:"수정 슬라이드" }, meteor:{ emoji:"🌠", name:"별 유성" },
+  /* 물 1~6 */   canoe:{ n:1, emoji:"🛶", name:"카누" },      raft:{ n:2, emoji:"🪵", name:"뗏목" },
+  sailboat:{ n:3, emoji:"⛵", name:"범선" },                  ship:{ n:4, emoji:"🚢", name:"큰배" },
+  dolphin:{ n:5, emoji:"🐬", name:"돌고래" },                 turtle:{ n:6, emoji:"🐢", name:"거북이" },
+  /* 육상 7~12 */ horse:{ n:7, emoji:"🐴", name:"말" },       donkey:{ n:8, emoji:"🫏", name:"당나귀" },
+  deer:{ n:9, emoji:"🦌", name:"사슴" },                      camel:{ n:10, emoji:"🐪", name:"낙타" },
+  goat:{ n:11, emoji:"🐐", name:"산양" },                     cablecar:{ n:12, emoji:"🚠", name:"케이블카" },
+  /* 하늘 13~16 */ eagle:{ n:13, emoji:"🦅", name:"독수리" }, balloon:{ n:14, emoji:"🎈", name:"열기구" },
+  cloud:{ n:15, emoji:"☁️", name:"구름" },                    rocket:{ n:16, emoji:"🚀", name:"로켓" },
+  /* 판타지 17~20 */ dragon:{ n:17, emoji:"🐉", name:"드래곤" }, unicorn:{ n:18, emoji:"🦄", name:"유니콘" },
+  carpet:{ n:19, emoji:"🧞", name:"마법양탄자" },             sled:{ n:20, emoji:"🛷", name:"썰매" },
+  /* 신규 시트 21~32 (사용자 2026-07-31) */
+  minecart:{ n:21, emoji:"🚋", name:"광산 수레" },            bat:{ n:22, emoji:"🦇", name:"박쥐" },
+  crystal:{ n:23, emoji:"💎", name:"수정 슬라이드" },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이" },
+  flamingo:{ n:25, emoji:"🦩", name:"플라밍고" },             meteor:{ n:26, emoji:"🌠", name:"유성" },
+  motorbike:{ n:27, emoji:"🏍️", name:"오토바이" },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드" },
+  iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀" },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
+  whale:{ n:31, emoji:"🐳", name:"고래" },                    submarine:{ n:32, emoji:"🟡", name:"잠수정" },
 };
+/* ── 원화가 들어온 탈것 ──────────────────────────────────────────────
+   그림을 받을 때마다 이 배열에 키만 추가하면 된다. 파일은 항상
+   public/assets/expedition/ride/{키}.webp (원본은 art-src/expedition/ride/).
+   여기 없는 탈것은 그날 순환에서 건너뛰고 기본 이동(걷기·수영)이 나온다. */
+export const RIDE_READY = [];
+RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
 /* ── Adventure Item Sheet (13종) — 걷기 캐릭터에 아이템만 추가 ── */
 export const ADVENTURE_ITEMS = {
@@ -122,7 +141,8 @@ export const EXPEDITIONS = {
   desert: { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
     /* Ch7 사막 — 대표: 낙타·마법양탄자 (사용자 기획서 2026-07-31) */
     mounts:["camel","carpet","cloud","eagle","balloon"],
-    pose:"ride", mount:"camel", goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
+    pose:"walk",   // 기획서: 사막의 기본은 걷기 — 탈것(낙타·양탄자…)은 회차마다 mounts에서
+    goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
     bgImg:"assets/expedition/bg-desert.webp",   // 사용자 배경 원화 (오아시스·유적 아치 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#FBE3B7","#FDF2DC"], ground:["#EBCB8B","#D9B26C"], groundH:36,
       /* 앞쪽 모래벌판을 따라 왼쪽에서 오른쪽 유적 쪽으로 */
@@ -131,7 +151,7 @@ export const EXPEDITIONS = {
   sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
     /* Ch9 바다 — 대표: 큰배·돌고래 (사용자 기획서 2026-07-31) */
     mounts:["ship","dolphin","canoe","sailboat","turtle"],
-    pose:"ride", mount:"sailboat", poseFallback:"swim",   // 범선 원화가 올 때까지는 헤엄쳐서 건넌다
+    pose:"swim",   // 기획서: 바다의 기본은 수영 — 배·돌고래 등은 회차마다 mounts에서
     idlePose:"swim",   // 출발지도 바다 한가운데 — 서 있을 땅이 없어 물에 떠서 기다린다
     goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
     bgImg:"assets/expedition/bg-sea.webp",   // 사용자 배경 원화 (수평선 위 보물섬 — 원본 art-src/expedition/bg/)
