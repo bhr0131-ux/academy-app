@@ -166,6 +166,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/bg/bg-cave-v2-src.webp | 동굴 배경 v2 (1717×916 — 권장 비율로 재제작, 출구 아치 안전영역 안, 현행) | expedition/bg-cave.webp |
 | expedition/bg/bg-meadow-src.webp | 초원 배경 (9번째 탐험 '초원을 달리자!' — 양·풍차) | expedition/bg-meadow.webp |
 | expedition/bg/bg-skyisle-src.webp | 하늘섬 배경 (1717×916 — 성 있는 부유섬·열기구·무지개, 10번째 탐험 현행) | expedition/bg-skyisle.webp |
+| expedition/bg/bg-space-src.webp | 우주 배경 (1717×916 — 왼쪽 발사대→오른쪽 우주기지·은하수 띠, 11번째 탐험) | expedition/bg-space.webp |
 | expedition/bg/bg-sea-src.webp | 바다 배경 (1672×941 — 수평선 위 보물섬·갈매기, 6번째 탐험) | expedition/bg-sea.webp |
 | expedition/bg/bg-desert-src.webp | 사막 배경 (1717×916 — 오아시스·유적 아치·사막여우, 5번째 탐험) | expedition/bg-desert.webp |
 | expedition/ride/horse-src.webp | 탑승 원화 7 말 — 숲·깊은숲·초원 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/horse.webp |
@@ -196,7 +197,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/ride/reindeersled-src.webp | 탑승 원화 30 순록 썰매 — 설원 대표 — 배경 대기(미탑재) | — |
 | expedition/ride/iceslide-src.webp | 탑승 원화 29 얼음 미끄럼틀 — 설원 변형 — 배경 대기(미탑재) | — |
 | expedition/ride/rocket-src.webp | 탑승 원화 16 로켓 — 하늘섬 변형 (우주 챕터 기본 예정) | expedition/ride/rocket.webp |
-| expedition/ride/meteor-src.webp | 탑승 원화 26 유성 — 우주 대표 — 배경 대기(미탑재) | — |
+| expedition/ride/meteor-src.webp | 탑승 원화 26 유성 — 우주 대표 | expedition/ride/meteor.webp |
 | expedition/ride/motorbike-src.webp | 탑승 원화 27 오토바이 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/motorbike.webp |
 | expedition/ride/sandboard-src.webp | 탑승 원화 28 모래 보드 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/sandboard.webp |
 | expedition/ride/submarine-src.webp | 탑승 원화 32 잠수정 — 바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/submarine.webp |

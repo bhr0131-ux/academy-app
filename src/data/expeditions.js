@@ -70,7 +70,7 @@ export const RIDE_READY = [
   "donkey","dragon","cloud","eagle",          // 5차
   "crystal","owl","flamingo","whale",         // 6차
   "motorbike","sandboard","submarine",        // 7차
-  "rocket",                                   // 하늘섬 챕터 개설로 가동 (설원용 4종은 배경 대기)
+  "rocket","meteor",                          // 하늘섬·우주 챕터 개설로 가동 (설원용 3종은 배경 대기)
 ];
 RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
@@ -215,18 +215,30 @@ export const EXPEDITIONS = {
       /* 도착 만세는 성 앞 잔디 위 (탈것에서 내려서) */
       xa:82, aB:43, gx:88, goalB:44,
       deco:[[6,26,"☁️",22],[14,64,"🎈",14],[93,26,"🌈",22],[88,66,"☁️",16],[8,84,"✨",10]] } },
+  space: { key:"space", title:"우주를 탐험하자!", emoji:"🚀",
+    /* Ch11 우주 — 대표: 로켓·유성 (사용자 기획서). 하늘섬처럼 늘 탈것을 탄다 */
+    mounts:["rocket","meteor","dragon","unicorn","cloud"], alwaysMount:true,
+    pose:"walk",   // 폴백(실제로는 늘 탑승) — 도착 만세만 걷기 계열 원화를 쓴다
+    goal:"🛰️", goalImg:"assets/expedition/flag/yellow.webp",
+    bgImg:"assets/expedition/bg-space.webp",   // 사용자 배경 원화 (발사대→우주기지 — 원본 art-src)
+    scene:{ sky:["#2C2A63","#4B3F86"], ground:["#5C4E96","#463B7A"], groundH:30,
+      /* 왼쪽 발사대(바닥 36%)에서 은하수 띠를 따라 오른쪽 우주기지(바닥 31%)로 */
+      /* 출발 높이는 제목 칩과 겹치지 않게 발사대(36%)보다 낮춘다 — 어차피 떠서 간다 */
+      charB:30, charB1:33, x0:14, x1:78,
+      xi:14, iB:30,
+      /* 도착 만세는 우주기지 앞 (탈것에서 내려서) */
+      xa:84, aB:31, gx:88, goalB:33,
+      deco:[[7,26,"🌕",26],[14,64,"⭐",14],[92,26,"🛰️",20],[88,66,"🪐",16],[8,84,"✨",10]], dark:true } },
   /* ── 배경 원화가 오면 추가할 챕터 (사용자 기획서 2026-07-31의 12챕터 중 남은 것) ──
      [배경 없음] 설원(Ch8) — 기본=걷기, mounts:["sled","reindeersled","iceslide","dragon","unicorn","cloud"]
        (대표: 썰매·순록 썰매). 탑승 원화 3종(썰매·순록 썰매·얼음 미끄럼틀)은 이미 받아
        art-src/expedition/ride/ 에 보관돼 있다 — 배경이 오면 배포본만 다시 뽑아 RIDE_READY에 추가.
-     [배경 없음] 우주(Ch11) — 기본=로켓, mounts:["rocket","meteor","dragon","unicorn","cloud"] (대표: 로켓·유성)
-       로켓·유성 원화도 art-src에 보관돼 있다 (로켓은 하늘 챕터에서도 쓴다).
      ※ 현행 ruins(보물상자를 찾자)가 기획서의 보물섬(Ch12) 자리를 겸하고 있다 —
        유적 배경이 오면 그때 둘로 나눌지 정한다. */
 };
 
 /* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
-export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins","wood","meadow","skyisle"];   // 순서대로 순환 — 새 배경은 끝에 추가
+export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins","wood","meadow","skyisle","space"];   // 순서대로 순환 — 새 배경은 끝에 추가
 /* 기준일(2026-01-05 월 = 강)부터 하루에 한 칸씩 순서대로 돈다.
    날짜만으로 정해지는 고정 시드라 과거·미래 어느 날짜를 열어도 항상 같다. */
 const EXP_EPOCH = new Date("2026-01-05T00:00:00");
