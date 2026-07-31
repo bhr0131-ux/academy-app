@@ -277,14 +277,14 @@ export const EXPEDITIONS = {
     mounts:["rocket","meteor","dragon","unicorn"], alwaysMount:true,
     pose:"walk",   // 폴백(실제로는 늘 탑승) — 도착 만세만 걷기 계열 원화를 쓴다
     goal:"🛰️", goalImg:"assets/expedition/flag/yellow.webp",
-    bgImg:"assets/expedition/bg-space.webp",   // 사용자 배경 원화 (발사대→우주기지 — 원본 art-src)
+    bgImg:"assets/expedition/bg-space.webp",   // 사용자 배경 원화 v2 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#2C2A63","#4B3F86"], ground:["#5C4E96","#463B7A"], groundH:30,
-      /* 왼쪽 발사대(바닥 36%)에서 은하수 띠를 따라 오른쪽 우주기지(바닥 31%)로 */
-      /* 출발 높이는 제목 칩과 겹치지 않게 발사대(36%)보다 낮춘다 — 어차피 떠서 간다 */
-      charB:30, charB1:33, x0:14, x1:78,
-      xi:14, iB:30,
+      bgAR:1.4,
+      /* 왼쪽 발사대(바닥 36%)에서 은하수 띠를 따라 오른쪽 우주기지(바닥 36%)로 — 거의 수평 */
+      charB:36, charB1:38, x0:18, x1:74,
+      xi:18, iB:36,
       /* 도착 만세는 우주기지 앞 (탈것에서 내려서) */
-      xa:84, aB:31, gx:88, goalB:33,
+      xa:82, aB:38, gx:90, goalB:40,
       deco:[[7,26,"🌕",26],[14,64,"⭐",14],[92,26,"🛰️",20],[88,66,"🪐",16],[8,84,"✨",10]], dark:true } },
   /* ── 배경 원화가 오면 추가할 챕터 (사용자 기획서 2026-07-31의 12챕터 중 남은 것) ──
      ※ 기획서 Ch12 보물섬 = treasure(보물상자를 찾자). 바다(sea)는 '보물섬에 도착하자'로
