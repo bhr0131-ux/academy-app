@@ -219,26 +219,27 @@ export const EXPEDITIONS = {
     /* Ch12 보물섬 — 섬 안 모랫길을 지나 보물상자로. 배경이 육지라 배 대신 육상·하늘 탈것 */
     mounts:["horse","deer","unicorn","dragon","owl","carpet"],
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
-    bgImg:"assets/expedition/bg-treasure.webp",   // 사용자 배경 원화 v2 (넓은 모랫길·무지개·동굴 폭포 — 원본 art-src)
+    bgImg:"assets/expedition/bg-treasure.webp",   // 사용자 배경 원화 v3 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#7EC8F0","#D9EFB0"], ground:["#EBD188","#D6B863"], groundH:34,
-      /* 앞쪽 모랫길을 따라 왼쪽 황금나무 아래에서 오른쪽 보물상자 쪽으로 (살짝 오르막) */
-      /* 탈것 그림이 가로로 넓어 x0/xi를 안쪽으로 (왼쪽 끝에서 잘리지 않게) */
-      charB:24, charB1:30, x0:14, x1:74,
-      xi:14, iB:24,
-      /* 도착 만세는 보물상자 앞 둔덕 아래 */
-      xa:78, aB:32, gx:88, goalB:38,
+      bgAR:1.4,
+      /* 앞쪽 모랫길(bottom 18~32%)을 따라 왼쪽 황금나무 아래에서 오른쪽 보물상자로 (살짝 오르막) */
+      charB:22, charB1:28, x0:15, x1:74,
+      xi:15, iB:22,
+      /* 도착 만세는 보물상자 바로 앞 */
+      xa:78, aB:30, gx:88, goalB:38,
       deco:[[6,26,"🌴",26],[14,64,"💎",14],[93,28,"🎁",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
   snow: { key:"snow", title:"설원을 건너자!", emoji:"❄️",
     /* Ch8 설원 — 눈길을 건넌다 */
     mounts:["sled","reindeersled","iceslide","dragon","unicorn"],
     pose:"walk", goal:"🏡", goalImg:"assets/expedition/flag/red.webp",   // 눈 대비 빨간 깃발
-    bgImg:"assets/expedition/bg-snow.webp",   // 사용자 배경 원화 (오로라·눈사람·통나무집 — 원본 art-src)
+    bgImg:"assets/expedition/bg-snow.webp",   // 사용자 배경 원화 v2 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#BBD9F7","#E8F3FC"], ground:["#EAF2FA","#CFE2F2"], groundH:34,
-      /* 눈길(밝은 띠, bottom 30~40%)을 따라 왼쪽 눈사람 쪽에서 오른쪽 통나무집으로 */
-      charB:32, charB1:36, x0:16, x1:78,
+      bgAR:1.4,
+      /* 눈길(밝은 띠, bottom 28~36%)을 따라 왼쪽 눈사람 쪽에서 오른쪽 통나무집으로 */
+      charB:32, charB1:38, x0:16, x1:76,
       xi:16, iB:32,
-      /* 도착 만세는 통나무집 앞 눈밭 */
-      xa:82, aB:38, gx:90, goalB:46,
+      /* 도착 만세는 통나무집·선물 팻말 앞 */
+      xa:80, aB:40, gx:90, goalB:44,
       deco:[[6,26,"🌲",26],[14,64,"⛄",16],[93,28,"🏡",22],[87,66,"🌲",16],[8,84,"❄️",11]] } },
   skyisle: { key:"skyisle", title:"하늘섬으로 날아가자!", emoji:"☁️",
     /* Ch10 하늘 — 하늘은 걸어서 갈 수 없어
