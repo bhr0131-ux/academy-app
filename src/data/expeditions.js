@@ -131,16 +131,15 @@ export const EXPEDITIONS = {
     /* Ch2 강 — 물 위를 건넌다 (목록 안 탈것은 모두 동등) */
     mounts:["canoe","raft","dolphin","turtle","flamingo","sailboat","ship"],
     pose:"swim", goal:"⛺", goalImg:"assets/expedition/flag/blue.webp",   // 도착 = 물방울 깃발 (사용자 원화)
-    bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 v3 (1.87:1 권장 비율 — 구도는 v2와 동일, 원본 art-src)
+    bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 v4 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
-      /* 배경 원화 전용 위치 보정: 양쪽 잔디 사이 물길이 중앙이라
-         charB/goalB(bottom%)·x0/x1(이동 구간)을 그림에 맞춘다 */
-      charB:6, goalB:22, gx:92.5, x0:9, x1:86.5,   /* gx: 깃발을 더 우측으로 (사용자 조정) */
-      /* 출발 전(미션 0개) 대기 자리 — 도착 텐트(x90·bottom22)와 같은 높이·좌우 대칭
-         (사용자 확정: 출발지는 도착이랑 일직선) */
-      xi:10.5, iB:22,
-      /* 도착 후 만세 높이 — 물이 아니라 땅(잔디) 위 (사용자 확정). x는 깃발 앞(기본값) */
-      aB:26,
+      /* [사용자 확정] 1.4:1 배경 → 높이 고정을 풀고 비율 카드로 (기기 폭이 달라도 안 잘림) */
+      bgAR:1.4,
+      /* 왼쪽 모래톱에서 출발해 물을 건너 오른쪽 모래톱으로 (건너갈수록 조금 멀어진다) */
+      charB:13, charB1:22, x0:13, x1:84,
+      goalB:24, gx:92.5,
+      xi:11, iB:24,     /* 출발 대기 — 왼쪽 모래톱 위 */
+      xa:89, aB:25,     /* 도착 만세 — 오른쪽 모래톱 위 */
       deco:[[6,30,"🌳",26],[13,66,"🌿",15],[93,28,"🌲",24],[87,66,"🪨",14],[8,84,"💧",11],[94,84,"🐟",12]] } },
   mountain: { key:"mountain", title:"바위산에 오르자!", emoji:"🏔️",
     /* Ch3 바위산 — 바위를 오른다 */

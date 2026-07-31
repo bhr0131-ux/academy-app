@@ -158,7 +158,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | map-bld-v8/tikihut2-src.webp | 지도 학원 건물 v8-4 (티키 초가+항아리, 구멍 투명 제공됨) | map-bld-tikihut2.webp |
 | expedition/char/common-{walk,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 3종 (남아 원화 — 당분간 남녀 공용, halo 보정 후 탑재) | expedition/char/common-*.webp |
 | expedition/char/common-idle-src.webp | 탐험 씬 기본 서있기 포즈 (미션 0개일 때 출발지 대기 — halo 보정 후 탑재) | expedition/char/common-idle.webp |
-| expedition/bg/bg-river-v3-src.webp | 강 배경 v3 (1717×916 — 권장 비율로 재제작, 구도 동일, 현행) | expedition/bg-river.webp |
+| expedition/bg/bg-river-v4-src.webp | 강 배경 v4 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-river.webp |
 | expedition/flag/{red,blue,green,yellow}-src.webp | 도착 깃발 4색 (빨강 잎가지·파랑 물방울·초록 잎·노랑 별 — halo 보정 후 탑재) | expedition/flag/*.webp |
 | expedition/bg/bg-mountain-src.webp | 바위산 배경 (화요일, 1536×1024 — 돌계단 대각선 등반) | expedition/bg-mountain.webp |
 | expedition/bg/bg-forest-v2-src.webp | 깊은 숲 배경 v2 (수요일 현행 — v1 숲길 교체, 여우·부엉이·개울) | expedition/bg-forest.webp |

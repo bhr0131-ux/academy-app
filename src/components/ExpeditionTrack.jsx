@@ -22,6 +22,10 @@ import { getExpedition, getExpeditionMount, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG,
      charImg  : 걷기 캐릭터 이미지 (지도 워커 — 테마색·성별 반영)
      gender   : "boy" | "girl" (원화 도입 후 사용)
    ════════════════════════════════════════════════════════════════════════ */
+/* 기존 카드 높이(px) — 씬의 크기 값(charH·hMul)은 전부 이 높이를 기준으로 맞춰 둔 값이다.
+   비율 카드(bgAR)에서는 이 값을 기준으로 %로 환산해 카드와 함께 커진다. */
+const CARD_H = 220;
+
 export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "", gender = "boy", fullBleed = false }) {
   const exp = getExpedition(date);
   const sc = exp.scene;
@@ -142,8 +146,13 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
         @keyframes expJump{0%,100%{transform:translateY(0)}30%{transform:translateY(-14px)}55%{transform:translateY(0)}70%{transform:translateY(-7px)}85%{transform:translateY(0)}}
       `}</style>
 
-      {/* ── 배경 — 원화(bgImg)가 오면 그림, 지금은 CSS 하늘+땅 (중앙 비움 규칙) ── */}
-      <div style={{ position: "relative", height: 220,
+      {/* ── 배경 — 원화(bgImg)가 오면 그림, 지금은 CSS 하늘+땅 (중앙 비움 규칙) ──
+             [사용자 확정 2026-07-31] 배경을 1.4:1로 새로 그리는 챕터는 높이를 고정하지 않고
+             '폭 : 높이 = bgAR : 1' 비율 카드로 만든다 → 기기 폭이 달라도 한 픽셀도 안 잘린다.
+             (390 기기에서 220 → 279px, 28% 커짐. bgAR이 없는 챕터는 220px 그대로) */}
+      <div style={{ position: "relative",
+        height: sc.bgAR ? undefined : CARD_H,
+        aspectRatio: sc.bgAR ? `${sc.bgAR} / 1` : undefined,
         background: `linear-gradient(180deg, ${sc.sky[0]}, ${sc.sky[1]})` }}>
         {exp.bgImg && (
           <img src={exp.bgImg} alt="" draggable={false}
@@ -188,9 +197,12 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
         {/* ── 탐험가 — 미션 완료 수만큼 오른쪽으로 (진짜 '이동'이 핵심) ── */}
         <div style={{ position: "absolute", left: `${xPos}%`, bottom: `${bottomPos}%`,
           transform: "translateX(-50%)",
-          transition: `left ${moveMs}ms cubic-bezier(.45,.05,.35,1), bottom ${moveMs}ms cubic-bezier(.45,.05,.35,1)`,
+          /* 크기 값(charH·hMul)은 '220px 카드 기준 px'이다. 비율 카드에서는 카드가 커진 만큼
+             같이 커지도록 카드 높이의 %로 환산한다 — 기기 폭이 달라도 비율이 일정하다 */
+          height: sc.bgAR ? `${(imgH / CARD_H) * 100}%` : undefined,
+          transition: `left ${moveMs}ms cubic-bezier(.45,.05,.35,1), bottom ${moveMs}ms cubic-bezier(.45,.05,.35,1), height ${moveMs}ms cubic-bezier(.45,.05,.35,1)`,
           pointerEvents: "none", zIndex: 2 }}>
-          <div style={{ position: "relative",
+          <div style={{ position: "relative", height: sc.bgAR ? "100%" : undefined,
             animation: celebrating ? "expJump 1.5s ease-in-out infinite"
               : moving ? `expWalk ${stepMs.toFixed(2)}s ease-in-out infinite`
               : "expBob 2.6s ease-in-out infinite" }}>
@@ -198,8 +210,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
                 도착해 이동이 끝나면 탈것에서 내려 성공 포즈만 (만세하는데 탈것 위면 어색해서) */}
             <img src={riding ? mount.img : (charB || charImg)} alt="" draggable={false}
               style={{ position: "relative", zIndex: 1, width: "auto", display: "block",
-                /* 탑승 그림은 탈것까지 들어 있어 캐릭터만 있을 때보다 크게 (탈것별 hMul로 미세조정) */
-                height: imgH,
+                /* 탑승 그림은 탈것까지 들어 있어 캐릭터만 있을 때보다 크게 (탈것별 hMul로 미세조정).
+                   비율 카드에서는 감싼 div가 카드 높이의 %로 크기를 잡으므로 여기선 꽉 채우기만 한다 */
+                height: sc.bgAR ? "100%" : imgH,
                 transition: `height ${moveMs}ms cubic-bezier(.45,.05,.35,1)`,
                 transform: facingLeft ? "scaleX(-1)" : undefined,   // 뒤로 갈 땐 왼쪽을 본다 (기획: 좌우 반전)
                 margin: "0 auto",
@@ -215,7 +228,12 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
           {/* 접지 그림자 — 그림 바로 아래에 붙는다. 나는 탈것(lift)은 그리지 않는다:
               그룹째 떠오르기 때문에 그림자만 공중에 남아 더 어색해진다. */}
           {!(riding && mount.lift) && (
-            <div style={{ width: Math.round(34 * imgH / 64), height: Math.max(4, Math.round(7 * imgH / 64)),
+            <div style={{
+              /* 비율 카드에선 높이를 카드 높이 %로 잡고 폭은 가로세로비로 따라오게 한다
+                 (폭에 %를 쓰면 카드 '폭' 기준이라 그림자가 과하게 넓어진다) */
+              width: sc.bgAR ? undefined : Math.round(34 * imgH / 64),
+              aspectRatio: sc.bgAR ? "34 / 7" : undefined,
+              height: sc.bgAR ? `${(7 * imgH / 64) / CARD_H * 100}%` : Math.max(4, Math.round(7 * imgH / 64)),
               borderRadius: "50%", margin: "-1px auto 0", transition: `width ${moveMs}ms linear`,
               background: dark ? "rgba(0,0,0,0.45)" : "rgba(60,50,30,0.28)", filter: "blur(2.5px)" }} />
           )}
