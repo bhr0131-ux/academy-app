@@ -6,7 +6,7 @@ import { getExpedition, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG } from "../data/expedi
    ────────────────────────────────────────────────────────────────────────
    진행률 바를 그리지 않는다. 미션 k/n 완료 = 캐릭터가 길의 k/n 지점에
    '서 있는' 것이고, 하나 끝낼 때마다 다음 지점으로 걸어간다(트윈).
-   마지막 미션 완료 = 도착 → 점프 + '탐험 성공!' 칩만 (사용자 확정: 변신·폭죽 없음).
+   마지막 미션 완료 = 도착 → 만세 포즈 + 점프만 (사용자 확정: 변신·폭죽·성공 문구 없음).
 
    포즈는 4종 개념(걷기/수영/탑승/성공)만 쓴다. 지금은 원화가 없어
      · 걷기/탑승 = 지도 걷기 캐릭터(charImg) 재사용
@@ -191,20 +191,14 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
               border: dark ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(155,114,74,0.35)",
               borderRadius: 999, padding: "5px 11px", fontSize: 12, fontWeight: 900,
               color: dark ? "#F5F2FF" : "#4B3A2F", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}>
-              {arrived ? "🎉 탐험 성공!" : `${exp.emoji} ${done}/${total}`}
+              {/* [사용자 확정] '탐험 성공!' 문구는 뺀다 — 도착해도 숫자만 (연출은 만세 포즈로 충분) */}
+              {`${exp.emoji} ${done}/${total}`}
             </div>
           )}
         </div>
 
-        {/* 미션이 없는 날 — 출발점에서 쉬는 중 */}
-        {total === 0 && (
-          <div style={{ position: "absolute", left: "50%", top: "56%", transform: "translate(-50%,-50%)",
-            background: dark ? "rgba(30,26,45,0.72)" : "rgba(255,251,240,0.85)",
-            borderRadius: 999, padding: "6px 14px", fontSize: 12.5, fontWeight: 900,
-            color: dark ? "#F5F2FF" : "#6B523A", pointerEvents: "none" }}>
-            오늘은 쉬어가는 날 😴
-          </div>
-        )}
+        {/* [사용자 확정] 미션 없는 날의 '오늘은 쉬어가는 날 😴' 안내도 뺀다 —
+            그림 위에 글자를 얹지 않고 캐릭터가 출발지에 서 있는 것만 보여준다 */}
       </div>
     </div>
   );
