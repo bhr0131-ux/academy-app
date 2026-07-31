@@ -27,10 +27,11 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const sc = exp.scene;
   /* 그날의 탈것 — 같은 챕터가 돌아올 때마다 대표→변형 순으로 바뀐다(getExpeditionMount).
      null이면 그 회차는 '기본'(걷기·수영·달리기).
-     탈것은 '공용 탑승(앉기) 원화'가 있을 때만 그린다 — 걷는 캐릭터 발밑에
-     탈것 이모지만 깔면 어정쩡해서 (사용자 원화 오면 CHAR_IMG.ride만 채우면 됨) */
-  const mountKey = CHAR_IMG.ride ? getExpeditionMount(date) : null;
-  const mount = mountKey ? MOUNTS[mountKey] : null;
+     [사용자 시트 v1.0] 탑승 원화는 '탈것 + 앉은 캐릭터'가 한 장이라, 그림이 있는
+     탈것만 태우고 그 한 장으로 캐릭터를 대신한다. 그림이 아직 없는 탈것은
+     그날 순환에서 건너뛰고 기본 이동으로 (그림을 하나씩 받아도 바로 반영된다). */
+  const mountKey = getExpeditionMount(date);
+  const mount = mountKey && MOUNTS[mountKey]?.img ? MOUNTS[mountKey] : null;
   const item = exp.item ? ADVENTURE_ITEMS[exp.item] : null;
   const arrived = total > 0 && done >= total;
 
@@ -86,11 +87,10 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const facingLeft = t !== prevT.current ? t < prevT.current : (walking && back);
   const celebrating = arrived && !moving;
   /* idlePose: 출발지가 땅이 아닌 씬(바다)은 서 있는 대신 물에 떠 있게 (씬이 정한다) */
-  /* 탈것 회차면 어떤 씬이든 탑승 포즈, 기본 회차면 씬의 기본 포즈(걷기·수영·달리기) */
-  const poseKey = celebrating ? "success" : idle ? (exp.idlePose || "idle")
-    : mount ? "ride" : exp.pose;
-  /* poseFallback: 원화가 없는 포즈(지금은 ride)를 무엇으로 대신할지 씬이 정한다 —
-     바다는 물 위를 걸을 수 없으니 수영으로 (사막처럼 땅이면 기본값 걷기) */
+  /* 탈것을 실제로 타고 있는 상태 — 도착해 만세할 땐 내려서 성공 포즈 */
+  const riding = !!mount && !celebrating;
+  const poseKey = celebrating ? "success" : idle ? (exp.idlePose || "idle") : exp.pose;
+  /* poseFallback: 원화가 없는 포즈를 무엇으로 대신할지 씬이 정한다 (없으면 걷기) */
   const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG[exp.poseFallback]?.[gender]
     || CHAR_IMG.walk?.[gender] || null;
   /* 출발 전엔 대기 위치(xi/iB — 강은 둑 위)로. 도착해 만세할 땐 '깃발 바로 앞'이 기본
@@ -100,6 +100,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const bottomPos = idle ? (sc.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
   /* 출발 전엔 출발 크기 그대로, 이동 중·도착은 진행도만큼 보간된 크기 */
   const charH = idle || sc.charH1 == null ? ch0 : ch0 + t * (sc.charH1 - ch0);
+  /* 실제로 그릴 높이 — 탑승 그림은 탈것까지 들어 있어 캐릭터만 있을 때보다 크게
+     (탈것별 hMul로 미세조정, 접지 그림자도 같은 높이를 따라간다) */
+  const imgH = Math.round(riding ? charH * (mount.hMul ?? 1.35) : charH);
 
   return (
     <div style={{ position: "relative", overflow: "hidden", borderRadius: fullBleed ? 0 : 22, marginBottom: 14,
@@ -166,20 +169,15 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
             animation: celebrating ? "expJump 1.5s ease-in-out infinite"
               : moving ? `expWalk ${stepMs.toFixed(2)}s ease-in-out infinite`
               : "expBob 2.6s ease-in-out infinite" }}>
-            {/* 탑승: 탈것 위에 공용 탑승 위치(캐릭터를 탈것 위로 띄움).
+            {/* 탑승 회차: 탈것 원화 한 장이 캐릭터를 대신한다 (시트가 '탈것+앉은 캐릭터' 통짜).
                 도착해 이동이 끝나면 탈것에서 내려 성공 포즈만 (만세하는데 탈것 위면 어색해서) */}
-            {mount && !celebrating && (
-              <span style={{ position: "absolute", left: "50%", bottom: -8, transform: "translateX(-50%)",
-                fontSize: 30, lineHeight: 1, zIndex: 0,
-                filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.25))" }}>
-                {mount.img ? <img src={mount.img} alt="" style={{ height: 34 }} /> : mount.emoji}
-              </span>
-            )}
-            <img src={charB || charImg} alt="" draggable={false}
-              style={{ position: "relative", zIndex: 1, height: charH, width: "auto", display: "block",
+            <img src={riding ? mount.img : (charB || charImg)} alt="" draggable={false}
+              style={{ position: "relative", zIndex: 1, width: "auto", display: "block",
+                /* 탑승 그림은 탈것까지 들어 있어 캐릭터만 있을 때보다 크게 (탈것별 hMul로 미세조정) */
+                height: imgH,
                 transition: `height ${moveMs}ms cubic-bezier(.45,.05,.35,1)`,
                 transform: facingLeft ? "scaleX(-1)" : undefined,   // 뒤로 갈 땐 왼쪽을 본다 (기획: 좌우 반전)
-                margin: "0 auto", marginBottom: mount && !celebrating ? 14 : 0,
+                margin: "0 auto",
                 filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 3px 4px rgba(0,0,0,0.3))" }} />
             {/* 아이템: 걷기 캐릭터에 이모지 배지만 추가 (별도 캐릭터 안 만듦) */}
             {item && !mount && (
@@ -190,7 +188,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
             )}
           </div>
           {/* 접지 그림자 */}
-          <div style={{ width: Math.round(34 * charH / 64), height: Math.max(4, Math.round(7 * charH / 64)),
+          <div style={{ width: Math.round(34 * imgH / 64), height: Math.max(4, Math.round(7 * imgH / 64)),
             borderRadius: "50%", margin: "-1px auto 0", transition: `width ${moveMs}ms linear`,
             background: dark ? "rgba(0,0,0,0.45)" : "rgba(60,50,30,0.28)", filter: "blur(2.5px)" }} />
         </div>
