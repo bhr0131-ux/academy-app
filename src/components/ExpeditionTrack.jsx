@@ -97,7 +97,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
      (사용자 확정: 깃발이 뒤, 캐릭터가 앞 — 캐릭터 zIndex가 높아 겹치면 앞에 선다).
      씬별로 xa로 재정의 가능. */
   const xPos = idle ? (sc.xi ?? x0) : celebrating ? (sc.xa ?? ((sc.gx ?? 90) - 2)) : x;
-  const bottomPos = idle ? (sc.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
+  const bottomPos0 = idle ? (sc.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
+  /* 나는 탈것(열기구·박쥐…)은 땅에서 살짝 띄운다 — 바닥에 붙으면 떠 있는 느낌이 안 난다 */
+  const bottomPos = bottomPos0 + (riding ? (mount.lift ?? 0) : 0);
   /* 출발 전엔 출발 크기 그대로, 이동 중·도착은 진행도만큼 보간된 크기 */
   const charH = idle || sc.charH1 == null ? ch0 : ch0 + t * (sc.charH1 - ch0);
   /* 실제로 그릴 높이 — 탑승 그림은 탈것까지 들어 있어 캐릭터만 있을 때보다 크게
@@ -187,10 +189,13 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
               </span>
             )}
           </div>
-          {/* 접지 그림자 */}
-          <div style={{ width: Math.round(34 * imgH / 64), height: Math.max(4, Math.round(7 * imgH / 64)),
-            borderRadius: "50%", margin: "-1px auto 0", transition: `width ${moveMs}ms linear`,
-            background: dark ? "rgba(0,0,0,0.45)" : "rgba(60,50,30,0.28)", filter: "blur(2.5px)" }} />
+          {/* 접지 그림자 — 그림 바로 아래에 붙는다. 나는 탈것(lift)은 그리지 않는다:
+              그룹째 떠오르기 때문에 그림자만 공중에 남아 더 어색해진다. */}
+          {!(riding && mount.lift) && (
+            <div style={{ width: Math.round(34 * imgH / 64), height: Math.max(4, Math.round(7 * imgH / 64)),
+              borderRadius: "50%", margin: "-1px auto 0", transition: `width ${moveMs}ms linear`,
+              background: dark ? "rgba(0,0,0,0.45)" : "rgba(60,50,30,0.28)", filter: "blur(2.5px)" }} />
+          )}
         </div>
 
         {/* ── 상단: 오늘의 탐험 제목 (왼쪽) + 남은 미션 (오른쪽 — 숫자만, 바 없음) ── */}
