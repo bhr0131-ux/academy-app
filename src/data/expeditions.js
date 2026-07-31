@@ -55,7 +55,7 @@ export const MOUNTS = {
   crystal:{ n:23, emoji:"💎", name:"수정 슬라이드", hMul:1.5 },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이", hMul:1.45, lift:7 },
   flamingo:{ n:25, emoji:"🦩", name:"플라밍고", hMul:1.6 },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
   motorbike:{ n:27, emoji:"🏍️", name:"오토바이", hMul:1.4 },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드", hMul:1.3 },
-  iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀" },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
+  iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀", hMul:1.55 },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
   whale:{ n:31, emoji:"🐳", name:"고래", hMul:1.55 },                    submarine:{ n:32, emoji:"🟡", name:"잠수정", hMul:1.7 },
 };
 /* ── 원화가 들어온 탈것 ──────────────────────────────────────────────
@@ -70,7 +70,8 @@ export const RIDE_READY = [
   "donkey","dragon","cloud","eagle",          // 5차
   "crystal","owl","flamingo","whale",         // 6차
   "motorbike","sandboard","submarine",        // 7차
-  "rocket","meteor",                          // 하늘섬·우주 챕터 개설로 가동 (설원용 3종은 배경 대기)
+  "rocket","meteor",                          // 하늘섬·우주 챕터 개설로 가동
+  "sled","reindeersled","iceslide",           // 설원 챕터 개설로 가동 — 시트 32종 전부 탑재
 ];
 RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
@@ -207,6 +208,18 @@ export const EXPEDITIONS = {
       /* 도착 만세는 보물상자 앞 둔덕 아래 */
       xa:78, aB:32, gx:88, goalB:38,
       deco:[[6,26,"🌴",26],[14,64,"💎",14],[93,28,"🎁",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
+  snow: { key:"snow", title:"설원을 건너자!", emoji:"❄️",
+    /* Ch8 설원 — 대표: 썰매·순록 썰매 (사용자 기획서 2026-07-31) */
+    mounts:["sled","reindeersled","iceslide","dragon","unicorn","cloud"],
+    pose:"walk", goal:"🏡", goalImg:"assets/expedition/flag/red.webp",   // 눈 대비 빨간 깃발
+    bgImg:"assets/expedition/bg-snow.webp",   // 사용자 배경 원화 (오로라·눈사람·통나무집 — 원본 art-src)
+    scene:{ sky:["#BBD9F7","#E8F3FC"], ground:["#EAF2FA","#CFE2F2"], groundH:34,
+      /* 눈길(밝은 띠, bottom 30~40%)을 따라 왼쪽 눈사람 쪽에서 오른쪽 통나무집으로 */
+      charB:32, charB1:36, x0:16, x1:78,
+      xi:16, iB:32,
+      /* 도착 만세는 통나무집 앞 눈밭 */
+      xa:82, aB:38, gx:90, goalB:46,
+      deco:[[6,26,"🌲",26],[14,64,"⛄",16],[93,28,"🏡",22],[87,66,"🌲",16],[8,84,"❄️",11]] } },
   skyisle: { key:"skyisle", title:"하늘섬으로 날아가자!", emoji:"☁️",
     /* Ch10 하늘 — 대표: 구름·열기구 (사용자 기획서). 하늘은 걸어서 갈 수 없어
        '기본(걷기)' 회차 없이 항상 탈것을 탄다(alwaysMount) — 6종 모두 원화가 있다. */
@@ -239,15 +252,12 @@ export const EXPEDITIONS = {
       xa:84, aB:31, gx:88, goalB:33,
       deco:[[7,26,"🌕",26],[14,64,"⭐",14],[92,26,"🛰️",20],[88,66,"🪐",16],[8,84,"✨",10]], dark:true } },
   /* ── 배경 원화가 오면 추가할 챕터 (사용자 기획서 2026-07-31의 12챕터 중 남은 것) ──
-     [배경 없음] 설원(Ch8) — 기본=걷기, mounts:["sled","reindeersled","iceslide","dragon","unicorn","cloud"]
-       (대표: 썰매·순록 썰매). 탑승 원화 3종(썰매·순록 썰매·얼음 미끄럼틀)은 이미 받아
-       art-src/expedition/ride/ 에 보관돼 있다 — 배경이 오면 배포본만 다시 뽑아 RIDE_READY에 추가.
      ※ 기획서 Ch12 보물섬 = treasure(보물상자를 찾자). 바다(sea)는 '보물섬에 도착하자'로
        섬에 닿는 것까지, treasure는 섬에서 보물을 찾는 것까지로 나뉜다. */
 };
 
 /* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
-export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","treasure","wood","meadow","skyisle","space"];   // 순서대로 순환 — 새 배경은 끝에 추가
+export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","treasure","wood","meadow","snow","skyisle","space"];   // 순서대로 순환 — 새 배경은 끝에 추가
 /* 기준일(2026-01-05 월 = 강)부터 하루에 한 칸씩 순서대로 돈다.
    날짜만으로 정해지는 고정 시드라 과거·미래 어느 날짜를 열어도 항상 같다. */
 const EXP_EPOCH = new Date("2026-01-05T00:00:00");

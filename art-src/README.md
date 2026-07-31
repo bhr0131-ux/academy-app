@@ -166,6 +166,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/bg/bg-cave-v2-src.webp | 동굴 배경 v2 (1717×916 — 권장 비율로 재제작, 출구 아치 안전영역 안, 현행) | expedition/bg-cave.webp |
 | expedition/bg/bg-meadow-src.webp | 초원 배경 (9번째 탐험 '초원을 달리자!' — 양·풍차) | expedition/bg-meadow.webp |
 | expedition/bg/bg-skyisle-src.webp | 하늘섬 배경 (1717×916 — 성 있는 부유섬·열기구·무지개, 10번째 탐험 현행) | expedition/bg-skyisle.webp |
+| expedition/bg/bg-snow-src.webp | 설원 배경 (1717×916 — 오로라·눈사람·통나무집·얼음 호수, 8번째 탐험) | expedition/bg-snow.webp |
 | expedition/bg/bg-treasure-src.webp | 보물섬 배경 (1704×923 — 황금나무·폭포·무지개·보물상자, 유적 CSS 임시 배경 대체) | expedition/bg-treasure.webp |
 | expedition/bg/bg-space-src.webp | 우주 배경 (1717×916 — 왼쪽 발사대→오른쪽 우주기지·은하수 띠, 11번째 탐험) | expedition/bg-space.webp |
 | expedition/bg/bg-sea-src.webp | 바다 배경 (1672×941 — 수평선 위 보물섬·갈매기, 6번째 탐험) | expedition/bg-sea.webp |
@@ -194,9 +195,9 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/ride/owl-src.webp | 탑승 원화 24 큰 부엉이 — 깊은숲 변형 (하늘 lift 7) (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/owl.webp |
 | expedition/ride/flamingo-src.webp | 탑승 원화 25 플라밍고 — 강 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/flamingo.webp |
 | expedition/ride/whale-src.webp | 탑승 원화 31 고래 — 바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/whale.webp |
-| expedition/ride/sled-src.webp | 탑승 원화 20 썰매 — 설원 대표 — 배경 대기(미탑재) | — |
-| expedition/ride/reindeersled-src.webp | 탑승 원화 30 순록 썰매 — 설원 대표 — 배경 대기(미탑재) | — |
-| expedition/ride/iceslide-src.webp | 탑승 원화 29 얼음 미끄럼틀 — 설원 변형 — 배경 대기(미탑재) | — |
+| expedition/ride/sled-src.webp | 탑승 원화 20 썰매 — 설원 대표 | expedition/ride/sled.webp |
+| expedition/ride/reindeersled-src.webp | 탑승 원화 30 순록 썰매 — 설원 대표 | expedition/ride/reindeersled.webp |
+| expedition/ride/iceslide-src.webp | 탑승 원화 29 얼음 미끄럼틀 — 설원 변형 | expedition/ride/iceslide.webp |
 | expedition/ride/rocket-src.webp | 탑승 원화 16 로켓 — 하늘섬 변형 (우주 챕터 기본 예정) | expedition/ride/rocket.webp |
 | expedition/ride/meteor-src.webp | 탑승 원화 26 유성 — 우주 대표 | expedition/ride/meteor.webp |
 | expedition/ride/motorbike-src.webp | 탑승 원화 27 오토바이 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/motorbike.webp |
