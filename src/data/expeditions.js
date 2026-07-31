@@ -47,6 +47,8 @@ export const MOUNTS = {
   deer:{ n:9, emoji:"🦌", name:"사슴" },                      camel:{ n:10, emoji:"🐪", name:"낙타" },
   goat:{ n:11, emoji:"🐐", name:"산양" },                     cablecar:{ n:12, emoji:"🚠", name:"케이블카", hMul:1.55 },
   /* 하늘 13~16 */ eagle:{ n:13, emoji:"🦅", name:"독수리", lift:8 }, balloon:{ n:14, emoji:"🎈", name:"열기구", hMul:1.75, lift:9 },
+  /* [사용자 확정 2026-07-31] 구름은 '하늘 전용' — 하늘섬에서만 탄다.
+     다른 챕터에도 넣으면 "드디어 구름을 탄다"는 하늘 챕터의 특별함이 옅어진다. */
   cloud:{ n:15, emoji:"☁️", name:"구름", lift:7 },                    rocket:{ n:16, emoji:"🚀", name:"로켓", lift:8 },
   /* 판타지 17~20 */ dragon:{ n:17, emoji:"🐉", name:"드래곤", lift:5 }, unicorn:{ n:18, emoji:"🦄", name:"유니콘" },
   carpet:{ n:19, emoji:"🧞", name:"마법양탄자", lift:4 },             sled:{ n:20, emoji:"🛷", name:"썰매" },
@@ -109,7 +111,7 @@ export const GOAL_MARK_ENABLED = false;
 export const EXPEDITIONS = {
   river: { key:"river", title:"강을 건너자!", emoji:"🌊",
     /* Ch2 강 — 물 위를 건넌다 (목록 안 탈것은 모두 동등) */
-    mounts:["canoe","dolphin","raft","sailboat","ship","turtle","flamingo"],
+    mounts:["canoe","raft","dolphin","turtle","flamingo","sailboat","ship"],
     pose:"swim", goal:"⛺", goalImg:"assets/expedition/flag/blue.webp",   // 도착 = 물방울 깃발 (사용자 원화)
     bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 v3 (1.87:1 권장 비율 — 구도는 v2와 동일, 원본 art-src)
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
@@ -124,7 +126,7 @@ export const EXPEDITIONS = {
       deco:[[6,30,"🌳",26],[13,66,"🌿",15],[93,28,"🌲",24],[87,66,"🪨",14],[8,84,"💧",11],[94,84,"🐟",12]] } },
   mountain: { key:"mountain", title:"바위산에 오르자!", emoji:"🏔️",
     /* Ch3 바위산 — 바위를 오른다 */
-    mounts:["goat","cablecar","deer","horse","eagle"],
+    mounts:["goat","cablecar","deer","horse","eagle","unicorn"],
     pose:"walk", item:"rope", goal:"🚩", goalImg:"assets/expedition/flag/red.webp",   // 정상 정복 = 빨간 깃발
     bgImg:"assets/expedition/bg-mountain.webp",   // 사용자 배경 원화 (바위산 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#CDE6F5","#F2EFE2"], ground:["#B9C9A0","#8FA878"], groundH:38,
@@ -153,7 +155,7 @@ export const EXPEDITIONS = {
       deco:[[6,26,"🪨",22],[13,80,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
   desert: { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
     /* Ch7 사막 — 모래벌판을 건넌다 */
-    mounts:["camel","carpet","cloud","eagle","balloon","motorbike","sandboard"],
+    mounts:["camel","carpet","eagle","balloon","motorbike","sandboard"],
     pose:"walk",   // 기획서: 사막의 기본은 걷기 — 탈것(낙타·양탄자…)은 회차마다 mounts에서
     goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
     bgImg:"assets/expedition/bg-desert.webp",   // 사용자 배경 원화 (오아시스·유적 아치 — 원본 art-src/expedition/bg/)
@@ -163,7 +165,7 @@ export const EXPEDITIONS = {
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
     /* Ch9 바다 — 수평선 위 섬까지 간다 */
-    mounts:["ship","dolphin","canoe","sailboat","turtle","whale","submarine"],
+    mounts:["ship","dolphin","canoe","raft","sailboat","turtle","whale","submarine"],
     pose:"swim",   // 기획서: 바다의 기본은 수영 — 배·돌고래 등은 회차마다 mounts에서
     idlePose:"swim",   // 출발지도 바다 한가운데 — 서 있을 땅이 없어 물에 떠서 기다린다
     goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
@@ -186,7 +188,7 @@ export const EXPEDITIONS = {
       deco:[[6,30,"🌳",26],[14,64,"🌼",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🐇",12]] } },
   meadow: { key:"meadow", title:"초원을 달리자!", emoji:"🌾",
     /* Ch6 초원 — 풀밭을 달린다 */
-    mounts:["horse","balloon","deer","donkey","cloud"],
+    mounts:["horse","balloon","deer","donkey","unicorn"],
     /* [사용자 확정] 초원은 '달리기' — 전용 달리기 원화 + 이동 속도도 조금 빠르게(moveMs) */
     pose:"run", moveMs:1000, goal:"🏁", goalImg:"assets/expedition/flag/yellow.webp",   // 결승선 = 별 깃발
     bgImg:"assets/expedition/bg-meadow.webp",   // 사용자 배경 원화 (양·풍차 초원 — 원본 art-src/expedition/bg/)
@@ -198,7 +200,7 @@ export const EXPEDITIONS = {
      키도 ruins → treasure 로 바꿨다 — 저장되는 값이 아니라 안전하다. */
   treasure: { key:"treasure", title:"보물상자를 찾자!", emoji:"🎁",
     /* Ch12 보물섬 — 섬 안 모랫길을 지나 보물상자로. 배경이 육지라 배 대신 육상·하늘 탈것 */
-    mounts:["horse","deer","unicorn","dragon","cloud","owl"],
+    mounts:["horse","deer","unicorn","dragon","owl","carpet"],
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
     bgImg:"assets/expedition/bg-treasure.webp",   // 사용자 배경 원화 (황금 보물섬·무지개·폭포 — 원본 art-src)
     scene:{ sky:["#7EC8F0","#D9EFB0"], ground:["#EBD188","#D6B863"], groundH:34,
@@ -211,7 +213,7 @@ export const EXPEDITIONS = {
       deco:[[6,26,"🌴",26],[14,64,"💎",14],[93,28,"🎁",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
   snow: { key:"snow", title:"설원을 건너자!", emoji:"❄️",
     /* Ch8 설원 — 눈길을 건넌다 */
-    mounts:["sled","reindeersled","iceslide","dragon","unicorn","cloud"],
+    mounts:["sled","reindeersled","iceslide","dragon","unicorn"],
     pose:"walk", goal:"🏡", goalImg:"assets/expedition/flag/red.webp",   // 눈 대비 빨간 깃발
     bgImg:"assets/expedition/bg-snow.webp",   // 사용자 배경 원화 (오로라·눈사람·통나무집 — 원본 art-src)
     scene:{ sky:["#BBD9F7","#E8F3FC"], ground:["#EAF2FA","#CFE2F2"], groundH:34,
@@ -240,7 +242,7 @@ export const EXPEDITIONS = {
       deco:[[6,26,"☁️",22],[14,64,"🎈",14],[93,26,"🌈",22],[88,66,"☁️",16],[8,84,"✨",10]] } },
   space: { key:"space", title:"우주를 탐험하자!", emoji:"🚀",
     /* Ch11 우주 — 하늘섬처럼 늘 탈것을 탄다 */
-    mounts:["rocket","meteor","dragon","unicorn","cloud"], alwaysMount:true,
+    mounts:["rocket","meteor","dragon","unicorn"], alwaysMount:true,
     pose:"walk",   // 폴백(실제로는 늘 탑승) — 도착 만세만 걷기 계열 원화를 쓴다
     goal:"🛰️", goalImg:"assets/expedition/flag/yellow.webp",
     bgImg:"assets/expedition/bg-space.webp",   // 사용자 배경 원화 (발사대→우주기지 — 원본 art-src)
