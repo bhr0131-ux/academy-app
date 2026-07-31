@@ -60,7 +60,10 @@ export const MOUNTS = {
    그림을 받을 때마다 이 배열에 키만 추가하면 된다. 파일은 항상
    public/assets/expedition/ride/{키}.webp (원본은 art-src/expedition/ride/).
    여기 없는 탈것은 그날 순환에서 건너뛰고 기본 이동(걷기·수영)이 나온다. */
-export const RIDE_READY = [];
+export const RIDE_READY = [
+  "horse","dolphin","deer","canoe",          // 1차 (사용자 원화 2026-07-31)
+  "camel","carpet","goat","cablecar",       // 2차
+];
 RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
 /* ── Adventure Item Sheet (13종) — 걷기 캐릭터에 아이템만 추가 ── */
