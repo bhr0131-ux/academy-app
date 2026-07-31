@@ -142,6 +142,10 @@ export const EXPEDITIONS = {
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
     scene:{ sky:["#E4D9C3","#F4EDDD"], ground:["#C8B48E","#AE9770"], groundH:36,
       deco:[[6,26,"🏛️",26],[14,64,"🪨",14],[93,28,"🗿",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
+  /* [대기 중] 하늘섬 — 배경 원화는 art-src/expedition/bg/bg-skyisle-src.webp 에 보관돼 있다.
+     하늘은 걸어서 지날 수 없어, 공용 탑승(앉기) 원화가 오면 열기구(MOUNTS.balloon)를 태워
+     여기에 항목을 추가하고 EXPEDITION_ORDER 끝에 "skyisle"을 넣는다 (사용자 확정 2026-07-31).
+     그때 배경만 public/assets/expedition/bg-skyisle.webp 로 다시 뽑으면 된다. */
 };
 
 /* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
