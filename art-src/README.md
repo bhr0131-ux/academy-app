@@ -168,4 +168,12 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/bg/bg-skyisle-src.webp | 하늘섬 배경 (1717×916 — 성 있는 부유섬·열기구·무지개) **아직 미탑재**: 하늘을 지나갈 탑승(앉기) 원화가 오면 열기구로 태워 탐험 목록에 추가 (사용자 확정 2026-07-31) | — |
 | expedition/bg/bg-sea-src.webp | 바다 배경 (1672×941 — 수평선 위 보물섬·갈매기, 6번째 탐험) | expedition/bg-sea.webp |
 | expedition/bg/bg-desert-src.webp | 사막 배경 (1717×916 — 오아시스·유적 아치·사막여우, 5번째 탐험) | expedition/bg-desert.webp |
+| expedition/ride/horse-src.webp | 탑승 원화 7 말 — 숲·깊은숲·초원 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/horse.webp |
+| expedition/ride/dolphin-src.webp | 탑승 원화 5 돌고래 — 강·바다·보물 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/dolphin.webp |
+| expedition/ride/deer-src.webp | 탑승 원화 9 사슴 — 숲 대표·바위산/깊은숲 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/deer.webp |
+| expedition/ride/canoe-src.webp | 탑승 원화 1 카누 — 강 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/canoe.webp |
+| expedition/ride/camel-src.webp | 탑승 원화 10 낙타 — 사막 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/camel.webp |
+| expedition/ride/carpet-src.webp | 탑승 원화 19 마법양탄자 — 사막 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/carpet.webp |
+| expedition/ride/goat-src.webp | 탑승 원화 11 산양 — 바위산 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/goat.webp |
+| expedition/ride/cablecar-src.webp | 탑승 원화 12 케이블카 — 바위산 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/cablecar.webp |
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
