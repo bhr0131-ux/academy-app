@@ -83,10 +83,10 @@ export const EXPEDITIONS = {
       deco:[[7,26,"🏔️",30],[14,64,"🌲",18],[92,24,"☁️",18],[88,64,"🪨",15],[5,84,"🌼",11]] } },
   "수": { key:"forest", title:"숲을 통과하자!", emoji:"🌳",
     pose:"walk", item:"compass", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
-    bgImg:"assets/expedition/bg-forest.webp",   // 사용자 배경 원화 (원본 art-src/expedition/bg/)
+    bgImg:"assets/expedition/bg-forest.webp",   // 사용자 배경 원화 v2 '깊은 숲' (v1 숲길은 art-src 보존)
     scene:{ sky:["#D8EFC9","#F0F6E2"], ground:["#9CBF7C","#7BA45E"], groundH:36,
-      /* 흙길이 카드 하단 1/3을 가로지른다 — 길 위에 발이 닿게 */
-      charB:24, goalB:27, x0:10, x1:81,
+      /* 깊은 숲 흙길 — 왼쪽에서 오른쪽으로 살짝 오르막 (charB→charB1 보간) */
+      charB:29, charB1:35, goalB:38, x0:10, x1:81,
       deco:[[6,28,"🌳",28],[14,62,"🍄",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🦋",11]] } },
   "목": { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
     pose:"walk", item:"torch", goal:"🌕", goalImg:"assets/expedition/flag/yellow.webp",   // 어둠 속 별 깃발
