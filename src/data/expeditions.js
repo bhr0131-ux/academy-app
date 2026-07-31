@@ -3,7 +3,7 @@
    ────────────────────────────────────────────────────────────────────────
    핵심: "미션을 완료하면 진행률이 오르는 게 아니라, 탐험가 캐릭터가
    실제로 목적지까지 이동한다." 진행률 바는 없다.
-     · 하루는 하나의 탐험 목표만 (요일 고정: 월=강 … 일=유적)
+     · 하루는 하나의 탐험 목표만 — 날짜 순서대로 순환 (강→산→…→유적→강, 요일 고정 아님)
      · 미션 n개 중 k개 완료 → 캐릭터가 길의 k/n 지점에 서 있다
      · 마지막 미션 완료 → 도착 + 성공 연출
 
@@ -50,7 +50,9 @@ export const ADVENTURE_ITEMS = {
   goldkey:{ emoji:"🗝️", name:"황금열쇠" },
 };
 
-/* ── 요일별 탐험 (사용자 기획 확정: 월 강 · 화 산 · 수 숲 · 목 동굴 · 금 사막 · 토 바다 · 일 유적) ──
+/* ── 탐험 목록 (사용자 확정: 요일 고정이 아니라 '날짜 순서대로' 순환한다 —
+      강→산→숲→동굴→사막→바다→유적, 끝나면 처음부터. 배경을 더 만들면
+      EXPEDITION_ORDER에 끝에 추가만 하면 되고, 7종을 넘는 순간 주간 반복도 깨진다) ──
    pose  : walk | ride  (수영은 강이지만 v1은 카누 탑승 — 수영 원화가 오면 swim으로 교체)
    mount : pose가 ride일 때 MOUNTS 키
    item  : 걷기에 얹는 ADVENTURE_ITEMS 키 (기획 예시: 동굴=횃불 · 숲=나침반 · 사막=물병 · 보물=지도)
@@ -59,7 +61,7 @@ export const ADVENTURE_ITEMS = {
    scene : CSS 폴백 배경 — sky·ground 그라데이션, 장식은 가장자리만(중앙 비움 규칙)
            deco: [x%, y%, 이모지, 크기px] (x는 0~22 또는 78~100만 쓸 것)          */
 export const EXPEDITIONS = {
-  "월": { key:"river", title:"강을 건너자!", emoji:"🌊",
+  river: { key:"river", title:"강을 건너자!", emoji:"🌊",
     pose:"swim", goal:"⛺", goalImg:"assets/expedition/flag/blue.webp",   // 도착 = 물방울 깃발 (사용자 원화)
     bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 (원본 art-src/expedition/bg/)
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
@@ -72,7 +74,7 @@ export const EXPEDITIONS = {
       /* 도착 후 만세 높이 — 물이 아니라 땅(잔디) 위 (사용자 확정). x는 깃발 앞(기본값) */
       aB:26,
       deco:[[6,30,"🌳",26],[13,66,"🌿",15],[93,28,"🌲",24],[87,66,"🪨",14],[8,84,"💧",11],[94,84,"🐟",12]] } },
-  "화": { key:"mountain", title:"바위산에 오르자!", emoji:"🏔️",
+  mountain: { key:"mountain", title:"바위산에 오르자!", emoji:"🏔️",
     pose:"walk", item:"rope", goal:"🚩", goalImg:"assets/expedition/flag/red.webp",   // 정상 정복 = 빨간 깃발
     bgImg:"assets/expedition/bg-mountain.webp",   // 사용자 배경 원화 (바위산 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#CDE6F5","#F2EFE2"], ground:["#B9C9A0","#8FA878"], groundH:38,
@@ -81,32 +83,43 @@ export const EXPEDITIONS = {
       charB:6, charB1:56, goalB:60, x0:12, x1:79,
       xi:12, iB:6, aB:56,
       deco:[[7,26,"🏔️",30],[14,64,"🌲",18],[92,24,"☁️",18],[88,64,"🪨",15],[5,84,"🌼",11]] } },
-  "수": { key:"forest", title:"숲을 통과하자!", emoji:"🌳",
+  forest: { key:"forest", title:"숲을 통과하자!", emoji:"🌳",
     pose:"walk", item:"compass", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
     bgImg:"assets/expedition/bg-forest.webp",   // 사용자 배경 원화 v2 '깊은 숲' (v1 숲길은 art-src 보존)
     scene:{ sky:["#D8EFC9","#F0F6E2"], ground:["#9CBF7C","#7BA45E"], groundH:36,
       /* 깊은 숲 흙길 — 왼쪽에서 오른쪽으로 살짝 오르막 (charB→charB1 보간) */
       charB:29, charB1:35, goalB:38, x0:10, x1:81,
       deco:[[6,28,"🌳",28],[14,62,"🍄",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🦋",11]] } },
-  "목": { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
+  cave: { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
     pose:"walk", item:"torch", goal:"🌕", goalImg:"assets/expedition/flag/yellow.webp",   // 어둠 속 별 깃발
     scene:{ sky:["#4D4661","#6B617E"], ground:["#5D5470","#443C55"], groundH:34,
       deco:[[6,26,"🪨",22],[13,80,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
-  "금": { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
+  desert: { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
     pose:"ride", mount:"camel", goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
     scene:{ sky:["#FBE3B7","#FDF2DC"], ground:["#EBCB8B","#D9B26C"], groundH:36,
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
-  "토": { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
+  sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
     pose:"ride", mount:"sailboat", goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
     scene:{ sky:["#BEE4F5","#E9F6F0"], ground:["#6FBDDD","#4E9FC6"], groundH:40,
       deco:[[6,28,"☁️",18],[13,64,"🐚",12],[93,26,"🌴",24],[88,66,"🐬",14],[8,84,"🫧",11]] } },
-  "일": { key:"ruins", title:"보물상자를 찾자!", emoji:"🎁",
+  ruins: { key:"ruins", title:"보물상자를 찾자!", emoji:"🎁",
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
     scene:{ sky:["#E4D9C3","#F4EDDD"], ground:["#C8B48E","#AE9770"], groundH:36,
       deco:[[6,26,"🏛️",26],[14,64,"🪨",14],[93,28,"🗿",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
 };
 
-export const getExpedition = (dayName) => EXPEDITIONS[dayName] || EXPEDITIONS["일"];
+/* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
+export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins"];
+/* 기준일(2026-01-05 월 = 강)부터 하루에 한 칸씩 순서대로 돈다.
+   날짜만으로 정해지는 고정 시드라 과거·미래 어느 날짜를 열어도 항상 같다. */
+const EXP_EPOCH = new Date("2026-01-05T00:00:00");
+export function getExpedition(dateStr) {
+  const d = new Date(String(dateStr || "") + "T00:00:00");
+  const days = Math.round((d - EXP_EPOCH) / 86400000);
+  const n = EXPEDITION_ORDER.length;
+  const idx = Number.isFinite(days) ? ((days % n) + n) % n : 0;
+  return EXPEDITIONS[EXPEDITION_ORDER[idx]] || EXPEDITIONS.ruins;
+}
 
 /* 캐릭터 포즈 원화 (사용자 원화 2026-07-30 — 원본 art-src/expedition/char/).
    [사용자 확정] 지금은 남자아이 원화 하나를 남녀 공용으로 쓴다 — 여아 원화가

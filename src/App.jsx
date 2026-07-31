@@ -3996,7 +3996,7 @@ export default function App() {
                     /* 풀블리드 — 콘텐츠 패딩(16px) 상쇄해 양옆 꽉 차게 (사용자 확정) */
                     <div style={{margin:"0 -16px 0"}}>
                       <ExpeditionTrack
-                        day={childTodayDN}
+                        date={childDate||TODAY}
                         done={q.done}
                         total={q.total}
                         charImg={getMapWalker(th.main, curChild?.gender)}
