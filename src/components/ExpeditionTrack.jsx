@@ -40,6 +40,10 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const cb0 = sc.charB ?? sc.groundH * 0.35;
   const charBottom = sc.charB1 != null ? cb0 + t * (sc.charB1 - cb0) : cb0;
   const goalBottom = sc.goalB ?? sc.groundH * 0.55;
+  /* 캐릭터·깃발 크기 — 씬마다 다를 수 있다(바다처럼 멀리 있는 섬으로 가는 그림).
+     charH1을 주면 이동하며 크기도 보간해 원근감을 낸다(가까운 앞 → 멀어지며 작게). */
+  const ch0 = sc.charH ?? 64;
+  const goalH = sc.goalH ?? 56;
 
   /* 이동 시간 — 기본 1.4초. 씬이 moveMs를 주면 그 속도로 (초원=달리기라 조금 빠르게).
      걸음 흔들림 주기도 같이 줄여야 빨리 움직이는 만큼 다리도 바쁘게 보인다. */
@@ -77,13 +81,19 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const idle = !arrived && done === 0 && !moving;
   const facingLeft = t !== prevT.current ? t < prevT.current : (walking && back);
   const celebrating = arrived && !moving;
-  const poseKey = celebrating ? "success" : idle ? "idle" : exp.pose;
-  const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG.walk?.[gender] || null;
+  /* idlePose: 출발지가 땅이 아닌 씬(바다)은 서 있는 대신 물에 떠 있게 (씬이 정한다) */
+  const poseKey = celebrating ? "success" : idle ? (exp.idlePose || "idle") : exp.pose;
+  /* poseFallback: 원화가 없는 포즈(지금은 ride)를 무엇으로 대신할지 씬이 정한다 —
+     바다는 물 위를 걸을 수 없으니 수영으로 (사막처럼 땅이면 기본값 걷기) */
+  const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG[exp.poseFallback]?.[gender]
+    || CHAR_IMG.walk?.[gender] || null;
   /* 출발 전엔 대기 위치(xi/iB — 강은 둑 위)로. 도착해 만세할 땐 '깃발 바로 앞'이 기본
      (사용자 확정: 깃발이 뒤, 캐릭터가 앞 — 캐릭터 zIndex가 높아 겹치면 앞에 선다).
      씬별로 xa로 재정의 가능. */
   const xPos = idle ? (sc.xi ?? x0) : celebrating ? (sc.xa ?? ((sc.gx ?? 90) - 2)) : x;
   const bottomPos = idle ? (sc.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
+  /* 출발 전엔 출발 크기 그대로, 이동 중·도착은 진행도만큼 보간된 크기 */
+  const charH = idle || sc.charH1 == null ? ch0 : ch0 + t * (sc.charH1 - ch0);
 
   return (
     <div style={{ position: "relative", overflow: "hidden", borderRadius: fullBleed ? 0 : 22, marginBottom: 14,
@@ -124,7 +134,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
           {/* 깃발 원화(goalImg)가 있으면 깃발, 없으면 이모지 (사용자 확정) */}
           {exp.goalImg ? (
             <img src={exp.goalImg} alt="" draggable={false}
-              style={{ height: 56, width: "auto", display: "block", margin: "0 auto",
+              style={{ height: goalH, width: "auto", display: "block", margin: "0 auto",
                 filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.25))",
                 animation: "expBob 2.6s ease-in-out infinite" }} />
           ) : (
@@ -155,7 +165,8 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
               </span>
             )}
             <img src={charB || charImg} alt="" draggable={false}
-              style={{ position: "relative", zIndex: 1, height: 64, width: "auto", display: "block",
+              style={{ position: "relative", zIndex: 1, height: charH, width: "auto", display: "block",
+                transition: `height ${moveMs}ms cubic-bezier(.45,.05,.35,1)`,
                 transform: facingLeft ? "scaleX(-1)" : undefined,   // 뒤로 갈 땐 왼쪽을 본다 (기획: 좌우 반전)
                 margin: "0 auto", marginBottom: mount && !celebrating ? 14 : 0,
                 filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 3px 4px rgba(0,0,0,0.3))" }} />
@@ -168,7 +179,8 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
             )}
           </div>
           {/* 접지 그림자 */}
-          <div style={{ width: 34, height: 7, borderRadius: "50%", margin: "-1px auto 0",
+          <div style={{ width: Math.round(34 * charH / 64), height: Math.max(4, Math.round(7 * charH / 64)),
+            borderRadius: "50%", margin: "-1px auto 0", transition: `width ${moveMs}ms linear`,
             background: dark ? "rgba(0,0,0,0.45)" : "rgba(60,50,30,0.28)", filter: "blur(2.5px)" }} />
         </div>
 

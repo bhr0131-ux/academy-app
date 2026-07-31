@@ -106,8 +106,16 @@ export const EXPEDITIONS = {
       charB:12, goalB:14, gx:90, x0:9, x1:83,
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
-    pose:"ride", mount:"sailboat", goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
+    pose:"ride", mount:"sailboat", poseFallback:"swim",   // 범선 원화가 올 때까지는 헤엄쳐서 건넌다
+    idlePose:"swim",   // 출발지도 바다 한가운데 — 서 있을 땅이 없어 물에 떠서 기다린다
+    goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
+    bgImg:"assets/expedition/bg-sea.webp",   // 사용자 배경 원화 (수평선 위 보물섬 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#BEE4F5","#E9F6F0"], ground:["#6FBDDD","#4E9FC6"], groundH:40,
+      /* 앞바다(아래)에서 수평선 위 섬(오른쪽 위)으로 — 멀어지는 만큼 높이도 크기도 줄인다 */
+      /* 수영 원화는 가로로 넓어 x0/xi를 안쪽으로 (왼쪽 끝에서 잘리지 않게) */
+      charB:6, charB1:27, charH:58, charH1:32, x0:14, x1:68,
+      gx:76, goalB:30, goalH:30,   /* 깃발은 섬 왼쪽 빈 백사장 (보물 동굴 왼편) */
+      xi:15, iB:6, xa:73, aB:29,   /* 만세는 백사장 위 — 섬 왼쪽 끝은 모래가 좁아 안쪽으로 */
       deco:[[6,28,"☁️",18],[13,64,"🐚",12],[93,26,"🌴",24],[88,66,"🐬",14],[8,84,"🫧",11]] } },
   wood: { key:"wood", title:"숲길을 산책하자!", emoji:"🌲",
     pose:"walk", item:"lunchbox", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
