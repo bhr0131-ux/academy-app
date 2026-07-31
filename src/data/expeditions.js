@@ -102,6 +102,13 @@ export const EXPEDITIONS = {
     pose:"ride", mount:"sailboat", goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
     scene:{ sky:["#BEE4F5","#E9F6F0"], ground:["#6FBDDD","#4E9FC6"], groundH:40,
       deco:[[6,28,"☁️",18],[13,64,"🐚",12],[93,26,"🌴",24],[88,66,"🐬",14],[8,84,"🫧",11]] } },
+  wood: { key:"wood", title:"숲길을 산책하자!", emoji:"🌲",
+    pose:"walk", item:"lunchbox", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
+    bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 '그냥 숲 — 산책 컨셉' (원본 art-src/expedition/bg/)
+    scene:{ sky:["#CBE8F5","#EAF6E9"], ground:["#A9CF7F","#8AB763"], groundH:36,
+      /* 넓은 흙길이 하단을 가로지른다 — 길 위 산책. 토끼들(우측 잔디)은 장식 */
+      charB:22, goalB:24, x0:10, x1:81,
+      deco:[[6,30,"🌳",26],[14,64,"🌼",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🐇",12]] } },
   ruins: { key:"ruins", title:"보물상자를 찾자!", emoji:"🎁",
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
     scene:{ sky:["#E4D9C3","#F4EDDD"], ground:["#C8B48E","#AE9770"], groundH:36,
@@ -109,7 +116,7 @@ export const EXPEDITIONS = {
 };
 
 /* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
-export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins"];
+export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins","wood"];   // 8번째 "숲길 산책" 추가 — 주간 반복이 깨짐
 /* 기준일(2026-01-05 월 = 강)부터 하루에 한 칸씩 순서대로 돈다.
    날짜만으로 정해지는 고정 시드라 과거·미래 어느 날짜를 열어도 항상 같다. */
 const EXP_EPOCH = new Date("2026-01-05T00:00:00");
