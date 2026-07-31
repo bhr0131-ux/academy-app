@@ -70,7 +70,6 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   }, [t, moveMs]);
 
   const dark = !!sc.dark;
-  const inkSub = dark ? "rgba(240,240,250,0.75)" : "rgba(90,68,48,0.75)";
   /* 포즈 원화 선택 (사용자 확정) —
        미션 0개 = 출발지에서 '기본 서있기(idle)' / 이동 중 = 걷기·수영 /
        도착 = 성공(만세). ride 원화가 아직 없어 걷기로 대체.
@@ -107,7 +106,31 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const imgH = Math.round(riding ? charH * (mount.hMul ?? 1.35) : charH);
 
   return (
-    <div style={{ position: "relative", overflow: "hidden", borderRadius: fullBleed ? 0 : 22, marginBottom: 14,
+    <div style={{ marginBottom: 14 }}>
+    {/* ── 제목·진행 칩 — [사용자 확정 2026-07-31] 그림 밖으로 빼서 날짜와 그림 사이에 둔다.
+           풀블리드 카드는 좌우로 16px 삐져나와 있으니 헤더는 그만큼 안쪽으로 넣어 본문과 맞춘다.
+           그림 위가 아니라 배경(크림색) 위에 놓이므로 어두운 씬에서도 밝은 칩을 쓴다. ── */}
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
+      gap: 8, padding: fullBleed ? "0 16px" : 0, marginBottom: 8 }}>
+      <div style={{ background: "rgba(255,251,240,0.88)", border: "1px solid rgba(155,114,74,0.35)",
+        borderRadius: 12, padding: "5px 11px", boxShadow: "0 2px 6px rgba(0,0,0,0.08)" }}>
+        {/* 한 줄 표기 (사용자 확정: 줄바꿈 없이, 글씨 크기는 그대로) */}
+        <p style={{ margin: 0, whiteSpace: "nowrap" }}>
+          <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 0.5, color: "rgba(90,68,48,0.75)" }}>오늘의 탐험</span>
+          <span style={{ fontSize: 14.5, fontWeight: 900, marginLeft: 7, color: "#4B3A2F" }}>{exp.emoji} {exp.title}</span>
+        </p>
+      </div>
+      {total > 0 && (
+        <div style={{ background: "rgba(255,251,240,0.88)", border: "1px solid rgba(155,114,74,0.35)",
+          borderRadius: 999, padding: "5px 11px", fontSize: 12, fontWeight: 900,
+          color: "#4B3A2F", boxShadow: "0 2px 6px rgba(0,0,0,0.08)", flexShrink: 0 }}>
+          {/* [사용자 확정] '탐험 성공!' 문구는 뺀다 — 도착해도 숫자만 (연출은 만세 포즈로 충분) */}
+          {`${exp.emoji} ${done}/${total}`}
+        </div>
+      )}
+    </div>
+
+    <div style={{ position: "relative", overflow: "hidden", borderRadius: fullBleed ? 0 : 22,
       /* 풀블리드(사용자 확정: 양옆 꽉 차게)일 땐 위아래 선만 남긴다 */
       border: fullBleed ? "none" : dark ? "1px solid #3A3450" : "1px solid rgba(155,114,74,0.35)",
       borderTop: fullBleed ? (dark ? "1px solid #3A3450" : "1px solid rgba(155,114,74,0.35)") : undefined,
@@ -198,34 +221,10 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
           )}
         </div>
 
-        {/* ── 상단: 오늘의 탐험 제목 (왼쪽) + 남은 미션 (오른쪽 — 숫자만, 바 없음) ── */}
-        <div style={{ position: "absolute", top: 10, left: 12, right: 12, display: "flex",
-          justifyContent: "space-between", alignItems: "flex-start", pointerEvents: "none" }}>
-          <div style={{ background: dark ? "rgba(30,26,45,0.72)" : "rgba(255,251,240,0.88)",
-            border: dark ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(155,114,74,0.35)",
-            borderRadius: 12, padding: "5px 11px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}>
-            {/* 한 줄 표기 (사용자 확정: 줄바꿈 없이, 글씨 크기는 그대로) */}
-            <p style={{ margin: 0, whiteSpace: "nowrap" }}>
-              <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 0.5, color: inkSub }}>오늘의 탐험</span>
-              <span style={{ fontSize: 14.5, fontWeight: 900, marginLeft: 7,
-                color: dark ? "#F5F2FF" : "#4B3A2F" }}>{exp.emoji} {exp.title}</span>
-            </p>
-          </div>
-          {total > 0 && (
-            <div style={{ background: dark ? "rgba(30,26,45,0.72)" : "rgba(255,251,240,0.88)",
-              border: dark ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(155,114,74,0.35)",
-              borderRadius: 999, padding: "5px 11px", fontSize: 12, fontWeight: 900,
-              color: dark ? "#F5F2FF" : "#4B3A2F", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}>
-              {/* [사용자 확정] '탐험 성공!' 문구는 뺀다 — 도착해도 숫자만 (연출은 만세 포즈로 충분) */}
-              {`${exp.emoji} ${done}/${total}`}
-            </div>
-          )}
-        </div>
-
-        {/* [사용자 확정] 미션 없는 날의 '오늘은 쉬어가는 날 😴' 안내도 뺀다 —
-            그림 위에 글자를 얹지 않고 캐릭터가 출발지에 서 있는 것만 보여준다 */}
+        {/* [사용자 확정] 그림 위에는 글자를 얹지 않는다 — 제목·진행 칩은 그림 밖(위)으로 뺐고,
+            미션 없는 날의 '오늘은 쉬어가는 날 😴' 안내도 없앴다. 캐릭터만 보여준다 */}
       </div>
+    </div>
     </div>
   );
 }
