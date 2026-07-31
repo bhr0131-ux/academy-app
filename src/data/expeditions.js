@@ -26,7 +26,8 @@
    원본 원화는 art-src/expedition/ 에 보관할 것 (CLAUDE.md 5).
    ════════════════════════════════════════════════════════════════════════ */
 
-/* ── Riding Sheet (20종) — 탈것은 이모지/PNG 교체만, 탑승 포즈는 공용 ── */
+/* ── Riding Sheet (24종) — 탈것은 이모지/PNG 교체만, 탑승 포즈는 공용 ──
+   [주의] 키 이름은 씬별 mounts 목록·순환 계산에 쓰이므로 바꾸지 말 것. 새 탈것은 뒤에 추가. */
 export const MOUNTS = {
   /* 물 */    canoe:{ emoji:"🛶", name:"카누" }, raft:{ emoji:"🪵", name:"뗏목" },
   sailboat:{ emoji:"⛵", name:"범선" }, ship:{ emoji:"🚢", name:"큰배" },
@@ -38,6 +39,9 @@ export const MOUNTS = {
   cloud:{ emoji:"☁️", name:"구름" }, rocket:{ emoji:"🚀", name:"로켓" },
   /* 판타지 */ dragon:{ emoji:"🐉", name:"드래곤" }, unicorn:{ emoji:"🦄", name:"유니콘" },
   carpet:{ emoji:"🧞", name:"마법양탄자" }, sled:{ emoji:"🛷", name:"썰매" },
+  /* 사용자 기획서 2026-07-31 추가 — 동굴·우주 전용 */
+  minecart:{ emoji:"🚋", name:"광산 수레" }, bat:{ emoji:"🦇", name:"박쥐" },
+  crystal:{ emoji:"💎", name:"수정 슬라이드" }, meteor:{ emoji:"🌠", name:"별 유성" },
 };
 
 /* ── Adventure Item Sheet (13종) — 걷기 캐릭터에 아이템만 추가 ── */
@@ -60,8 +64,11 @@ export const GOAL_MARK_ENABLED = false;
 /* ── 탐험 목록 (사용자 확정: 요일 고정이 아니라 '날짜 순서대로' 순환한다 —
       강→산→숲→동굴→사막→바다→유적, 끝나면 처음부터. 배경을 더 만들면
       EXPEDITION_ORDER에 끝에 추가만 하면 되고, 7종을 넘는 순간 주간 반복도 깨진다) ──
-   pose  : walk | ride  (수영은 강이지만 v1은 카누 탑승 — 수영 원화가 오면 swim으로 교체)
-   mount : pose가 ride일 때 MOUNTS 키
+   pose  : 그 챕터의 '기본' 이동 (walk | swim | run | ride)
+   mounts: 그 챕터의 탈것 목록 — 앞의 두 개가 '대표 탈것' (사용자 기획서 2026-07-31).
+           같은 챕터가 돌아올 때마다 기본 → 대표1 → 대표2 → 변형… 순으로 바뀐다
+           (getExpeditionMount). 같은 배경을 오래 쓰기 위한 장치.
+   mount : mounts가 없을 때 쓰는 고정 탈것 (구버전 필드)
    item  : 걷기에 얹는 ADVENTURE_ITEMS 키 (기획 예시: 동굴=횃불 · 숲=나침반 · 사막=물병 · 보물=지도)
    goal  : 오른쪽 도착 지점 이모지 (goalImg 깃발 원화가 있으면 그걸 우선 — 사용자 확정)
    goalImg: 도착 깃발 원화 — 빨강=산·사막 / 파랑=강·바다 / 초록=숲 / 노랑=동굴·유적
@@ -69,6 +76,8 @@ export const GOAL_MARK_ENABLED = false;
            deco: [x%, y%, 이모지, 크기px] (x는 0~22 또는 78~100만 쓸 것)          */
 export const EXPEDITIONS = {
   river: { key:"river", title:"강을 건너자!", emoji:"🌊",
+    /* Ch2 강 — 대표: 카누·돌고래 (사용자 기획서 2026-07-31) */
+    mounts:["canoe","dolphin","raft","sailboat","ship","turtle"],
     pose:"swim", goal:"⛺", goalImg:"assets/expedition/flag/blue.webp",   // 도착 = 물방울 깃발 (사용자 원화)
     bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 v3 (1.87:1 권장 비율 — 구도는 v2와 동일, 원본 art-src)
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
@@ -82,6 +91,8 @@ export const EXPEDITIONS = {
       aB:26,
       deco:[[6,30,"🌳",26],[13,66,"🌿",15],[93,28,"🌲",24],[87,66,"🪨",14],[8,84,"💧",11],[94,84,"🐟",12]] } },
   mountain: { key:"mountain", title:"바위산에 오르자!", emoji:"🏔️",
+    /* Ch3 바위산 — 대표: 산양·케이블카 (사용자 기획서 2026-07-31) */
+    mounts:["goat","cablecar","deer","horse","eagle"],
     pose:"walk", item:"rope", goal:"🚩", goalImg:"assets/expedition/flag/red.webp",   // 정상 정복 = 빨간 깃발
     bgImg:"assets/expedition/bg-mountain.webp",   // 사용자 배경 원화 (바위산 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#CDE6F5","#F2EFE2"], ground:["#B9C9A0","#8FA878"], groundH:38,
@@ -91,6 +102,8 @@ export const EXPEDITIONS = {
       xi:12, iB:6, aB:56,
       deco:[[7,26,"🏔️",30],[14,64,"🌲",18],[92,24,"☁️",18],[88,64,"🪨",15],[5,84,"🌼",11]] } },
   forest: { key:"forest", title:"숲을 통과하자!", emoji:"🌳",
+    /* Ch4 깊은 숲 — 대표: 말·유니콘 (사용자 기획서 2026-07-31) */
+    mounts:["horse","unicorn","deer","donkey","dragon"],
     pose:"walk", item:"compass", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
     bgImg:"assets/expedition/bg-forest.webp",   // 사용자 배경 원화 v2 '깊은 숲' (v1 숲길은 art-src 보존)
     scene:{ sky:["#D8EFC9","#F0F6E2"], ground:["#9CBF7C","#7BA45E"], groundH:36,
@@ -98,6 +111,8 @@ export const EXPEDITIONS = {
       charB:29, charB1:35, goalB:38, x0:10, x1:81,
       deco:[[6,28,"🌳",28],[14,62,"🍄",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🦋",11]] } },
   cave: { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
+    /* Ch5 동굴 — 대표: 광산 수레·박쥐 (사용자 기획서 2026-07-31) */
+    mounts:["minecart","bat","crystal","dragon"],
     pose:"walk", item:"torch", goal:"🌕", goalImg:"assets/expedition/flag/yellow.webp",   // 어둠 속 별 깃발
     bgImg:"assets/expedition/bg-cave.webp",   // 사용자 배경 원화 v2 (1.93:1 — 출구 아치가 안전 영역 안, 원본 art-src)
     scene:{ sky:["#4D4661","#6B617E"], ground:["#5D5470","#443C55"], groundH:34,
@@ -105,6 +120,8 @@ export const EXPEDITIONS = {
       charB:20, goalB:24, x0:10, x1:80,
       deco:[[6,26,"🪨",22],[13,80,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
   desert: { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
+    /* Ch7 사막 — 대표: 낙타·마법양탄자 (사용자 기획서 2026-07-31) */
+    mounts:["camel","carpet","cloud","eagle","balloon"],
     pose:"ride", mount:"camel", goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
     bgImg:"assets/expedition/bg-desert.webp",   // 사용자 배경 원화 (오아시스·유적 아치 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#FBE3B7","#FDF2DC"], ground:["#EBCB8B","#D9B26C"], groundH:36,
@@ -112,6 +129,8 @@ export const EXPEDITIONS = {
       charB:12, goalB:14, gx:90, x0:9, x1:83,
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
+    /* Ch9 바다 — 대표: 큰배·돌고래 (사용자 기획서 2026-07-31) */
+    mounts:["ship","dolphin","canoe","sailboat","turtle"],
     pose:"ride", mount:"sailboat", poseFallback:"swim",   // 범선 원화가 올 때까지는 헤엄쳐서 건넌다
     idlePose:"swim",   // 출발지도 바다 한가운데 — 서 있을 땅이 없어 물에 떠서 기다린다
     goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
@@ -124,6 +143,8 @@ export const EXPEDITIONS = {
       xi:15, iB:6, xa:73, aB:29,   /* 만세는 백사장 위 — 섬 왼쪽 끝은 모래가 좁아 안쪽으로 */
       deco:[[6,28,"☁️",18],[13,64,"🐚",12],[93,26,"🌴",24],[88,66,"🐬",14],[8,84,"🫧",11]] } },
   wood: { key:"wood", title:"숲길을 산책하자!", emoji:"🌲",
+    /* Ch1 숲 — 대표: 사슴·말 (사용자 기획서 2026-07-31) */
+    mounts:["deer","horse","donkey","unicorn","dragon"],
     pose:"walk", item:"lunchbox", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
     bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 v2 (토끼 좌측 배치 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#CBE8F5","#EAF6E9"], ground:["#A9CF7F","#8AB763"], groundH:36,
@@ -131,6 +152,8 @@ export const EXPEDITIONS = {
       charB:22, goalB:24, x0:10, x1:81,
       deco:[[6,30,"🌳",26],[14,64,"🌼",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🐇",12]] } },
   meadow: { key:"meadow", title:"초원을 달리자!", emoji:"🌾",
+    /* Ch6 초원 — 대표: 말·열기구 (사용자 기획서 2026-07-31) */
+    mounts:["horse","balloon","deer","donkey","cloud"],
     /* [사용자 확정] 초원은 '달리기' — 전용 달리기 원화 + 이동 속도도 조금 빠르게(moveMs) */
     pose:"run", moveMs:1000, goal:"🏁", goalImg:"assets/expedition/flag/yellow.webp",   // 결승선 = 별 깃발
     bgImg:"assets/expedition/bg-meadow.webp",   // 사용자 배경 원화 (양·풍차 초원 — 원본 art-src/expedition/bg/)
@@ -139,13 +162,21 @@ export const EXPEDITIONS = {
       charB:24, goalB:28, x0:10, x1:81,
       deco:[[6,30,"🌳",26],[14,66,"🌼",13],[93,26,"🌻",18],[87,66,"🌿",14],[8,84,"🦋",11]] } },
   ruins: { key:"ruins", title:"보물상자를 찾자!", emoji:"🎁",
+    /* Ch12 보물섬 — 대표: 범선·돌고래 (사용자 기획서 2026-07-31) */
+    mounts:["sailboat","dolphin","canoe","unicorn","dragon","cloud"],
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
     scene:{ sky:["#E4D9C3","#F4EDDD"], ground:["#C8B48E","#AE9770"], groundH:36,
       deco:[[6,26,"🏛️",26],[14,64,"🪨",14],[93,28,"🗿",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
-  /* [대기 중] 하늘섬 — 배경 원화는 art-src/expedition/bg/bg-skyisle-src.webp 에 보관돼 있다.
-     하늘은 걸어서 지날 수 없어, 공용 탑승(앉기) 원화가 오면 열기구(MOUNTS.balloon)를 태워
-     여기에 항목을 추가하고 EXPEDITION_ORDER 끝에 "skyisle"을 넣는다 (사용자 확정 2026-07-31).
-     그때 배경만 public/assets/expedition/bg-skyisle.webp 로 다시 뽑으면 된다. */
+  /* ── 배경 원화가 오면 추가할 챕터 (사용자 기획서 2026-07-31의 12챕터 중 남은 것) ──
+     [대기 중] 하늘(Ch10) — 배경은 art-src/expedition/bg/bg-skyisle-src.webp 에 이미 보관돼 있다.
+       하늘은 걸어서 지날 수 없어, 공용 탑승(앉기) 원화가 오면 항목을 추가하고
+       EXPEDITION_ORDER 끝에 "skyisle"을 넣는다. 기본=구름 걷기(판타지),
+       mounts:["cloud","balloon","eagle","dragon","unicorn","rocket"] (대표: 구름·열기구).
+       그때 배경만 public/assets/expedition/bg-skyisle.webp 로 다시 뽑으면 된다.
+     [배경 없음] 설원(Ch8) — 기본=걷기, mounts:["sled","dragon","unicorn","cloud"] (대표: 썰매·드래곤)
+     [배경 없음] 우주(Ch11) — 기본=로켓, mounts:["rocket","meteor","dragon","unicorn","cloud"] (대표: 로켓·유성)
+     ※ 현행 ruins(보물상자를 찾자)가 기획서의 보물섬(Ch12) 자리를 겸하고 있다 —
+       유적 배경이 오면 그때 둘로 나눌지 정한다. */
 };
 
 /* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
@@ -159,6 +190,27 @@ export function getExpedition(dateStr) {
   const n = EXPEDITION_ORDER.length;
   const idx = Number.isFinite(days) ? ((days % n) + n) % n : 0;
   return EXPEDITIONS[EXPEDITION_ORDER[idx]] || EXPEDITIONS.ruins;
+}
+
+/* ── 그날의 탈것 (사용자 기획서 2026-07-31: "챕터마다 대표 탈것 + 변형 탈것") ──
+   같은 배경이 다시 돌아올 때마다 다음 탈것으로 넘어간다. 한 바퀴(=EXPEDITION_ORDER
+   길이)를 돌 때마다 회차가 1 늘고, 그 회차로 씬의 mounts 목록을 순환한다.
+     회차 0 → 기본(걷기·수영·달리기) / 회차 1 → mounts[0](대표1) / 회차 2 → mounts[1](대표2) / …
+   기본을 한 칸 끼워 넣는 이유: 기획서에서 각 챕터의 '기본'도 한 줄로 따로 적혀 있다.
+   날짜만으로 정해지는 고정 시드라 저장할 게 없고, 과거·미래 어느 날을 열어도 같다.
+   [지금은 아무 것도 바뀌지 않는다] 공용 탑승(앉기) 원화가 없어 컴포넌트가 탈것을
+   그리지 않기 때문. 원화가 오면 이 함수가 그대로 그날의 탈것을 정해 준다. */
+export function getExpeditionMount(dateStr) {
+  const exp = getExpedition(dateStr);
+  const list = exp.mounts || [];
+  if (!list.length) return exp.mount || null;   // 목록이 없으면 씬 고정 탈것
+  const d = new Date(String(dateStr || "") + "T00:00:00");
+  const days = Math.round((d - EXP_EPOCH) / 86400000);
+  if (!Number.isFinite(days)) return null;
+  const lap = Math.floor(days / EXPEDITION_ORDER.length);   // 몇 바퀴째인지 (음수 날짜도 내림)
+  const cycle = list.length + 1;                            // 기본 1칸 + 탈것 n칸
+  const i = ((lap % cycle) + cycle) % cycle;
+  return i === 0 ? null : list[i - 1];                      // null = 기본(걷기·수영 등)
 }
 
 /* 캐릭터 포즈 원화 (사용자 원화 2026-07-30 — 원본 art-src/expedition/char/).
