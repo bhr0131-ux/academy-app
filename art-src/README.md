@@ -192,4 +192,9 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/ride/owl-src.webp | 탑승 원화 24 큰 부엉이 — 깊은숲 변형 (하늘 lift 7) (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/owl.webp |
 | expedition/ride/flamingo-src.webp | 탑승 원화 25 플라밍고 — 강 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/flamingo.webp |
 | expedition/ride/whale-src.webp | 탑승 원화 31 고래 — 바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/whale.webp |
+| expedition/ride/sled-src.webp | 탑승 원화 20 썰매 — 설원 대표 — 배경 대기(미탑재) | — |
+| expedition/ride/reindeersled-src.webp | 탑승 원화 30 순록 썰매 — 설원 대표 — 배경 대기(미탑재) | — |
+| expedition/ride/iceslide-src.webp | 탑승 원화 29 얼음 미끄럼틀 — 설원 변형 — 배경 대기(미탑재) | — |
+| expedition/ride/rocket-src.webp | 탑승 원화 16 로켓 — 우주 기본·하늘 변형 — 배경 대기(미탑재) | — |
+| expedition/ride/meteor-src.webp | 탑승 원화 26 유성 — 우주 대표 — 배경 대기(미탑재) | — |
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
