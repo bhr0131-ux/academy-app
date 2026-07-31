@@ -165,7 +165,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/bg/bg-wood-v2-src.webp | 숲길 산책 배경 v2 (토끼 좌측 배치 — v1 교체, 현행) | expedition/bg-wood.webp |
 | expedition/bg/bg-cave-v2-src.webp | 동굴 배경 v2 (1717×916 — 권장 비율로 재제작, 출구 아치 안전영역 안, 현행) | expedition/bg-cave.webp |
 | expedition/bg/bg-meadow-src.webp | 초원 배경 (9번째 탐험 '초원을 달리자!' — 양·풍차) | expedition/bg-meadow.webp |
-| expedition/bg/bg-skyisle-v2-src.webp | 하늘섬 배경 v2 (1717×916 — 성 있는 부유섬·열기구·무지개, v1 교체 현행) | expedition/bg-skyisle.webp |
+| expedition/bg/bg-skyisle-v3-src.webp | 하늘섬 배경 v3 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-skyisle.webp |
 | map-ev/butterfly-src.webp | 지도 이벤트 손님 나비 — 이벤트 날에만 지도에 나타남 (ev_butterfly) | map-ev/butterfly.webp |
 | map-ev/turtle-src.webp | 지도 이벤트 손님 거북이 — 이벤트 날에만 지도에 나타남 (ev_turtle) | map-ev/turtle.webp |
 | map-ev/rainbow-src.webp | 지도 이벤트 손님 무지개 — 이벤트 날에만 지도 하늘에 나타남 (ev_rainbow, 👋 없음) | map-ev/rainbow.webp |
