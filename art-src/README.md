@@ -172,5 +172,6 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/bg/bg-cave-src.png | 동굴 배경 v1 (2:1 비율 — 실기기에서 출구 아치 잘림, v2로 교체됨) | expedition/bg-cave.webp |
 | expedition/bg/bg-cave-v2-src.png | 동굴 배경 v2 (1717×916 — 권장 비율로 재제작, 출구 아치 안전영역 안, 현행) | expedition/bg-cave.webp |
 | expedition/bg/bg-meadow-src.png | 초원 배경 (9번째 탐험 '초원을 달리자!' — 양·풍차) | expedition/bg-meadow.webp |
+| expedition/bg/bg-sea-src.png | 바다 배경 (1672×941 — 수평선 위 보물섬·갈매기, 6번째 탐험) | expedition/bg-sea.webp |
 | expedition/bg/bg-desert-src.png | 사막 배경 (1717×916 — 오아시스·유적 아치·사막여우, 5번째 탐험) | expedition/bg-desert.webp |
 | expedition/char/common-run-src.png | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
