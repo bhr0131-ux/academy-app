@@ -192,12 +192,21 @@ export const EXPEDITIONS = {
       /* 탁 트인 풀밭을 달린다 — 양(중앙)은 장식, 풍차 언덕이 도착 방향 */
       charB:24, goalB:28, x0:10, x1:81,
       deco:[[6,30,"🌳",26],[14,66,"🌼",13],[93,26,"🌻",18],[87,66,"🌿",14],[8,84,"🦋",11]] } },
-  ruins: { key:"ruins", title:"보물상자를 찾자!", emoji:"🎁",
+  /* [사용자 확정 2026-07-31] 유적 → 보물섬으로 교체 (제목 '보물상자를 찾자!'는 그대로).
+     키도 ruins → treasure 로 바꿨다 — 저장되는 값이 아니라 안전하다. */
+  treasure: { key:"treasure", title:"보물상자를 찾자!", emoji:"🎁",
     /* Ch12 보물섬 — 대표: 범선·돌고래 (사용자 기획서 2026-07-31) */
     mounts:["sailboat","dolphin","canoe","unicorn","dragon","cloud"],
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
-    scene:{ sky:["#E4D9C3","#F4EDDD"], ground:["#C8B48E","#AE9770"], groundH:36,
-      deco:[[6,26,"🏛️",26],[14,64,"🪨",14],[93,28,"🗿",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
+    bgImg:"assets/expedition/bg-treasure.webp",   // 사용자 배경 원화 (황금 보물섬·무지개·폭포 — 원본 art-src)
+    scene:{ sky:["#7EC8F0","#D9EFB0"], ground:["#EBD188","#D6B863"], groundH:34,
+      /* 앞쪽 모랫길을 따라 왼쪽 황금나무 아래에서 오른쪽 보물상자 쪽으로 (살짝 오르막) */
+      /* 탈것 그림이 가로로 넓어 x0/xi를 안쪽으로 (왼쪽 끝에서 잘리지 않게) */
+      charB:24, charB1:30, x0:14, x1:74,
+      xi:14, iB:24,
+      /* 도착 만세는 보물상자 앞 둔덕 아래 */
+      xa:78, aB:32, gx:88, goalB:38,
+      deco:[[6,26,"🌴",26],[14,64,"💎",14],[93,28,"🎁",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
   skyisle: { key:"skyisle", title:"하늘섬으로 날아가자!", emoji:"☁️",
     /* Ch10 하늘 — 대표: 구름·열기구 (사용자 기획서). 하늘은 걸어서 갈 수 없어
        '기본(걷기)' 회차 없이 항상 탈것을 탄다(alwaysMount) — 6종 모두 원화가 있다. */
@@ -233,12 +242,12 @@ export const EXPEDITIONS = {
      [배경 없음] 설원(Ch8) — 기본=걷기, mounts:["sled","reindeersled","iceslide","dragon","unicorn","cloud"]
        (대표: 썰매·순록 썰매). 탑승 원화 3종(썰매·순록 썰매·얼음 미끄럼틀)은 이미 받아
        art-src/expedition/ride/ 에 보관돼 있다 — 배경이 오면 배포본만 다시 뽑아 RIDE_READY에 추가.
-     ※ 현행 ruins(보물상자를 찾자)가 기획서의 보물섬(Ch12) 자리를 겸하고 있다 —
-       유적 배경이 오면 그때 둘로 나눌지 정한다. */
+     ※ 기획서 Ch12 보물섬 = treasure(보물상자를 찾자). 바다(sea)는 '보물섬에 도착하자'로
+       섬에 닿는 것까지, treasure는 섬에서 보물을 찾는 것까지로 나뉜다. */
 };
 
 /* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
-export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins","wood","meadow","skyisle","space"];   // 순서대로 순환 — 새 배경은 끝에 추가
+export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","treasure","wood","meadow","skyisle","space"];   // 순서대로 순환 — 새 배경은 끝에 추가
 /* 기준일(2026-01-05 월 = 강)부터 하루에 한 칸씩 순서대로 돈다.
    날짜만으로 정해지는 고정 시드라 과거·미래 어느 날짜를 열어도 항상 같다. */
 const EXP_EPOCH = new Date("2026-01-05T00:00:00");
@@ -247,7 +256,7 @@ export function getExpedition(dateStr) {
   const days = Math.round((d - EXP_EPOCH) / 86400000);
   const n = EXPEDITION_ORDER.length;
   const idx = Number.isFinite(days) ? ((days % n) + n) % n : 0;
-  return EXPEDITIONS[EXPEDITION_ORDER[idx]] || EXPEDITIONS.ruins;
+  return EXPEDITIONS[EXPEDITION_ORDER[idx]] || EXPEDITIONS.treasure;
 }
 
 /* ── 그날의 탈것 (사용자 기획서 2026-07-31: "챕터마다 대표 탈것 + 변형 탈것") ──
