@@ -92,7 +92,10 @@ export const EXPEDITIONS = {
       deco:[[6,28,"🌳",28],[14,62,"🍄",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🦋",11]] } },
   cave: { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
     pose:"walk", item:"torch", goal:"🌕", goalImg:"assets/expedition/flag/yellow.webp",   // 어둠 속 별 깃발
+    bgImg:"assets/expedition/bg-cave.webp",   // 사용자 배경 원화 (왼쪽 입구→오른쪽 수정 아치 출구, 박쥐·수정)
     scene:{ sky:["#4D4661","#6B617E"], ground:["#5D5470","#443C55"], groundH:34,
+      /* 바닥 흙길을 따라 왼쪽 입구에서 오른쪽 수정 출구로 */
+      charB:20, goalB:24, x0:10, x1:80,
       deco:[[6,26,"🪨",22],[13,80,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
   desert: { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
     pose:"ride", mount:"camel", goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
@@ -104,11 +107,18 @@ export const EXPEDITIONS = {
       deco:[[6,28,"☁️",18],[13,64,"🐚",12],[93,26,"🌴",24],[88,66,"🐬",14],[8,84,"🫧",11]] } },
   wood: { key:"wood", title:"숲길을 산책하자!", emoji:"🌲",
     pose:"walk", item:"lunchbox", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
-    bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 '그냥 숲 — 산책 컨셉' (원본 art-src/expedition/bg/)
+    bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 v2 (토끼 좌측 배치 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#CBE8F5","#EAF6E9"], ground:["#A9CF7F","#8AB763"], groundH:36,
-      /* 넓은 흙길이 하단을 가로지른다 — 길 위 산책. 토끼들(우측 잔디)은 장식 */
+      /* 넓은 흙길이 하단을 가로지른다 — 길 위 산책. 토끼들(좌측 잔디)은 장식 */
       charB:22, goalB:24, x0:10, x1:81,
       deco:[[6,30,"🌳",26],[14,64,"🌼",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🐇",12]] } },
+  meadow: { key:"meadow", title:"초원을 달리자!", emoji:"🌾",
+    pose:"walk", goal:"🏁", goalImg:"assets/expedition/flag/yellow.webp",   // 결승선 = 별 깃발
+    bgImg:"assets/expedition/bg-meadow.webp",   // 사용자 배경 원화 (양·풍차 초원 — 원본 art-src/expedition/bg/)
+    scene:{ sky:["#BDE3F7","#EAF6E0"], ground:["#A5D06A","#8CBE52"], groundH:38,
+      /* 탁 트인 풀밭을 달린다 — 양(중앙)은 장식, 풍차 언덕이 도착 방향 */
+      charB:24, goalB:28, x0:10, x1:81,
+      deco:[[6,30,"🌳",26],[14,66,"🌼",13],[93,26,"🌻",18],[87,66,"🌿",14],[8,84,"🦋",11]] } },
   ruins: { key:"ruins", title:"보물상자를 찾자!", emoji:"🎁",
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
     scene:{ sky:["#E4D9C3","#F4EDDD"], ground:["#C8B48E","#AE9770"], groundH:36,
@@ -116,7 +126,7 @@ export const EXPEDITIONS = {
 };
 
 /* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
-export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins","wood"];   // 8번째 "숲길 산책" 추가 — 주간 반복이 깨짐
+export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins","wood","meadow"];   // 순서대로 순환 — 새 배경은 끝에 추가
 /* 기준일(2026-01-05 월 = 강)부터 하루에 한 칸씩 순서대로 돈다.
    날짜만으로 정해지는 고정 시드라 과거·미래 어느 날짜를 열어도 항상 같다. */
 const EXP_EPOCH = new Date("2026-01-05T00:00:00");
