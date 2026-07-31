@@ -16,13 +16,13 @@ import { getExpedition, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG } from "../data/expedi
    CHAR_IMG·MOUNTS[].img·bgImg가 채워지면 그대로 그림으로 바뀐다.
 
    props
-     day      : "월"~"일" (배경·목표 결정)
+     date     : "YYYY-MM-DD" (탐험 순환 결정 — 날짜 순서대로 강→산→…)
      done, total : 오늘 미션 완료/전체
      charImg  : 걷기 캐릭터 이미지 (지도 워커 — 테마색·성별 반영)
      gender   : "boy" | "girl" (원화 도입 후 사용)
    ════════════════════════════════════════════════════════════════════════ */
-export default function ExpeditionTrack({ day, done = 0, total = 0, charImg = "", gender = "boy", fullBleed = false }) {
-  const exp = getExpedition(day);
+export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "", gender = "boy", fullBleed = false }) {
+  const exp = getExpedition(date);
   const sc = exp.scene;
   /* 탈것은 '공용 탑승(앉기) 원화'가 있을 때만 그린다 — 걷는 캐릭터 발밑에
      탈것 이모지만 깔면 어정쩡해서 (사용자 원화 오면 CHAR_IMG.ride만 채우면 됨) */
