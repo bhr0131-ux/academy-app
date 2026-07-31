@@ -13,6 +13,7 @@ import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
 import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
+import { getExpeditionMount, getExpeditionRarity, MOUNTS } from "./data/expeditions.js";
 import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
@@ -3541,6 +3542,12 @@ export default function App() {
               const _dde=getDiscoveryOn(discoveryData,childId,childDate||TODAY);
               const _ddi=_dde?getDiscovery(_dde.id):null;
               const _dev=_dde?rollEvent(childId,childDate||TODAY):null;
+              /* [사용자 확정] 전설(🟡) 탈것이 걸린 날은 무대에 한 줄 더 — "오늘은 특별한 탐험!"
+                 아이가 미션 탭을 열기 전에 이미 기대하게 만드는 장치. 조사(와/과)는 받침으로 고른다. */
+              const _lgdKey=getExpeditionRarity(childDate||TODAY)==="legendary"?getExpeditionMount(childDate||TODAY):null;
+              const _lgd=_lgdKey?MOUNTS[_lgdKey]:null;
+              const _lgdName=_lgd?_lgd.name:"";
+              const _lgdJosa=_lgdName?(((_lgdName.charCodeAt(_lgdName.length-1)-0xAC00)%28)>0?"과":"와"):"";
               // 써라운드는 그 자체가 Bold(700) 폰트라 예전의 0.4px 스트로크 보정은 제거 (겹치면 뭉개진다)
               return (
                 <h1 style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:22,fontWeight:400,margin:"30px 0 0 30px",position:"relative",top:20,left:7,lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:_onDark?"#FFF3D9":"#5D4633",
@@ -3551,6 +3558,7 @@ export default function App() {
                   {/* 발견·만남 줄은 응원 문구에서 한 뼘 떨어뜨린다 (사용자 조정: 9→18px) */}
                   {_ddi&&<span style={{display:"block",fontSize:13.5,marginTop:18,opacity:0.96}}>{_ddi.emoji} {_ddi.msg}</span>}
                   {_dev&&<span style={{display:"block",fontSize:13.5,marginTop:_ddi?4:18,opacity:0.9}}>{_dev.emoji} {_dev.msg}</span>}
+                  {_lgd&&<span style={{display:"block",fontSize:13.5,marginTop:(_ddi||_dev)?4:18,opacity:0.98}}>✨ 오늘은 특별한 탐험! {_lgd.emoji} {_lgdName}{_lgdJosa} 함께 떠나요!</span>}
                 </h1>
               );
             })()}

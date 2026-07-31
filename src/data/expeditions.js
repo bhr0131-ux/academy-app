@@ -77,6 +77,24 @@ export const RIDE_READY = [
 ];
 RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
+/* ── 희귀도 4단계 (사용자 확정 2026-07-31) ────────────────────────────────
+   아이가 "오늘은 평소보다 특별한 탈것이다!"를 바로 느끼게 하는 장치.
+     ⚪ common(65%) · 🟢 rare(25%) · 🟣 epic(10%) · 🟡 legendary(5%)
+   기본 이동(걷기·수영·달리기)도 common 취급이다. */
+export const RARITY = { common:"common", rare:"rare", epic:"epic", legendary:"legendary" };
+export const RARITY_LABEL = { common:"⚪ 흔함", rare:"🟢 조금 특별", epic:"🟣 아주 특별", legendary:"🟡 전설" };
+export const RARITY_WEIGHT = { common:65, rare:25, epic:10, legendary:5 };
+const _RARITY_OF = {
+  common: ["horse","deer","donkey","camel","canoe","raft","ship","sled"],
+  /* [사용자 확정] 로켓은 우주 챕터의 '기본 이동'이라 rare — 우주 후보가 전부 전설이면
+     12일마다 전설이 확정돼 전설이 흔해진다 (실측 15% → 8%). */
+  rare:   ["dolphin","turtle","goat","cablecar","sailboat","balloon","eagle","minecart","sandboard","reindeersled","rocket"],
+  epic:   ["cloud","bat","crystal","flamingo","whale","submarine","motorbike","iceslide","owl"],
+  legendary: ["unicorn","dragon","carpet","meteor"],
+};
+Object.entries(_RARITY_OF).forEach(([r, keys]) => keys.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].r = r; }));
+Object.values(MOUNTS).forEach((m) => { if (!m.r) m.r = "common"; });
+
 /* ── Adventure Item Sheet (13종) — 걷기 캐릭터에 아이템만 추가 ── */
 export const ADVENTURE_ITEMS = {
   backpack:{ emoji:"🎒", name:"배낭" },   map:{ emoji:"🗺️", name:"보물지도" },
@@ -277,27 +295,121 @@ export function getExpedition(dateStr) {
   return EXPEDITIONS[EXPEDITION_ORDER[idx]] || EXPEDITIONS.treasure;
 }
 
-/* ── 그날의 탈것 ─────────────────────────────────────────────────────
-   같은 배경이 다시 돌아올 때마다 다음 탈것으로 넘어간다. 한 바퀴(=EXPEDITION_ORDER
-   길이)를 돌 때마다 회차가 1 늘고, 그 회차로 씬의 mounts 목록을 순환한다.
-     회차 0 → 기본(걷기·수영·달리기) / 회차 1 → mounts[0] / 회차 2 → mounts[1] / …
-   기본을 한 칸 끼워 넣는 이유: 기획서에서 각 챕터의 '기본'도 한 줄로 따로 적혀 있다.
-   날짜만으로 정해지는 고정 시드라 저장할 게 없고, 과거·미래 어느 날을 열어도 같다.
-   [지금은 아무 것도 바뀌지 않는다] 공용 탑승(앉기) 원화가 없어 컴포넌트가 탈것을
-   그리지 않기 때문. 원화가 오면 이 함수가 그대로 그날의 탈것을 정해 준다. */
+/* ── 그날의 탈것 — 희귀도 + 중복 방지 (사용자 확정 2026-07-31) ─────────────
+   [규칙 1] 최근 5일 안에 탄 것은 후보에서 뺀다 (챕터가 달라도).
+   [규칙 2] 같은 챕터에서 최근 3회 안에 탄 것도 뺀다 — 강에서 돌고래가 나왔으면
+            강이 세 번 더 지나기 전엔 돌고래가 안 나온다.
+   [규칙 3] 남은 후보를 희귀도 가중치로 뽑는다 (⚪65 · 🟢25 · 🟣10 · 🟡5).
+   기본 이동(걷기·수영·달리기)도 하나의 후보(⚪)로 함께 경쟁한다.
+
+   ── 저장하지 않는다 ──
+   '최근'을 알려면 이력이 필요한데, 저장해 두면 기기마다 달라지고 기존 저장 키도
+   건드려야 한다. 그래서 기준일부터 그날까지를 매번 '재생'해서 이력을 만든다.
+   난수도 날짜로 만든 고정 시드라 어느 기기·어느 시점에 열어도 결과가 같다.
+   (하루 한 번 계산이라 기준일에서 몇 년이 지나도 수천 번 루프 = 1ms 미만) */
+const _RECENT_DAYS = 5;      // 규칙 1
+const _RECENT_LAPS = 3;      // 규칙 2
+const _LEGEND_COOL = 20;     // 규칙 4 — 전설은 최소 20일 간격 (목표 5%에 맞춘 값)
+
+/* 날짜 시드 난수 (mulberry32) — 같은 시드면 언제나 같은 값 */
+function _rng(seed) {
+  let a = (seed + 0x6D2B79F5) >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* 하루치 후보 목록 — 기본 이동은 "_walk"처럼 밑줄 키로 구분해 이력에 남긴다 */
+function _candidates(exp) {
+  const list = (exp.mounts || []).filter((k) => MOUNTS[k] && MOUNTS[k].img);
+  return exp.alwaysMount ? list : ["_" + exp.pose].concat(list);
+}
+function _rarityOf(key) {
+  return key.startsWith("_") ? "common" : (MOUNTS[key]?.r || "common");
+}
+
+const _memo = new Map();     // days → 그날 뽑힌 키 (재생 결과 캐시)
+function _pickUpTo(days) {
+  if (_memo.has(days)) return _memo.get(days);
+  const n = EXPEDITION_ORDER.length;
+  const lastDay = {};        // 후보 → 마지막으로 탄 날 (규칙 1)
+  const lastVisit = {};      // "챕터|후보" → 그 챕터 몇 번째 방문에서 탔는지 (규칙 2)
+  const visits = {};         // 챕터 → 지금까지 방문 횟수
+  let picked = null;
+  let lastLegend = -1e9;     // 마지막으로 전설이 나온 날 (규칙 4)
+  for (let d = 0; d <= days; d++) {
+    const key = EXPEDITION_ORDER[((d % n) + n) % n];
+    const exp = EXPEDITIONS[key];
+    const all = _candidates(exp);
+    const v = (visits[key] = (visits[key] || 0) + 1);
+    /* 규칙 1: 최근 5일 안에 탄 것 제외 / 규칙 2: 이 챕터 최근 3회 안에 탄 것 제외 */
+    /* 규칙 2의 제외 창은 후보 수에 맞춘다 — 후보가 4개뿐인 우주에서 3회를 막으면
+       비전설(로켓)이 4번에 1번밖에 못 나와 전설이 강제된다 */
+    const lapsBlock = Math.min(_RECENT_LAPS, Math.max(1, all.length - 3));
+    let ok = all.filter((c) =>
+      d - (lastDay[c] ?? -1e9) > _RECENT_DAYS &&
+      v - (lastVisit[key + "|" + c] ?? -1e9) > lapsBlock);
+    /* 규칙 4 — 전설은 최소 열흘 간격. 전설이 여러 개인 챕터(하늘·우주)에서 전설이
+       몰려 나오는 걸 막는다. 전설밖에 없는 챕터(우주)면 이 줄이 비워져 그대로 나온다 */
+    if (d - lastLegend <= _LEGEND_COOL) {
+      const noL = ok.filter((c) => _rarityOf(c) !== "legendary");
+      if (noL.length) ok = noL;
+    }
+    /* 규칙끼리 부딪히면(후보가 적고 다른 챕터와 겹칠 때) 규칙을 버리는 대신
+       '가장 오래전에 탄 것'들만 남긴다 — 그래야 어제 탄 게 또 나오는 일이 없다 */
+    let pool = ok;
+    if (!pool.length) {
+      /* 규칙끼리 부딪히면 '가장 오래전에 탄 것'들만 남긴다. 이때도 전설 쿨타임은
+         지킨다 — 안 그러면 후보가 빠듯한 챕터에서 전설이 새어 나온다 */
+      let base2 = all;
+      if (d - lastLegend <= _LEGEND_COOL) {
+        const noL = all.filter((c) => _rarityOf(c) !== "legendary");
+        if (noL.length) base2 = noL;
+      }
+      const sorted = base2.slice().sort((a, b) => (lastDay[a] ?? -1e9) - (lastDay[b] ?? -1e9));
+      pool = sorted.slice(0, Math.max(1, Math.ceil(sorted.length / 2)));
+    }
+    /* 규칙 3 — 희귀도 확률. [중요] 후보 하나하나에 가중치를 주면 전설이 여러 개인
+       챕터에서 전설이 몰려 나온다(실측 22%). 그래서 '등급을 먼저 뽑고 → 그 등급
+       안에서 하나를 고르는' 2단계로 한다. 그래야 어느 챕터든 ⚪65 🟢25 🟣10 🟡5 에 맞는다
+       (그 등급이 아예 없는 챕터는 남은 등급끼리 비율을 다시 나눈다). */
+    const byTier = {};
+    pool.forEach((c) => (byTier[_rarityOf(c)] ||= []).push(c));
+    const tiers = Object.keys(byTier);
+    const tw = tiers.map((t) => RARITY_WEIGHT[t] || 1);
+    const tsum = tw.reduce((a, b) => a + b, 0);
+    const rnd = _rng(d * 977 + 17);
+    let r = rnd() * tsum;
+    let tier = tiers[tiers.length - 1];
+    for (let i = 0; i < tiers.length; i++) { r -= tw[i]; if (r < 0) { tier = tiers[i]; break; } }
+    const bucket = byTier[tier];
+    const hit = bucket[Math.min(bucket.length - 1, Math.floor(rnd() * bucket.length))];
+    lastDay[hit] = d;
+    lastVisit[key + "|" + hit] = v;
+    if (_rarityOf(hit) === "legendary") lastLegend = d;
+    picked = hit;
+    if (d >= days - 400) _memo.set(d, hit);   // 최근 구간만 캐시 (메모리 보호)
+  }
+  return picked;
+}
+
 export function getExpeditionMount(dateStr) {
   const exp = getExpedition(dateStr);
-  const list = exp.mounts || [];
-  if (!list.length) return exp.mount || null;   // 목록이 없으면 씬 고정 탈것
+  if (!(exp.mounts || []).length) return exp.mount || null;
   const d = new Date(String(dateStr || "") + "T00:00:00");
   const days = Math.round((d - EXP_EPOCH) / 86400000);
-  if (!Number.isFinite(days)) return null;
-  const lap = Math.floor(days / EXPEDITION_ORDER.length);   // 몇 바퀴째인지 (음수 날짜도 내림)
-  /* alwaysMount 씬(하늘섬)은 '기본' 칸이 없다 — 하늘은 걸어서 갈 수 없으니 늘 탈것 */
-  if (exp.alwaysMount) return list[((lap % list.length) + list.length) % list.length];
-  const cycle = list.length + 1;                            // 기본 1칸 + 탈것 n칸
-  const i = ((lap % cycle) + cycle) % cycle;
-  return i === 0 ? null : list[i - 1];                      // null = 기본(걷기·수영 등)
+  if (!Number.isFinite(days) || days < 0) return null;
+  const hit = _pickUpTo(days);
+  return hit && hit.startsWith("_") ? null : hit;   // null = 기본(걷기·수영·달리기)
+}
+
+/* 그날 탈것의 희귀도 (무대 문구·연출용). 기본 이동이면 "common" */
+export function getExpeditionRarity(dateStr) {
+  const k = getExpeditionMount(dateStr);
+  return k ? (MOUNTS[k]?.r || "common") : "common";
 }
 
 /* 캐릭터 포즈 원화 (사용자 원화 2026-07-30 — 원본 art-src/expedition/char/).
