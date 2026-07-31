@@ -156,10 +156,13 @@ export const EXPEDITIONS = {
     /* Ch4 깊은 숲 — 숲길을 통과한다 */
     mounts:["horse","unicorn","deer","donkey","dragon","owl"],
     pose:"walk", item:"compass", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
-    bgImg:"assets/expedition/bg-forest.webp",   // 사용자 배경 원화 v2 '깊은 숲' (v1 숲길은 art-src 보존)
+    bgImg:"assets/expedition/bg-forest.webp",   // 사용자 배경 원화 v3 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#D8EFC9","#F0F6E2"], ground:["#9CBF7C","#7BA45E"], groundH:36,
-      /* 깊은 숲 흙길 — 왼쪽에서 오른쪽으로 살짝 오르막 (charB→charB1 보간) */
-      charB:29, charB1:35, goalB:38, x0:10, x1:81,
+      bgAR:1.4,
+      /* 굽은 흙길 — 왼쪽 아래에서 오른쪽 뒤로 이어져 살짝 오르막 (여우·부엉이는 길가 장식) */
+      charB:30, charB1:36, x0:14, x1:78,
+      xi:14, iB:30,
+      xa:82, aB:37, gx:90, goalB:40,
       deco:[[6,28,"🌳",28],[14,62,"🍄",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🦋",11]] } },
   cave: { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
     /* Ch5 동굴 — 어둠 속을 빠져나간다 */
