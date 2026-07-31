@@ -64,7 +64,7 @@ export const ADVENTURE_ITEMS = {
 export const EXPEDITIONS = {
   river: { key:"river", title:"강을 건너자!", emoji:"🌊",
     pose:"swim", goal:"⛺", goalImg:"assets/expedition/flag/blue.webp",   // 도착 = 물방울 깃발 (사용자 원화)
-    bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 (원본 art-src/expedition/bg/)
+    bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 v3 (1.87:1 권장 비율 — 구도는 v2와 동일, 원본 art-src)
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
       /* 배경 원화 전용 위치 보정: 양쪽 잔디 사이 물길이 중앙이라
          charB/goalB(bottom%)·x0/x1(이동 구간)을 그림에 맞춘다 */
