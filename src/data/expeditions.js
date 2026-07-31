@@ -220,7 +220,7 @@ export const EXPEDITIONS = {
     /* Ch12 보물섬 — 섬 안 모랫길을 지나 보물상자로. 배경이 육지라 배 대신 육상·하늘 탈것 */
     mounts:["horse","deer","unicorn","dragon","owl","carpet"],
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
-    bgImg:"assets/expedition/bg-treasure.webp",   // 사용자 배경 원화 (황금 보물섬·무지개·폭포 — 원본 art-src)
+    bgImg:"assets/expedition/bg-treasure.webp",   // 사용자 배경 원화 v2 (넓은 모랫길·무지개·동굴 폭포 — 원본 art-src)
     scene:{ sky:["#7EC8F0","#D9EFB0"], ground:["#EBD188","#D6B863"], groundH:34,
       /* 앞쪽 모랫길을 따라 왼쪽 황금나무 아래에서 오른쪽 보물상자 쪽으로 (살짝 오르막) */
       /* 탈것 그림이 가로로 넓어 x0/xi를 안쪽으로 (왼쪽 끝에서 잘리지 않게) */

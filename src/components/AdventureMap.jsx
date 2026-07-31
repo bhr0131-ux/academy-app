@@ -71,6 +71,13 @@ const mkPointAt = (PATH, ASPECT) => {
 };
 
 // 긴 지도 (854×1842, 양피지 보물지도) — 길 중심선 % 좌표: 오두막 계단 → 해변 보물상자 앞
+/* 그날만 나타나는 이벤트 손님 그림 (사용자 원화 2026-07-31 — 원본 art-src/map-ev/) */
+const EV_IMG = {
+  ev_rainbow: "assets/map-ev/rainbow.webp",
+  ev_butterfly: "assets/map-ev/butterfly.webp",
+  ev_turtle: "assets/map-ev/turtle.webp",
+};
+
 const MAP_LONG = {
   bg: "assets/adventure-map.webp",
   ar: "853 / 1844",
@@ -80,6 +87,9 @@ const MAP_LONG = {
   cdy: 5.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   // 원화에 그려진 동물들의 머리 위 좌표 (%) — 랜덤 이벤트 날 👋 말풍선 자리 (그리드 실측)
   animals: { ev_parrot: [79, 16.5], ev_monkey: [79.5, 38.5], ev_toucan: [15, 62.5], ev_boar: [76, 63.5], ev_frog: [13.5, 73.5] },
+  /* [사용자 확정 2026-07-31] 지도 원화에 없는 손님 3종은 '그날만' 그려 넣는다.
+     [중심x%, 중심y%, 폭%] — 평소엔 아예 없다가 그 이벤트가 걸린 날에만 나타난다. */
+  evImg: { ev_rainbow: [64, 6, 30], ev_butterfly: [28, 23, 9], ev_turtle: [30, 92, 12] },
   yr: 1844 / 853,
   bw: 18, fs: 17,   // 건물 표시 폭(%)·이모지 크기 (사용자 조정: 자리 8곳 배치에 맞춰 30% 축소)
   fpk: 46,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 64→46)
@@ -132,6 +142,7 @@ const MAP_SHORT = {
   cdy: 6.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   // 원화에 그려진 동물들의 머리 위 좌표 (%) — 랜덤 이벤트 날 👋 말풍선 자리 (그리드 실측)
   animals: { ev_parrot: [81, 15.5], ev_monkey: [79.5, 39.5], ev_toucan: [16, 63.5], ev_boar: [73.5, 65], ev_frog: [15, 75] },
+  evImg: { ev_rainbow: [62, 5.5, 31], ev_butterfly: [28, 24, 10], ev_turtle: [30, 91, 13] },
   yr: 1652 / 952,
   bw: 21, fs: 19,   // 짧은 지도 건물 크기 (사용자 조정: v8 세트에서 약간 더 축소 23→21)
   fpk: 36,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 50→36)
@@ -349,6 +360,10 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           50%{transform:translate(calc(-50% + var(--dx)), var(--up)) scale(1) rotateY(540deg);opacity:1}
           100%{transform:translate(calc(-50% + var(--dx2)), 24px) scale(.7) rotateY(1080deg);opacity:0}
         }
+        /* 그날만 나타나는 손님(나비·거북이·무지개) — 감싼 div가 위치를 잡으므로
+           애니메이션은 위치를 건드리지 않고 위아래로만 살짝 움직인다 */
+        @keyframes amGuest{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+        @keyframes amGuestSky{ 0%,100%{opacity:.92;transform:translateY(0) scale(1)} 50%{opacity:1;transform:translateY(-2px) scale(1.02)} }
         @keyframes amWave{
           0%,100%{transform:translate(-50%,-100%) translateY(0)}
           50%{transform:translate(-50%,-100%) translateY(-3px)}
@@ -527,6 +542,29 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
           {doneCount >= n ? "🔓" : "🔒"} {doneCount}/{n}
         </div>
       )}
+
+      {/* ── 랜덤 이벤트 — 지도에 없던 손님 (나비·거북이·무지개) ──
+             [사용자 확정] 평소엔 지도에 없다가 그 이벤트가 걸린 날에만 나타난다.
+             무지개는 동물이 아니라 👋 말풍선을 붙이지 않는다. ── */}
+      {eventId && M.evImg?.[eventId] && EV_IMG[eventId] && (() => {
+        const [ax, ay, aw] = M.evImg[eventId];
+        const wave = eventId !== "ev_rainbow";
+        return (
+          <div style={{ position: "absolute", left: `${ax}%`, top: `${ay}%`, width: `${aw}%`,
+            transform: "translate(-50%,-50%)", pointerEvents: "none", zIndex: 2 }}>
+            <img src={EV_IMG[eventId]} alt="" draggable={false}
+              style={{ width: "100%", display: "block",
+                animation: wave ? "amGuest 2.4s ease-in-out infinite" : "amGuestSky 4s ease-in-out infinite",
+                filter: "drop-shadow(0 2px 5px rgba(60,80,40,0.3))" }} />
+            {wave && (
+              <div style={{ position: "absolute", left: "50%", bottom: "100%", transform: "translateX(-50%)", marginBottom: 2,
+                background: "rgba(255,251,240,0.95)", border: "1px solid rgba(155,114,74,0.4)",
+                borderRadius: 999, padding: "2px 6px", fontSize: 11, lineHeight: 1.3, whiteSpace: "nowrap",
+                boxShadow: "0 2px 5px rgba(60,80,40,0.25)" }}>👋</div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── 랜덤 이벤트 — 오늘 만난 동물 머리 위 👋 말풍선 (사용자 확정) ──
              이벤트는 날짜 고정 시드라 하루 종일 같은 동물이 인사한다. 발견 여부와
