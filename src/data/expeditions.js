@@ -202,8 +202,11 @@ export const EXPEDITIONS = {
        EXPEDITION_ORDER 끝에 "skyisle"을 넣는다. 기본=구름 걷기(판타지),
        mounts:["cloud","balloon","eagle","dragon","unicorn","rocket"] (대표: 구름·열기구).
        그때 배경만 public/assets/expedition/bg-skyisle.webp 로 다시 뽑으면 된다.
-     [배경 없음] 설원(Ch8) — 기본=걷기, mounts:["sled","dragon","unicorn","cloud"] (대표: 썰매·드래곤)
+     [배경 없음] 설원(Ch8) — 기본=걷기, mounts:["sled","reindeersled","iceslide","dragon","unicorn","cloud"]
+       (대표: 썰매·순록 썰매). 탑승 원화 3종(썰매·순록 썰매·얼음 미끄럼틀)은 이미 받아
+       art-src/expedition/ride/ 에 보관돼 있다 — 배경이 오면 배포본만 다시 뽑아 RIDE_READY에 추가.
      [배경 없음] 우주(Ch11) — 기본=로켓, mounts:["rocket","meteor","dragon","unicorn","cloud"] (대표: 로켓·유성)
+       로켓·유성 원화도 art-src에 보관돼 있다 (로켓은 하늘 챕터에서도 쓴다).
      ※ 현행 ruins(보물상자를 찾자)가 기획서의 보물섬(Ch12) 자리를 겸하고 있다 —
        유적 배경이 오면 그때 둘로 나눌지 정한다. */
 };
