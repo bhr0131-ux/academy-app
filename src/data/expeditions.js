@@ -260,7 +260,12 @@ export const EXPEDITIONS = {
 };
 
 /* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
-export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","treasure","wood","meadow","snow","skyisle","space"];   // 순서대로 순환 — 새 배경은 끝에 추가
+/* [사용자 확정 2026-07-31] 12일 흐름 — 밝고 안전하게 시작해 색감·분위기를 번갈아 뒤집고
+   판타지(하늘→우주)로 올라간 뒤 마지막 여행(바다)과 최종 보상(보물상자)으로 닫는다.
+     숲길(안전한 시작) → 강(첫 변화) → 바위산(모험 시작) → 초원(탁 트임) → 숲(다시 자연)
+     → 동굴(분위기 반전) → 사막(색감 반전) → 설원(또 한 번 반전)
+     → 하늘섬(판타지) → 우주(클라이맥스) → 바다(마지막 여행) → 보물상자(최종 보상) */
+export const EXPEDITION_ORDER = ["wood","river","mountain","meadow","forest","cave","desert","snow","skyisle","space","sea","treasure"];
 /* 기준일(2026-01-05 월 = 강)부터 하루에 한 칸씩 순서대로 돈다.
    날짜만으로 정해지는 고정 시드라 과거·미래 어느 날짜를 열어도 항상 같다. */
 const EXP_EPOCH = new Date("2026-01-05T00:00:00");
