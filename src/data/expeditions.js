@@ -175,10 +175,13 @@ export const EXPEDITIONS = {
     mounts:["camel","carpet","eagle","balloon","motorbike","sandboard"],
     pose:"walk",   // 기획서: 사막의 기본은 걷기 — 탈것(낙타·양탄자…)은 회차마다 mounts에서
     goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
-    bgImg:"assets/expedition/bg-desert.webp",   // 사용자 배경 원화 (오아시스·유적 아치 — 원본 art-src/expedition/bg/)
+    bgImg:"assets/expedition/bg-desert.webp",   // 사용자 배경 원화 v2 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#FBE3B7","#FDF2DC"], ground:["#EBCB8B","#D9B26C"], groundH:36,
-      /* 앞쪽 모래벌판을 따라 왼쪽에서 오른쪽 유적 쪽으로 */
-      charB:12, goalB:14, gx:90, x0:9, x1:83,
+      bgAR:1.4,
+      /* 앞쪽 모래벌판(bottom 0~32%)을 따라 왼쪽 선인장 옆에서 오른쪽 유적으로 (살짝 오르막) */
+      charB:24, charB1:32, x0:15, x1:74,
+      xi:15, iB:24,
+      xa:78, aB:34, gx:90, goalB:40,
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
     /* Ch9 바다 — 수평선 위 섬까지 간다 */

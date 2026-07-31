@@ -173,7 +173,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/bg/bg-treasure-v3-src.webp | 보물섬 배경 v3 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-treasure.webp |
 | expedition/bg/bg-space-src.webp | 우주 배경 (1717×916 — 왼쪽 발사대→오른쪽 우주기지·은하수 띠, 11번째 탐험) | expedition/bg-space.webp |
 | expedition/bg/bg-sea-src.webp | 바다 배경 (1672×941 — 수평선 위 보물섬·갈매기, 6번째 탐험) | expedition/bg-sea.webp |
-| expedition/bg/bg-desert-src.webp | 사막 배경 (1717×916 — 오아시스·유적 아치·사막여우, 5번째 탐험) | expedition/bg-desert.webp |
+| expedition/bg/bg-desert-v2-src.webp | 사막 배경 v2 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-desert.webp |
 | expedition/ride/horse-src.webp | 탑승 원화 7 말 — 숲·깊은숲·초원 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/horse.webp |
 | expedition/ride/dolphin-src.webp | 탑승 원화 5 돌고래 — 강·바다·보물 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/dolphin.webp |
 | expedition/ride/deer-src.webp | 탑승 원화 9 사슴 — 숲 대표·바위산/깊은숲 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/deer.webp |
