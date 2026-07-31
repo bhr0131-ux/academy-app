@@ -7,6 +7,12 @@ ChatGPT로 생성한 **가공 전 원본 이미지**를 보관한다. 배포(dis
 
 **보관 형식**: 원본은 **webp(q92)** 로 저장한다. PNG로 두면 저장소가 빠르게 커진다
 (58장 63MB → 8MB). 화질 손실은 재가공에 지장 없는 수준.
+사용자가 PNG를 주더라도 **PNG를 남기지 말고 webp로 변환해 보관**한다
+(탐험 배경·캐릭터·깃발·건물 원본 21장 14.6MB → 1.4MB).
+
+**[사용자 확정 2026-07-31] 구버전 삭제 규칙**: 같은 그림을 새 원화로 교체하면
+**이전 버전 원본은 지운다**(이 표의 해당 행도 함께 삭제). 되돌릴 일이 생기면
+git 히스토리에서 꺼낸다 — 예: `git show <커밋>:art-src/... > 복구.webp`.
 
 **아바타 베이스 구조**: 베이스는 **'몸통'과 '머리' 두 장**으로 나뉘어 있다
 (base/body.webp + base/head.webp, 여아는 -girl). 합본(default.webp)은 로드 실패 시 폴백용.
@@ -154,24 +160,19 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | coin-front.webp | 금화 원화 정면 (상자 도착 연출, 뒤집히며 튀어오름) | coin-front.webp |
 | coin-tilt.webp | 금화 원화 반측면 (상자 도착 연출, 구르듯 회전) | coin-tilt.webp |
 | map-walkers/{pink,apricot,green,purple,blue}-{boy,girl}.webp | 지도 위를 걷는 탐험가 10종 (5테마×성별, 이모지 대체) | map-char/*.webp |
-| map-bld-v8/treehouse2-src.png | 지도 학원 건물 v8-1 (나무 위의 집, 구멍 투명 제공됨) | map-bld-treehouse2.webp |
-| map-bld-v8/stonearch2-src.png | 지도 학원 건물 v8-2 (돌 아치문+팻말, 구멍 투명 제공됨) | map-bld-stonearch2.webp |
-| map-bld-v8/tent2-src.png | 지도 학원 건물 v8-3 (텐트+모닥불·배낭·랜턴, 흰 원→투명 펀칭) | map-bld-tent2.webp |
-| map-bld-v8/tikihut2-src.png | 지도 학원 건물 v8-4 (티키 초가+항아리, 구멍 투명 제공됨) | map-bld-tikihut2.webp |
-| expedition/char/common-{walk,swim,success}-src.png | 탐험 씬 캐릭터 포즈 3종 (남아 원화 — 당분간 남녀 공용, halo 보정 후 탑재) | expedition/char/common-*.webp |
-| expedition/bg/bg-river-src.png | 탐험 씬 배경 1호 — 강 (월요일, 1536×1024 가로형·중앙 비움) | expedition/bg-river.webp |
-| expedition/char/common-idle-src.png | 탐험 씬 기본 서있기 포즈 (미션 0개일 때 출발지 대기 — halo 보정 후 탑재) | expedition/char/common-idle.webp |
-| expedition/bg/bg-river-v2-src.png | 강 배경 v2 (1657×944 — v1 교체) | expedition/bg-river.webp |
-| expedition/bg/bg-river-v3-src.png | 강 배경 v3 (1717×916 — 권장 비율로 재제작, 구도 동일, 현행) | expedition/bg-river.webp |
-| expedition/bg/bg-forest-src.png | 숲길 배경 (수요일, 1657×944 — 흙길 중앙 비움·사슴 장식) | expedition/bg-forest.webp |
-| expedition/flag/{red,blue,green,yellow}-src.png | 도착 깃발 4색 (빨강 잎가지·파랑 물방울·초록 잎·노랑 별 — halo 보정 후 탑재) | expedition/flag/*.webp |
-| expedition/bg/bg-mountain-src.png | 바위산 배경 (화요일, 1536×1024 — 돌계단 대각선 등반) | expedition/bg-mountain.webp |
-| expedition/bg/bg-forest-v2-src.png | 깊은 숲 배경 v2 (수요일 현행 — v1 숲길 교체, 여우·부엉이·개울) | expedition/bg-forest.webp |
-| expedition/bg/bg-wood-src.png | 숲길 산책 배경 (8번째 탐험 '숲길을 산책하자!' — 토끼 두 마리) | expedition/bg-wood.webp |
-| expedition/bg/bg-wood-v2-src.png | 숲길 산책 배경 v2 (토끼 좌측 배치 — v1 교체, 현행) | expedition/bg-wood.webp |
-| expedition/bg/bg-cave-src.png | 동굴 배경 v1 (2:1 비율 — 실기기에서 출구 아치 잘림, v2로 교체됨) | expedition/bg-cave.webp |
-| expedition/bg/bg-cave-v2-src.png | 동굴 배경 v2 (1717×916 — 권장 비율로 재제작, 출구 아치 안전영역 안, 현행) | expedition/bg-cave.webp |
-| expedition/bg/bg-meadow-src.png | 초원 배경 (9번째 탐험 '초원을 달리자!' — 양·풍차) | expedition/bg-meadow.webp |
-| expedition/bg/bg-sea-src.png | 바다 배경 (1672×941 — 수평선 위 보물섬·갈매기, 6번째 탐험) | expedition/bg-sea.webp |
-| expedition/bg/bg-desert-src.png | 사막 배경 (1717×916 — 오아시스·유적 아치·사막여우, 5번째 탐험) | expedition/bg-desert.webp |
-| expedition/char/common-run-src.png | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
+| map-bld-v8/treehouse2-src.webp | 지도 학원 건물 v8-1 (나무 위의 집, 구멍 투명 제공됨) | map-bld-treehouse2.webp |
+| map-bld-v8/stonearch2-src.webp | 지도 학원 건물 v8-2 (돌 아치문+팻말, 구멍 투명 제공됨) | map-bld-stonearch2.webp |
+| map-bld-v8/tent2-src.webp | 지도 학원 건물 v8-3 (텐트+모닥불·배낭·랜턴, 흰 원→투명 펀칭) | map-bld-tent2.webp |
+| map-bld-v8/tikihut2-src.webp | 지도 학원 건물 v8-4 (티키 초가+항아리, 구멍 투명 제공됨) | map-bld-tikihut2.webp |
+| expedition/char/common-{walk,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 3종 (남아 원화 — 당분간 남녀 공용, halo 보정 후 탑재) | expedition/char/common-*.webp |
+| expedition/char/common-idle-src.webp | 탐험 씬 기본 서있기 포즈 (미션 0개일 때 출발지 대기 — halo 보정 후 탑재) | expedition/char/common-idle.webp |
+| expedition/bg/bg-river-v3-src.webp | 강 배경 v3 (1717×916 — 권장 비율로 재제작, 구도 동일, 현행) | expedition/bg-river.webp |
+| expedition/flag/{red,blue,green,yellow}-src.webp | 도착 깃발 4색 (빨강 잎가지·파랑 물방울·초록 잎·노랑 별 — halo 보정 후 탑재) | expedition/flag/*.webp |
+| expedition/bg/bg-mountain-src.webp | 바위산 배경 (화요일, 1536×1024 — 돌계단 대각선 등반) | expedition/bg-mountain.webp |
+| expedition/bg/bg-forest-v2-src.webp | 깊은 숲 배경 v2 (수요일 현행 — v1 숲길 교체, 여우·부엉이·개울) | expedition/bg-forest.webp |
+| expedition/bg/bg-wood-v2-src.webp | 숲길 산책 배경 v2 (토끼 좌측 배치 — v1 교체, 현행) | expedition/bg-wood.webp |
+| expedition/bg/bg-cave-v2-src.webp | 동굴 배경 v2 (1717×916 — 권장 비율로 재제작, 출구 아치 안전영역 안, 현행) | expedition/bg-cave.webp |
+| expedition/bg/bg-meadow-src.webp | 초원 배경 (9번째 탐험 '초원을 달리자!' — 양·풍차) | expedition/bg-meadow.webp |
+| expedition/bg/bg-sea-src.webp | 바다 배경 (1672×941 — 수평선 위 보물섬·갈매기, 6번째 탐험) | expedition/bg-sea.webp |
+| expedition/bg/bg-desert-src.webp | 사막 배경 (1717×916 — 오아시스·유적 아치·사막여우, 5번째 탐험) | expedition/bg-desert.webp |
+| expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
