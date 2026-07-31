@@ -197,4 +197,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/ride/iceslide-src.webp | 탑승 원화 29 얼음 미끄럼틀 — 설원 변형 — 배경 대기(미탑재) | — |
 | expedition/ride/rocket-src.webp | 탑승 원화 16 로켓 — 우주 기본·하늘 변형 — 배경 대기(미탑재) | — |
 | expedition/ride/meteor-src.webp | 탑승 원화 26 유성 — 우주 대표 — 배경 대기(미탑재) | — |
+| expedition/ride/motorbike-src.webp | 탑승 원화 27 오토바이 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/motorbike.webp |
+| expedition/ride/sandboard-src.webp | 탑승 원화 28 모래 보드 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/sandboard.webp |
+| expedition/ride/submarine-src.webp | 탑승 원화 32 잠수정 — 바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/submarine.webp |
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
