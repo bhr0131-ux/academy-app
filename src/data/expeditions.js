@@ -69,7 +69,8 @@ export const RIDE_READY = [
   "sailboat","ship","turtle","raft",          // 4차
   "donkey","dragon","cloud","eagle",          // 5차
   "crystal","owl","flamingo","whale",         // 6차
-  "motorbike","sandboard","submarine",        // 7차 (설원·우주용 5종은 배경 대기 — 위 주석 참고)
+  "motorbike","sandboard","submarine",        // 7차
+  "rocket",                                   // 하늘섬 챕터 개설로 가동 (설원용 4종은 배경 대기)
 ];
 RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
@@ -197,12 +198,24 @@ export const EXPEDITIONS = {
     pose:"walk", item:"map", goal:"🎁", goalImg:"assets/expedition/flag/yellow.webp",   // 보물 = 별 깃발
     scene:{ sky:["#E4D9C3","#F4EDDD"], ground:["#C8B48E","#AE9770"], groundH:36,
       deco:[[6,26,"🏛️",26],[14,64,"🪨",14],[93,28,"🗿",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
+  skyisle: { key:"skyisle", title:"하늘섬으로 날아가자!", emoji:"☁️",
+    /* Ch10 하늘 — 대표: 구름·열기구 (사용자 기획서). 하늘은 걸어서 갈 수 없어
+       '기본(걷기)' 회차 없이 항상 탈것을 탄다(alwaysMount) — 6종 모두 원화가 있다. */
+    mounts:["cloud","balloon","eagle","dragon","unicorn","rocket"], alwaysMount:true,
+    pose:"walk",   // 폴백(실제로는 늘 탑승) — 도착 만세만 걷기 계열 원화를 쓴다
+    goal:"🏰", goalImg:"assets/expedition/flag/yellow.webp",
+    bgImg:"assets/expedition/bg-skyisle.webp",   // 사용자 배경 원화 (성 있는 부유섬·무지개 — 원본 art-src)
+    scene:{ sky:["#7FC7F5","#CFEBFB"], ground:["#9AD1F0","#7CBEE6"], groundH:30,
+      /* 왼쪽 작은 부유섬(잔디 bottom 36%)에서 출발해 오른쪽 성이 있는 섬(잔디 bottom 44%)으로.
+         가는 길에 가운데 작은 섬(x 55~62%)을 지난다 */
+      /* 나는 탈것은 저마다 lift(5~9)만큼 더 뜨므로, 출발 높이는 왼쪽 섬(36%)보다
+         낮게 잡아야 제목 칩과 안 겹친다. 도착 높이는 성 섬 잔디(44%)에 맞춘다 */
+      charB:24, charB1:36, x0:13, x1:74,
+      xi:14, iB:24,
+      /* 도착 만세는 성 앞 잔디 위 (탈것에서 내려서) */
+      xa:82, aB:43, gx:88, goalB:44,
+      deco:[[6,26,"☁️",22],[14,64,"🎈",14],[93,26,"🌈",22],[88,66,"☁️",16],[8,84,"✨",10]] } },
   /* ── 배경 원화가 오면 추가할 챕터 (사용자 기획서 2026-07-31의 12챕터 중 남은 것) ──
-     [대기 중] 하늘(Ch10) — 배경은 art-src/expedition/bg/bg-skyisle-src.webp 에 이미 보관돼 있다.
-       하늘은 걸어서 지날 수 없어, 공용 탑승(앉기) 원화가 오면 항목을 추가하고
-       EXPEDITION_ORDER 끝에 "skyisle"을 넣는다. 기본=구름 걷기(판타지),
-       mounts:["cloud","balloon","eagle","dragon","unicorn","rocket"] (대표: 구름·열기구).
-       그때 배경만 public/assets/expedition/bg-skyisle.webp 로 다시 뽑으면 된다.
      [배경 없음] 설원(Ch8) — 기본=걷기, mounts:["sled","reindeersled","iceslide","dragon","unicorn","cloud"]
        (대표: 썰매·순록 썰매). 탑승 원화 3종(썰매·순록 썰매·얼음 미끄럼틀)은 이미 받아
        art-src/expedition/ride/ 에 보관돼 있다 — 배경이 오면 배포본만 다시 뽑아 RIDE_READY에 추가.
@@ -213,7 +226,7 @@ export const EXPEDITIONS = {
 };
 
 /* 순환 순서 — 배열 순서 = 탐험 순서. 새 배경은 끝에 추가. */
-export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins","wood","meadow"];   // 순서대로 순환 — 새 배경은 끝에 추가
+export const EXPEDITION_ORDER = ["river","mountain","forest","cave","desert","sea","ruins","wood","meadow","skyisle"];   // 순서대로 순환 — 새 배경은 끝에 추가
 /* 기준일(2026-01-05 월 = 강)부터 하루에 한 칸씩 순서대로 돈다.
    날짜만으로 정해지는 고정 시드라 과거·미래 어느 날짜를 열어도 항상 같다. */
 const EXP_EPOCH = new Date("2026-01-05T00:00:00");
@@ -241,6 +254,8 @@ export function getExpeditionMount(dateStr) {
   const days = Math.round((d - EXP_EPOCH) / 86400000);
   if (!Number.isFinite(days)) return null;
   const lap = Math.floor(days / EXPEDITION_ORDER.length);   // 몇 바퀴째인지 (음수 날짜도 내림)
+  /* alwaysMount 씬(하늘섬)은 '기본' 칸이 없다 — 하늘은 걸어서 갈 수 없으니 늘 탈것 */
+  if (exp.alwaysMount) return list[((lap % list.length) + list.length) % list.length];
   const cycle = list.length + 1;                            // 기본 1칸 + 탈것 n칸
   const i = ((lap % cycle) + cycle) % cycle;
   return i === 0 ? null : list[i - 1];                      // null = 기본(걷기·수영 등)
