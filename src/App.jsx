@@ -3538,10 +3538,13 @@ export default function App() {
               const _onDark=!!getEquipped(childId,"bg")?.darkStage;
               /* "전부 클리어!"만 있으면 심심하다 (사용자 확정 ⑥) — 발견 지점을 지나간
                  날엔 그 아래에 오늘의 발견 한 줄 + (이벤트 날) 만남 한 줄을 작게 붙인다.
-                 발견은 미션과 무관하므로 미션 진행 문구("조금만 더!") 아래에도 붙을 수 있다. */
+                 발견은 미션과 무관하므로 미션 진행 문구("조금만 더!") 아래에도 붙을 수 있다.
+                 [버그 수정] 만남(이벤트)은 발견과 완전히 별개다 — 예전엔 발견이 있는 날에만
+                 만남 줄을 계산해서, 지도엔 동물이 나타났는데 무대엔 아무 말이 없는 날이 있었다
+                 (학원이 없는 날·아직 발견 지점을 안 지난 시간대). 이제 각자 판정한다. */
               const _dde=getDiscoveryOn(discoveryData,childId,childDate||TODAY);
               const _ddi=_dde?getDiscovery(_dde.id):null;
-              const _dev=_dde?rollEvent(childId,childDate||TODAY):null;
+              const _dev=rollEvent(childId,childDate||TODAY);
               /* [사용자 확정] 전설(🟡) 탈것이 걸린 날은 무대에 한 줄 더 — "오늘은 특별한 탐험!"
                  아이가 미션 탭을 열기 전에 이미 기대하게 만드는 장치. 조사(와/과)는 받침으로 고른다. */
               const _lgdKey=getExpeditionRarity(childDate||TODAY)==="legendary"?getExpeditionMount(childDate||TODAY):null;
