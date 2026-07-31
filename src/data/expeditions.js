@@ -34,6 +34,8 @@
        원본은 art-src/expedition/ride/ 에 webp(q92)로 보관 (CLAUDE.md 5).
      · img가 없는 탈것은 그날 순환에서 자동으로 건너뛰고 기본 이동(걷기·수영)이 된다
        → 그림을 하나씩 받아도 그날그날 바로 살아난다.
+   hMul : 표시 높이 배율(기본 1.35) — 탈것이 커서 캐릭터가 작게 보이는 그림만 키운다.
+   lift : 나는 탈것을 땅에서 띄우는 값(bottom% 가산) — 열기구가 모래에 붙어 보이면 안 되니까.
    [주의] 키 이름은 씬별 mounts 목록·순환 계산에 쓰이므로 바꾸지 말 것. 새 탈것은 뒤에 추가.
    번호는 사용자 시트의 번호와 같다 (그림 받을 때 대조용). */
 const _RP = "assets/expedition/ride/";
@@ -43,15 +45,15 @@ export const MOUNTS = {
   dolphin:{ n:5, emoji:"🐬", name:"돌고래" },                 turtle:{ n:6, emoji:"🐢", name:"거북이" },
   /* 육상 7~12 */ horse:{ n:7, emoji:"🐴", name:"말" },       donkey:{ n:8, emoji:"🫏", name:"당나귀" },
   deer:{ n:9, emoji:"🦌", name:"사슴" },                      camel:{ n:10, emoji:"🐪", name:"낙타" },
-  goat:{ n:11, emoji:"🐐", name:"산양" },                     cablecar:{ n:12, emoji:"🚠", name:"케이블카" },
-  /* 하늘 13~16 */ eagle:{ n:13, emoji:"🦅", name:"독수리" }, balloon:{ n:14, emoji:"🎈", name:"열기구" },
-  cloud:{ n:15, emoji:"☁️", name:"구름" },                    rocket:{ n:16, emoji:"🚀", name:"로켓" },
-  /* 판타지 17~20 */ dragon:{ n:17, emoji:"🐉", name:"드래곤" }, unicorn:{ n:18, emoji:"🦄", name:"유니콘" },
-  carpet:{ n:19, emoji:"🧞", name:"마법양탄자" },             sled:{ n:20, emoji:"🛷", name:"썰매" },
+  goat:{ n:11, emoji:"🐐", name:"산양" },                     cablecar:{ n:12, emoji:"🚠", name:"케이블카", hMul:1.55 },
+  /* 하늘 13~16 */ eagle:{ n:13, emoji:"🦅", name:"독수리", lift:8 }, balloon:{ n:14, emoji:"🎈", name:"열기구", hMul:1.75, lift:9 },
+  cloud:{ n:15, emoji:"☁️", name:"구름", lift:7 },                    rocket:{ n:16, emoji:"🚀", name:"로켓", lift:8 },
+  /* 판타지 17~20 */ dragon:{ n:17, emoji:"🐉", name:"드래곤", lift:5 }, unicorn:{ n:18, emoji:"🦄", name:"유니콘" },
+  carpet:{ n:19, emoji:"🧞", name:"마법양탄자", lift:4 },             sled:{ n:20, emoji:"🛷", name:"썰매" },
   /* 신규 시트 21~32 (사용자 2026-07-31) */
-  minecart:{ n:21, emoji:"🚋", name:"광산 수레" },            bat:{ n:22, emoji:"🦇", name:"박쥐" },
-  crystal:{ n:23, emoji:"💎", name:"수정 슬라이드" },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이" },
-  flamingo:{ n:25, emoji:"🦩", name:"플라밍고" },             meteor:{ n:26, emoji:"🌠", name:"유성" },
+  minecart:{ n:21, emoji:"🚋", name:"광산 수레", hMul:1.5 },            bat:{ n:22, emoji:"🦇", name:"박쥐", hMul:1.55, lift:7 },
+  crystal:{ n:23, emoji:"💎", name:"수정 슬라이드" },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이", lift:7 },
+  flamingo:{ n:25, emoji:"🦩", name:"플라밍고" },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
   motorbike:{ n:27, emoji:"🏍️", name:"오토바이" },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드" },
   iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀" },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
   whale:{ n:31, emoji:"🐳", name:"고래" },                    submarine:{ n:32, emoji:"🟡", name:"잠수정" },
@@ -61,8 +63,10 @@ export const MOUNTS = {
    public/assets/expedition/ride/{키}.webp (원본은 art-src/expedition/ride/).
    여기 없는 탈것은 그날 순환에서 건너뛰고 기본 이동(걷기·수영)이 나온다. */
 export const RIDE_READY = [
-  "horse","dolphin","deer","canoe",          // 1차 (사용자 원화 2026-07-31)
-  "camel","carpet","goat","cablecar",       // 2차
+  "horse","dolphin","deer","canoe",           // 1차 (사용자 원화 2026-07-31)
+  "camel","carpet","goat","cablecar",         // 2차
+  "unicorn","minecart","bat","balloon",       // 3차
+  "sailboat","ship","turtle","raft",          // 4차
 ];
 RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
