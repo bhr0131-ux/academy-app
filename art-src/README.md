@@ -165,6 +165,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/bg/bg-wood-v2-src.webp | 숲길 산책 배경 v2 (토끼 좌측 배치 — v1 교체, 현행) | expedition/bg-wood.webp |
 | expedition/bg/bg-cave-v2-src.webp | 동굴 배경 v2 (1717×916 — 권장 비율로 재제작, 출구 아치 안전영역 안, 현행) | expedition/bg-cave.webp |
 | expedition/bg/bg-meadow-src.webp | 초원 배경 (9번째 탐험 '초원을 달리자!' — 양·풍차) | expedition/bg-meadow.webp |
+| expedition/bg/bg-skyisle-src.webp | 하늘섬 배경 (1717×916 — 성 있는 부유섬·열기구·무지개) **아직 미탑재**: 하늘을 지나갈 탑승(앉기) 원화가 오면 열기구로 태워 탐험 목록에 추가 (사용자 확정 2026-07-31) | — |
 | expedition/bg/bg-sea-src.webp | 바다 배경 (1672×941 — 수평선 위 보물섬·갈매기, 6번째 탐험) | expedition/bg-sea.webp |
 | expedition/bg/bg-desert-src.webp | 사막 배경 (1717×916 — 오아시스·유적 아치·사막여우, 5번째 탐험) | expedition/bg-desert.webp |
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
