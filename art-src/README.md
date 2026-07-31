@@ -169,8 +169,8 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | map-ev/butterfly-src.webp | 지도 이벤트 손님 나비 — 이벤트 날에만 지도에 나타남 (ev_butterfly) | map-ev/butterfly.webp |
 | map-ev/turtle-src.webp | 지도 이벤트 손님 거북이 — 이벤트 날에만 지도에 나타남 (ev_turtle) | map-ev/turtle.webp |
 | map-ev/rainbow-src.webp | 지도 이벤트 손님 무지개 — 이벤트 날에만 지도 하늘에 나타남 (ev_rainbow, 👋 없음) | map-ev/rainbow.webp |
-| expedition/bg/bg-snow-src.webp | 설원 배경 (1717×916 — 오로라·눈사람·통나무집·얼음 호수, 8번째 탐험) | expedition/bg-snow.webp |
-| expedition/bg/bg-treasure-v2-src.webp | 보물섬 배경 v2 (1695×928 — 넓은 모랫길·무지개·동굴 폭포, v1 교체 현행) | expedition/bg-treasure.webp |
+| expedition/bg/bg-snow-v2-src.webp | 설원 배경 v2 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-snow.webp |
+| expedition/bg/bg-treasure-v3-src.webp | 보물섬 배경 v3 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-treasure.webp |
 | expedition/bg/bg-space-src.webp | 우주 배경 (1717×916 — 왼쪽 발사대→오른쪽 우주기지·은하수 띠, 11번째 탐험) | expedition/bg-space.webp |
 | expedition/bg/bg-sea-src.webp | 바다 배경 (1672×941 — 수평선 위 보물섬·갈매기, 6번째 탐험) | expedition/bg-sea.webp |
 | expedition/bg/bg-desert-src.webp | 사막 배경 (1717×916 — 오아시스·유적 아치·사막여우, 5번째 탐험) | expedition/bg-desert.webp |
