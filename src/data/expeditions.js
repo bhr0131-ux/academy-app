@@ -246,16 +246,17 @@ export const EXPEDITIONS = {
     mounts:["cloud","balloon","eagle","dragon","unicorn","rocket"], alwaysMount:true,
     pose:"walk",   // 폴백(실제로는 늘 탑승) — 도착 만세만 걷기 계열 원화를 쓴다
     goal:"🏰", goalImg:"assets/expedition/flag/yellow.webp",
-    bgImg:"assets/expedition/bg-skyisle.webp",   // 사용자 배경 원화 v2 (성 있는 부유섬·무지개·열기구 — 원본 art-src)
+    bgImg:"assets/expedition/bg-skyisle.webp",   // 사용자 배경 원화 v3 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#7FC7F5","#CFEBFB"], ground:["#9AD1F0","#7CBEE6"], groundH:30,
-      /* 왼쪽 작은 부유섬(잔디 bottom 36%)에서 출발해 오른쪽 성이 있는 섬(잔디 bottom 44%)으로.
-         가는 길에 가운데 작은 섬(x 55~62%)을 지난다 */
-      /* 나는 탈것은 저마다 lift(5~9)만큼 더 뜨므로, 출발 높이는 왼쪽 섬(36%)보다
-         낮게 잡아야 제목 칩과 안 겹친다. 도착 높이는 성 섬 잔디(44%)에 맞춘다 */
-      charB:24, charB1:36, x0:13, x1:74,
-      xi:14, iB:24,
+      /* [사용자 확정] 1.4:1 배경 → 비율 카드 */
+      bgAR:1.4,
+      /* 왼쪽 작은 부유섬(잔디 bottom 39%) 옆에서 출발해 오른쪽 성 섬(잔디 bottom 44%)으로.
+         제목 칩이 그림 밖으로 나가서 위쪽 여유가 생겼다 — 출발을 섬 높이에 맞춰 올렸다 */
+      /* 로켓·열기구는 그림이 가로로 넓어 출발 x를 안쪽으로 (왼쪽 끝에서 잘리지 않게) */
+      charB:34, charB1:42, x0:17, x1:76,
+      xi:17, iB:36,
       /* 도착 만세는 성 앞 잔디 위 (탈것에서 내려서) */
-      xa:82, aB:44, gx:88, goalB:45,
+      xa:84, aB:44, gx:88, goalB:45,
       deco:[[6,26,"☁️",22],[14,64,"🎈",14],[93,26,"🌈",22],[88,66,"☁️",16],[8,84,"✨",10]] } },
   space: { key:"space", title:"우주를 탐험하자!", emoji:"🚀",
     /* Ch11 우주 — 하늘섬처럼 늘 탈것을 탄다 */
