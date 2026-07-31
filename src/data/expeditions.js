@@ -145,12 +145,14 @@ export const EXPEDITIONS = {
     /* Ch3 바위산 — 바위를 오른다 */
     mounts:["goat","cablecar","deer","horse","eagle","unicorn"],
     pose:"walk", item:"rope", goal:"🚩", goalImg:"assets/expedition/flag/red.webp",   // 정상 정복 = 빨간 깃발
-    bgImg:"assets/expedition/bg-mountain.webp",   // 사용자 배경 원화 (바위산 — 원본 art-src/expedition/bg/)
+    bgImg:"assets/expedition/bg-mountain.webp",   // 사용자 배경 원화 v2 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#CDE6F5","#F2EFE2"], ground:["#B9C9A0","#8FA878"], groundH:38,
-      /* 대각선 등반 — 왼쪽 아래 모랫길에서 돌계단을 따라 오른쪽 위 정상으로.
+      bgAR:1.4,
+      /* 대각선 등반 — 아래 흙길(bottom 14%)에서 돌계단을 따라 오른쪽 위(bottom 52%)로.
          charB(출발 높이)→charB1(도착 높이)을 진행률에 따라 보간한다 */
-      charB:6, charB1:56, goalB:60, x0:12, x1:79,
-      xi:12, iB:6, aB:56,
+      charB:13, charB1:52, x0:16, x1:68,
+      xi:16, iB:13,
+      xa:73, aB:55, gx:82, goalB:58,
       deco:[[7,26,"🏔️",30],[14,64,"🌲",18],[92,24,"☁️",18],[88,64,"🪨",15],[5,84,"🌼",11]] } },
   forest: { key:"forest", title:"숲을 통과하자!", emoji:"🌳",
     /* Ch4 깊은 숲 — 숲길을 통과한다 */
