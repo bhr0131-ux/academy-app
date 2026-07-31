@@ -92,7 +92,7 @@ export const EXPEDITIONS = {
       deco:[[6,28,"🌳",28],[14,62,"🍄",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🦋",11]] } },
   cave: { key:"cave", title:"동굴을 빠져나가자!", emoji:"🕳️",
     pose:"walk", item:"torch", goal:"🌕", goalImg:"assets/expedition/flag/yellow.webp",   // 어둠 속 별 깃발
-    bgImg:"assets/expedition/bg-cave.webp",   // 사용자 배경 원화 (왼쪽 입구→오른쪽 수정 아치 출구, 박쥐·수정)
+    bgImg:"assets/expedition/bg-cave.webp",   // 사용자 배경 원화 v2 (1.93:1 — 출구 아치가 안전 영역 안, 원본 art-src)
     scene:{ sky:["#4D4661","#6B617E"], ground:["#5D5470","#443C55"], groundH:34,
       /* 바닥 흙길을 따라 왼쪽 입구에서 오른쪽 수정 출구로 */
       charB:20, goalB:24, x0:10, x1:80,
