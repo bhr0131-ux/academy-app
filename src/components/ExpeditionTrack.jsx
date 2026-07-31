@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { getExpedition, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG, GOAL_MARK_ENABLED } from "../data/expeditions.js";
+import { getExpedition, getExpeditionMount, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG,
+  GOAL_MARK_ENABLED } from "../data/expeditions.js";
 
 /* ════════════════════════════════════════════════════════════════════════
    ExpeditionTrack — 미션 탭 '하루 한 탐험' 씬 (사용자 기획서 확정)
@@ -24,9 +25,12 @@ import { getExpedition, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG, GOAL_MARK_ENABLED } f
 export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "", gender = "boy", fullBleed = false }) {
   const exp = getExpedition(date);
   const sc = exp.scene;
-  /* 탈것은 '공용 탑승(앉기) 원화'가 있을 때만 그린다 — 걷는 캐릭터 발밑에
+  /* 그날의 탈것 — 같은 챕터가 돌아올 때마다 대표→변형 순으로 바뀐다(getExpeditionMount).
+     null이면 그 회차는 '기본'(걷기·수영·달리기).
+     탈것은 '공용 탑승(앉기) 원화'가 있을 때만 그린다 — 걷는 캐릭터 발밑에
      탈것 이모지만 깔면 어정쩡해서 (사용자 원화 오면 CHAR_IMG.ride만 채우면 됨) */
-  const mount = exp.pose === "ride" && CHAR_IMG.ride ? MOUNTS[exp.mount] : null;
+  const mountKey = CHAR_IMG.ride ? getExpeditionMount(date) : null;
+  const mount = mountKey ? MOUNTS[mountKey] : null;
   const item = exp.item ? ADVENTURE_ITEMS[exp.item] : null;
   const arrived = total > 0 && done >= total;
 
@@ -82,7 +86,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const facingLeft = t !== prevT.current ? t < prevT.current : (walking && back);
   const celebrating = arrived && !moving;
   /* idlePose: 출발지가 땅이 아닌 씬(바다)은 서 있는 대신 물에 떠 있게 (씬이 정한다) */
-  const poseKey = celebrating ? "success" : idle ? (exp.idlePose || "idle") : exp.pose;
+  /* 탈것 회차면 어떤 씬이든 탑승 포즈, 기본 회차면 씬의 기본 포즈(걷기·수영·달리기) */
+  const poseKey = celebrating ? "success" : idle ? (exp.idlePose || "idle")
+    : mount ? "ride" : exp.pose;
   /* poseFallback: 원화가 없는 포즈(지금은 ride)를 무엇으로 대신할지 씬이 정한다 —
      바다는 물 위를 걸을 수 없으니 수영으로 (사막처럼 땅이면 기본값 걷기) */
   const charB = CHAR_IMG[poseKey]?.[gender] || CHAR_IMG[exp.poseFallback]?.[gender]
