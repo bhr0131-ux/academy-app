@@ -67,6 +67,7 @@ export const RIDE_READY = [
   "camel","carpet","goat","cablecar",         // 2차
   "unicorn","minecart","bat","balloon",       // 3차
   "sailboat","ship","turtle","raft",          // 4차
+  "donkey","dragon","cloud","eagle",          // 5차
 ];
 RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
