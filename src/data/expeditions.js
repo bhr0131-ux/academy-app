@@ -165,10 +165,14 @@ export const EXPEDITIONS = {
     /* Ch5 동굴 — 어둠 속을 빠져나간다 */
     mounts:["minecart","bat","crystal","dragon"],
     pose:"walk", item:"torch", goal:"🌕", goalImg:"assets/expedition/flag/yellow.webp",   // 어둠 속 별 깃발
-    bgImg:"assets/expedition/bg-cave.webp",   // 사용자 배경 원화 v2 (1.93:1 — 출구 아치가 안전 영역 안, 원본 art-src)
+    bgImg:"assets/expedition/bg-cave.webp",   // 사용자 배경 원화 v3 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#4D4661","#6B617E"], ground:["#5D5470","#443C55"], groundH:34,
-      /* 바닥 흙길을 따라 왼쪽 입구에서 오른쪽 수정 출구로 */
-      charB:20, goalB:24, x0:10, x1:80,
+      bgAR:1.4,
+      /* 동굴 바닥(bottom 27~44%)을 따라 왼쪽 입구에서 오른쪽 수정 출구로 (거의 평지) */
+      /* 수정 슬라이드·광산 수레는 그림이 넓어 출발 x를 안쪽으로 */
+      charB:33, charB1:36, x0:17, x1:78,
+      xi:17, iB:34,
+      xa:82, aB:36, gx:90, goalB:42,
       deco:[[6,26,"🪨",22],[13,80,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
   desert: { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
     /* Ch7 사막 — 모래벌판을 건넌다 */
