@@ -7,8 +7,9 @@
      · 미션 n개 중 k개 완료 → 캐릭터가 길의 k/n 지점에 서 있다
      · 마지막 미션 완료 → 도착 + 성공 연출
 
-   ── 포즈 4종만 쓴다 (사용자 확정 — 제작 효율) ──────────────────────────
+   ── 포즈는 4종 기본 (사용자 확정 — 제작 효율) ──────────────────────────
      walk(걷기) · swim(수영) · ride(공용 탑승 1자세) · success(성공 공용)
+     + idle(출발지 대기) · run(초원 전용 달리기) 원화가 추가로 들어와 있다.
    탈것(Riding Sheet 20종)·아이템(Adventure Item 13종)은 캐릭터를 새로
    그리지 않고 PNG만 교체/추가한다. 발견물은 이모지 그대로 (별도 PNG 없음).
    캐릭터는 항상 오른쪽을 향한다 (왼쪽 필요 시 좌우 반전).
@@ -113,7 +114,8 @@ export const EXPEDITIONS = {
       charB:22, goalB:24, x0:10, x1:81,
       deco:[[6,30,"🌳",26],[14,64,"🌼",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🐇",12]] } },
   meadow: { key:"meadow", title:"초원을 달리자!", emoji:"🌾",
-    pose:"walk", goal:"🏁", goalImg:"assets/expedition/flag/yellow.webp",   // 결승선 = 별 깃발
+    /* [사용자 확정] 초원은 '달리기' — 전용 달리기 원화 + 이동 속도도 조금 빠르게(moveMs) */
+    pose:"run", moveMs:1000, goal:"🏁", goalImg:"assets/expedition/flag/yellow.webp",   // 결승선 = 별 깃발
     bgImg:"assets/expedition/bg-meadow.webp",   // 사용자 배경 원화 (양·풍차 초원 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#BDE3F7","#EAF6E0"], ground:["#A5D06A","#8CBE52"], groundH:38,
       /* 탁 트인 풀밭을 달린다 — 양(중앙)은 장식, 풍차 언덕이 도착 방향 */
@@ -146,6 +148,7 @@ const _CP = "assets/expedition/char/";
 export const CHAR_IMG = {
   idle:    { boy: _CP+"common-idle.webp",    girl: _CP+"common-idle.webp" },   // 미션 0개 — 출발지 기본 자세 (사용자 확정)
   walk:    { boy: _CP+"common-walk.webp",    girl: _CP+"common-walk.webp" },
+  run:     { boy: _CP+"common-run.webp",     girl: _CP+"common-run.webp" },    // 초원 전용 달리기 (사용자 원화 2026-07-31)
   swim:    { boy: _CP+"common-swim.webp",    girl: _CP+"common-swim.webp" },
   ride:    null,
   success: { boy: _CP+"common-success.webp", girl: _CP+"common-success.webp" },

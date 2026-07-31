@@ -41,8 +41,13 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const charBottom = sc.charB1 != null ? cb0 + t * (sc.charB1 - cb0) : cb0;
   const goalBottom = sc.goalB ?? sc.groundH * 0.55;
 
+  /* 이동 시간 — 기본 1.4초. 씬이 moveMs를 주면 그 속도로 (초원=달리기라 조금 빠르게).
+     걸음 흔들림 주기도 같이 줄여야 빨리 움직이는 만큼 다리도 바쁘게 보인다. */
+  const moveMs = exp.moveMs ?? 1400;
+  const stepMs = (moveMs / 1400) * 0.45;   // 초 단위 (기본 0.45s)
+
   /* 방금 이동했는지 — 이동 중에만 걷기 기울임, 도착 순간 점프.
-     left 트랜지션(1.4s)과 같은 시간만 walking 상태를 켠다. */
+     left 트랜지션과 같은 시간만 walking 상태를 켠다. */
   const [walking, setWalking] = useState(false);
   const [back, setBack] = useState(false);      // 뒤로 가는 중(미션 취소) — 좌우 반전용
   const prevT = useRef(t);
@@ -51,9 +56,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
     setBack(t < prevT.current);
     prevT.current = t;
     setWalking(true);
-    const to = setTimeout(() => setWalking(false), 1450);
+    const to = setTimeout(() => setWalking(false), moveMs + 50);
     return () => clearTimeout(to);
-  }, [t]);
+  }, [t, moveMs]);
 
   const dark = !!sc.dark;
   const inkSub = dark ? "rgba(240,240,250,0.75)" : "rgba(90,68,48,0.75)";
@@ -133,11 +138,12 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
 
         {/* ── 탐험가 — 미션 완료 수만큼 오른쪽으로 (진짜 '이동'이 핵심) ── */}
         <div style={{ position: "absolute", left: `${xPos}%`, bottom: `${bottomPos}%`,
-          transform: "translateX(-50%)", transition: "left 1.4s cubic-bezier(.45,.05,.35,1), bottom 1.4s cubic-bezier(.45,.05,.35,1)",
+          transform: "translateX(-50%)",
+          transition: `left ${moveMs}ms cubic-bezier(.45,.05,.35,1), bottom ${moveMs}ms cubic-bezier(.45,.05,.35,1)`,
           pointerEvents: "none", zIndex: 2 }}>
           <div style={{ position: "relative",
             animation: celebrating ? "expJump 1.5s ease-in-out infinite"
-              : moving ? "expWalk 0.45s ease-in-out infinite"
+              : moving ? `expWalk ${stepMs.toFixed(2)}s ease-in-out infinite`
               : "expBob 2.6s ease-in-out infinite" }}>
             {/* 탑승: 탈것 위에 공용 탑승 위치(캐릭터를 탈것 위로 띄움).
                 도착해 이동이 끝나면 탈것에서 내려 성공 포즈만 (만세하는데 탈것 위면 어색해서) */}
