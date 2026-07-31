@@ -54,9 +54,9 @@ export const MOUNTS = {
   minecart:{ n:21, emoji:"🚋", name:"광산 수레", hMul:1.5 },            bat:{ n:22, emoji:"🦇", name:"박쥐", hMul:1.55, lift:7 },
   crystal:{ n:23, emoji:"💎", name:"수정 슬라이드", hMul:1.5 },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이", hMul:1.45, lift:7 },
   flamingo:{ n:25, emoji:"🦩", name:"플라밍고", hMul:1.6 },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
-  motorbike:{ n:27, emoji:"🏍️", name:"오토바이" },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드" },
+  motorbike:{ n:27, emoji:"🏍️", name:"오토바이", hMul:1.4 },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드", hMul:1.3 },
   iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀" },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
-  whale:{ n:31, emoji:"🐳", name:"고래", hMul:1.55 },                    submarine:{ n:32, emoji:"🟡", name:"잠수정" },
+  whale:{ n:31, emoji:"🐳", name:"고래", hMul:1.55 },                    submarine:{ n:32, emoji:"🟡", name:"잠수정", hMul:1.7 },
 };
 /* ── 원화가 들어온 탈것 ──────────────────────────────────────────────
    그림을 받을 때마다 이 배열에 키만 추가하면 된다. 파일은 항상
@@ -69,6 +69,7 @@ export const RIDE_READY = [
   "sailboat","ship","turtle","raft",          // 4차
   "donkey","dragon","cloud","eagle",          // 5차
   "crystal","owl","flamingo","whale",         // 6차
+  "motorbike","sandboard","submarine",        // 7차 (설원·우주용 5종은 배경 대기 — 위 주석 참고)
 ];
 RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
@@ -149,7 +150,7 @@ export const EXPEDITIONS = {
       deco:[[6,26,"🪨",22],[13,80,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
   desert: { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
     /* Ch7 사막 — 대표: 낙타·마법양탄자 (사용자 기획서 2026-07-31) */
-    mounts:["camel","carpet","cloud","eagle","balloon"],
+    mounts:["camel","carpet","cloud","eagle","balloon","motorbike","sandboard"],
     pose:"walk",   // 기획서: 사막의 기본은 걷기 — 탈것(낙타·양탄자…)은 회차마다 mounts에서
     goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
     bgImg:"assets/expedition/bg-desert.webp",   // 사용자 배경 원화 (오아시스·유적 아치 — 원본 art-src/expedition/bg/)
@@ -159,7 +160,7 @@ export const EXPEDITIONS = {
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
     /* Ch9 바다 — 대표: 큰배·돌고래 (사용자 기획서 2026-07-31) */
-    mounts:["ship","dolphin","canoe","sailboat","turtle","whale"],
+    mounts:["ship","dolphin","canoe","sailboat","turtle","whale","submarine"],
     pose:"swim",   // 기획서: 바다의 기본은 수영 — 배·돌고래 등은 회차마다 mounts에서
     idlePose:"swim",   // 출발지도 바다 한가운데 — 서 있을 땅이 없어 물에 떠서 기다린다
     goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
