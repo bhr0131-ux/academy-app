@@ -162,7 +162,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/flag/{red,blue,green,yellow}-src.webp | 도착 깃발 4색 (빨강 잎가지·파랑 물방울·초록 잎·노랑 별 — halo 보정 후 탑재) | expedition/flag/*.webp |
 | expedition/bg/bg-mountain-src.webp | 바위산 배경 (화요일, 1536×1024 — 돌계단 대각선 등반) | expedition/bg-mountain.webp |
 | expedition/bg/bg-forest-v2-src.webp | 깊은 숲 배경 v2 (수요일 현행 — v1 숲길 교체, 여우·부엉이·개울) | expedition/bg-forest.webp |
-| expedition/bg/bg-wood-v2-src.webp | 숲길 산책 배경 v2 (토끼 좌측 배치 — v1 교체, 현행) | expedition/bg-wood.webp |
+| expedition/bg/bg-wood-v3-src.webp | 숲길 산책 배경 v3 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-wood.webp |
 | expedition/bg/bg-cave-v3-src.webp | 동굴 배경 v3 (1483×1061 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-cave.webp |
 | expedition/bg/bg-meadow-src.webp | 초원 배경 (9번째 탐험 '초원을 달리자!' — 양·풍차) | expedition/bg-meadow.webp |
 | expedition/bg/bg-skyisle-v3-src.webp | 하늘섬 배경 v3 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-skyisle.webp |

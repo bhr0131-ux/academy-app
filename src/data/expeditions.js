@@ -205,10 +205,13 @@ export const EXPEDITIONS = {
     /* Ch1 숲 — 숲길을 산책한다 */
     mounts:["deer","horse","donkey","unicorn","dragon"],
     pose:"walk", item:"lunchbox", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
-    bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 v2 (토끼 좌측 배치 — 원본 art-src/expedition/bg/)
+    bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 v3 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#CBE8F5","#EAF6E9"], ground:["#A9CF7F","#8AB763"], groundH:36,
-      /* 넓은 흙길이 하단을 가로지른다 — 길 위 산책. 토끼들(좌측 잔디)은 장식 */
-      charB:22, goalB:24, x0:10, x1:81,
+      bgAR:1.4,
+      /* 넓은 흙길(bottom 19~28%)이 하단을 가로지른다 — 길 위 산책. 토끼는 길가 장식 */
+      charB:21, charB1:24, x0:15, x1:78,
+      xi:15, iB:21,
+      xa:82, aB:24, gx:90, goalB:26,
       deco:[[6,30,"🌳",26],[14,64,"🌼",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🐇",12]] } },
   meadow: { key:"meadow", title:"초원을 달리자!", emoji:"🌾",
     /* Ch6 초원 — 풀밭을 달린다 */
