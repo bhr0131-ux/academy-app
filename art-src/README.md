@@ -99,7 +99,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 최소 배율'로 키워야 했다. 지금은 머리를 아예 안 그리므로 그런 여유가 필요 없고,
 턱 끝·얼굴폭만 맞추면 된다.)
 
-**정리 이력**: 교체·은퇴된 원본 26개(37MB)는 작업 폴더에서 삭제했다.
+**정리 이력**: 교체·은퇴된 원본(초기 26개 37MB + 2026-07-31 구버전 18개) + 미사용 후보 폰트 4종(11.7MB)은 작업 폴더에서 삭제했다. 46MB → 11MB.
 필요하면 git 히스토리에서 되살릴 수 있다 — `git log --all --diff-filter=D --name-only -- art-src`
 
 **폰트**: 현재 앱 전체 글씨체는 **카페24 써라운드** 한 종류다 (사용자 확정).
@@ -107,8 +107,9 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 예전 두 폰트(의연체+Pretendard)를 상용 2,780자로 서브셋한 합(1.13MB)보다도 작다.
 서브셋을 안 하니 글자가 빠질 일도 없다.
 
-이전 폰트 원본(의연체·콘콘체·Pretendard·Gmarket)은 아래 표 밖에 그대로 보관 중이라
-되돌리거나 부분적으로 다시 쓸 수 있다. 되돌릴 땐 크기 재조정이 필요하다 —
+[사용자 확정 2026-07-31] **쓰지 않는 후보 폰트 4종(의연체·콘콘체·Pretendard·Gmarket, 11.7MB)은 삭제했다.**
+되돌릴 일이 생기면 git 히스토리에서 꺼내거나 배포처에서 다시 받으면 된다.
+되돌릴 땐 크기 재조정이 필요하다 —
 **써라운드는 의연체보다 약 1.85배 넓고, Pretendard보다 1.15배 넓다** (같은 px 기준 실측).
 그래서 의연체를 쓰던 자리는 크기를 0.55배로 줄여 놓았다.
 
@@ -116,18 +117,11 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 |---|---|---|
 | base-boy-v4-head.webp | 남아 머리 원화 v4 (현행 — 몸통과 이어 붙여 탑재) | avatar/base/head.webp |
 | base-boy-v4-body.webp | 남아 몸통 원화 v4 (현행 — 머리와 이어 붙여 탑재) | avatar/base/body.webp |
-| base-boy-v3.webp | 남아 아바타 베이스 원화 v3 (교체됨) | — |
 | base-girl-v4-head.webp | 여아 머리 원화 v4 (현행 — 눈 정렬 후 3px 내려 몸통과 이어 붙여 탑재) | avatar/base/head-girl.webp |
 | base-girl-v4-body.webp | 여아 몸통 원화 v4 (현행 — 발끝 y936 정렬, 머리와 이어 붙여 탑재) | avatar/base/body-girl.webp |
-| base-girl-v3.webp | 여아 아바타 베이스 원화 v3 (교체됨) | — |
-| base-boy.webp | 남아 아바타 베이스 원화 v2 (교체됨) | — |
-| base-girl.webp | 여아 아바타 베이스 원화 v2 (교체됨) | — |
 | shoe-explorer-L/R.webp | 탐험 부츠 원화 한 짝씩 (현행) | avatar/shoes/explorer-boots(-girl).webp |
 | shoe-green-L/R.webp | 새싹 부츠 원화 한 짝씩 (현행) | avatar/shoes/green-boots(-girl).webp |
 | shoe-cream-L/R.webp | 크림 부츠 원화 한 짝씩 (현행, 고해상도 원본) | avatar/shoes/cream-boots(-girl).webp |
-| boots-explorer-v3.webp | 탐험 부츠 원화 v3 (교체됨) | — |
-| boots-green-v3.webp | 새싹 부츠 원화 v3 (교체됨) | — |
-| boots-cream-v3.webp | 크림 부츠 원화 v3 (교체됨) | — |
 | hat-explorer-v3.webp | 탐험 헬멧 원화 남아 v3 (현행, hidesHead) | avatar/hat/explorer-helmet.webp |
 | hat-explorer-helmet-girl.webp | 탐험 헬멧 원화 여아 (현행, imgGirl) | avatar/hat/explorer-helmet-girl.webp |
 | hat-safari-brown.webp | 사파리 모자 원화 남아 (현행, hidesHead) | avatar/hat/safari-brown.webp |
@@ -142,8 +136,6 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | back-explorer-straps.webp | 탐험 배낭 원화 (초록 롤 + 갈색 가죽끈, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
 | back-sky-straps.webp | 하늘 배낭 원화 (파랑 롤 + 갈색 가죽끈) | avatar/back/sky-straps.webp |
 | back-cream-straps.webp | 크림 배낭 원화 (크림 롤 + 캔버스끈, 체커보드 배경 제거) | avatar/back/cream-straps.webp |
-| hat-explorer-v2.webp / hat-explorer-wearing.webp | 탐험 헬멧 원화 v2·v1 (교체됨) | — |
-| boots-*-sockless*.webp / boots-green-wearing-v2.webp | 부츠 원화 v1·v2 (교체됨) | — |
 | btn-parent-badge-v2.webp | '엄마용' 원형 뱃지 v2 (엄마 얼굴, 현행) | btn-parent.webp |
 | btn-child-switch-badge-v2.webp | 아이 전환 원형 뱃지 v2 (남매, 2명 이상일 때만 노출, 현행) | btn-child-switch.webp |
 | btn-my-avatar-badge.webp | '내 아바타' 원형 뱃지 (초록 실루엣, 현행 — 팻말에서 교체) | btn-my-avatar.webp |
