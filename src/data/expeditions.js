@@ -100,7 +100,10 @@ export const EXPEDITIONS = {
       deco:[[6,26,"🪨",22],[13,80,"💎",12],[93,26,"🦇",14],[88,64,"🪨",16],[95,80,"✨",10]], dark:true } },
   desert: { key:"desert", title:"사막을 건너자!", emoji:"🏜️",
     pose:"ride", mount:"camel", goal:"🌴", goalImg:"assets/expedition/flag/red.webp",   // 모래 대비 빨간 깃발
+    bgImg:"assets/expedition/bg-desert.webp",   // 사용자 배경 원화 (오아시스·유적 아치 — 원본 art-src/expedition/bg/)
     scene:{ sky:["#FBE3B7","#FDF2DC"], ground:["#EBCB8B","#D9B26C"], groundH:36,
+      /* 앞쪽 모래벌판을 따라 왼쪽에서 오른쪽 유적 쪽으로 */
+      charB:12, goalB:14, gx:90, x0:9, x1:83,
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
     pose:"ride", mount:"sailboat", goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
