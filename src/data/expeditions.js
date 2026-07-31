@@ -52,11 +52,11 @@ export const MOUNTS = {
   carpet:{ n:19, emoji:"🧞", name:"마법양탄자", lift:4 },             sled:{ n:20, emoji:"🛷", name:"썰매" },
   /* 신규 시트 21~32 (사용자 2026-07-31) */
   minecart:{ n:21, emoji:"🚋", name:"광산 수레", hMul:1.5 },            bat:{ n:22, emoji:"🦇", name:"박쥐", hMul:1.55, lift:7 },
-  crystal:{ n:23, emoji:"💎", name:"수정 슬라이드" },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이", lift:7 },
-  flamingo:{ n:25, emoji:"🦩", name:"플라밍고" },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
+  crystal:{ n:23, emoji:"💎", name:"수정 슬라이드", hMul:1.5 },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이", hMul:1.45, lift:7 },
+  flamingo:{ n:25, emoji:"🦩", name:"플라밍고", hMul:1.6 },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
   motorbike:{ n:27, emoji:"🏍️", name:"오토바이" },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드" },
   iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀" },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
-  whale:{ n:31, emoji:"🐳", name:"고래" },                    submarine:{ n:32, emoji:"🟡", name:"잠수정" },
+  whale:{ n:31, emoji:"🐳", name:"고래", hMul:1.55 },                    submarine:{ n:32, emoji:"🟡", name:"잠수정" },
 };
 /* ── 원화가 들어온 탈것 ──────────────────────────────────────────────
    그림을 받을 때마다 이 배열에 키만 추가하면 된다. 파일은 항상
@@ -68,6 +68,7 @@ export const RIDE_READY = [
   "unicorn","minecart","bat","balloon",       // 3차
   "sailboat","ship","turtle","raft",          // 4차
   "donkey","dragon","cloud","eagle",          // 5차
+  "crystal","owl","flamingo","whale",         // 6차
 ];
 RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
 
@@ -104,7 +105,7 @@ export const GOAL_MARK_ENABLED = false;
 export const EXPEDITIONS = {
   river: { key:"river", title:"강을 건너자!", emoji:"🌊",
     /* Ch2 강 — 대표: 카누·돌고래 (사용자 기획서 2026-07-31) */
-    mounts:["canoe","dolphin","raft","sailboat","ship","turtle"],
+    mounts:["canoe","dolphin","raft","sailboat","ship","turtle","flamingo"],
     pose:"swim", goal:"⛺", goalImg:"assets/expedition/flag/blue.webp",   // 도착 = 물방울 깃발 (사용자 원화)
     bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 v3 (1.87:1 권장 비율 — 구도는 v2와 동일, 원본 art-src)
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
@@ -130,7 +131,7 @@ export const EXPEDITIONS = {
       deco:[[7,26,"🏔️",30],[14,64,"🌲",18],[92,24,"☁️",18],[88,64,"🪨",15],[5,84,"🌼",11]] } },
   forest: { key:"forest", title:"숲을 통과하자!", emoji:"🌳",
     /* Ch4 깊은 숲 — 대표: 말·유니콘 (사용자 기획서 2026-07-31) */
-    mounts:["horse","unicorn","deer","donkey","dragon"],
+    mounts:["horse","unicorn","deer","donkey","dragon","owl"],
     pose:"walk", item:"compass", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
     bgImg:"assets/expedition/bg-forest.webp",   // 사용자 배경 원화 v2 '깊은 숲' (v1 숲길은 art-src 보존)
     scene:{ sky:["#D8EFC9","#F0F6E2"], ground:["#9CBF7C","#7BA45E"], groundH:36,
@@ -158,7 +159,7 @@ export const EXPEDITIONS = {
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
     /* Ch9 바다 — 대표: 큰배·돌고래 (사용자 기획서 2026-07-31) */
-    mounts:["ship","dolphin","canoe","sailboat","turtle"],
+    mounts:["ship","dolphin","canoe","sailboat","turtle","whale"],
     pose:"swim",   // 기획서: 바다의 기본은 수영 — 배·돌고래 등은 회차마다 mounts에서
     idlePose:"swim",   // 출발지도 바다 한가운데 — 서 있을 땅이 없어 물에 떠서 기다린다
     goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
