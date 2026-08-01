@@ -34,7 +34,8 @@
        원본은 art-src/expedition/ride/ 에 webp(q92)로 보관 (CLAUDE.md 5).
      · img가 없는 탈것은 그날 순환에서 자동으로 건너뛰고 기본 이동(걷기·수영)이 된다
        → 그림을 하나씩 받아도 그날그날 바로 살아난다.
-   hMul : 표시 높이 배율(기본 1.35) — 탈것이 커서 캐릭터가 작게 보이는 그림만 키운다.
+   hMul : 표시 높이 배율(기본 1) — [사용자 확정 2026-08-01] 탄 그림도 걷는 캐릭터와
+          같은 높이로 그린다. 특정 탈것만 키우고 싶을 때만 이 값을 준다.
    lift : 나는 탈것을 땅에서 띄우는 값(bottom% 가산) — 열기구가 모래에 붙어 보이면 안 되니까.
    [주의] 키 이름은 씬별 mounts 목록·순환 계산에 쓰이므로 바꾸지 말 것. 새 탈것은 뒤에 추가.
    번호는 사용자 시트의 번호와 같다 (그림 받을 때 대조용). */
@@ -45,20 +46,20 @@ export const MOUNTS = {
   dolphin:{ n:5, emoji:"🐬", name:"돌고래" },                 turtle:{ n:6, emoji:"🐢", name:"거북이" },
   /* 육상 7~12 */ horse:{ n:7, emoji:"🐴", name:"말" },       donkey:{ n:8, emoji:"🫏", name:"당나귀" },
   deer:{ n:9, emoji:"🦌", name:"사슴" },                      camel:{ n:10, emoji:"🐪", name:"낙타" },
-  goat:{ n:11, emoji:"🐐", name:"산양" },                     cablecar:{ n:12, emoji:"🚠", name:"케이블카", hMul:1.55 },
-  /* 하늘 13~16 */ eagle:{ n:13, emoji:"🦅", name:"독수리", lift:8 }, balloon:{ n:14, emoji:"🎈", name:"열기구", hMul:1.75, lift:9 },
+  goat:{ n:11, emoji:"🐐", name:"산양" },                     cablecar:{ n:12, emoji:"🚠", name:"케이블카" },
+  /* 하늘 13~16 */ eagle:{ n:13, emoji:"🦅", name:"독수리", lift:8 }, balloon:{ n:14, emoji:"🎈", name:"열기구", lift:9 },
   /* [사용자 확정 2026-07-31] 구름은 '하늘 전용' — 하늘섬에서만 탄다.
      다른 챕터에도 넣으면 "드디어 구름을 탄다"는 하늘 챕터의 특별함이 옅어진다. */
   cloud:{ n:15, emoji:"☁️", name:"구름", lift:7 },                    rocket:{ n:16, emoji:"🚀", name:"로켓", lift:8 },
   /* 판타지 17~20 */ dragon:{ n:17, emoji:"🐉", name:"드래곤", lift:5 }, unicorn:{ n:18, emoji:"🦄", name:"유니콘" },
   carpet:{ n:19, emoji:"🧞", name:"마법양탄자", lift:4 },             sled:{ n:20, emoji:"🛷", name:"썰매" },
   /* 신규 시트 21~32 (사용자 2026-07-31) */
-  minecart:{ n:21, emoji:"🚋", name:"광산 수레", hMul:1.5 },            bat:{ n:22, emoji:"🦇", name:"박쥐", hMul:1.55, lift:7 },
-  crystal:{ n:23, emoji:"💎", name:"수정 슬라이드", hMul:1.5 },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이", hMul:1.45, lift:7 },
-  flamingo:{ n:25, emoji:"🦩", name:"플라밍고", hMul:1.6 },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
-  motorbike:{ n:27, emoji:"🏍️", name:"오토바이", hMul:1.4 },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드", hMul:1.3 },
-  iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀", hMul:1.55 },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
-  whale:{ n:31, emoji:"🐳", name:"고래", hMul:1.55 },                    submarine:{ n:32, emoji:"🟡", name:"잠수정", hMul:1.7 },
+  minecart:{ n:21, emoji:"🚋", name:"광산 수레" },            bat:{ n:22, emoji:"🦇", name:"박쥐", lift:7 },
+  crystal:{ n:23, emoji:"💎", name:"수정 슬라이드" },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이", lift:7 },
+  flamingo:{ n:25, emoji:"🦩", name:"플라밍고" },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
+  motorbike:{ n:27, emoji:"🏍️", name:"오토바이" },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드" },
+  iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀" },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
+  whale:{ n:31, emoji:"🐳", name:"고래" },                    submarine:{ n:32, emoji:"🟡", name:"잠수정" },
 };
 /* ── 원화가 들어온 탈것 ──────────────────────────────────────────────
    그림을 받을 때마다 이 배열에 키만 추가하면 된다. 파일은 항상
@@ -91,6 +92,14 @@ const _RIDE_AR = {
   flamingo:0.57,       meteor:1.03,         motorbike:0.88,      sandboard:0.91,
   iceslide:0.87,       reindeersled:1.05,   whale:0.84,          submarine:0.88,
 };
+/* ── 포즈별 표시 크기 [사용자 확정 2026-08-01] ────────────────────────────
+   서있기·걷기·달리기는 scene.charH 그대로(390 폭 카드에서 세로 81px).
+   만세와 수영은 그림 비율이 달라 그대로 두면 혼자 커 보인다 — 아래 배율로 맞춘다.
+     만세 : 가로를 서있기와 같은 40px에 맞춘다 → 세로 67px (0.83배)
+     수영 : 세로를 40px로 (누워서 가는 자세라 낮게) → 가로 63px (0.49배)
+   배율이라 씬이 charH를 다르게 줘도(바다의 원근) 비율이 그대로 따라간다. */
+export const POSE_MUL = { success: 0.83, swim: 0.49 };
+
 /* 이동 방식 [사용자 확정 2026-08-01] — 그날 탈것이 어느 길로 가는지.
    fly=하늘길 · dive=물속길 · (안 적힌 것은 전부 바닥길, 걷기·달리기·수영도 바닥길)
    챕터의 scene.fly / scene.dive 에 그 길의 값이 있으면 그리로 간다. */

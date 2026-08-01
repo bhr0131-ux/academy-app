@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { C } from "../data/tokens.js";
-import { EXPEDITIONS, EXPEDITION_ORDER, MOUNTS, RARITY_LABEL } from "../data/expeditions.js";
+import { EXPEDITIONS, EXPEDITION_ORDER, MOUNTS, RARITY_LABEL, POSE_MUL } from "../data/expeditions.js";
 import ExpeditionTrack from "./ExpeditionTrack.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -126,7 +126,8 @@ export default function DevExpeditionPreview({ onClose, gender = "boy" }) {
             {P.charBm != null ? ` (가운데 ${P.charBm})` : ""}<br />
             출발 대기 {P.xi ?? P.x0}·{P.iB ?? P.charB} · 만세 {sc.xa ?? 88}·{sc.aB ?? (sc.charB1 ?? sc.charB)}<br />
             캐릭터 크기 {P.charH ?? 64}{P.charH1 != null ? ` → ${P.charH1}` : ""}
-            {mount ? ` · 탈것 배율 ×${mount.hMul ?? 1.35}` : ""}
+            {mount ? ` · 탈것 배율 ×${mount.hMul ?? 1}`
+              : ` · 만세 ×${POSE_MUL.success} · 수영 ×${POSE_MUL.swim}`}
             {alt ? "" : mount && mount.lift ? ` · 띄우기 ${mount.lift}` : ""}
           </p>
         </div>
