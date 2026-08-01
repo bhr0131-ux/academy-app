@@ -15,6 +15,7 @@ import { getMapWalker } from "./data/mapWalkers.js";
 import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
 import { getExpeditionMount, getExpeditionRarity, MOUNTS } from "./data/expeditions.js";
 import DevToolsPanel from "./components/DevToolsPanel.jsx";
+import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
@@ -339,6 +340,8 @@ export default function App() {
   const [openingTreasure,        setOpeningTreasure]        = useState(initUi.openingTreasure);
   const [showSettingsModal,      setShowSettingsModal]      = useState(initUi.showSettingsModal);
   const [showDevTools,           setShowDevTools]           = useState(initUi.showDevTools);
+  /* 미션 배경 점검 미리보기 (개발자 도구 전용) — 저장 안 함, 열릴 때마다 새로 */
+  const [showExpPreview,         setShowExpPreview]         = useState(false);
   const [showAcademyCopyModal,   setShowAcademyCopyModal]   = useState(initUi.showAcademyCopyModal);
   const [copySourceChildId,      setCopySourceChildId]      = useState(initUi.copySourceChildId);
   const [copySelectedAcademyIds, setCopySelectedAcademyIds] = useState(initUi.copySelectedAcademyIds);
@@ -4867,7 +4870,12 @@ export default function App() {
 
         {DEV_MODE && showDevTools && (
           /* 개발자 도구 — src/components/DevToolsPanel.jsx 로 분리 (CLAUDE.md 3) */
-          <DevToolsPanel D={{ children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, discoveryData }} />
+          <DevToolsPanel D={{ children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, setShowExpPreview, discoveryData }} />
+        )}
+        {DEV_MODE && showExpPreview && (
+          /* 미션 배경·동선 점검 — src/components/DevExpeditionPreview.jsx (CLAUDE.md 2) */
+          <DevExpeditionPreview onClose={()=>setShowExpPreview(false)}
+            gender={children.find(c=>c.id===childId)?.gender||"boy"} />
         )}
 
 

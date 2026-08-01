@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getExpedition, getExpeditionMount, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG,
+import { getExpedition, getExpeditionMount, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG,
   GOAL_MARK_ENABLED } from "../data/expeditions.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -26,15 +26,18 @@ import { getExpedition, getExpeditionMount, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG,
    비율 카드(bgAR)에서는 이 값을 기준으로 %로 환산해 카드와 함께 커진다. */
 const CARD_H = 220;
 
-export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "", gender = "boy", fullBleed = false }) {
-  const exp = getExpedition(date);
+export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "", gender = "boy", fullBleed = false,
+  previewKey = "", previewMount }) {
+  /* previewKey·previewMount: 개발자 도구 미리보기 전용 —
+     날짜로 정해지는 챕터·탈것을 무시하고 고른 것을 그린다 (앱 화면은 안 쓴다) */
+  const exp = (previewKey && EXPEDITIONS[previewKey]) || getExpedition(date);
   const sc = exp.scene;
   /* 그날의 탈것 — 같은 챕터가 돌아올 때마다 대표→변형 순으로 바뀐다(getExpeditionMount).
      null이면 그 회차는 '기본'(걷기·수영·달리기).
      [사용자 시트 v1.0] 탑승 원화는 '탈것 + 앉은 캐릭터'가 한 장이라, 그림이 있는
      탈것만 태우고 그 한 장으로 캐릭터를 대신한다. 그림이 아직 없는 탈것은
      그날 순환에서 건너뛰고 기본 이동으로 (그림을 하나씩 받아도 바로 반영된다). */
-  const mountKey = getExpeditionMount(date);
+  const mountKey = previewMount !== undefined ? previewMount : getExpeditionMount(date);
   const mount = mountKey && MOUNTS[mountKey]?.img ? MOUNTS[mountKey] : null;
   const item = exp.item ? ADVENTURE_ITEMS[exp.item] : null;
   const arrived = total > 0 && done >= total;
