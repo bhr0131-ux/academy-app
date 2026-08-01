@@ -91,6 +91,14 @@ const _RIDE_AR = {
   flamingo:0.57,       meteor:1.03,         motorbike:0.88,      sandboard:0.91,
   iceslide:0.87,       reindeersled:1.05,   whale:0.84,          submarine:0.88,
 };
+/* 이동 방식 [사용자 확정 2026-08-01] — 그날 탈것이 어느 길로 가는지.
+   fly=하늘길 · dive=물속길 · (안 적힌 것은 전부 바닥길, 걷기·달리기·수영도 바닥길)
+   챕터의 scene.fly / scene.dive 에 그 길의 값이 있으면 그리로 간다. */
+const _FLY = ["eagle", "balloon", "cloud", "rocket", "dragon", "carpet", "bat", "owl", "meteor"];
+const _DIVE = ["submarine"];
+_FLY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].k = "fly"; });
+_DIVE.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].k = "dive"; });
+
 RIDE_READY.forEach((k) => {
   if (!MOUNTS[k]) return;
   MOUNTS[k].img = _RP + k + ".webp";
@@ -238,13 +246,16 @@ export const EXPEDITIONS = {
     /* Ch1 숲 — 숲길을 산책한다 */
     mounts:["deer","horse","donkey","unicorn","dragon"],
     pose:"walk", item:"lunchbox", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
-    bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 v3 (1.4:1 — 큰 카드용, 원본 art-src)
+    bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 v4 (1.4:1 — 토끼 축소, 원본 art-src)
     scene:{ sky:["#CBE8F5","#EAF6E9"], ground:["#A9CF7F","#8AB763"], groundH:36,
       bgAR:1.4,
-      /* 넓은 흙길(bottom 19~28%)이 하단을 가로지른다 — 길 위 산책. 토끼는 길가 장식 */
-      charB:21, charB1:24, x0:13, x1:78,
-      xi:13, iB:21,
-      xa:82, aB:24, gx:90, goalB:26,
+      /* [사용자 확정 2026-08-01] 바닥길 — 넓은 흙길을 따라 거의 평지로 가로지른다 */
+      charB:25, charB1:23, x0:13, x1:90,
+      xi:13, iB:25,
+      xa:90, aB:23, gx:90, goalB:26,
+      /* 하늘길(드래곤) — 나무 높이에서 출발해 도착점까지 곧게 내려온다.
+         끝점이 바닥길과 같아서, 내려앉은 자리에서 그대로 만세로 이어진다 */
+      fly:{ charB:70 },
       deco:[[6,30,"🌳",26],[14,64,"🌼",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🐇",12]] } },
   meadow: { key:"meadow", title:"초원을 달리자!", emoji:"🌾",
     /* Ch6 초원 — 풀밭을 달린다 */
