@@ -255,10 +255,10 @@ export const EXPEDITIONS = {
     bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 v4 (1.4:1 — 토끼 축소, 원본 art-src)
     scene:{ sky:["#CBE8F5","#EAF6E9"], ground:["#A9CF7F","#8AB763"], groundH:36,
       bgAR:1.4,
-      /* [사용자 확정 2026-08-01] 바닥길 — 넓은 흙길을 따라 거의 평지로 가로지른다 */
-      charB:25, charB1:23, x0:13, x1:90,
-      xi:13, iB:25,
-      xa:90, aB:23, gx:90, goalB:26,
+      /* [사용자 확정 2026-08-01] 바닥길 — 넓은 흙길을 따라 평지로 가로지른다 */
+      charB:20, charB1:20, x0:13, x1:90,
+      xi:13, iB:20,
+      xa:90, aB:20, gx:90, goalB:26,
       /* 하늘길(드래곤) [사용자 확정] — 나무 위 높이(70)를 유지한 채 90까지 곧게 날아가고,
          도착하면 만세 자리(90·23)로 내려앉는다. 하강은 도착 트윈이 알아서 만든다 */
       fly:{ charB:70, charB1:70 },
