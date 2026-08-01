@@ -246,7 +246,7 @@ export const EXPEDITIONS = {
     /* Ch1 숲 — 숲길을 산책한다 */
     mounts:["deer","horse","donkey","unicorn","dragon"],
     pose:"walk", item:"lunchbox", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
-    bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 v3 (1.4:1 — 큰 카드용, 원본 art-src)
+    bgImg:"assets/expedition/bg-wood.webp",   // 사용자 배경 원화 v4 (1.4:1 — 토끼 축소, 원본 art-src)
     scene:{ sky:["#CBE8F5","#EAF6E9"], ground:["#A9CF7F","#8AB763"], groundH:36,
       bgAR:1.4,
       /* [사용자 확정 2026-08-01] 바닥길 — 넓은 흙길을 따라 거의 평지로 가로지른다 */
