@@ -37,9 +37,11 @@ export default function DevExpeditionPreview({ onClose, gender = "boy" }) {
   const sc = exp.scene;
   const mount = mountKey ? MOUNTS[mountKey] : null;
   const kind = mount ? (mount.k || "ground") : "ground";
-  /* 지금 이 조합이 실제로 쓰는 길 — 하늘·물속 길이 있으면 덮어쓴 값까지 합쳐서 본다 */
-  const alt = kind !== "ground" ? sc[kind] : null;
-  const P = alt ? { ...sc, iB: alt.charB ?? sc.iB, ...alt } : sc;
+  /* 지금 이 조합이 실제로 쓰는 길 — ExpeditionTrack과 같은 순서로 덮어쓴다
+     (기본 → scene.ride 탄 회차 공통 → scene.fly/dive 그 길) */
+  const alt = mount && kind !== "ground" ? sc[kind] : null;
+  const over = mount ? { ...(sc.ride || {}), ...(alt || {}) } : null;
+  const P = over ? { ...sc, xi: over.x0 ?? sc.xi, iB: over.charB ?? sc.iB, ...over } : sc;
 
   const chip = (on, col) => ({
     border: `1px solid ${on ? (col || C.purple) : C.border}`,
