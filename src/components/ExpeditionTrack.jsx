@@ -51,10 +51,14 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
      scene.fly / scene.dive 에 다른 값만 적어 두면 그 회차에만 덮어쓴다
      (안 적은 값은 바닥길 그대로). 만세 자리(xa·aB)는 내려서 하므로 항상 바닥길. */
   const rideKind = mount ? (mount.k || "ground") : "ground";
-  const alt = rideKind !== "ground" ? sc[rideKind] : null;
-  /* 대기 자리(xi·iB)는 그 길의 출발점이 기본 — 하늘길인데 땅에서 기다리면 어색하다.
-     그 길에 따로 적어 두면 그 값이 이긴다. */
-  const P = alt ? { ...sc, iB: alt.charB ?? sc.iB, ...alt } : sc;
+  const alt = mount && rideKind !== "ground" ? sc[rideKind] : null;
+  /* 덮어쓰는 순서: 기본(=걷기·수영 길) → scene.ride(탄 회차 공통) → scene.fly/dive(그 길).
+     scene.ride 는 '걸어갈 때와 탈것일 때 출발 자리가 다른' 챕터용
+     (강 — 걸어서는 모래톱 끝 10에서, 배·돌고래는 물 위 20에서 출발). */
+  const over = mount ? { ...(sc.ride || {}), ...(alt || {}) } : null;
+  /* 대기 자리(xi·iB)는 그 길의 출발점을 따라간다 — 하늘길인데 땅에서 기다리면 어색하다.
+     그 길에 xi·iB를 따로 적어 두면 그 값이 이긴다. */
+  const P = over ? { ...sc, xi: over.x0 ?? sc.xi, iB: over.charB ?? sc.iB, ...over } : sc;
 
   const x0 = P.x0 ?? 10, x1 = P.x1 ?? 76;
   const x = x0 + t * (x1 - x0);
