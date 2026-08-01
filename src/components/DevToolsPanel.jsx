@@ -12,7 +12,7 @@ import { DISCOVERIES, getCollectedCount } from "../data/discoveries.js";
    열고 닫기(DEV_MODE && showDevTools)는 App이 결정한다.
    ════════════════════════════════════════════════════════════════════════ */
 export default function DevToolsPanel({ D }) {
-  const { children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, discoveryData } = D;
+  const { children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, setShowExpPreview, discoveryData } = D;
   /* 패널 전용 스타일 헬퍼 (분리 전 App에 있던 것 그대로) */
   const devBtn=(bg)=>({width:"100%",border:"none",borderRadius:12,padding:"13px",background:bg,color:"#fff",fontSize:14,fontWeight:900,cursor:"pointer"});
   const devMiniBtn=(bg)=>({border:"none",borderRadius:10,padding:"10px 8px",background:bg,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer"});
@@ -154,6 +154,16 @@ export default function DevToolsPanel({ D }) {
                     <button onClick={devFillDiscoveryAll} style={devMiniBtn(GP.gold)}>전종류</button>
                     <button onClick={devResetDiscovery} style={devMiniBtn(C.red)}>초기화</button>
                   </div>
+                </div>
+
+                <div style={devGroup}>
+                  <p style={devGroupTitle}>미션 배경 점검</p>
+                  <button onClick={()=>{ setShowDevTools(false); setShowExpPreview(true); }} style={devBtn("#8B5CF6")}>
+                    🗺️ 챕터·탈것·동선 미리보기
+                  </button>
+                  <p style={{fontSize:11.5,color:C.sub,fontWeight:700,margin:"7px 0 0",lineHeight:1.5}}>
+                    챕터를 고르고 그 챕터 탈것을 골라, 출발·25·50·75·도착을 눌러 가며 동선을 본다.
+                  </p>
                 </div>
 
                 <div style={devGroup}>
