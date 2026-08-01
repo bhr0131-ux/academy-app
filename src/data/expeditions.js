@@ -116,8 +116,8 @@ const _RARITY_OF = {
   common: ["horse","deer","donkey","camel","canoe","raft","ship","sled"],
   /* [사용자 확정] 로켓은 우주 챕터의 '기본 이동'이라 rare — 우주 후보가 전부 전설이면
      12일마다 전설이 확정돼 전설이 흔해진다 (실측 15% → 8%). */
-  rare:   ["dolphin","turtle","goat","cablecar","sailboat","balloon","eagle","minecart","sandboard","reindeersled","rocket"],
-  epic:   ["cloud","bat","crystal","flamingo","whale","submarine","motorbike","iceslide","owl"],
+  rare:   ["flamingo","turtle","goat","cablecar","sailboat","balloon","eagle","minecart","sandboard","reindeersled","rocket"],
+  epic:   ["cloud","bat","crystal","dolphin","whale","submarine","motorbike","iceslide","owl"],   // [사용자 확정 2026-08-01] 돌고래↔플라밍고 교환
   legendary: ["unicorn","dragon","carpet","meteor"],
 };
 Object.entries(_RARITY_OF).forEach(([r, keys]) => keys.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].r = r; }));
@@ -155,24 +155,28 @@ export const GOAL_MARK_ENABLED = false;
    scene : CSS 폴백 배경 — sky·ground 그라데이션, 장식은 가장자리만(중앙 비움 규칙)
            deco: [x%, y%, 이모지, 크기px] (x는 0~22 또는 78~100만 쓸 것)
 
-   ── 출발 가로 위치는 전 챕터 공통 [사용자 확정 2026-08-01] ──────────────
-   x0 · xi 는 모든 챕터에서 13%로 같다 — 어느 탐험을 열어도 캐릭터가 화면의
-   같은 자리에서 출발해야 일관돼 보인다. 높이(charB·iB)는 배경마다 땅·수면
-   높이가 달라 챕터별로 둔다. 이 두 값은 개별로 조정하지 말 것.          */
+   ── 출발 자리 [사용자 확정 2026-08-01] ──────────────────────────────────
+   한 번 전 챕터 13%로 맞췄다가, 배경마다 모래톱·길이 시작되는 자리가 달라
+   지금은 챕터별로 사용자가 직접 정한다 (강 10 · 숲길 13 …).
+   대체로 10~13% 사이에 둬서 어느 탐험을 열어도 비슷한 자리에서 출발한다.
+   xi·iB(대기 자리)는 이동선의 시작과 같게 두는 게 기본 — 어긋나면 첫 미션에
+   캐릭터가 위아래로 튄다.                                              */
 export const EXPEDITIONS = {
   river: { key:"river", title:"강을 건너자!", emoji:"🌊",
     /* Ch2 강 — 물 위를 건넌다 (목록 안 탈것은 모두 동등) */
-    mounts:["canoe","raft","dolphin","turtle","flamingo","sailboat","ship"],
+    mounts:["canoe","raft","dolphin","turtle","flamingo","ship"],   // [사용자 확정 2026-08-01] 범선은 뺀다 (바다 챕터에는 그대로)
     pose:"swim", goal:"⛺", goalImg:"assets/expedition/flag/blue.webp",   // 도착 = 물방울 깃발 (사용자 원화)
     bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 v4 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
       /* [사용자 확정] 1.4:1 배경 → 높이 고정을 풀고 비율 카드로 (기기 폭이 달라도 안 잘림) */
       bgAR:1.4,
-      /* 왼쪽 모래톱에서 출발해 물을 건너 오른쪽 모래톱으로 (건너갈수록 조금 멀어진다) */
-      charB:13, charB1:22, x0:13, x1:84,
+      /* [사용자 확정 2026-08-01] 왼쪽 모래톱(10·25)에 서 있다가, 출발하면 바로 수영으로
+         바꿔 같은 높이로 물을 건너 오른쪽 모래톱(90·25)에 닿는다.
+         탈것 회차는 서 있지 않고 처음부터 탄 채로 출발한다 (대기 자리가 같아 그대로 이어진다) */
+      charB:25, charB1:25, x0:10, x1:90,
       goalB:24, gx:92.5,
-      xi:13, iB:24,     /* 출발 대기 — 왼쪽 모래톱 위 */
-      xa:89, aB:25,     /* 도착 만세 — 오른쪽 모래톱 위 */
+      xi:10, iB:25,     /* 출발 대기 — 왼쪽 모래톱 위, 이동선과 같은 높이 */
+      xa:90, aB:25,     /* 도착 만세 — 오른쪽 모래톱 위 */
       deco:[[6,30,"🌳",26],[13,66,"🌿",15],[93,28,"🌲",24],[87,66,"🪨",14],[8,84,"💧",11],[94,84,"🐟",12]] } },
   mountain: { key:"mountain", title:"바위산에 오르자!", emoji:"🏔️",
     /* Ch3 바위산 — 바위를 오른다 */
