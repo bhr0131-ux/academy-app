@@ -99,7 +99,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   /* 출발 전엔 대기 위치(xi/iB — 강은 둑 위)로. 도착해 만세할 땐 '깃발 바로 앞'이 기본
      (사용자 확정: 깃발이 뒤, 캐릭터가 앞 — 캐릭터 zIndex가 높아 겹치면 앞에 선다).
      씬별로 xa로 재정의 가능. */
-  const xPos = idle ? (sc.xi ?? x0) : celebrating ? (sc.xa ?? ((sc.gx ?? 90) - 2)) : x;
+  const xPos0 = idle ? (sc.xi ?? x0) : celebrating ? (sc.xa ?? ((sc.gx ?? 90) - 2)) : x;
   const bottomPos0 = idle ? (sc.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
   /* 나는 탈것(열기구·박쥐…)은 땅에서 살짝 띄운다 — 바닥에 붙으면 떠 있는 느낌이 안 난다 */
   const bottomPos = bottomPos0 + (riding ? (mount.lift ?? 0) : 0);
@@ -108,6 +108,17 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   /* 실제로 그릴 높이 — 탑승 그림은 탈것까지 들어 있어 캐릭터만 있을 때보다 크게
      (탈것별 hMul로 미세조정, 접지 그림자도 같은 높이를 따라간다) */
   const imgH = Math.round(riding ? charH * (mount.hMul ?? 1.35) : charH);
+  /* 그림이 카드 밖으로 삐져나가면 그만큼만 안쪽으로 민다 [사용자 확정 2026-08-01].
+     출발 자리를 전 챕터 13%로 통일하면서 날개 편 박쥐·마법양탄자처럼 폭이 넓은 그림이
+     왼쪽으로 잘렸다. 그림 자체를 줄이면 24종이 최대 37%까지 작아져 탑승이 초라해지므로,
+     자리를 정하는 값(x0·xi)은 그대로 두고 잘리는 회차만 살짝 밀어 준다.
+       · 그림은 높이로만 크기를 정하므로 폭은 '높이 × 원화 가로세로비'로 구한다.
+       · 높이는 카드 높이의 (imgH/220)이고 카드 높이 = 카드 폭 / bgAR —
+         그래서 폭을 '카드 폭의 %'로 바꾸면 아래 식이 된다 (실제 픽셀 폭을 몰라도 된다). */
+  const halfW = riding && mount.ar
+    ? ((imgH / CARD_H) * mount.ar / (sc.bgAR || 390 / CARD_H)) * 100 / 2
+    : 0;
+  const xPos = Math.min(Math.max(xPos0, halfW + 0.5), 100 - halfW - 0.5);
 
   return (
     <div style={{ marginBottom: 14 }}>

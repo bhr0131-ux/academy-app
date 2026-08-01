@@ -75,7 +75,27 @@ export const RIDE_READY = [
   "rocket","meteor",                          // 하늘섬·우주 챕터 개설로 가동
   "sled","reindeersled","iceslide",           // 설원 챕터 개설로 가동 — 시트 32종 전부 탑재
 ];
-RIDE_READY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].img = _RP + k + ".webp"; });
+/* 원화에서 잰 가로세로비(가로÷세로). 그림 크기는 높이로만 정하기 때문에,
+   화면 밖으로 삐져나가는지 계산하려면 폭을 알아야 한다 — 그 값이다.
+   [사용자 확정 2026-08-01] 출발 자리가 전 챕터 13%로 같아지면서, 날개를 편 박쥐처럼
+   폭이 넓은 그림은 왼쪽이 잘렸다. 그림을 줄이는 대신(24종을 최대 37%까지 줄여야 했다)
+   삐져나가는 만큼만 안쪽으로 밀어 넣는다 — ExpeditionTrack이 이 값으로 계산한다.
+   그림을 새로 교체하면 이 숫자도 다시 재서 고칠 것. */
+const _RIDE_AR = {
+  canoe:1.17,          raft:1.18,           sailboat:0.98,       ship:1.1,
+  dolphin:1.04,        turtle:1.03,         horse:0.87,          donkey:0.89,
+  deer:0.92,           camel:1.01,          goat:0.9,            cablecar:0.93,
+  eagle:0.88,          balloon:0.64,        cloud:0.9,           rocket:0.76,
+  dragon:1.07,         unicorn:0.99,        carpet:1.21,         sled:1.01,
+  minecart:0.85,       bat:1.23,            crystal:0.99,        owl:1.12,
+  flamingo:0.57,       meteor:1.03,         motorbike:0.88,      sandboard:0.91,
+  iceslide:0.87,       reindeersled:1.05,   whale:0.84,          submarine:0.88,
+};
+RIDE_READY.forEach((k) => {
+  if (!MOUNTS[k]) return;
+  MOUNTS[k].img = _RP + k + ".webp";
+  MOUNTS[k].ar = _RIDE_AR[k] || 1;
+});
 
 /* ── 희귀도 4단계 (사용자 확정 2026-07-31) ────────────────────────────────
    아이가 "오늘은 평소보다 특별한 탈것이다!"를 바로 느끼게 하는 장치.
