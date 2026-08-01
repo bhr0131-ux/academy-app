@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getExpedition, getExpeditionMount, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG,
-  GOAL_MARK_ENABLED } from "../data/expeditions.js";
+  POSE_MUL, GOAL_MARK_ENABLED } from "../data/expeditions.js";
 
 /* ════════════════════════════════════════════════════════════════════════
    ExpeditionTrack — 미션 탭 '하루 한 탐험' 씬 (사용자 기획서 확정)
@@ -128,9 +128,11 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const bottomPos1 = bottomPos0 + (riding && !alt ? (mount.lift ?? 0) : 0);
   /* 출발 전엔 출발 크기 그대로, 이동 중·도착은 진행도만큼 보간된 크기 */
   const charH = idle || P.charH1 == null ? ch0 : ch0 + t * (P.charH1 - ch0);
-  /* 실제로 그릴 높이 — 탑승 그림은 탈것까지 들어 있어 캐릭터만 있을 때보다 크게
-     (탈것별 hMul로 미세조정, 접지 그림자도 같은 높이를 따라간다) */
-  const imgH = Math.round(riding ? charH * (mount.hMul ?? 1.35) : charH);
+  /* 실제로 그릴 높이 [사용자 확정 2026-08-01] — 탄 그림도 걷는 캐릭터와 같은 높이로.
+     (특정 탈것만 키우고 싶으면 그 탈것에 hMul을 준다)
+     만세·수영은 그림 비율이 달라 그대로 두면 혼자 커 보여 POSE_MUL로 맞춘다.
+     접지 그림자도 이 높이를 따라간다. */
+  const imgH = Math.round(riding ? charH * (mount.hMul ?? 1) : charH * (POSE_MUL[poseKey] ?? 1));
   /* 그림이 카드 밖으로 삐져나가면 그만큼만 안쪽으로 민다 [사용자 확정 2026-08-01].
      출발 자리를 전 챕터 13%로 통일하면서 날개 편 박쥐·마법양탄자처럼 폭이 넓은 그림이
      왼쪽으로 잘렸다. 그림 자체를 줄이면 24종이 최대 37%까지 작아져 탑승이 초라해지므로,
