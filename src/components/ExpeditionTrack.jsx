@@ -43,15 +43,29 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
      배경 원화가 있는 씬은 그림에 맞춘 x0/x1·높이(charB/goalB)를 쓴다.
      미션이 없으면 출발점에 서 있다. */
   const t = total > 0 ? Math.min(1, done / total) : 0;
-  const x0 = sc.x0 ?? 10, x1 = sc.x1 ?? 76;
+  /* ── 이동 방식별 길 [사용자 확정 2026-08-01] ────────────────────────────
+     같은 배경이라도 나는 탈것은 하늘로, 잠수정은 물속으로 간다.
+     scene.fly / scene.dive 에 다른 값만 적어 두면 그 회차에만 덮어쓴다
+     (안 적은 값은 바닥길 그대로). 만세 자리(xa·aB)는 내려서 하므로 항상 바닥길. */
+  const rideKind = mount ? (mount.k || "ground") : "ground";
+  const alt = rideKind !== "ground" ? sc[rideKind] : null;
+  /* 대기 자리(xi·iB)는 그 길의 출발점이 기본 — 하늘길인데 땅에서 기다리면 어색하다.
+     그 길에 따로 적어 두면 그 값이 이긴다. */
+  const P = alt ? { ...sc, iB: alt.charB ?? sc.iB, ...alt } : sc;
+
+  const x0 = P.x0 ?? 10, x1 = P.x1 ?? 76;
   const x = x0 + t * (x1 - x0);
-  /* charB1이 있으면 이동하며 높이도 보간 — 산처럼 오르막 씬용 (없으면 수평 이동) */
-  const cb0 = sc.charB ?? sc.groundH * 0.35;
-  const charBottom = sc.charB1 != null ? cb0 + t * (sc.charB1 - cb0) : cb0;
+  /* charB1이 있으면 이동하며 높이도 보간 — 산처럼 오르막 씬용 (없으면 수평 이동).
+     charBm(가운데 높이)을 주면 그 점을 지나는 곡선으로 — 활처럼 휘는 하늘길용. */
+  const cb0 = P.charB ?? sc.groundH * 0.35;
+  const cb1 = P.charB1 ?? cb0;
+  const charBottom = P.charBm != null
+    ? (1 - t) * (1 - t) * cb0 + 2 * (1 - t) * t * (2 * P.charBm - (cb0 + cb1) / 2) + t * t * cb1
+    : cb0 + t * (cb1 - cb0);
   const goalBottom = sc.goalB ?? sc.groundH * 0.55;
   /* 캐릭터·깃발 크기 — 씬마다 다를 수 있다(바다처럼 멀리 있는 섬으로 가는 그림).
      charH1을 주면 이동하며 크기도 보간해 원근감을 낸다(가까운 앞 → 멀어지며 작게). */
-  const ch0 = sc.charH ?? 64;
+  const ch0 = P.charH ?? 64;
   const goalH = sc.goalH ?? 56;
 
   /* 이동 시간 — 기본 1.4초. 씬이 moveMs를 주면 그 속도로 (초원=달리기라 조금 빠르게).
@@ -99,12 +113,14 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   /* 출발 전엔 대기 위치(xi/iB — 강은 둑 위)로. 도착해 만세할 땐 '깃발 바로 앞'이 기본
      (사용자 확정: 깃발이 뒤, 캐릭터가 앞 — 캐릭터 zIndex가 높아 겹치면 앞에 선다).
      씬별로 xa로 재정의 가능. */
-  const xPos0 = idle ? (sc.xi ?? x0) : celebrating ? (sc.xa ?? ((sc.gx ?? 90) - 2)) : x;
-  const bottomPos0 = idle ? (sc.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
-  /* 나는 탈것(열기구·박쥐…)은 땅에서 살짝 띄운다 — 바닥에 붙으면 떠 있는 느낌이 안 난다 */
-  const bottomPos = bottomPos0 + (riding ? (mount.lift ?? 0) : 0);
+  const xPos0 = idle ? (P.xi ?? x0) : celebrating ? (sc.xa ?? ((sc.gx ?? 90) - 2)) : x;
+  const bottomPos0 = idle ? (P.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
+  /* 나는 탈것(열기구·박쥐…)은 땅에서 살짝 띄운다 — 바닥에 붙으면 떠 있는 느낌이 안 난다.
+     하늘길(scene.fly)이 있는 챕터는 길 자체가 이미 높이를 정하므로 띄우지 않는다. */
+  const flying = riding && (rideKind === "fly" || !!mount.lift);
+  const bottomPos1 = bottomPos0 + (riding && !alt ? (mount.lift ?? 0) : 0);
   /* 출발 전엔 출발 크기 그대로, 이동 중·도착은 진행도만큼 보간된 크기 */
-  const charH = idle || sc.charH1 == null ? ch0 : ch0 + t * (sc.charH1 - ch0);
+  const charH = idle || P.charH1 == null ? ch0 : ch0 + t * (P.charH1 - ch0);
   /* 실제로 그릴 높이 — 탑승 그림은 탈것까지 들어 있어 캐릭터만 있을 때보다 크게
      (탈것별 hMul로 미세조정, 접지 그림자도 같은 높이를 따라간다) */
   const imgH = Math.round(riding ? charH * (mount.hMul ?? 1.35) : charH);
@@ -119,6 +135,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
     ? ((imgH / CARD_H) * mount.ar / (sc.bgAR || 390 / CARD_H)) * 100 / 2
     : 0;
   const xPos = Math.min(Math.max(xPos0, halfW + 0.5), 100 - halfW - 0.5);
+  /* 위로도 같은 이유로 민다 — 하늘길을 높게 잡으면 큰 탈것은 머리가 잘린다.
+     그림 높이는 카드 높이의 (imgH/220)이므로 그만큼 위를 비워 둔다. */
+  const bottomPos = Math.min(bottomPos1, 100 - (imgH / CARD_H) * 100 - 0.5);
 
   return (
     <div style={{ marginBottom: 14 }}>
@@ -238,7 +257,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
           </div>
           {/* 접지 그림자 — 그림 바로 아래에 붙는다. 나는 탈것(lift)은 그리지 않는다:
               그룹째 떠오르기 때문에 그림자만 공중에 남아 더 어색해진다. */}
-          {!(riding && mount.lift) && (
+          {!flying && (
             <div style={{
               /* 비율 카드에선 높이를 카드 높이 %로 잡고 폭은 가로세로비로 따라오게 한다
                  (폭에 %를 쓰면 카드 '폭' 기준이라 그림자가 과하게 넓어진다) */
