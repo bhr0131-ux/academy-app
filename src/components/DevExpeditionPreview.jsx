@@ -123,7 +123,8 @@ export default function DevExpeditionPreview({ onClose, gender = "boy" }) {
           </p>
           <p style={{ margin: 0, color: C.sub }}>
             이동선 {P.x0}·{P.charB} → {P.x1}·{P.charB1 ?? P.charB}
-            {P.charBm != null ? ` (가운데 ${P.charBm})` : ""}<br />
+            {P.charBm != null ? ` (가운데 높이 ${P.charBm})` : ""}
+            {kind === "fly" && alt ? " · 높이는 캐릭터 가운데 기준" : ""}<br />
             출발 대기 {P.xi ?? P.x0}·{P.iB ?? P.charB} · 만세 {sc.xa ?? 88}·{sc.aB ?? (sc.charB1 ?? sc.charB)}<br />
             캐릭터 크기 {P.charH ?? 64}{P.charH1 != null ? ` → ${P.charH1}` : ""}
             {mount ? ` · 탈것 배율 ×${mount.hMul ?? 1}`
