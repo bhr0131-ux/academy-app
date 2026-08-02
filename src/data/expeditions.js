@@ -49,7 +49,9 @@ export const MOUNTS = {
   dolphin:{ n:5, emoji:"🐬", name:"돌고래" },                 turtle:{ n:6, emoji:"🐢", name:"거북이" },
   /* 육상 7~12 */ horse:{ n:7, emoji:"🐴", name:"말" },       donkey:{ n:8, emoji:"🫏", name:"당나귀" },
   deer:{ n:9, emoji:"🦌", name:"사슴" },                      camel:{ n:10, emoji:"🐪", name:"낙타" },
-  goat:{ n:11, emoji:"🐐", name:"산양" },                     cablecar:{ n:12, emoji:"🚠", name:"케이블카" },
+  goat:{ n:11, emoji:"🐐", name:"산양" },
+  /* cable: 지나는 길에 회색 줄을 그린다 — 곤돌라 맨 위(도르래)를 줄이 지나간다 */
+  cablecar:{ n:12, emoji:"🚠", name:"케이블카", cable:true },
   /* 하늘 13~16 */ eagle:{ n:13, emoji:"🦅", name:"독수리", lift:8 }, balloon:{ n:14, emoji:"🎈", name:"열기구", lift:9 },
   /* [사용자 확정 2026-07-31] 구름은 '하늘 전용' — 하늘섬에서만 탄다.
      다른 챕터에도 넣으면 "드디어 구름을 탄다"는 하늘 챕터의 특별함이 옅어진다. */
@@ -88,7 +90,7 @@ export const RIDE_READY = [
 const _RIDE_AR = {
   canoe:1.17,          raft:1.18,           sailboat:0.98,       ship:1.1,
   dolphin:1.04,        turtle:1.03,         horse:0.87,          donkey:0.89,
-  deer:0.92,           camel:1.01,          goat:0.9,            cablecar:1.08,
+  deer:0.92,           camel:1.01,          goat:0.9,            cablecar:0.93,
   eagle:0.88,          balloon:0.64,        cloud:0.9,           rocket:0.76,
   dragon:1.07,         unicorn:0.99,        carpet:1.21,         sled:1.01,
   minecart:0.85,       bat:1.23,            crystal:0.99,        owl:1.12,
