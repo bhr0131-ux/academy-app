@@ -35,15 +35,18 @@
      · img가 없는 탈것은 그날 순환에서 자동으로 건너뛰고 기본 이동(걷기·수영)이 된다
        → 그림을 하나씩 받아도 그날그날 바로 살아난다.
    hMul : 표시 높이 배율(기본 1) — [사용자 확정 2026-08-01] 탄 그림도 걷는 캐릭터와
-          같은 높이로 그린다. 특정 탈것만 키우고 싶을 때만 이 값을 준다.
+          같은 높이로 그린다(390 폭 카드에서 세로 81px). 그림에 따라 혼자 커/작아
+          보이는 것만 이 값으로 맞춘다.
+          물 위 탈것(카누·뗏목·범선·큰배·돌고래·거북이) 0.7 — 옆으로 누운 그림이라
+          같은 높이로 두면 강을 다 덮는다. 플라밍고 1.3 — 다리가 길어 몸통이 작다.
    lift : 나는 탈것을 땅에서 띄우는 값(bottom% 가산) — 열기구가 모래에 붙어 보이면 안 되니까.
    [주의] 키 이름은 씬별 mounts 목록·순환 계산에 쓰이므로 바꾸지 말 것. 새 탈것은 뒤에 추가.
    번호는 사용자 시트의 번호와 같다 (그림 받을 때 대조용). */
 const _RP = "assets/expedition/ride/";
 export const MOUNTS = {
-  /* 물 1~6 */   canoe:{ n:1, emoji:"🛶", name:"카누" },      raft:{ n:2, emoji:"🪵", name:"뗏목" },
-  sailboat:{ n:3, emoji:"⛵", name:"범선" },                  ship:{ n:4, emoji:"🚢", name:"큰배" },
-  dolphin:{ n:5, emoji:"🐬", name:"돌고래" },                 turtle:{ n:6, emoji:"🐢", name:"거북이" },
+  /* 물 1~6 */   canoe:{ n:1, emoji:"🛶", name:"카누", hMul:0.7 },      raft:{ n:2, emoji:"🪵", name:"뗏목", hMul:0.7 },
+  sailboat:{ n:3, emoji:"⛵", name:"범선", hMul:0.7 },                  ship:{ n:4, emoji:"🚢", name:"큰배", hMul:0.7 },
+  dolphin:{ n:5, emoji:"🐬", name:"돌고래", hMul:0.7 },                 turtle:{ n:6, emoji:"🐢", name:"거북이", hMul:0.7 },
   /* 육상 7~12 */ horse:{ n:7, emoji:"🐴", name:"말" },       donkey:{ n:8, emoji:"🫏", name:"당나귀" },
   deer:{ n:9, emoji:"🦌", name:"사슴" },                      camel:{ n:10, emoji:"🐪", name:"낙타" },
   goat:{ n:11, emoji:"🐐", name:"산양" },                     cablecar:{ n:12, emoji:"🚠", name:"케이블카" },
@@ -56,7 +59,7 @@ export const MOUNTS = {
   /* 신규 시트 21~32 (사용자 2026-07-31) */
   minecart:{ n:21, emoji:"🚋", name:"광산 수레" },            bat:{ n:22, emoji:"🦇", name:"박쥐", lift:7 },
   crystal:{ n:23, emoji:"💎", name:"수정 슬라이드" },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이", lift:7 },
-  flamingo:{ n:25, emoji:"🦩", name:"플라밍고" },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
+  flamingo:{ n:25, emoji:"🦩", name:"플라밍고", hMul:1.3 },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
   motorbike:{ n:27, emoji:"🏍️", name:"오토바이" },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드" },
   iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀" },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
   whale:{ n:31, emoji:"🐳", name:"고래" },                    submarine:{ n:32, emoji:"🟡", name:"잠수정" },
