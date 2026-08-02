@@ -125,6 +125,8 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   /* 나는 탈것(열기구·박쥐…)은 땅에서 살짝 띄운다 — 바닥에 붙으면 떠 있는 느낌이 안 난다.
      하늘길(scene.fly)이 있는 챕터는 길 자체가 이미 높이를 정하므로 띄우지 않는다. */
   const flying = riding && (rideKind === "fly" || !!mount.lift);
+  /* 멈춰 있을 때 둥실거릴 것 — 공중(하늘길)과 물속(잠수정)만. 땅·수면은 가만히 있는다 */
+  const hover = flying || (riding && rideKind === "dive");
   const bottomPos1 = bottomPos0 + (riding && !alt ? (mount.lift ?? 0) : 0);
   /* 출발 전엔 출발 크기 그대로, 이동 중·도착은 진행도만큼 보간된 크기 */
   const charH = idle || P.charH1 == null ? ch0 : ch0 + t * (P.charH1 - ch0);
@@ -242,9 +244,11 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
           transition: `left ${moveMs}ms cubic-bezier(.45,.05,.35,1), bottom ${moveMs}ms cubic-bezier(.45,.05,.35,1), height ${moveMs}ms cubic-bezier(.45,.05,.35,1)`,
           pointerEvents: "none", zIndex: 2 }}>
           <div style={{ position: "relative", height: sc.bgAR ? "100%" : undefined,
+            /* 멈춰 있을 때 둥실거림(숨쉬기)은 공중·물속에서만 [사용자 확정 2026-08-01].
+               땅에 발을 딛고 선 캐릭터가 떠다니면 위치를 잘못 잡은 것처럼 보인다. */
             animation: celebrating ? "expJump 1.5s ease-in-out infinite"
               : moving ? `expWalk ${stepMs.toFixed(2)}s ease-in-out infinite`
-              : "expBob 2.6s ease-in-out infinite" }}>
+              : hover ? "expBob 2.6s ease-in-out infinite" : "none" }}>
             {/* 탑승 회차: 탈것 원화 한 장이 캐릭터를 대신한다 (시트가 '탈것+앉은 캐릭터' 통짜).
                 도착해 이동이 끝나면 탈것에서 내려 성공 포즈만 (만세하는데 탈것 위면 어색해서) */}
             <img src={riding ? mount.img : (charB || charImg)} alt="" draggable={false}
