@@ -181,7 +181,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/ride/camel-src.webp | 탑승 원화 10 낙타 — 사막 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/camel.webp |
 | expedition/ride/carpet-src.webp | 탑승 원화 19 마법양탄자 — 사막 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/carpet.webp |
 | expedition/ride/goat-src.webp | 탑승 원화 11 산양 — 바위산 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/goat.webp |
-| expedition/ride/cablecar-src.webp | 탑승 원화 12 케이블카 — 바위산 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/cablecar.webp |
+| expedition/ride/cablecar-v2-src.webp | 탑승 원화 12 케이블카 v2 — 바위산 (1254×1165 투명 PNG, 줄에 매달린 곤돌라로 교체, 현행) | expedition/ride/cablecar.webp |
 | expedition/ride/unicorn-src.webp | 탑승 원화 18 유니콘 — 깊은숲 대표·보물 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/unicorn.webp |
 | expedition/ride/minecart-src.webp | 탑승 원화 21 광산 수레 — 동굴 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/minecart.webp |
 | expedition/ride/bat-src.webp | 탑승 원화 22 박쥐 — 동굴 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/bat.webp |
