@@ -38,7 +38,7 @@
           같은 높이로 그린다(390 폭 카드에서 세로 81px). 그림에 따라 혼자 커/작아
           보이는 것만 이 값으로 맞춘다.
           물 위 탈것(카누·뗏목·범선·큰배·돌고래·거북이) 0.7 — 옆으로 누운 그림이라
-          같은 높이로 두면 강을 다 덮는다. 플라밍고 1.3 — 다리가 길어 몸통이 작다.
+          같은 높이로 두면 강을 다 덮는다. 플라밍고 1.1 — 다리가 길어 몸통이 작다 (1.3은 커서 줄임).
    lift : 나는 탈것을 땅에서 띄우는 값(bottom% 가산) — 열기구가 모래에 붙어 보이면 안 되니까.
    [주의] 키 이름은 씬별 mounts 목록·순환 계산에 쓰이므로 바꾸지 말 것. 새 탈것은 뒤에 추가.
    번호는 사용자 시트의 번호와 같다 (그림 받을 때 대조용). */
@@ -59,7 +59,7 @@ export const MOUNTS = {
   /* 신규 시트 21~32 (사용자 2026-07-31) */
   minecart:{ n:21, emoji:"🚋", name:"광산 수레" },            bat:{ n:22, emoji:"🦇", name:"박쥐", lift:7 },
   crystal:{ n:23, emoji:"💎", name:"수정 슬라이드" },         owl:{ n:24, emoji:"🦉", name:"큰 부엉이", lift:7 },
-  flamingo:{ n:25, emoji:"🦩", name:"플라밍고", hMul:1.3 },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
+  flamingo:{ n:25, emoji:"🦩", name:"플라밍고", hMul:1.1 },             meteor:{ n:26, emoji:"🌠", name:"유성", lift:10 },
   motorbike:{ n:27, emoji:"🏍️", name:"오토바이" },            sandboard:{ n:28, emoji:"🏄", name:"모래 보드" },
   iceslide:{ n:29, emoji:"🧊", name:"얼음 미끄럼틀" },        reindeersled:{ n:30, emoji:"🦌", name:"순록 썰매" },
   whale:{ n:31, emoji:"🐳", name:"고래" },                    submarine:{ n:32, emoji:"🟡", name:"잠수정" },
