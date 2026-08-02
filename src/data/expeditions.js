@@ -88,7 +88,7 @@ export const RIDE_READY = [
 const _RIDE_AR = {
   canoe:1.17,          raft:1.18,           sailboat:0.98,       ship:1.1,
   dolphin:1.04,        turtle:1.03,         horse:0.87,          donkey:0.89,
-  deer:0.92,           camel:1.01,          goat:0.9,            cablecar:0.93,
+  deer:0.92,           camel:1.01,          goat:0.9,            cablecar:1.08,
   eagle:0.88,          balloon:0.64,        cloud:0.9,           rocket:0.76,
   dragon:1.07,         unicorn:0.99,        carpet:1.21,         sled:1.01,
   minecart:0.85,       bat:1.23,            crystal:0.99,        owl:1.12,
