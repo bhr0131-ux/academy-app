@@ -152,13 +152,6 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
       [v.boy, v.girl].forEach((src) => { if (src) { const im = new Image(); im.src = src; } });
     });
   }, []);
-  /* 착지 타이머 — 내려오는 데 이동과 같은 시간을 쓰고, 그 뒤에 만세로 넘긴다 */
-  useEffect(() => {
-    if (!arrived) { setLanded(false); return; }
-    if (moving || landed || !needsLanding) return;
-    const to = setTimeout(() => setLanded(true), moveMs + 50);
-    return () => clearTimeout(to);
-  }, [arrived, moving, landed, needsLanding, moveMs]);
   /* [사용자 확정] 미션을 취소해서 뒤로 갈 때도 수영/걷기로 돌아간다 —
      idle(출발지 대기)은 이동이 끝난 뒤에만. 뒤로 갈 땐 좌우 반전(왼쪽 보기). */
   const idle = !arrived && done === 0 && !moving;
@@ -219,6 +212,20 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const halfH = (imgH / CARD_H) * 100 / 2;
   const bottomPos = Math.max(0,
     Math.min(bottomPos1 - (centerAnchored ? halfH : 0), 100 - halfH * 2 - 0.5));
+
+  /* 착지에 쓸 시간 — 실제로 내려오는 거리에 맞춘다 [사용자 보고 2026-08-01].
+     거리와 상관없이 1.4초를 기다리니, 거의 그 자리에 앉는 회차(바위산 독수리)는
+     다 온 채로 한참 서 있다가 만세로 바뀌었다.
+     25%(카드 높이의 1/4)를 내려오면 이동과 같은 시간, 그보다 짧으면 그만큼 짧게. */
+  const flyEndFoot = (alt && rideKind === "fly") ? cb1 - halfH : cb1;
+  const landDrop = Math.abs(flyEndFoot - (sc.aB ?? cb1));
+  const landMs = Math.max(180, Math.min(moveMs, Math.round((moveMs * landDrop) / 25)));
+  useEffect(() => {
+    if (!arrived) { setLanded(false); return; }
+    if (moving || landed || !needsLanding) return;
+    const to = setTimeout(() => setLanded(true), landMs + 50);
+    return () => clearTimeout(to);
+  }, [arrived, moving, landed, needsLanding, landMs]);
 
   return (
     <div style={{ marginBottom: 14 }}>
@@ -311,7 +318,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
           /* 크기 값(charH·hMul)은 '220px 카드 기준 px'이다. 비율 카드에서는 카드가 커진 만큼
              같이 커지도록 카드 높이의 %로 환산한다 — 기기 폭이 달라도 비율이 일정하다 */
           height: sc.bgAR ? `${(imgH / CARD_H) * 100}%` : undefined,
-          transition: `left ${moveMs}ms cubic-bezier(.45,.05,.35,1), bottom ${moveMs}ms cubic-bezier(.45,.05,.35,1), height ${drawChanged ? 0 : moveMs}ms cubic-bezier(.45,.05,.35,1)`,
+          transition: `left ${landing ? landMs : moveMs}ms cubic-bezier(.45,.05,.35,1), bottom ${landing ? landMs : moveMs}ms cubic-bezier(.45,.05,.35,1), height ${drawChanged ? 0 : moveMs}ms cubic-bezier(.45,.05,.35,1)`,
           pointerEvents: "none", zIndex: 2 }}>
           <div style={{ position: "relative", height: sc.bgAR ? "100%" : undefined,
             /* 멈춰 있을 때 둥실거림(숨쉬기)은 공중·물속에서만 [사용자 확정 2026-08-01].
