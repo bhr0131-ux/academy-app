@@ -60,7 +60,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const over = mount ? { ...(sc.ride || {}), ...(alt || {}) } : null;
   /* 대기 자리(xi·iB)는 그 길의 출발점을 따라간다 — 하늘길인데 땅에서 기다리면 어색하다.
      그 길에 xi·iB를 따로 적어 두면 그 값이 이긴다. */
-  const P = over ? { ...sc, xi: over.x0 ?? sc.xi, iB: over.charB ?? sc.iB, ...over } : sc;
+  const P = over ? { ...sc,
+    xi: over.x0 ?? over.path?.[0]?.[0] ?? sc.xi,
+    iB: over.charB ?? over.path?.[0]?.[1] ?? sc.iB, ...over } : sc;
 
   /* ── 여러 점을 지나는 길 [사용자 확정 2026-08-01] ────────────────────────
      scene.path 에 [가로, 높이] 점을 순서대로 적으면 그 선을 따라간다.
