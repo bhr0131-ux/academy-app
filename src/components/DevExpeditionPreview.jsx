@@ -41,7 +41,9 @@ export default function DevExpeditionPreview({ onClose, gender = "boy" }) {
      (기본 → scene.ride 탄 회차 공통 → scene.fly/dive 그 길) */
   const alt = mount && kind !== "ground" ? sc[kind] : null;
   const over = mount ? { ...(sc.ride || {}), ...(alt || {}) } : null;
-  const P = over ? { ...sc, xi: over.x0 ?? sc.xi, iB: over.charB ?? sc.iB, ...over } : sc;
+  const P = over ? { ...sc,
+    xi: over.x0 ?? over.path?.[0]?.[0] ?? sc.xi,
+    iB: over.charB ?? over.path?.[0]?.[1] ?? sc.iB, ...over } : sc;
 
   const chip = (on, col) => ({
     border: `1px solid ${on ? (col || C.purple) : C.border}`,
