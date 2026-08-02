@@ -122,7 +122,9 @@ export default function DevExpeditionPreview({ onClose, gender = "boy" }) {
             </span>
           </p>
           <p style={{ margin: 0, color: C.sub }}>
-            이동선 {P.x0}·{P.charB} → {P.x1}·{P.charB1 ?? P.charB}
+            {Array.isArray(P.path) && P.path.length >= 2
+              ? `이동선 ${P.path.map(p => `${p[0]}·${p[1]}`).join(" → ")} (거리 비례)`
+              : `이동선 ${P.x0}·${P.charB} → ${P.x1}·${P.charB1 ?? P.charB}`}
             {P.charBm != null ? ` (가운데 높이 ${P.charBm})` : ""}
             {kind === "fly" && alt ? " · 높이는 캐릭터 가운데 기준" : ""}<br />
             출발 대기 {P.xi ?? P.x0}·{P.iB ?? P.charB} · 만세 {sc.xa ?? 88}·{sc.aB ?? (sc.charB1 ?? sc.charB)}<br />

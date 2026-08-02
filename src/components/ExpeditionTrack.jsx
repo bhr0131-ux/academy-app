@@ -62,15 +62,45 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
      그 길에 xi·iB를 따로 적어 두면 그 값이 이긴다. */
   const P = over ? { ...sc, xi: over.x0 ?? sc.xi, iB: over.charB ?? sc.iB, ...over } : sc;
 
-  const x0 = P.x0 ?? 10, x1 = P.x1 ?? 76;
-  const x = x0 + t * (x1 - x0);
+  /* ── 여러 점을 지나는 길 [사용자 확정 2026-08-01] ────────────────────────
+     scene.path 에 [가로, 높이] 점을 순서대로 적으면 그 선을 따라간다.
+     진행도는 '지나온 거리'에 비례한다 — 구간을 똑같이 나누면 짧은 구간에서
+     느리고 긴 구간에서 빨라 보인다.
+     가로와 세로는 기준이 달라서(카드 폭 vs 높이) 거리를 잴 때 가로에 bgAR을
+     곱해 실제 픽셀 비율로 맞춘다. */
+  const pathPts = Array.isArray(P.path) && P.path.length >= 2 ? P.path : null;
+  const alongPath = (pts, u) => {
+    const ar = sc.bgAR || 390 / CARD_H;
+    const seg = []; let total = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const L = Math.hypot((pts[i][0] - pts[i - 1][0]) * ar, pts[i][1] - pts[i - 1][1]);
+      seg.push(L); total += L;
+    }
+    if (!total) return pts[0];
+    let d = u * total;
+    for (let i = 0; i < seg.length; i++) {
+      if (d <= seg[i] || i === seg.length - 1) {
+        const f = seg[i] ? Math.max(0, Math.min(1, d / seg[i])) : 0;
+        return [pts[i][0] + f * (pts[i + 1][0] - pts[i][0]),
+                pts[i][1] + f * (pts[i + 1][1] - pts[i][1])];
+      }
+      d -= seg[i];
+    }
+    return pts[pts.length - 1];
+  };
+
+  const x0 = pathPts ? pathPts[0][0] : (P.x0 ?? 10);
+  const x1 = pathPts ? pathPts[pathPts.length - 1][0] : (P.x1 ?? 76);
   /* charB1이 있으면 이동하며 높이도 보간 — 산처럼 오르막 씬용 (없으면 수평 이동).
      charBm(가운데 높이)을 주면 그 점을 지나는 곡선으로 — 활처럼 휘는 하늘길용. */
-  const cb0 = P.charB ?? sc.groundH * 0.35;
-  const cb1 = P.charB1 ?? cb0;
-  const charBottom = P.charBm != null
-    ? (1 - t) * (1 - t) * cb0 + 2 * (1 - t) * t * (2 * P.charBm - (cb0 + cb1) / 2) + t * t * cb1
-    : cb0 + t * (cb1 - cb0);
+  const cb0 = pathPts ? pathPts[0][1] : (P.charB ?? sc.groundH * 0.35);
+  const cb1 = pathPts ? pathPts[pathPts.length - 1][1] : (P.charB1 ?? cb0);
+  const here = pathPts ? alongPath(pathPts, t) : null;
+  const x = here ? here[0] : x0 + t * (x1 - x0);
+  const charBottom = here ? here[1]
+    : P.charBm != null
+      ? (1 - t) * (1 - t) * cb0 + 2 * (1 - t) * t * (2 * P.charBm - (cb0 + cb1) / 2) + t * t * cb1
+      : cb0 + t * (cb1 - cb0);
   const goalBottom = sc.goalB ?? sc.groundH * 0.55;
   /* 캐릭터·깃발 크기 — 씬마다 다를 수 있다(바다처럼 멀리 있는 섬으로 가는 그림).
      charH1을 주면 이동하며 크기도 보간해 원근감을 낸다(가까운 앞 → 멀어지며 작게). */
