@@ -232,6 +232,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
         return [first, ...pts, last];
       })()
     : null;
+  const cableLine = cablePts ? cablePts.map(([px, pb]) => `${px},${100 - pb}`).join(" ") : "";
 
   /* 착지에 쓸 시간 — 실제로 내려오는 거리에 맞춘다 [사용자 보고 2026-08-01].
      거리와 상관없이 1.4초를 기다리니, 거의 그 자리에 앉는 회차(바위산 독수리)는
@@ -337,12 +338,25 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
           <svg viewBox="0 0 100 100" preserveAspectRatio="none"
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
               zIndex: 1, pointerEvents: "none" }}>
-            <polyline points={cablePts.map(([px, pb]) => `${px},${100 - pb}`).join(" ")}
-              fill="none" stroke="rgba(40,44,54,0.55)" strokeWidth="5"
-              vectorEffect="non-scaling-stroke" strokeLinecap="round" />
-            <polyline points={cablePts.map(([px, pb]) => `${px},${100 - pb}`).join(" ")}
-              fill="none" stroke="#9AA3AF" strokeWidth="2.5"
-              vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+            {/* 세 겹 — 바깥 그늘 / 몸통 / 사선 빗금(강선 꼬임) [사용자 확정 2026-08-01].
+                빗금은 무늬(pattern)를 선 색으로 칠해서 만든다. 이 SVG는 가로로 bgAR배
+                늘어나 있으므로, 무늬 타일을 세로로 그만큼 늘려야 화면에서 45°로 보인다. */}
+            <defs>
+              <pattern id="expCableHatch" patternUnits="userSpaceOnUse" width="2" height="2"
+                patternTransform={`scale(1, ${sc.bgAR || 1.4})`}>
+                <g stroke="#59616F" strokeWidth="0.75" strokeLinecap="round">
+                  <line x1="-0.6" y1="0.6" x2="0.6" y2="-0.6" />
+                  <line x1="0" y1="2" x2="2" y2="0" />
+                  <line x1="1.4" y1="2.6" x2="2.6" y2="1.4" />
+                </g>
+              </pattern>
+            </defs>
+            <polyline points={cableLine} fill="none" stroke="rgba(40,44,54,0.5)"
+              strokeWidth="5.5" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+            <polyline points={cableLine} fill="none" stroke="#AEB6C2"
+              strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+            <polyline points={cableLine} fill="none" stroke="url(#expCableHatch)"
+              strokeWidth="1.05" strokeLinecap="butt" />
           </svg>
         )}
 
