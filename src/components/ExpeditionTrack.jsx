@@ -213,6 +213,26 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const bottomPos = Math.max(0,
     Math.min(bottomPos1 - (centerAnchored ? halfH : 0), 100 - halfH * 2 - 0.5));
 
+  /* ── 케이블 줄 [사용자 확정 2026-08-01] — 진짜 케이블카처럼 지나는 길에 회색 줄을 긋는다.
+     줄은 곤돌라 '맨 위'(도르래)를 지나야 하므로, 길의 각 점에서 그림 윗변 높이를 구해 잇는다.
+       · 가운데 기준(하늘길)이면 그림 윗변 = 길 높이 + 그림 절반
+       · 발밑 기준이면 그림 윗변 = 길 높이 + 그림 높이
+     양 끝은 카드 밖까지 늘려서 기둥 사이에 걸린 줄처럼 보이게 한다. */
+  const cableImgH = mount ? (P.charH ?? 64) * (mount.hMul ?? 1) : 0;
+  const cableHalf = (cableImgH / CARD_H) * 100 / 2;
+  const cableTop = (bAt) => bAt + ((alt && rideKind === "fly") ? cableHalf : cableHalf * 2);
+  /* 줄은 배경처럼 계속 걸려 있다 — 내려서 만세할 때 사라지면 어색하다.
+     그래서 크기도 '탄 상태' 기준으로 고정해 포즈가 바뀌어도 줄이 움직이지 않는다. */
+  const cablePts = (mount && mount.cable)
+    ? (() => {
+        const pts = (pathPts || [[x0, cb0], [x1, cb1]]).map(([px, pb]) => [px, cableTop(pb)]);
+        const ext = (a, b, toX) => [toX, a[1] + ((b[1] - a[1]) * (toX - a[0])) / ((b[0] - a[0]) || 1)];
+        const first = ext(pts[0], pts[1] || pts[0], -10);
+        const last = ext(pts[pts.length - 2] || pts[0], pts[pts.length - 1], 110);
+        return [first, ...pts, last];
+      })()
+    : null;
+
   /* 착지에 쓸 시간 — 실제로 내려오는 거리에 맞춘다 [사용자 보고 2026-08-01].
      거리와 상관없이 1.4초를 기다리니, 거의 그 자리에 앉는 회차(바위산 독수리)는
      다 온 채로 한참 서 있다가 만세로 바뀌었다.
@@ -310,6 +330,20 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
               </span>
             )}
           </div>
+        )}
+
+        {/* ── 케이블 줄 — 캐릭터보다 뒤(zIndex 1)에 깔아 곤돌라가 매달린 것처럼 ── */}
+        {cablePts && (
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+              zIndex: 1, pointerEvents: "none" }}>
+            <polyline points={cablePts.map(([px, pb]) => `${px},${100 - pb}`).join(" ")}
+              fill="none" stroke="rgba(40,44,54,0.55)" strokeWidth="5"
+              vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+            <polyline points={cablePts.map(([px, pb]) => `${px},${100 - pb}`).join(" ")}
+              fill="none" stroke="#9AA3AF" strokeWidth="2.5"
+              vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+          </svg>
         )}
 
         {/* ── 탐험가 — 미션 완료 수만큼 오른쪽으로 (진짜 '이동'이 핵심) ── */}
