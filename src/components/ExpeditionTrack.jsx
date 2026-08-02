@@ -52,6 +52,8 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
      (안 적은 값은 바닥길 그대로). 만세 자리(xa·aB)는 내려서 하므로 항상 바닥길. */
   const rideKind = mount ? (mount.k || "ground") : "ground";
   const alt = mount && rideKind !== "ground" ? sc[rideKind] : null;
+  /* 하늘·물속으로 온 회차는 도착해도 바로 만세가 아니라 탄 채로 바닥까지 내려온다 */
+  const needsLanding = !!alt;
   /* 덮어쓰는 순서: 기본(=걷기·수영 길) → scene.ride(탄 회차 공통) → scene.fly/dive(그 길).
      scene.ride 는 '걸어갈 때와 탈것일 때 출발 자리가 다른' 챕터용
      (강 — 걸어서는 모래톱 끝 10에서, 배·돌고래는 물 위 20에서 출발). */
@@ -84,6 +86,10 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
      left 트랜지션과 같은 시간만 walking 상태를 켠다. */
   const [walking, setWalking] = useState(false);
   const [back, setBack] = useState(false);      // 뒤로 가는 중(미션 취소) — 좌우 반전용
+  /* 착지 [사용자 확정 2026-08-01] — 하늘길·물속길로 온 회차는 도착해도 바로 만세가 아니라,
+     탄 채로 바닥(만세 자리)까지 내려온 뒤에 내려서 만세한다.
+     처음부터 도착 상태로 열면(어제 것 다시 보기 등) 착지 연출 없이 바로 만세. */
+  const [landed, setLanded] = useState(arrived);
   const prevT = useRef(t);
   useEffect(() => {
     if (t === prevT.current) return;
@@ -105,11 +111,20 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   /* walking은 이펙트(페인트 후)에서 켜져서, 완료 직후 첫 렌더에 만세가 한 프레임
      번쩍일 수 있다 → prevT와 다른 렌더(=이동 시작 프레임)도 이동 중으로 본다. */
   const moving = walking || t !== prevT.current;
+  /* 착지 타이머 — 내려오는 데 이동과 같은 시간을 쓰고, 그 뒤에 만세로 넘긴다 */
+  useEffect(() => {
+    if (!arrived) { setLanded(false); return; }
+    if (moving || landed || !needsLanding) return;
+    const to = setTimeout(() => setLanded(true), moveMs + 50);
+    return () => clearTimeout(to);
+  }, [arrived, moving, landed, needsLanding, moveMs]);
   /* [사용자 확정] 미션을 취소해서 뒤로 갈 때도 수영/걷기로 돌아간다 —
      idle(출발지 대기)은 이동이 끝난 뒤에만. 뒤로 갈 땐 좌우 반전(왼쪽 보기). */
   const idle = !arrived && done === 0 && !moving;
   const facingLeft = t !== prevT.current ? t < prevT.current : (walking && back);
-  const celebrating = arrived && !moving;
+  /* 착지 중 = 도착했고 이동은 끝났는데, 아직 탄 채로 내려오는 구간 */
+  const landing = arrived && !moving && needsLanding && !landed;
+  const celebrating = arrived && !moving && !landing;
   /* idlePose: 출발지가 땅이 아닌 씬(바다)은 서 있는 대신 물에 떠 있게 (씬이 정한다) */
   /* 탈것을 실제로 타고 있는 상태 — 도착해 만세할 땐 내려서 성공 포즈 */
   const riding = !!mount && !celebrating;
@@ -120,8 +135,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   /* 출발 전엔 대기 위치(xi/iB — 강은 둑 위)로. 도착해 만세할 땐 '깃발 바로 앞'이 기본
      (사용자 확정: 깃발이 뒤, 캐릭터가 앞 — 캐릭터 zIndex가 높아 겹치면 앞에 선다).
      씬별로 xa로 재정의 가능. */
-  const xPos0 = idle ? (P.xi ?? x0) : celebrating ? (sc.xa ?? ((sc.gx ?? 90) - 2)) : x;
-  const bottomPos0 = idle ? (P.iB ?? charBottom) : celebrating ? (sc.aB ?? charBottom) : charBottom;
+  const atGoal = celebrating || landing;      // 착지 중에도 이미 만세 자리에 와 있다
+  const xPos0 = idle ? (P.xi ?? x0) : atGoal ? (sc.xa ?? ((sc.gx ?? 90) - 2)) : x;
+  const bottomPos0 = idle ? (P.iB ?? charBottom) : atGoal ? (sc.aB ?? charBottom) : charBottom;
   /* 나는 탈것(열기구·박쥐…)은 땅에서 살짝 띄운다 — 바닥에 붙으면 떠 있는 느낌이 안 난다.
      하늘길(scene.fly)이 있는 챕터는 길 자체가 이미 높이를 정하므로 띄우지 않는다. */
   const flying = riding && (rideKind === "fly" || !!mount.lift);
@@ -130,7 +146,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   /* 하늘길 높이는 '캐릭터 가운데' 기준 [사용자 확정 2026-08-01] —
      공중엔 발 딛을 데가 없어 배경 위에서 가늠할 때 가운데가 자연스럽다.
      바닥길은 그대로 발밑 기준 (땅에 닿아야 하니까). 만세는 내려서 하므로 발밑. */
-  const centerAnchored = riding && !!alt && rideKind === "fly";
+  const centerAnchored = riding && !!alt && rideKind === "fly" && !landing;
   const bottomPos1 = bottomPos0 + (riding && !alt ? (mount.lift ?? 0) : 0);
   /* 출발 전엔 출발 크기 그대로, 이동 중·도착은 진행도만큼 보간된 크기 */
   const charH = idle || P.charH1 == null ? ch0 : ch0 + t * (P.charH1 - ch0);
