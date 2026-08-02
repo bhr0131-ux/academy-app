@@ -106,7 +106,9 @@ export const POSE_MUL = { success: 0.83, swim: 0.7 };
 /* 이동 방식 [사용자 확정 2026-08-01] — 그날 탈것이 어느 길로 가는지.
    fly=하늘길 · dive=물속길 · (안 적힌 것은 전부 바닥길, 걷기·달리기·수영도 바닥길)
    챕터의 scene.fly / scene.dive 에 그 길의 값이 있으면 그리로 간다. */
-const _FLY = ["eagle", "balloon", "cloud", "rocket", "dragon", "carpet", "bat", "owl", "meteor"];
+const _FLY = ["eagle", "balloon", "cloud", "rocket", "dragon", "carpet", "bat", "owl", "meteor",
+  /* [사용자 확정 2026-08-01] 케이블카는 줄에 매달려 가므로 하늘길 */
+  "cablecar"];
 const _DIVE = ["submarine"];
 _FLY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].k = "fly"; });
 _DIVE.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].k = "dive"; });
@@ -208,7 +210,8 @@ export const EXPEDITIONS = {
       path:[[13,10],[30,10],[40,18],[75,65],[75,70]],
       xi:13, iB:10,
       xa:75, aB:70, gx:82, goalB:58,
-      /* 하늘길(독수리) [사용자 확정] — 10·40에서 떠서 바닥길과 같은 규칙
+      /* 하늘길(독수리·케이블카) [사용자 확정] — 시작부터 도착까지 일직선.
+         10·40에서 떠서 바닥길과 같은 규칙
          (지나온 거리에 비례)으로 날아 도착 바위에 내려앉고, 내려서 75·70에서 만세.
          하늘길 높이는 캐릭터 가운데 기준이라, 발밑이 만세 자리(70)에 닿는
          가운데 값은 84다 (독수리 세로 29% / 반 14.5).
