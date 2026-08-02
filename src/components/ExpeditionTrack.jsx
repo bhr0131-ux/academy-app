@@ -111,6 +111,15 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   /* walking은 이펙트(페인트 후)에서 켜져서, 완료 직후 첫 렌더에 만세가 한 프레임
      번쩍일 수 있다 → prevT와 다른 렌더(=이동 시작 프레임)도 이동 중으로 본다. */
   const moving = walking || t !== prevT.current;
+  /* 포즈 그림 미리 받아두기 — 포즈가 바뀌는 순간 새 그림이 아직 안 받아졌으면
+     브라우저가 '이전 그림'을 새 크기로 늘려 그린다. 그래서 서 있는 그림이 먼저
+     작아졌다가 수영으로 바뀌는 것처럼 보였다 [사용자 보고 2026-08-01]. */
+  useEffect(() => {
+    Object.values(CHAR_IMG).forEach((v) => {
+      if (!v) return;
+      [v.boy, v.girl].forEach((src) => { if (src) { const im = new Image(); im.src = src; } });
+    });
+  }, []);
   /* 착지 타이머 — 내려오는 데 이동과 같은 시간을 쓰고, 그 뒤에 만세로 넘긴다 */
   useEffect(() => {
     if (!arrived) { setLanded(false); return; }
@@ -166,6 +175,13 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
     ? ((imgH / CARD_H) * mount.ar / (sc.bgAR || 390 / CARD_H)) * 100 / 2
     : 0;
   const xPos = Math.min(Math.max(xPos0, halfW + 0.5), 100 - halfW - 0.5);
+  /* 그리는 그림이 바뀌는 순간엔 크기를 트윈하지 않는다 — 그림은 즉시 바뀌는데 크기만
+     1.4초에 걸쳐 변하면 '이전 그림이 새 크기로 줄었다가 바뀌는' 것처럼 보인다.
+     같은 그림으로 이동하는 동안에는(바다의 원근 charH->charH1) 그대로 부드럽게 트윈한다. */
+  const drawKey = riding ? `ride:${mountKey}` : `pose:${poseKey}`;
+  const prevDraw = useRef(drawKey);
+  const drawChanged = prevDraw.current !== drawKey;
+  useEffect(() => { prevDraw.current = drawKey; }, [drawKey]);
   /* 가운데 기준(하늘길)은 그림 절반만큼 내려서 그린다 — bottom은 늘 발밑 기준이라서.
      위로도 가로와 같은 이유로 민다 — 하늘길을 높게 잡으면 큰 탈것은 머리가 잘린다. */
   const halfH = (imgH / CARD_H) * 100 / 2;
@@ -263,7 +279,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
           /* 크기 값(charH·hMul)은 '220px 카드 기준 px'이다. 비율 카드에서는 카드가 커진 만큼
              같이 커지도록 카드 높이의 %로 환산한다 — 기기 폭이 달라도 비율이 일정하다 */
           height: sc.bgAR ? `${(imgH / CARD_H) * 100}%` : undefined,
-          transition: `left ${moveMs}ms cubic-bezier(.45,.05,.35,1), bottom ${moveMs}ms cubic-bezier(.45,.05,.35,1), height ${moveMs}ms cubic-bezier(.45,.05,.35,1)`,
+          transition: `left ${moveMs}ms cubic-bezier(.45,.05,.35,1), bottom ${moveMs}ms cubic-bezier(.45,.05,.35,1), height ${drawChanged ? 0 : moveMs}ms cubic-bezier(.45,.05,.35,1)`,
           pointerEvents: "none", zIndex: 2 }}>
           <div style={{ position: "relative", height: sc.bgAR ? "100%" : undefined,
             /* 멈춰 있을 때 둥실거림(숨쉬기)은 공중·물속에서만 [사용자 확정 2026-08-01].
