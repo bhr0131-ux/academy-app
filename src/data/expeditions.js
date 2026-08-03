@@ -363,7 +363,7 @@ export const EXPEDITIONS = {
     mounts:["rocket","meteor","dragon","unicorn"], alwaysMount:true,
     pose:"walk",   // 폴백(실제로는 늘 탑승) — 도착 만세만 걷기 계열 원화를 쓴다
     goal:"🛰️", goalImg:"assets/expedition/flag/yellow.webp",
-    bgImg:"assets/expedition/bg-space.webp",   // 사용자 배경 원화 v2 (1.4:1 — 큰 카드용, 원본 art-src)
+    bgImg:"assets/expedition/bg-space.webp",   // 사용자 배경 원화 v3 (1.4:1 — 오른쪽 우주기지·은하수 띠, 원본 art-src)
     scene:{ sky:["#2C2A63","#4B3F86"], ground:["#5C4E96","#463B7A"], groundH:30,
       bgAR:1.4,
       /* 왼쪽 발사대(바닥 36%)에서 은하수 띠를 따라 오른쪽 우주기지(바닥 36%)로 — 거의 수평 */
