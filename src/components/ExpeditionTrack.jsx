@@ -145,10 +145,41 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
         return { x: gx, b: gb, passed: i < done };
       })
     : [];
-  const guideLine = guideOn
-    ? Array.from({ length: 33 }, (_, i) => footAt(i / 32))
-        .map(([px, pb]) => `${px},${100 - pb}`).join(" ")
-    : "";
+  /* 선은 타원 '사이'만 잇는다 [사용자 확정 2026-08-03] — 높이는 타원 가운데를
+     지나되, 타원 속으로 파고들면 지저분해서 앞뒤를 잘라 낸 토막만 그린다.
+     길을 촘촘히 떠서 누적 길이를 재고, 타원 반지름만큼 잘라 낸 구간을 다시
+     길 위의 점으로 되돌린다 (꺾인 길에서도 선이 길을 그대로 따라가게). */
+  const guideSegs = (() => {
+    if (!guideOn) return [];
+    const ar = sc.bgAR || 390 / CARD_H;
+    const S = 240;
+    const pts = Array.from({ length: S + 1 }, (_, i) => footAt(i / S));
+    const cum = [0];
+    for (let i = 1; i <= S; i++)
+      cum.push(cum[i - 1] + Math.hypot((pts[i][0] - pts[i - 1][0]) * ar, pts[i][1] - pts[i - 1][1]));
+    const L = cum[S];
+    if (!L) return [];
+    const lenAt = (u) => {
+      const f = Math.max(0, Math.min(1, u)) * S, i = Math.floor(f);
+      return i >= S ? L : cum[i] + (cum[i + 1] - cum[i]) * (f - i);
+    };
+    const uAt = (d) => {
+      const q = Math.max(0, Math.min(L, d));
+      let i = 0; while (i < S && cum[i + 1] < q) i++;
+      const seg = cum[i + 1] - cum[i];
+      return (i + (seg ? (q - cum[i]) / seg : 0)) / S;
+    };
+    const gap = (padW / 2) * ar * 1.15;      // 타원 반지름 + 아주 약간의 여유
+    const out = [];
+    for (let k = 0; k < total; k++) {
+      const a = uAt(lenAt(k / total) + (k > 0 ? gap : 0));
+      const b = uAt(lenAt((k + 1) / total) - gap);
+      if (b <= a) continue;
+      out.push(Array.from({ length: 9 }, (_, i) => footAt(a + ((b - a) * i) / 8))
+        .map(([px, pb]) => `${px},${100 - pb}`).join(" "));
+    }
+    return out;
+  })();
 
   /* 이동 시간 — 기본 1.4초. 씬이 moveMs를 주면 그 속도로 (초원=달리기라 조금 빠르게).
      걸음 흔들림 주기도 같이 줄여야 빨리 움직이는 만큼 다리도 바쁘게 보인다. */
@@ -380,12 +411,16 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
             <svg viewBox="0 0 100 100" preserveAspectRatio="none"
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
                 zIndex: 1, pointerEvents: "none" }}>
-              <polyline points={guideLine} fill="none" stroke="rgba(28,38,58,0.11)"
-                strokeWidth="3.4" vectorEffect="non-scaling-stroke"
-                strokeLinecap="round" strokeLinejoin="round" />
-              <polyline points={guideLine} fill="none" stroke="rgba(255,255,255,0.28)"
-                strokeWidth="1.4" vectorEffect="non-scaling-stroke"
-                strokeLinecap="round" strokeLinejoin="round" />
+              {guideSegs.map((d, i) => (
+                <polyline key={`u${i}`} points={d} fill="none" stroke="rgba(28,38,58,0.11)"
+                  strokeWidth="3.4" vectorEffect="non-scaling-stroke"
+                  strokeLinecap="round" strokeLinejoin="round" />
+              ))}
+              {guideSegs.map((d, i) => (
+                <polyline key={`o${i}`} points={d} fill="none" stroke="rgba(255,255,255,0.28)"
+                  strokeWidth="1.4" vectorEffect="non-scaling-stroke"
+                  strokeLinecap="round" strokeLinejoin="round" />
+              ))}
             </svg>
             {guidePads.map((g, i) => (
               <div key={i} style={{ position: "absolute", left: `${g.x}%`,
