@@ -121,14 +121,12 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
          배경을 밀어냈다. 바닥에 눕힌 납작한 타원이 훨씬 가이드라인답다.
          캐릭터가 그 안에 서게 타원의 '가운데'를 발밑 높이에 맞춘다.
        · 지나온 발판만 조금 진하게 — 진행이 보이되 튀지 않을 만큼만.
-       · 밝은 배경(설원·사막)과 어두운 배경(동굴·우주) 양쪽에서 '같은 세기'로 보이게
-         흰 겹과 어두운 겹을 늘 같이 깐다 [사용자 확정 2026-08-03 — "우주 정도가 딱좋아,
-         다 우주정도로"]. 흰색만 쓰면 배경 밝기에 따라 체감이 4배 넘게 차이난다:
-           흰 13%를 얹었을 때 밝기 변화 = 0.13 × (255 − 배경밝기)
-           → 우주(45) 27 / 설원(209) 6 — 우주만 잘 보이고 설원은 거의 안 보인다.
-         그래서 어두운 겹(0.30)을 같이 깔아 둔다. 어두운 겹의 변화량은
-         0.30 × (배경밝기 − 26)이라 밝은 배경일수록 커져서, 둘을 합치면
-         배경이 밝든 어둡든 비슷한 세기가 된다. */
+       · 색은 흰색 한 가지만 쓴다 [사용자 확정 2026-08-03 — "검정거 빼고 다 우주랑
+         똑같이해줘, 안보여도돼"]. 한때 밝은 배경에서도 같은 세기로 보이게 어두운
+         겹을 같이 깔았는데, 밝은 챕터에서 테두리가 생겨 그림 위에 얹힌 것처럼
+         보였다. 지금은 어느 챕터든 우주와 완전히 같은 값을 쓴다 — 그래서 밝은
+         배경(설원·사막)에서는 흐릿하지만, 가이드라인이라 그 편이 낫다.
+       · 출발지(길 시작점)에도 타원을 놓는다 — 미션 개수 N개면 타원은 N+1개다. */
   const guideHalf = ((P.charH ?? 64) * (mount?.hMul ?? 1) / CARD_H) * 100 / 2;
   const footAt = (u) => {
     const p = pathPts ? alongPath(pathPts, u) : [
@@ -146,9 +144,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   /* 세로 %로 바꾸려면 카드 가로세로비를 곱한다 (카드 폭 = 카드 높이 × bgAR) */
   const padH = (padW * (sc.bgAR || 390 / CARD_H)) / PAD_FLAT;
   const guidePads = guideOn
-    ? Array.from({ length: total }, (_, i) => {
-        const [gx, gb] = footAt((i + 1) / total);
-        return { x: gx, b: gb, passed: i < done };
+    ? Array.from({ length: total + 1 }, (_, i) => {
+        const [gx, gb] = footAt(i / total);
+        return { x: gx, b: gb, passed: i <= done };
       })
     : [];
   /* 선은 타원 '사이'만 잇는다 [사용자 확정 2026-08-03] — 높이는 타원 가운데를
@@ -178,7 +176,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
     const gap = (padW / 2) * ar * 1.15;      // 타원 반지름 + 아주 약간의 여유
     const out = [];
     for (let k = 0; k < total; k++) {
-      const a = uAt(lenAt(k / total) + (k > 0 ? gap : 0));
+      const a = uAt(lenAt(k / total) + gap);
       const b = uAt(lenAt((k + 1) / total) - gap);
       if (b <= a) continue;
       out.push(Array.from({ length: 9 }, (_, i) => footAt(a + ((b - a) * i) / 8))
@@ -418,11 +416,6 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
                 zIndex: 1, pointerEvents: "none" }}>
               {guideSegs.map((d, i) => (
-                <polyline key={`u${i}`} points={d} fill="none" stroke="rgba(30,26,22,0.36)"
-                  strokeWidth="2.2" vectorEffect="non-scaling-stroke"
-                  strokeLinecap="round" strokeLinejoin="round" />
-              ))}
-              {guideSegs.map((d, i) => (
                 <polyline key={`o${i}`} points={d} fill="none" stroke="rgba(255,255,255,0.32)"
                   strokeWidth="0.9" vectorEffect="non-scaling-stroke"
                   strokeLinecap="round" strokeLinejoin="round" />
@@ -434,7 +427,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
                 width: `${padW}%`, aspectRatio: `${PAD_FLAT} / 1`,
                 borderRadius: "50%",
                 background: g.passed ? "rgba(255,255,255,0.30)" : "rgba(255,255,255,0.13)",
-                boxShadow: `inset 0 0 0 1px rgba(255,255,255,${g.passed ? 0.46 : 0.30}), 0 0 0 1.2px rgba(30,26,22,${g.passed ? 0.46 : 0.38}), 0 1px 2px rgba(30,26,22,0.22)`,
+                boxShadow: `inset 0 0 0 1px rgba(255,255,255,${g.passed ? 0.46 : 0.30})`,
                 zIndex: 1, pointerEvents: "none",
                 transition: "background 0.4s ease, box-shadow 0.4s ease" }} />
             ))}
