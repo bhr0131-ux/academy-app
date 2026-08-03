@@ -207,4 +207,4 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/ride/sandboard-src.webp | 탑승 원화 28 모래 보드 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/sandboard.webp |
 | expedition/ride/submarine-src.webp | 탑승 원화 32 잠수정 — 바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/submarine.webp |
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
-| bg-adventure-meadow-v2-src.webp | 탐험 모드 무대 기본 배경 v2 (1022×1536 = 2:3 — 산·호수·모래사장, 현행) | stage-adventure-meadow.webp |
+| bg-adventure-meadow-v3-src.webp | 탐험 모드 무대 기본 배경 v3 (867×1814 = 1:2.09 — 무대 칸 비율에 맞춘 세로 긴 판, 시안 톤으로 보정한 상태로 보관, 현행) | stage-adventure-meadow.webp |
