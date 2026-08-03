@@ -140,8 +140,8 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | btn-child-switch-badge-v2.webp | 아이 전환 원형 뱃지 v2 (남매, 2명 이상일 때만 노출, 현행) | btn-child-switch.webp |
 | btn-my-avatar-badge.webp | '내 아바타' 원형 뱃지 (초록 실루엣, 현행 — 팻말에서 교체) | btn-my-avatar.webp |
 | btn-growth-character-badge.webp | '성장캐릭터' 원형 뱃지 (새싹, 현행 — 팻말에서 교체) | btn-growth-character.webp |
-| adventure-map-v9-src.webp | 긴 지도 v9 수채화 (853×1844, 짧은 v8과 한 세트, PATH 재추출) | adventure-map.webp |
-| adventure-map-short-v8-src.webp | 짧은 지도 v8 수채화 (951×1654, 긴 지도 v8과 한 세트, PATH 재추출) | adventure-map-short.webp |
+| adventure-map-v10-src.webp | 긴 지도 v10 수채화 (885×1777 — 사용자가 준 원본. 해변에 보물상자가 없어, 탑재본에는 v9 지도에서 오려 온 상자를 합성했다) | adventure-map.webp |
+| adventure-map-short-v10-src.webp | 짧은 지도 v10 수채화 (834×1536 — 긴 지도와 같은 이유로 탑재본에만 상자 합성) | adventure-map-short.webp |
 | map-bld-treehouse-v2.webp | 지도 학원 건물 v7-1 (나무 위의 집, 흰 원→투명 펀칭) | map-bld-treehouse.webp |
 | map-bld-stonearch-v2.webp | 지도 학원 건물 v7-2 (돌 아치문, 흰 원→투명 펀칭) | map-bld-stonearch.webp |
 | map-bld-tent-v2.webp | 지도 학원 건물 v7-3 (탐험가 텐트, 흰 원→투명 펀칭) | map-bld-tent.webp |
