@@ -363,14 +363,15 @@ export const EXPEDITIONS = {
     mounts:["rocket","meteor","dragon","unicorn"], alwaysMount:true,
     pose:"walk",   // 폴백(실제로는 늘 탑승) — 도착 만세만 걷기 계열 원화를 쓴다
     goal:"🛰️", goalImg:"assets/expedition/flag/yellow.webp",
-    bgImg:"assets/expedition/bg-space.webp",   // 사용자 배경 원화 v3 (1.4:1 — 오른쪽 우주기지·은하수 띠, 원본 art-src)
+    bgImg:"assets/expedition/bg-space.webp",   // 사용자 배경 원화 v4 (1.4:1 — 오른쪽 우주기지·은하수 띠, 원본 art-src)
     scene:{ sky:["#2C2A63","#4B3F86"], ground:["#5C4E96","#463B7A"], groundH:30,
       bgAR:1.4,
-      /* 왼쪽 발사대(바닥 36%)에서 은하수 띠를 따라 오른쪽 우주기지(바닥 36%)로 — 거의 수평 */
+      /* 왼쪽 은하수 띠 시작점(바닥 36%)에서 띠를 따라 오른쪽 우주기지 쪽(바닥 38%)으로 — 거의 수평 */
       charB:36, charB1:38, x0:13, x1:74,
       xi:13, iB:36,
-      /* 도착 만세는 우주기지 앞 (탈것에서 내려서) */
-      xa:82, aB:38, gx:90, goalB:40,
+      /* 도착 만세는 우주기지 발판 위 (탈것에서 내려서).
+         [배경 v4] 기지가 전보다 높이 떠 있어 발판 윗면이 바닥 45~46% — 예전 38%는 허공이라 올려 잡았다 */
+      xa:82, aB:46, gx:90, goalB:48,
       deco:[[7,26,"🌕",26],[14,64,"⭐",14],[92,26,"🛰️",20],[88,66,"🪐",16],[8,84,"✨",10]], dark:true } },
   /* ── 배경 원화가 오면 추가할 챕터 (사용자 기획서 2026-07-31의 12챕터 중 남은 것) ──
      ※ 기획서 Ch12 보물섬 = treasure(보물상자를 찾자). 바다(sea)는 '보물섬에 도착하자'로
