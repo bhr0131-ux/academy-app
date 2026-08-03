@@ -413,12 +413,12 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
                 zIndex: 1, pointerEvents: "none" }}>
               {guideSegs.map((d, i) => (
                 <polyline key={`u${i}`} points={d} fill="none" stroke="rgba(28,38,58,0.11)"
-                  strokeWidth="3.4" vectorEffect="non-scaling-stroke"
+                  strokeWidth="2.2" vectorEffect="non-scaling-stroke"
                   strokeLinecap="round" strokeLinejoin="round" />
               ))}
               {guideSegs.map((d, i) => (
                 <polyline key={`o${i}`} points={d} fill="none" stroke="rgba(255,255,255,0.28)"
-                  strokeWidth="1.4" vectorEffect="non-scaling-stroke"
+                  strokeWidth="0.9" vectorEffect="non-scaling-stroke"
                   strokeLinecap="round" strokeLinejoin="round" />
               ))}
             </svg>
