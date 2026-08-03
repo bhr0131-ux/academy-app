@@ -109,6 +109,44 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const ch0 = P.charH ?? 64;
   const goalH = sc.goalH ?? 56;
 
+  /* ── 발판 가이드 [사용자 확정 2026-08-03] ───────────────────────────────
+     오늘 미션 개수만큼 길 위에 반원 발판을 놓고, 길을 따라 선으로 잇는다.
+     "몇 걸음 남았나"가 한눈에 보이라고 넣은 것이라 배경을 가리지 않게 아주 옅게
+     그린다 (사용자: "너무 튀게 말고 가이드라인 느낌으로").
+       · 자리는 캐릭터가 그 회차에 실제로 밟는 지점 — 이동과 같은 식을 쓴다.
+       · 하늘길은 길 높이가 '가운데 기준'이라 그림 절반만큼 내려야 발밑에 온다.
+         크기는 포즈가 바뀌어도 발판이 들썩이지 않게 '탄 상태' 기준으로 고정한다
+         (케이블 줄과 같은 이유).
+       · 발판은 캐릭터가 그 위에 서는 것이므로, 반원의 꼭대기를 발밑 높이에 맞춘다.
+       · 지나온 발판만 조금 진하게 — 진행이 보이되 튀지 않을 만큼만.
+       · 밝은 배경(설원·사막)과 어두운 배경(동굴·우주) 양쪽에서 다 보이게
+         흰 반투명 위에 어두운 실선 한 겹을 같이 깐다. */
+  const guideHalf = ((P.charH ?? 64) * (mount?.hMul ?? 1) / CARD_H) * 100 / 2;
+  const footAt = (u) => {
+    const p = pathPts ? alongPath(pathPts, u) : [
+      x0 + u * (x1 - x0),
+      P.charBm != null
+        ? (1 - u) * (1 - u) * cb0 + 2 * (1 - u) * u * (2 * P.charBm - (cb0 + cb1) / 2) + u * u * cb1
+        : cb0 + u * (cb1 - cb0),
+    ];
+    return [p[0], p[1] - ((alt && rideKind === "fly") ? guideHalf : 0)];
+  };
+  const guideOn = total > 0;
+  /* 발판 폭(카드 폭 %) — 미션이 많은 날은 서로 붙지 않게 줄인다 */
+  const padW = Math.min(7.5, 55 / Math.max(1, total));
+  /* 반원 높이는 폭의 절반. 세로 %로 바꾸려면 카드 가로세로비를 곱한다 */
+  const padH = (padW * (sc.bgAR || 390 / CARD_H)) / 2;
+  const guidePads = guideOn
+    ? Array.from({ length: total }, (_, i) => {
+        const [gx, gb] = footAt((i + 1) / total);
+        return { x: gx, b: gb, passed: i < done };
+      })
+    : [];
+  const guideLine = guideOn
+    ? Array.from({ length: 33 }, (_, i) => footAt(i / 32))
+        .map(([px, pb]) => `${px},${100 - pb}`).join(" ")
+    : "";
+
   /* 이동 시간 — 기본 1.4초. 씬이 moveMs를 주면 그 속도로 (초원=달리기라 조금 빠르게).
      걸음 흔들림 주기도 같이 줄여야 빨리 움직이는 만큼 다리도 바쁘게 보인다. */
   const moveMs = exp.moveMs ?? 1400;
@@ -331,6 +369,32 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
               </span>
             )}
           </div>
+        )}
+
+        {/* ── 발판 가이드 — 캐릭터보다 뒤(zIndex 1). 선 먼저, 그 위에 반원 발판 ── */}
+        {guideOn && (
+          <>
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none"
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+                zIndex: 1, pointerEvents: "none" }}>
+              <polyline points={guideLine} fill="none" stroke="rgba(28,38,58,0.11)"
+                strokeWidth="3.4" vectorEffect="non-scaling-stroke"
+                strokeLinecap="round" strokeLinejoin="round" />
+              <polyline points={guideLine} fill="none" stroke="rgba(255,255,255,0.28)"
+                strokeWidth="1.4" vectorEffect="non-scaling-stroke"
+                strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {guidePads.map((g, i) => (
+              <div key={i} style={{ position: "absolute", left: `${g.x}%`,
+                bottom: `${g.b - padH}%`, transform: "translateX(-50%)",
+                width: `${padW}%`, aspectRatio: "2 / 1",
+                borderRadius: "999px 999px 0 0",
+                background: g.passed ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.12)",
+                boxShadow: `inset 0 0 0 1px rgba(255,255,255,${g.passed ? 0.42 : 0.26}), 0 0 0 1px rgba(28,38,58,0.10)`,
+                zIndex: 1, pointerEvents: "none",
+                transition: "background 0.4s ease, box-shadow 0.4s ease" }} />
+            ))}
+          </>
         )}
 
         {/* ── 케이블 줄 — 캐릭터보다 뒤(zIndex 1)에 깔아 곤돌라가 매달린 것처럼 ── */}
