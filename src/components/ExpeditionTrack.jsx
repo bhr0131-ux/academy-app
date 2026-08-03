@@ -121,8 +121,14 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
          배경을 밀어냈다. 바닥에 눕힌 납작한 타원이 훨씬 가이드라인답다.
          캐릭터가 그 안에 서게 타원의 '가운데'를 발밑 높이에 맞춘다.
        · 지나온 발판만 조금 진하게 — 진행이 보이되 튀지 않을 만큼만.
-       · 밝은 배경(설원·사막)과 어두운 배경(동굴·우주) 양쪽에서 다 보이게
-         흰 반투명 위에 어두운 실선 한 겹을 같이 깐다. */
+       · 밝은 배경(설원·사막)과 어두운 배경(동굴·우주) 양쪽에서 '같은 세기'로 보이게
+         흰 겹과 어두운 겹을 늘 같이 깐다 [사용자 확정 2026-08-03 — "우주 정도가 딱좋아,
+         다 우주정도로"]. 흰색만 쓰면 배경 밝기에 따라 체감이 4배 넘게 차이난다:
+           흰 13%를 얹었을 때 밝기 변화 = 0.13 × (255 − 배경밝기)
+           → 우주(45) 27 / 설원(209) 6 — 우주만 잘 보이고 설원은 거의 안 보인다.
+         그래서 어두운 겹(0.30)을 같이 깔아 둔다. 어두운 겹의 변화량은
+         0.30 × (배경밝기 − 26)이라 밝은 배경일수록 커져서, 둘을 합치면
+         배경이 밝든 어둡든 비슷한 세기가 된다. */
   const guideHalf = ((P.charH ?? 64) * (mount?.hMul ?? 1) / CARD_H) * 100 / 2;
   const footAt = (u) => {
     const p = pathPts ? alongPath(pathPts, u) : [
@@ -412,12 +418,12 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
                 zIndex: 1, pointerEvents: "none" }}>
               {guideSegs.map((d, i) => (
-                <polyline key={`u${i}`} points={d} fill="none" stroke="rgba(28,38,58,0.11)"
+                <polyline key={`u${i}`} points={d} fill="none" stroke="rgba(30,26,22,0.36)"
                   strokeWidth="2.2" vectorEffect="non-scaling-stroke"
                   strokeLinecap="round" strokeLinejoin="round" />
               ))}
               {guideSegs.map((d, i) => (
-                <polyline key={`o${i}`} points={d} fill="none" stroke="rgba(255,255,255,0.28)"
+                <polyline key={`o${i}`} points={d} fill="none" stroke="rgba(255,255,255,0.32)"
                   strokeWidth="0.9" vectorEffect="non-scaling-stroke"
                   strokeLinecap="round" strokeLinejoin="round" />
               ))}
@@ -427,8 +433,8 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
                 bottom: `${g.b - padH / 2}%`, transform: "translateX(-50%)",
                 width: `${padW}%`, aspectRatio: `${PAD_FLAT} / 1`,
                 borderRadius: "50%",
-                background: g.passed ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.12)",
-                boxShadow: `inset 0 0 0 1px rgba(255,255,255,${g.passed ? 0.42 : 0.26}), 0 0 0 1px rgba(28,38,58,0.10)`,
+                background: g.passed ? "rgba(255,255,255,0.30)" : "rgba(255,255,255,0.13)",
+                boxShadow: `inset 0 0 0 1px rgba(255,255,255,${g.passed ? 0.46 : 0.30}), 0 0 0 1.2px rgba(30,26,22,${g.passed ? 0.46 : 0.38}), 0 1px 2px rgba(30,26,22,0.22)`,
                 zIndex: 1, pointerEvents: "none",
                 transition: "background 0.4s ease, box-shadow 0.4s ease" }} />
             ))}
