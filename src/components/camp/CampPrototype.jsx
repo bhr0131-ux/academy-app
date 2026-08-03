@@ -27,7 +27,10 @@ export const CAMP = {
   inkSub:  "#8A6B3E",   // 보조 글자
   label:   "#587220",   // 이름표 초록
   labelInk:"#F4E9C8",   // 이름표 글자
-  badge:   "#F2D8A1",   // 작은 뱃지
+  badge:   "#F4D7A1",   // 작은 명패 — 원화에 그려져 오는 판의 실측색
+                        //  [2026-08-03] 판만 놓고 보면 흙길(#F6CD6D)과 밝기 차가 11뿐이라
+                        //  묻힐 뻔했지만, 원화 판에는 나무 테두리와 그림자가 있어 구분된다.
+                        //  그래서 판 색은 그대로 두고 '글자'만 진한 갈색으로 올린다.
   wood:    "#8A5614",   // 나무
   woodD:   "#734309",   // 진한 나무
   grass:   "#AAB73C",   // 잔디
@@ -43,7 +46,7 @@ export const CAMP = {
 const STATIONS = [
   { key:"deco",    emoji:"👕", name:"꾸미기 상점", badge:"21개 보유" },
   { key:"item",    emoji:"🛒", name:"아이템 상점", badge:"총 구매 3개" },
-  { key:"box",     emoji:"🎁", name:"보물창고",   badge:"📦1 🎁1 👑1" },
+  { key:"box",     emoji:"🎁", name:"보물창고",   badge:"상자 3개" },
   { key:"pet",     emoji:"🐣", name:"나의 펫",    badge:"아기 드래곤" },
   { key:"book",    emoji:"📖", name:"발견 도감",   badge:"10 / 59" },
   { key:"title",   emoji:"👑", name:"상장",       badge:"1 / 20개" },
@@ -56,7 +59,7 @@ const STATIONS = [
 const SIZES = {
   L: { label:"넉넉", gap:12, tentW:340, pill:32, badgeH:22, name:16,   badgeF:12 },
   M: { label:"보통", gap:30, tentW:330, pill:30, badgeH:21, name:15,   badgeF:11.5 },
-  S: { label:"작게", gap:58, tentW:320, pill:28, badgeH:20, name:13.5, badgeF:10.5 },
+  S: { label:"작게", gap:52, tentW:320, pill:29, badgeH:21, name:14,   badgeF:11.5 },
 };
 const CONTENT_W = 360;      // 탭 안쪽 폭 (좌우 15px 여백)
 const TAB_W = 390;          // 폰 폭 기준
@@ -65,7 +68,7 @@ const TENT_AR = 1209 / 1095;// 텐트 원화 실측 가로/세로
 const BG_W = 1086;          // 배경 원화 가로 (사용자가 준 그림 기준)
 
 export default function CampPrototype({ onClose }) {
-  const [sz, setSz] = useState("L");
+  const [sz, setSz] = useState("S");   // [사용자 확정] 배경 원화 비율(1:3.09)에 맞는 크기
   const [h, setH] = useState(0);
   const sceneRef = useRef(null);
   const S = SIZES[sz];
@@ -85,10 +88,12 @@ export default function CampPrototype({ onClose }) {
     fontSize: S.name, fontWeight: 900, whiteSpace: "nowrap", display: "inline-block",
     boxShadow: "0 2px 4px rgba(74,52,24,0.22)",
   };
+  /* 원화로 올 '명패'를 흉내 낸 것 — 나무 테두리 + 그림자가 있어야 흙길 위에서 분리된다 */
   const badge = {
-    background: CAMP.badge, color: CAMP.ink, border: `1.5px solid ${CAMP.panelB}`,
+    background: CAMP.badge, color: CAMP.ink, border: `1.5px solid ${CAMP.wood}`,
     borderRadius: 999, padding: "0 9px", height: S.badgeH, lineHeight: `${S.badgeH - 3}px`,
     fontSize: S.badgeF, fontWeight: 800, whiteSpace: "nowrap", display: "inline-block",
+    boxShadow: "0 2px 3px rgba(74,52,24,0.3)",
   };
 
   return (
@@ -122,13 +127,17 @@ export default function CampPrototype({ onClose }) {
       {/* 캠프 — 실제 폰 폭(390)으로 */}
       <div style={{ width:TAB_W, flex:1, overflowY:"auto", background:"#000", WebkitOverflowScrolling:"touch" }}>
         <div ref={sceneRef} style={{ position:"relative", minHeight:"100%",
-          /* 배경 자리 — 원화가 오면 이 그라데이션 대신 <img>를 깐다 */
-          background:`linear-gradient(180deg, ${CAMP.sky} 0%, #9FD9FF 14%, ${CAMP.grassD} 22%, ${CAMP.grass} 30%, ${CAMP.grass} 100%)`,
-          paddingBottom:24 }}>
-          {/* 흙길 — 가운데로 내려오는 길 (배경 원화에 그려질 부분) */}
-          <div style={{ position:"absolute", left:"50%", top:"24%", bottom:0, width:"46%",
-            transform:"translateX(-50%)", background:CAMP.dirt, opacity:0.55,
-            borderRadius:"40% 40% 0 0 / 6% 6% 0 0", pointerEvents:"none" }} />
+          background:CAMP.grass, paddingBottom:24 }}>
+          {/* 배경 원화 — 714×2203(1:3.09). '작게' 배치(1:3.00)에 맞춰 받은 그림이라
+              위아래 3%만 잘리고 좌우는 안 잘린다. */}
+          <img src="assets/camp/bg.webp" alt="" draggable={false}
+            style={{ position:"absolute", inset:0, width:"100%", height:"100%",
+              objectFit:"cover", objectPosition:"center top", pointerEvents:"none", zIndex:0 }} />
+
+          {/* 앞쪽(텐트·스테이션)은 한 겹으로 묶어 배경 위에 올린다.
+              배경 <img>가 position:absolute라, 묶지 않으면 위치를 안 준 요소
+              (뱃지 같은 인라인)가 배경 아래로 깔려 안 보인다 — CSS 그리는 순서 때문. */}
+          <div style={{ position:"relative", zIndex:1 }}>
 
           {/* ── 텐트 + 상태 ── */}
           <div style={{ position:"relative", width:S.tentW, height:tentH, margin:"14px auto 0" }}>
@@ -180,6 +189,7 @@ export default function CampPrototype({ onClose }) {
                 <span style={{ ...badge, marginTop:5 }}>{st.badge}</span>
               </button>
             ))}
+          </div>
           </div>
         </div>
       </div>
