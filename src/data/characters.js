@@ -23,9 +23,12 @@ export const BAKERY_CHAR_SIZE={1:232,2:248,3:264,4:270,5:282}; // 시안B 동일
 
 // ── 탐험 모드 무대 기본 배경 ────────────────────────────────
 // 이미지는 Capacitor public/assets 폴더에 두고 경로로 참조 (base64 임베드 X → App.jsx 경량 유지).
-// 지금은 초원 1장. 나중에 성별/진화단계별로 늘릴 땐 ADV_STAGE_BG_OF 안만 바꾸면 됨.
+// 지금은 1장. 나중에 성별/진화단계별로 늘릴 땐 ADV_STAGE_BG_OF 안만 바꾸면 됨.
+// [사용자 확정 2026-08-03] 그림 교체 — 산·호수·모래사장 풍경.
+//   (파일명·상수명은 예전 초원 그림 때 지은 이름 그대로 둔다. 경로가 바뀌면 이미 받아 둔
+//    캐시·다른 참조가 함께 흔들리므로, 이름은 유지하고 그림만 갈아 끼운다.)
 export const ADV_STAGE_BG_MEADOW = "/assets/stage-adventure-meadow.webp";
-// (g=성별 'boy'|'girl', stage=진화단계 1~5) → 배경 경로. 지금은 항상 초원.
+// (g=성별 'boy'|'girl', stage=진화단계 1~5) → 배경 경로. 지금은 항상 같은 1장.
 export const ADV_STAGE_BG_OF = (g, stage) => ADV_STAGE_BG_MEADOW;
 // 프리로드 대상 목록 (아래 이미지 프리로드 useEffect에서 사용)
 export const ADV_STAGE_BG_ALL = [ADV_STAGE_BG_MEADOW];
