@@ -117,7 +117,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
        · 하늘길은 길 높이가 '가운데 기준'이라 그림 절반만큼 내려야 발밑에 온다.
          크기는 포즈가 바뀌어도 발판이 들썩이지 않게 '탄 상태' 기준으로 고정한다
          (케이블 줄과 같은 이유).
-       · 발판은 캐릭터가 그 위에 서는 것이므로, 반원의 꼭대기를 발밑 높이에 맞춘다.
+       · 모양은 옆으로 누운 작은 타원 [사용자 확정] — 반원 발판은 물체처럼 보여서
+         배경을 밀어냈다. 바닥에 눕힌 납작한 타원이 훨씬 가이드라인답다.
+         캐릭터가 그 안에 서게 타원의 '가운데'를 발밑 높이에 맞춘다.
        · 지나온 발판만 조금 진하게 — 진행이 보이되 튀지 않을 만큼만.
        · 밝은 배경(설원·사막)과 어두운 배경(동굴·우주) 양쪽에서 다 보이게
          흰 반투명 위에 어두운 실선 한 겹을 같이 깐다. */
@@ -132,10 +134,11 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
     return [p[0], p[1] - ((alt && rideKind === "fly") ? guideHalf : 0)];
   };
   const guideOn = total > 0;
-  /* 발판 폭(카드 폭 %) — 미션이 많은 날은 서로 붙지 않게 줄인다 */
-  const padW = Math.min(7.5, 55 / Math.max(1, total));
-  /* 반원 높이는 폭의 절반. 세로 %로 바꾸려면 카드 가로세로비를 곱한다 */
-  const padH = (padW * (sc.bgAR || 390 / CARD_H)) / 2;
+  /* 타원 폭(카드 폭 %) — 미션이 많은 날은 서로 붙지 않게 줄인다 */
+  const padW = Math.min(5.6, 40 / Math.max(1, total));
+  const PAD_FLAT = 2.8;                 // 가로:세로 — 클수록 더 납작하게 눕는다
+  /* 세로 %로 바꾸려면 카드 가로세로비를 곱한다 (카드 폭 = 카드 높이 × bgAR) */
+  const padH = (padW * (sc.bgAR || 390 / CARD_H)) / PAD_FLAT;
   const guidePads = guideOn
     ? Array.from({ length: total }, (_, i) => {
         const [gx, gb] = footAt((i + 1) / total);
@@ -386,9 +389,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
             </svg>
             {guidePads.map((g, i) => (
               <div key={i} style={{ position: "absolute", left: `${g.x}%`,
-                bottom: `${g.b - padH}%`, transform: "translateX(-50%)",
-                width: `${padW}%`, aspectRatio: "2 / 1",
-                borderRadius: "999px 999px 0 0",
+                bottom: `${g.b - padH / 2}%`, transform: "translateX(-50%)",
+                width: `${padW}%`, aspectRatio: `${PAD_FLAT} / 1`,
+                borderRadius: "50%",
                 background: g.passed ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.12)",
                 boxShadow: `inset 0 0 0 1px rgba(255,255,255,${g.passed ? 0.42 : 0.26}), 0 0 0 1px rgba(28,38,58,0.10)`,
                 zIndex: 1, pointerEvents: "none",
