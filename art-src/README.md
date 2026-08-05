@@ -146,7 +146,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | map-bld-stonearch-v2.webp | 지도 학원 건물 v7-2 (돌 아치문, 흰 원→투명 펀칭) | map-bld-stonearch.webp |
 | map-bld-tent-v2.webp | 지도 학원 건물 v7-3 (탐험가 텐트, 흰 원→투명 펀칭) | map-bld-tent.webp |
 | map-bld-tikihut-v2.webp | 지도 학원 건물 v7-4 (티키 초가 오두막, 흰 원→투명 펀칭) | map-bld-tikihut.webp |
-| journal-card-v4-src.webp | 모험일지 초록 노트 원화 v4 (장식 정리판, 모서리 검정→투명 펀칭 탑재) | journal-card.webp |
+| journal-card-v5-src.webp | 모험일지 초록 노트 원화 v5 (1254×1254 — 밑줄·패널 상자·우표 장식을 뺀 빈 종이판. 아이콘 다섯만 왼쪽에 세로로. 모서리 검정→투명 펀칭 후 화면용 1100px q86으로 탑재) | journal-card.webp |
 | chest-open-v2.webp | 열린 보물상자 원화 v2 (도착 시 지도의 닫힌 상자 위에 덮어 그림) | chest-open.webp |
 | chest-patch.webp | 모래 텍스처 조각 (도착 시 배경의 '닫힌 상자'를 지우는 용도, 타원 마스크로 이음매 제거) | chest-patch.webp |
 | coin-front.webp | 금화 원화 정면 (상자 도착 연출, 뒤집히며 튀어오름) | coin-front.webp |
@@ -207,7 +207,7 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/ride/sandboard-src.webp | 탑승 원화 28 모래 보드 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/sandboard.webp |
 | expedition/ride/submarine-src.webp | 탑승 원화 32 잠수정 — 바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/submarine.webp |
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
-| bg-adventure-meadow-v4-src.webp | 탐험 모드 무대 기본 배경 v4 (868×1813 = 1:2.09 — 무대 칸 비율에 맞춘 세로 긴 판, 받은 그대로 톤 보정 없음, 현행) | stage-adventure-meadow.webp |
+| bg-adventure-meadow-v5-src.webp | 탐험 모드 무대 기본 배경 v5 (866×1815 = 1:2.10 — 무대 칸 비율에 맞춘 세로 긴 판. 산·호수·모래길, 선이 또렷한 그림체로 교체. 받은 그대로 톤 보정 없음, 현행) | stage-adventure-meadow.webp |
 | camp-bg-v2-src.webp | 캐릭터 탭 캠프 배경 v2 (724×2172 = 1:3.00 — 배치 비율과 정확히 일치, 하늘·산·숲 + 아래로 이어지는 흙길, 현행) | camp/bg.webp |
 | camp/st-box-v1-src.webp | 캠프 스테이션 아이콘 — 보물창고 (그루터기+보물상자, 투명, 여백 잘라 1073×907 → 화면용 540×456으로 축소 탑재) | camp/st-box.webp |
 | camp/plate-name-v1-src.webp | 캠프 초록 이름표 판 — 스테이션 8개 공통 (투명, 964×334) | camp/plate-name.webp |
