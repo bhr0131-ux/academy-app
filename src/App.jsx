@@ -20,6 +20,7 @@ import CampPrototype from "./components/camp/CampPrototype.jsx";
 import StreakSheet from "./components/camp/StreakSheet.jsx";
 import TitleSheet from "./components/camp/TitleSheet.jsx";
 import HistorySheet from "./components/camp/HistorySheet.jsx";
+import PetSheet from "./components/camp/PetSheet.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
@@ -3507,6 +3508,10 @@ export default function App() {
           logInfo={getAdventureLogInfo} logBar={getDungeonLogBar}
           logName={T.logName||"활동 기록"} faint={CT.faint}
           xpEmoji={TM.xpEmoji} coinEmoji={TM.coinEmoji} gold={GP.gold} />
+        {/* 나의 펫 시트 — 캐릭터 탭 '나의 펫' 카드에서 연다 */}
+        <PetSheet open={openPet} onClose={()=>setOpenPet(false)}
+          dark={kidSkin!=="cute"} stage={getPetStage(childId)} skin={kidSkin}
+          themeMain={th.main} boxName={TM.box} boxEmoji={TM.boxEmoji} />
         {/* ── 아바타 꾸미기 상점 모달 (신규) ── */}
         <EquipmentShop
           open={showEquipShop}
@@ -4369,7 +4374,7 @@ export default function App() {
                 )}
               </div>
 
-              {/* 나의 펫 카드 (접이식) */}
+              {/* 나의 펫 카드 — 내용은 src/components/camp/PetSheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 4/6) */}
               {(()=>{
                 const stage=getPetStage(childId);
                 const pet=petView(PET_STAGES[stage],stage,kidSkin);
@@ -4377,36 +4382,11 @@ export default function App() {
                 return (
                   <div style={skyCard("#7BA3B2","#6A8F9D")}>
                     <CharacterSectionHeader
-                      dark={kidSkin!=="cute"}
+                      dark={kidSkin!=="cute"} sheet
                       icon={kidSkin==="cute"?"🦄":"🐾"} title="나의 펫"
-                      subtitle={`${TM.boxEmoji} ${TM.box}를 열면 ${kidSkin==="cute"?"펫이 조금씩 자라요":"펫이 조금씩 자라요"}\n${pet.emoji} ${pet.name}${isMax?" · 최종 성장 🏆":""}`}
-                      open={openPet} onToggle={()=>setOpenPet(v=>!v)}
+                      subtitle={`${TM.boxEmoji} ${TM.box}를 열면 펫이 조금씩 자라요\n${pet.emoji} ${pet.name}${isMax?" · 최종 성장 🏆":""}`}
+                      open={openPet} onToggle={()=>setOpenPet(true)}
                     />
-                    {openPet&&(
-                      <div style={{position:"relative",overflow:"hidden",marginTop:12,textAlign:"center",background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.90)}, ${mixWhite(th.main,0.80)})`:`linear-gradient(135deg, ${mixHex("#3D517A",th.main,0.12)}, ${mixHex("#506895",th.main,0.12)})`,border:kidSkin==="cute"?`1px solid ${th.main}2A`:"2px solid rgba(180,220,255,0.35)",boxShadow:kidSkin==="cute"?"none":"inset 0 1px 0 rgba(255,255,255,0.18), 0 10px 28px rgba(30,60,120,0.22)",borderRadius:14,padding:"14px 16px"}}>
-                        {kidSkin!=="cute"&&(
-                          <div style={{position:"absolute",inset:0,pointerEvents:"none",opacity:0.35,backgroundImage:`radial-gradient(1.5px 1.5px at 20% 25%, rgba(255,255,255,0.9), transparent), radial-gradient(1.3px 1.3px at 75% 20%, rgba(255,209,102,0.9), transparent), radial-gradient(1.2px 1.2px at 85% 60%, rgba(255,255,255,0.6), transparent), radial-gradient(1.4px 1.4px at 35% 78%, rgba(180,220,255,0.8), transparent)`}}/>
-                        )}
-                        <div style={{position:"relative"}}>
-                        <div style={{fontSize:52,lineHeight:1,margin:"0 0 6px",filter:kidSkin==="cute"?"none":"drop-shadow(0 0 8px rgba(255,220,120,0.8))"}}>{pet.emoji}</div>
-                        <p style={{fontSize:17,fontWeight:900,color:kidSkin==="cute"?C.text:"#fff",margin:"0 0 3px"}}>{pet.name}</p>
-                        <p style={{fontSize:13.5,fontWeight:700,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)",margin:"0 0 10px",lineHeight:1.45}}>{pet.desc}</p>
-                        <div style={{display:"flex",justifyContent:"center",gap:7,marginBottom:10}}>
-                          {PET_STAGES.map((p,i)=>{
-                            const pv=petView(p,i,kidSkin);
-                            return (
-                            <span key={i} style={{fontSize:17,opacity:i<=stage?1:0.25,filter:i<=stage?"none":"grayscale(1)"}}>{pv.emoji}</span>
-                            );
-                          })}
-                        </div>
-                        <div style={{background:kidSkin==="cute"?"rgba(255,255,255,0.7)":"rgba(15,18,34,0.32)",borderRadius:10,padding:"8px 12px",fontSize:11.5,fontWeight:700,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",lineHeight:1.5,border:`1px solid ${kidSkin==="cute"?th.main+"1A":"rgba(255,255,255,0.18)"}`}}>
-                          {isMax
-                            ? (kidSkin==="cute"?"🏆 최종 성장 완료! 최고의 펫이에요":"🏆 최종 진화 완료! 최고의 펫이에요")
-                            : `${TM.boxEmoji} ${TM.box}를 열면 가끔 ${kidSkin==="cute"?"펫이 자라요":"펫이 진화해요"}`}
-                        </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 );
               })()}
