@@ -89,7 +89,7 @@ const ANIMAL_IMG = {
 /* 원화 실측 가로/세로 — 말풍선을 동물 '머리 위'에 놓으려면 높이를 알아야 한다.
    폭만 %로 주고 높이는 비율로 따라오므로, 지도 높이 % 로 환산해서 쓴다:
      높이% = 폭% / (원화비율 × 지도세로비) */
-const ANIMAL_AR = { ev_parrot: 738/1158, ev_monkey: 911/1051, ev_toucan: 967/809,
+const ANIMAL_AR = { ev_parrot: 738/1158, ev_monkey: 813/936, ev_toucan: 967/809,
                     ev_boar: 870/749, ev_frog: 1406/886,
                     ev_butterfly: 240/249, ev_turtle: 300/175 };
 const animalTop = (M, id) => {
@@ -112,7 +112,7 @@ const MAP_LONG = {
   cdy: 5.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   // 동물 다섯 [중심x%, 바닥y%, 폭%] — 하루 두 마리만 나온다 (rollMapAnimals)
   animals: { ev_parrot: [82, 30, 16], ev_monkey: [70, 54, 20], ev_toucan: [15, 74, 20],
-             ev_boar: [85, 73, 17], ev_frog: [14, 86, 20],
+             ev_boar: [85, 73, 17], ev_frog: [15, 86, 24],
              /* 나비·거북이는 예전 '손님' 자리(중심 기준)를 바닥 기준으로 환산해 옮겼다 */
              ev_butterfly: [28, 25.3, 9], ev_turtle: [15, 91, 12] },
   /* [사용자 확정 2026-07-31] 지도 원화에 없는 손님 3종은 '그날만' 그려 넣는다.
@@ -178,7 +178,7 @@ const MAP_SHORT = {
   cdy: 6.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   // 원화에 그려진 동물들의 머리 위 좌표 (%) — 랜덤 이벤트 날 👋 말풍선 자리 (그리드 실측)
   animals: { ev_parrot: [83, 32, 17], ev_monkey: [72, 56, 21], ev_toucan: [15, 73, 21],
-             ev_boar: [86, 74, 18], ev_frog: [14, 86, 21],
+             ev_boar: [86, 74, 18], ev_frog: [15, 83.5, 24],
              ev_butterfly: [28, 26.8, 10], ev_turtle: [12, 93, 13] },
   evImg: { ev_rainbow: [62, 5.5, 31] },
   yr: 1704 / 923,
