@@ -114,7 +114,7 @@ const MAP_LONG = {
   animals: { ev_parrot: [82, 30, 16], ev_monkey: [70, 54, 20], ev_toucan: [15, 74, 20],
              ev_boar: [85, 73, 17], ev_frog: [14, 86, 20],
              /* 나비·거북이는 예전 '손님' 자리(중심 기준)를 바닥 기준으로 환산해 옮겼다 */
-             ev_butterfly: [28, 25.3, 9], ev_turtle: [28, 92.7, 12] },
+             ev_butterfly: [28, 25.3, 9], ev_turtle: [15, 91, 12] },
   /* [사용자 확정 2026-07-31] 지도 원화에 없는 손님 3종은 '그날만' 그려 넣는다.
      [중심x%, 중심y%, 폭%] — 평소엔 아예 없다가 그 이벤트가 걸린 날에만 나타난다. */
   evImg: { ev_rainbow: [64, 6, 30] },
@@ -179,7 +179,7 @@ const MAP_SHORT = {
   // 원화에 그려진 동물들의 머리 위 좌표 (%) — 랜덤 이벤트 날 👋 말풍선 자리 (그리드 실측)
   animals: { ev_parrot: [83, 32, 17], ev_monkey: [72, 56, 21], ev_toucan: [15, 73, 21],
              ev_boar: [86, 74, 18], ev_frog: [14, 86, 21],
-             ev_butterfly: [28, 26.8, 10], ev_turtle: [27, 91.1, 13] },
+             ev_butterfly: [28, 26.8, 10], ev_turtle: [12, 93, 13] },
   evImg: { ev_rainbow: [62, 5.5, 31] },
   yr: 1704 / 923,
   bw: 21, fs: 19,   // 짧은 지도 건물 크기 (사용자 조정: v8 세트에서 약간 더 축소 23→21)
@@ -268,6 +268,13 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       x0: sx - M.bw / 2, x1: sx + M.bw / 2,
       y0: sy - bh * 0.78, y1: sy + bh * 0.22,
     }));
+    /* 보물상자도 넣는다 — 처음에 건물만 보다가 거북이가 상자 뒤에 파묻혔다
+       (사용자 지적: "동물이 개구리 하나인데?" — 거북이는 있었는데 안 보였다).
+       상자는 늘 그 자리에 있으므로 건물처럼 '가리는 것'으로 함께 센다. */
+    if (M.chestClosed) {
+      const [kx, ky, kw] = M.chestClosed;
+      boxes.push({ x0: kx - kw / 2, x1: kx + kw / 2, y0: ky - kw / M.yr, y1: ky });
+    }
     const clear = (id) => {
       const a = M.animals?.[id]; if (!a) return false;
       const [cx, by, aw] = a;
