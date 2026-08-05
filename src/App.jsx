@@ -8,7 +8,7 @@ import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./comp
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
-import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollSparkT } from "./data/discoveries.js";
+import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollMapAnimals, rollSparkT } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
@@ -3775,6 +3775,10 @@ export default function App() {
                         })()}
                         onSparkPass={()=>handleSparkPass(childDate||TODAY)}
                         eventId={rollEvent(childId,childDate||TODAY)?.id||null}
+                        /* 지도에 오늘 나오는 동물 두 마리 (사용자 확정: 다섯 중 랜덤 2).
+                           이벤트 동물이 그 다섯 중 하나면 반드시 포함된다 —
+                           없는 동물 위에 👋 말풍선만 뜨는 일이 없도록. */
+                        dayAnimals={rollMapAnimals(childId,childDate||TODAY,rollEvent(childId,childDate||TODAY)?.id||null)}
                       />
                     </div>
                     </>

@@ -220,6 +220,29 @@ export function rollEvent(childId, dateStr) {
   return DISCO_EVENTS[(h >>> 8) % DISCO_EVENTS.length]; // 발견처럼 다른 비트로 종류 결정
 }
 
+/* ── 지도에 오늘 나오는 동물 (사용자 확정 2026-08-05) ─────────────────────
+   예전에는 다섯 마리가 지도 원화에 그려져 있어 늘 같은 자리에 있었다.
+   새 지도는 동물이 없는 판이고, 다섯 마리를 따로 얹는다 —
+   그중 **하루 두 마리만** 나온다. 매일 다른 조합이라 지도를 열 때
+   "오늘은 누가 있지?" 하는 재미가 생긴다.
+
+   날짜 고정 시드라 하루 종일 같은 두 마리다 (저장하지 않고 다시 계산).
+   그날 이벤트 동물이 이 다섯 중 하나면 반드시 포함시킨다 —
+   안 그러면 없는 동물 머리 위에 👋 말풍선만 뜬다. */
+export const MAP_ANIMALS = ["ev_parrot", "ev_monkey", "ev_toucan", "ev_boar", "ev_frog"];
+export function rollMapAnimals(childId, dateStr, eventId = null) {
+  const pool = MAP_ANIMALS.slice();
+  const out = [];
+  if (eventId && pool.includes(eventId)) out.push(...pool.splice(pool.indexOf(eventId), 1));
+  let h = hash32(`${childId}|${dateStr}|animals`);
+  while (out.length < 2 && pool.length) {
+    out.push(...pool.splice(h % pool.length, 1));
+    h = (h >>> 7) ^ (h * 31 >>> 0);          // 두 번째는 다른 비트로 뽑는다
+    h = h >>> 0;
+  }
+  return out;
+}
+
 /* ── 지도 발견 지점 (사용자 확정 ②) ─────────────────────────────────────
    길 중간(진행률 32~74%)의 한 지점. 날마다 자리가 바뀌어야 "오늘은 어디서
    찾을까?"가 생긴다. 캐릭터가 이 지점을 지나면 지도에서 발견 팝이 뜬다. */
