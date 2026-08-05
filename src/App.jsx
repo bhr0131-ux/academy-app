@@ -19,6 +19,7 @@ import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import CampPrototype from "./components/camp/CampPrototype.jsx";
 import StreakSheet from "./components/camp/StreakSheet.jsx";
 import TitleSheet from "./components/camp/TitleSheet.jsx";
+import HistorySheet from "./components/camp/HistorySheet.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
@@ -3500,6 +3501,12 @@ export default function App() {
           isUnlocked={(id)=>isTitleUnlocked(childId,id)} selectedId={getSelectedTitle(childId).id}
           onSelect={selectTitle} faint={CT.faint}
           unlockedCount={getUnlockedTitles(childId).length} totalCount={getAllTitles(childId).length} />
+        {/* 탐험 기록 시트 — 캐릭터 탭 '탐험 기록' 카드에서 연다 */}
+        <HistorySheet open={openHistory} onClose={()=>setOpenHistory(false)}
+          dark={kidSkin!=="cute"} items={getScoreHistory(childId)}
+          logInfo={getAdventureLogInfo} logBar={getDungeonLogBar}
+          logName={T.logName||"활동 기록"} faint={CT.faint}
+          xpEmoji={TM.xpEmoji} coinEmoji={TM.coinEmoji} gold={GP.gold} />
         {/* ── 아바타 꾸미기 상점 모달 (신규) ── */}
         <EquipmentShop
           open={showEquipShop}
@@ -4432,54 +4439,14 @@ export default function App() {
                 />
               </div>
 
-              {/* 탐험 기록 카드 */}
+              {/* 탐험 기록 카드 — 내용은 src/components/camp/HistorySheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 3/6) */}
               <div style={skyCard("#7398A8","#648492")}>
                 <CharacterSectionHeader
-                  dark={kidSkin!=="cute"}
+                  dark={kidSkin!=="cute"} sheet
                   icon="📖" title={T.logName||"활동 기록"}
                   subtitle="최근 미션·보상·아이템 활동 기록"
-                  open={openHistory} onToggle={()=>setOpenHistory(v=>!v)}
+                  open={openHistory} onToggle={()=>setOpenHistory(true)}
                 />
-                {openHistory&&(()=>{
-                  const dungeon = kidSkin!=="cute";
-                  return (
-                  <div style={{marginTop:14}}>
-                    {getScoreHistory(childId).length===0?(
-                      <div style={{textAlign:"center",padding:"24px 10px"}}>
-                        <p style={{fontSize:42,marginBottom:8}}>📖</p>
-                        <p style={{fontSize:15,fontWeight:900,color:dungeon?"#EAF0FF":C.text,margin:"0 0 6px"}}>아직 {T.logName||"활동 기록"}이 없어요</p>
-                        <p style={{fontSize:13,color:dungeon?"rgba(255,255,255,0.82)":C.sub,margin:0}}>미션을 완료하면 기록이 쌓여요</p>
-                      </div>
-                    ):(
-                      <div>
-                        {getScoreHistory(childId).slice().reverse().slice(0,15).map(item=>{
-                          const info=getAdventureLogInfo(item);
-                          const xp=Number(item.xp??0);
-                          const coin=Number(item.coin??item.point??0);
-                          const bar=getDungeonLogBar(item);
-                          return (
-                            <div key={item.id} style={dungeon
-                              ?{display:"flex",gap:12,alignItems:"center",padding:"12px",paddingLeft:14,borderRadius:14,background:"linear-gradient(135deg, #28324F 0%, #323E60 100%)",border:"1px solid rgba(150,175,225,0.16)",borderLeft:`4px solid ${bar}`,boxShadow:"0 3px 10px rgba(8,16,40,0.34)",marginBottom:8}
-                              :{display:"flex",gap:12,alignItems:"center",padding:"12px",borderRadius:14,background:"#fff",border:`1px solid ${C.border}`,marginBottom:8}}>
-                              <div style={{width:42,height:42,borderRadius:"50%",background:dungeon?"rgba(255,255,255,0.08)":CT.faint,border:dungeon?`1px solid ${bar}55`:"none",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>
-                                {info.icon}
-                              </div>
-                              <div style={{flex:1,minWidth:0}}>
-                                <p style={{margin:0,fontSize:13,fontWeight:900,color:dungeon?"#EAF0FF":C.text}}>{info.title}</p>
-                                <p style={{marginTop:3,fontSize:13,color:dungeon?"rgba(255,255,255,0.78)":C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.memo||item.date||""}</p>
-                              </div>
-                              <div style={{textAlign:"right",flexShrink:0}}>
-                                {xp>0&&<p style={{margin:0,color:dungeon?"#5FE2C5":GP.gold,fontWeight:900,fontSize:13}}>{TM.xpEmoji} +{xp}</p>}
-                                {coin!==0&&<p style={{margin:"2px 0 0",color:dungeon?(coin>0?"#5FE2C5":"#FF8AA0"):(coin>0?C.green:C.red),fontWeight:900,fontSize:13}}>{TM.coinEmoji} {coin>0?"+":""}{coin}</p>}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  );
-                })()}
               </div>
             </>
           )}
