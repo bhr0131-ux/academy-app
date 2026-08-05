@@ -2329,7 +2329,9 @@ export default function App() {
     const deep = mixBlack(m, 0.22);   // 진한 톤
     return {
       ...d,
-      name: `${theme.name} 보석`,
+      /* 이름 없는 테마가 또 들어와도 "undefined 보석"이 되지 않게 받쳐 둔다
+         (GENDER_THEME 에 name 이 없어서 실제로 그렇게 나왔었다) */
+      name: theme.name ? `${theme.name} 보석` : "테마 보석",
       grad: `linear-gradient(115deg, ${deep} 0%, ${lite} 22%, ${pale} 40%, ${m} 58%, ${lite} 76%, ${pale} 92%, ${deep} 100%)`,
       glow: `${m}b8`,
       glowCute: `${m}66`,
