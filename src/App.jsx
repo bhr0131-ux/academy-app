@@ -22,6 +22,7 @@ import TitleSheet from "./components/camp/TitleSheet.jsx";
 import HistorySheet from "./components/camp/HistorySheet.jsx";
 import PetSheet from "./components/camp/PetSheet.jsx";
 import TreasureSheet from "./components/camp/TreasureSheet.jsx";
+import ItemShopSheet from "./components/camp/ItemShopSheet.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
@@ -3518,6 +3519,13 @@ export default function App() {
           dark={kidSkin!=="cute"} skin={kidSkin} treasure={getChildTreasure(childId)}
           onOpen={openTreasureBox} themeMain={th.main} faint={CT.faint}
           boxName={TM.box} bookEmoji={TM.bookEmoji} bookName={TM.book} />
+        {/* 아이템 상점 시트 — 캐릭터 탭 '아이템 상점' 카드에서 연다 */}
+        <ItemShopSheet open={openRewardShop} onClose={()=>setOpenRewardShop(false)}
+          dark={kidSkin!=="cute"} skin={kidSkin} coin={getChildCoin(childId)}
+          rewards={getChildRewards()} hasPending={(id)=>hasPendingRewardRequest(childId,id)}
+          onRequest={requestReward} themeMain={th.main}
+          coinName={TM.coin} coinEmoji={TM.coinEmoji} goldDark={GP.dark} gold={GP.gold}
+          approvedCount={getApprovedRewardCount(childId)} />
         {/* ── 아바타 꾸미기 상점 모달 (신규) ── */}
         <EquipmentShop
           open={showEquipShop}
@@ -4220,93 +4228,15 @@ export default function App() {
                 <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:"linear-gradient(90deg, rgba(138,119,95,0.4), rgba(138,119,95,0) 90%)"}}/>
               </div>
 
+              {/* 아이템 상점 카드 — 내용은 src/components/camp/ItemShopSheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 6/6).
+                   구매 로직(requestReward)은 App에 그대로 — 시트는 부르기만 한다. */}
               <div style={skyCard("#6F95A5","#61828F")}>
                 <CharacterSectionHeader
-                  dark={kidSkin!=="cute"}
+                  dark={kidSkin!=="cute"} sheet
                   icon="🛒" title="아이템 상점"
                   subtitle={`${TM.coin}으로 원하는 보상을 살 수 있어요\n${TM.coinEmoji} ${getChildCoin(childId)} ${TM.coin} 보유   🧾 총 구매 ${getApprovedRewardCount(childId)}개`}
-                  open={openRewardShop} onToggle={()=>setOpenRewardShop(v=>!v)}
+                  open={openRewardShop} onToggle={()=>setOpenRewardShop(true)}
                 />
-                {openRewardShop&&(
-                  <div style={{marginTop:14}}>
-                    {/* 지갑 카드 */}
-                    <div style={{background:kidSkin==="cute"?`linear-gradient(135deg, ${mixWhite(th.main,0.80)}, ${mixWhite(th.main,0.68)})`:DUNGEON_SHOP.walletBg,borderRadius:14,padding:"13px 14px",color:kidSkin==="cute"?GP.dark:"#fff",marginBottom:12,border:kidSkin==="cute"?`1px solid ${th.main}33`:DUNGEON_SHOP.walletBorder,boxShadow:kidSkin==="cute"?`0 4px 16px ${th.main}14`:"inset 0 1px 0 rgba(255,255,255,0.12)"}}>
-                      <p style={{fontSize:13,fontWeight:900,letterSpacing:1,margin:"0 0 4px",color:kidSkin==="cute"?th.main:GP.gold}}>WALLET</p>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                        <p style={{fontSize:17,fontWeight:900,margin:0}}>보유 {TM.coin}</p>
-                        <p style={{fontSize:24,fontWeight:900,margin:0,color:kidSkin==="cute"?"#E09A00":GP.gold}}>{getChildCoin(childId)} {TM.coinEmoji} {TM.coin}</p>
-                      </div>
-                    </div>
-                    {/* 아이템 목록 */}
-                    <div style={kidSkin==="cute"
-                      ?{display:"flex",flexDirection:"column",gap:10}
-                      :{borderRadius:18,padding:10,display:"flex",flexDirection:"column",gap:9,background:DUNGEON_SHOP.listBg,border:DUNGEON_SHOP.listBorder,boxShadow:DUNGEON_SHOP.listShadow}}>
-                      {getChildRewards().slice().sort((a,b)=>a.point-b.point).map((reward,ri)=>{
-                        const coin=getChildCoin(childId);
-                        const canGet=coin>=reward.point;
-                        const remain=Math.max(0,reward.point-coin);
-                        const grade=getRewardGrade(reward);
-                        const pending=hasPendingRewardRequest(childId,reward.id);
-                        const isOpen=openRewardId===reward.id || canGet || pending;
-                        const gradeBar=getDungeonShopGradeColor(reward.grade);
-                        const isLegend=kidSkin!=="cute"&&reward.grade==="legendary";
-                        const cardBg=kidSkin==="cute"
-                          ?(canGet?`linear-gradient(135deg, ${grade.color}16, #fff)`:"#fff")
-                          :"transparent";
-                        const cardBorder=kidSkin==="cute"
-                          ?(canGet?grade.color+"55":C.border)
-                          :DUNGEON_SHOP.itemBorder;
-                        return (
-                          <div key={reward.id} style={kidSkin==="cute"
-                            ?{borderRadius:14,overflow:"hidden",background:cardBg,border:`1.8px solid ${cardBorder}`,boxShadow:canGet?`0 5px 18px ${grade.color}22`:"0 2px 10px rgba(0,0,0,0.04)"}
-                            :{position:"relative",borderRadius:14,overflow:"hidden",background:getDungeonShopItemBg(reward.grade),border:"none",boxShadow:getDungeonShopItemShadow(reward.grade),opacity:canGet?1:0.92}}>
-                            {kidSkin!=="cute"&&<div style={{position:"absolute",left:0,top:0,bottom:0,width:3,background:gradeBar,opacity:0.9}}/>}
-                            <button onClick={()=>setOpenRewardId(isOpen?null:reward.id)}
-                              style={{width:"100%",border:"none",background:"transparent",padding:"13px 14px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
-                              <div style={{display:"flex",alignItems:"center",gap:11,textAlign:"left"}}>
-                                <div style={{width:46,height:46,borderRadius:14,background:kidSkin==="cute"?`linear-gradient(135deg, ${grade.color}22, #fff)`:"rgba(255,255,255,0.16)",border:kidSkin==="cute"?`1.5px solid ${grade.color}45`:"1px solid rgba(255,255,255,0.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0,boxShadow:kidSkin==="cute"?`0 3px 10px ${grade.color}18`:"inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 6px rgba(0,0,0,0.12)"}}>
-                                  {reward.emoji}
-                                </div>
-                                <div>
-                                  <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
-                                    <p style={{fontSize:17,fontWeight:900,margin:0,color:kidSkin==="cute"?C.text:"#fff",textShadow:isLegend?"0 1px 3px rgba(60,40,10,0.45)":"none"}}>{reward.title}</p>
-                                    <span style={{fontSize:11,fontWeight:900,color:kidSkin==="cute"?grade.color:"#fff",background:kidSkin==="cute"?`${grade.color}18`:"rgba(255,255,255,0.22)",padding:"2px 7px",borderRadius:20}}>{grade.name}</span>
-                                  </div>
-                                  <p style={{fontSize:13,fontWeight:800,margin:0,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.84)",textShadow:isLegend?"0 1px 2px rgba(60,40,10,0.4)":"none"}}>{reward.point} {TM.coinEmoji} {TM.coin} 필요</p>
-                                </div>
-                              </div>
-                              <span style={{fontSize:13,fontWeight:900,color:pending?(kidSkin==="cute"?C.purple:"#E6DBFF"):canGet?(kidSkin==="cute"?C.green:"#B6F5C6"):(kidSkin==="cute"?C.orange:"#FFE9A6"),background:kidSkin==="cute"?(pending?C.purpleL:canGet?`${C.green}15`:`${C.orange}15`):"transparent",padding:kidSkin==="cute"?"5px 8px":"0",borderRadius:20,textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.35)"}}>
-                                {isOpen?"▲":pending?"대기중":canGet?"구매 가능":"▼"}
-                              </span>
-                            </button>
-                            {isOpen&&(()=>{
-                              const actionState=pending?"waiting":canGet?"available":"disabled";
-                              const aStyle=ITEM_ACTION_STYLE[actionState];
-                              const dungeon=kidSkin!=="cute";
-                              return (
-                              <div style={{padding:"0 14px 14px"}}>
-                                <p style={{fontSize:13,fontWeight:800,color:dungeon?aStyle.statusText:(pending?C.purple:canGet?C.green:C.orange),margin:"0 0 10px"}}>
-                                  {pending?UI_TEXT.message.waitingApproval:canGet?"지금 살 수 있어요!":`${remain} ${TM.coinEmoji} ${TM.coin} 더 모으면 살 수 있어요`}
-                                </p>
-                                <button onClick={()=>requestReward(reward)} disabled={!canGet||pending}
-                                  style={dungeon
-                                    ?{width:"100%",padding:"11px 12px",borderRadius:14,border:aStyle.buttonBorder,background:aStyle.buttonBg,color:aStyle.buttonColor,fontSize:15,fontWeight:900,cursor:canGet&&!pending?"pointer":"not-allowed",boxShadow:aStyle.buttonShadow,transform:canGet&&!pending?"scale(1.02)":"none",opacity:pending?0.85:1,transition:"transform .12s ease",display:"flex",alignItems:"center",justifyContent:"center",gap:8}
-                                    :{width:"100%",padding:"11px 12px",borderRadius:14,border:"none",background:pending?C.purpleL:canGet?`linear-gradient(135deg, ${grade.color}, ${th.main})`:C.border,color:pending?C.purple:canGet?"#fff":C.sub,fontSize:15,fontWeight:900,cursor:canGet&&!pending?"pointer":"not-allowed",boxShadow:canGet&&!pending?`0 4px 14px ${grade.color}28`:"none",transform:canGet&&!pending?"scale(1.02)":"none",opacity:pending?0.85:1,transition:"transform .12s ease",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-                                  {pending
-                                    ?UI_TEXT.button.pending+"..."
-                                    :canGet
-                                      ?<><span style={{fontSize:24,lineHeight:1}}>🎁</span><span>받을래요!</span></>
-                                      :UI_TEXT.button.needCoin}
-                                </button>
-                              </div>
-                              );
-                            })()}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* ── 꾸미기 상점 진입 (아이템 상점 아래) ── */}
