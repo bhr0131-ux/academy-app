@@ -17,6 +17,7 @@ import { getExpeditionMount, getExpeditionRarity, MOUNTS } from "./data/expediti
 import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import CampPrototype from "./components/camp/CampPrototype.jsx";
+import CampScene from "./components/camp/CampScene.jsx";
 import StreakSheet from "./components/camp/StreakSheet.jsx";
 import TitleSheet from "./components/camp/TitleSheet.jsx";
 import HistorySheet from "./components/camp/HistorySheet.jsx";
@@ -4219,110 +4220,56 @@ export default function App() {
           {/* ── 성장 탭 ── */}
           {childTab==="growth"&&(
             <>
-              {childHud}
-
-              {/* 섹션 구분 — 즐기기 */}
-              <div style={{display:"flex",alignItems:"center",gap:12,margin:"30px 2px 16px"}}>
-                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}00, ${th.main}55)`:"linear-gradient(90deg, rgba(138,119,95,0) 10%, rgba(138,119,95,0.4))"}}/>
-                <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:kidSkin==="cute"?th.main:"#8A775F"}}>🎮 즐기기</span>
-                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:"linear-gradient(90deg, rgba(138,119,95,0.4), rgba(138,119,95,0) 90%)"}}/>
-              </div>
-
-              {/* 아이템 상점 카드 — 내용은 src/components/camp/ItemShopSheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 6/6).
-                   구매 로직(requestReward)은 App에 그대로 — 시트는 부르기만 한다. */}
-              <div style={skyCard("#6F95A5","#61828F")}>
-                <CharacterSectionHeader
-                  dark={kidSkin!=="cute"} sheet
-                  icon="🛒" title="아이템 상점"
-                  subtitle={`${TM.coin}으로 원하는 보상을 살 수 있어요\n${TM.coinEmoji} ${getChildCoin(childId)} ${TM.coin} 보유   🧾 총 구매 ${getApprovedRewardCount(childId)}개`}
-                  open={openRewardShop} onToggle={()=>setOpenRewardShop(true)}
-                />
-              </div>
-
-              {/* ── 꾸미기 상점 진입 (아이템 상점 아래) ── */}
-              <button onClick={()=>setShowDecorShop(true)}
-                style={{...skyCard("#82A8B5","#71939F"),width:"100%",boxSizing:"border-box",padding:"18px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",textAlign:"left"}}>
-                <span style={{display:"flex",alignItems:"center",gap:7}}>
-                  <span style={{fontSize:18}}>🛍️</span>
-                  <span style={{textAlign:"left"}}>
-                    <span style={{display:"block",fontSize:18,fontWeight:900,color:kidSkin==="cute"?C.text:"#FFFFFF"}}>{kidSkin==="cute"?"꾸미기 가게":"꾸미기 상점"}</span>
-                    <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",marginTop:4}}>모자·테두리·배경·아바타 꾸미기 · {getOwnedCount(childId)+getAvatarOwned(childId).length}개 보유</span>
-                  </span>
-                </span>
-                <span style={{fontSize:18,opacity:kidSkin==="cute"?0.6:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)"}}>›</span>
-              </button>
-
-              {/* 아바타 꾸미기 진입은 꾸미기 상점 모달 안으로 통합 (홈 별도 카드 제거, 기능은 상점 내 버튼으로 유지) */}
-
-              {/* 보물창고 카드 — 내용은 src/components/camp/TreasureSheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 5/6).
-                   두근두근 연출·결과 모달은 원래부터 전체 화면 오버레이라 App에 그대로 있다. */}
-              <div style={kidSkin==="cute"
-                ? {...characterCardT, boxShadow:getTotalTreasureCount(childId)>0?`0 12px 26px ${th.main}30, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -7px 15px ${th.main}1f, 0 0 0 2px #F5B30166`:characterCardT.boxShadow}
-                : {...skyCard("#7EA7B5","#6E929E"),...(getTotalTreasureCount(childId)>0?{border:`2px solid ${GP.gold}55`}:{})}}>
-                <CharacterSectionHeader
-                  dark={kidSkin!=="cute"} sheet
-                  icon={TM.bookEmoji} title={TM.book}
-                  subtitle={getTotalTreasureCount(childId)>0
-                    ?`${getBoxInfo("normal",kidSkin).emoji} ${getChildTreasure(childId).normalBox}  ${getBoxInfo("rare",kidSkin).emoji} ${getChildTreasure(childId).rareBox}  ${getBoxInfo("legend",kidSkin).emoji} ${getChildTreasure(childId).legendBox}  ← 탭해서 열기!`
-                    :`미션을 완료하면 ${kidSkin==="cute"?TM.box:"상자"}를 받아요 · ${getChildTreasure(childId).completedQuestCount} ${kidSkin==="cute"?"도장 꾹":"CLEAR"}`}
-                  open={openTreasure} onToggle={()=>setOpenTreasure(true)}
-                />
-              </div>
-
-              {/* 나의 펫 카드 — 내용은 src/components/camp/PetSheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 4/6) */}
+              {/* ── 캠프 (캐릭터 탭 본문) ─────────────────────────────────────
+                   [사용자 확정] 카드 목록으로 세로로 길게 늘어놓던 것을
+                   텐트 하나 + 그루터기 여덟 개의 캠프 그림으로 바꿨다.
+                   내용은 전부 바텀시트로 옮겨 둔 상태라(캠프 개편 1~6/6)
+                   여기서 없어진 것은 '목록 겉모습'뿐이고 기능은 그대로다.
+                   상태 정보(레벨·경험치·코인·XP·상장)는 텐트가 이어받았다 —
+                   그래서 childHud를 따로 얹지 않는다.
+                   그리기는 CampScene, 데이터·동작은 여기(App)에 남는다. */}
               {(()=>{
-                const stage=getPetStage(childId);
-                const pet=petView(PET_STAGES[stage],stage,kidSkin);
-                const isMax=stage>=PET_STAGES.length-1;
+                const level=getChildLevel(childId);
+                const pet=petView(PET_STAGES[getPetStage(childId)],getPetStage(childId),kidSkin);
+                const tre=getChildTreasure(childId);
+                const boxCnt=getTotalTreasureCount(childId);
+                const found=getCollectedCount(discoveryData,childId);
                 return (
-                  <div style={skyCard("#7BA3B2","#6A8F9D")}>
-                    <CharacterSectionHeader
-                      dark={kidSkin!=="cute"} sheet
-                      icon={kidSkin==="cute"?"🦄":"🐾"} title="나의 펫"
-                      subtitle={`${TM.boxEmoji} ${TM.box}를 열면 펫이 조금씩 자라요\n${pet.emoji} ${pet.name}${isMax?" · 최종 성장 🏆":""}`}
-                      open={openPet} onToggle={()=>setOpenPet(true)}
-                    />
-                  </div>
+                  <CampScene
+                    title={getSelectedTitle(childId)}
+                    level={level}
+                    nextLevel={getNextLevel(childId)}
+                    progress={getLevelProgressInfo(childId)}
+                    coin={getChildCoin(childId)} xp={getChildXP(childId)}
+                    labels={{coin:TM.coin,xp:TM.xp,coinEmoji:TM.coinEmoji,xpEmoji:TM.xpEmoji}}
+                    stations={[
+                      { key:"deco", img:"st-deco.webp", name:kidSkin==="cute"?"꾸미기 가게":"꾸미기 상점",
+                        badge:`${getOwnedCount(childId)+getAvatarOwned(childId).length}개 보유`,
+                        onPress:()=>setShowDecorShop(true) },
+                      { key:"item", img:"st-item.webp", name:"아이템 상점",
+                        badge:`총 구매 ${getApprovedRewardCount(childId)}개`,
+                        onPress:()=>setOpenRewardShop(true) },
+                      { key:"box", img:"st-box.webp", name:TM.book,
+                        badge:boxCnt>0?`상자 ${boxCnt}개`:"상자 없음",
+                        onPress:()=>setOpenTreasure(true) },
+                      { key:"pet", img:"st-pet.webp", name:"나의 펫",
+                        badge:pet.name, onPress:()=>setOpenPet(true) },
+                      { key:"book", img:"st-book.webp", name:"발견 도감",
+                        badge:`${found} / ${DISCOVERIES.length}`,
+                        onPress:()=>setOpenDiscoveryBook(true) },
+                      { key:"title", img:"st-title.webp", name:"상장",
+                        badge:`${getUnlockedTitles(childId).length} / ${getAllTitles(childId).length}개`,
+                        onPress:()=>setOpenTitle(true) },
+                      { key:"streak", img:"st-streak.webp", name:"연속 달성",
+                        badge:`현재 ${getQuestStreak(childId)}일`,
+                        onPress:()=>setOpenStreak(true) },
+                      { key:"history", img:"st-history.webp", name:T.logName||"탐험 기록",
+                        badge:`최근 ${getScoreHistory(childId).length}건`,
+                        onPress:()=>setOpenHistory(true) },
+                    ]}
+                  />
                 );
               })()}
-
-              {/* 섹션 구분 — 내 기록 */}
-              <div style={{display:"flex",alignItems:"center",gap:12,margin:"30px 2px 16px"}}>
-                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}00, ${th.main}55)`:"linear-gradient(90deg, rgba(138,119,95,0) 10%, rgba(138,119,95,0.4))"}}/>
-                <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:kidSkin==="cute"?th.main:"#8A775F"}}>📜 내 기록</span>
-                <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:"linear-gradient(90deg, rgba(138,119,95,0.4), rgba(138,119,95,0) 90%)"}}/>
-              </div>
-
-              {/* 상장 카드 — 내용은 src/components/camp/TitleSheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 2/6) */}
-              <div style={skyCard("#6F95A5","#61828F")}>
-                <CharacterSectionHeader
-                  dark={kidSkin!=="cute"} sheet
-                  icon="👑" title="상장"
-                  subtitle={`받은 상장을 골라 캐릭터 옆에 전시할 수 있어요\n${getUnlockedTitles(childId).length}/${getAllTitles(childId).length}개 획득`}
-                  open={openTitle} onToggle={()=>setOpenTitle(true)}
-                />
-              </div>
-
-              {/* 연속 달성 카드 — 내용은 src/components/camp/StreakSheet.jsx 로 분리 (CLAUDE.md 3).
-                   캠프 개편을 위해 아코디언을 시트로 옮기는 중이다. 카드 머리줄은 그대로. */}
-              <div style={skyCard("#82A8B5","#71939F")}>
-                <CharacterSectionHeader
-                  dark={kidSkin!=="cute"} sheet
-                  icon="🔥" title="연속 달성"
-                  subtitle={`매일 미션을 해내면 며칠 연속인지 쌓여요\n현재 ${getQuestStreak(childId)}일 · 최고기록 ${getBestStreak(childId)}일`}
-                  open={openStreak} onToggle={()=>setOpenStreak(true)}
-                />
-              </div>
-
-              {/* 탐험 기록 카드 — 내용은 src/components/camp/HistorySheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 3/6) */}
-              <div style={skyCard("#7398A8","#648492")}>
-                <CharacterSectionHeader
-                  dark={kidSkin!=="cute"} sheet
-                  icon="📖" title={T.logName||"활동 기록"}
-                  subtitle="최근 미션·보상·아이템 활동 기록"
-                  open={openHistory} onToggle={()=>setOpenHistory(true)}
-                />
-              </div>
             </>
           )}
         </div>
