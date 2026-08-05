@@ -7,7 +7,10 @@ import { UI_TEXT } from "../data/characters.js";
    SECTION 7. 순수 뷰 헬퍼 & 작은 프레젠테이션 컴포넌트
    ════════════════════════════════════════════════════════════════════════ */
 
-export function CharacterSectionHeader({icon,title,subtitle,open,onToggle,dark=false}){
+/* sheet=true면 '제자리에서 펼치는' 아코디언이 아니라 '따로 뜨는 시트'를 여는 머리줄이다.
+   [2026-08-03] 캐릭터 탭을 캠프 장면으로 바꾸면서 섹션을 하나씩 시트로 옮기는 중 —
+   옮긴 것만 sheet를 켜면, 화살표(▼) 대신 '열기 ›'로 바뀌어 눌렀을 때 뭐가 일어날지 맞는다. */
+export function CharacterSectionHeader({icon,title,subtitle,open,onToggle,dark=false,sheet=false}){
   const tx = dark ? "#FFFFFF" : C.text;
   const sub = dark ? "rgba(255,255,255,0.85)" : C.sub;  // 0.66 → 0.85: 청회색 카드 위 12px 부제 가독성
   return (
@@ -17,7 +20,7 @@ export function CharacterSectionHeader({icon,title,subtitle,open,onToggle,dark=f
         {subtitle&&<p style={{margin:"4px 0 0",fontSize:12,color:sub,fontWeight:700,whiteSpace:"pre-line",lineHeight:1.5}}>{subtitle}</p>}
       </div>
       <div style={{fontSize:12,fontWeight:900,color:dark?"#fff":C.purple,background:dark?"rgba(255,255,255,0.12)":C.purpleL,border:`1px solid ${dark?"rgba(255,255,255,0.2)":C.purple+"22"}`,padding:"6px 10px",borderRadius:999,whiteSpace:"nowrap",flexShrink:0}}>
-        {open?UI_TEXT.button.close:UI_TEXT.button.open}
+        {sheet?"열기 ›":(open?UI_TEXT.button.close:UI_TEXT.button.open)}
       </div>
     </div>
   );
