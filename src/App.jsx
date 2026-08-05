@@ -17,6 +17,7 @@ import { getExpeditionMount, getExpeditionRarity, MOUNTS } from "./data/expediti
 import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import CampPrototype from "./components/camp/CampPrototype.jsx";
+import StreakSheet from "./components/camp/StreakSheet.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
@@ -3485,6 +3486,13 @@ export default function App() {
           );
         })()}
 
+        {/* 연속 달성 시트 — 캐릭터 탭 '연속 달성' 카드에서 연다.
+             [주의] 캐릭터 탭은 아이 모드(appMode==="child")의 반환부 안에 있다.
+             시트도 반드시 이 반환부 안에 있어야 한다 — 파일 끝의 부모 모드 반환부에
+             넣으면 아이 모드에서는 아예 렌더되지 않는다 (처음에 그 실수를 했다). */}
+        <StreakSheet open={openStreak} onClose={()=>setOpenStreak(false)}
+          dark={kidSkin!=="cute"} streak={getQuestStreak(childId)} best={getBestStreak(childId)}
+          faint={CT.faint} gold={GP.gold} />
         {/* ── 아바타 꾸미기 상점 모달 (신규) ── */}
         <EquipmentShop
           open={showEquipShop}
@@ -4451,33 +4459,15 @@ export default function App() {
                 })()}
               </div>
 
-              {/* 연속 달성 카드 */}
+              {/* 연속 달성 카드 — 내용은 src/components/camp/StreakSheet.jsx 로 분리 (CLAUDE.md 3).
+                   캠프 개편을 위해 아코디언을 시트로 옮기는 중이다. 카드 머리줄은 그대로. */}
               <div style={skyCard("#82A8B5","#71939F")}>
                 <CharacterSectionHeader
-                  dark={kidSkin!=="cute"}
+                  dark={kidSkin!=="cute"} sheet
                   icon="🔥" title="연속 달성"
                   subtitle={`매일 미션을 해내면 며칠 연속인지 쌓여요\n현재 ${getQuestStreak(childId)}일 · 최고기록 ${getBestStreak(childId)}일`}
-                  open={openStreak} onToggle={()=>setOpenStreak(v=>!v)}
+                  open={openStreak} onToggle={()=>setOpenStreak(true)}
                 />
-                {openStreak&&(()=>{
-                  const dungeon = kidSkin!=="cute";
-                  return (
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:12}}>
-                    <div style={dungeon
-                      ?{background:"linear-gradient(135deg, #2E2740 0%, #5A3A2A 100%)",borderRadius:12,padding:"9px 8px",textAlign:"center",border:"1px solid rgba(255,176,99,0.34)",boxShadow:"0 0 11px rgba(255,150,70,0.14) inset, 0 4px 12px rgba(8,16,40,0.4)"}
-                      :{background:CT.faint,borderRadius:12,padding:"7px 8px",textAlign:"center",border:`1px solid ${C.border}`}}>
-                      <p style={{fontSize:11,color:dungeon?"rgba(255,205,160,0.9)":C.sub,fontWeight:800,margin:"0 0 3px"}}>🔥 현재</p>
-                      <p style={{fontSize:dungeon?22:16,fontWeight:900,margin:0,lineHeight:1,color:dungeon?"#FFAE63":C.text,textShadow:dungeon?"0 0 12px rgba(255,174,99,0.4)":"none"}}>{getQuestStreak(childId)}<span style={{fontSize:dungeon?12:12,marginLeft:2}}>일</span></p>
-                    </div>
-                    <div style={dungeon
-                      ?{background:"linear-gradient(135deg, #2E2740 0%, #5E4E28 100%)",borderRadius:12,padding:"9px 8px",textAlign:"center",border:"1px solid rgba(255,216,107,0.34)",boxShadow:"0 0 12px rgba(255,216,107,0.15) inset, 0 4px 12px rgba(8,16,40,0.4)"}
-                      :{background:CT.faint,borderRadius:12,padding:"7px 8px",textAlign:"center",border:`1px solid ${C.border}`}}>
-                      <p style={{fontSize:11,color:dungeon?"rgba(255,228,160,0.9)":C.sub,fontWeight:800,margin:"0 0 3px"}}>🏆 최고기록</p>
-                      <p style={{fontSize:dungeon?22:16,fontWeight:900,margin:0,lineHeight:1,color:dungeon?"#FFD86B":GP.gold,textShadow:dungeon?"0 0 12px rgba(255,216,107,0.4)":"none"}}>{getBestStreak(childId)}<span style={{fontSize:dungeon?12:12,marginLeft:2}}>일</span></p>
-                    </div>
-                  </div>
-                  );
-                })()}
               </div>
 
               {/* 탐험 기록 카드 */}
