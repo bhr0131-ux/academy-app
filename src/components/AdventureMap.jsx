@@ -83,23 +83,23 @@ const ANIMAL_IMG = {
   ev_toucan: "assets/map-ev/toucan.webp",
   ev_boar:   "assets/map-ev/boar.webp",
   ev_frog:   "assets/map-ev/frog.webp",
+  ev_butterfly: "assets/map-ev/butterfly.webp",
+  ev_turtle: "assets/map-ev/turtle.webp",
 };
 /* 원화 실측 가로/세로 — 말풍선을 동물 '머리 위'에 놓으려면 높이를 알아야 한다.
    폭만 %로 주고 높이는 비율로 따라오므로, 지도 높이 % 로 환산해서 쓴다:
      높이% = 폭% / (원화비율 × 지도세로비) */
 const ANIMAL_AR = { ev_parrot: 738/1158, ev_monkey: 911/1051, ev_toucan: 967/809,
-                    ev_boar: 870/749, ev_frog: 1406/886 };
+                    ev_boar: 870/749, ev_frog: 1406/886,
+                    ev_butterfly: 240/249, ev_turtle: 300/175 };
 const animalTop = (M, id) => {
   const a = M.animals?.[id]; if (!a) return null;
   const [ax, by, aw] = a;
   return [ax, by - aw / (ANIMAL_AR[id] * M.yr)];
 };
 
-const EV_IMG = {
-  ev_rainbow: "assets/map-ev/rainbow.webp",
-  ev_butterfly: "assets/map-ev/butterfly.webp",
-  ev_turtle: "assets/map-ev/turtle.webp",
-};
+/* 무지개만 남은 '하늘' 그림 — 동물처럼 땅에 서지 않아 중심 기준으로 놓는다 */
+const EV_IMG = { ev_rainbow: "assets/map-ev/rainbow.webp" };
 
 const MAP_LONG = {
   bg: "assets/adventure-map.webp",
@@ -111,10 +111,13 @@ const MAP_LONG = {
   chestOpen: [37, 93, 16],    // 도착하면 같은 자리에 '열린 상자'로 갈아 끼운다
   cdy: 5.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   // 동물 다섯 [중심x%, 바닥y%, 폭%] — 하루 두 마리만 나온다 (rollMapAnimals)
-  animals: { ev_parrot: [82, 30, 16], ev_monkey: [70, 54, 20], ev_toucan: [15, 74, 20], ev_boar: [85, 73, 17], ev_frog: [14, 86, 20] },
+  animals: { ev_parrot: [82, 30, 16], ev_monkey: [70, 54, 20], ev_toucan: [15, 74, 20],
+             ev_boar: [85, 73, 17], ev_frog: [14, 86, 20],
+             /* 나비·거북이는 예전 '손님' 자리(중심 기준)를 바닥 기준으로 환산해 옮겼다 */
+             ev_butterfly: [28, 25.3, 9], ev_turtle: [28, 92.7, 12] },
   /* [사용자 확정 2026-07-31] 지도 원화에 없는 손님 3종은 '그날만' 그려 넣는다.
      [중심x%, 중심y%, 폭%] — 평소엔 아예 없다가 그 이벤트가 걸린 날에만 나타난다. */
-  evImg: { ev_rainbow: [64, 6, 30], ev_butterfly: [28, 23, 9], ev_turtle: [28, 91, 12] },
+  evImg: { ev_rainbow: [64, 6, 30] },
   yr: 1778 / 885,
   bw: 18, fs: 17,   // 건물 표시 폭(%)·이모지 크기 (사용자 조정: 자리 8곳 배치에 맞춰 30% 축소)
   fpk: 46,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 64→46)
@@ -174,8 +177,10 @@ const MAP_SHORT = {
   chestOpen: [32, 93, 17],
   cdy: 6.5,         // 진행도 칩(🔒 n/N)을 상자 아래로 내리는 오프셋 (지도 높이 % — 상자 안 가리게)
   // 원화에 그려진 동물들의 머리 위 좌표 (%) — 랜덤 이벤트 날 👋 말풍선 자리 (그리드 실측)
-  animals: { ev_parrot: [83, 32, 17], ev_monkey: [72, 56, 21], ev_toucan: [15, 73, 21], ev_boar: [86, 74, 18], ev_frog: [14, 86, 21] },
-  evImg: { ev_rainbow: [62, 5.5, 31], ev_butterfly: [28, 24, 10], ev_turtle: [27, 89, 13] },
+  animals: { ev_parrot: [83, 32, 17], ev_monkey: [72, 56, 21], ev_toucan: [15, 73, 21],
+             ev_boar: [86, 74, 18], ev_frog: [14, 86, 21],
+             ev_butterfly: [28, 26.8, 10], ev_turtle: [27, 91.1, 13] },
+  evImg: { ev_rainbow: [62, 5.5, 31] },
   yr: 1704 / 923,
   bw: 21, fs: 19,   // 짧은 지도 건물 크기 (사용자 조정: v8 세트에서 약간 더 축소 23→21)
   fpk: 36,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 50→36)
@@ -235,7 +240,7 @@ const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); ret
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
 // onPick: 학원 건물 탭 → 탐험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
-export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, spark = null, onSparkPass = null, eventId = null, dayAnimals = [] }) {
+export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, spark = null, onSparkPass = null, eventId = null, dayAnimals = [], showRainbow = false }) {
   const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
   const n = sorted.length;
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
@@ -251,6 +256,28 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   const spots = M.spots[n]
     ? M.spots[n]
     : sorted.map((_, i) => pointAt((i + 1) / (n + 1)));
+  /* ── 오늘 지도에 나올 동물 두 마리 ──────────────────────────────────
+     dayAnimals 는 일곱 마리의 '오늘 순서'다. 여기서 앞에서부터 두 마리를
+     고르되, **오늘 세워진 건물이 덮는 자리의 동물은 건너뛴다.**
+     동물 자리를 건물 피해 옮겨 봤더니 폭포 위나 지도 가장자리로 밀려나
+     오히려 어색했다 — 자리는 좋은 곳에 두고, 가리는 날엔 다른 동물이 나온다.
+     일곱 자리 중 건물이 덮는 것은 많아야 셋이라 두 마리는 늘 남는다. */
+  const shownAnimals = (() => {
+    const bh = M.bw / 0.95 / M.yr;                       // 건물 그림의 대략 높이(%)
+    const boxes = spots.map(([sx, sy]) => ({
+      x0: sx - M.bw / 2, x1: sx + M.bw / 2,
+      y0: sy - bh * 0.78, y1: sy + bh * 0.22,
+    }));
+    const clear = (id) => {
+      const a = M.animals?.[id]; if (!a) return false;
+      const [cx, by, aw] = a;
+      const ah = aw / ((ANIMAL_AR[id] || 1) * M.yr);
+      return !boxes.some(b => cx - aw / 2 < b.x1 && cx + aw / 2 > b.x0 && by - ah < b.y1 && by > b.y0);
+    };
+    const ok = dayAnimals.filter(clear).slice(0, 2);
+    return ok.length >= 2 ? ok : dayAnimals.slice(0, 2);  // 만에 하나 다 막히면 순서대로
+  })();
+
   // 도착 지점 = '건물이 길에 걸쳐지는 지점' (사용자 확정).
   // 자리 좌표(sx,sy)는 건물의 밑동 기준점이라 그림 몸통보다 아래 → 그림 세로 중심으로 보정한 뒤
   // 길에서 가장 가까운 지점 t를 찾는다. (그 지점이 곧 건물과 길이 겹치는 곳)
@@ -446,7 +473,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
              [사용자 확정 2026-08-05] 예전에는 지도 원화에 다섯 마리가 그려져 있어 늘 같았다.
              새 지도는 동물이 없는 판이라 따로 얹고, 하루 두 마리만 나온다.
              배경 바로 위(zIndex 없음)에 둬야 발자국·캐릭터가 동물 앞을 지나간다. ── */}
-      {dayAnimals.map(id => {
+      {shownAnimals.map(id => {
         const a = M.animals?.[id]; if (!a || !ANIMAL_IMG[id]) return null;
         const [ax, ay, aw] = a;
         return (
@@ -594,25 +621,20 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         </div>
       )}
 
-      {/* ── 랜덤 이벤트 — 지도에 없던 손님 (나비·거북이·무지개) ──
-             [사용자 확정] 평소엔 지도에 없다가 그 이벤트가 걸린 날에만 나타난다.
-             무지개는 동물이 아니라 👋 말풍선을 붙이지 않는다. ── */}
-      {eventId && M.evImg?.[eventId] && EV_IMG[eventId] && (() => {
-        const [ax, ay, aw] = M.evImg[eventId];
-        const wave = eventId !== "ev_rainbow";
+      {/* ── 무지개 ──
+             [사용자 확정 2026-08-05] '그날만 오는 손님' 개념을 없앴다. 나비·거북이는
+             동물 일곱에 합류해 하루 두 마리 뽑기에 들어갔고, 여기 남은 건 무지개뿐이다.
+             무지개는 땅에 서지 않으므로 중심 기준으로 놓고, 동물이 아니라 👋도 안 붙인다.
+             나오는 빈도는 rollRainbow(5%)가 정한다 — 동물보다 드물게. ── */}
+      {showRainbow && M.evImg?.ev_rainbow && (() => {
+        const [ax, ay, aw] = M.evImg.ev_rainbow;
         return (
           <div style={{ position: "absolute", left: `${ax}%`, top: `${ay}%`, width: `${aw}%`,
             transform: "translate(-50%,-50%)", pointerEvents: "none", zIndex: 2 }}>
-            <img src={EV_IMG[eventId]} alt="" draggable={false}
+            <img src={EV_IMG.ev_rainbow} alt="" draggable={false}
               style={{ width: "100%", display: "block",
-                animation: wave ? "amGuest 2.4s ease-in-out infinite" : "amGuestSky 4s ease-in-out infinite",
+                animation: "amGuestSky 4s ease-in-out infinite",
                 filter: "drop-shadow(0 2px 5px rgba(60,80,40,0.3))" }} />
-            {wave && (
-              <div style={{ position: "absolute", left: "50%", bottom: "100%", transform: "translateX(-50%)", marginBottom: 2,
-                background: "rgba(255,251,240,0.95)", border: "1px solid rgba(155,114,74,0.4)",
-                borderRadius: 999, padding: "2px 6px", fontSize: 11, lineHeight: 1.3, whiteSpace: "nowrap",
-                boxShadow: "0 2px 5px rgba(60,80,40,0.25)" }}>👋</div>
-            )}
           </div>
         );
       })()}
@@ -620,7 +642,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       {/* ── 랜덤 이벤트 — 오늘 만난 동물 머리 위 👋 말풍선 (사용자 확정) ──
              이벤트는 날짜 고정 시드라 하루 종일 같은 동물이 인사한다. 발견 여부와
              무관하게 종일 보여준다 — 지도를 보는 재미가 목적이라서. ── */}
-      {eventId && dayAnimals.includes(eventId) && animalTop(M, eventId) && (() => {
+      {eventId && shownAnimals.includes(eventId) && animalTop(M, eventId) && (() => {
         const [ax, ay] = animalTop(M, eventId);
         return (
           <div style={{ position: "absolute", left: `${ax}%`, top: `${ay}%`,

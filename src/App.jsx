@@ -8,7 +8,7 @@ import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./comp
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
-import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollMapAnimals, rollSparkT } from "./data/discoveries.js";
+import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollMapAnimals, rollRainbow, rollSparkT } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
@@ -3779,6 +3779,8 @@ export default function App() {
                            이벤트 동물이 그 다섯 중 하나면 반드시 포함된다 —
                            없는 동물 위에 👋 말풍선만 뜨는 일이 없도록. */
                         dayAnimals={rollMapAnimals(childId,childDate||TODAY,rollEvent(childId,childDate||TODAY)?.id||null)}
+                        /* 무지개는 동물 뽑기와 별개로 드물게(5%) 뜬다 */
+                        showRainbow={rollRainbow(childId,childDate||TODAY,rollEvent(childId,childDate||TODAY)?.id||null)}
                       />
                     </div>
                     </>

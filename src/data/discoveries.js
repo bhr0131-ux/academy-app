@@ -221,26 +221,46 @@ export function rollEvent(childId, dateStr) {
 }
 
 /* ── 지도에 오늘 나오는 동물 (사용자 확정 2026-08-05) ─────────────────────
-   예전에는 다섯 마리가 지도 원화에 그려져 있어 늘 같은 자리에 있었다.
-   새 지도는 동물이 없는 판이고, 다섯 마리를 따로 얹는다 —
-   그중 **하루 두 마리만** 나온다. 매일 다른 조합이라 지도를 열 때
+   예전에는 다섯 마리가 지도 원화에 그려져 있어 늘 같은 자리에 있었고,
+   나비·거북이·무지개는 '그날만 오는 손님'이라 이벤트 날에만 나왔다.
+   [사용자 확정] 그 구분을 없앤다 — 무지개를 뺀 **일곱**을 똑같이 취급하고
+   그중 **하루 두 마리만** 나온다. 매일 조합이 달라 지도를 열 때
    "오늘은 누가 있지?" 하는 재미가 생긴다.
 
    날짜 고정 시드라 하루 종일 같은 두 마리다 (저장하지 않고 다시 계산).
-   그날 이벤트 동물이 이 다섯 중 하나면 반드시 포함시킨다 —
-   안 그러면 없는 동물 머리 위에 👋 말풍선만 뜬다. */
-export const MAP_ANIMALS = ["ev_parrot", "ev_monkey", "ev_toucan", "ev_boar", "ev_frog"];
+   그날 이벤트 동물이 이 일곱 중 하나면 맨 앞에 둔다 —
+   안 그러면 없는 동물 머리 위에 👋 말풍선만 뜬다.
+
+   [주의] 여기서는 '일곱 마리 전부를 오늘의 순서로' 돌려준다. 앞에서 두 마리를
+   고르는 것은 지도 쪽 몫이다 — 학원 건물이 동물을 덮는 자리가 있어서,
+   오늘 건물이 가리는 동물은 건너뛰고 다음 순서를 쓴다. 자리를 억지로
+   비켜 놓으면 폭포 위나 지도 가장자리처럼 어색한 곳으로 밀려난다. */
+export const MAP_ANIMALS = ["ev_parrot", "ev_monkey", "ev_toucan", "ev_boar", "ev_frog",
+                            "ev_butterfly", "ev_turtle"];
 export function rollMapAnimals(childId, dateStr, eventId = null) {
   const pool = MAP_ANIMALS.slice();
   const out = [];
   if (eventId && pool.includes(eventId)) out.push(...pool.splice(pool.indexOf(eventId), 1));
   let h = hash32(`${childId}|${dateStr}|animals`);
-  while (out.length < 2 && pool.length) {
+  while (pool.length) {
     out.push(...pool.splice(h % pool.length, 1));
-    h = (h >>> 7) ^ (h * 31 >>> 0);          // 두 번째는 다른 비트로 뽑는다
-    h = h >>> 0;
+    h = ((h >>> 7) ^ (h * 31 >>> 0)) >>> 0;   // 다음 뽑기는 다른 비트로
   }
-  return out;
+  return out;   // 일곱 마리 전부를 '오늘의 순서'로 — 지도가 앞에서 두 마리를 고른다
+}
+
+
+/* ── 무지개 (사용자 확정 2026-08-05) ────────────────────────────────────
+   동물 일곱은 하루 두 마리씩 돌아가며 나오지만, 무지개는 그것들과 달리
+   **드물게** 뜬다 — 하늘에 걸리는 것이라 자주 보이면 특별함이 없다.
+   5%, 스무 날에 하루꼴이다. 동물 뽑기와 별개의 시드를 쓴다.
+   그날 이벤트가 무지개로 걸렸다면(rollEvent) 확률과 무관하게 띄운다 —
+   "하늘에 무지개가 떴어!"라는 메시지만 뜨고 하늘은 비어 있으면 이상하다.
+   그래서 실제로 뜨는 날은 5%가 아니라 약 7%다 (2년치 730일로 재 보니 51일).
+   동물 한 종이 28.6%인 것에 비하면 네 배 드물다. */
+export function rollRainbow(childId, dateStr, eventId = null) {
+  if (eventId === "ev_rainbow") return true;
+  return hash32(`${childId}|${dateStr}|rainbow`) % 100 < 5;
 }
 
 /* ── 지도 발견 지점 (사용자 확정 ②) ─────────────────────────────────────
