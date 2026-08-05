@@ -12,9 +12,13 @@ import { useLayoutEffect, useRef, useState } from "react";
    구조 (원화가 오면 그림만 갈아 끼운다)
      배경   : 지금은 CSS 그라데이션(하늘→잔디+흙길). → 세로로 긴 원화 1장
      텐트   : 지금은 CSS 도형. → 투명 배경 원화 1장. 천막 패널 위에 상태를 얹는다
-     스테이션: 지금은 이모지+그루터기 타원. → 투명 배경 원화 8장
-              ※ 이름표(초록 알약)와 뱃지는 원화에 넣지 않는다 — 여기서 그린다.
-                숫자가 살아 움직여야 하고, 이름 길이에 맞춰 폭이 달라져야 한다.
+     스테이션: 원화 세 장을 겹쳐서 만든다 [사용자 확정 2026-08-05]
+              ① 아이콘(그루터기+물건) — 스테이션마다 다른 유일한 그림, 8장 필요
+              ② 초록 이름표 판 — 8개 공통 1장
+              ③ 베이지 명패 판 — 8개 공통 1장
+              판을 공통으로 쓰니 여덟 칸의 판 위치·크기가 저절로 똑같아진다
+              (원화마다 판을 그려 넣으면 조금씩 어긋나서 글자가 삐뚤어졌다).
+              글자는 판 위에 앱이 얹는다 — 숫자가 살아 움직여야 하기 때문.
 
    색은 사용자가 준 원화 픽셀에서 직접 뽑았다 (임의로 정하지 않았다).
    ════════════════════════════════════════════════════════════════════════ */
@@ -46,7 +50,7 @@ export const CAMP = {
 const STATIONS = [
   { key:"deco",    emoji:"👕", name:"꾸미기 상점", badge:"21개 보유" },
   { key:"item",    emoji:"🛒", name:"아이템 상점", badge:"총 구매 3개" },
-  { key:"box",     emoji:"🎁", name:"보물창고",   badge:"상자 3개" },
+  { key:"box",     emoji:"🎁", name:"보물창고",   badge:"상자 3개", img:"st-box.webp" },
   { key:"pet",     emoji:"🐣", name:"나의 펫",    badge:"아기 드래곤" },
   { key:"book",    emoji:"📖", name:"발견 도감",   badge:"10 / 59" },
   { key:"title",   emoji:"👑", name:"상장",       badge:"1 / 20개" },
@@ -63,7 +67,19 @@ const SIZES = {
 };
 const CONTENT_W = 360;      // 탭 안쪽 폭 (좌우 15px 여백)
 const TAB_W = 390;          // 폰 폭 기준
-const ART_AR = 983 / 1022;  // 스테이션 원화 실측 가로/세로
+/* 원화 실측 가로/세로 — 여백을 잘라낸 그림 자체의 비율 */
+const ART_AR   = 1073 / 907;   // 스테이션 아이콘 (그루터기+물건)
+const NAME_AR  = 964 / 334;    // 초록 이름표 판
+const BADGE_AR = 842 / 210;    // 베이지 명패 판
+/* 판을 얼마나 크게 놓을지 (스테이션 폭 대비) — 참고 합본 비율에서 잡았다 */
+const NAME_W  = 0.72;
+const BADGE_W = 0.62;
+/* 겹침 — 이름표는 아이콘 밑동에, 명패는 이름표 아래에 살짝 물린다 */
+const NAME_OVER  = 0.30;   // 이름표 높이의 30%만큼 아이콘과 겹침
+const BADGE_OVER = 0.34;   // 명패 높이의 34%만큼 이름표와 겹침
+/* 판 안쪽(테두리 제외) 비율 — 글자 크기를 여기에 맞춘다 */
+const NAME_INNER  = 270 / 334;
+const BADGE_INNER = 160 / 210;
 const TENT_AR = 1209 / 1095;// 텐트 원화 실측 가로/세로
 const BG_W = 1086;          // 배경 원화 가로 (사용자가 준 그림 기준)
 
@@ -74,6 +90,11 @@ export default function CampPrototype({ onClose }) {
   const S = SIZES[sz];
   const stW = (CONTENT_W - S.gap) / 2;          // 스테이션 한 칸 폭
   const artH = stW / ART_AR;                     // 그루터기+물건 그림 높이
+  /* 판 두 장 — 원화 비율 그대로 놓고, 글자는 '판 안쪽 높이'에 맞춰 키운다 */
+  const nameW  = stW * NAME_W,  nameH  = nameW / NAME_AR;
+  const badgeW = stW * BADGE_W, badgeH = badgeW / BADGE_AR;
+  const nameF  = Math.round(nameH * NAME_INNER * 0.52);
+  const badgeF = Math.round(badgeH * BADGE_INNER * 0.62 * 10) / 10;
   const tentH = S.tentW / TENT_AR;
 
   useLayoutEffect(() => {
@@ -118,7 +139,8 @@ export default function CampPrototype({ onClose }) {
           ))}
         </div>
         <p style={{ margin:0, fontSize:11.5, fontWeight:700, color:CAMP.inkSub, lineHeight:1.6 }}>
-          스테이션 {Math.round(stW)}×{Math.round(artH)}px · 이름표 {S.name}px · 뱃지 {S.badgeF}px<br />
+          스테이션 {Math.round(stW)}×{Math.round(artH)}px · 이름표 판 {Math.round(nameW)}×{Math.round(nameH)}({nameF}px 글자)
+          · 명패 판 {Math.round(badgeW)}×{Math.round(badgeH)}({badgeF}px 글자)<br />
           전체 높이 <b style={{ color:CAMP.ink }}>{h}px</b> · 한 화면(620px)에서 {Math.max(0, h - 620)}px 스크롤<br />
           → 배경 원화 <b style={{ color:CAMP.ink }}>{BG_W} × {bgNeed}</b> 필요
         </p>
@@ -174,19 +196,40 @@ export default function CampPrototype({ onClose }) {
             {STATIONS.map(st => (
               <button key={st.key} onClick={() => {}} style={{ width:stW, border:"none", background:"none",
                 padding:0, cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center" }}>
-                {/* 그루터기 + 물건 자리 (원화로 교체) */}
-                <div style={{ width:stW, height:artH, position:"relative" }}>
-                  <div style={{ position:"absolute", left:0, right:0, top:"6%", textAlign:"center",
-                    fontSize:artH * 0.42, lineHeight:1 }}>{st.emoji}</div>
-                  {/* 그루터기 */}
-                  <div style={{ position:"absolute", left:"12%", right:"12%", bottom:"6%", height:"26%",
-                    background:`linear-gradient(180deg, ${CAMP.wood}, ${CAMP.woodD})`,
-                    borderRadius:"50% 50% 46% 46% / 34% 34% 22% 22%",
-                    boxShadow:"0 3px 6px rgba(74,52,24,0.3)" }} />
+                {/* ① 아이콘 — 그루터기+물건. 스테이션마다 다른 유일한 그림 */}
+                {st.img
+                  ? <img src={`assets/camp/${st.img}`} alt="" draggable={false}
+                      style={{ width:stW, height:artH, display:"block" }} />
+                  : <div style={{ width:stW, height:artH, position:"relative" }}>
+                      <div style={{ position:"absolute", left:0, right:0, top:"6%", textAlign:"center",
+                        fontSize:artH * 0.42, lineHeight:1 }}>{st.emoji}</div>
+                      <div style={{ position:"absolute", left:"12%", right:"12%", bottom:"6%", height:"26%",
+                        background:`linear-gradient(180deg, ${CAMP.wood}, ${CAMP.woodD})`,
+                        borderRadius:"50% 50% 46% 46% / 34% 34% 22% 22%",
+                        boxShadow:"0 3px 6px rgba(74,52,24,0.3)" }} />
+                    </div>}
+                {/* ② 초록 이름표 — 판은 8개 공통 원화, 글자만 얹는다 */}
+                <div style={{ width:nameW, height:nameH, position:"relative", zIndex:2,
+                  marginTop:-nameH * NAME_OVER }}>
+                  <img src="assets/camp/plate-name.webp" alt="" draggable={false}
+                    style={{ width:"100%", height:"100%", display:"block" }} />
+                  <span style={{ position:"absolute", inset:0, display:"flex", alignItems:"center",
+                    justifyContent:"center", fontSize:nameF, fontWeight:900, color:CAMP.labelInk,
+                    letterSpacing:-0.2, textShadow:"0 1px 2px rgba(60,44,14,0.45)", whiteSpace:"nowrap" }}>
+                    {st.name}
+                  </span>
                 </div>
-                {/* 이름표 — 원화에 넣지 않고 여기서 그린다 */}
-                <span style={{ ...pill, marginTop:-S.pill * 0.55, position:"relative", zIndex:1 }}>{st.name}</span>
-                <span style={{ ...badge, marginTop:5 }}>{st.badge}</span>
+                {/* ③ 베이지 명패 — 이것도 8개 공통 원화 */}
+                <div style={{ width:badgeW, height:badgeH, position:"relative", zIndex:3,
+                  marginTop:-badgeH * BADGE_OVER }}>
+                  <img src="assets/camp/plate-badge.webp" alt="" draggable={false}
+                    style={{ width:"100%", height:"100%", display:"block" }} />
+                  <span style={{ position:"absolute", inset:0, display:"flex", alignItems:"center",
+                    justifyContent:"center", fontSize:badgeF, fontWeight:800, color:CAMP.ink,
+                    letterSpacing:-0.2, whiteSpace:"nowrap" }}>
+                    {st.badge}
+                  </span>
+                </div>
               </button>
             ))}
           </div>
