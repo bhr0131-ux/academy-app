@@ -21,6 +21,7 @@ import StreakSheet from "./components/camp/StreakSheet.jsx";
 import TitleSheet from "./components/camp/TitleSheet.jsx";
 import HistorySheet from "./components/camp/HistorySheet.jsx";
 import PetSheet from "./components/camp/PetSheet.jsx";
+import TreasureSheet from "./components/camp/TreasureSheet.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
@@ -3512,6 +3513,11 @@ export default function App() {
         <PetSheet open={openPet} onClose={()=>setOpenPet(false)}
           dark={kidSkin!=="cute"} stage={getPetStage(childId)} skin={kidSkin}
           themeMain={th.main} boxName={TM.box} boxEmoji={TM.boxEmoji} />
+        {/* 보물창고 시트 — 캐릭터 탭 '보물창고' 카드에서 연다 */}
+        <TreasureSheet open={openTreasure} onClose={()=>setOpenTreasure(false)}
+          dark={kidSkin!=="cute"} skin={kidSkin} treasure={getChildTreasure(childId)}
+          onOpen={openTreasureBox} themeMain={th.main} faint={CT.faint}
+          boxName={TM.box} bookEmoji={TM.bookEmoji} bookName={TM.book} />
         {/* ── 아바타 꾸미기 상점 모달 (신규) ── */}
         <EquipmentShop
           open={showEquipShop}
@@ -4318,60 +4324,19 @@ export default function App() {
 
               {/* 아바타 꾸미기 진입은 꾸미기 상점 모달 안으로 통합 (홈 별도 카드 제거, 기능은 상점 내 버튼으로 유지) */}
 
-              {/* 보물창고 / 디저트 보관함 카드 */}
+              {/* 보물창고 카드 — 내용은 src/components/camp/TreasureSheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 5/6).
+                   두근두근 연출·결과 모달은 원래부터 전체 화면 오버레이라 App에 그대로 있다. */}
               <div style={kidSkin==="cute"
                 ? {...characterCardT, boxShadow:getTotalTreasureCount(childId)>0?`0 12px 26px ${th.main}30, inset 0 2px 6px rgba(255,255,255,0.9), inset 0 -7px 15px ${th.main}1f, 0 0 0 2px #F5B30166`:characterCardT.boxShadow}
                 : {...skyCard("#7EA7B5","#6E929E"),...(getTotalTreasureCount(childId)>0?{border:`2px solid ${GP.gold}55`}:{})}}>
                 <CharacterSectionHeader
-                  dark={kidSkin!=="cute"}
+                  dark={kidSkin!=="cute"} sheet
                   icon={TM.bookEmoji} title={TM.book}
                   subtitle={getTotalTreasureCount(childId)>0
                     ?`${getBoxInfo("normal",kidSkin).emoji} ${getChildTreasure(childId).normalBox}  ${getBoxInfo("rare",kidSkin).emoji} ${getChildTreasure(childId).rareBox}  ${getBoxInfo("legend",kidSkin).emoji} ${getChildTreasure(childId).legendBox}  ← 탭해서 열기!`
                     :`미션을 완료하면 ${kidSkin==="cute"?TM.box:"상자"}를 받아요 · ${getChildTreasure(childId).completedQuestCount} ${kidSkin==="cute"?"도장 꾹":"CLEAR"}`}
-                  open={openTreasure} onToggle={()=>setOpenTreasure(v=>!v)}
+                  open={openTreasure} onToggle={()=>setOpenTreasure(true)}
                 />
-                {openTreasure&&(
-                  <div style={{marginTop:14}}>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-                      {[
-                        {type:"normal",key:"normalBox",emoji:getBoxInfo("normal",kidSkin).emoji,name:getBoxInfo("normal",kidSkin).name,color:C.sub,
-                          rewardBg:"linear-gradient(135deg, #515E78 0%, #657188 100%)",rewardBorder:"#7C8AA1",rewardGlow:"rgba(120,170,255,0.12)"},
-                        {type:"rare",key:"rareBox",emoji:getBoxInfo("rare",kidSkin).emoji,name:getBoxInfo("rare",kidSkin).name,color:C.purple,
-                          rewardBg:"linear-gradient(135deg, #514A86 0%, #6A6398 100%)",rewardBorder:"#8279A7",rewardGlow:"rgba(150,120,230,0.14)"},
-                        {type:"legend",key:"legendBox",emoji:getBoxInfo("legend",kidSkin).emoji,name:getBoxInfo("legend",kidSkin).name,color:"#F5B301",
-                          rewardBg:"linear-gradient(135deg, #927526 0%, #B09C62 100%)",rewardBorder:"#B6AA7F",rewardGlow:"rgba(255,215,100,0.24)"},
-                      ].map(box=>{
-                        const count=getChildTreasure(childId)[box.key]||0;
-                        return (
-                          <button key={box.type} onClick={()=>openTreasureBox(box.type)} disabled={count<=0}
-                            style={{position:"relative",overflow:"hidden",borderRadius:14,padding:"13px 8px",
-                              border:`${count>0?(box.type==="legend"?"2.5px":"2px"):"1.5px"} solid ${count>0?(kidSkin==="cute"?box.color:box.rewardBorder):(kidSkin==="cute"?C.border:"rgba(255,255,255,0.30)")}`,
-                              background:count>0
-                                ?(kidSkin==="cute"
-                                    ?(box.type==="legend"?`linear-gradient(135deg, ${box.color}33, #FFFDF5)`:`linear-gradient(135deg, ${box.color}22, #fff)`)
-                                    :box.rewardBg)
-                                :(kidSkin==="cute"?CT.faint:"rgba(255,255,255,0.12)"),
-                              opacity:count>0?1:0.8,cursor:count>0?"pointer":"not-allowed",textAlign:"center",
-                              boxShadow:count>0?(kidSkin==="cute"?(box.type==="legend"?`0 4px 16px ${box.color}66, 0 0 0 1px ${box.color}33`:`0 4px 14px ${box.color}30`):`0 0 18px ${box.rewardGlow}, inset 0 1px 0 rgba(255,255,255,0.25)`):"none"}}>
-                            {kidSkin!=="cute"&&count>0&&box.type==="legend"&&(
-                              <span style={{position:"absolute",top:8,right:10,fontSize:16,opacity:0.9}}>✨</span>
-                            )}
-                            <p style={{fontSize:kidSkin==="cute"?28:40,margin:"0 0 5px",filter:kidSkin!=="cute"&&count>0?"drop-shadow(0 0 10px rgba(255,255,255,0.35))":"none"}}>{box.emoji}</p>
-                            <p style={{fontSize:13,fontWeight:900,color:kidSkin==="cute"?(count>0?C.text:C.sub):(count>0?"#fff":"rgba(255,255,255,0.85)"),margin:"0 0 3px"}}>{box.name}</p>
-                            <p style={{fontSize:13,fontWeight:900,color:kidSkin==="cute"?(count>0?box.color:C.sub):(count>0?"#fff":"rgba(255,255,255,0.8)"),margin:"0 0 4px"}}>x {count}</p>
-                            {count>0&&<p style={{fontSize:11,fontWeight:900,color:"#fff",background:kidSkin==="cute"?box.color:"rgba(255,255,255,0.18)",border:kidSkin==="cute"?"none":"1px solid rgba(255,255,255,0.25)",borderRadius:20,padding:"2px 8px",display:"inline-block",margin:0}}>열기</p>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <p style={{fontSize:11,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",fontWeight:700,margin:"12px 0 0",lineHeight:1.4}}>
-                      {kidSkin==="cute"?`미션을 모으면 ${TM.box}를 받아요! (겹칠 땐 더 좋은 상자로 받아요)`:"미션을 모으면 상자를 받아요! (겹칠 땐 더 좋은 상자로 받아요)"}
-                    </p>
-                    <p style={{fontSize:11,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.85)",fontWeight:700,margin:"4px 0 0",lineHeight:1.4}}>
-                      {getBoxInfo("normal",kidSkin).emoji} {TREASURE_MILESTONE.normal}개 → {getBoxInfo("normal",kidSkin).name} · {getBoxInfo("rare",kidSkin).emoji} {TREASURE_MILESTONE.rare}개 → {getBoxInfo("rare",kidSkin).name} · {getBoxInfo("legend",kidSkin).emoji} {TREASURE_MILESTONE.legend}개 → {getBoxInfo("legend",kidSkin).name}
-                    </p>
-                  </div>
-                )}
               </div>
 
               {/* 나의 펫 카드 — 내용은 src/components/camp/PetSheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 4/6) */}
@@ -4471,7 +4436,8 @@ export default function App() {
 
       {/* ── 보물상자 오픈 애니메이션 모달 ── */}
       {openingTreasure&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.80)",zIndex:2500,display:"flex",justifyContent:"center",alignItems:"center"}}>
+        /* zIndex 9998: 보물창고가 시트(4000)로 바뀌며 연출이 그 위에 와야 한다. 결과 모달은 9999. */
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.80)",zIndex:9998,display:"flex",justifyContent:"center",alignItems:"center"}}>
           <div style={{textAlign:"center",color:"#fff"}}>
             <div style={{fontSize:82,animation:"boxBounce .7s ease-in-out infinite"}}>{TM.boxEmoji}</div>
             <p style={{fontSize:24,fontWeight:900,marginTop:14,margin:"14px 0 6px"}}>{kidSkin==="cute"?`${TM.box} 여는 중...`:`${TM.box} 오픈 중...`}</p>
