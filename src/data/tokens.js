@@ -8,9 +8,13 @@ export const DAYS = ["월","화","수","목","금","토","일"];
 export const DAY_COLORS = { 월:"#FF6B6B", 화:"#FF9F43", 수:"#4A90E2", 목:"#9B59B6", 금:"#1ABC9C", 토:"#3498DB", 일:"#E74C3C" };
 
 // 성별별 테마
+/* 색을 따로 안 고른 아이가 쓰는 기본 테마.
+   [2026-08-05] name 을 추가했다 — 아래 CHILD_THEME_COLORS 에는 있는데 여기만 없어서
+   꾸미기 상점의 '테마색 테두리' 이름이 "undefined 보석"으로 나왔다.
+   색을 직접 고른 아이는 "연두 보석"처럼 제대로 나오고, 기본 테마 아이만 깨져 있었다. */
 export const GENDER_THEME = {
-  boy:  { emoji:"👦", main:"#3B7ECD", light:"#E4EDF8", lightTop:"#F5F9FC", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" },
-  girl: { emoji:"👧", main:"#DE869C", light:"#FAEEF1", lightTop:"#FDF9FA", grad:"linear-gradient(135deg,#DE869C,#EEC8D1)" },
+  boy:  { name:"파랑", emoji:"👦", main:"#3B7ECD", light:"#E4EDF8", lightTop:"#F5F9FC", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" },
+  girl: { name:"분홍", emoji:"👧", main:"#DE869C", light:"#FAEEF1", lightTop:"#FDF9FA", grad:"linear-gradient(135deg,#DE869C,#EEC8D1)" },
 };
 
 export const CHILD_THEME_COLORS = [
