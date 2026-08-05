@@ -84,6 +84,12 @@ const TAB_W = 390;          // 폰 폭 기준
                    보물창고 1.184 · 연속 달성 1.192 · 나의 펫 1.203 · 탐험 기록 1.230
    → 이보다 세로로 긴 원화가 새로 오면 이 숫자를 그 아래로 내려야 한다. */
 const ART_AR   = 1.06;         // 스테이션 아이콘 칸 (그루터기+물건)
+/* [사용자 확정 2026-08-05] 아이콘을 20% 줄인다.
+   칸 폭(154px)을 꽉 채우니 그루터기가 화면을 눌러 배경 길이 거의 안 보였다.
+   판(이름표·명패)은 그대로 두고 그림만 줄인다 — 판 크기는 글자에 맞춰 잡은 값이라
+   같이 줄이면 글자가 작아진다. 줄여도 아이콘(123px)이 이름표 판(111px)보다 넓어
+   판이 그루터기 밑동에 얹히는 모양은 그대로다. */
+const ICON_SCALE = 0.80;
 const NAME_AR  = 964 / 334;    // 초록 이름표 판
 const BADGE_AR = 842 / 210;    // 베이지 명패 판
 /* 판을 얼마나 크게 놓을지 (스테이션 폭 대비) — 참고 합본 비율에서 잡았다 */
@@ -162,7 +168,8 @@ export default function CampPrototype({ onClose }) {
   const sceneRef = useRef(null);
   const S = SIZES[sz];
   const stW = (CONTENT_W - S.gap) / 2;          // 스테이션 한 칸 폭
-  const artH = stW / ART_AR;                     // 그루터기+물건 그림 높이
+  const iconW = stW * ICON_SCALE;                // 그루터기+물건 그림 폭 (칸보다 좁게)
+  const artH = iconW / ART_AR;                   // 그루터기+물건 그림 높이
   /* 판 두 장 — 원화 비율 그대로 놓고, 글자는 '판 안쪽 높이'에 맞춰 키운다 */
   const nameW  = stW * NAME_W,  nameH  = nameW / NAME_AR;
   const badgeW = stW * BADGE_W, badgeH = badgeW / BADGE_AR;
@@ -224,7 +231,7 @@ export default function CampPrototype({ onClose }) {
           ))}
         </div>
         <p style={{ margin:0, fontSize:11.5, fontWeight:700, color:CAMP.inkSub, lineHeight:1.6 }}>
-          스테이션 {Math.round(stW)}×{Math.round(artH)}px · 이름표 판 {Math.round(nameW)}×{Math.round(nameH)}({nameF}px 글자)
+          칸 {Math.round(stW)}px · 아이콘 {Math.round(iconW)}×{Math.round(artH)}px · 이름표 판 {Math.round(nameW)}×{Math.round(nameH)}({nameF}px 글자)
           · 명패 판 {Math.round(badgeW)}×{Math.round(badgeH)}({badgeF}px 글자)<br />
           텐트 {S.tentW}×{Math.round(tentH)} · 천막 면 {Math.round(panelW)}×{Math.round(panelH)}
           · 깃발 {Math.round(flagW)}×{Math.round(flagH)}(이모지 {flag.em} · 이름 {flag.f}px {flag.lines.length}줄)<br />
@@ -304,9 +311,9 @@ export default function CampPrototype({ onClose }) {
                 {/* ① 아이콘 — 그루터기+물건. 스테이션마다 다른 유일한 그림 */}
                 {st.img
                   ? <img src={`assets/camp/${st.img}`} alt="" draggable={false}
-                      style={{ width:stW, height:artH, display:"block",
+                      style={{ width:iconW, height:artH, display:"block",
                         objectFit:"contain", objectPosition:"center bottom" }} />
-                  : <div style={{ width:stW, height:artH, position:"relative" }}>
+                  : <div style={{ width:iconW, height:artH, position:"relative" }}>
                       <div style={{ position:"absolute", left:0, right:0, top:"6%", textAlign:"center",
                         fontSize:artH * 0.42, lineHeight:1 }}>{st.emoji}</div>
                       <div style={{ position:"absolute", left:"12%", right:"12%", bottom:"6%", height:"26%",
