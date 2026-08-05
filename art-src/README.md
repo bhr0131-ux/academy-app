@@ -209,13 +209,13 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
 | bg-adventure-meadow-v4-src.webp | 탐험 모드 무대 기본 배경 v4 (868×1813 = 1:2.09 — 무대 칸 비율에 맞춘 세로 긴 판, 받은 그대로 톤 보정 없음, 현행) | stage-adventure-meadow.webp |
 | camp-bg-v2-src.webp | 캐릭터 탭 캠프 배경 v2 (724×2172 = 1:3.00 — 배치 비율과 정확히 일치, 하늘·산·숲 + 아래로 이어지는 흙길, 현행) | camp/bg.webp |
-| camp/st-box-v1-src.webp | 캠프 스테이션 아이콘 — 보물창고 (그루터기+보물상자, 투명, 여백 잘라 1073×907로 탑재) | camp/st-box.webp |
+| camp/st-box-v1-src.webp | 캠프 스테이션 아이콘 — 보물창고 (그루터기+보물상자, 투명, 여백 잘라 1073×907 → 화면용 540×456으로 축소 탑재) | camp/st-box.webp |
 | camp/plate-name-v1-src.webp | 캠프 초록 이름표 판 — 스테이션 8개 공통 (투명, 964×334) | camp/plate-name.webp |
 | camp/plate-badge-v1-src.webp | 캠프 베이지 명패 판 — 스테이션 8개 공통 (투명, 842×210) | camp/plate-badge.webp |
-| camp/st-title-v1-src.webp | 캠프 스테이션 아이콘 — 상장 (그루터기+상장·트로피, 투명, 여백 잘라 1254×1072로 탑재) | camp/st-title.webp |
-| camp/st-streak-v1-src.webp | 캠프 스테이션 아이콘 — 연속 달성 (그루터기+모닥불, 투명, 여백 잘라 1063×892로 탑재) | camp/st-streak.webp |
-| camp/st-history-v1-src.webp | 캠프 스테이션 아이콘 — 탐험 기록 (그루터기+두루마리, 투명, 여백 잘라 1066×867로 탑재) | camp/st-history.webp |
-| camp/st-deco-v1-src.webp | 캠프 스테이션 아이콘 — 꾸미기 상점 (그루터기+옷걸이·모자, 투명, 여백 잘라 1067×931로 탑재) | camp/st-deco.webp |
-| camp/st-book-v1-src.webp | 캠프 스테이션 아이콘 — 발견 도감 (그루터기+도감책, 투명, 여백 잘라 1074×946로 탑재) | camp/st-book.webp |
-| camp/st-pet-v1-src.webp | 캠프 스테이션 아이콘 — 나의 펫 (그루터기+아기 드래곤·집, 투명, 여백 잘라 1078×896로 탑재) | camp/st-pet.webp |
-| camp/st-item-v1-src.webp | 캠프 스테이션 아이콘 — 아이템 상점 (그루터기+수레 가판, 투명, 여백 잘라 1010×949로 탑재. 원화가 마젠타 배경 위에 저장돼 윤곽선에 분홍이 배어 있었다 — 지우고 탑재) | camp/st-item.webp |
+| camp/st-title-v1-src.webp | 캠프 스테이션 아이콘 — 상장 (그루터기+상장·트로피, 투명, 여백 잘라 1254×1072 → 화면용 540×462으로 축소 탑재) | camp/st-title.webp |
+| camp/st-streak-v1-src.webp | 캠프 스테이션 아이콘 — 연속 달성 (그루터기+모닥불, 투명, 여백 잘라 1063×892 → 화면용 540×453으로 축소 탑재) | camp/st-streak.webp |
+| camp/st-history-v1-src.webp | 캠프 스테이션 아이콘 — 탐험 기록 (그루터기+두루마리, 투명, 여백 잘라 1066×867 → 화면용 540×439으로 축소 탑재) | camp/st-history.webp |
+| camp/st-deco-v1-src.webp | 캠프 스테이션 아이콘 — 꾸미기 상점 (그루터기+옷걸이·모자, 투명, 여백 잘라 1067×931 → 화면용 540×471으로 축소 탑재) | camp/st-deco.webp |
+| camp/st-book-v1-src.webp | 캠프 스테이션 아이콘 — 발견 도감 (그루터기+도감책, 투명, 여백 잘라 1074×946 → 화면용 540×476으로 축소 탑재) | camp/st-book.webp |
+| camp/st-pet-v1-src.webp | 캠프 스테이션 아이콘 — 나의 펫 (그루터기+아기 드래곤·집, 투명, 여백 잘라 1078×896 → 화면용 540×449으로 축소 탑재) | camp/st-pet.webp |
+| camp/st-item-v1-src.webp | 캠프 스테이션 아이콘 — 아이템 상점 (그루터기+수레 가판, 투명, 여백 잘라 1010×949 → 화면용 540×507으로 축소 탑재. 원화가 마젠타 배경 위에 저장돼 윤곽선에 분홍이 배어 있었다 — 지우고 탑재) | camp/st-item.webp |
