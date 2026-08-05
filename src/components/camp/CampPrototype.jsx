@@ -95,7 +95,13 @@ const BADGE_OVER = 0.34;   // 명패 높이의 34%만큼 이름표와 겹침
 /* 판 안쪽(테두리 제외) 비율 — 글자 크기를 여기에 맞춘다 */
 const NAME_INNER  = 270 / 334;
 const BADGE_INNER = 160 / 210;
-const TENT_AR = 1209 / 1095;// 텐트 원화 실측 가로/세로
+/* 텐트 원화 (1198×1130, 여백 잘라낸 그림 자체 기준).
+   글자를 얹을 자리는 눈대중이 아니라 원화 픽셀에서 물 채우기로 찾았다 —
+   천막 면은 테두리 선에서 멈춘 영역, 깃발도 같은 방법. 값은 그림 폭·높이의 %다. */
+const TENT_AR = 1198 / 1130;
+const TENT_PANEL = { l: 19.9, r: 79.5, t: 41.0, b: 85.0 };  // 천막 면 (테두리 안쪽)
+const TENT_FLAG  = { l: 52.3, r: 75.5, t:  3.7, b: 18.4 };  // 꼭대기 깃발
+const PANEL_PAD  = 4.5;     // 천막 면 테두리에서 글자를 띄우는 여백 (면 폭의 %)
 const BG_W = 1086;          // 배경 원화 가로 (사용자가 준 그림 기준)
 
 export default function CampPrototype({ onClose }) {
@@ -111,6 +117,15 @@ export default function CampPrototype({ onClose }) {
   const nameF  = Math.round(nameH * NAME_INNER * 0.52);
   const badgeF = Math.round(badgeH * BADGE_INNER * 0.62 * 10) / 10;
   const tentH = S.tentW / TENT_AR;
+  /* 천막 면 실측 크기 — 글자가 다 들어가는지 눈이 아니라 숫자로 확인하려고 꺼내 둔다.
+     좌우 여백은 '면 폭의 %'로 주는데 style의 left/right는 '텐트 폭의 %'라 환산해야 한다. */
+  const panelW = S.tentW * (TENT_PANEL.r - TENT_PANEL.l) / 100;
+  const panelH = tentH   * (TENT_PANEL.b - TENT_PANEL.t) / 100;
+  const panelPadPct = (TENT_PANEL.r - TENT_PANEL.l) * PANEL_PAD / 100;
+  const panelGap = panelH > 145 ? 7 : 5;
+  const flagW = S.tentW * (TENT_FLAG.r - TENT_FLAG.l) / 100;
+  const flagH = tentH   * (TENT_FLAG.b - TENT_FLAG.t) / 100;
+  const flagF = Math.round(Math.min(flagH * 0.42, flagW * 0.26));
 
   useLayoutEffect(() => {
     if (sceneRef.current) setH(Math.round(sceneRef.current.scrollHeight));
@@ -156,6 +171,8 @@ export default function CampPrototype({ onClose }) {
         <p style={{ margin:0, fontSize:11.5, fontWeight:700, color:CAMP.inkSub, lineHeight:1.6 }}>
           스테이션 {Math.round(stW)}×{Math.round(artH)}px · 이름표 판 {Math.round(nameW)}×{Math.round(nameH)}({nameF}px 글자)
           · 명패 판 {Math.round(badgeW)}×{Math.round(badgeH)}({badgeF}px 글자)<br />
+          텐트 {S.tentW}×{Math.round(tentH)} · 천막 면 {Math.round(panelW)}×{Math.round(panelH)}
+          · 깃발 {Math.round(flagW)}×{Math.round(flagH)}({flagF}px 글자)<br />
           전체 높이 <b style={{ color:CAMP.ink }}>{h}px</b> · 한 화면(620px)에서 {Math.max(0, h - 620)}px 스크롤<br />
           → 배경 원화 <b style={{ color:CAMP.ink }}>{BG_W} × {bgNeed}</b> 필요
         </p>
@@ -174,31 +191,43 @@ export default function CampPrototype({ onClose }) {
           {/* 앞쪽(텐트·스테이션)은 한 겹으로 묶어 배경 위에 올린다.
               배경 <img>가 position:absolute라, 묶지 않으면 위치를 안 준 요소
               (뱃지 같은 인라인)가 배경 아래로 깔려 안 보인다 — CSS 그리는 순서 때문. */}
-          <div style={{ position:"relative", zIndex:1 }}>
+          {/* paddingTop 14 — 텐트에 margin-top을 주면 그 여백이 이 겹과 장면 밖으로
+              빠져나가(마진 상쇄) 장면 전체가 내려앉고 맨 위에 검은 띠가 보였다.
+              여백을 마진 대신 패딩으로 주면 상쇄가 일어나지 않는다. */}
+          <div style={{ position:"relative", zIndex:1, paddingTop:14 }}>
 
           {/* ── 텐트 + 상태 ── */}
-          <div style={{ position:"relative", width:S.tentW, height:tentH, margin:"14px auto 0" }}>
-            {/* 텐트 실루엣 자리 (원화로 교체) */}
-            <div style={{ position:"absolute", inset:0, background:CAMP.panelB,
-              clipPath:"polygon(50% 0%, 97% 34%, 100% 92%, 0% 92%, 3% 34%)" }} />
-            <div style={{ position:"absolute", inset:"3px 4px 4px", background:CAMP.panel,
-              clipPath:"polygon(50% 0%, 97% 34%, 100% 92%, 0% 92%, 3% 34%)" }} />
-            {/* 천막 패널 위 상태 — 원화가 와도 이 부분은 그대로 HTML */}
-            <div style={{ position:"absolute", left:"9%", right:"9%", top:"38%",
-              display:"flex", flexDirection:"column", gap:7 }}>
-              <p style={{ margin:0, fontSize:17, fontWeight:900, color:CAMP.ink }}>🌊 Lv.9 바다 탐험가</p>
-              <div style={{ height:12, borderRadius:6, background:"rgba(74,52,24,0.16)", overflow:"hidden" }}>
+          <div style={{ position:"relative", width:S.tentW, height:tentH, margin:"0 auto" }}>
+            <img src="assets/camp/tent.webp" alt="" draggable={false}
+              style={{ position:"absolute", inset:0, width:"100%", height:"100%", display:"block" }} />
+
+            {/* 꼭대기 깃발 — 아이 이름. 원화에 점선 테두리가 그려져 있어 이름표로 딱 맞다 */}
+            <div style={{ position:"absolute",
+              left:`${TENT_FLAG.l}%`, width:`${TENT_FLAG.r - TENT_FLAG.l}%`,
+              top:`${TENT_FLAG.t}%`,  height:`${TENT_FLAG.b - TENT_FLAG.t}%`,
+              display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <span style={{ fontSize:flagF, fontWeight:900, color:CAMP.ink,
+                letterSpacing:-0.3, whiteSpace:"nowrap" }}>탐험이</span>
+            </div>
+
+            {/* 천막 면 위 상태 — 판 자리는 원화에서 실측한 %, 글자는 앱이 얹는다 */}
+            <div style={{ position:"absolute",
+              left:`${TENT_PANEL.l + panelPadPct}%`, right:`${100 - TENT_PANEL.r + panelPadPct}%`,
+              top:`${TENT_PANEL.t}%`, bottom:`${100 - TENT_PANEL.b}%`,
+              display:"flex", flexDirection:"column", justifyContent:"center", gap:panelGap }}>
+              <p style={{ margin:0, fontSize:S.name + 1, fontWeight:900, color:CAMP.ink }}>🌊 Lv.9 바다 탐험가</p>
+              <div style={{ height:11, borderRadius:6, background:"rgba(74,52,24,0.16)", overflow:"hidden" }}>
                 <div style={{ width:"72%", height:"100%", borderRadius:6, background:CAMP.bar }} />
               </div>
-              <p style={{ margin:0, fontSize:11.5, fontWeight:700, color:CAMP.inkSub }}>
+              <p style={{ margin:0, fontSize:S.badgeF - 0.5, fontWeight:700, color:CAMP.inkSub }}>
                 다음 레벨 🏝️ Lv.10 섬 탐험가 · 260/280 · 20 남음
               </p>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginTop:2 }}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:7, marginTop:1 }}>
                 {[["💎 보유 코인","7,848"],["⭐ 누적 XP","1,400"]].map(([t,v]) => (
-                  <div key={t} style={{ background:"#fff", border:`1.5px solid ${CAMP.panelB}`,
-                    borderRadius:12, padding:"6px 9px" }}>
-                    <p style={{ margin:0, fontSize:10.5, fontWeight:800, color:CAMP.inkSub }}>{t}</p>
-                    <p style={{ margin:0, fontSize:17, fontWeight:900, color:CAMP.ink }}>{v}</p>
+                  <div key={t} style={{ background:"rgba(255,255,255,0.72)", border:`1.5px solid ${CAMP.panelB}`,
+                    borderRadius:11, padding:"5px 8px" }}>
+                    <p style={{ margin:0, fontSize:10, fontWeight:800, color:CAMP.inkSub }}>{t}</p>
+                    <p style={{ margin:0, fontSize:S.name + 1, fontWeight:900, color:CAMP.ink }}>{v}</p>
                   </div>
                 ))}
               </div>
