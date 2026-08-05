@@ -215,3 +215,5 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | camp/st-title-v1-src.webp | 캠프 스테이션 아이콘 — 상장 (그루터기+상장·트로피, 투명, 여백 잘라 1254×1072로 탑재) | camp/st-title.webp |
 | camp/st-streak-v1-src.webp | 캠프 스테이션 아이콘 — 연속 달성 (그루터기+모닥불, 투명, 여백 잘라 1063×892로 탑재) | camp/st-streak.webp |
 | camp/st-history-v1-src.webp | 캠프 스테이션 아이콘 — 탐험 기록 (그루터기+두루마리, 투명, 여백 잘라 1066×867로 탑재) | camp/st-history.webp |
+| camp/st-deco-v1-src.webp | 캠프 스테이션 아이콘 — 꾸미기 상점 (그루터기+옷걸이·모자, 투명, 여백 잘라 1067×931로 탑재) | camp/st-deco.webp |
+| camp/st-book-v1-src.webp | 캠프 스테이션 아이콘 — 발견 도감 (그루터기+도감책, 투명, 여백 잘라 1074×946로 탑재) | camp/st-book.webp |

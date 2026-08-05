@@ -48,11 +48,11 @@ export const CAMP = {
    위 2줄 = 상점, 가운데 = 소지품, 아래 = 기록. 지금 탭의 '즐기기/내 기록' 구분을
    섹션 제목 없이 자리로만 유지한다. */
 const STATIONS = [
-  { key:"deco",    emoji:"👕", name:"꾸미기 상점", badge:"21개 보유" },
+  { key:"deco",    emoji:"👕", name:"꾸미기 상점", badge:"21개 보유", img:"st-deco.webp" },
   { key:"item",    emoji:"🛒", name:"아이템 상점", badge:"총 구매 3개" },
   { key:"box",     emoji:"🎁", name:"보물창고",   badge:"상자 3개", img:"st-box.webp" },
   { key:"pet",     emoji:"🐣", name:"나의 펫",    badge:"아기 드래곤" },
-  { key:"book",    emoji:"📖", name:"발견 도감",   badge:"10 / 59" },
+  { key:"book",    emoji:"📖", name:"발견 도감",   badge:"10 / 59", img:"st-book.webp" },
   { key:"title",   emoji:"👑", name:"상장",       badge:"1 / 20개", img:"st-title.webp" },
   { key:"streak",  emoji:"🔥", name:"연속 달성",   badge:"현재 3일", img:"st-streak.webp" },
   { key:"history", emoji:"📜", name:"탐험 기록",   badge:"최근 12건", img:"st-history.webp" },
@@ -69,7 +69,7 @@ const CONTENT_W = 360;      // 탭 안쪽 폭 (좌우 15px 여백)
 const TAB_W = 390;          // 폰 폭 기준
 /* 원화 실측 가로/세로 — 여백을 잘라낸 그림 자체의 비율 */
 /* 스테이션 아이콘 칸의 비율 — 보물창고 원화(1073×907) 기준으로 잡아 둔 '틀'이다.
-   원화마다 비율이 조금씩 다르므로(상장 1.170 · 연속 달성 1.192 · 탐험 기록 1.230)
+   원화마다 비율이 조금씩 다르므로(지금까지 1.135~1.230)
    그림은 이 틀 안에 objectFit:contain 으로 넣어 늘어나지 않게 하고,
    아래쪽(center bottom)에 붙여 그루터기 밑동 선을 여덟 칸이 같이 쓰게 한다.
    이름표 판이 밑동을 물고 올라오므로 맞춰야 하는 건 위가 아니라 아래다. */
