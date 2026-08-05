@@ -128,8 +128,8 @@ export default function CampPrototype({ onClose }) {
       <div style={{ width:TAB_W, flex:1, overflowY:"auto", background:"#000", WebkitOverflowScrolling:"touch" }}>
         <div ref={sceneRef} style={{ position:"relative", minHeight:"100%",
           background:CAMP.grass, paddingBottom:24 }}>
-          {/* 배경 원화 — 714×2203(1:3.09). '작게' 배치(1:3.00)에 맞춰 받은 그림이라
-              위아래 3%만 잘리고 좌우는 안 잘린다. */}
+          {/* 배경 원화 — 724×2172(1:3.00). '작게' 배치와 비율이 정확히 같아
+              가로세로 어느 쪽도 잘리지 않는다. */}
           <img src="assets/camp/bg.webp" alt="" draggable={false}
             style={{ position:"absolute", inset:0, width:"100%", height:"100%",
               objectFit:"cover", objectPosition:"center top", pointerEvents:"none", zIndex:0 }} />
