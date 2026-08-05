@@ -53,9 +53,9 @@ const STATIONS = [
   { key:"box",     emoji:"🎁", name:"보물창고",   badge:"상자 3개", img:"st-box.webp" },
   { key:"pet",     emoji:"🐣", name:"나의 펫",    badge:"아기 드래곤" },
   { key:"book",    emoji:"📖", name:"발견 도감",   badge:"10 / 59" },
-  { key:"title",   emoji:"👑", name:"상장",       badge:"1 / 20개" },
-  { key:"streak",  emoji:"🔥", name:"연속 달성",   badge:"현재 3일" },
-  { key:"history", emoji:"📜", name:"탐험 기록",   badge:"최근 12건" },
+  { key:"title",   emoji:"👑", name:"상장",       badge:"1 / 20개", img:"st-title.webp" },
+  { key:"streak",  emoji:"🔥", name:"연속 달성",   badge:"현재 3일", img:"st-streak.webp" },
+  { key:"history", emoji:"📜", name:"탐험 기록",   badge:"최근 12건", img:"st-history.webp" },
 ];
 
 /* 크기 후보 — 어느 쪽으로 갈지 눈으로 보고 정하려고 셋을 둔다.
@@ -68,6 +68,11 @@ const SIZES = {
 const CONTENT_W = 360;      // 탭 안쪽 폭 (좌우 15px 여백)
 const TAB_W = 390;          // 폰 폭 기준
 /* 원화 실측 가로/세로 — 여백을 잘라낸 그림 자체의 비율 */
+/* 스테이션 아이콘 칸의 비율 — 보물창고 원화(1073×907) 기준으로 잡아 둔 '틀'이다.
+   원화마다 비율이 조금씩 다르므로(상장 1.170 · 연속 달성 1.192 · 탐험 기록 1.230)
+   그림은 이 틀 안에 objectFit:contain 으로 넣어 늘어나지 않게 하고,
+   아래쪽(center bottom)에 붙여 그루터기 밑동 선을 여덟 칸이 같이 쓰게 한다.
+   이름표 판이 밑동을 물고 올라오므로 맞춰야 하는 건 위가 아니라 아래다. */
 const ART_AR   = 1073 / 907;   // 스테이션 아이콘 (그루터기+물건)
 const NAME_AR  = 964 / 334;    // 초록 이름표 판
 const BADGE_AR = 842 / 210;    // 베이지 명패 판
@@ -199,7 +204,8 @@ export default function CampPrototype({ onClose }) {
                 {/* ① 아이콘 — 그루터기+물건. 스테이션마다 다른 유일한 그림 */}
                 {st.img
                   ? <img src={`assets/camp/${st.img}`} alt="" draggable={false}
-                      style={{ width:stW, height:artH, display:"block" }} />
+                      style={{ width:stW, height:artH, display:"block",
+                        objectFit:"contain", objectPosition:"center bottom" }} />
                   : <div style={{ width:stW, height:artH, position:"relative" }}>
                       <div style={{ position:"absolute", left:0, right:0, top:"6%", textAlign:"center",
                         fontSize:artH * 0.42, lineHeight:1 }}>{st.emoji}</div>
