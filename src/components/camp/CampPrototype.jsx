@@ -49,9 +49,9 @@ export const CAMP = {
    섹션 제목 없이 자리로만 유지한다. */
 const STATIONS = [
   { key:"deco",    emoji:"👕", name:"꾸미기 상점", badge:"21개 보유", img:"st-deco.webp" },
-  { key:"item",    emoji:"🛒", name:"아이템 상점", badge:"총 구매 3개" },
+  { key:"item",    emoji:"🛒", name:"아이템 상점", badge:"총 구매 3개", img:"st-item.webp" },
   { key:"box",     emoji:"🎁", name:"보물창고",   badge:"상자 3개", img:"st-box.webp" },
-  { key:"pet",     emoji:"🐣", name:"나의 펫",    badge:"아기 드래곤" },
+  { key:"pet",     emoji:"🐣", name:"나의 펫",    badge:"아기 드래곤", img:"st-pet.webp" },
   { key:"book",    emoji:"📖", name:"발견 도감",   badge:"10 / 59", img:"st-book.webp" },
   { key:"title",   emoji:"👑", name:"상장",       badge:"1 / 20개", img:"st-title.webp" },
   { key:"streak",  emoji:"🔥", name:"연속 달성",   badge:"현재 3일", img:"st-streak.webp" },

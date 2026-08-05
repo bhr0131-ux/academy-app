@@ -217,3 +217,5 @@ halo가 외곽선을 흐려서 생긴 착시였다.
 | camp/st-history-v1-src.webp | 캠프 스테이션 아이콘 — 탐험 기록 (그루터기+두루마리, 투명, 여백 잘라 1066×867로 탑재) | camp/st-history.webp |
 | camp/st-deco-v1-src.webp | 캠프 스테이션 아이콘 — 꾸미기 상점 (그루터기+옷걸이·모자, 투명, 여백 잘라 1067×931로 탑재) | camp/st-deco.webp |
 | camp/st-book-v1-src.webp | 캠프 스테이션 아이콘 — 발견 도감 (그루터기+도감책, 투명, 여백 잘라 1074×946로 탑재) | camp/st-book.webp |
+| camp/st-pet-v1-src.webp | 캠프 스테이션 아이콘 — 나의 펫 (그루터기+아기 드래곤·집, 투명, 여백 잘라 1078×896로 탑재) | camp/st-pet.webp |
+| camp/st-item-v1-src.webp | 캠프 스테이션 아이콘 — 아이템 상점 (그루터기+수레 가판, 투명, 여백 잘라 1010×949로 탑재. 원화가 마젠타 배경 위에 저장돼 윤곽선에 분홍이 배어 있었다 — 지우고 탑재) | camp/st-item.webp |
