@@ -18,6 +18,7 @@ import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import CampPrototype from "./components/camp/CampPrototype.jsx";
 import StreakSheet from "./components/camp/StreakSheet.jsx";
+import TitleSheet from "./components/camp/TitleSheet.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
@@ -3493,6 +3494,12 @@ export default function App() {
         <StreakSheet open={openStreak} onClose={()=>setOpenStreak(false)}
           dark={kidSkin!=="cute"} streak={getQuestStreak(childId)} best={getBestStreak(childId)}
           faint={CT.faint} gold={GP.gold} />
+        {/* 상장 시트 — 캐릭터 탭 '상장' 카드에서 연다 */}
+        <TitleSheet open={openTitle} onClose={()=>setOpenTitle(false)}
+          dark={kidSkin!=="cute"} titles={getAllTitles(childId)}
+          isUnlocked={(id)=>isTitleUnlocked(childId,id)} selectedId={getSelectedTitle(childId).id}
+          onSelect={selectTitle} faint={CT.faint}
+          unlockedCount={getUnlockedTitles(childId).length} totalCount={getAllTitles(childId).length} />
         {/* ── 아바타 꾸미기 상점 모달 (신규) ── */}
         <EquipmentShop
           open={showEquipShop}
@@ -4404,59 +4411,14 @@ export default function App() {
                 <div style={{flex:1,height:2,borderRadius:2,background:kidSkin==="cute"?`linear-gradient(90deg, ${th.main}55, ${th.main}00)`:"linear-gradient(90deg, rgba(138,119,95,0.4), rgba(138,119,95,0) 90%)"}}/>
               </div>
 
-              {/* 상장 카드 */}
+              {/* 상장 카드 — 내용은 src/components/camp/TitleSheet.jsx 로 분리 (CLAUDE.md 3, 캠프 개편 2/6) */}
               <div style={skyCard("#6F95A5","#61828F")}>
                 <CharacterSectionHeader
-                  dark={kidSkin!=="cute"}
+                  dark={kidSkin!=="cute"} sheet
                   icon="👑" title="상장"
                   subtitle={`받은 상장을 골라 캐릭터 옆에 전시할 수 있어요\n${getUnlockedTitles(childId).length}/${getAllTitles(childId).length}개 획득`}
-                  open={openTitle} onToggle={()=>setOpenTitle(v=>!v)}
+                  open={openTitle} onToggle={()=>setOpenTitle(true)}
                 />
-                {openTitle&&(()=>{
-                  const dungeon = kidSkin!=="cute";
-                  return (
-                  <div style={{marginTop:14,display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:9}}>
-                    {getAllTitles(childId).map(title=>{
-                      const unlocked=isTitleUnlocked(childId,title.id);
-                      const selected=getSelectedTitle(childId).id===title.id;
-                      const rarity=TITLE_RARITY[title.rarity||"common"];
-                      // 탐험: 어두운 카드 + 등급 테두리/오라 / 베이커리: 밝은 파스텔
-                      const cardBg   = dungeon ? (unlocked?rarity.dgrad:"linear-gradient(180deg,#2C3658 0%,#252E4C 100%)") : (unlocked?rarity.grad:CT.faint);
-                      const cardBdr  = unlocked?rarity.borderClr:(dungeon?"#3E486B":C.border);
-                      const restGlow = dungeon&&unlocked ? rarity.glow : "none";
-                      const selGlow  = dungeon
-                        ? `${rarity.glow}, 0 0 26px ${rarity.borderClr}66, 0 0 0 1px ${rarity.borderClr}, 0 6px 18px rgba(8,16,40,0.55)`
-                        : `0 0 24px rgba(255,255,255,0.55), 0 0 0 1px ${rarity.color}, 0 6px 18px ${rarity.color}33`;
-                      const nameClr  = dungeon ? (unlocked?"#1B2238":"rgba(240,245,252,0.78)") : (selected?rarity.color:unlocked?C.text:C.sub);
-                      const condClr  = dungeon ? (unlocked?"rgba(27,34,56,0.7)":"rgba(240,245,252,0.64)") : C.sub;
-                      const rrClr    = dungeon
-                        ? (title.rarity==="legendary"?"#7A5C12":title.rarity==="epic"?"#4A3A8A":title.rarity==="rare"?"#244C8A":"#3A4255")
-                        : (title.rarity==="common"?"#5A4A3A":title.rarity==="legendary"?"#7B5C00":rarity.color);
-                      return (
-                        <button key={title.id} onClick={()=>selectTitle(title.id)} disabled={!unlocked}
-                          style={{borderRadius:14,padding:"12px 10px",position:"relative",
-                          transition:"transform .15s ease, box-shadow .15s ease",
-                          transform:selected?"scale(1.03)":"scale(1)",
-                          background:cardBg,
-                          border:`2px solid ${cardBdr}`,
-                          boxShadow:selected?selGlow:restGlow,
-                          opacity:unlocked?1:0.5,cursor:unlocked?"pointer":"not-allowed",textAlign:"center"}}>
-                          {selected&&(
-                            <span style={{position:"absolute",top:7,right:7,width:20,height:20,borderRadius:"50%",background:rarity.color,color:"#fff",fontSize:13,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 2px 6px ${rarity.color}66`}}>✓</span>
-                          )}
-                          <p style={{fontSize:24,margin:"0 0 5px"}}>{unlocked?title.emoji:"🔒"}</p>
-                          <p style={{fontSize:11,fontWeight:900,color:rrClr,margin:"0 0 3px"}}>{rarity.icon} {rarity.name}</p>
-                          <p style={{fontSize:13,fontWeight:900,margin:"0 0 3px",color:nameClr}}>{title.name}</p>
-                          <p style={{fontSize:11,color:condClr,margin:0,fontWeight:700,lineHeight:1.3}}>{title.condition}</p>
-                          {selected
-                            ? <p style={{fontSize:11,fontWeight:900,color:"#fff",background:rarity.color,borderRadius:20,padding:"3px 9px",display:"inline-block",margin:"7px 0 0"}}>✓ 선택됨</p>
-                            : unlocked&&<p style={{fontSize:11,fontWeight:900,color:rrClr,background:dungeon?"rgba(255,255,255,0.55)":"#fff",border:`1px solid ${rarity.borderClr}`,borderRadius:20,padding:"3px 9px",display:"inline-block",margin:"7px 0 0"}}>선택</p>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  );
-                })()}
               </div>
 
               {/* 연속 달성 카드 — 내용은 src/components/camp/StreakSheet.jsx 로 분리 (CLAUDE.md 3).
