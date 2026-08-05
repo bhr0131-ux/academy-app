@@ -100,13 +100,65 @@ const BADGE_INNER = 160 / 210;
    천막 면은 테두리 선에서 멈춘 영역, 깃발도 같은 방법. 값은 그림 폭·높이의 %다. */
 const TENT_AR = 1198 / 1130;
 const TENT_PANEL = { l: 19.9, r: 79.5, t: 41.0, b: 85.0 };  // 천막 면 (테두리 안쪽)
-const TENT_FLAG  = { l: 52.3, r: 75.5, t:  3.7, b: 18.4 };  // 꼭대기 깃발
+/* 깃발은 '점선 테두리 안쪽'을 쓴다 — 바깥 천 가장자리(52.3~75.5 / 3.7~18.4)까지
+   글자를 채우면 점선을 넘어가 지저분해진다. 점선 위치도 픽셀에서 실측했다. */
+const TENT_FLAG  = { l: 53.3, r: 74.5, t:  4.5, b: 17.6 };  // 꼭대기 깃발 (점선 안쪽)
 const PANEL_PAD  = 4.5;     // 천막 면 테두리에서 글자를 띄우는 여백 (면 폭의 %)
 const BG_W = 1086;          // 배경 원화 가로 (사용자가 준 그림 기준)
+
+/* 깃발에 걸 상장 — 실제 앱에서는 getSelectedTitle(childId)이 준 {emoji, name}이 들어간다.
+   시안에서는 길이가 다른 셋을 넣고 깃발을 눌러 돌려 본다. 가장 긴 이름 하나만
+   봐서는 짧은 이름이 어떻게 보이는지 알 수 없고, 반대도 마찬가지다.
+   3자 / 6자 / 10자 — 실제 상장 이름 길이의 양 끝과 가운데다. */
+const FLAG_SAMPLES = [
+  { emoji: "🎗️", name: "꼬마 탐험가" },        // 6자 — 가장 흔한 길이
+  { emoji: "📚", name: "숙제왕" },              // 3자 — 가장 짧은 축
+  { emoji: "🍰", name: "디저트 왕국의 주인" },   // 10자 — 가장 긴 상장 이름
+];
+
+/* 글자 폭 — 브라우저에서 실측했다 (카페24 써라운드, letterSpacing -0.3px).
+   한글 한 자 = 글자크기의 0.95배 · 공백 = 0.30배 · 자간이 글자마다 0.3px씩 줄인다.
+   눈대중으로 '한글은 정사각형이니 1.0배'로 잡았더니 필요보다 20% 작게 나왔다. */
+const GLYPH_HANGUL = 0.95, GLYPH_SPACE = 0.30, LETTER_SPACING = 0.3;
+const textUnits = (s) => [...s].reduce((a, c) => a + (c === " " ? GLYPH_SPACE : GLYPH_HANGUL), 0);
+/* 폭 boxW 에 들어가는 가장 큰 글자 크기 */
+const fitByWidth = (s, boxW) => (boxW + LETTER_SPACING * s.length) / textUnits(s);
+
+/* 깃발 이름 — 줄바꿈과 크기, 그리고 이모지 크기까지 같이 정한다.
+   상장 이름은 3~10글자로 편차가 크다(가장 긴 것이 '디저트 왕국의 주인' 10자).
+   깃발 안쪽이 좁아서(작게 기준 61×35px) 이모지가 높이를 많이 먹으면
+   긴 이름이 7px까지 쪼그라든다. 그래서 이름이 한 줄에 시원하게 들어가면
+   이모지를 크게 두고, 안 들어가면 이모지를 조금 줄여 이름 자리를 넓힌다.
+   이모지 비율(0.56)은 눈으로 정했다 — 이모지 글리프는 지정한 크기보다 작게
+   그려져서(16px로 주면 12px쯤으로 보인다) 이름과 비슷해 보였다. */
+function fitFlag(name, boxW, boxH) {
+  const plan = (emojiRatio) => {
+    const em = Math.round(boxH * emojiRatio);
+    const room = boxH - em * 1.06 - 1;              // 이모지 아래 남는 높이
+    const size = (lines) => Math.min(
+      Math.min(...lines.map(s => fitByWidth(s.trim(), boxW))),
+      (room / lines.length) * 0.86,
+    );
+    let best = { lines: [name], f: size([name]) };
+    const sp = name.split(" ");
+    for (let i = 1; i < sp.length; i++) {   // 띄어쓰기마다 두 줄로 접어 보고 제일 큰 것
+      const two = [sp.slice(0, i).join(" "), sp.slice(i).join(" ")];
+      const f = size(two);
+      if (f > best.f) best = { lines: two, f };
+    }
+    return { em, ...best };
+  };
+  const big = plan(0.56);
+  if (big.f >= 10) return { ...big, f: Math.round(big.f * 10) / 10 };   // 짧은 이름 — 이모지 크게
+  const small = plan(0.36);                                            // 긴 이름 — 이름 자리 넓히기
+  const pick = small.f > big.f ? small : big;
+  return { ...pick, f: Math.round(pick.f * 10) / 10 };
+}
 
 export default function CampPrototype({ onClose }) {
   const [sz, setSz] = useState("S");   // [사용자 확정] 배경 원화 비율(1:3.09)에 맞는 크기
   const [h, setH] = useState(0);
+  const [flagIdx, setFlagIdx] = useState(0);   // 깃발을 눌러 상장 표본을 돌려 본다
   const sceneRef = useRef(null);
   const S = SIZES[sz];
   const stW = (CONTENT_W - S.gap) / 2;          // 스테이션 한 칸 폭
@@ -123,9 +175,12 @@ export default function CampPrototype({ onClose }) {
   const panelH = tentH   * (TENT_PANEL.b - TENT_PANEL.t) / 100;
   const panelPadPct = (TENT_PANEL.r - TENT_PANEL.l) * PANEL_PAD / 100;
   const panelGap = panelH > 145 ? 7 : 5;
+  /* 깃발 — 전시 중인 상장을 이모지 크게 + 이름 작게로 얹는다 [사용자 확정 2026-08-05] */
   const flagW = S.tentW * (TENT_FLAG.r - TENT_FLAG.l) / 100;
   const flagH = tentH   * (TENT_FLAG.b - TENT_FLAG.t) / 100;
-  const flagF = Math.round(Math.min(flagH * 0.42, flagW * 0.26));
+  const flagIW = flagW * 0.90, flagIH = flagH * 0.88;   // 점선에서 살짝 띄운 안쪽
+  const flagTitle = FLAG_SAMPLES[flagIdx % FLAG_SAMPLES.length];
+  const flag = fitFlag(flagTitle.name, flagIW, flagIH);
 
   useLayoutEffect(() => {
     if (sceneRef.current) setH(Math.round(sceneRef.current.scrollHeight));
@@ -172,7 +227,7 @@ export default function CampPrototype({ onClose }) {
           스테이션 {Math.round(stW)}×{Math.round(artH)}px · 이름표 판 {Math.round(nameW)}×{Math.round(nameH)}({nameF}px 글자)
           · 명패 판 {Math.round(badgeW)}×{Math.round(badgeH)}({badgeF}px 글자)<br />
           텐트 {S.tentW}×{Math.round(tentH)} · 천막 면 {Math.round(panelW)}×{Math.round(panelH)}
-          · 깃발 {Math.round(flagW)}×{Math.round(flagH)}({flagF}px 글자)<br />
+          · 깃발 {Math.round(flagW)}×{Math.round(flagH)}(이모지 {flag.em} · 이름 {flag.f}px {flag.lines.length}줄)<br />
           전체 높이 <b style={{ color:CAMP.ink }}>{h}px</b> · 한 화면(620px)에서 {Math.max(0, h - 620)}px 스크롤<br />
           → 배경 원화 <b style={{ color:CAMP.ink }}>{BG_W} × {bgNeed}</b> 필요
         </p>
@@ -201,14 +256,20 @@ export default function CampPrototype({ onClose }) {
             <img src="assets/camp/tent.webp" alt="" draggable={false}
               style={{ position:"absolute", inset:0, width:"100%", height:"100%", display:"block" }} />
 
-            {/* 꼭대기 깃발 — 아이 이름. 원화에 점선 테두리가 그려져 있어 이름표로 딱 맞다 */}
-            <div style={{ position:"absolute",
+            {/* 꼭대기 깃발 — 전시 중인 상장 (이모지 크게, 이름 작게) */}
+            <button onClick={() => setFlagIdx(i => i + 1)}
+              title="눌러서 다른 길이의 상장 이름 보기 (시안 전용)"
+              style={{ position:"absolute", border:"none", background:"none", padding:0, cursor:"pointer",
               left:`${TENT_FLAG.l}%`, width:`${TENT_FLAG.r - TENT_FLAG.l}%`,
               top:`${TENT_FLAG.t}%`,  height:`${TENT_FLAG.b - TENT_FLAG.t}%`,
-              display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <span style={{ fontSize:flagF, fontWeight:900, color:CAMP.ink,
-                letterSpacing:-0.3, whiteSpace:"nowrap" }}>탐험이</span>
-            </div>
+              display:"flex", flexDirection:"column", alignItems:"center",
+              justifyContent:"center", lineHeight:1 }}>
+              <span style={{ fontSize:flag.em, lineHeight:1 }}>{flagTitle.emoji}</span>
+              <span style={{ marginTop:1, fontSize:flag.f, fontWeight:900, color:CAMP.ink,
+                letterSpacing:-0.3, lineHeight:1.06, textAlign:"center", whiteSpace:"pre" }}>
+                {flag.lines.join("\n")}
+              </span>
+            </button>
 
             {/* 천막 면 위 상태 — 판 자리는 원화에서 실측한 %, 글자는 앱이 얹는다 */}
             <div style={{ position:"absolute",
