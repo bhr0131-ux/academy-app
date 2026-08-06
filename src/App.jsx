@@ -16,6 +16,7 @@ import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
 import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import CampPrototype from "./components/camp/CampPrototype.jsx";
+import GridPrototype from "./components/camp/GridPrototype.jsx";
 import CampScene from "./components/camp/CampScene.jsx";
 import DecorShopSheet from "./components/camp/DecorShopSheet.jsx";
 import StreakSheet from "./components/camp/StreakSheet.jsx";
@@ -351,6 +352,7 @@ export default function App() {
   /* 미션 배경 점검 미리보기 (개발자 도구 전용) — 저장 안 함, 열릴 때마다 새로 */
   const [showExpPreview,         setShowExpPreview]         = useState(false);
   const [showCampProto,          setShowCampProto]          = useState(false);
+  const [showGridProto,          setShowGridProto]          = useState(false);
   const [showAcademyCopyModal,   setShowAcademyCopyModal]   = useState(initUi.showAcademyCopyModal);
   const [copySourceChildId,      setCopySourceChildId]      = useState(initUi.copySourceChildId);
   const [copySelectedAcademyIds, setCopySelectedAcademyIds] = useState(initUi.copySelectedAcademyIds);
@@ -4448,7 +4450,7 @@ export default function App() {
 
         {DEV_MODE && showDevTools && (
           /* 개발자 도구 — src/components/DevToolsPanel.jsx 로 분리 (CLAUDE.md 3) */
-          <DevToolsPanel D={{ children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, setShowExpPreview, setShowCampProto, discoveryData }} />
+          <DevToolsPanel D={{ children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, setShowExpPreview, setShowCampProto, setShowGridProto, discoveryData }} />
         )}
         {DEV_MODE && showExpPreview && (
           /* 미션 배경·동선 점검 — src/components/DevExpeditionPreview.jsx (CLAUDE.md 2) */
@@ -4459,6 +4461,11 @@ export default function App() {
           /* 캐릭터 탭 캠프 배치 시안 — src/components/camp/CampPrototype.jsx
              원화 받기 전에 크기·간격·터치감만 먼저 정하려고 만든 것. 실제 탭은 안 건드린다. */
           <CampPrototype onClose={()=>setShowCampProto(false)} />
+        )}
+
+        {/* 캐릭터 탭 가방+격자 시안 — src/components/camp/GridPrototype.jsx */}
+        {DEV_MODE && showGridProto && (
+          <GridPrototype onClose={()=>setShowGridProto(false)} />
         )}
 
 

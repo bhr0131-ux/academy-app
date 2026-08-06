@@ -12,7 +12,7 @@ import { DISCOVERIES, getCollectedCount } from "../data/discoveries.js";
    열고 닫기(DEV_MODE && showDevTools)는 App이 결정한다.
    ════════════════════════════════════════════════════════════════════════ */
 export default function DevToolsPanel({ D }) {
-  const { children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, setShowExpPreview, setShowCampProto, discoveryData } = D;
+  const { children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, setShowExpPreview, setShowCampProto, setShowGridProto, discoveryData } = D;
   /* 패널 전용 스타일 헬퍼 (분리 전 App에 있던 것 그대로) */
   const devBtn=(bg)=>({width:"100%",border:"none",borderRadius:12,padding:"13px",background:bg,color:"#fff",fontSize:14,fontWeight:900,cursor:"pointer"});
   const devMiniBtn=(bg)=>({border:"none",borderRadius:10,padding:"10px 8px",background:bg,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer"});
@@ -174,6 +174,13 @@ export default function DevToolsPanel({ D }) {
                   <p style={{fontSize:11.5,color:C.sub,fontWeight:700,margin:"7px 0 0",lineHeight:1.5}}>
                     원화 받기 전에 크기·간격·터치감만 먼저 정하는 자리. 크기 후보를 눌러 가며
                     필요한 배경 원화 크기를 확인한다. 실제 캐릭터 탭은 아직 그대로다.
+                  </p>
+                  <button onClick={()=>{ setShowDevTools(false); setShowGridProto(true); }} style={{...devBtn("#7FA8B8"),marginTop:8}}>
+                    🧳 가방 + 격자 시안
+                  </button>
+                  <p style={{fontSize:11.5,color:C.sub,fontWeight:700,margin:"7px 0 0",lineHeight:1.5}}>
+                    캠프를 걷어내고 가방 카드 + 아이콘 2열 격자로 가는 배치. 화면 맨 아래에
+                    필요한 원화 크기(표시 폭 × 3.5배)를 실측해서 보여 준다.
                   </p>
                 </div>
 
