@@ -1,19 +1,27 @@
 /* ════════════════════════════════════════════════════════════════════════
-   AdventureJournalCard — 탐험일지 학원 카드 (양피지 노트 원화 오버레이)
+   AdventureJournalCard — 탐험일지 학원 카드 (스프링 노트 원화 오버레이)
    ────────────────────────────────────────────────────────────────────────
-   사용자 원화(assets/journal-card.webp)에 아이콘만 그려져 있고 나머지는 빈
-   종이다. 이 컴포넌트는 값을 % 좌표로 얹는다.
-   [v5 2026-08-05] 밑줄·패널 상자·우표 장식이 없는 깔끔한 판으로 교체.
-   좌표는 원화 픽셀에서 실측했다 (색이 진한 곳 = 아이콘으로 잡아 덩어리별 bbox):
-     리스 중심 (31.7%, 20.0%) — 지름 x 21.4~42.1 · y 10.4~29.7
-     시계 중심 y 40.7% (x 14.6~28.2)   버스 중심 y 56.6% (x 12.1~28.5)
-     배낭 중심 y 72.3% (x 14.4~29.4)   과녁 중심 y 87.7% (x 17.2~28.3)
-   아이콘이 x 29.4%에서 끝나므로 글자는 32.5%부터 쓴다.
-   제목은 리스 오른쪽(42.1%) 밖으로 빼야 겹치지 않는다.
+   사용자 원화(assets/journal-card.webp, 1254×1254 정사각)에는 종이·제본링·
+   나침반·발자국 장식과 왼쪽 아이콘 네 개만 그려져 있다. 글자는 전부 앱이
+   아이콘 오른쪽에 얹는다. 라벨(제목 글자)은 원화에 없으므로 쓰지 않는다 —
+   아이콘이 곧 라벨이다.
+
+   원화 실측 (연결요소 bbox, %는 원화 폭·높이 기준)
+     종이면      x 3.7~96.9 · y 3.0~98.0
+     모서리 장식 x 90.4~96.4 · y 3.0~5.0
+     나침반      x 84.8~92.3 · y 7.7~14.9      ← 제목이 침범하면 안 되는 곳
+     발자국      x 14~40    · y 5.9~9.2
+     시계        x 16.5~26.2 · y 31.4~41.3  중심 (21.3, 36.4)
+     버스        x 15.8~27.5 · y 47.3~55.9  중심 (21.7, 51.6)
+     배낭        x 15.8~26.6 · y 61.0~72.7  중심 (21.2, 66.9)
+     과녁        x 17.0~28.4 · y 78.2~89.3  중심 (22.7, 83.8)
+
+   글자 열은 아이콘 오른쪽 x 31% 에서 시작해 오른쪽 종이 끝 전(93%)까지.
+   제목은 나침반·발자국을 피해 y 16~29% 구간에 놓는다.
    퀘스트(숙제) 목록은 사용자 확정으로 카드에서 제외 — 미션 탭에서 관리.
 
    props
-     icon     : string   학원 이모지 (엠블럼 링 안)
+     icon     : string   학원 이모지 (제목 앞)
      title    : string   던전명 (예: 선율의 신전)
      name     : string   실제 학원명 (부제)
      time     : string   시작 시각 (한글 변환된 값)
@@ -29,6 +37,16 @@ import { useRef } from "react";
 // 앱 전체 글씨체(카페24 써라운드)로 통일 — 제목·값 모두 (사용자 확정)
 const F_HAND = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 const F_BODY = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
+
+// 글자 열 — 왼쪽 아이콘 오른쪽에서 시작해 종이 오른쪽 끝 전까지
+const COL_L = "31%";
+const COL_R = "7%";       // right 값 (= x 93%)
+
+// 아이콘 네 개의 중심 y (원화 실측)
+const Y_TIME    = "36.4%";
+const Y_SHUTTLE = "51.6%";
+const Y_SUPPLY  = "66.9%";
+const Y_MISSION = "83.8%";
 
 // onPrev/onNext: 좌우 스와이프로 시간순 이전/다음 학원 일지로 전환 (App이 순환 이동 전달)
 // 카드가 학원 전환으로 다시 마운트될 때(key=학원 id) 페이지 넘김 애니메이션 재생
@@ -50,48 +68,59 @@ export default function AdventureJournalCard({
         }
       }}
       style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", marginBottom: 14, touchAction: "pan-y" }}>
-      {/* v5 초록 노트 원화 (1254×1254 → 화면용 1100px, 모서리 검정은 투명 펀칭).
-          빈 종이라 값을 아이콘 오른쪽에 그대로 쓴다. */}
+
+      {/* v6 스프링 노트 원화 (1254×1254) — 왼쪽 아이콘 네 개만 있고 글자는 전부 앱이 얹는다 */}
       <img src="assets/journal-card.webp" alt="" draggable={false}
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", filter: "drop-shadow(0 6px 14px rgba(74,90,37,0.22))" }} />
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block",
+          filter: "drop-shadow(0 6px 14px rgba(74,90,37,0.22))" }} />
 
-      {/* 엠블럼 — 잎 리스 '안'에 들어가게, 리스 원 정중앙 정렬 (실측 중심) */}
-      <span style={{ position: "absolute", left: "31.7%", top: "20%", transform: "translate(-50%,-50%)",
-        fontSize: "clamp(22px, 8vw, 38px)", lineHeight: 1, pointerEvents: "none" }}>{icon}</span>
-
-      {/* 제목 — 던전명(손글씨 크게) + 학원명(부제), 리스 우측 여백 */}
-      <div style={{ position: "absolute", left: "46%", right: "7%", top: "11%", height: "18%",
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", pointerEvents: "none" }}>
+      {/* 제목 — 학원 이모지 + 던전명, 아래에 학원명.
+          나침반(x 84.8~ / y 7.7~14.9)과 발자국(y ~9.2)을 피해 y 16~29%, 오른쪽은 82%까지만. */}
+      <div style={{ position: "absolute", left: "9%", right: "18%", top: "16%", height: "13%",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        textAlign: "center", pointerEvents: "none" }}>
         <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(12.7px, 4.3vw, 19.8px)",
           color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,255,255,0.7)",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{title}</p>
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>
+          <span style={{ marginRight: 5 }}>{icon}</span>{title}
+        </p>
         <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(8.2px, 2.8vw, 12.1px)",
           color: "#7A6E48", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{name}</p>
       </div>
 
-      {/* 탐험 시작 — 시각은 왼쪽 밑줄 위, 남은시간은 줄 맨 오른쪽 끝에 (사용자 확정: 시각에 붙이지 말고 떼서 우측).
+      {/* 탐험 시작 (시계) — 시각은 왼쪽, 남은시간은 줄 맨 오른쪽 끝에 (사용자 확정: 시각에 붙이지 말고 떼서 우측).
           marginLeft:auto로 밀어 두면 남는 폭이 좁아졌을 때만 아랫줄로 내려가고, 그때도 우측 정렬이 유지된다. */}
-      <div style={{ position: "absolute", left: "32.5%", right: "6%", top: "40.7%", transform: "translateY(-50%)",
-        display: "flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "space-between", columnGap: 8, rowGap: 0, pointerEvents: "none" }}>
-        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11px, 3.7vw, 15.4px)", color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap", flexShrink: 0 }}>{time}</span>
-        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(8.8px, 3vw, 12.1px)", color: "#7A6E48", whiteSpace: "nowrap", marginLeft: "auto", flexShrink: 0 }}>{remain}</span>}
+      <div style={{ position: "absolute", left: COL_L, right: COL_R, top: Y_TIME, transform: "translateY(-50%)",
+        display: "flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "space-between",
+        columnGap: 8, rowGap: 0, pointerEvents: "none" }}>
+        <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11px, 3.7vw, 15.4px)",
+          color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap", flexShrink: 0 }}>{time}</span>
+        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(8.8px, 3vw, 12.1px)", color: "#7A6E48",
+          whiteSpace: "nowrap", marginLeft: "auto", flexShrink: 0 }}>{remain}</span>}
       </div>
 
-      {/* 셔틀 — 버스 아이콘 옆 */}
-      <div style={{ position: "absolute", left: "32.5%", right: "8%", top: "56.6%", transform: "translateY(-50%)", textAlign: "left", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11px, 3.7vw, 15.4px)", color: "#4E432A", lineHeight: 1.3,
+      {/* 셔틀 (버스) */}
+      <div style={{ position: "absolute", left: COL_L, right: COL_R, top: Y_SHUTTLE, transform: "translateY(-50%)",
+        textAlign: "left", pointerEvents: "none" }}>
+        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11px, 3.7vw, 15.4px)",
+          color: "#4E432A", lineHeight: 1.3,
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{shuttle}</p>
       </div>
 
-      {/* 준비물 — 가방 아이콘 옆 체크 칩 (App이 토글 포함해 내려줌, 많으면 스크롤) */}
-      <div style={{ position: "absolute", left: "32.5%", right: "7%", top: "65.8%", height: "13%",
-        display: "flex", flexWrap: "wrap", gap: 5, alignContent: "center", justifyContent: "flex-start", overflowY: "auto" }}>
+      {/* 준비물 (배낭) — 체크 칩 (App이 토글 포함해 내려줌, 많으면 스크롤).
+          배낭 중심(66.9%)에 맞춰 가운데를 두되, 좁은 폰에서 칩이 두 줄로 접히므로
+          높이를 16%까지 준다 — 아래 과녁이 78.2%에서 시작하니 75%까지는 안 부딪친다. */}
+      <div style={{ position: "absolute", left: COL_L, right: COL_R, top: "59%", height: "16%",
+        display: "flex", flexWrap: "wrap", gap: 5, alignContent: "center", justifyContent: "flex-start",
+        overflowY: "auto" }}>
         {supplies}
       </div>
 
-      {/* 남은 미션 배너 값 — 타깃 아이콘 옆 (라벨 없음 → 문구를 온전히 표기) */}
-      <div style={{ position: "absolute", left: "32.5%", top: "87.7%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11.6px, 4vw, 16.5px)", color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
+      {/* 남은 미션 (과녁) */}
+      <div style={{ position: "absolute", left: COL_L, right: COL_R, top: Y_MISSION, transform: "translateY(-50%)",
+        pointerEvents: "none" }}>
+        <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11.6px, 4vw, 16.5px)",
+          color: missionTone, whiteSpace: "nowrap" }}>{missionText}</p>
       </div>
     </div>
   );
