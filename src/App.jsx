@@ -17,6 +17,7 @@ import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import CampPrototype from "./components/camp/CampPrototype.jsx";
 import GridPrototype from "./components/camp/GridPrototype.jsx";
+import { SupplyCheckModal, MissionCheckModal } from "./components/parent/TodayCareModals.jsx";
 import CampScene from "./components/camp/CampScene.jsx";
 import DecorShopSheet from "./components/camp/DecorShopSheet.jsx";
 import StreakSheet from "./components/camp/StreakSheet.jsx";
@@ -353,6 +354,9 @@ export default function App() {
   const [showExpPreview,         setShowExpPreview]         = useState(false);
   const [showCampProto,          setShowCampProto]          = useState(false);
   const [showGridProto,          setShowGridProto]          = useState(false);
+  // 엄마용 홈 '오늘 챙길 일' 확인 팝업 — 값은 보고 있는 날짜(YYYY-MM-DD), 닫히면 null
+  const [showSupplyCheck,        setShowSupplyCheck]        = useState(null);
+  const [showMissionCheck,       setShowMissionCheck]       = useState(null);
   const [showAcademyCopyModal,   setShowAcademyCopyModal]   = useState(initUi.showAcademyCopyModal);
   const [copySourceChildId,      setCopySourceChildId]      = useState(initUi.copySourceChildId);
   const [copySelectedAcademyIds, setCopySelectedAcademyIds] = useState(initUi.copySelectedAcademyIds);
@@ -853,6 +857,29 @@ export default function App() {
   // 보상탭·위험구역 등 보호가 필요한 동작에 PIN을 요구하는 범용 게이트.
   // run: PIN 통과 시 실행할 함수, title: 모달에 표시할 안내 문구
   const askPin=(run,title)=>{ setGatePin(""); setGateAction({run,title}); };
+
+  // 보상탭 이동 — 누를 때마다 PIN을 받는다(이미 열려 있으면 그대로).
+  // 탭 바와 엄마용 홈 '오늘 챙길 일'의 보상승인 칩이 같이 쓴다.
+  const goRewardTab=()=>{
+    if(tab==="reward" && rewardUnlocked) return;
+    askPin(()=>{
+      setRewardUnlocked(true); setTab("reward");
+      // 보상탭 첫 진입 시: 권한 구조 안내(welcome)를 1회만 노출
+      if(!parentWelcomeSeen){
+        setParentWelcomeSeen(true);
+        save("v6_parent_welcome_seen","1");
+        setTimeout(()=>setShowParentWelcome(true),450);
+      } else if(!parentRewardGuideSeen){
+        // (별개) 첫 구매요청이 있는데 아직 안내 안 봤으면 1회 안내
+        const anyPending=Object.values(rewardRequests).some(list=>(list||[]).some(r=>r.status==="pending"));
+        if(anyPending){
+          setParentRewardGuideSeen(true);
+          save("v6_parent_reward_guide_seen","1");
+          setTimeout(()=>setShowParentRewardGuide(true),450);
+        }
+      }
+    }, "🎁 보상 관리");
+  };
   const submitGatePin=()=>{
     // 개발자 도구: DEV_MODE에서 DEV_PIN 입력 시 보상탭 대신 개발자 도구 진입
     if(DEV_MODE && gatePin===DEV_PIN){
@@ -1579,6 +1606,17 @@ export default function App() {
   const GP = _skin.paletteFn ? _skin.paletteFn(th.main) : _skin.palette;   // 테마색 적용 팔레트(없으면 정적)
   const ST = _skin.stamp || {on:false};  // 완료 도장(베이커리) 설정
   const CT = makeThemeColors(th.main);   // 현재 테마색에 맞춘 박스색 세트
+
+  // '오늘 챙길 일' 팝업에 넘길 색 토큰·날짜 이름 (팝업은 그리기만 하므로 값으로 내려준다)
+  const careTone={text:C.text,sub:C.sub,border:C.border,faint:CT.faint,
+                  green:C.green,red:C.red,orange:C.orange,main:th.main};
+  const dateLabelOf=(d)=>{
+    if(d===TODAY) return "오늘";
+    if(d===addDays(TODAY,1)) return "내일";
+    if(d===addDays(TODAY,-1)) return "어제";
+    const t=parseLocal(d); return `${t.getMonth()+1}월 ${t.getDate()}일`;
+  };
+
   // ── 젤리 스타일 헬퍼 (베이커리 전용) ─────────────────────────
   // 색은 기존 톤(흰빛+테마 틴트) 유지, 형태만 말랑한 젤리로 통일.
   const jellyBox = (fallback={}, {radius=22}={}) => kidSkin==="cute"
@@ -4608,27 +4646,7 @@ export default function App() {
           return (
             <button key={k} onClick={()=>{
               // '보상' 탭은 누를 때마다 항상 PIN 요구. 다른 탭으로 가면 즉시 잠금 해제(rewardUnlocked=false).
-              if(k==="reward"){
-                if(tab==="reward" && rewardUnlocked){ return; } // 이미 보상탭에 열려있으면 그대로
-                askPin(()=>{
-                  setRewardUnlocked(true); setTab("reward");
-                  // 보상탭 첫 진입 시: 권한 구조 안내(welcome)를 1회만 노출
-                  if(!parentWelcomeSeen){
-                    setParentWelcomeSeen(true);
-                    save("v6_parent_welcome_seen","1");
-                    setTimeout(()=>setShowParentWelcome(true),450);
-                  } else if(!parentRewardGuideSeen){
-                    // (별개) 첫 구매요청이 있는데 아직 안내 안 봤으면 1회 안내
-                    const anyPending=Object.values(rewardRequests).some(list=>(list||[]).some(r=>r.status==="pending"));
-                    if(anyPending){
-                      setParentRewardGuideSeen(true);
-                      save("v6_parent_reward_guide_seen","1");
-                      setTimeout(()=>setShowParentRewardGuide(true),450);
-                    }
-                  }
-                }, "🎁 보상 관리");
-                return;
-              }
+              if(k==="reward"){ goRewardTab(); return; }
               // 보상탭이 아닌 다른 탭으로 이동 → 보상 잠금 해제(다음에 보상탭 누르면 다시 PIN)
               if(rewardUnlocked) setRewardUnlocked(false);
               setTab(k);
@@ -4658,8 +4676,9 @@ export default function App() {
           const vacAcToday=curAc.filter(a=>hasClassOnDay(a,hDN)&&isVacationDay(childId,a.id,homeDate));
           const absOnHome=curAbs.filter(a=>a.date===homeDate);
           const makeupOnHome=curAbs.filter(a=>a.makeupDate===homeDate);
-          const homePendingHw=getQuestItemsForDate(childId,homeDate).filter(it=>it.kind==="homework"&&!it.done&&!it.failed).length;
-          const homePendingTodo=getQuestItemsForDate(childId,homeDate).filter(it=>it.kind==="todo"&&!it.done&&!it.failed).length;
+          // [사용자 확정 2026-08-07] 숙제와 미션을 나누지 않고 '미완료 미션' 하나로 센다.
+          const homeQuestItems=getQuestItemsForDate(childId,homeDate);
+          const homePendingQuest=homeQuestItems.filter(it=>!it.done&&!it.failed).length;
           const homeSupplyCount=homeAc.reduce((n,ac)=>{
             const entry=getDailyEntry(childId,ac.id,homeDate);
             const hidden=entry.hiddenBase||[];
@@ -4702,13 +4721,19 @@ export default function App() {
                 {/* 오늘 챙길 일 알림 */}
                 {(()=>{
                   const pendingRewardCnt=getChildRewardRequests(childId).filter(r=>r.status==="pending").length;
+                  // 칩마다 누르면 갈 곳을 함께 둔다 (사용자 확정: 개수만 보여 주지 말고 내용까지 확인 가능하게).
+                  // 준비물·미션은 팝업, 보상승인·결석·보충수업은 이미 처리 화면이 있는 탭으로 보낸다.
                   const alerts=[];
-                  if(homeSupplyCount>0) alerts.push({label:`🎒 준비물 ${homeSupplyCount}개`,color:th.main});
-                  if(homePendingHw>0) alerts.push({label:`📝 미완료 숙제 ${homePendingHw}개`,color:th.main});
-                  if(homePendingTodo>0) alerts.push({label:`🎯 미완료 미션 ${homePendingTodo}개`,color:th.main});
-                  if(pendingRewardCnt>0) alerts.push({label:`🎁 보상승인 ${pendingRewardCnt}개`,color:C.green});
-                  if(absOnHome.length>0) alerts.push({label:`🏥 결석 ${absOnHome.length}개`,color:C.red});
-                  if(makeupOnHome.length>0) alerts.push({label:`📚 보충수업 ${makeupOnHome.length}개`,color:C.orange});
+                  if(homeSupplyCount>0) alerts.push({label:`🎒 준비물 ${homeSupplyCount}개`,color:th.main,
+                    go:()=>setShowSupplyCheck(homeDate)});
+                  if(homePendingQuest>0) alerts.push({label:`🎯 미완료 미션 ${homePendingQuest}개`,color:th.main,
+                    go:()=>setShowMissionCheck(homeDate)});
+                  if(pendingRewardCnt>0) alerts.push({label:`🎁 보상승인 ${pendingRewardCnt}개`,color:C.green,
+                    go:goRewardTab});
+                  if(absOnHome.length>0) alerts.push({label:`🏥 결석 ${absOnHome.length}개`,color:C.red,
+                    go:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("absence"); }});
+                  if(makeupOnHome.length>0) alerts.push({label:`📚 보충수업 ${makeupOnHome.length}개`,color:C.orange,
+                    go:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("absence"); }});
                   const hasAlert=alerts.length>0;
                   return (
                     <div style={{background:hasAlert?"#fff":mixWhite(th.main,0.85),border:`1px solid ${hasAlert?th.main+"22":th.main+"40"}`,borderRadius:14,padding:"13px 14px",marginBottom:10,display:"flex",alignItems:hasAlert?"flex-start":"center",gap:12,boxShadow:SHADOW.sm}}>
@@ -4718,7 +4743,14 @@ export default function App() {
                         {hasAlert?(
                           <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                             {alerts.map((a,i)=>(
-                              <span key={i} style={{fontSize:13,fontWeight:900,color:mixBlack(a.color,0.5),background:mixWhite(a.color,0.88),border:`1px solid ${a.color}33`,borderRadius:10,padding:"4px 10px",whiteSpace:"nowrap"}}>{a.label}</span>
+                              <button key={i} onClick={a.go} className="jelly-tap"
+                                aria-label={`${a.label} 확인`}
+                                style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",
+                                  fontSize:13,fontWeight:900,color:mixBlack(a.color,0.5),background:mixWhite(a.color,0.88),
+                                  border:`1px solid ${a.color}33`,borderRadius:10,padding:"5px 10px",whiteSpace:"nowrap",
+                                  cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
+                                {a.label}<span style={{fontSize:10,opacity:0.65}}>›</span>
+                              </button>
                             ))}
                           </div>
                         ):(
@@ -6263,6 +6295,55 @@ export default function App() {
       )}
 
       {/* ── 지난 미션 보기 모달 (엄마용: 못한 지난 미션 확인 + 체크/실패로 마감) ── */}
+      {/* ── 오늘 챙길 일: 🎒 준비물 확인 ─────────────────────────────────
+           그날 수업이 있는 학원별로 준비물을 묶고, 아이가 탐험일지에서 체크한
+           상태를 그대로 비춘다. 체크 키 규칙은 탐험일지와 같다 —
+           기본 준비물은 이름 그대로, 그날 추가분은 앞에 '+'. */}
+      {showSupplyCheck&&(()=>{
+        const date=showSupplyCheck;
+        const dn=["일","월","화","수","목","금","토"][new Date(date.replace(/-/g,"/")).getDay()];
+        const acList=curAc.filter(a=>hasClassOnDay(a,dn)&&!isVacationDay(childId,a.id,date))
+                          .sort((a,b)=>getClassTime(a,dn).localeCompare(getClassTime(b,dn)));
+        const groups=acList.map(ac=>{
+          const entry=getDailyEntry(childId,ac.id,date);
+          const hidden=entry.hiddenBase||[], checked=entry.checkedSupplies||[];
+          const items=[
+            ...(ac.baseSupplies||[]).filter(x=>!hidden.includes(x))
+              .map(x=>({key:`b-${x}`,label:x,checked:checked.includes(x),extra:false})),
+            ...(entry.supplies||[])
+              .map(x=>({key:`s-${x}`,label:x,checked:checked.includes("+"+x),extra:true})),
+          ];
+          return {acId:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin).icon,color:ac.color,items};
+        }).filter(g=>g.items.length>0);
+        return <SupplyCheckModal dateLabel={dateLabelOf(date)} groups={groups}
+          tone={careTone} onClose={()=>setShowSupplyCheck(null)} />;
+      })()}
+
+      {/* ── 오늘 챙길 일: 🎯 미션 확인 ───────────────────────────────────
+           숙제와 미션을 한 목록으로 합쳐 학원별로 묶고, 남은 것과 끝낸 것을
+           위아래로 나눈다. 실패 처리된 것은 끝낸 쪽에 '실패'로 남긴다. */}
+      {showMissionCheck&&(()=>{
+        const date=showMissionCheck;
+        const items=getQuestItemsForDate(childId,date);
+        const pack=(list)=>{
+          const by=new Map();
+          list.forEach(it=>{
+            if(!by.has(it.academyId)) by.set(it.academyId,
+              {acId:it.academyId,name:it.academyName,icon:getAcademyTheme(it.academyName,kidSkin).icon,
+               color:it.academyColor,items:[]});
+            by.get(it.academyId).items.push(
+              {key:`${it.kind}-${it.academyId}-${it.id}`,label:it.label,kind:it.kind,failed:!!it.failed});
+          });
+          return [...by.values()];
+        };
+        const groups={
+          remain: pack(items.filter(it=>!it.done&&!it.failed)),
+          done:   pack(items.filter(it=>it.done||it.failed)),
+        };
+        return <MissionCheckModal dateLabel={dateLabelOf(date)} groups={groups}
+          tone={careTone} onClose={()=>setShowMissionCheck(null)} />;
+      })()}
+
       {showPastMissionModal&&(()=>{
         const date=showPastMissionModal;
         const cands=getPastQuestCandidates(childId,date)
