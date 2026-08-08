@@ -125,7 +125,8 @@ const RIDE_GIRL_READY = ["unicorn", "dragon", "rocket", "eagle",
                          "deer", "camel", "goat", "cablecar",
                          "horse", "donkey", "dolphin", "ship",
                          "sailboat", "canoe", "raft",
-                         "flamingo", "owl", "crystal", "bat"];
+                         "flamingo", "owl", "crystal", "bat",
+                         "minecart", "sled", "turtle", "cloud"];
 
 RIDE_READY.forEach((k) => {
   if (!MOUNTS[k]) return;
