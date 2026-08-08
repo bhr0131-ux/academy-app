@@ -173,7 +173,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | map-bld-v8/tikihut2-src.webp | 지도 학원 건물 v8-4 (티키 초가+항아리, 구멍 투명 제공됨) | map-bld-tikihut2.webp |
 | expedition/char/common-{walk,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 3종 (남아 원화, halo 보정 후 탑재) | expedition/char/common-*.webp |
 | expedition/char/girl-{idle,walk,run,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 5종 여아 원화 (2026-08-08 — 원본 316×597 / 197×345 / 521×867 / 414×266 / 217×370. halo 재색칠 후 **남아와 같은 높이**(412·276·220·207·301)로 줄여 탑재 — 그림은 높이로만 크기가 정해져서 높이를 맞춰야 두 성별이 같게 그려진다. 이로써 포즈는 남녀 전부 따로) | expedition/char/girl-*.webp |
-| expedition/ride/{키}-girl-src.webp | 탐험 씬 탈것 여아 원화 30종 (2026-08-08). 탈것 그림에는 타고 있는 아이도 같이 그려져 있어 성별이 갈린다. 대개 남아 판과 크기가 거의 같아 그대로 탑재하지만, 크게 온 것은 **남아와 같은 높이로 줄인다**(거북이 487→302 · 고래 888→266 · 모래보드 475→238 등) — 그림은 높이로만 크기가 정해지므로 높이를 맞춰야 두 성별이 같은 해상도로 보인다. halo 재색칠은 전부 적용. 남은 2종(잠수함·열기구)은 공용 그림 — 오면 RIDE_GIRL_READY에 키만 추가 | expedition/ride/{키}-girl.webp |
+| expedition/ride/{키}-girl-src.webp | 탐험 씬 탈것 여아 원화 31종 (2026-08-08). 탈것 그림에는 타고 있는 아이도 같이 그려져 있어 성별이 갈린다. 대개 남아 판과 크기가 거의 같아 그대로 탑재하지만, 크게 온 것은 **남아와 같은 높이로 줄인다**(거북이 487→302 · 고래 888→266 등). 열기구 여아는 **마젠타 배경**으로 와서 flood fill 로 지우고 외곽선에 스민 분홍 193px을 이웃 색으로 갈았다. halo 재색칠은 전부 적용. 남은 1종(잠수함)은 공용 그림 — 오면 RIDE_GIRL_READY에 키만 추가 | expedition/ride/{키}-girl.webp |
 | expedition/char/common-idle-src.webp | 탐험 씬 기본 서있기 포즈 (미션 0개일 때 출발지 대기 — halo 보정 후 탑재) | expedition/char/common-idle.webp |
 | expedition/bg/bg-river-v4-src.webp | 강 배경 v4 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-river.webp |
 | expedition/flag/{red,blue,green,yellow}-src.webp | 도착 깃발 4색 (빨강 잎가지·파랑 물방울·초록 잎·노랑 별 — halo 보정 후 탑재) | expedition/flag/*.webp |
@@ -202,7 +202,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | expedition/ride/unicorn-src.webp | 탑승 원화 18 유니콘 — 깊은숲 대표·보물 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/unicorn.webp |
 | expedition/ride/minecart-src.webp | 탑승 원화 21 광산 수레 — 동굴 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/minecart.webp |
 | expedition/ride/bat-src.webp | 탑승 원화 22 박쥐 — 동굴 대표 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/bat.webp |
-| expedition/ride/balloon-src.webp | 탑승 원화 14 열기구 — 초원 대표·사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/balloon.webp |
+| expedition/ride/balloon-src.webp | 탑승 원화 14 열기구 남아 (하늘 lift). **2026-08-08 재제작 113×177 → 200×310** (표시 55×86px의 3.5배 — 실측). 받은 원화가 검정 배경이라 테두리 flood fill 로 투명 처리(26.5%) 후 가장자리 알파 깃털. 여아 판도 같은 200×310 | expedition/ride/balloon.webp |
 | expedition/ride/sailboat-src.webp | 탑승 원화 3 범선 — 보물 대표·강/바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/sailboat.webp |
 | expedition/ride/ship-src.webp | 탑승 원화 4 큰배 — 바다 대표·강 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/ship.webp |
 | expedition/ride/turtle-src.webp | 탑승 원화 6 거북이 — 강·바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/turtle.webp |
