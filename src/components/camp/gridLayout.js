@@ -46,9 +46,17 @@ export const LABEL_F_MAX  = 18.5;
 export const CARD_TOP_R    = 0.030;
 export const CARD_BOTTOM_R = 0.075;
 
-/* 카드 안쪽 — 시안의 흰 종이면(테두리 안쪽) 실측 %.
-   가방 원화가 오면 이 값만 다시 재서 고치면 된다. */
-export const CARD_PANEL = { l: 11.5, r: 88.5, t: 15.0, b: 86.0 };
+/* 카드 안쪽 종이면 — 받은 가방 원화(1000×862)에서 실측한 값.
+   밝은 크림색 픽셀이 이어지는 구간을 가로·세로 가운데 줄에서 찾았다. */
+export const CARD_PANEL = { l: 12.2, r: 88.1, t: 22.5, b: 84.8 };
+
+/* 캐릭터 탭 종이 배경색 — 시안 실측 rgb(251,243,237).
+   [사용자 확정 2026-08-08] 캐릭터 탭은 배경 그림 없이 이 색만 깐다. */
+export const PAPER = "#FBF3ED";
+export const INK = "#4E432A";
+export const INK_SUB = "#8A7A5E";
+export const BAR_FILL = "#8DBF3F";
+export const BAR_TRACK = "rgba(74,52,24,0.14)";
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
