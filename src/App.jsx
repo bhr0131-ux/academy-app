@@ -6307,16 +6307,19 @@ export default function App() {
         const groups=acList.map(ac=>{
           const entry=getDailyEntry(childId,ac.id,date);
           const hidden=entry.hiddenBase||[], checked=entry.checkedSupplies||[];
+          // toggleKey는 아이 탐험일지와 같은 규칙이어야 양쪽이 같은 값을 켜고 끈다
+          // (기본 준비물은 이름 그대로, 그날 추가분은 앞에 '+')
           const items=[
             ...(ac.baseSupplies||[]).filter(x=>!hidden.includes(x))
-              .map(x=>({key:`b-${x}`,label:x,checked:checked.includes(x),extra:false})),
+              .map(x=>({key:`b-${x}`,toggleKey:x,label:x,checked:checked.includes(x),extra:false})),
             ...(entry.supplies||[])
-              .map(x=>({key:`s-${x}`,label:x,checked:checked.includes("+"+x),extra:true})),
+              .map(x=>({key:`s-${x}`,toggleKey:"+"+x,label:x,checked:checked.includes("+"+x),extra:true})),
           ];
           return {acId:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin).icon,color:ac.color,items};
         }).filter(g=>g.items.length>0);
         return <SupplyCheckModal dateLabel={dateLabelOf(date)} groups={groups}
-          tone={careTone} onClose={()=>setShowSupplyCheck(null)} />;
+          tone={careTone} onClose={()=>setShowSupplyCheck(null)}
+          onToggle={(acId,key)=>toggleSupplyChecked(childId,acId,date,key)} />;
       })()}
 
       {/* ── 오늘 챙길 일: 🎯 미션 확인 ───────────────────────────────────
