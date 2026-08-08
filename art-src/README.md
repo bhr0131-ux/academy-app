@@ -209,7 +209,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | expedition/ride/raft-src.webp | 탑승 원화 2 뗏목 — 강 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/raft.webp |
 | expedition/ride/donkey-src.webp | 탑승 원화 8 당나귀 — 숲·깊은숲·초원 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/donkey.webp |
 | expedition/ride/dragon-src.webp | 탑승 원화 17 드래곤 — 깊은숲·동굴·보물 변형 (하늘 lift 5) (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/dragon.webp |
-| expedition/ride/cloud-src.webp | 탑승 원화 15 구름 — 초원·사막·보물 변형 (하늘 lift 7) (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/cloud.webp |
+| expedition/ride/cloud-src.webp | 탑승 원화 15 구름 남아 — 초원·사막·보물 변형 (하늘 lift 7). **2026-08-08 재제작 137×153 → 280×310** (표시 77×86px의 3.5배 — 실측으로 정한 값). 여아 판도 같은 높이 310으로 다시 뽑아 둘이 같은 해상도다 | expedition/ride/cloud.webp |
 | expedition/ride/eagle-src.webp | 탑승 원화 13 독수리 — 바위산·사막 변형 (하늘 lift 8) (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/eagle.webp |
 | expedition/ride/crystal-src.webp | 탑승 원화 23 수정 슬라이드 — 동굴 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/crystal.webp |
 | expedition/ride/owl-src.webp | 탑승 원화 24 큰 부엉이 — 깊은숲 변형 (하늘 lift 7) (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/owl.webp |
