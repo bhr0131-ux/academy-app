@@ -226,8 +226,4 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
 | bg-adventure-meadow-v10-src.webp | 탐험 모드 무대 기본 배경 v10 (866×1815 = 1:2.10 — 무대 칸 비율에 맞춘 세로 긴 판. v9과 구도는 같고 전체를 더 밝고 맑게 뺀 판(하늘 하늘색·모래 밝은 베이지). 우측 나무도 빠져 좌우가 트였다. 받은 그대로 톤 보정 없음, 현행) | stage-adventure-meadow.webp |
 | camp-bag-src.webp | 캐릭터 탭 가방 카드 '빈 틀' (1000×862 = 비율 1.160, 투명). 안쪽 종이면 x 12.2~88.1% · y 22.5~84.8%(실측)에 레벨·진행막대·코인/XP를 앱이 그린다 — 값이 매일 바뀌므로 그림에 넣지 않는다 | camp/bag.webp |
-| camp-{deco,item,box,pet}-v2-src.webp | 캐릭터 탭 격자 아이콘 4종 (490×490 정사각 = 표시 138px의 3.5배, 받침 없음). 나머지 4종(book·title·streak·history)은 아직 그루터기 붙은 옛 판을 쓴다 — 새 원화가 오면 같은 파일명으로 덮어쓰면 끝 | camp/st-*.webp |
-| camp/st-title-v1-src.webp | 캠프 스테이션 아이콘 — 상장 (그루터기+상장·트로피, 투명, 여백 잘라 1254×1072 → 화면용 540×462으로 축소 탑재) | camp/st-title.webp |
-| camp/st-streak-v1-src.webp | 캠프 스테이션 아이콘 — 연속 달성 (그루터기+모닥불, 투명, 여백 잘라 1063×892 → 화면용 540×453으로 축소 탑재) | camp/st-streak.webp |
-| camp/st-history-v1-src.webp | 캠프 스테이션 아이콘 — 탐험 기록 (그루터기+두루마리, 투명, 여백 잘라 1066×867 → 화면용 540×439으로 축소 탑재) | camp/st-history.webp |
-| camp/st-book-v1-src.webp | 캠프 스테이션 아이콘 — 발견 도감 (그루터기+도감책, 투명, 여백 잘라 1074×946 → 화면용 540×476으로 축소 탑재) | camp/st-book.webp |
+| camp-{deco,item,box,pet,book,title,streak,history}-v2-src.webp | 캐릭터 탭 격자 아이콘 **8종 전부** (490×490 정사각 = 표시 138px의 3.5배, 받침 없이 캔버스를 꽉 채운 판). 앱이 정사각 칸에 objectFit:contain 으로 넣으므로 여덟 칸의 무게가 저절로 맞는다. 그루터기 붙은 v1은 규칙 6에 따라 삭제 | camp/st-*.webp |
