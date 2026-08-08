@@ -514,15 +514,18 @@ export function getExpeditionRarity(dateStr) {
 }
 
 /* 캐릭터 포즈 원화 (사용자 원화 2026-07-30 — 원본 art-src/expedition/char/).
-   [사용자 확정] 지금은 남자아이 원화 하나를 남녀 공용으로 쓴다 — 여아 원화가
-   오면 girl 경로만 교체하면 된다. halo 보정(반투명 흰 픽셀 재색칠) 적용됨.
-   ride(공용 앉기)는 아직 없다 → 컴포넌트가 walk로 대체하고, 오면 여기만 채운다. */
+   halo 보정(반투명 흰 픽셀 재색칠) 적용됨.
+   [사용자 원화 2026-08-08] 여아 원화 4종(걷기·달리기·수영·만세)이 들어왔다.
+   그림은 '높이'로만 크기가 정해지므로(ExpeditionTrack의 imgH) 배포본을 남아와
+   같은 높이로 맞춰 두 성별이 같은 크기로 그려진다 — 276 / 220 / 207 / 301.
+   idle(출발지 기본 자세)은 아직 여아 원화가 없어 남아 것을 함께 쓴다.
+   ride(공용 앉기)도 없다 → 컴포넌트가 walk로 대체하고, 오면 여기만 채운다. */
 const _CP = "assets/expedition/char/";
 export const CHAR_IMG = {
-  idle:    { boy: _CP+"common-idle.webp",    girl: _CP+"common-idle.webp" },   // 미션 0개 — 출발지 기본 자세 (사용자 확정)
-  walk:    { boy: _CP+"common-walk.webp",    girl: _CP+"common-walk.webp" },
-  run:     { boy: _CP+"common-run.webp",     girl: _CP+"common-run.webp" },    // 초원 전용 달리기 (사용자 원화 2026-07-31)
-  swim:    { boy: _CP+"common-swim.webp",    girl: _CP+"common-swim.webp" },
+  idle:    { boy: _CP+"common-idle.webp",    girl: _CP+"common-idle.webp" },   // 미션 0개 — 출발지 기본 자세 (여아 원화 대기)
+  walk:    { boy: _CP+"common-walk.webp",    girl: _CP+"girl-walk.webp" },
+  run:     { boy: _CP+"common-run.webp",     girl: _CP+"girl-run.webp" },      // 초원 전용 달리기 (사용자 원화 2026-07-31)
+  swim:    { boy: _CP+"common-swim.webp",    girl: _CP+"girl-swim.webp" },
   ride:    null,
-  success: { boy: _CP+"common-success.webp", girl: _CP+"common-success.webp" },
+  success: { boy: _CP+"common-success.webp", girl: _CP+"girl-success.webp" },
 };
