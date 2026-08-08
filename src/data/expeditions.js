@@ -121,7 +121,9 @@ _DIVE.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].k = "dive"; });
    {키}-girl.webp 를 imgGirl 로 달아 두고, 뷰어가 성별로 골라 그린다.
    나머지는 imgGirl 이 없으므로 지금까지처럼 공용 그림을 쓴다.
    가로세로비는 남아 것과 0.01 안쪽이라 _RIDE_AR 를 그대로 쓴다. */
-const RIDE_GIRL_READY = ["unicorn", "dragon", "rocket", "eagle"];
+const RIDE_GIRL_READY = ["unicorn", "dragon", "rocket", "eagle",
+                         "deer", "camel", "goat", "cablecar",
+                         "horse", "donkey", "dolphin", "ship"];
 
 RIDE_READY.forEach((k) => {
   if (!MOUNTS[k]) return;
