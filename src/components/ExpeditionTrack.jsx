@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getExpedition, getExpeditionMount, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG,
+import { getExpedition, getExpeditionMount, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG, mountImgOf,
   POSE_MUL, GOAL_MARK_ENABLED } from "../data/expeditions.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -227,7 +227,10 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
       if (!v) return;
       [v.boy, v.girl].forEach((src) => { if (src) { const im = new Image(); im.src = src; } });
     });
-  }, []);
+    /* 오늘 탈 탈것도 같은 이유로 미리 받아 둔다 — 성별에 맞는 쪽으로 */
+    const mSrc = mountImgOf(mount, gender);
+    if (mSrc) { const im = new Image(); im.src = mSrc; }
+  }, [mount, gender]);
   /* [사용자 확정] 미션을 취소해서 뒤로 갈 때도 수영/걷기로 돌아간다 —
      idle(출발지 대기)은 이동이 끝난 뒤에만. 뒤로 갈 땐 좌우 반전(왼쪽 보기). */
   const idle = !arrived && done === 0 && !moving;
@@ -477,7 +480,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
               : hover ? "expBob 2.6s ease-in-out infinite" : "none" }}>
             {/* 탑승 회차: 탈것 원화 한 장이 캐릭터를 대신한다 (시트가 '탈것+앉은 캐릭터' 통짜).
                 도착해 이동이 끝나면 탈것에서 내려 성공 포즈만 (만세하는데 탈것 위면 어색해서) */}
-            <img src={riding ? mount.img : (charB || charImg)} alt="" draggable={false}
+            <img src={riding ? mountImgOf(mount, gender) : (charB || charImg)} alt="" draggable={false}
               style={{ position: "relative", zIndex: 1, width: "auto", display: "block",
                 /* 탑승 그림은 탈것까지 들어 있어 캐릭터만 있을 때보다 크게 (탈것별 hMul로 미세조정).
                    비율 카드에서는 감싼 div가 카드 높이의 %로 크기를 잡으므로 여기선 꽉 채우기만 한다 */
