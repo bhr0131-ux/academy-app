@@ -123,7 +123,9 @@ _DIVE.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].k = "dive"; });
    가로세로비는 남아 것과 0.01 안쪽이라 _RIDE_AR 를 그대로 쓴다. */
 const RIDE_GIRL_READY = ["unicorn", "dragon", "rocket", "eagle",
                          "deer", "camel", "goat", "cablecar",
-                         "horse", "donkey", "dolphin", "ship"];
+                         "horse", "donkey", "dolphin", "ship",
+                         "sailboat", "canoe", "raft",
+                         "flamingo", "owl", "crystal", "bat"];
 
 RIDE_READY.forEach((k) => {
   if (!MOUNTS[k]) return;
