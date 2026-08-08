@@ -173,7 +173,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | map-bld-v8/tikihut2-src.webp | 지도 학원 건물 v8-4 (티키 초가+항아리, 구멍 투명 제공됨) | map-bld-tikihut2.webp |
 | expedition/char/common-{walk,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 3종 (남아 원화, halo 보정 후 탑재) | expedition/char/common-*.webp |
 | expedition/char/girl-{idle,walk,run,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 5종 여아 원화 (2026-08-08 — 원본 316×597 / 197×345 / 521×867 / 414×266 / 217×370. halo 재색칠 후 **남아와 같은 높이**(412·276·220·207·301)로 줄여 탑재 — 그림은 높이로만 크기가 정해져서 높이를 맞춰야 두 성별이 같게 그려진다. 이로써 포즈는 남녀 전부 따로) | expedition/char/girl-*.webp |
-| expedition/ride/{키}-girl-src.webp | 탐험 씬 탈것 여아 원화 31종 (2026-08-08). 탈것 그림에는 타고 있는 아이도 같이 그려져 있어 성별이 갈린다. 대개 남아 판과 크기가 거의 같아 그대로 탑재하지만, 크게 온 것은 **남아와 같은 높이로 줄인다**(거북이 487→302 · 고래 888→266 등). 열기구 여아는 **마젠타 배경**으로 와서 flood fill 로 지우고 외곽선에 스민 분홍 193px을 이웃 색으로 갈았다. halo 재색칠은 전부 적용. 남은 1종(잠수함)은 공용 그림 — 오면 RIDE_GIRL_READY에 키만 추가 | expedition/ride/{키}-girl.webp |
+| expedition/ride/{키}-girl-src.webp | 탐험 씬 탈것 여아 원화 **32종 전부** (2026-08-08). 탈것 그림에는 타고 있는 아이도 같이 그려져 있어 성별이 갈린다. 대개 남아 판과 크기가 거의 같아 그대로 탑재하지만, 크게 온 것은 **남아와 같은 높이로 줄인다**(거북이 487→302 · 고래 888→266 · 잠수함 1341→356 등) — 그림은 높이로만 크기가 정해지므로 높이를 맞춰야 두 성별이 같은 해상도로 보인다. 배경이 박혀 온 것(열기구 여아 마젠타 · 열기구/잠수함 검정)은 테두리 flood fill 로만 지운다 — 색으로 지우면 눈·외곽선까지 뚫린다. halo 재색칠은 전부 적용 | expedition/ride/{키}-girl.webp |
 | expedition/char/common-idle-src.webp | 탐험 씬 기본 서있기 포즈 (미션 0개일 때 출발지 대기 — halo 보정 후 탑재) | expedition/char/common-idle.webp |
 | expedition/bg/bg-river-v4-src.webp | 강 배경 v4 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-river.webp |
 | expedition/flag/{red,blue,green,yellow}-src.webp | 도착 깃발 4색 (빨강 잎가지·파랑 물방울·초록 잎·노랑 별 — halo 보정 후 탑재) | expedition/flag/*.webp |
