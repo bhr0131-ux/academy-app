@@ -15,10 +15,8 @@ import { getMapWalker } from "./data/mapWalkers.js";
 import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
 import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
-import CampPrototype from "./components/camp/CampPrototype.jsx";
-import GridPrototype from "./components/camp/GridPrototype.jsx";
 import { SupplyCheckModal, MissionCheckModal } from "./components/parent/TodayCareModals.jsx";
-import CampScene from "./components/camp/CampScene.jsx";
+import CharacterGrid from "./components/camp/CharacterGrid.jsx";
 import DecorShopSheet from "./components/camp/DecorShopSheet.jsx";
 import StreakSheet from "./components/camp/StreakSheet.jsx";
 import TitleSheet from "./components/camp/TitleSheet.jsx";
@@ -352,8 +350,6 @@ export default function App() {
   const [showDevTools,           setShowDevTools]           = useState(initUi.showDevTools);
   /* 미션 배경 점검 미리보기 (개발자 도구 전용) — 저장 안 함, 열릴 때마다 새로 */
   const [showExpPreview,         setShowExpPreview]         = useState(false);
-  const [showCampProto,          setShowCampProto]          = useState(false);
-  const [showGridProto,          setShowGridProto]          = useState(false);
   // 엄마용 홈 '오늘 챙길 일' 확인 팝업 — 값은 보고 있는 날짜(YYYY-MM-DD), 닫히면 null
   const [showSupplyCheck,        setShowSupplyCheck]        = useState(null);
   const [showMissionCheck,       setShowMissionCheck]       = useState(null);
@@ -3585,12 +3581,17 @@ export default function App() {
             {k:"growth",title:"캐릭터",sub:`레벨 ${_cur.level}`,icon:getGenderEmoji(curChild)},
           ];
           return (
-            <HomeSheet dateNav={dateNav}
+            /* [사용자 확정 2026-08-08] 캐릭터 탭에는 날짜바를 안 쓴다 —
+               레벨·코인처럼 '오늘'과 무관한 값만 있어서 날짜를 옮길 일이 없다.
+               null 을 주면 시트가 날짜바 칸 자체를 그리지 않는다. */
+            <HomeSheet dateNav={childTab==="growth"?null:dateNav}
               tiles={_tiles} activeTab={childTab} onSelect={setChildTab} />
           );
         })()}
 
-        <div key={childTab} className={kidSkin==="cute"?undefined:"amTabFill"} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:"#F0F3F3"}}>
+        {/* 탭 본문. 캐릭터 탭만 종이색(#FBF3ED) — 가방·아이콘 원화가 종이 위에 놓인 그림이라
+            시트색(#F0F3F3, 회청색) 위에 두면 원화 가장자리가 떠 보인다 (사용자 확정: 배경 그림은 안 쓴다) */}
+        <div key={childTab} className={kidSkin==="cute"?undefined:"amTabFill"} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:(childTab==="growth"?"#FBF3ED":"#F0F3F3")}}>
           {/* ── 탐험장소 탭 (학원카드) ── */}
           {childTab==="area"&&(
             <>
@@ -4094,14 +4095,14 @@ export default function App() {
           {/* ── 성장 탭 ── */}
           {childTab==="growth"&&(
             <>
-              {/* ── 캠프 (캐릭터 탭 본문) ─────────────────────────────────────
-                   [사용자 확정] 카드 목록으로 세로로 길게 늘어놓던 것을
-                   텐트 하나 + 그루터기 여덟 개의 캠프 그림으로 바꿨다.
-                   내용은 전부 바텀시트로 옮겨 둔 상태라(캠프 개편 1~6/6)
-                   여기서 없어진 것은 '목록 겉모습'뿐이고 기능은 그대로다.
-                   상태 정보(레벨·경험치·코인·XP·상장)는 텐트가 이어받았다 —
-                   그래서 childHud를 따로 얹지 않는다.
-                   그리기는 CampScene, 데이터·동작은 여기(App)에 남는다. */}
+              {/* ── 캐릭터 탭 본문 (가방 카드 + 아이콘 격자) ────────────────
+                   [사용자 확정 2026-08-08] 캠프 그림(배경+텐트+그루터기+명패)을
+                   걷어내고, 종이 위에 가방 카드 하나와 아이콘 여덟 개를 두 줄씩
+                   놓는 배치로 바꿨다. 배경 그림은 쓰지 않는다.
+                   내용은 전부 바텀시트에 있으므로 바뀐 것은 '겉모습'뿐이고
+                   기능은 그대로다. 상태 정보(레벨·경험치·코인·XP)는 가방이
+                   이어받았다 — 그래서 childHud를 따로 얹지 않는다.
+                   그리기는 CharacterGrid, 데이터·동작은 여기(App)에 남는다. */}
               {(()=>{
                 const level=getChildLevel(childId);
                 const pet=petView(PET_STAGES[getPetStage(childId)],getPetStage(childId),kidSkin);
@@ -4109,8 +4110,7 @@ export default function App() {
                 const boxCnt=getTotalTreasureCount(childId);
                 const found=getCollectedCount(discoveryData,childId);
                 return (
-                  <CampScene
-                    title={getSelectedTitle(childId)}
+                  <CharacterGrid
                     level={level}
                     nextLevel={getNextLevel(childId)}
                     progress={getLevelProgressInfo(childId)}
@@ -4488,23 +4488,14 @@ export default function App() {
 
         {DEV_MODE && showDevTools && (
           /* 개발자 도구 — src/components/DevToolsPanel.jsx 로 분리 (CLAUDE.md 3) */
-          <DevToolsPanel D={{ children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, setShowExpPreview, setShowCampProto, setShowGridProto, discoveryData }} />
+          <DevToolsPanel D={{ children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, setShowExpPreview, discoveryData }} />
         )}
         {DEV_MODE && showExpPreview && (
           /* 미션 배경·동선 점검 — src/components/DevExpeditionPreview.jsx (CLAUDE.md 2) */
           <DevExpeditionPreview onClose={()=>setShowExpPreview(false)}
             gender={children.find(c=>c.id===childId)?.gender||"boy"} />
         )}
-        {DEV_MODE && showCampProto && (
-          /* 캐릭터 탭 캠프 배치 시안 — src/components/camp/CampPrototype.jsx
-             원화 받기 전에 크기·간격·터치감만 먼저 정하려고 만든 것. 실제 탭은 안 건드린다. */
-          <CampPrototype onClose={()=>setShowCampProto(false)} />
-        )}
 
-        {/* 캐릭터 탭 가방+격자 시안 — src/components/camp/GridPrototype.jsx */}
-        {DEV_MODE && showGridProto && (
-          <GridPrototype onClose={()=>setShowGridProto(false)} />
-        )}
 
 
       {BAKERY_ENABLED&&showModeSelect&&(

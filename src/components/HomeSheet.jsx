@@ -36,7 +36,7 @@
    폰트: 앱 전역 글씨체(카페24 써라운드) — index.html에서 지정
 
    props
-     dateNav   : node                        날짜 이동 바 (App 제작, 탭별 색)
+     dateNav   : node | null                 날짜 이동 바 (App 제작, 탭별 색). null이면 칸을 안 그린다
      tiles     : [{k,title,sub,icon}]        타일 데이터 (k=탭 키)
      activeTab : string                      현재 선택 탭 키
      onSelect  : (k)=>void                   타일 탭 선택
@@ -157,10 +157,13 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
           })}
         </div>
       </div>
-      {/* ── ③ 날짜바 — 탭 아래 (사용자 확정). 고정하지 않아 위로 밀려 올라가 탭 뒤로 숨는다 (z-index가 낮아서) ── */}
-      <div style={{position:"relative",zIndex:1,padding:"0 18px 14px",background:"#F0F3F3"}}>
-        {dateNav}
-      </div>
+      {/* ── ③ 날짜바 — 탭 아래 (사용자 확정). 고정하지 않아 위로 밀려 올라가 탭 뒤로 숨는다 (z-index가 낮아서).
+             dateNav 가 없으면(캐릭터 탭) 칸 자체를 안 그린다 — 빈 div만 남으면 아래 여백 14px이 그대로 남는다 ── */}
+      {dateNav && (
+        <div style={{position:"relative",zIndex:1,padding:"0 18px 14px",background:"#F0F3F3"}}>
+          {dateNav}
+        </div>
+      )}
     </Fragment>
   );
 }
