@@ -10,8 +10,8 @@
 
    ── SupplyCheckModal (🎒 준비물) ──
    그날 수업이 있는 학원별로 준비물을 묶어 보여 주고, 아이가 탐험일지에서
-   체크했는지(✅/⬜)를 그대로 비춘다. 여기서는 보기만 한다 — 체크는 아이 몫이라
-   엄마가 대신 누르면 아이 화면의 뜻이 흐려진다.
+   체크했는지(✅/⬜)를 그대로 비춘다. [사용자 확정 2026-08-07] 엄마도 여기서
+   눌러 체크할 수 있다 — 아이 탐험일지와 같은 저장을 쓰므로 양쪽이 같이 바뀐다.
 
    ── MissionCheckModal (🎯 미완료 미션) ──
    숙제와 미션을 한 목록으로 합쳐(사용자 확정: 둘을 나누지 않고 '미션'으로 통일)
@@ -24,6 +24,8 @@
      groups    : 아래 각 컴포넌트 설명 참고
      tone      : {text,sub,border,faint,green,red,orange,main} 색 토큰
      onClose   : ()=>void
+     onToggle  : (acId, key)=>void   준비물만. key는 아이 탐험일지와 같은 규칙
+                 (기본 준비물은 이름 그대로, 그날 추가분은 앞에 '+')
    ════════════════════════════════════════════════════════════════════════ */
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
@@ -73,14 +75,14 @@ function Empty({ emoji, title, sub, tone }) {
 }
 
 /* ── 🎒 준비물 ────────────────────────────────────────────────────────────
-   groups : [{ acId, name, icon, color, items:[{ key, label, checked, extra }] }]
+   groups : [{ acId, name, icon, color, items:[{ key, toggleKey, label, checked, extra }] }]
             extra=true 면 그날만 추가한 준비물(기본 준비물과 구분해 '+' 표시)     */
-export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onClose }) {
+export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onClose, onToggle }) {
   const all = groups.reduce((n, g) => n + g.items.length, 0);
   const got = groups.reduce((n, g) => n + g.items.filter(i => i.checked).length, 0);
   return (
     <Sheet title="🎒 준비물 확인" tone={tone} onClose={onClose}
-      desc={all === 0 ? undefined : `${dateLabel} 준비물 ${all}개 중 아이가 ${got}개 챙겼어요. 체크는 아이가 탐험일지에서 합니다.`}>
+      desc={all === 0 ? undefined : `${dateLabel} 준비물 ${all}개 중 ${got}개 챙겼어요. 눌러서 체크할 수 있고, 아이 탐험일지에도 똑같이 반영됩니다.`}>
       {all === 0 ? (
         <Empty emoji="🎒" title="챙길 준비물이 없어요" sub="학원에 기본 준비물을 등록하면 여기에 보여요" tone={tone} />
       ) : (
@@ -96,13 +98,16 @@ export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onCl
                   color={done ? tone.green : tone.sub} right={`${gGot} / ${g.items.length}`} />
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {g.items.map(it => (
-                    <span key={it.key} style={{ fontSize: 12.5, fontWeight: 800, padding: "5px 11px", borderRadius: 999,
-                      whiteSpace: "nowrap",
-                      background: it.checked ? tone.green + "1F" : "#fff",
-                      border: `1px solid ${it.checked ? tone.green + "88" : tone.border}`,
-                      color: it.checked ? tone.green : tone.sub }}>
+                    <button key={it.key} onClick={() => onToggle && onToggle(g.acId, it.toggleKey)}
+                      className="jelly-tap"
+                      aria-label={`${it.label} ${it.checked ? "체크 해제" : "체크"}`}
+                      style={{ fontFamily: F, fontSize: 12.5, fontWeight: 800, padding: "6px 11px", borderRadius: 999,
+                        whiteSpace: "nowrap", cursor: onToggle ? "pointer" : "default",
+                        background: it.checked ? tone.green + "1F" : "#fff",
+                        border: `1px solid ${it.checked ? tone.green + "88" : tone.border}`,
+                        color: it.checked ? tone.green : tone.sub }}>
                       {it.checked ? "✅" : "⬜"} {it.extra ? "+" : ""}{it.label}
-                    </span>
+                    </button>
                   ))}
                 </div>
               </div>
