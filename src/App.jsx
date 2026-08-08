@@ -4708,16 +4708,11 @@ export default function App() {
                   style={{width:38,height:38,borderRadius:14,background:mixWhite(th.main,0.92),border:`1px solid ${th.main}33`,color:th.main,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>›</button>
               </div>
 
-              {/* 현황 카드 (소프트 파스텔) */}
-              <div style={{background:`linear-gradient(165deg, ${headerTone(th.main,0.9)} 0%, ${headerTone(th.main,0.72)} 100%)`,borderRadius:20,padding:"16px 18px",marginBottom:16,color:C.text,boxShadow:`0 4px 16px ${th.main}1F`,border:`1px solid ${th.main}45`}}>
-                {/* 이름 + 레벨/코인 한 줄 */}
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,gap:8}}>
-                  <p style={{fontSize:16,fontWeight:900,margin:0,color:mixWhite(th.main,0.1)}}>{getGenderEmoji(curChild)} {curChild?.name}</p>
-                  <p style={{fontSize:13,fontWeight:800,margin:0,color:th.main,background:mixWhite(th.main,0.86),border:`1px solid ${th.main}33`,borderRadius:20,padding:"4px 11px",whiteSpace:"nowrap"}}>
-                    {getChildLevel(childId).emoji} Lv.{getChildLevel(childId).level}
-                  </p>
-                </div>
-
+              {/* [사용자 확정 2026-08-08] 현황 카드에서 아이 이름·레벨 줄과 요약 3칸(학원·결석·
+                  보충수업)을 빼고, 감싸던 파스텔 카드도 없앴다. 이름·레벨은 바로 위 아이 선택
+                  줄에 이미 있고, 요약 3칸의 결석·보충수업은 '오늘 챙길 일' 칩과 겹쳤다.
+                  이제 이 자리에는 '오늘 챙길 일' 한 칸만 남는다. */}
+              <div style={{marginBottom:16}}>
                 {/* 오늘 챙길 일 알림 */}
                 {(()=>{
                   const pendingRewardCnt=getChildRewardRequests(childId).filter(r=>r.status==="pending").length;
@@ -4736,7 +4731,7 @@ export default function App() {
                     go:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("absence"); }});
                   const hasAlert=alerts.length>0;
                   return (
-                    <div style={{background:hasAlert?"#fff":mixWhite(th.main,0.85),border:`1px solid ${hasAlert?th.main+"22":th.main+"40"}`,borderRadius:14,padding:"13px 14px",marginBottom:10,display:"flex",alignItems:hasAlert?"flex-start":"center",gap:12,boxShadow:SHADOW.sm}}>
+                    <div style={{background:hasAlert?"#fff":mixWhite(th.main,0.85),border:`1px solid ${hasAlert?th.main+"22":th.main+"40"}`,borderRadius:14,padding:"13px 14px",display:"flex",alignItems:hasAlert?"flex-start":"center",gap:12,boxShadow:SHADOW.sm}}>
                       <div style={{fontSize:28,flexShrink:0}}>{hasAlert?"🔔":"✅"}</div>
                       <div style={{flex:1,minWidth:0}}>
                         <p style={{fontSize:13,fontWeight:800,margin:"0 0 6px",color:hasAlert?C.sub:mixBlack(th.main,0.45)}}>{dayTag?`${dayTag} 챙길 일`:"이 날 챙길 일"}</p>
@@ -4761,19 +4756,6 @@ export default function App() {
                   );
                 })()}
 
-                {/* 요약 지표 3칸 */}
-                <div style={{display:"flex",gap:7}}>
-                  {[
-                    {label:"학원",     value:`${homeAc.length}개`,      alert:false},
-                    {label:"결석",     value:`${absOnHome.length}개`,   alert:absOnHome.length>0},
-                    {label:"보충수업", value:`${makeupOnHome.length}개`,alert:makeupOnHome.length>0},
-                  ].map((s,i)=>(
-                    <div key={i} style={{flex:1,background:s.alert?mixWhite(C.red,0.88):"#fff",borderRadius:12,padding:"10px 6px",textAlign:"center",border:`1px solid ${s.alert?C.red+"3A":th.main+"1A"}`,boxShadow:SHADOW.sm}}>
-                      <p style={{fontSize:11,color:s.alert?C.red:C.sub,margin:0,fontWeight:700}}>{s.label}</p>
-                      <p style={{fontSize:16,fontWeight:900,margin:"3px 0 0",color:s.alert?C.red:th.main}}>{s.value}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
 
               {/* 방학 중인 학원 표시 */}
