@@ -173,6 +173,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | map-bld-v8/tikihut2-src.webp | 지도 학원 건물 v8-4 (티키 초가+항아리, 구멍 투명 제공됨) | map-bld-tikihut2.webp |
 | expedition/char/common-{walk,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 3종 (남아 원화, halo 보정 후 탑재) | expedition/char/common-*.webp |
 | expedition/char/girl-{walk,run,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 4종 여아 원화 (2026-08-08 — 원본 197×345 / 521×867 / 414×266 / 217×370. halo 재색칠 후 **남아와 같은 높이**(276·220·207·301)로 줄여 탑재 — 그림은 높이로만 크기가 정해져서 높이를 맞춰야 두 성별이 같게 그려진다. idle은 여아 원화 없음 → 남아 것 공용) | expedition/char/girl-*.webp |
+| expedition/ride/{unicorn,dragon,rocket,eagle}-girl-src.webp | 탐험 씬 탈것 4종 여아 원화 (2026-08-08 — 탈것 그림에는 타고 있는 아이도 같이 그려져 있어 성별이 갈린다. 남아 판과 크기가 거의 같아(가로세로비 차 0.01 이내) 줄이지 않고 halo 재색칠만 해서 탑재. 나머지 28종은 여아 원화가 없어 공용 그림을 쓴다 — 오면 RIDE_GIRL_READY에 키만 추가) | expedition/ride/{키}-girl.webp |
 | expedition/char/common-idle-src.webp | 탐험 씬 기본 서있기 포즈 (미션 0개일 때 출발지 대기 — halo 보정 후 탑재) | expedition/char/common-idle.webp |
 | expedition/bg/bg-river-v4-src.webp | 강 배경 v4 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-river.webp |
 | expedition/flag/{red,blue,green,yellow}-src.webp | 도착 깃발 4색 (빨강 잎가지·파랑 물방울·초록 잎·노랑 별 — halo 보정 후 탑재) | expedition/flag/*.webp |

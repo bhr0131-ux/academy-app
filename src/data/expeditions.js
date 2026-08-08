@@ -115,11 +115,24 @@ const _DIVE = ["submarine"];
 _FLY.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].k = "fly"; });
 _DIVE.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].k = "dive"; });
 
+/* 여아 전용 탈것 그림 [사용자 원화 2026-08-08]
+   탈것 그림에는 타고 있는 아이도 같이 그려져 있어서, 여아가 남아 그림을 쓰면
+   화면 속 아이의 성별이 바뀐다. 여아 원화가 온 탈것만 여기에 키를 적으면
+   {키}-girl.webp 를 imgGirl 로 달아 두고, 뷰어가 성별로 골라 그린다.
+   나머지는 imgGirl 이 없으므로 지금까지처럼 공용 그림을 쓴다.
+   가로세로비는 남아 것과 0.01 안쪽이라 _RIDE_AR 를 그대로 쓴다. */
+const RIDE_GIRL_READY = ["unicorn", "dragon", "rocket", "eagle"];
+
 RIDE_READY.forEach((k) => {
   if (!MOUNTS[k]) return;
   MOUNTS[k].img = _RP + k + ".webp";
+  if (RIDE_GIRL_READY.includes(k)) MOUNTS[k].imgGirl = _RP + k + "-girl.webp";
   MOUNTS[k].ar = _RIDE_AR[k] || 1;
 });
+
+/* 성별에 맞는 탈것 그림 — 여아 원화가 없으면 공용 그림으로 떨어진다 */
+export const mountImgOf = (mount, gender) =>
+  (gender === "girl" && mount?.imgGirl) || mount?.img || null;
 
 /* ── 희귀도 4단계 (사용자 확정 2026-07-31) ────────────────────────────────
    아이가 "오늘은 평소보다 특별한 탈것이다!"를 바로 느끼게 하는 장치.
