@@ -2069,6 +2069,13 @@ export default function App() {
     const ac=(academies[childId]||[]).find(a=>a.id===acId);
     return getAcademyTheme(ac?.name||acName,kidSkin,ac?.kind||"").icon;
   };
+  /* 탐험 탭에 쓰는 이름 — 학원 이름 대신 '종류'만 보여 준다 (사용자 확정 2026-08-09).
+     아이 화면은 짧을수록 읽기 쉽고, 지도 말풍선·스팟 이름은 자리가 좁다.
+     종류를 안 고른 예전 학원은 이름에서 되짚고, 그것도 안 되면 이름을 그대로 쓴다. */
+  const acKindLabel=(ac)=>ac?.kindLabel
+    || getAcademyKind(ac?.kind)?.label
+    || guessAcademyKind(ac?.name||"")?.label
+    || ac?.name || "";
   const curAbs = absences[childId]||[];
   const totalFee=(cid)=>(academies[cid]||[]).reduce((s,a)=>s+Number(a.fee||0),0);
 
@@ -3761,7 +3768,7 @@ export default function App() {
                   const totalCnt=hw.length+td.length;
                   const doneCnt=hw.filter(h=>h.done).length+td.filter(t=>t.done).length;
                   return {
-                    id:ac.id, name:ac.name, color:ac.color,
+                    id:ac.id, name:acKindLabel(ac), color:ac.color,
                     time:sc?.time||"", duration:sc?.duration||40,
                     icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
                     done:doneCnt, total:totalCnt,
@@ -3869,7 +3876,7 @@ export default function App() {
                 };
                 return (
                   <AdventureSpotPicker
-                    items={jList.map(ac=>({id:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
+                    items={jList.map(ac=>({id:ac.id,name:acKindLabel(ac),icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
                       passed:isPast(ac), current:isChildToday&&ac.id===curId}))}
                     selectedId={selId}
                     onSelect={setJournalAcId}
@@ -3960,7 +3967,7 @@ export default function App() {
                     <PageFlip flipKey={ac.id} order={jIdx} total={jList.length}>
                       <AdventureJournalCard
                         onPrev={()=>goJournal(-1)} onNext={()=>goJournal(1)}
-                        icon={dungeon.icon} title={dungeon.label} name={ac.name}
+                        icon={dungeon.icon} title={dungeon.label} name={acKindLabel(ac)}
                         time={sc?.time?toKoreanTime(sc.time):"-"}
                         remain={rl?`${rl.icon} ${rl.text}`:""}
                         shuttle={shuttleText||"없음"}
