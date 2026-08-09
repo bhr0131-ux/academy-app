@@ -1,6 +1,6 @@
 import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
-import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
+import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
@@ -1613,6 +1613,7 @@ export default function App() {
 
   // 현재 아이 정보
   const curChild = children.find(c=>c.id===childId) || children[0];
+  const childGender = curChild?.gender==="girl" ? "girl" : "boy";   // 성별 갈리는 원화(앉기 포즈 등) 고를 때
 
   // ── 프리미엄 사용 가능 여부 (잠금 판단의 단일 기준) ──
   // PREMIUM_ENABLED 가 false 면 무조건 true (전 기능 무료).
@@ -3377,6 +3378,8 @@ export default function App() {
           /* 가방 카드 소식 — 톡 떠오른 뒤 이모지만 살짝 흔들린다 (1분 뒤 레벨 화면으로 복귀) */
           @keyframes bagNewsIn{0%{opacity:0;transform:translateY(8px) scale(.86)}60%{opacity:1;transform:translateY(0) scale(1.06)}100%{transform:scale(1)}}
           @keyframes bagNewsBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
+          /* 빈 칸(탐험 없는 날·미션 없는 날)에서 앉아 쉬는 캐릭터 — 숨 쉬듯 아주 조금만 */
+          @keyframes sitBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
         `}}/>
         {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
 
@@ -3846,6 +3849,11 @@ export default function App() {
                 const _dd=childDate||TODAY;
                 const _de=getDiscoveryOn(discoveryData,childId,_dd);
                 const _d=_de?getDiscovery(_de.id):null;
+                /* [사용자 확정 2026-08-09] 탐험 갈 곳이 없는 날엔 힌트를 안 띄운다 —
+                   발견은 지도 위를 지나가야 생기는데, 갈 곳이 없으면 오늘은 아예 못 만난다.
+                   못 만날 걸 "찾을 것 같아!" 하고 기대시키면 안 된다.
+                   이미 찾은 날이면(_d) 그건 힌트가 아니라 결과라 그대로 보여 준다. */
+                if(childTodayAc.length===0&&!_d) return null;
                 return (
                   <div style={{display:"flex",alignItems:"center",gap:9,margin:"0 2px 14px",padding:"9px 13px",borderRadius:14,
                     background:_d?"rgba(255,255,255,0.72)":"rgba(138,107,71,0.07)",
@@ -3853,7 +3861,10 @@ export default function App() {
                     <span style={{fontSize:19,flexShrink:0}}>{_d?_d.emoji:"🐾"}</span>
                     <div style={{flex:1,minWidth:0}}>
                       <p style={{margin:0,fontSize:10.5,fontWeight:900,color:"#A2917C",letterSpacing:0.3}}>🌿 오늘의 발견</p>
-                      <p style={{margin:"1px 0 0",fontSize:13,fontWeight:800,color:_d?"#5A4430":"#8C7E6B",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                      {/* 힌트가 길면 한 줄로는 잘린다 (사용자 지적) → 두 줄까지 접어서 보여 준다 */}
+                      <p style={{margin:"1px 0 0",fontSize:13,fontWeight:800,color:_d?"#5A4430":"#8C7E6B",
+                        lineHeight:1.35,wordBreak:"keep-all",overflow:"hidden",
+                        display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>
                         {_d?_d.name:getTodayHint(childId,_dd)}
                       </p>
                     </div>
@@ -3870,7 +3881,12 @@ export default function App() {
               <div style={{marginTop:2,marginBottom:14}}>
                 {childTodayAc.length===0?(
                   <div style={{textAlign:"center",padding:"28px 10px",color:kidSkin==="cute"?C.sub:"#8C7E6B",background:kidSkin==="cute"?"#fff":"#F8F3E8",borderRadius:20,border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed #D5BE96"}}>
-                    <p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>
+                    {/* [사용자 확정 2026-08-09] 이모지 자리에 앉아 쉬는 캐릭터 (탐험 스킨만) */}
+                    {kidSkin!=="cute"&&ADV_SIT_IMG[childGender]
+                      ?<img src={ADV_SIT_IMG[childGender]} alt="" draggable={false}
+                         style={{display:"block",height:ADV_SIT_EMPTY_H,width:"auto",maxWidth:"none",margin:"0 auto",
+                           animation:"sitBob 3.2s ease-in-out infinite"}}/>
+                      :<p style={{fontSize:38,margin:0,animation:"wiggle 2.4s ease-in-out infinite"}}>{T.noAreaEmoji}</p>}
                     <p style={{fontSize:16,fontWeight:800,margin:"8px 0 0"}}>{T.noArea}</p>
                   </div>
                 ):kidSkin!=="cute"?(()=>{
@@ -4097,7 +4113,11 @@ export default function App() {
                 const allTodayTodos=getChildQuestBoardItems(childId,childDate);
                 if(allTodayTodos.length===0) return (
                   <div style={{padding:"30px 16px",textAlign:"center",marginTop:2,marginBottom:14,borderRadius:22,background:kidSkin==="cute"?"#fff":"#FBF7EF",border:kidSkin==="cute"?`1px dashed ${C.border}`:"1px dashed #E8D6BA"}}>
-                    <p style={{fontSize:42,margin:"0 0 8px",animation:"wiggle 2.4s ease-in-out infinite"}}>🗒️</p>
+                    {kidSkin!=="cute"&&ADV_SIT_IMG[childGender]
+                      ?<img src={ADV_SIT_IMG[childGender]} alt="" draggable={false}
+                         style={{display:"block",height:ADV_SIT_EMPTY_H,width:"auto",maxWidth:"none",margin:"0 auto 8px",
+                           animation:"sitBob 3.2s ease-in-out infinite"}}/>
+                      :<p style={{fontSize:42,margin:"0 0 8px",animation:"wiggle 2.4s ease-in-out infinite"}}>🗒️</p>}
                     <p style={{fontSize:17,fontWeight:900,color:kidSkin==="cute"?C.text:"#4B3A2F",margin:"0 0 4px"}}>{T.restDay}</p>
                     <p style={{fontSize:13,fontWeight:700,color:kidSkin==="cute"?C.sub:"#7E8C7B",margin:0}}>푹 쉬어도 좋아요 😌</p>
                   </div>
