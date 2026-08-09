@@ -17,6 +17,7 @@ import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import { SupplyCheckModal, MissionCheckModal } from "./components/parent/TodayCareModals.jsx";
 import CharacterGrid from "./components/camp/CharacterGrid.jsx";
+import LevelSheet from "./components/camp/LevelSheet.jsx";
 import DecorShopSheet from "./components/camp/DecorShopSheet.jsx";
 import StreakSheet from "./components/camp/StreakSheet.jsx";
 import TitleSheet from "./components/camp/TitleSheet.jsx";
@@ -130,6 +131,7 @@ const initUi = {
   showParentGrowthManage: false,
   showParentRecordManage: false,
   openTitle: false,
+  openLevel: false,
   openTreasure: false,
   openPet: false,
   openHistory: false,
@@ -337,6 +339,7 @@ export default function App() {
   const [showParentRecordManage, setShowParentRecordManage] = useState(initUi.showParentRecordManage);
   const [showHomeAcademyList,    setShowHomeAcademyList]    = useState(false); // 홈탭 등록학원 펼침
   const [openTitle,              setOpenTitle]              = useState(initUi.openTitle);
+  const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
   const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
@@ -3287,6 +3290,18 @@ export default function App() {
           @keyframes bigCoinBurst{0%{transform:translate(-50%,-50%) scale(0.4);opacity:1}100%{transform:translate(calc(-50% + var(--bcx)),calc(-50% + var(--bcy))) scale(1.2) rotate(var(--bcr));opacity:0}}
           .jelly-tap{transition:transform .12s cubic-bezier(.34,1.56,.64,1)}
           .jelly-tap:active{transform:scale(0.9)}
+          /* ── 캐릭터 탭 눌림 연출 ── (사용자: 버튼 눌리는 느낌을 내 달라)
+             아이콘 칸은 뒤에 둥근 그림자면이 깔리면서 쏙 눌렸다가 통통 튀어 돌아온다.
+             ::before 를 쓰므로 칸 자체 배경을 건드리지 않고, 안 눌렸을 땐 안 보인다. */
+          .icon-tap{position:relative;transition:transform .13s cubic-bezier(.34,1.56,.64,1)}
+          .icon-tap::before{content:"";position:absolute;inset:-6px -4px;border-radius:20px;
+            background:rgba(122,100,66,0.11);opacity:0;transform:scale(0.88);pointer-events:none;
+            transition:opacity .12s ease,transform .12s ease}
+          .icon-tap:active{transform:scale(0.92)}
+          .icon-tap:active::before{opacity:1;transform:scale(1)}
+          /* 가방 카드는 덩치가 커서 같은 배율로 줄이면 화면이 출렁인다 — 살짝만 눌린다 */
+          .card-tap{transition:transform .13s cubic-bezier(.34,1.56,.64,1),filter .13s ease}
+          .card-tap:active{transform:scale(0.972);filter:brightness(0.975)}
         `}}/>
         {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
 
@@ -3372,6 +3387,32 @@ export default function App() {
           isUnlocked={(id)=>isTitleUnlocked(childId,id)} selectedId={getSelectedTitle(childId).id}
           onSelect={selectTitle} faint={CT.faint}
           unlockedCount={getUnlockedTitles(childId).length} totalCount={getAllTitles(childId).length} />
+        {/* 레벨 상세 시트 — 캐릭터 탭 가방 카드를 누르면 연다.
+            가방에는 자리가 좁아 못 넣은 것들(진화 모습·레벨 설명·남은 XP·앞으로의 레벨)을 여기서 본다.
+            값은 전부 기존 계산 함수 그대로 쓰고, 시트는 그리기만 한다. */}
+        {openLevel&&(()=>{
+          const lv=getChildLevel(childId);
+          const evo=getCharacterEvolution(childId);
+          const g=(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy";
+          const imgSet=(kidSkin==="cute"?BAKERY_CHAR_IMG:ADV_CHAR_IMG)[g];
+          // 앞으로 오를 레벨 세 개까지 — 목표가 너무 멀면 오히려 김이 새므로 가까운 것만
+          const upcoming=DEFAULT_LEVELS.filter(L=>L.level>lv.level).slice(0,3).map(L=>{
+            const V=levelView(L,kidSkin,g);
+            return {level:V.level,name:V.name,emoji:V.emoji,minScore:L.minScore,bonus:LEVEL_UP_REWARDS?.[L.level]||0};
+          });
+          return (
+            <LevelSheet open onClose={()=>setOpenLevel(false)}
+              level={lv} nextLevel={getNextLevel(childId)}
+              progress={getLevelProgressInfo(childId)}
+              desc={LEVEL_DESCRIPTION[lv.level]||""}
+              title={getSelectedTitle(childId)}
+              charImg={imgSet[ADV_CHAR_STAGE_OF(lv.level)]}
+              evo={{emoji:evo.avatar?.[g]||evo.badge||"🧬",name:evo.name,msg:evoMsgView(evo.name,kidSkin)||""}}
+              coin={getChildCoin(childId)} xp={getChildXP(childId)}
+              labels={{coin:TM.coin,xp:TM.xp,coinEmoji:TM.coinEmoji,xpEmoji:TM.xpEmoji}}
+              upcoming={upcoming} />
+          );
+        })()}
         {/* 탐험 기록 시트 — 캐릭터 탭 '탐험 기록' 카드에서 연다 */}
         <HistorySheet open={openHistory} onClose={()=>setOpenHistory(false)}
           dark={kidSkin!=="cute"} items={getScoreHistory(childId)}
@@ -4116,6 +4157,7 @@ export default function App() {
                     progress={getLevelProgressInfo(childId)}
                     coin={getChildCoin(childId)} xp={getChildXP(childId)}
                     labels={{coin:TM.coin,xp:TM.xp,coinEmoji:TM.coinEmoji,xpEmoji:TM.xpEmoji}}
+                    onOpenLevel={()=>setOpenLevel(true)}
                     stations={[
                       { key:"deco", img:"st-deco.webp", name:kidSkin==="cute"?"꾸미기 가게":"꾸미기 상점",
                         badge:`${getOwnedCount(childId)+getAvatarOwned(childId).length}개 보유`,

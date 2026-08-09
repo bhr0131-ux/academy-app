@@ -33,6 +33,7 @@ import {
      progress : {percent,currentXp,needXp,remainXp}
      coin, xp : 숫자
      labels   : {coin,xp,coinEmoji,xpEmoji} 스킨별 표기
+     onOpenLevel : 가방을 누르면 열리는 레벨 상세 시트 (LevelSheet)
    ════════════════════════════════════════════════════════════════════════ */
 export default function CharacterGrid({
   stations = [],
@@ -40,6 +41,7 @@ export default function CharacterGrid({
   progress = { percent: 0, currentXp: 0, needXp: 0, remainXp: 0 },
   coin = 0, xp = 0,
   labels = { coin: "코인", xp: "XP", coinEmoji: "💎", xpEmoji: "⭐" },
+  onOpenLevel,
 }) {
   const wrapRef = useRef(null);
   const [w, setW] = useState(0);
@@ -69,9 +71,13 @@ export default function CharacterGrid({
   return (
     <div ref={wrapRef} style={{ width: "100%", background: PAPER }}>
 
-      {/* ── 가방 카드 ── 빈 틀 원화 위에 값만 얹는다 ── */}
-      <div style={{ width: S.cardW, height: S.cardH, margin: `${S.cardTop}px auto ${S.cardBottom}px`,
-        position: "relative" }}>
+      {/* ── 가방 카드 ── 빈 틀 원화 위에 값만 얹는다. 누르면 레벨 상세 시트가 열린다.
+          (카드가 커서 아이콘과 같은 0.9 배로 줄이면 화면이 출렁여 보이므로 살짝만 눌린다) ── */}
+      <button type="button" onClick={onOpenLevel} className="card-tap"
+        aria-label={`내 레벨 Lv.${level.level} ${level.name} 자세히 보기`}
+        style={{ display: "block", width: S.cardW, height: S.cardH,
+          margin: `${S.cardTop}px auto ${S.cardBottom}px`, position: "relative",
+          border: "none", background: "none", padding: 0, cursor: "pointer", fontFamily: "inherit" }}>
         <img src="assets/camp/bag.webp" alt="" draggable={false}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }} />
 
@@ -121,13 +127,13 @@ export default function CharacterGrid({
             </span>
           </div>
         </div>
-      </div>
+      </button>
 
       {/* ── 아이콘 격자 (2열) ── 정사각 칸에 contain 이라 원화 비율이 달라도 무게가 맞는다 */}
       <div style={{ display: "grid", gridTemplateColumns: `repeat(2, ${S.cellW}px)`,
         justifyContent: "space-between", rowGap: S.rowGap, columnGap: S.colGap, paddingBottom: 6 }}>
         {stations.map(st => (
-          <button key={st.key} onClick={st.onPress} className="jelly-tap"
+          <button key={st.key} type="button" onClick={st.onPress} className="icon-tap"
             aria-label={`${st.name} 열기`}
             style={{ width: S.cellW, border: "none", background: "none", padding: 0, cursor: "pointer",
               display: "flex", flexDirection: "column", alignItems: "center",
