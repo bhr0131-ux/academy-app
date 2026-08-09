@@ -4807,6 +4807,7 @@ export default function App() {
                   border:sel?"none":"1px solid #ECE6E2",
                   background:sel?`linear-gradient(135deg, ${mixWhite(t.main,0.04)}, ${mixWhite(t.main,0.28)})`:"#fff",
                   color:sel?"#fff":C.sub,whiteSpace:"nowrap",transition:"all 0.2s",
+                  maxWidth:104,overflow:"hidden",textOverflow:"ellipsis",   // 이름이 길면 말줄임 (사용자 확정)
                   boxShadow:sel?`0 4px 12px ${t.main}45`:"none"}}>
                 {getGenderEmoji(c)} {c.name}
               </button>
@@ -4821,7 +4822,7 @@ export default function App() {
 
       {/* 탭 줄은 화면 맨 아래 고정 바(ParentNav)로 옮겼다 — 아래 </div> 바깥에 있다.
           본문은 그 바 높이 + 기기 안전영역만큼 아래를 비워 둬 마지막 내용이 안 가리게 한다. */}
-      <div style={{padding:"14px 16px 0",paddingBottom:`calc(${PARENT_NAV_H + 18}px + env(safe-area-inset-bottom))`}}>
+      <div style={{padding:"14px 16px 0",paddingBottom:`calc(${PARENT_NAV_H + 46}px + env(safe-area-inset-bottom))`}}>
 
         {/* ════ 홈 탭 ════ */}
         {tab==="home"&&(()=>{
@@ -4848,24 +4849,26 @@ export default function App() {
           },0);
           return (
             <div>
-              {/* 날짜 이동 (카드 밖 별도 줄) */}
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-                <button onClick={()=>setHomeDate(addDays(homeDate,-1))}
-                  style={{width:38,height:38,borderRadius:14,background:mixWhite(th.main,0.92),border:`1px solid ${th.main}33`,color:th.main,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>‹</button>
+              {/* 날짜 이동 — [사용자 확정 2026-08-09] 여기가 화면에서 제일 크고 진했는데,
+                  정작 먼저 봐야 하는 건 준비물과 학원 일정이다. 글자·버튼·높이를 한 단계씩 줄였다.
+                  (글자 17→15 · 버튼 38→30 · 아래 여백 12→8) */}
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                <button onClick={()=>setHomeDate(addDays(homeDate,-1))} className="jelly-tap" aria-label="이전 날"
+                  style={{width:30,height:30,borderRadius:11,background:mixWhite(th.main,0.92),border:`1px solid ${th.main}33`,color:th.main,fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>‹</button>
                 <div style={{flex:1,textAlign:"center"}}>
-                  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
-                    <span style={{fontSize:17,fontWeight:900,color:C.text}}>{fullLabel}</span>
-                    {dayTag&&<span style={{fontSize:13,background:th.main,color:"#fff",borderRadius:10,padding:"2px 9px",fontWeight:700,flexShrink:0}}>{dayTag}</span>}
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                    <span style={{fontSize:15,fontWeight:800,color:C.text}}>{fullLabel}</span>
+                    {dayTag&&<span style={{fontSize:11.5,background:th.main,color:"#fff",borderRadius:9,padding:"2px 8px",fontWeight:800,flexShrink:0}}>{dayTag}</span>}
                     {!isToday&&(
                       <button onClick={()=>setHomeDate(TODAY)}
-                        style={{background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:10,color:th.main,fontSize:13,cursor:"pointer",padding:"2px 10px",fontWeight:700,flexShrink:0}}>
+                        style={{background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:9,color:th.main,fontSize:11.5,cursor:"pointer",padding:"2px 9px",fontWeight:800,flexShrink:0}}>
                         ↩ 오늘로
                       </button>
                     )}
                   </div>
                 </div>
-                <button onClick={()=>setHomeDate(addDays(homeDate,1))}
-                  style={{width:38,height:38,borderRadius:14,background:mixWhite(th.main,0.92),border:`1px solid ${th.main}33`,color:th.main,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>›</button>
+                <button onClick={()=>setHomeDate(addDays(homeDate,1))} className="jelly-tap" aria-label="다음 날"
+                  style={{width:30,height:30,borderRadius:11,background:mixWhite(th.main,0.92),border:`1px solid ${th.main}33`,color:th.main,fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>›</button>
               </div>
 
               {/* [사용자 확정 2026-08-08] 현황 카드에서 아이 이름·레벨 줄과 요약 3칸(학원·결석·
@@ -4889,30 +4892,39 @@ export default function App() {
                     go:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("absence"); }});
                   if(makeupOnHome.length>0) alerts.push({label:`📚 보충수업 ${makeupOnHome.length}개`,color:C.orange,
                     go:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("absence"); }});
-                  const hasAlert=alerts.length>0;
+                  /* [사용자 확정 2026-08-09] 내용 개수에 따라 카드 높이가 달라진다.
+                     예전엔 준비물 하나뿐인 날에도 두 줄짜리 카드가 자리를 차지해 비어 보였다.
+                       0개  → 한 줄 완료 배너
+                       1개  → 라벨과 칩이 한 줄에 나란히
+                       2개+ → 지금처럼 라벨 아래에 칩을 펼친다 */
+                  const label=dayTag?`${dayTag} 챙길 일`:"이 날 챙길 일";
+                  const chip=(a,i)=>(
+                    <button key={i} onClick={a.go} className="jelly-tap" aria-label={`${a.label} 확인`}
+                      style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",
+                        fontSize:13,fontWeight:900,color:mixBlack(a.color,0.5),background:mixWhite(a.color,0.88),
+                        border:`1px solid ${a.color}33`,borderRadius:10,padding:"5px 10px",whiteSpace:"nowrap",
+                        cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
+                      {a.label}<span style={{fontSize:10,opacity:0.65}}>›</span>
+                    </button>
+                  );
+                  if(alerts.length===0) return (
+                    <div style={{background:mixWhite(th.main,0.85),border:`1px solid ${th.main}40`,borderRadius:14,
+                      padding:"9px 13px",display:"flex",alignItems:"center",gap:9,boxShadow:SHADOW.sm}}>
+                      <span style={{fontSize:17,flexShrink:0}}>✅</span>
+                      <span style={{fontSize:13.5,fontWeight:800,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
+                    </div>
+                  );
+                  if(alerts.length===1) return (
+                    <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:14,
+                      padding:"9px 13px",display:"flex",alignItems:"center",gap:10,boxShadow:SHADOW.sm}}>
+                      <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>{label}</span>
+                      <span style={{marginLeft:"auto"}}>{chip(alerts[0],0)}</span>
+                    </div>
+                  );
                   return (
-                    <div style={{background:hasAlert?"#fff":mixWhite(th.main,0.85),border:`1px solid ${hasAlert?th.main+"22":th.main+"40"}`,borderRadius:14,padding:"13px 14px",display:"flex",alignItems:hasAlert?"flex-start":"center",gap:12,boxShadow:SHADOW.sm}}>
-                      {/* 알림이 있을 땐 종(🔔)을 안 그린다 (사용자 확정) — 칩만으로 충분하다 */}
-                      {!hasAlert&&<div style={{fontSize:28,flexShrink:0}}>✅</div>}
-                      <div style={{flex:1,minWidth:0}}>
-                        <p style={{fontSize:13,fontWeight:800,margin:"0 0 6px",color:hasAlert?C.sub:mixBlack(th.main,0.45)}}>{dayTag?`${dayTag} 챙길 일`:"이 날 챙길 일"}</p>
-                        {hasAlert?(
-                          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                            {alerts.map((a,i)=>(
-                              <button key={i} onClick={a.go} className="jelly-tap"
-                                aria-label={`${a.label} 확인`}
-                                style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",
-                                  fontSize:13,fontWeight:900,color:mixBlack(a.color,0.5),background:mixWhite(a.color,0.88),
-                                  border:`1px solid ${a.color}33`,borderRadius:10,padding:"5px 10px",whiteSpace:"nowrap",
-                                  cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
-                                {a.label}<span style={{fontSize:10,opacity:0.65}}>›</span>
-                              </button>
-                            ))}
-                          </div>
-                        ):(
-                          <p style={{fontSize:15,fontWeight:900,margin:0,lineHeight:1.35,color:mixBlack(th.main,0.45)}}>챙길 일이 없어요!</p>
-                        )}
-                      </div>
+                    <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:14,padding:"11px 13px",boxShadow:SHADOW.sm}}>
+                      <p style={{fontSize:12.5,fontWeight:800,margin:"0 0 7px",color:C.sub}}>{label}</p>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:6}}>{alerts.map(chip)}</div>
                     </div>
                   );
                 })()}
@@ -4932,10 +4944,14 @@ export default function App() {
               )}
 
               {/* 학원 없는 날 */}
+              {/* 일정이 아무것도 없는 날 — [사용자 확정 2026-08-09] 이모지(😴) 대신 앱 캐릭터로.
+                  기기마다 모양이 달라지지 않고 앱의 수채화 톤과도 이어진다.
+                  빈 영역이 너무 넓어 보이지 않게 여백도 줄였다. */}
               {homeAc.length===0&&absOnHome.length===0&&makeupOnHome.length===0&&(
-                <div style={{textAlign:"center",padding:"30px 20px",background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`,marginBottom:14}}>
-                  <p style={{fontSize:30,margin:0}}>😴</p>
-                  <p style={{color:C.sub,fontSize:17,margin:"8px 0 0"}}>{dayTag||fullLabel}은 학원이 없어요</p>
+                <div style={{textAlign:"center",padding:"18px 20px 20px",background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`,marginBottom:14}}>
+                  <img src={ADV_SIT_IMG[childGender]||ADV_SIT_IMG.boy} alt="" draggable={false}
+                    style={{display:"block",height:88,width:"auto",maxWidth:"none",margin:"0 auto"}}/>
+                  <p style={{color:C.sub,fontSize:14.5,fontWeight:700,margin:"6px 0 0"}}>{dayTag||fullLabel}은 학원 일정이 없어요</p>
                 </div>
               )}
 
@@ -4979,16 +4995,19 @@ export default function App() {
                 const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
                 const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
                 return (
-                  <div key={ac.id} style={{background:CT.card,borderRadius:16,marginBottom:10,border:`1px solid ${ac.color}45`,boxShadow:SHADOW.sm,overflow:"hidden"}}>
+                  /* [사용자 확정 2026-08-09] 카드 색을 옅게(배경 1F→12), 테두리는 한 단계 진하게(45→55),
+                     그림자는 약하게, 카드 간격은 14로 통일. 왼쪽 세로선만 원래 색을 유지해 구분을 준다. */
+                  <div key={ac.id} style={{background:CT.card,borderRadius:16,marginBottom:14,border:`1px solid ${ac.color}55`,boxShadow:"0 2px 8px rgba(90,70,60,0.07)",overflow:"hidden"}}>
                     {/* [사용자 확정 2026-08-09] 접었을 땐 '시간 + 학원 종류'만.
                         나머지(수업 시간·셔틀·준비물·미션·편집)는 펼쳐야 나온다 — 학원이 여럿인 날
                         카드가 화면을 다 잡아먹어서 오늘 일정을 한눈에 못 봤다. */}
                     <button onClick={()=>setHomeAcOpen(p=>({...p,[ac.id]:!p[ac.id]}))} className="jelly-tap"
                       aria-expanded={!!homeAcOpen[ac.id]} aria-label={`${ac.name} 자세히`}
-                      style={{width:"100%",border:"none",background:`${ac.color}1F`,padding:"11px 13px",
+                      style={{width:"100%",border:"none",background:`${ac.color}12`,padding:"11px 13px",
                         display:"flex",alignItems:"center",gap:11,cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
                       <div style={{width:4,height:34,borderRadius:10,background:ac.color,flexShrink:0}}/>
-                      <span style={{fontSize:15,fontWeight:900,color:C.text,flexShrink:0}}>{sc?.time}</span>
+                      {/* 시각 하나만 있으면 수업 시작인지 차량 도착인지 헷갈린다 → 범위로 (사용자 지적) */}
+                      <span style={{fontSize:14.5,fontWeight:900,color:C.text,flexShrink:0}}>{sc?.time}–{endT}</span>
                       {/* [사용자 확정 2026-08-09] 엄마용은 실제 학원 이름이 편하다 —
                           종류만 쓰는 건 아이 화면(탐험 탭) 규칙이다. 종류는 펼치면 나온다. */}
                       <span style={{flex:1,minWidth:0,fontSize:15,fontWeight:800,color:C.text,
@@ -5009,16 +5028,20 @@ export default function App() {
                           <p style={{fontSize:14,fontWeight:800,margin:0,color:C.sub}}>
                             {getAcademyTheme(ac.name,kidSkin,ac.kind).icon} {acKindLabel(ac)}
                           </p>
-                          <p style={{fontSize:13,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT} &nbsp;·&nbsp; {sc?.duration}분</p>
+                          <p style={{fontSize:13,color:C.sub,margin:"2px 0 0",fontWeight:600}}>총 {sc?.duration}분 수업</p>
                           {(()=>{
                             const shuttleText=getShuttleText(ac,hDN);
                             if(!shuttleText) return null;
                             return <p style={{fontSize:12,color:C.sub,margin:"3px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
                           })()}
                         </div>
+                        {/* 아이콘만 두면 무슨 버튼인지 한 번 더 생각하게 된다 → 아래에 작은 글자 (사용자 확정) */}
                         <div style={{display:"flex",gap:7,flexShrink:0}}>
-                          {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:34,height:34,borderRadius:10,background:`${C.green}15`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,textDecoration:"none"}}>📞</a>}
-                          {ac.phone&&<button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:34,height:34,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>💬</button>}
+                          {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:40,borderRadius:10,background:`${C.green}12`,border:`1px solid ${C.green}30`,color:C.green,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,padding:"5px 0",fontSize:14,textDecoration:"none"}}>
+                            📞<span style={{fontSize:9.5,fontWeight:800}}>전화</span></a>}
+                          {ac.phone&&<button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} className="jelly-tap"
+                            style={{width:40,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,color:C.purple,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,padding:"5px 0",fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>
+                            💬<span style={{fontSize:9.5,fontWeight:800}}>문자</span></button>}
                         </div>
                       </div>
                       {/* 준비물 */}
