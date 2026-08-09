@@ -34,6 +34,10 @@ import {
      coin, xp : 숫자
      labels   : {coin,xp,coinEmoji,xpEmoji} 스킨별 표기
      onOpenLevel : 가방을 누르면 열리는 레벨 상세 시트 (LevelSheet)
+     event    : {emoji,title,sub} | null
+                가방에 잠깐 띄우는 소식 (펫 진화·상자·상장·연속 최고기록).
+                있으면 레벨 화면 대신 이걸 보여 준다 — 언제 뜨고 언제 사라지는지는
+                App이 정한다(1분). 여기는 받은 대로 그릴 뿐이다.
    ════════════════════════════════════════════════════════════════════════ */
 export default function CharacterGrid({
   stations = [],
@@ -41,7 +45,7 @@ export default function CharacterGrid({
   progress = { percent: 0, currentXp: 0, needXp: 0, remainXp: 0 },
   coin = 0, xp = 0,
   labels = { coin: "코인", xp: "XP", coinEmoji: "💎", xpEmoji: "⭐" },
-  onOpenLevel,
+  onOpenLevel, event = null,
 }) {
   const wrapRef = useRef(null);
   const [w, setW] = useState(0);
@@ -61,6 +65,9 @@ export default function CharacterGrid({
   const S = gridSizes(w || 360);
   const pct = Math.max(0, Math.min(100, progress.percent || 0));
   const barH = Math.max(9, Math.round(S.cardH * 0.045));
+  /* 발자국·깃발 바깥 여백과 이모지↔막대 사이 간격 (사용자 확정: 양옆을 띄우고 막대를 줄인다) */
+  const barPad = Math.max(6, Math.round(S.cardW * 0.030));
+  const barGap = Math.max(7, Math.round(S.cardW * 0.026));
 
   /* 코인·XP 줄은 자릿수에 따라 글자를 줄인다. 레벨이 오르면 여섯 자리가 되는데
      (예: 💎 168,000 | ⭐ 900,000) 고정 크기로 두면 양쪽이 "168,…" 처럼 잘린다.
@@ -89,6 +96,22 @@ export default function CharacterGrid({
           display: "flex", flexDirection: "column", alignItems: "center",
           justifyContent: "center", gap: Math.round(S.cardH * 0.028), pointerEvents: "none" }}>
 
+          {event ? (
+            /* ── 소식 화면 — 1분 뒤 App이 event를 비우면 아래 레벨 화면으로 돌아온다 ── */
+            <div key={`${event.title}|${event.sub}`} style={{ width: "100%", textAlign: "center",
+              animation: "bagNewsIn .45s cubic-bezier(.34,1.56,.64,1) both" }}>
+              <p style={{ margin: 0, fontSize: Math.round(S.cardH * 0.20), lineHeight: 1,
+                animation: "bagNewsBob 2.2s ease-in-out infinite" }}>{event.emoji}</p>
+              <p style={{ margin: `${Math.round(S.cardH * 0.045)}px 0 0`, fontSize: Math.round(S.labelF * 1.06),
+                fontWeight: 900, color: INK, lineHeight: 1.2, wordBreak: "keep-all" }}>{event.title}</p>
+              {event.sub && (
+                <p style={{ margin: "3px 0 0", fontSize: Math.round(S.labelF * 0.84), fontWeight: 800,
+                  color: INK_SUB, lineHeight: 1.3, wordBreak: "keep-all", overflow: "hidden",
+                  textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{event.sub}</p>
+              )}
+            </div>
+          ) : (<>
+
           {/* 레벨 — 가방 안에서 가장 큰 글자.
               등급 이름이 길면(예: "전설의 대탐험가") 한 줄에 안 들어가므로 두 줄까지 허용한다.
               nowrap + ellipsis 로 두면 이름이 통째로 잘려 무슨 등급인지 알 수 없다. */}
@@ -104,8 +127,11 @@ export default function CharacterGrid({
             {nextLevel ? `다음 등급까지 ${Math.max(0, 100 - pct)}%` : "🏆 최고 레벨 달성!"}
           </p>
 
-          {/* 진행 막대 — 왼쪽 발자국에서 오른쪽 깃발까지 (시안대로) */}
-          <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 6 }}>
+          {/* 진행 막대 — 왼쪽 발자국에서 오른쪽 깃발까지 (시안대로).
+              [사용자 확정 2026-08-09] 발자국·깃발이 종이면 끝에 바짝 붙어 답답해 보여서
+              양옆에 여백(barPad)을 주고 그만큼 막대를 줄였다. */}
+          <div style={{ width: "100%", display: "flex", alignItems: "center", gap: barGap,
+            paddingLeft: barPad, paddingRight: barPad, boxSizing: "border-box" }}>
             <span style={{ fontSize: Math.round(barH * 1.25), lineHeight: 1, flexShrink: 0 }}>👣</span>
             <div style={{ flex: 1, height: barH, borderRadius: barH / 2, background: BAR_TRACK, overflow: "hidden" }}>
               <div style={{ width: `${pct}%`, height: "100%", borderRadius: barH / 2,
@@ -128,6 +154,8 @@ export default function CharacterGrid({
               {labels.xpEmoji} {xp.toLocaleString()}
             </span>
           </div>
+
+          </>)}
         </div>
       </button>
 

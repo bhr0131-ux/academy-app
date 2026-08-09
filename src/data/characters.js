@@ -46,6 +46,15 @@ export const _charSet = (theme)=>({
 });
 export const ADV_CHAR_IMG = _charSet("adventure");
 export const BAKERY_CHAR_IMG = _charSet("bakery");
+/* 쉬는 날(오늘 미션 0개) 무대 앉기 포즈 — 사용자 원화 2026-08-09, 남녀 각 한 장.
+   진화 단계 구분은 없다(한 장으로 다섯 단계를 다 받는다) — 쉬는 날에만 잠깐 보이는 모습이라
+   단계별로 다섯 장을 그릴 만큼 자주 나오지 않는다. 탐험 스킨 전용(베이커리 원화는 없다).
+   높이는 서 있을 때(ADV_CHAR_SIZE)의 ADV_SIT_RATIO 배 — 앉으면 그만큼 낮아 보여야 자연스럽다. */
+export const ADV_SIT_IMG = {
+  boy:  "/assets/expedition/char/common-sit.webp",
+  girl: "/assets/expedition/char/girl-sit.webp",
+};
+export const ADV_SIT_RATIO = 0.78;
 // 베이커리 모드 캐릭터 (남아/여아 × 5단계) — 진화 구간은 탐험과 동일(1/5/9/13/17)
 
 

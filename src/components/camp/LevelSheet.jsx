@@ -6,7 +6,9 @@ import { PAPER, INK, INK_SUB, BAR_FILL, BAR_TRACK } from "./gridLayout.js";
    [사용자 확정 2026-08-09] 가방 카드에는 자리가 좁아 레벨·막대·코인/XP만
    보여 준다. 누르면 예전 캐릭터 탭 상세정보(HERO STATUS)에 있던 내용을
    전부 볼 수 있게 따로 연다 — 캐릭터 진화 모습, 레벨 설명 한 줄,
-   다음 레벨까지 남은 XP, 앞으로 오를 레벨과 레벨업 보너스.
+   다음 레벨까지 남은 XP, 진화 단계 문구.
+   ('앞으로의 레벨' 목록은 사용자 확정으로 뺐다 — 아직 못 간 레벨을 늘어놓으면
+   지금 레벨이 초라해 보인다. 다음 한 칸만 보여 주는 게 낫다.)
 
    다른 캠프 시트들과 같은 방식으로 뜨고(open/onClose·바텀시트), 색만
    캐릭터 탭의 종이 톤(PAPER/INK)을 그대로 쓴다 — 가방에서 이어지는
@@ -25,7 +27,6 @@ import { PAPER, INK, INK_SUB, BAR_FILL, BAR_TRACK } from "./gridLayout.js";
      evo       : {emoji,name,msg}  진화 단계 이름과 안내 문구
      coin, xp  : 숫자
      labels    : {coin,xp,coinEmoji,xpEmoji}  스킨별 표기
-     upcoming  : [{level,name,emoji,minScore,bonus}]  앞으로 오를 레벨
    ════════════════════════════════════════════════════════════════════════ */
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
@@ -38,7 +39,6 @@ export default function LevelSheet({
   progress = { percent: 0, currentXp: 0, needXp: 0, remainXp: 0 },
   desc = "", title = null, charImg = null, evo = null, coin = 0, xp = 0,
   labels = { coin: "코인", xp: "XP", coinEmoji: "💎", xpEmoji: "⭐" },
-  upcoming = [],
 }) {
   if (!open) return null;
   const pct = Math.max(0, Math.min(100, progress.percent || 0));
@@ -145,44 +145,6 @@ export default function LevelSheet({
             </div>
           )}
 
-          {/* ── 앞으로의 레벨 — 언제 뭐가 되고 보너스가 얼마인지 미리 보여 준다 ── */}
-          {upcoming.length > 0 && (
-            <>
-              <div style={{ display: "flex", alignItems: "center", gap: 9, margin: "20px 0 10px" }}>
-                <span style={{ flex: 1, height: 1, background: LINE }} />
-                <span style={{ fontSize: 11.5, fontWeight: 900, color: INK_SUB, whiteSpace: "nowrap" }}>앞으로의 레벨</span>
-                <span style={{ flex: 1, height: 1, background: LINE }} />
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                {upcoming.map(u => (
-                  <div key={u.level} style={{ display: "flex", alignItems: "center", gap: 9,
-                    background: "rgba(255,255,255,0.6)", border: `1px solid ${LINE}`,
-                    borderRadius: 12, padding: "9px 12px" }}>
-                    <span style={{ fontSize: 17, flexShrink: 0 }}>{u.emoji}</span>
-                    <span style={{ fontSize: 13, fontWeight: 900, color: INK, minWidth: 0,
-                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      Lv.{u.level} {u.name}
-                    </span>
-                    <span style={{ marginLeft: "auto", flexShrink: 0, fontSize: 11.5, fontWeight: 800,
-                      color: INK_SUB, whiteSpace: "nowrap" }}>
-                      {labels.xpEmoji} {u.minScore.toLocaleString()}
-                      {u.bonus > 0 && (
-                        <span style={{ color: "#6E9A22", fontWeight: 900 }}>
-                          {" · "}{labels.coinEmoji} +{u.bonus}
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              {/* 보너스가 붙은 레벨이 하나도 없으면 이 설명은 오히려 헷갈린다 */}
-              {upcoming.some(u => u.bonus > 0) && (
-                <p style={{ margin: "10px 2px 0", fontSize: 11.5, fontWeight: 700, color: INK_SUB, lineHeight: 1.55 }}>
-                  {labels.coinEmoji} 표시는 그 레벨에 올랐을 때 받는 레벨업 보너스예요.
-                </p>
-              )}
-            </>
-          )}
         </div>
       </div>
     </div>
