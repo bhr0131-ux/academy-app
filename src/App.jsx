@@ -4292,8 +4292,10 @@ export default function App() {
                       { key:"streak", img:"st-streak.webp", name:"연속 달성",
                         badge:`현재 ${getQuestStreak(childId)}일`,
                         onPress:()=>setOpenStreak(true) },
+                      // 탐험 기록은 아래 뱃지를 비운다 (사용자 확정 2026-08-09) —
+                      // "최근 N건"이라고 써 있었지만 실제로는 저장된 기록 '전체 개수'라 뜻이 어긋났다.
+                      // 세어서 보여 줄 만한 값이 아니라 아예 뺐다.
                       { key:"history", img:"st-history.webp", name:T.logName||"탐험 기록",
-                        badge:`최근 ${getScoreHistory(childId).length}건`,
                         onPress:()=>setOpenHistory(true) },
                     ]}
                   />
