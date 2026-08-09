@@ -46,15 +46,15 @@ export const _charSet = (theme)=>({
 });
 export const ADV_CHAR_IMG = _charSet("adventure");
 export const BAKERY_CHAR_IMG = _charSet("bakery");
-/* 쉬는 날(오늘 미션 0개) 무대 앉기 포즈 — 사용자 원화 2026-08-09, 남녀 각 한 장.
-   진화 단계 구분은 없다(한 장으로 다섯 단계를 다 받는다) — 쉬는 날에만 잠깐 보이는 모습이라
-   단계별로 다섯 장을 그릴 만큼 자주 나오지 않는다. 탐험 스킨 전용(베이커리 원화는 없다).
-   높이는 서 있을 때(ADV_CHAR_SIZE)의 ADV_SIT_RATIO 배 — 앉으면 그만큼 낮아 보여야 자연스럽다. */
+/* 앉기 포즈 — 사용자 원화 2026-08-09, 남녀 각 한 장.
+   [사용자 확정] 무대 캐릭터를 바꾸는 게 아니라, '오늘은 탐험 장소가 없어요' ·
+   '오늘은 미션이 없어요!' 빈 칸의 이모지(😴 · 🗒️) 자리에 대신 넣는다.
+   탐험 스킨 전용 — 베이커리(디저트) 앉기 원화는 없다. */
 export const ADV_SIT_IMG = {
   boy:  "/assets/expedition/char/common-sit.webp",
   girl: "/assets/expedition/char/girl-sit.webp",
 };
-export const ADV_SIT_RATIO = 0.78;
+export const ADV_SIT_EMPTY_H = 108;   // 빈 칸 안에서 그릴 높이(px) — 이모지 38~42px 자리를 대신한다
 // 베이커리 모드 캐릭터 (남아/여아 × 5단계) — 진화 구간은 탐험과 동일(1/5/9/13/17)
 
 
