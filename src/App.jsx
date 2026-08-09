@@ -5303,7 +5303,10 @@ export default function App() {
                               const onVac=isVacationDay(childId,ac.id,dayDate);
                               return (
                               <div key={ac.id} style={{background:onVac?CT.faint:`${ac.color}12`,border:`1px solid ${onVac?C.border:ac.color+"33"}`,borderRadius:10,padding:"5px 2px",textAlign:"center",minWidth:0,opacity:onVac?0.65:1}}>
-                                <p style={{fontSize:11,fontWeight:700,margin:0,color:onVac?C.sub:ac.color,lineHeight:1.2,wordBreak:"break-all",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden",textDecoration:onVac?"line-through":"none"}}>{ac.name}</p>
+                                {/* [사용자 확정 2026-08-09] 한 칸이 폭 50px 남짓이라 학원 이름은
+                                    두 줄로 잘려 읽기 어려웠다 → 종류(피아노·영어)로 바꾼다.
+                                    실제 학원 이름은 아래 '금일 시간표'와 학원 탭에서 본다. */}
+                                <p style={{fontSize:11,fontWeight:700,margin:0,color:onVac?C.sub:ac.color,lineHeight:1.2,wordBreak:"break-all",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden",textDecoration:onVac?"line-through":"none"}}>{acKindLabel(ac)}</p>
                                 <p style={{fontSize:11.5,fontWeight:700,margin:"2px 0 0",color:onVac?"#E65100":C.sub}}>{onVac?"🏖️ 방학":ac.classTime}</p>
                               </div>
                               );
