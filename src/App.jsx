@@ -5403,8 +5403,11 @@ export default function App() {
                     )}
                     {/* 메모는 상단으로 이동됨 */}
                     {selInfo.acList.length===0&&selInfo.absOnDay.length===0&&selInfo.makeupOnDay.length===0&&(
-                      <div style={{textAlign:"center",padding:"20px 0",color:C.sub,fontSize:13}}>
-                        <p style={{fontSize:24,margin:"0 0 6px"}}>😴</p>학원이 없는 날이에요
+                      /* 홈 화면과 같은 규칙 — 이모지 대신 앱 캐릭터 원화 (사용자 확정 2026-08-09) */
+                      <div style={{textAlign:"center",padding:"6px 0 14px",color:C.sub}}>
+                        <img src={ADV_SIT_IMG[childGender]||ADV_SIT_IMG.boy} alt="" draggable={false}
+                          style={{display:"block",height:78,width:"auto",maxWidth:"none",margin:"0 auto"}}/>
+                        <p style={{fontSize:13.5,fontWeight:700,margin:"6px 0 0"}}>학원이 없는 날이에요</p>
                       </div>
                     )}
                     {/* 학원별 숙제/준비물 - 방학 중인 학원 제외 */}
@@ -5433,8 +5436,8 @@ export default function App() {
                             </div>
                             {totalTodoCnt>0&&<span style={{fontSize:12,fontWeight:800,color:allDone?C.green:C.orange,background:allDone?`${C.green}15`:`${C.orange}15`,borderRadius:10,padding:"3px 9px",flexShrink:0}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
                           </div>
-                          <div style={{padding:"12px 13px"}}>
-                            <div style={{marginBottom:10}}>
+                          <div style={{padding:"11px 13px"}}>
+                            <div>
                               <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 6px",letterSpacing:0.3}}>🎒 준비물</p>
                               <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                                 {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
@@ -5442,10 +5445,8 @@ export default function App() {
                                 {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:13,color:C.sub,opacity:0.6}}>없음</span>}
                               </div>
                             </div>
-                            <button onClick={()=>{ setShowDailyModal({academyId:ac.id,date:effSelDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies}); setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput(""); setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE); }}
-                              style={{width:"100%",padding:"7px 10px",borderRadius:10,border:`1.5px solid ${ac.color}66`,background:`${ac.color}14`,color:ac.color,fontSize:13,fontWeight:700,cursor:"pointer"}}>
-                              🎯 미션 · 준비물 편집
-                            </button>
+                            {/* [사용자 확정 2026-08-09] 달력의 금일 일정에는 미션 편집 버튼을 두지 않는다 —
+                                여기는 '무슨 일정이 있나' 보는 자리이고, 편집은 홈 탭의 오늘의 학원에서 한다. */}
                           </div>
                         </div>
                       );
