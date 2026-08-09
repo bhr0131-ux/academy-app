@@ -64,9 +64,11 @@ export default function CharacterGrid({
 
   /* 코인·XP 줄은 자릿수에 따라 글자를 줄인다. 레벨이 오르면 여섯 자리가 되는데
      (예: 💎 168,000 | ⭐ 900,000) 고정 크기로 두면 양쪽이 "168,…" 처럼 잘린다.
-     칸 폭을 재서 맞추는 대신 자릿수로 정한다 — 숫자 폭은 글꼴에서 일정하다. */
+     칸 폭을 재서 맞추는 대신 자릿수로 정한다 — 숫자 폭은 글꼴에서 일정하다.
+     [2026-08-09] 가방을 가로로 넓히면서 종이면이 216px → 288px 이 됐다.
+     예전 단계를 그대로 두면 넓은 판에서 숫자만 작아 보여 한 칸씩 위로 올렸다. */
   const moneyLen = `${coin.toLocaleString()}${xp.toLocaleString()}`.length;
-  const moneyF = Math.round(S.labelF * (moneyLen >= 12 ? 0.72 : moneyLen >= 9 ? 0.84 : 0.98));
+  const moneyF = Math.round(S.labelF * (moneyLen >= 14 ? 0.80 : moneyLen >= 11 ? 0.90 : 1.02));
 
   return (
     <div ref={wrapRef} style={{ width: "100%", background: PAPER }}>
