@@ -149,8 +149,6 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | btn-child-switch-badge-v2.webp | 아이 전환 원형 뱃지 v2 (남매, 2명 이상일 때만 노출, 현행) | btn-child-switch.webp |
 | btn-my-avatar-badge.webp | '내 아바타' 원형 뱃지 (초록 실루엣, 현행 — 팻말에서 교체) | btn-my-avatar.webp |
 | btn-growth-character-badge.webp | '성장캐릭터' 원형 뱃지 (새싹, 현행 — 팻말에서 교체) | btn-growth-character.webp |
-| adventure-map-v11-src.webp | 긴 지도 v11 (885×1778 — 동물·보물상자가 없는 판. 동물 다섯은 따로 얹고 하루 두 마리만 나온다. 상자도 chest-closed.webp로 따로 얹는다) | adventure-map.webp |
-| adventure-map-short-v11-src.webp | 짧은 지도 v11 (923×1704 — 동물·보물상자 없는 판) | adventure-map-short.webp |
 | chest-closed-v1-src.webp | 닫힌 보물상자 (v10 지도 원화에서 오려 낸 것 — v11 지도엔 상자가 안 그려져 있어 따로 얹는다. 화면용 230px) | chest-closed.webp |
 | map-ev/parrot-v1-src.webp | 지도 동물 — 앵무새 (그루터기 대신 나무 횃대+수풀, 투명. 지도 폭의 16%) | map-ev/parrot.webp |
 | map-ev/monkey-v2-src.webp | 지도 동물 — 원숭이 v2 (바위에 앉은 모습, 나뭇가지·덩굴 없음. 원화가 검정 배경으로 와서 테두리에 닿은 검정만 지우고 가장자리를 다듬어 탑재. 지도 폭의 20%) | map-ev/monkey.webp |
@@ -225,5 +223,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | expedition/ride/submarine-src.webp | 탑승 원화 32 잠수정 — 바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/submarine.webp |
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
 | bg-adventure-meadow-v10-src.webp | 탐험 모드 무대 기본 배경 v10 (866×1815 = 1:2.10 — 무대 칸 비율에 맞춘 세로 긴 판. v9과 구도는 같고 전체를 더 밝고 맑게 뺀 판(하늘 하늘색·모래 밝은 베이지). 우측 나무도 빠져 좌우가 트였다. 받은 그대로 톤 보정 없음, 현행) | stage-adventure-meadow.webp |
+| adventure-map-v12-src.webp | 탐험지도 긴 판 v12 (885×1778 — 학원 4곳 이상용). v11과 구도는 같고 모래길이 좁아지고 굽이가 바뀌었다. 그래서 길 중심선을 직각-걷기로 다시 뽑고(90점), 새 길에 걸린 자리 3곳을 옮겼다 | adventure-map.webp |
+| adventure-map-short-v3-src.webp | 탐험지도 짧은 판 v3 (922×1706 — 학원 0~3곳용). v2와 길이 거의 같아(기존 85점 중 83점이 그대로 길 위) 좌표는 손대지 않았다 | adventure-map-short.webp |
 | camp-bag-src.webp | 캐릭터 탭 가방 카드 '빈 틀' (1000×862 = 비율 1.160, 투명). 안쪽 종이면 x 12.2~88.1% · y 22.5~84.8%(실측)에 레벨·진행막대·코인/XP를 앱이 그린다 — 값이 매일 바뀌므로 그림에 넣지 않는다 | camp/bag.webp |
 | camp-{deco,item,box,pet,book,title,streak,history}-v2-src.webp | 캐릭터 탭 격자 아이콘 **8종 전부** (490×490 정사각 = 표시 138px의 3.5배, 받침 없이 캔버스를 꽉 채운 판). 앱이 정사각 칸에 objectFit:contain 으로 넣으므로 여덟 칸의 무게가 저절로 맞는다. 그루터기 붙은 v1은 규칙 6에 따라 삭제 | camp/st-*.webp |
