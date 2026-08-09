@@ -28,6 +28,11 @@
       html, body, button, input, textarea, select {
         font-family: 'Cafe24Ssurround', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
       }
+      /* 누를 때 안드로이드 웹뷰가 씌우는 파란 네모(터치 하이라이트)를 없앤다 (사용자 요청).
+         눌린 느낌은 앱이 직접 준다(.jelly-tap / .icon-tap / .card-tap 축소 연출).
+         키보드 접근성용 outline(:focus-visible)은 브라우저 기본 그대로 남겨 둔다 —
+         이건 마우스·손가락이 아니라 Tab 키로 옮겼을 때만 보이므로 방해되지 않는다. */
+      * { -webkit-tap-highlight-color: transparent; }
       /* 첫 화면이 '탭 줄 아래'에서 딱 끝나게 무대(캐릭터 화면) 높이를 잡는다 (사용자 확정).
          빼는 값 = 시트 머리(손잡이 30 + 탭 줄 52) − 시트 겹침(24) + 무대 위 여백(8) = 66px.
          테두리 장착 시엔 위아래 4px씩 더 붙으므로 74px. (실측으로 맞춘 값)
