@@ -689,12 +689,18 @@ export const IslandMap = ({ items=[], night=true, mode="today", charEmoji="" }) 
   );
 };
 
+/* 성장 단계 5개 — 캐릭터 '그림'이 바뀌는 구간이다 (레벨 1/5/9/13/17에서 갈린다).
+   [사용자 확정 2026-08-09] 단계 이름을 '~기'로 바꿨다.
+   예전엔 단계 이름이 레벨 이름을 그대로 재사용해서(새싹 탐험가=Lv.1, 숲 탐험가=Lv.5,
+   바다 탐험가=Lv.9, 전설의 탐험가=Lv.20) 레벨 시트에 "Lv.10 섬 탐험가 / 바다 탐험가"처럼
+   한 칸 전 레벨 이름이 같이 떠서 뒤로 간 것처럼 읽혔다. 이제 두 층의 이름이 안 겹친다.
+   ※ 레벨 이름 20개(DEFAULT_LEVELS)는 그대로다 — 여기만 바꿨다. */
 export const CHARACTER_EVOLUTIONS = [
-  { minLevel:1,  name:"새싹 탐험가",   avatar:{boy:"🧒",girl:"👧"},  badge:"🌱", bg:"linear-gradient(135deg,#E0F2FE,#F8FAFC)" },
-  { minLevel:5,  name:"숲 탐험가",     avatar:{boy:"🧑",girl:"👩"},  badge:"🌲", bg:"linear-gradient(135deg,#DCFCE7,#F8FAFC)" },
-  { minLevel:9,  name:"바다 탐험가",   avatar:{boy:"🧑‍✈️",girl:"👩‍✈️"},  badge:"🌊", bg:"linear-gradient(135deg,#E0F2FE,#F8FAFC)" },
-  { minLevel:13, name:"탐험 히어로",   avatar:{boy:"🦸‍♂️",girl:"🦸‍♀️"}, badge:"🦸", bg:"linear-gradient(135deg,#EDE9FE,#F8FAFC)" },
-  { minLevel:17, name:"전설의 탐험가", avatar:{boy:"🧑‍🚀",girl:"👩‍🚀"}, badge:"🚀", bg:"linear-gradient(135deg,#FFF7ED,#FEF3C7)" },
+  { minLevel:1,  name:"새싹기", avatar:{boy:"🧒",girl:"👧"},  badge:"🌱", bg:"linear-gradient(135deg,#E0F2FE,#F8FAFC)" },
+  { minLevel:5,  name:"모험기", avatar:{boy:"🧑",girl:"👩"},  badge:"🌲", bg:"linear-gradient(135deg,#DCFCE7,#F8FAFC)" },
+  { minLevel:9,  name:"항해기", avatar:{boy:"🧑‍✈️",girl:"👩‍✈️"},  badge:"🌊", bg:"linear-gradient(135deg,#E0F2FE,#F8FAFC)" },
+  { minLevel:13, name:"영웅기", avatar:{boy:"🦸‍♂️",girl:"🦸‍♀️"}, badge:"🦸", bg:"linear-gradient(135deg,#EDE9FE,#F8FAFC)" },
+  { minLevel:17, name:"전설기", avatar:{boy:"🧑‍🚀",girl:"👩‍🚀"}, badge:"🚀", bg:"linear-gradient(135deg,#FFF7ED,#FEF3C7)" },
 ];
 
 // ── 펫 진화 (한 길, 0→4단계). 보물상자에서 낮은 확률로 1단계씩 진화 ──
@@ -712,12 +718,13 @@ export const PET_EVOLVE_CHANCE = { normal:0.0125, rare:0.021, legend:0.033 };
 export const PET_EVOLVE_LEGEND_PITY = 4;
 
 // 진화 단계별 격려 문구
+// 성장 단계별 격려 문구 — 열쇠는 CHARACTER_EVOLUTIONS 의 name (단계 이름을 바꾸면 여기도 같이 바꾼다)
 export const EVOLUTION_MESSAGES = {
-  "새싹 탐험가":   "작은 한 걸음에서 탐험이 시작돼요.",
-  "숲 탐험가":     "스스로 길을 찾는 힘이 자라고 있어요.",
-  "바다 탐험가":   "넓은 세상으로 용감하게 나아가고 있어요.",
-  "탐험 히어로":   "꿈을 향해 더 높이 날아오르고 있어요.",
-  "전설의 탐험가": "자신만의 길을 만들어가는 탐험가예요.",
+  "새싹기": "작은 한 걸음에서 탐험이 시작돼요.",
+  "모험기": "스스로 길을 찾는 힘이 자라고 있어요.",
+  "항해기": "넓은 세상으로 용감하게 나아가고 있어요.",
+  "영웅기": "꿈을 향해 더 높이 날아오르고 있어요.",
+  "전설기": "자신만의 길을 만들어가는 탐험가예요.",
 };
 
 // ════════════════════════════════════════════════════════════

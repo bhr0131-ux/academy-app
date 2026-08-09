@@ -3255,7 +3255,7 @@ export default function App() {
                 })()}
                 {/* 성장 단계별 격려 문구 (탐험 구조로 통일 — 양쪽 표시) */}
                 {(()=>{
-                  const msg=evoMsgView(evo.name,kidSkin)||EVOLUTION_MESSAGES["새싹 탐험가"];
+                  const msg=evoMsgView(evo.name,kidSkin)||EVOLUTION_MESSAGES["새싹기"];
                   return (
                     <div style={{marginTop:16,marginBottom:4,position:"relative",zIndex:1}}>
                       <p style={{fontSize:12.5,fontWeight:700,margin:0,lineHeight:1.4,opacity:0.9,textAlign:"center"}}>“{msg}”</p>
@@ -3481,7 +3481,8 @@ export default function App() {
               desc={LEVEL_DESCRIPTION[lv.level]||""}
               title={getSelectedTitle(childId)}
               charImg={imgSet[ADV_CHAR_STAGE_OF(lv.level)]}
-              evo={{emoji:evo.avatar?.[g]||evo.badge||"🧬",name:evo.name,msg:evoMsgView(evo.name,kidSkin)||""}}
+              evo={{emoji:evo.avatar?.[g]||evo.badge||"🧬",stage:ADV_CHAR_STAGE_OF(lv.level),
+                name:evo.name,msg:evoMsgView(evo.name,kidSkin)||""}}
               coin={getChildCoin(childId)} xp={getChildXP(childId)}
               labels={{coin:TM.coin,xp:TM.xp,coinEmoji:TM.coinEmoji,xpEmoji:TM.xpEmoji}} />
           );
