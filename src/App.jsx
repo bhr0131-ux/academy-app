@@ -1,6 +1,6 @@
 import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
-import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
+import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
@@ -121,6 +121,9 @@ const initOnboarding = {
   firstTipPending: false, firstTipSeen: false,
   pinHintSeen: false, showParentRewardGuide: false, parentRewardGuideSeen: false, showParentWelcome: false, parentWelcomeSeen: false,
 };
+/* 엄마용을 되살려 주는 시간 (사용자 요청: '잠깐' 다른 앱 갔다 온 경우).
+   이보다 오래 지났으면 PIN을 다시 받도록 아이용으로 시작한다. */
+const PARENT_RESUME_MS = 3 * 60 * 1000;
 const initUi = {
   childTab: "area",
   showChildRewards: false,
@@ -340,6 +343,7 @@ export default function App() {
   const [showHomeAcademyList,    setShowHomeAcademyList]    = useState(false); // 홈탭 등록학원 펼침
   const [openTitle,              setOpenTitle]              = useState(initUi.openTitle);
   const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
+  const [bagEvent,               setBagEvent]               = useState(null);             // 가방 카드에 1분간 띄우는 소식
   const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
@@ -405,6 +409,8 @@ export default function App() {
         for(let s=1;s<=5;s++){ const u=set?.[g]?.[s]; if(u) urls.push(u); }
       });
     });
+    // 쉬는 날 앉기 포즈도 같이 — 미션이 0개인 날엔 이 그림이 무대의 주인공이다
+    ["boy","girl"].forEach(g=>{ const u=ADV_SIT_IMG?.[g]; if(u) urls.push(u); });
     // 탐험 모드 무대 기본 배경(초원 등)도 프리로드 — 첫 진입 시 배경이 늦게 뜨는 것 방지
     ADV_STAGE_BG_ALL.forEach(u=>{ if(u) urls.push(u); });
     // requestIdleCallback 이 있으면 유휴 시간에, 없으면 다음 프레임에 순차 디코딩
@@ -649,11 +655,40 @@ export default function App() {
       if(pWelcomeSeen) setParentWelcomeSeen(true);
       const rAge=await load("v6_reward_age_group");
       if(rAge) setRewardAgeGroup(rAge);
+      /* ── 마지막으로 보던 화면 되살리기 (사용자 요청 2026-08-09) ──
+         지금까지 화면 위치(모드·탭)는 리액트 상태로만 들고 있어서, 다른 앱을 잠깐 쓰는 사이
+         안드로이드가 웹뷰를 정리해 버리면 다시 켤 때 늘 아이용 탐험 탭에서 시작했다.
+         새 키(v6_ui_last)에만 적고, 기존 저장 키는 건드리지 않는다 (CLAUDE.md 8·9).
+         엄마용은 '잠깐 나갔다 온 경우'(PARENT_RESUME_MS)에만 되살린다 — PIN으로 가려 둔
+         화면이라, 한참 지난 뒤에도 열려 있으면 아이가 그대로 들어갈 수 있다. */
+      const lastUi=await load("v6_ui_last");
+      if(lastUi&&typeof lastUi==="object"){
+        if(["area","today","growth"].includes(lastUi.tab)) setChildTab(lastUi.tab);
+        const gap=Date.now()-Number(lastUi.at||0);
+        if(lastUi.mode==="parent"&&gap>=0&&gap<PARENT_RESUME_MS){
+          setAppMode("parent");
+          if(typeof lastUi.ptab==="string") setTab(lastUi.ptab);
+        }
+      }
       setLoaded(true);
     })();
   },[]);
 
   useEffect(()=>{ if(loaded) save("v6_children",children); },[children,loaded]);
+  /* 마지막 화면 기록 — 탭·모드가 바뀔 때마다, 그리고 앱이 뒤로 넘어갈 때 한 번 더 (at 갱신용).
+     at 은 '마지막으로 앱을 쓴 시각'이라, 엄마용을 켜 둔 채 한참 있다가 나가도
+     나가는 순간이 기준이 된다. */
+  const uiNowRef=useRef({mode:appMode,tab:childTab,ptab:tab});
+  uiNowRef.current={mode:appMode,tab:childTab,ptab:tab};
+  useEffect(()=>{ if(loaded) save("v6_ui_last",{...uiNowRef.current,at:Date.now()}); },[appMode,childTab,tab,loaded]);
+  useEffect(()=>{
+    if(!loaded) return;
+    const stamp=()=>save("v6_ui_last",{...uiNowRef.current,at:Date.now()});
+    const onVis=()=>{ if(document.hidden) stamp(); };
+    document.addEventListener("visibilitychange",onVis);
+    window.addEventListener("pagehide",stamp);
+    return ()=>{ document.removeEventListener("visibilitychange",onVis); window.removeEventListener("pagehide",stamp); };
+  },[loaded]);
   // 안전장치: 아이모드에 있는 동안에는 보상탭 잠금을 항상 유지(어떤 경로로 진입하든 PIN 재요구).
   useEffect(()=>{ if(appMode==="child" && rewardUnlocked) setRewardUnlocked(false); },[appMode,rewardUnlocked]);
   useEffect(()=>{ if(loaded) save("v6_kid_skin_map",skinByChild); },[skinByChild,loaded]);
@@ -2711,6 +2746,40 @@ export default function App() {
     });
   },[loaded,childId,dailyData]);
 
+  /* ── 가방 카드 '소식' — 캐릭터 탭 가방에 1분간만 띄웠다가 원래 레벨 화면으로 (사용자 확정 2026-08-09)
+       띄우는 네 가지: 펫 진화 · 보물상자 생김 · 상장 교체 · 연속 달성 최고기록.
+       저장하지 않는다(새 키 없음) — 지금 앱을 보고 있는 동안의 알림이라 껐다 켜면 사라지는 게 맞고,
+       저장 규칙(CLAUDE.md 8·9)을 건드릴 이유도 없다.
+       첫 렌더와 아이 전환 때는 '기준값만' 잡고 넘어간다 — 안 그러면 앱을 켤 때마다 뜬다. */
+  const bagSeenRef  = useRef(null);
+  const bagTimerRef = useRef(null);
+  useEffect(()=>{
+    if(!loaded||!childId) return;
+    const stage=getPetStage(childId);
+    const snap={cid:childId,pet:stage,box:getTotalTreasureCount(childId),
+      title:selectedTitles[childId]||"rookie",streak:getBestStreak(childId)};
+    const was=bagSeenRef.current;
+    bagSeenRef.current=snap;
+    if(!was||was.cid!==childId) return;             // 기준만 잡는다
+    let ev=null;
+    if(snap.pet>was.pet){
+      const pet=petView(PET_STAGES[stage],stage,kidSkin);
+      ev={emoji:pet.emoji||"🐣",title:"펫이 진화했어요!",sub:pet.name};
+    } else if(snap.box>was.box){
+      ev={emoji:TM.boxEmoji,title:`${TM.box}가 생겼어요!`,sub:`${TM.book}에 ${snap.box}개`};
+    } else if(snap.streak>was.streak){
+      ev={emoji:"🔥",title:"연속 달성 최고기록!",sub:`${snap.streak}일 연속 달성 중`};
+    } else if(snap.title!==was.title){
+      const t=getSelectedTitle(childId);
+      ev={emoji:t.emoji||"👑",title:"상장을 바꿨어요",sub:t.name};
+    }
+    if(!ev) return;
+    setBagEvent(ev);
+    clearTimeout(bagTimerRef.current);
+    bagTimerRef.current=setTimeout(()=>setBagEvent(null),60000);
+  },[loaded,childId,petData,treasureData,selectedTitles,bestStreakData,dailyData,kidSkin]);
+  useEffect(()=>()=>clearTimeout(bagTimerRef.current),[]);
+
   useEffect(()=>{
     if(!loaded||!childId||appMode!=="child") return;
     const unlocked=getUnlockedTitles(childId);
@@ -3305,6 +3374,9 @@ export default function App() {
           /* 가방 카드는 덩치가 커서 같은 배율로 줄이면 화면이 출렁인다 — 살짝만 눌린다 */
           .card-tap{transition:transform .13s cubic-bezier(.34,1.56,.64,1),filter .13s ease}
           .card-tap:active{transform:scale(0.972);filter:brightness(0.975)}
+          /* 가방 카드 소식 — 톡 떠오른 뒤 이모지만 살짝 흔들린다 (1분 뒤 레벨 화면으로 복귀) */
+          @keyframes bagNewsIn{0%{opacity:0;transform:translateY(8px) scale(.86)}60%{opacity:1;transform:translateY(0) scale(1.06)}100%{transform:scale(1)}}
+          @keyframes bagNewsBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
         `}}/>
         {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
 
@@ -3391,18 +3463,13 @@ export default function App() {
           onSelect={selectTitle} faint={CT.faint}
           unlockedCount={getUnlockedTitles(childId).length} totalCount={getAllTitles(childId).length} />
         {/* 레벨 상세 시트 — 캐릭터 탭 가방 카드를 누르면 연다.
-            가방에는 자리가 좁아 못 넣은 것들(진화 모습·레벨 설명·남은 XP·앞으로의 레벨)을 여기서 본다.
+            가방에는 자리가 좁아 못 넣은 것들(진화 모습·레벨 설명·남은 XP)을 여기서 본다.
             값은 전부 기존 계산 함수 그대로 쓰고, 시트는 그리기만 한다. */}
         {openLevel&&(()=>{
           const lv=getChildLevel(childId);
           const evo=getCharacterEvolution(childId);
           const g=(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy";
           const imgSet=(kidSkin==="cute"?BAKERY_CHAR_IMG:ADV_CHAR_IMG)[g];
-          // 앞으로 오를 레벨 세 개까지 — 목표가 너무 멀면 오히려 김이 새므로 가까운 것만
-          const upcoming=DEFAULT_LEVELS.filter(L=>L.level>lv.level).slice(0,3).map(L=>{
-            const V=levelView(L,kidSkin,g);
-            return {level:V.level,name:V.name,emoji:V.emoji,minScore:L.minScore,bonus:LEVEL_UP_REWARDS?.[L.level]||0};
-          });
           return (
             <LevelSheet open onClose={()=>setOpenLevel(false)}
               level={lv} nextLevel={getNextLevel(childId)}
@@ -3412,8 +3479,7 @@ export default function App() {
               charImg={imgSet[ADV_CHAR_STAGE_OF(lv.level)]}
               evo={{emoji:evo.avatar?.[g]||evo.badge||"🧬",name:evo.name,msg:evoMsgView(evo.name,kidSkin)||""}}
               coin={getChildCoin(childId)} xp={getChildXP(childId)}
-              labels={{coin:TM.coin,xp:TM.xp,coinEmoji:TM.coinEmoji,xpEmoji:TM.xpEmoji}}
-              upcoming={upcoming} />
+              labels={{coin:TM.coin,xp:TM.xp,coinEmoji:TM.coinEmoji,xpEmoji:TM.xpEmoji}} />
           );
         })()}
         {/* 탐험 기록 시트 — 캐릭터 탭 '탐험 기록' 카드에서 연다 */}
@@ -4161,6 +4227,7 @@ export default function App() {
                     coin={getChildCoin(childId)} xp={getChildXP(childId)}
                     labels={{coin:TM.coin,xp:TM.xp,coinEmoji:TM.coinEmoji,xpEmoji:TM.xpEmoji}}
                     onOpenLevel={()=>setOpenLevel(true)}
+                    event={bagEvent}
                     stations={[
                       { key:"deco", img:"st-deco.webp", name:kidSkin==="cute"?"꾸미기 가게":"꾸미기 상점",
                         badge:`${getOwnedCount(childId)+getAvatarOwned(childId).length}개 보유`,

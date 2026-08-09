@@ -1,6 +1,6 @@
 import AvatarViewer from "./AvatarViewer.jsx";
 import { mixWhite, mixBlack, dungeonTone } from "../data/tokens.js";
-import { ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_CHAR_SIZE, BAKERY_CHAR_SIZE, AVATAR_HOME_SIZE, ADV_CHAR_STAGE_OF, TITLE_RARITY } from "../data/characters.js";
+import { ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_CHAR_SIZE, BAKERY_CHAR_SIZE, AVATAR_HOME_SIZE, ADV_CHAR_STAGE_OF, ADV_SIT_IMG, ADV_SIT_RATIO, TITLE_RARITY } from "../data/characters.js";
 import { CHAR_DISPLAY_AVATAR } from "../data/avatarEquipment.js";
 import { getDiscovery, getDiscoveryOn } from "../data/discoveries.js";
 import { TODAY } from "../utils/dates.js";
@@ -251,6 +251,18 @@ export default function HeroStage({ D }) {
                                 <AvatarViewer equipped={getAvatarEquipped(childId)} size={_avSz} showFrame={false} showBg={false} baseCharImg={getAvatarBaseCharImg(childId)} gender={(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy"} />
                               </div>
                             </div>
+                          );
+                        }
+                        /* 쉬는 날(오늘 미션 0개)에는 앉아 있는 모습으로 (사용자 확정 2026-08-09).
+                           말풍선이 이미 "오늘은 쉬어가는 날! 😴" 인데 캐릭터만 꼿꼿이 서 있어 어긋났다.
+                           탐험 스킨 · 성장 캐릭터 모드일 때만 — 아바타 모드는 아이가 고른 모습이라 안 건드리고,
+                           베이커리는 앉기 원화가 없다. 진화 단계 그림 대신이라 단계 표시는 잠깐 쉰다. */
+                        if(!cute&&q.total===0&&ADV_SIT_IMG[_g]){
+                          return (
+                            <img src={ADV_SIT_IMG[_g]} alt="쉬고 있는 캐릭터" draggable={false}
+                              decoding="sync" fetchpriority="high"
+                              style={{display:"block",height:Math.round(_sz*ADV_SIT_RATIO),width:"auto",maxWidth:"none",
+                                filter:"drop-shadow(0 8px 12px rgba(0,0,0,0.35))",transition:"height .3s"}}/>
                           );
                         }
                         return (
