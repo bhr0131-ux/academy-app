@@ -24,7 +24,7 @@ import { PAPER, INK, INK_SUB, BAR_FILL, BAR_TRACK } from "./gridLayout.js";
      desc      : string   현재 레벨 한 줄 설명 (LEVEL_DESCRIPTION)
      title     : {emoji,name}  전시 중인 상장
      charImg   : string   지금 진화 단계 캐릭터 원화
-     evo       : {emoji,name,msg}  진화 단계 이름과 안내 문구
+     evo       : {emoji,stage,name,msg}  성장 단계 번호(1~5)·이름·안내 문구
      coin, xp  : 숫자
      labels    : {coin,xp,coinEmoji,xpEmoji}  스킨별 표기
    ════════════════════════════════════════════════════════════════════════ */
@@ -133,12 +133,18 @@ export default function LevelSheet({
             ))}
           </div>
 
-          {/* ── 진화 단계 — 지금 모습이 어떤 단계인지 한 줄로 ── */}
+          {/* ── 성장 단계 — 캐릭터 '그림'이 바뀌는 5단계. 레벨(20칸)과는 다른 층이라
+                 헷갈리지 않게 '3단계 / 5단계'처럼 몇 번째인지 같이 적는다 (사용자 확정 2026-08-09) ── */}
           {evo && (evo.name || evo.msg) && (
             <div style={{ marginTop: 10, background: TILE, border: `1px solid ${LINE}`, borderRadius: 14,
               padding: "11px 13px" }}>
               <p style={{ margin: 0, fontSize: 13, fontWeight: 900, color: INK }}>
                 {evo.emoji ? `${evo.emoji} ` : "🧬 "}{evo.name}
+                {evo.stage > 0 && (
+                  <span style={{ marginLeft: 6, fontSize: 11.5, fontWeight: 800, color: INK_SUB }}>
+                    성장 {evo.stage}/5 단계
+                  </span>
+                )}
               </p>
               {evo.msg && <p style={{ margin: "4px 0 0", fontSize: 12, fontWeight: 700, color: INK_SUB,
                 lineHeight: 1.55, wordBreak: "keep-all" }}>{evo.msg}</p>}
