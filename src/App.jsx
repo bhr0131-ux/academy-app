@@ -4984,13 +4984,15 @@ export default function App() {
                         나머지(수업 시간·셔틀·준비물·미션·편집)는 펼쳐야 나온다 — 학원이 여럿인 날
                         카드가 화면을 다 잡아먹어서 오늘 일정을 한눈에 못 봤다. */}
                     <button onClick={()=>setHomeAcOpen(p=>({...p,[ac.id]:!p[ac.id]}))} className="jelly-tap"
-                      aria-expanded={!!homeAcOpen[ac.id]} aria-label={`${acKindLabel(ac)} 자세히`}
+                      aria-expanded={!!homeAcOpen[ac.id]} aria-label={`${ac.name} 자세히`}
                       style={{width:"100%",border:"none",background:`${ac.color}1F`,padding:"11px 13px",
                         display:"flex",alignItems:"center",gap:11,cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
                       <div style={{width:4,height:34,borderRadius:10,background:ac.color,flexShrink:0}}/>
                       <span style={{fontSize:15,fontWeight:900,color:C.text,flexShrink:0}}>{sc?.time}</span>
+                      {/* [사용자 확정 2026-08-09] 엄마용은 실제 학원 이름이 편하다 —
+                          종류만 쓰는 건 아이 화면(탐험 탭) 규칙이다. 종류는 펼치면 나온다. */}
                       <span style={{flex:1,minWidth:0,fontSize:15,fontWeight:800,color:C.text,
-                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
+                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</span>
                       {totalTodoCnt>0&&(
                         <span style={{flexShrink:0,fontSize:12,fontWeight:900,color:allDone?C.green:C.orange}}>
                           {allDone?"✓":`${doneCnt}/${totalTodoCnt}`}
@@ -5001,10 +5003,12 @@ export default function App() {
                     </button>
                     {homeAcOpen[ac.id]&&(
                     <div style={{padding:"12px 13px"}}>
-                      {/* 학원 이름·수업 시간·셔틀·전화/문자 */}
+                      {/* 종류·수업 시간·셔틀·전화/문자 (이름은 접힌 줄에 이미 있다) */}
                       <div style={{display:"flex",alignItems:"flex-start",gap:10,marginBottom:10}}>
                         <div style={{flex:1,minWidth:0}}>
-                          <p style={{fontSize:14,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
+                          <p style={{fontSize:14,fontWeight:800,margin:0,color:C.sub}}>
+                            {getAcademyTheme(ac.name,kidSkin,ac.kind).icon} {acKindLabel(ac)}
+                          </p>
                           <p style={{fontSize:13,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT} &nbsp;·&nbsp; {sc?.duration}분</p>
                           {(()=>{
                             const shuttleText=getShuttleText(ac,hDN);
