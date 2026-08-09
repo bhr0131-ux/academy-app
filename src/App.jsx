@@ -4998,20 +4998,24 @@ export default function App() {
                   /* [사용자 확정 2026-08-09] 카드 색을 옅게(배경 1F→12), 테두리는 한 단계 진하게(45→55),
                      그림자는 약하게, 카드 간격은 14로 통일. 왼쪽 세로선만 원래 색을 유지해 구분을 준다. */
                   <div key={ac.id} style={{background:CT.card,borderRadius:16,marginBottom:14,border:`1px solid ${ac.color}55`,boxShadow:"0 2px 8px rgba(90,70,60,0.07)",overflow:"hidden"}}>
-                    {/* [사용자 확정 2026-08-09] 접었을 땐 '시간 + 학원 종류'만.
-                        나머지(수업 시간·셔틀·준비물·미션·편집)는 펼쳐야 나온다 — 학원이 여럿인 날
-                        카드가 화면을 다 잡아먹어서 오늘 일정을 한눈에 못 봤다. */}
+                    {/* [사용자 확정 2026-08-09] 접었을 땐 '종류 · 시간 범위'만.
+                        나머지(학원 이름·수업 시간·셔틀·준비물·미션·편집)는 펼쳐야 나온다 —
+                        학원이 여럿인 날 카드가 화면을 다 잡아먹어서 오늘 일정을 한눈에 못 봤다.
+                        요약은 "뭘 하러 몇 시에 가나"(피아노 · 08:45–09:25)만 답하면 되고,
+                        "어느 학원인가"(노아피아노)는 전화·셔틀을 볼 때 필요하므로 상세로 내렸다.
+                        시각 하나만 있으면 수업 시작인지 차량 도착인지 헷갈려서 범위로 쓴다. */}
                     <button onClick={()=>setHomeAcOpen(p=>({...p,[ac.id]:!p[ac.id]}))} className="jelly-tap"
                       aria-expanded={!!homeAcOpen[ac.id]} aria-label={`${ac.name} 자세히`}
                       style={{width:"100%",border:"none",background:`${ac.color}12`,padding:"11px 13px",
                         display:"flex",alignItems:"center",gap:11,cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
                       <div style={{width:4,height:34,borderRadius:10,background:ac.color,flexShrink:0}}/>
-                      {/* 시각 하나만 있으면 수업 시작인지 차량 도착인지 헷갈린다 → 범위로 (사용자 지적) */}
-                      <span style={{fontSize:14.5,fontWeight:900,color:C.text,flexShrink:0}}>{sc?.time}–{endT}</span>
-                      {/* [사용자 확정 2026-08-09] 엄마용은 실제 학원 이름이 편하다 —
-                          종류만 쓰는 건 아이 화면(탐험 탭) 규칙이다. 종류는 펼치면 나온다. */}
-                      <span style={{flex:1,minWidth:0,fontSize:15,fontWeight:800,color:C.text,
-                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</span>
+                      <span style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:7,
+                        overflow:"hidden",whiteSpace:"nowrap"}}>
+                        <span style={{fontSize:15,fontWeight:900,color:C.text,minWidth:0,
+                          overflow:"hidden",textOverflow:"ellipsis"}}>{acKindLabel(ac)}</span>
+                        <span style={{fontSize:12,color:C.sub,flexShrink:0,opacity:0.55}}>·</span>
+                        <span style={{fontSize:14,fontWeight:800,color:C.sub,flexShrink:0}}>{sc?.time}–{endT}</span>
+                      </span>
                       {totalTodoCnt>0&&(
                         <span style={{flexShrink:0,fontSize:12,fontWeight:900,color:allDone?C.green:C.orange}}>
                           {allDone?"✓":`${doneCnt}/${totalTodoCnt}`}
@@ -5022,11 +5026,12 @@ export default function App() {
                     </button>
                     {homeAcOpen[ac.id]&&(
                     <div style={{padding:"12px 13px"}}>
-                      {/* 종류·수업 시간·셔틀·전화/문자 (이름은 접힌 줄에 이미 있다) */}
+                      {/* 학원 이름·수업 시간·셔틀·전화/문자 (종류와 시간 범위는 접힌 줄에 이미 있다) */}
                       <div style={{display:"flex",alignItems:"flex-start",gap:10,marginBottom:10}}>
                         <div style={{flex:1,minWidth:0}}>
-                          <p style={{fontSize:14,fontWeight:800,margin:0,color:C.sub}}>
-                            {getAcademyTheme(ac.name,kidSkin,ac.kind).icon} {acKindLabel(ac)}
+                          <p style={{fontSize:14.5,fontWeight:900,margin:0,color:C.text,
+                            overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                            {getAcademyTheme(ac.name,kidSkin,ac.kind).icon} {ac.name}
                           </p>
                           <p style={{fontSize:13,color:C.sub,margin:"2px 0 0",fontWeight:600}}>총 {sc?.duration}분 수업</p>
                           {(()=>{
