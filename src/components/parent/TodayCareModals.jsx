@@ -30,43 +30,55 @@
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
-/* 바텀시트 껍데기 — 앱의 다른 엄마용 팝업(지난 미션 보기)과 같은 모양 */
+/* 바텀시트 껍데기 — 앱의 다른 엄마용 팝업(지난 미션 보기)과 같은 모양
+
+   [사용자 확정 2026-08-09] 시트 높이는 내용에 따라 달라진다 — 항목이 하나뿐인데
+   화면 절반을 차지하면 비어 보인다. 그래서 높이를 따로 정하지 않고(auto) 최대치만
+   막아 두고, 아래 여백도 44px → 안전영역 + 26px 으로 줄였다.
+   위쪽 짧은 손잡이 막대는 '아래로 내려 닫는 창'이라는 신호다(장식이라 눌리지 않는다). */
 function Sheet({ title, desc, tone, onClose, children }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(20,20,40,0.55)",
       display: "flex", alignItems: "flex-end", zIndex: 1000 }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: "22px 22px 0 0",
-        padding: "22px 18px 44px", width: "100%", maxWidth: 430, boxSizing: "border-box",
-        maxHeight: "82vh", overflowY: "auto", fontFamily: F }}>
+        padding: "10px 18px calc(26px + env(safe-area-inset-bottom))", width: "100%", maxWidth: 430,
+        boxSizing: "border-box", maxHeight: "82vh", overflowY: "auto", fontFamily: F }}>
+        {/* 드래그 손잡이 (장식) */}
+        <div aria-hidden="true" style={{ width: 38, height: 4, borderRadius: 999,
+          background: tone.border, margin: "0 auto 12px" }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
           <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: tone.text }}>{title}</h3>
-          <button onClick={onClose} aria-label="닫기"
-            style={{ background: tone.faint, border: "none", borderRadius: 10, width: 28, height: 28,
+          <button onClick={onClose} aria-label="닫기" className="jelly-tap"
+            style={{ background: tone.faint + "88", border: "none", borderRadius: 10, width: 28, height: 28,
               cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
         </div>
-        {desc && <p style={{ fontSize: 13, color: tone.sub, fontWeight: 600, margin: "0 0 14px" }}>{desc}</p>}
+        {desc && <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 13px", lineHeight: 1.45 }}>{desc}</p>}
         {children}
       </div>
     </div>
   );
 }
 
-/* 학원 한 칸의 머리 — 이모지 + 학원명 + 오른쪽 요약 */
+/* 학원 한 칸의 머리 — 이모지 + 학원명 + 오른쪽 요약
+   오른쪽 요약(개수)은 아래 미션 줄의 종류 꼬리표와 '같은 폭의 오른쪽 칸'을 쓴다.
+   (사용자 지적: 1개 / 숙제 가 서로 다른 기준선에 걸려 보였다 — TAIL_W 로 맞춘다) */
+const TAIL_W = 30;
+
 function AcHead({ icon, name, color, right, tone }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
       <span style={{ fontSize: 15, flexShrink: 0 }}>{icon || "📘"}</span>
-      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 900, color: tone.text, minWidth: 0,
+      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 900, color: tone.text, minWidth: 0, flex: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</p>
-      {right && <span style={{ marginLeft: "auto", flexShrink: 0, fontSize: 11.5, fontWeight: 900,
-        color: color || tone.sub }}>{right}</span>}
+      {right && <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11.5,
+        fontWeight: 900, color: color || tone.sub }}>{right}</span>}
     </div>
   );
 }
 
 function Empty({ emoji, title, sub, tone }) {
   return (
-    <div style={{ textAlign: "center", padding: "28px 10px", color: tone.sub }}>
+    <div style={{ textAlign: "center", padding: "22px 10px 10px", color: tone.sub }}>
       <p style={{ fontSize: 32, margin: 0 }}>{emoji}</p>
       <p style={{ fontSize: 14, fontWeight: 800, margin: "8px 0 0", color: tone.text }}>{title}</p>
       {sub && <p style={{ fontSize: 12, margin: "4px 0 0" }}>{sub}</p>}
@@ -91,7 +103,7 @@ export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onCl
             const gGot = g.items.filter(i => i.checked).length;
             const done = gGot === g.items.length;
             return (
-              <div key={g.acId} style={{ padding: "12px 13px", borderRadius: 14,
+              <div key={g.acId} style={{ padding: "10px 12px", borderRadius: 14,
                 border: `1.5px solid ${done ? tone.green + "55" : tone.border}`,
                 background: done ? tone.green + "0C" : tone.faint }}>
                 <AcHead icon={g.icon} name={g.name} tone={tone}
@@ -128,7 +140,7 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
   const nRemain = cnt(groups.remain), nDone = cnt(groups.done);
 
   const Row = ({ it, faded }) => (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0" }}>
       <span style={{ fontSize: 13, flexShrink: 0, opacity: faded ? 0.55 : 1 }}>
         {it.failed ? "✖️" : faded ? "✅" : it.kind === "homework" ? "📝" : "🎯"}
       </span>
@@ -136,21 +148,23 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         color: it.failed ? tone.red : faded ? tone.sub : tone.text,
         textDecoration: faded && !it.failed ? "line-through" : "none" }}>{it.label}</p>
-      <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 900, color: tone.sub, opacity: 0.8 }}>
+      {/* 종류 꼬리표 — 위 학원 머리의 '개수'와 같은 오른쪽 칸(TAIL_W)에 맞춰 세로로 줄 세운다 */}
+      <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11,
+        fontWeight: 700, color: tone.sub, opacity: 0.8 }}>
         {it.failed ? "실패" : it.kind === "homework" ? "숙제" : "미션"}
       </span>
     </div>
   );
 
   const Section = ({ list, faded }) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
       {list.map(g => (
-        <div key={g.acId} style={{ padding: "11px 13px", borderRadius: 14,
+        <div key={g.acId} style={{ padding: "9px 12px 8px", borderRadius: 14,
           border: `1.5px solid ${tone.border}`, background: faded ? "#fff" : tone.faint,
           opacity: faded ? 0.9 : 1 }}>
           <AcHead icon={g.icon} name={g.name} tone={tone} color={g.color}
             right={`${g.items.length}개`} />
-          <div style={{ borderTop: `1px solid ${tone.border}`, paddingTop: 2 }}>
+          <div style={{ borderTop: `1px solid ${tone.border}`, paddingTop: 1 }}>
             {g.items.map(it => <Row key={it.key} it={it} faded={faded} />)}
           </div>
         </div>
@@ -165,27 +179,31 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
         <Empty emoji="🗒️" title="이 날은 미션이 없어요" sub="학원별로 숙제나 미션을 넣으면 여기에 보여요" tone={tone} />
       ) : (
         <>
-          {/* 위 — 남은 것 */}
-          <p style={{ margin: "0 0 8px", fontSize: 12.5, fontWeight: 900, color: nRemain ? tone.orange : tone.green }}>
-            {nRemain ? `아직 남은 미션 ${nRemain}개` : "남은 미션 없음 — 다 끝냈어요! 🎉"}
+          {/* 위 — 남은 것.
+              [사용자 확정 2026-08-09] 줄 전체를 주황으로 칠하면 경고처럼 보인다 —
+              글은 본문 색으로 두고 숫자만 강조한다. */}
+          <p style={{ margin: "0 0 8px", fontSize: 12.5, fontWeight: 800,
+            color: nRemain ? tone.text : tone.green }}>
+            {nRemain
+              ? <>아직 남은 미션 <b style={{ fontWeight: 900, color: tone.orange }}>{nRemain}개</b></>
+              : "남은 미션 없음 — 다 끝냈어요! 🎉"}
           </p>
           {nRemain > 0 && <Section list={groups.remain} faded={false} />}
 
-          {/* 가운데 구분선 (사용자 확정: 남은 것과 끝낸 것을 줄로 나눈다) */}
-          <div style={{ display: "flex", alignItems: "center", gap: 9, margin: "18px 0 12px" }}>
-            <span style={{ flex: 1, height: 1, background: tone.border }} />
-            <span style={{ fontSize: 11.5, fontWeight: 900, color: tone.sub, whiteSpace: "nowrap" }}>
-              끝낸 미션 {nDone}개
-            </span>
-            <span style={{ flex: 1, height: 1, background: tone.border }} />
-          </div>
-
-          {/* 아래 — 끝낸 것 */}
-          {nDone > 0
-            ? <Section list={groups.done} faded />
-            : <p style={{ margin: 0, textAlign: "center", fontSize: 12.5, fontWeight: 700, color: tone.sub, padding: "6px 0 2px" }}>
-                아직 끝낸 미션이 없어요
-              </p>}
+          {/* 가운데 구분선 (사용자 확정: 남은 것과 끝낸 것을 줄로 나눈다)
+              끝낸 것이 0개면 나눌 게 없으므로 구분선째 감춘다 — 빈 줄만 남아 시트가 길어진다. */}
+          {nDone > 0 && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 9, margin: "16px 0 11px" }}>
+                <span style={{ flex: 1, height: 1, background: tone.border }} />
+                <span style={{ fontSize: 11.5, fontWeight: 800, color: tone.sub, whiteSpace: "nowrap" }}>
+                  끝낸 미션 {nDone}개
+                </span>
+                <span style={{ flex: 1, height: 1, background: tone.border }} />
+              </div>
+              <Section list={groups.done} faded />
+            </>
+          )}
         </>
       )}
     </Sheet>
