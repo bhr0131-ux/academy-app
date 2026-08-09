@@ -3186,9 +3186,12 @@ export default function App() {
     // 날짜 이동 바 — 탐험장소/미션 탭 공용. 탐험=밝은 숲색, 미션=원목 브라운 (탭 테마 연동).
     const dateNav=(()=>{
       const _dn=kidSkin!=="cute";
-      const _dnBg=childTab==="today"?"#6F8E63":childTab==="growth"?"#79A6BB":"#B38A60";  // 미션=그린·탐험=브라운 (사용자 확정: 톤 맞교환)
-      const _dnBtn=childTab==="today"?"#83A177":childTab==="growth"?"#8FB7C9":"#C69C6F";
-      const _dnDeep=childTab==="today"?"#5C452C":childTab==="growth"?"#28495C":"#2F4A2C"; // 밝은 버튼 위 화살표·오늘 글씨용 진한 색 (가독성)
+      const _dnBg=childTab==="today"?"#79A6BB":childTab==="growth"?"#6F8E63":"#B38A60";  // 미션=블루·캐릭터=그린·탐험=브라운 (사용자 확정: 미션↔캐릭터 톤 맞교환)
+      const _dnBtn=childTab==="today"?"#8FB7C9":childTab==="growth"?"#83A177":"#C69C6F";
+      // (캐릭터 탭은 지금 날짜바를 안 쓴다 — 사용자 확정. 되살릴 때를 대비해 색만 맞춰 둔다)
+      // 밝은 버튼 위 화살표·'오늘' 글씨용 진한 색 (가독성) — 각 탭의 바 색과 같은 계열로 맞춘다
+      // (예전 탐험↔미션 맞교환 때 이 줄만 안 따라와서 브라운 바에 초록 화살표가 얹혀 있었다 — 이번에 함께 정리)
+      const _dnDeep=childTab==="today"?"#28495C":childTab==="growth"?"#2F4A2C":"#5C452C";
       return (
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"6px 10px",marginBottom:14}}>
         <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
@@ -4118,10 +4121,10 @@ export default function App() {
               })()}
 
               {/* ── 미션 추가 버튼 (현재 보는 날짜) ── */}
-              {/* [탐험] 미션 추가 버튼은 미션 탭 테마(그린 — 사용자 확정: 탭 톤 맞교환에 맞춤) */}
+              {/* [탐험] 미션 추가 버튼은 미션 탭 테마(블루 — 사용자 확정: 미션↔캐릭터 톤 맞교환에 맞춤) */}
               {(childDate||TODAY)>=TODAY&&(
                   <button onClick={()=>{ setKidAddAcId(""); setKidAddText(""); setShowKidAddModal(true); }}
-                    style={{width:"100%",...jellyBox({background:kidSkin==="cute"?GP.boxBg:"#8FA653",border:kidSkin==="cute"?`1px solid ${GP.boxBorder}`:"1px solid #9DB35F",borderRadius:16,boxShadow:kidSkin==="cute"?`0 6px 18px ${GP.boxShadowCol}`:"0 6px 18px rgba(90,102,44,0.32)"},{radius:18}),
+                    style={{width:"100%",...jellyBox({background:kidSkin==="cute"?GP.boxBg:"#6E9CB8",border:kidSkin==="cute"?`1px solid ${GP.boxBorder}`:"1px solid #83B4D4",borderRadius:16,boxShadow:kidSkin==="cute"?`0 6px 18px ${GP.boxShadowCol}`:"0 6px 18px rgba(40,73,92,0.32)"},{radius:18}),
                       padding:"13px 12px",marginBottom:14,cursor:"pointer",
                       display:"flex",alignItems:"center",justifyContent:"center",gap:8,
                       color:kidSkin==="cute"?GP.boxText:"#FFF8EB",fontSize:16,fontWeight:900}}>
