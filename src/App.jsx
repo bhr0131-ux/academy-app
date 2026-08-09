@@ -10,6 +10,7 @@ import EquipmentShop from "./components/EquipmentShop.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
 import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollMapAnimals, rollRainbow, rollSparkT } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
+import ParentNav, { PARENT_NAV_H } from "./components/parent/ParentNav.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
 import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
@@ -121,6 +122,10 @@ const initOnboarding = {
   firstTipPending: false, firstTipSeen: false,
   pinHintSeen: false, showParentRewardGuide: false, parentRewardGuideSeen: false, showParentWelcome: false, parentWelcomeSeen: false,
 };
+/* '더보기' 안에 묶인 세 화면 (사용자 확정 2026-08-09: 하단 메뉴 5칸으로 줄이면서 통합) */
+const MORE_TABS = [{ k:"fee", l:"학원비" }, { k:"absence", l:"결석·보충" }, { k:"etc", l:"기타" }];
+const isMoreTab = (t) => MORE_TABS.some(m => m.k === t);
+
 /* 엄마용을 되살려 주는 시간 (사용자 요청: '잠깐' 다른 앱 갔다 온 경우).
    이보다 오래 지났으면 PIN을 다시 받도록 아이용으로 시작한다. */
 const PARENT_RESUME_MS = 3 * 60 * 1000;
@@ -340,10 +345,10 @@ export default function App() {
   const [showParentXpAdjust,     setShowParentXpAdjust]     = useState(initUi.showParentXpAdjust);
   const [showParentGrowthManage, setShowParentGrowthManage] = useState(initUi.showParentGrowthManage);
   const [showParentRecordManage, setShowParentRecordManage] = useState(initUi.showParentRecordManage);
-  const [showHomeAcademyList,    setShowHomeAcademyList]    = useState(false); // 홈탭 등록학원 펼침
   const [openTitle,              setOpenTitle]              = useState(initUi.openTitle);
   const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
   const [bagEvent,               setBagEvent]               = useState(null);             // 가방 카드에 1분간 띄우는 소식
+  const [moreTab,                setMoreTab]                = useState("fee");            // '더보기' 안에서 마지막으로 본 칸
   const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
@@ -554,12 +559,8 @@ export default function App() {
         save("v6_install_info",inst); // 한 번 심으면 갱신·삭제 안 함
       }
       setInstallInfo(inst);
-      // 신규 사용자(설치 24시간 이내)는 등록 학원 목록을 펼친 상태로 시작 (첫 안내 강화).
-      // 24시간이 지나면 접힌 기본값(false) 유지. 이후 사용자가 직접 토글하면 그 선택을 따른다.
-      {
-        const hrs=(Date.now() - new Date(inst.installDate).getTime())/3600000;
-        if(hrs>=0 && hrs<24) setShowHomeAcademyList(true);
-      }
+      // (등록 학원 목록을 신규 사용자에게 펼쳐 주던 코드는 삭제 —
+      //  2026-08-09 개편으로 '학원'이 하단 메뉴의 독립 칸이 되어 접히지 않는다.)
       // 결제(프리미엄) 상태 복원: 인앱결제 성공 시 저장된 값을 읽어온다.
       const paid=await load("v6_paid_premium");
       if(paid===true) setIsPaidPremium(true);
@@ -2789,6 +2790,10 @@ export default function App() {
   },[loaded,childId,petData,treasureData,selectedTitles,bestStreakData,dailyData,scoreData,kidSkin]);
   useEffect(()=>()=>clearTimeout(bagTimerRef.current),[]);
 
+  /* '오늘 챙길 일'의 결석 칩처럼 다른 곳에서 곧장 학원비·결석·기타로 보내는 길이 있다.
+     그때도 하단 '더보기'를 다시 누르면 방금 보던 칸으로 돌아오게 기억해 둔다. */
+  useEffect(()=>{ if(isMoreTab(tab)) setMoreTab(tab); },[tab]);
+
   useEffect(()=>{
     if(!loaded||!childId||appMode!=="child") return;
     const unlocked=getUnlockedTitles(childId);
@@ -3369,20 +3374,8 @@ export default function App() {
           @keyframes cheerTextIn{0%{transform:scale(0.3);opacity:0}40%{transform:scale(1.25);opacity:1}60%{transform:scale(0.92)}80%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
           @keyframes cheerTextOut{0%{opacity:1}100%{opacity:0;transform:scale(0.9) translateY(-10px)}}
           @keyframes bigCoinBurst{0%{transform:translate(-50%,-50%) scale(0.4);opacity:1}100%{transform:translate(calc(-50% + var(--bcx)),calc(-50% + var(--bcy))) scale(1.2) rotate(var(--bcr));opacity:0}}
-          .jelly-tap{transition:transform .12s cubic-bezier(.34,1.56,.64,1)}
-          .jelly-tap:active{transform:scale(0.9)}
-          /* ── 캐릭터 탭 눌림 연출 ── (사용자: 버튼 눌리는 느낌을 내 달라)
-             아이콘 칸은 뒤에 둥근 그림자면이 깔리면서 쏙 눌렸다가 통통 튀어 돌아온다.
-             ::before 를 쓰므로 칸 자체 배경을 건드리지 않고, 안 눌렸을 땐 안 보인다. */
-          .icon-tap{position:relative;transition:transform .13s cubic-bezier(.34,1.56,.64,1)}
-          .icon-tap::before{content:"";position:absolute;inset:-6px -4px;border-radius:20px;
-            background:rgba(122,100,66,0.11);opacity:0;transform:scale(0.88);pointer-events:none;
-            transition:opacity .12s ease,transform .12s ease}
-          .icon-tap:active{transform:scale(0.92)}
-          .icon-tap:active::before{opacity:1;transform:scale(1)}
-          /* 가방 카드는 덩치가 커서 같은 배율로 줄이면 화면이 출렁인다 — 살짝만 눌린다 */
-          .card-tap{transition:transform .13s cubic-bezier(.34,1.56,.64,1),filter .13s ease}
-          .card-tap:active{transform:scale(0.972);filter:brightness(0.975)}
+          /* 눌림 연출(.jelly-tap/.icon-tap/.card-tap/.nav-tap)은 index.html 전역으로 옮겼다 —
+             이 <style>은 아이 모드 반환부 안에 있어서, 엄마용 화면에서는 적용되지 않았다. */
           /* 가방 카드 소식 — 톡 떠오른 뒤 이모지만 살짝 흔들린다 (1분 뒤 레벨 화면으로 복귀) */
           @keyframes bagNewsIn{0%{opacity:0;transform:translateY(8px) scale(.86)}60%{opacity:1;transform:translateY(0) scale(1.06)}100%{transform:scale(1)}}
           @keyframes bagNewsBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
@@ -4727,72 +4720,52 @@ export default function App() {
         </div>
       )}
 
-      <div style={{background:`linear-gradient(165deg, ${headerTone(th.main,0.42)} 0%, ${headerTone(th.main,0.64)} 100%)`,padding:"20px 18px 56px",position:"relative",overflow:"hidden"}}>
+      {/* ── 헤더 — 제목과 '아이용' 버튼만 (사용자 확정 2026-08-09: 간결하게, 높이·글자 조금 작게).
+             핑크(테마색) 그라데이션과 장식 블롭은 그대로 둔다 — 이 화면의 정체성이라서. ── */}
+      <div style={{background:`linear-gradient(165deg, ${headerTone(th.main,0.42)} 0%, ${headerTone(th.main,0.64)} 100%)`,padding:"13px 16px 44px",position:"relative",overflow:"hidden"}}>
         {/* 은은한 장식 블롭 */}
         <div style={{position:"absolute",top:-40,right:-30,width:160,height:160,borderRadius:"50%",background:`${th.main}22`,filter:"blur(8px)"}}/>
         <div style={{position:"absolute",bottom:-50,left:-20,width:120,height:120,borderRadius:"50%",background:`${headerTone(th.main,0.34)}55`,filter:"blur(6px)"}}/>
 
-        <div style={{position:"relative",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-          <div>
-            <p style={{fontSize:11,color:mixBlack(th.main,0.45),margin:0,letterSpacing:2.5,fontWeight:800,opacity:0.9}}>ACADEMY PLANNER</p>
-            <h1 style={{fontSize:23,fontWeight:900,margin:"4px 0 0",color:mixBlack(th.main,0.45)}}>🎒 엄마 관리</h1>
-          </div>
-          <button onClick={exitParentMode}
-            style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:14,padding:"9px 14px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`}}>
+        <div style={{position:"relative",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <h1 style={{fontSize:19,fontWeight:900,margin:0,color:mixBlack(th.main,0.45)}}>🎒 엄마 관리</h1>
+          <button onClick={exitParentMode} className="jelly-tap"
+            style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:13,padding:"8px 13px",fontSize:12.5,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`}}>
             🎒 아이용
           </button>
         </div>
       </div>
 
-      {/* ── 아이 선택 칩 (헤더와 콘텐츠 사이, 둥둥 뜬 느낌) ── */}
-      <div style={{position:"relative",margin:"-36px 14px 0",background:"#fff",borderRadius:20,boxShadow:SHADOW.lg,padding:"10px 10px",display:"flex",alignItems:"center",gap:8,zIndex:5}}>
-        <div style={{display:"flex",flex:1,gap:6,overflowX:"auto"}}>
+      {/* ── 아이 선택 칩 (헤더와 콘텐츠 사이, 둥둥 뜬 느낌) ──
+             [사용자 확정 2026-08-09] 높이·여백을 줄이고, 고른 아이만 테마색으로 칠한다.
+             안 고른 아이는 흰 바탕 + 아주 연한 테두리 — 예전엔 아이마다 옅은 자기 색이
+             깔려 있어 '누가 선택된 건지'가 한눈에 안 들어왔다. ── */}
+      <div style={{position:"relative",margin:"-30px 14px 0",background:"#fff",borderRadius:18,boxShadow:SHADOW.lg,padding:"7px 7px",display:"flex",alignItems:"center",gap:7,zIndex:5}}>
+        <div style={{display:"flex",flex:1,gap:5,overflowX:"auto"}}>
           {children.map(c=>{
             const t=getChildTheme(c);
             const sel=childId===c.id;
             return (
-              <button key={c.id} onClick={()=>{ setChildId(c.id); setRewardDate(TODAY); }}
-                style={{flex:"0 0 auto",minWidth:64,padding:"9px 16px",border:"none",cursor:"pointer",fontSize:15,fontWeight:sel?900:600,borderRadius:14,
-                  background:sel?`linear-gradient(135deg, ${mixWhite(t.main,0.04)}, ${mixWhite(t.main,0.28)})`:mixWhite(t.main,0.9),
-                  color:sel?"#fff":mixWhite(t.main,0.05),whiteSpace:"nowrap",transition:"all 0.2s",
-                  boxShadow:sel?`0 5px 14px ${t.main}50`:"none"}}>
+              <button key={c.id} onClick={()=>{ setChildId(c.id); setRewardDate(TODAY); }} className="jelly-tap"
+                style={{flex:"0 0 auto",minWidth:58,padding:"7px 13px",cursor:"pointer",fontSize:14,fontWeight:sel?900:700,borderRadius:12,
+                  border:sel?"none":"1px solid #ECE6E2",
+                  background:sel?`linear-gradient(135deg, ${mixWhite(t.main,0.04)}, ${mixWhite(t.main,0.28)})`:"#fff",
+                  color:sel?"#fff":C.sub,whiteSpace:"nowrap",transition:"all 0.2s",
+                  boxShadow:sel?`0 4px 12px ${t.main}45`:"none"}}>
                 {getGenderEmoji(c)} {c.name}
               </button>
             );
           })}
         </div>
         {/* 아이 추가 */}
-        <button onClick={openAddChild}
-          style={{flexShrink:0,width:42,height:42,borderRadius:14,border:`1.5px dashed ${th.main}55`,background:mixWhite(th.main,0.95),color:th.main,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",lineHeight:1,gap:1}}
-          title="아이 추가">
-          <span style={{fontSize:15}}>＋</span>
-          <span style={{fontSize:9,fontWeight:800}}>아이</span>
-        </button>
+        <button onClick={openAddChild} className="jelly-tap"
+          style={{flexShrink:0,width:36,height:36,borderRadius:12,border:`1.5px dashed ${th.main}55`,background:mixWhite(th.main,0.95),color:th.main,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1,fontSize:16,fontWeight:900}}
+          title="아이 추가" aria-label="아이 추가">＋</button>
       </div>
 
-      {/* ── 탭 바 (알약형 파스텔) ── */}
-      <div style={{display:"flex",justifyContent:"space-between",gap:5,padding:"14px 14px",position:"sticky",top:0,zIndex:10,background:`${C.bg}F0`,backdropFilter:"blur(8px)"}}>
-        {[["home","🏠","홈"],["reward","🎁","보상"],["calendar","🗓","달력"],["fee","💰","학원비"],["absence","🏥","결석"],["etc","⚙️","기타"]].map(([k,ic,l])=>{
-          const sel=tab===k;
-          return (
-            <button key={k} onClick={()=>{
-              // '보상' 탭은 누를 때마다 항상 PIN 요구. 다른 탭으로 가면 즉시 잠금 해제(rewardUnlocked=false).
-              if(k==="reward"){ goRewardTab(); return; }
-              // 보상탭이 아닌 다른 탭으로 이동 → 보상 잠금 해제(다음에 보상탭 누르면 다시 PIN)
-              if(rewardUnlocked) setRewardUnlocked(false);
-              setTab(k);
-            }} style={{flex:1,padding:"9px 2px",border:"none",borderRadius:14,cursor:"pointer",
-              background:sel?`linear-gradient(135deg, ${mixWhite(th.main,0)}, ${mixWhite(th.main,0.22)})`:"#fff",
-              color:sel?"#fff":C.sub,boxShadow:sel?`0 6px 16px ${th.main}48`:SHADOW.sm,
-              display:"flex",flexDirection:"column",alignItems:"center",gap:2,transition:"all 0.2s"}}>
-              <span style={{fontSize:16,lineHeight:1}}>{ic}</span>
-              <span style={{fontSize:11,fontWeight:sel?900:700,whiteSpace:"nowrap"}}>{l}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div style={{padding:"16px 16px 0"}}>
+      {/* 탭 줄은 화면 맨 아래 고정 바(ParentNav)로 옮겼다 — 아래 </div> 바깥에 있다.
+          본문은 그 바 높이 + 기기 안전영역만큼 아래를 비워 둬 마지막 내용이 안 가리게 한다. */}
+      <div style={{padding:"14px 16px 0",paddingBottom:`calc(${PARENT_NAV_H + 18}px + env(safe-area-inset-bottom))`}}>
 
         {/* ════ 홈 탭 ════ */}
         {tab==="home"&&(()=>{
@@ -5012,73 +4985,76 @@ export default function App() {
                 );
               })}
 
-              {/* 등록 학원 목록 */}
-              <div style={{margin:"16px 0 0"}}>
-              <div style={{marginBottom:8,background:mixWhite(th.main,0.95),border:`1.5px solid ${th.main}30`,borderRadius:18,padding:"14px 13px"}}>
-                <button onClick={()=>setShowHomeAcademyList(v=>!v)}
-                  style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",background:`linear-gradient(135deg, ${mixWhite(th.main,0)}, ${mixWhite(th.main,0.22)})`,border:"none",borderRadius:14,padding:"13px 15px",cursor:"pointer",boxShadow:`0 6px 16px ${th.main}48`}}>
-                  <p style={{fontSize:16,color:"#fff",fontWeight:900,margin:0,letterSpacing:0.3}}>📋 등록 학원 {curAc.length>0&&<span style={{fontSize:13,opacity:0.85}}>({curAc.length})</span>}</p>
-                  <span style={{fontSize:15,color:"#fff",fontWeight:900,transition:"transform 0.2s",transform:showHomeAcademyList?"rotate(180deg)":"none"}}>▼</span>
-                </button>
-                {showHomeAcademyList&&(<>
-                <div style={{display:"flex",gap:8,marginTop:12,marginBottom:12}}>
-                  <button onClick={()=>{ openAdd(); }} style={{flex:1,fontSize:13,padding:"9px 12px",borderRadius:10,border:`1px solid ${th.main}40`,background:th.light,color:th.main,fontWeight:700,cursor:"pointer"}}>+ 학원 추가</button>
-                  {children.filter(c=>c.id!==childId).length>0&&(
-                    <button onClick={()=>{ setCopySourceChildId(children.find(c=>c.id!==childId)?.id||""); setCopySelectedAcademyIds([]); setShowAcademyCopyModal(true); }}
-                      style={{flex:1,fontSize:13,padding:"9px 12px",borderRadius:10,border:`1px solid ${th.main}35`,background:th.light,color:th.main,fontWeight:700,cursor:"pointer"}}>
-                      📚 학원 복사
-                    </button>
-                  )}
-                </div>
-                {curAc.length===0?(
-                  <div style={{textAlign:"center",padding:"28px",color:C.sub,fontSize:17,background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
-                    <p style={{fontSize:24,margin:"0 0 8px"}}>🏫</p>위 버튼으로 학원을 등록하세요
-                  </div>
-                ):(
-                  <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                    {curAc.map(ac=>(
-                      <div key={ac.id} style={{background:CT.card,borderRadius:16,border:`1px solid ${ac.color}45`,overflow:"hidden",boxShadow:SHADOW.sm}}>
-                        <div style={{background:`${ac.color}1F`,padding:"10px 13px",display:"flex",alignItems:"center",gap:9,borderBottom:`1px solid ${ac.color}22`}}>
-                          <div style={{width:4,height:34,borderRadius:10,background:ac.color,flexShrink:0}}/>
-                          <div style={{flex:1,minWidth:0}}>
-                            <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{ac.name}</p>
-                            <p style={{fontSize:13,color:C.sub,margin:"2px 0 0",fontWeight:600}}>
-                              {ac.useCustomSchedule
-                                ? (ac.schedules||[]).map(s=>`${s.day} ${s.time}`).join(" / ")
-                                : `${(ac.days||[]).join("·")} · ${ac.time} · ${ac.duration}분`}
-                            </p>
-                          </div>
-                          <button onClick={()=>openEdit(ac)} style={{padding:"4px 9px",borderRadius:10,border:`1px solid ${ac.color}40`,background:"#fff",color:ac.color,fontSize:13,fontWeight:800,cursor:"pointer",flexShrink:0}}>✏️ 수정</button>
-                        </div>
-                        <div style={{padding:"8px 13px",display:"flex",alignItems:"center",gap:8,background:"#fff"}}>
-                          <div style={{flex:1,display:"flex",flexWrap:"wrap",gap:8,minWidth:0}}>
-                            <span style={{fontSize:13.5,color:C.sub,fontWeight:600}}>💰 월 {Number(ac.fee).toLocaleString()}원</span>
-                            {ac.teacher&&<span style={{fontSize:13.5,color:C.sub,fontWeight:600}}>👩‍🏫 {ac.teacher}</span>}
-                          </div>
-                          <div style={{display:"flex",gap:5,flexShrink:0}}>
-                            {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:30,height:30,borderRadius:10,background:`${C.green}12`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,textDecoration:"none"}}>📞</a>}
-                            <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:30,height:30,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>💬</button>
-                            <button onClick={()=>setShowDetailModal(ac)} style={{width:30,height:30,borderRadius:10,background:CT.faint,border:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>›</button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {/* 신규 사용자용: 설치 후 24시간 이내에만 노출되는 샘플 학원 추가 버튼 */}
-                {hoursSinceInstall!==null && hoursSinceInstall<24 && (
-                  <button onClick={addStarterAcademy}
-                    style={{width:"100%",marginTop:12,padding:"12px",borderRadius:14,border:`1.5px dashed ${th.main}55`,background:mixWhite(th.main,0.9),color:th.main,fontSize:13.5,fontWeight:800,cursor:"pointer",lineHeight:1.5}}>
-                    🌱 샘플 학원 추가해보기
-                    <span style={{display:"block",fontSize:11.5,fontWeight:600,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
-                  </button>
-                )}
-                </>)}
-              </div>
-              </div>
             </div>
           );
         })()}
+
+        {/* ════ 학원 탭 ════
+             [사용자 확정 2026-08-09] 홈에 접혀 있던 '등록 학원'을 하단 메뉴의 한 칸으로 꺼냈다.
+             학원 정보·셔틀·준비물·숙제는 여기서 관리한다. 아코디언 껍데기를 벗겨
+             카드 안에 카드가 겹치는 것도 한 겹 줄였다. 내용·기능은 그대로다. */}
+        {tab==="academy"&&(
+          <div>
+            <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 12px"}}>
+              <span style={{fontSize:15,fontWeight:900,color:C.text,letterSpacing:0.3}}>
+                📋 등록 학원{curAc.length>0&&<span style={{fontSize:13,color:C.sub,fontWeight:800}}> {curAc.length}곳</span>}
+              </span>
+              <div style={{flex:1,height:1,background:C.border}}/>
+            </div>
+            <div style={{display:"flex",gap:8,marginTop:12,marginBottom:12}}>
+              <button onClick={()=>{ openAdd(); }} style={{flex:1,fontSize:13,padding:"9px 12px",borderRadius:10,border:`1px solid ${th.main}40`,background:th.light,color:th.main,fontWeight:700,cursor:"pointer"}}>+ 학원 추가</button>
+              {children.filter(c=>c.id!==childId).length>0&&(
+                <button onClick={()=>{ setCopySourceChildId(children.find(c=>c.id!==childId)?.id||""); setCopySelectedAcademyIds([]); setShowAcademyCopyModal(true); }}
+                  style={{flex:1,fontSize:13,padding:"9px 12px",borderRadius:10,border:`1px solid ${th.main}35`,background:th.light,color:th.main,fontWeight:700,cursor:"pointer"}}>
+                  📚 학원 복사
+                </button>
+              )}
+            </div>
+            {curAc.length===0?(
+              <div style={{textAlign:"center",padding:"28px",color:C.sub,fontSize:17,background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
+                <p style={{fontSize:24,margin:"0 0 8px"}}>🏫</p>위 버튼으로 학원을 등록하세요
+              </div>
+            ):(
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                {curAc.map(ac=>(
+                  <div key={ac.id} style={{background:CT.card,borderRadius:16,border:`1px solid ${ac.color}45`,overflow:"hidden",boxShadow:SHADOW.sm}}>
+                    <div style={{background:`${ac.color}1F`,padding:"10px 13px",display:"flex",alignItems:"center",gap:9,borderBottom:`1px solid ${ac.color}22`}}>
+                      <div style={{width:4,height:34,borderRadius:10,background:ac.color,flexShrink:0}}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{ac.name}</p>
+                        <p style={{fontSize:13,color:C.sub,margin:"2px 0 0",fontWeight:600}}>
+                          {ac.useCustomSchedule
+                            ? (ac.schedules||[]).map(s=>`${s.day} ${s.time}`).join(" / ")
+                            : `${(ac.days||[]).join("·")} · ${ac.time} · ${ac.duration}분`}
+                        </p>
+                      </div>
+                      <button onClick={()=>openEdit(ac)} style={{padding:"4px 9px",borderRadius:10,border:`1px solid ${ac.color}40`,background:"#fff",color:ac.color,fontSize:13,fontWeight:800,cursor:"pointer",flexShrink:0}}>✏️ 수정</button>
+                    </div>
+                    <div style={{padding:"8px 13px",display:"flex",alignItems:"center",gap:8,background:"#fff"}}>
+                      <div style={{flex:1,display:"flex",flexWrap:"wrap",gap:8,minWidth:0}}>
+                        <span style={{fontSize:13.5,color:C.sub,fontWeight:600}}>💰 월 {Number(ac.fee).toLocaleString()}원</span>
+                        {ac.teacher&&<span style={{fontSize:13.5,color:C.sub,fontWeight:600}}>👩‍🏫 {ac.teacher}</span>}
+                      </div>
+                      <div style={{display:"flex",gap:5,flexShrink:0}}>
+                        {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:30,height:30,borderRadius:10,background:`${C.green}12`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,textDecoration:"none"}}>📞</a>}
+                        <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:30,height:30,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>💬</button>
+                        <button onClick={()=>setShowDetailModal(ac)} style={{width:30,height:30,borderRadius:10,background:CT.faint,border:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>›</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* 신규 사용자용: 설치 후 24시간 이내에만 노출되는 샘플 학원 추가 버튼 */}
+            {hoursSinceInstall!==null && hoursSinceInstall<24 && (
+              <button onClick={addStarterAcademy}
+                style={{width:"100%",marginTop:12,padding:"12px",borderRadius:14,border:`1.5px dashed ${th.main}55`,background:mixWhite(th.main,0.9),color:th.main,fontSize:13.5,fontWeight:800,cursor:"pointer",lineHeight:1.5}}>
+                🌱 샘플 학원 추가해보기
+                <span style={{display:"block",fontSize:11.5,fontWeight:600,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
+              </button>
+            )}
+          </div>
+        )}
 
         {/* ════ 달력 탭 ════ */}
         {tab==="calendar"&&(()=>{
@@ -5352,6 +5328,24 @@ export default function App() {
         })()}
 
         {/* ════ 학원비 탭 ════ */}
+        {/* ── 더보기 안쪽 전환 — 학원비 / 결석·보충 / 기타 (사용자 확정: 세 칸을 하나로 묶음) ── */}
+        {isMoreTab(tab)&&(
+          <div style={{display:"flex",gap:6,marginBottom:14,background:"#fff",borderRadius:14,padding:5,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm}}>
+            {MORE_TABS.map(m=>{
+              const on=tab===m.k;
+              return (
+                <button key={m.k} onClick={()=>{ if(rewardUnlocked) setRewardUnlocked(false); setMoreTab(m.k); setTab(m.k); }} className="jelly-tap"
+                  style={{flex:1,border:"none",cursor:"pointer",borderRadius:10,padding:"8px 4px",fontSize:13,
+                    fontWeight:on?900:700,whiteSpace:"nowrap",transition:"all .18s",
+                    background:on?`linear-gradient(135deg, ${mixWhite(th.main,0)}, ${mixWhite(th.main,0.22)})`:"transparent",
+                    color:on?"#fff":C.sub,boxShadow:on?`0 4px 12px ${th.main}40`:"none"}}>
+                  {m.l}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {tab==="fee"&&(
           <div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
@@ -6360,6 +6354,24 @@ export default function App() {
         )}
 
       </div>
+
+      {/* ── 하단 고정 메뉴 (사용자 확정 2026-08-09) ──
+           위쪽에 몰려 있던 여섯 칸 탭을 화면 맨 아래 다섯 칸으로 옮겼다.
+           스크롤과 상관없이 늘 같은 자리에 있고, 기기 안전영역만큼 아래를 더 띄운다.
+           '더보기'는 학원비·결석·기타를 묶은 칸이라 그 셋 중 어디에 있어도 켜져 보인다. */}
+      <ParentNav accent={th.main} dim="#9A9086" maxWidth={430}
+        items={[
+          { key:"home",     label:"홈",     icon:"home",     active:tab==="home",
+            onPress:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("home"); } },
+          { key:"academy",  label:"학원",   icon:"academy",  active:tab==="academy",
+            onPress:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("academy"); } },
+          // 보상은 누를 때마다 PIN을 다시 받는다 (goRewardTab이 그 규칙을 갖고 있다)
+          { key:"reward",   label:"보상",   icon:"reward",   active:tab==="reward",  onPress:goRewardTab },
+          { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar",
+            onPress:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("calendar"); } },
+          { key:"more",     label:"더보기", icon:"more",     active:isMoreTab(tab),
+            onPress:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab(moreTab); } },
+        ]}/>
 
       {/* ════════ 모달들 ════════ */}
 

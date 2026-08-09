@@ -33,6 +33,24 @@
          키보드 접근성용 outline(:focus-visible)은 브라우저 기본 그대로 남겨 둔다 —
          이건 마우스·손가락이 아니라 Tab 키로 옮겼을 때만 보이므로 방해되지 않는다. */
       * { -webkit-tap-highlight-color: transparent; }
+      /* 눌림 연출 — 아이 모드·엄마용 모드 양쪽에서 다 쓴다.
+         예전에는 아이 모드 반환부 안의 <style>에 있어서 엄마용에서는 안 먹었다. */
+      .jelly-tap{transition:transform .12s cubic-bezier(.34,1.56,.64,1)}
+      .jelly-tap:active{transform:scale(0.9)}
+      /* 하단 고정 메뉴 — 누르면 아이콘째 살짝 눌린다 */
+      .nav-tap{transition:transform .12s ease}
+      .nav-tap:active{transform:scale(0.9)}
+      /* 캐릭터 탭 아이콘 칸 — 뒤에 둥근 그림자면이 깔리면서 쏙 눌렸다가 통통 튀어 돌아온다.
+         ::before 를 쓰므로 칸 자체 배경을 건드리지 않고, 안 눌렸을 땐 안 보인다. */
+      .icon-tap{position:relative;transition:transform .13s cubic-bezier(.34,1.56,.64,1)}
+      .icon-tap::before{content:"";position:absolute;inset:-6px -4px;border-radius:20px;
+        background:rgba(122,100,66,0.11);opacity:0;transform:scale(0.88);pointer-events:none;
+        transition:opacity .12s ease,transform .12s ease}
+      .icon-tap:active{transform:scale(0.92)}
+      .icon-tap:active::before{opacity:1;transform:scale(1)}
+      /* 가방 카드는 덩치가 커서 같은 배율로 줄이면 화면이 출렁인다 — 살짝만 눌린다 */
+      .card-tap{transition:transform .13s cubic-bezier(.34,1.56,.64,1),filter .13s ease}
+      .card-tap:active{transform:scale(0.972);filter:brightness(0.975)}
       /* 첫 화면이 '탭 줄 아래'에서 딱 끝나게 무대(캐릭터 화면) 높이를 잡는다 (사용자 확정).
          빼는 값 = 시트 머리(손잡이 30 + 탭 줄 52) − 시트 겹침(24) + 무대 위 여백(8) = 66px.
          테두리 장착 시엔 위아래 4px씩 더 붙으므로 74px. (실측으로 맞춘 값)
