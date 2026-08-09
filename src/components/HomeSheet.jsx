@@ -45,11 +45,11 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 
 // 탭별 선택 색 — 아래 탭 콘텐츠의 메인 카드와 같은 계열, 선택 탭은 메인 카드보다 채도 10~15% 높게 (클릭감)
-// (탐험=올리브 그린·미션=허니 브라운·캐릭터=스카이 블루 / 명도 규칙: 선택 탭 中 > 메인 카드 連)
+// (탐험=브라운 · 미션=스카이 블루 · 캐릭터=올리브 그린 / 명도 규칙: 선택 탭 中 > 메인 카드 連)
 const TILE_ACCENT = {
-  area:   { bg:"#D2AD79", border:"#AF8850", text:"#6C5238" },  // 탐험 (브라운 — 사용자 확정: 미션과 톤 맞교환)
-  today:  { bg:"#ACC06D", border:"#8CA24F", text:"#48663D" },  // 미션 (그린)
-  growth: { bg:"#AED2EC", border:"#83B4D4", text:"#355D76" },  // 캐릭터
+  area:   { bg:"#D2AD79", border:"#AF8850", text:"#6C5238" },  // 탐험 (브라운)
+  today:  { bg:"#AED2EC", border:"#83B4D4", text:"#355D76" },  // 미션 (블루 — 사용자 확정: 캐릭터와 톤 맞교환)
+  growth: { bg:"#ACC06D", border:"#8CA24F", text:"#48663D" },  // 캐릭터 (그린 — 위와 맞교환)
 };
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
