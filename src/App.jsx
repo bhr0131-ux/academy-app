@@ -706,8 +706,24 @@ export default function App() {
      (AdventureMap의 시간 기준 판정 → onSparkPass) 기록한다.
      · 무엇이 나올지는 (아이, 날짜) 고정 시드라 다시 그려도 새로고침해도 안 바뀐다.
      · 이미 그날 기록이 있으면 아무것도 안 한다 (하루 1개 가드). */
+  /* 수집품(오늘의 발견)이 열리는 첫 날 — 그 아이가 학원을 처음 등록한 날.
+     [사용자 확정 2026-08-09] 날짜를 뒤로 넘기기만 해도 지나간 날마다 수집품이 계속 쌓였다.
+     지난 날짜를 보는 건 '일정 확인'이지 탐험이 아니므로, 학원 등록 전 날짜에는 안 준다.
+     등록일(createdAt)이 없는 예전 학원은 설치일을 기준으로 삼는다 — 설치일은
+     첫 학원 등록일보다 이르면 이르지 늦지 않아, 기존 사용자가 쓰던 날짜를 잃지 않는다. */
+  const discoveryStartOf=(cid)=>{
+    const made=(academies[cid]||[]).map(a=>a.createdAt).filter(Boolean)
+      .map(v=>{ const t=new Date(v); return isNaN(t)?null:toStr(t); }).filter(Boolean).sort();
+    if(made.length) return made[0];
+    const inst=installInfo?.installDate?new Date(installInfo.installDate):null;
+    return (inst&&!isNaN(inst))?toStr(inst):TODAY;
+  };
+  // 그 날짜에 수집품을 얻을 수 있는지 (앞으로 넘긴 날도 막는다 — 뒤로 넘기기와 같은 구멍이라서)
+  const canDiscoverOn=(cid,d)=>!!d && d<=TODAY && d>=discoveryStartOf(cid);
+
   const handleSparkPass=(d)=>{
     if(!loaded||!childId) return;
+    if(!canDiscoverOn(childId,d)) return;
     if(getDiscoveryOn(discoveryData,childId,d)) return;
     const {isNew,next}=recordDiscovery(discoveryData,childId,d);
     if(isNew) setDiscoveryData(next);
@@ -3067,8 +3083,10 @@ export default function App() {
     setAcademies(prev=>{
       const list=prev[childId]||[];
       return editTarget!==null
-        ? {...prev,[childId]:list.map(a=>a.id===editTarget?{...cleaned,id:editTarget}:a)}
-        : {...prev,[childId]:[...list,{...cleaned,id:Date.now()}]};
+        // 수정은 등록일(createdAt)을 건드리지 않는다 — 원래 값을 그대로 이어받는다
+        ? {...prev,[childId]:list.map(a=>a.id===editTarget?{...cleaned,id:editTarget,createdAt:a.createdAt}:a)}
+        // 새 학원은 등록일을 남긴다 — 수집품이 언제부터 열리는지의 기준이 된다
+        : {...prev,[childId]:[...list,{...cleaned,id:Date.now(),createdAt:new Date().toISOString()}]};
     });
     setShowAddAcModal(false); setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[],baseHomeworks:[]});
     showToast(editTarget?"수정됨 ✓":"추가됨 ✓");
@@ -3856,6 +3874,9 @@ export default function App() {
                    못 만날 걸 "찾을 것 같아!" 하고 기대시키면 안 된다.
                    이미 찾은 날이면(_d) 그건 힌트가 아니라 결과라 그대로 보여 준다. */
                 if(childTodayAc.length===0&&!_d) return null;
+                /* 학원 등록 전(또는 앞날)이라 오늘은 수집품을 얻을 수 없는 날 —
+                   힌트를 띄우면 지나가도 아무 일이 없어 아이가 헛기다린다. */
+                if(!canDiscoverOn(childId,_dd)&&!_d) return null;
                 return (
                   <div style={{display:"flex",alignItems:"center",gap:9,margin:"0 2px 14px",padding:"9px 13px",borderRadius:14,
                     background:_d?"rgba(255,255,255,0.72)":"rgba(138,107,71,0.07)",
