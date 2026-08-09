@@ -540,7 +540,11 @@ export function getExpeditionRarity(dateStr) {
    포즈는 남녀가 모두 따로 그려진다. 그림은 '높이'로만 크기가 정해지므로
    (ExpeditionTrack의 imgH) 배포본을 남아와 같은 높이로 맞춰 두 성별이 같은
    크기로 그려진다 — 412 / 276 / 220 / 207 / 301.
-   ride(공용 앉기)는 아직 없다 → 컴포넌트가 walk로 대체하고, 오면 여기만 채운다. */
+   [2026-08-09 확인] ride(앉기)는 '없어서 비어 있는' 게 아니라 '쓸 데가 없어서' 비어 있다.
+   탈것 원화 32종에 아이가 함께 그려져 있어 탄 회차에는 탈것 한 장만 그리고
+   (ExpeditionTrack 480줄 근처), 어느 챕터도 pose:"ride"를 쓰지 않는다.
+   받아 둔 앉기 원화는 art-src/expedition/char/{common,girl}-sit-src.webp 에 있다 —
+   쓸 데가 생기면(예: 쉬는 날 대기 포즈) 그때 가공해 여기 채운다. */
 const _CP = "assets/expedition/char/";
 export const CHAR_IMG = {
   idle:    { boy: _CP+"common-idle.webp",    girl: _CP+"girl-idle.webp" },     // 미션 0개 — 출발지 기본 자세
