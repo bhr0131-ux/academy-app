@@ -12,6 +12,8 @@ import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscove
 import HomeSheet from "./components/HomeSheet.jsx";
 import ParentNav, { PARENT_NAV_H } from "./components/parent/ParentNav.jsx";
 import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
+import FeePaySheet, { payMethodLabel } from "./components/parent/FeePaySheet.jsx";
+import ChildFace from "./components/parent/ChildFace.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
 import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
@@ -354,6 +356,13 @@ export default function App() {
   const [showKindPicker,         setShowKindPicker]         = useState(false);            // 학원 종류 고르기 시트
   const [homeAcOpen,             setHomeAcOpen]             = useState({});                // 엄마용 홈 '오늘의 학원' 펼친 카드
   const [feeEdit,                setFeeEdit]                = useState(null);             // 학원비 입력 팝업 {id,fee,payDay}
+  /* [사용자 확정 2026-08-09] 학원비 납부 기록 — '언제 얼마를 어떻게 냈나'.
+     기존 납부 여부(v6_paid)는 그대로 두고 새 키에만 쌓는다. 기록이 없어도
+     납부 여부는 예전과 똑같이 동작하므로 기존 사용자 데이터는 영향이 없다. */
+  const [payInfo,                setPayInfo]                = useState({});               // {`cid-월-학원id`:{date,amount,method,memo}}
+  const [paySheet,               setPaySheet]               = useState(null);             // 납부 처리 바텀시트 {acId}
+  const [feeMenu,                setFeeMenu]                = useState(null);             // 학원비 카드 ⋮ 더보기 (학원 id)
+  const childStripRef = useRef(null);                                                       // 엄마용 아이 선택 줄 (가운데 맞추기용)
   const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
@@ -580,6 +589,7 @@ export default function App() {
       if(ch) setChildren(ch);
       if(ac) setAcademies(ac); if(ab) setAbsences(ab);
       if(p) setPaidStatus(p); if(dm) setDayMemos(dm); if(dd) setDailyData(dd);
+      const payI=await load("v6_fee_pay_info"); if(payI) setPayInfo(payI);
       if(bsk) setBaseSeededKeys(bsk);
       if(petD) setPetData(petD);
       if(discD) setDiscoveryData(discD);
@@ -701,6 +711,15 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_ac",academies); },[academies,loaded]);
   useEffect(()=>{ if(loaded) save("v6_abs",absences); },[absences,loaded]);
   useEffect(()=>{ if(loaded) save("v6_paid",paidStatus); },[paidStatus,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_fee_pay_info",payInfo); },[payInfo,loaded]);
+  /* 고른 아이가 줄 밖으로 밀려 있으면 가운데로 끌어온다 (사용자 확정 2026-08-09).
+     아이가 많을 때 지금 보고 있는 아이가 어디 있는지 매번 찾지 않아도 된다. */
+  useEffect(()=>{
+    const box=childStripRef.current; if(!box) return;
+    const el=box.querySelector(`[data-child="${childId}"]`); if(!el) return;
+    const to=el.offsetLeft-(box.clientWidth-el.offsetWidth)/2;
+    box.scrollTo({left:Math.max(0,to),behavior:"smooth"});
+  },[childId,appMode,children.length]);
   useEffect(()=>{ if(loaded) save("v6_dm",dayMemos); },[dayMemos,loaded]);
   useEffect(()=>{ if(loaded) save("v6_daily",dailyData); },[dailyData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_base_seeded",baseSeededKeys); },[baseSeededKeys,loaded]);
@@ -1353,7 +1372,7 @@ export default function App() {
     askPin(()=>{
     clearAllStorage();
     setChildren(DEFAULT_CHILDREN); setChildId("child_1");
-    setAcademies({}); setAbsences({}); setPaidStatus({}); setDayMemos({});
+    setAcademies({}); setAbsences({}); setPaidStatus({}); setPayInfo({}); setDayMemos({});
     setDailyData({}); setScoreData({}); setRewardData({}); setRewardRequests({});
     setBaseSeededKeys({});
     setPetData({});
@@ -1519,6 +1538,7 @@ export default function App() {
       academies,
       absences,
       paidStatus,
+      payInfo,
       dayMemos,
       dailyData,
       scoreData,
@@ -1591,6 +1611,7 @@ export default function App() {
         setAcademies(data.academies||{});
         setAbsences(data.absences||{});
         setPaidStatus(data.paidStatus||{});
+        setPayInfo(data.payInfo||{});   // 구버전 백업엔 없는 값 — 없으면 빈 값
         setDayMemos(data.dayMemos||{});
         setDailyData(data.dailyData||{});
         setScoreData(data.scoreData||{});
@@ -3147,15 +3168,32 @@ export default function App() {
   const pKey=(cid,aId)=>`${cid}-${feeMonth}-${aId}`;
   const isPaid=(aId)=>!!paidStatus[pKey(childId,aId)];
   const togglePaid=(aId)=>{ const k=pKey(childId,aId); setPaidStatus(p=>({...p,[k]:!p[k]})); };
+  /* 납부 기록(언제·얼마·어떻게). 없을 수도 있다 — 예전 방식으로 납부만 체크한 건은 기록이 없다. */
+  const payRec=(aId)=>payInfo[pKey(childId,aId)]||null;
+  const savePayRec=(aId,rec)=>{
+    const k=pKey(childId,aId);
+    setPayInfo(p=>({...p,[k]:rec}));
+    setPaidStatus(p=>({...p,[k]:true}));
+  };
+  const clearPayRec=(aId)=>{
+    const k=pKey(childId,aId);
+    setPayInfo(p=>{ const n={...p}; delete n[k]; return n; });
+    setPaidStatus(p=>({...p,[k]:false}));
+  };
+  /* [사용자 확정 2026-08-09] 상태 이름을 한 벌로 통일한다.
+     납부 예정(회색) → D-2(주황) → 오늘 납부일(주황) → 납부일 N일 지남(코랄) → 납부 완료(민트).
+     '연체'라고 쓰지 않는 이유: 앱은 달력의 납부일만 보고 판단할 뿐,
+     실제로 학원이 정한 기한을 넘겼는지는 알 수 없다. */
   const payStatus=(a)=>{
-    if(Number(a.fee||0)===0) return {label:"-",color:C.sub,free:true};
-    const now=new Date(), d=new Date(now.getFullYear(),feeMonth-1,a.payDay);
-    const diff=Math.ceil((d-now)/86400000);
-    if(isPaid(a.id)) return {label:"납부완료",color:C.green};
-    if(diff<0) return {label:`${Math.abs(diff)}일 초과`,color:C.red};
-    if(diff===0) return {label:"오늘!",color:C.orange};
-    if(diff<=3) return {label:`D-${diff}`,color:C.orange};
-    return {label:`D-${diff}`,color:C.sub};
+    if(Number(a.fee||0)===0) return {key:"none",label:"-",color:C.sub,free:true};
+    if(isPaid(a.id)) return {key:"paid",label:"납부 완료",color:C.green};
+    const now=new Date(); now.setHours(0,0,0,0);
+    const d=new Date(now.getFullYear(),feeMonth-1,Math.max(1,Number(a.payDay||1)));
+    const diff=Math.round((d-now)/86400000);
+    if(diff<0)   return {key:"late", label:`납부일 ${Math.abs(diff)}일 지남`,color:C.red};
+    if(diff===0) return {key:"today",label:"오늘 납부일",color:C.orange};
+    if(diff<=3)  return {key:"soon", label:`D-${diff}`,color:C.orange};
+    return {key:"wait",label:"납부 예정",color:C.sub};
   };
 
   // 결석
@@ -4794,22 +4832,27 @@ export default function App() {
              [사용자 확정 2026-08-09] 높이·여백을 줄이고, 고른 아이만 테마색으로 칠한다.
              안 고른 아이는 흰 바탕 + 아주 연한 테두리 — 예전엔 아이마다 옅은 자기 색이
              깔려 있어 '누가 선택된 건지'가 한눈에 안 들어왔다. ── */}
-      <div style={{position:"relative",margin:"-32px 14px 0",background:"#fff",borderRadius:18,boxShadow:SHADOW.lg,padding:"11px 8px",display:"flex",alignItems:"center",gap:7,zIndex:5}}>
+      <div style={{position:"relative",margin:"-32px 14px 0",background:"#fff",borderRadius:18,boxShadow:SHADOW.lg,padding:"9px 8px",display:"flex",alignItems:"center",gap:7,zIndex:5}}>
         {/* 가로 스크롤 막대가 아이 이름 위로 겹쳐 보여서 막대를 숨긴다 (사용자 지적) —
             넘치는 건 여전히 손가락으로 밀어서 본다 (.noscrollbar) */}
-        <div className="noscrollbar" style={{display:"flex",flex:1,gap:5,overflowX:"auto"}}>
+        <div className="noscrollbar" ref={childStripRef} style={{display:"flex",flex:1,gap:5,overflowX:"auto"}}>
           {children.map(c=>{
             const t=getChildTheme(c);
             const sel=childId===c.id;
             return (
-              <button key={c.id} onClick={()=>{ setChildId(c.id); setRewardDate(TODAY); }} className="jelly-tap"
-                style={{flex:"0 0 auto",minWidth:58,padding:"7px 13px",cursor:"pointer",fontSize:14,fontWeight:sel?900:700,borderRadius:12,
+              /* [사용자 확정 2026-08-09] 줄 높이를 한 단계 줄이고, 고른 아이의 색 면적도 줄였다.
+                 이름 앞은 기기마다 모양이 다른 운영체제 이모지 대신 앱 캐릭터 얼굴을 쓴다. */
+              <button key={c.id} data-child={c.id}
+                onClick={()=>{ setChildId(c.id); setRewardDate(TODAY); }} className="jelly-tap"
+                style={{flex:"0 0 auto",display:"flex",alignItems:"center",gap:6,padding:"5px 11px 5px 6px",cursor:"pointer",
+                  fontSize:13.5,fontWeight:sel?900:700,borderRadius:12,
                   border:sel?"none":"1px solid #ECE6E2",
-                  background:sel?`linear-gradient(135deg, ${mixWhite(t.main,0.04)}, ${mixWhite(t.main,0.28)})`:"#fff",
+                  background:sel?`linear-gradient(135deg, ${mixWhite(t.main,0.10)}, ${mixWhite(t.main,0.30)})`:"#fff",
                   color:sel?"#fff":C.sub,whiteSpace:"nowrap",transition:"all 0.2s",
-                  maxWidth:104,overflow:"hidden",textOverflow:"ellipsis",   // 이름이 길면 말줄임 (사용자 확정)
-                  boxShadow:sel?`0 4px 12px ${t.main}45`:"none"}}>
-                {getGenderEmoji(c)} {c.name}
+                  maxWidth:118,overflow:"hidden",                            // 이름이 길면 말줄임 (사용자 확정)
+                  boxShadow:sel?`0 3px 10px ${t.main}3A`:"none",fontFamily:"inherit"}}>
+                <ChildFace child={c} size={22} bg={sel?"#ffffff33":mixWhite(t.main,0.86)}/>
+                <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>{c.name}</span>
               </button>
             );
           })}
@@ -5465,64 +5508,152 @@ export default function App() {
         })()}
 
         {/* ════ 학원비 탭 ════ */}
-        {tab==="fee"&&(
+        {tab==="fee"&&(()=>{
+          /* [사용자 확정 2026-08-09] 이 화면의 일은 '예쁘게 보이기'가 아니라
+             "이번 달에 얼마를 더 내야 하고, 어떤 학원이 미납인가"를 빨리 판단하게 하는 것.
+             그래서 요약을 총액 한 줄에서 총액·납부·미납 세 칸으로 바꾸고,
+             미납 카드에는 바로 처리할 버튼을, 수정·삭제는 ⋮ 안으로 넣었다. */
+          const billed=curAc.filter(a=>Number(a.fee||0)>0);      // 학원비가 있는 학원만 센다
+          const paidList=billed.filter(a=>isPaid(a.id));
+          const total=billed.reduce((s,a)=>s+Number(a.fee||0),0);
+          const paidSum=paidList.reduce((s,a)=>s+Number(a.fee||0),0);
+          const restSum=total-paidSum;
+          const thisMonth=new Date().getMonth()+1;
+          const cell=(label,value,color,strong)=>(
+            <div style={{flex:1,minWidth:0,textAlign:"center"}}>
+              <p style={{fontSize:11.5,fontWeight:700,color:C.sub,margin:0}}>{label}</p>
+              <p style={{fontSize:strong?18:15.5,fontWeight:900,margin:"3px 0 0",color,
+                whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{value.toLocaleString()}원</p>
+            </div>
+          );
+          return (
           <div>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
-              <button onClick={()=>setFeeMonth(m=>Math.max(1,m-1))} style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:10,width:34,height:34,fontSize:15,cursor:"pointer",color:C.text}}>‹</button>
-              <span style={{fontWeight:800,fontSize:15}}>{feeMonth}월 학원비</span>
-              <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:10,width:34,height:34,fontSize:15,cursor:"pointer",color:C.text}}>›</button>
+            {/* 월 이동 — 화살표를 제목 양옆에 모아 하나의 조작 영역으로 (사용자 지적).
+                연도를 같이 써서 지난달을 보다가 헷갈리지 않게 한다. */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginBottom:12,position:"relative"}}>
+              <button onClick={()=>setFeeMonth(m=>Math.max(1,m-1))} className="jelly-tap" aria-label="이전 달"
+                style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:10,width:28,height:28,fontSize:14,cursor:"pointer",color:C.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
+              <span style={{fontWeight:900,fontSize:15.5,color:C.text}}>{new Date().getFullYear()}년 {feeMonth}월</span>
+              <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} className="jelly-tap" aria-label="다음 달"
+                style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:10,width:28,height:28,fontSize:14,cursor:"pointer",color:C.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
+              {feeMonth!==thisMonth&&(
+                <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
+                  style={{position:"absolute",right:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:9,color:th.main,fontSize:11.5,fontWeight:800,padding:"3px 9px",cursor:"pointer",fontFamily:"inherit"}}>
+                  이번 달
+                </button>
+              )}
             </div>
-            <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.95)} 0%, ${mixWhite(th.main,0.72)} 100%)`,borderRadius:20,padding:"18px 20px",marginBottom:16,color:C.text,textAlign:"center",boxShadow:SHADOW.md,border:`1px solid ${th.main}33`}}>
-              <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{getGenderEmoji(curChild)} {curChild?.name} 총 학원비</p>
-              <p style={{fontSize:26,fontWeight:900,margin:"5px 0 3px",color:(()=>{const hx=(th.main||"").replace("#","");const r=parseInt(hx.slice(0,2),16),g=parseInt(hx.slice(2,4),16),b=parseInt(hx.slice(4,6),16);const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;let hue=0;if(d!==0){if(mx===r)hue=60*(((g-b)/d)%6);else if(mx===g)hue=60*((b-r)/d+2);else hue=60*((r-g)/d+4);}hue=(hue+360)%360;const dim=(hue>=20&&hue<=50)||(hue>=90&&hue<=160)||(hue>=230&&hue<=275);return dim?mixBlack(th.main,0.5):mixWhite(th.main,0.08);})()}}>{totalFee(childId).toLocaleString()}원</p>
-              <p style={{fontSize:13,color:th.main,margin:0,fontWeight:800}}>{curAc.filter(a=>Number(a.fee||0)>0).length===0?"납부할 학원비가 없어요":`납부 ${curAc.filter(a=>Number(a.fee||0)>0&&isPaid(a.id)).length}/${curAc.filter(a=>Number(a.fee||0)>0).length}개 완료`}</p>
+
+            {/* 요약 — 총 학원비 / 납부 완료 / 미납.
+                미납만 코랄로 강조한다. 개수(2곳 중 1곳)는 아래에 작게. */}
+            <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.95)} 0%, ${mixWhite(th.main,0.78)} 100%)`,borderRadius:18,padding:"14px 14px 12px",marginBottom:14,border:`1px solid ${th.main}33`,boxShadow:SHADOW.sm}}>
+              <div style={{display:"flex",alignItems:"flex-end"}}>
+                {cell("총 학원비",total,C.text)}
+                <div style={{width:1,alignSelf:"stretch",background:`${th.main}2A`}}/>
+                {cell("납부 완료",paidSum,C.green)}
+                <div style={{width:1,alignSelf:"stretch",background:`${th.main}2A`}}/>
+                {cell("미납",restSum,restSum>0?C.red:C.sub,restSum>0)}
+              </div>
+              <p style={{fontSize:11.5,fontWeight:700,color:C.sub,margin:"10px 0 0",textAlign:"center"}}>
+                {billed.length===0
+                  ? "등록된 학원비가 없어요"
+                  : restSum===0
+                    ? `${billed.length}곳 모두 납부했어요 🎉`
+                    : `${billed.length}곳 중 ${paidList.length}곳 납부`}
+              </p>
             </div>
+
             {curAc.map(a=>{
               const st=payStatus(a);
+              const paid=isPaid(a.id);
+              const rec=payRec(a.id);
+              const hasFee=Number(a.fee||0)>0;
               return (
-                <div key={a.id} style={{background:CT.card,borderRadius:18,padding:"14px 16px",marginBottom:10,border:`1px solid ${isPaid(a.id)?C.green+"40":th.main+"22"}`,boxShadow:SHADOW.sm}}>
-                  <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:11}}>
-                    <div style={{width:9,height:9,borderRadius:"50%",background:a.color,flexShrink:0}}/>
-                    <p style={{fontSize:15,fontWeight:800,margin:0,flex:1,color:C.text}}>{a.name}</p>
-                    {Number(a.fee||0)===0?(
-                      <span style={{padding:"5px 12px",borderRadius:10,fontSize:13.5,fontWeight:800,background:CT.faint,color:C.sub}}>-</span>
-                    ):(
-                      <button onClick={()=>togglePaid(a.id)} style={{padding:"5px 12px",borderRadius:10,border:"none",cursor:"pointer",fontSize:13.5,fontWeight:800,background:isPaid(a.id)?`${C.green}18`:CT.faint,color:isPaid(a.id)?C.green:C.sub}}>
-                        {isPaid(a.id)?"✓ 납부완료":"👆 미납"}
-                      </button>
-                    )}
-                  </div>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
-                    <div style={{display:"flex",gap:22}}>
-                      <div><p style={{fontSize:13.5,color:C.sub,margin:0,fontWeight:600}}>월 학원비</p><p style={{fontSize:15,fontWeight:800,margin:"2px 0 0",color:C.text}}>{Number(a.fee).toLocaleString()}원</p></div>
-                      <div><p style={{fontSize:13.5,color:C.sub,margin:0,fontWeight:600}}>납부일</p><p style={{fontSize:15,fontWeight:800,margin:"2px 0 0",color:C.text}}>매월 {a.payDay}일</p></div>
+                /* 카드 구조 (사용자 확정)
+                     [학원 색 세로선] 학원명 ─────────── 상태 배지  ⋮
+                                      150,000원  매월 5일
+                                      (납부) 8월 5일 납부 · 계좌이체   내역 수정
+                                      (미납) [납부 완료 처리]
+                   학원 고유색은 왼쪽 세로선에만 쓴다 — 점으로 두면 민트 점이
+                   '납부 완료' 상태처럼 읽혀서 상태색과 섞인다. */
+                <div key={a.id} style={{position:"relative",background:CT.card,borderRadius:14,padding:"11px 12px 11px 14px",marginBottom:9,border:`1px solid ${paid?C.green+"33":C.border}`,boxShadow:"0 2px 8px rgba(90,70,60,0.06)",display:"flex",gap:11}}>
+                  <div style={{width:4,borderRadius:10,background:a.color,flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <p style={{fontSize:14.5,fontWeight:900,margin:0,flex:1,minWidth:0,color:C.text,
+                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</p>
+                      {hasFee&&<span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"3px 9px",borderRadius:9,background:`${st.color}14`,color:st.color}}>{st.label}</span>}
+                      <button onClick={()=>setFeeMenu(m=>m===a.id?null:a.id)} className="jelly-tap"
+                        aria-label={`${a.name} 더보기`} aria-expanded={feeMenu===a.id}
+                        style={{flexShrink:0,width:24,height:24,borderRadius:8,border:"none",background:"none",color:C.sub,fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit",lineHeight:1}}>⋮</button>
                     </div>
-                    {Number(a.fee||0)!==0&&<span style={{fontSize:13,fontWeight:700,padding:"4px 10px",borderRadius:10,background:`${st.color}15`,color:st.color}}>{st.label}</span>}
-                  </div>
-                  {/* [사용자 확정 2026-08-09] 학원비를 여기서 바로 넣고 지운다.
-                      값은 학원 정보(ac.fee/ac.payDay)에 그대로 저장되므로
-                      '학원' 탭 카드의 월 학원비·납부일에도 같이 반영된다. */}
-                  <div style={{display:"flex",gap:7,marginTop:11}}>
-                    <button onClick={()=>{ setFeeEdit({id:a.id,fee:String(a.fee||""),payDay:String(a.payDay||1)}); }} className="jelly-tap"
-                      style={{flex:1,padding:"8px 10px",borderRadius:10,border:`1px solid ${th.main}40`,background:th.light,color:th.main,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
-                      {Number(a.fee||0)>0?"✏️ 학원비 수정":"＋ 학원비 추가"}
-                    </button>
-                    {Number(a.fee||0)>0&&(
-                      <button onClick={()=>{
-                        setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===a.id?{...x,fee:0}:x)}));
-                        showToast("학원비를 지웠어요");
-                      }} className="jelly-tap"
-                        style={{flex:"0 0 auto",padding:"8px 14px",borderRadius:10,border:`1px solid ${C.red}35`,background:`${C.red}0C`,color:C.red,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
-                        🗑 삭제
+                    {/* 라벨은 작고 연하게, 값은 한 단계 위로 — 라벨이 값과 시선 경쟁하지 않게 (사용자 지적) */}
+                    <div style={{display:"flex",alignItems:"baseline",gap:10,marginTop:3,flexWrap:"wrap"}}>
+                      {hasFee?(
+                        <>
+                          <span style={{fontSize:15,fontWeight:800,color:C.text}}>{Number(a.fee).toLocaleString()}원</span>
+                          <span style={{fontSize:12,fontWeight:600,color:C.sub,opacity:0.85}}>매월 {a.payDay}일</span>
+                        </>
+                      ):(
+                        <span style={{fontSize:12.5,fontWeight:700,color:C.sub,opacity:0.8}}>학원비가 등록되지 않았어요</span>
+                      )}
+                    </div>
+                    {/* 납부 완료 — 큰 버튼 없이 기록 한 줄 + 작은 글자 버튼 */}
+                    {hasFee&&paid&&(
+                      <div style={{display:"flex",alignItems:"center",gap:8,marginTop:5}}>
+                        <span style={{fontSize:12,fontWeight:600,color:C.sub,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                          {rec
+                            ? `${Number(rec.date.slice(5,7))}월 ${Number(rec.date.slice(8,10))}일 납부${rec.method?` · ${payMethodLabel(rec.method)}`:""}${rec.memo?` · ${rec.memo}`:""}`
+                            : "납부 기록 없음"}
+                        </span>
+                        <button onClick={()=>setPaySheet({acId:a.id})}
+                          style={{marginLeft:"auto",flexShrink:0,background:"none",border:"none",color:th.main,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",padding:"2px 0",textDecoration:"underline",textUnderlineOffset:3}}>
+                          {rec?"내역 수정":"내역 남기기"}
+                        </button>
+                      </div>
+                    )}
+                    {/* 미납 — 여기서 바로 처리한다 */}
+                    {hasFee&&!paid&&(
+                      <button onClick={()=>setPaySheet({acId:a.id})} className="jelly-tap"
+                        style={{width:"100%",marginTop:8,padding:"9px 10px",borderRadius:11,border:"none",background:th.grad,color:"#fff",fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+                        납부 완료 처리
+                      </button>
+                    )}
+                    {!hasFee&&(
+                      <button onClick={()=>setFeeEdit({id:a.id,fee:"",payDay:String(a.payDay||1)})} className="jelly-tap"
+                        style={{width:"100%",marginTop:8,padding:"8px 10px",borderRadius:11,border:`1px solid ${th.main}40`,background:th.light,color:th.main,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+                        ＋ 학원비 추가
                       </button>
                     )}
                   </div>
+                  {/* ⋮ 더보기 — 자주 쓰지 않는 수정·삭제는 여기 안에 (사용자 확정).
+                      큰 삭제 버튼을 항상 띄워 두면 실수로 누를 위험이 있다. */}
+                  {feeMenu===a.id&&(
+                    <>
+                      <div onClick={()=>setFeeMenu(null)} style={{position:"fixed",inset:0,zIndex:40}}/>
+                      <div role="menu" style={{position:"absolute",top:36,right:8,zIndex:41,minWidth:146,background:"#fff",borderRadius:12,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
+                        <button role="menuitem" className="nav-menu-tap" onClick={()=>{ setFeeEdit({id:a.id,fee:String(a.fee||""),payDay:String(a.payDay||1)}); setFeeMenu(null); }}
+                          style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.text,cursor:"pointer",fontFamily:"inherit"}}>
+                          ✏️ 학원비 수정
+                        </button>
+                        {hasFee&&(
+                          <button role="menuitem" className="nav-menu-tap" onClick={()=>{
+                            setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===a.id?{...x,fee:0}:x)}));
+                            setFeeMenu(null); showToast("학원비를 지웠어요");
+                          }} style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.red,cursor:"pointer",fontFamily:"inherit",borderTop:`1px solid ${C.border}`}}>
+                            🗑 학원비 삭제
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}
             {curAc.length===0&&<div style={{textAlign:"center",padding:"40px",color:C.sub,fontSize:13,background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>등록된 학원이 없어요</div>}
           </div>
-        )}
+          );
+        })()}
 
         {/* ════ 결석 탭 ════ */}
         {tab==="absence"&&(()=>{
@@ -6507,7 +6638,7 @@ export default function App() {
         const go=(k)=>()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab(k); };
         const MORE_ICON={fee:"fee",absence:"absence",etc:"settings"};
         return (
-          <ParentNav accent={th.main} dim="#9A9086" maxWidth={430}
+          <ParentNav accent={th.main} dim="#7C7268" maxWidth={430}
             menu={{
               open:moreMenuOpen,
               onClose:()=>setMoreMenuOpen(false),
@@ -7083,6 +7214,19 @@ export default function App() {
 
       {/* ── 학원비 넣기/고치기 (학원비 탭) ──
              저장은 학원 정보(fee·payDay)에 그대로 들어간다 → 학원 탭 카드에도 바로 반영된다 */}
+      {/* ── 학원비 납부 완료 처리 (바텀시트) ── */}
+      {paySheet&&(()=>{
+        const ac=curAc.find(a=>a.id===paySheet.acId);
+        if(!ac) return null;
+        return (
+          <FeePaySheet ac={ac} month={feeMonth} today={TODAY} value={payRec(ac.id)}
+            tone={{text:C.text,sub:C.sub,border:C.border,faint:CT.faint,green:C.green,red:C.red,orange:C.orange,main:th.main,grad:th.grad}}
+            onClose={()=>setPaySheet(null)}
+            onSave={(rec)=>{ savePayRec(ac.id,rec); setPaySheet(null); showToast("납부 완료로 저장했어요"); }}
+            onUnpay={()=>{ clearPayRec(ac.id); setPaySheet(null); showToast("미납으로 되돌렸어요"); }} />
+        );
+      })()}
+
       {feeEdit&&(()=>{
         const ac=curAc.find(a=>a.id===feeEdit.id);
         if(!ac) return null;
