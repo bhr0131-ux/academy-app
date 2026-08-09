@@ -2748,7 +2748,7 @@ export default function App() {
   },[loaded,childId,dailyData]);
 
   /* ── 가방 카드 '소식' — 캐릭터 탭 가방에 1분간만 띄웠다가 원래 레벨 화면으로 (사용자 확정 2026-08-09)
-       띄우는 네 가지: 펫 진화 · 보물상자 생김 · 상장 교체 · 연속 달성 최고기록.
+       띄우는 다섯 가지: 레벨업 · 펫 진화 · 보물상자 생김 · 상장 교체 · 연속 달성 최고기록.
        저장하지 않는다(새 키 없음) — 지금 앱을 보고 있는 동안의 알림이라 껐다 켜면 사라지는 게 맞고,
        저장 규칙(CLAUDE.md 8·9)을 건드릴 이유도 없다.
        첫 렌더와 아이 전환 때는 '기준값만' 잡고 넘어간다 — 안 그러면 앱을 켤 때마다 뜬다. */
@@ -2757,13 +2757,21 @@ export default function App() {
   useEffect(()=>{
     if(!loaded||!childId) return;
     const stage=getPetStage(childId);
+    const lv=getChildLevel(childId);
     const snap={cid:childId,pet:stage,box:getTotalTreasureCount(childId),
-      title:selectedTitles[childId]||"rookie",streak:getBestStreak(childId)};
+      title:selectedTitles[childId]||"rookie",streak:getBestStreak(childId),level:lv.level};
     const was=bagSeenRef.current;
     bagSeenRef.current=snap;
     if(!was||was.cid!==childId) return;             // 기준만 잡는다
     let ev=null;
-    if(snap.pet>was.pet){
+    /* 레벨업이 가장 큰 소식이라 맨 앞에서 잡는다 — 한 번에 여러 개가 겹쳐도(예: 미션을 끝내
+       상자도 생기고 레벨도 오른 순간) 레벨업을 보여 준다. 레벨업 팝업과 별개로,
+       팝업을 닫은 뒤에도 가방에 1분간 남아 '방금 오른 레벨'을 다시 볼 수 있게 하는 것이다. */
+    if(snap.level>was.level){
+      const bonus=LEVEL_UP_REWARDS?.[snap.level]||0;
+      ev={emoji:lv.emoji||"🎉",title:`레벨 업! Lv.${lv.level}`,
+        sub:bonus>0?`${lv.name} · ${TM.coinEmoji} +${bonus}`:lv.name};
+    } else if(snap.pet>was.pet){
       const pet=petView(PET_STAGES[stage],stage,kidSkin);
       ev={emoji:pet.emoji||"🐣",title:"펫이 진화했어요!",sub:pet.name};
     } else if(snap.box>was.box){
@@ -2778,7 +2786,7 @@ export default function App() {
     setBagEvent(ev);
     clearTimeout(bagTimerRef.current);
     bagTimerRef.current=setTimeout(()=>setBagEvent(null),60000);
-  },[loaded,childId,petData,treasureData,selectedTitles,bestStreakData,dailyData,kidSkin]);
+  },[loaded,childId,petData,treasureData,selectedTitles,bestStreakData,dailyData,scoreData,kidSkin]);
   useEffect(()=>()=>clearTimeout(bagTimerRef.current),[]);
 
   useEffect(()=>{
