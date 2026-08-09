@@ -55,6 +55,9 @@
       .nav-menu-tap:active{background:rgba(90,70,60,0.06)}
       @keyframes navMenuFade{from{opacity:0}to{opacity:1}}
       @keyframes navMenuUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+      /* 가로로 미는 줄에서 스크롤 막대를 숨긴다 — 막대가 글자 위에 겹쳐 보이던 자리용 */
+      .noscrollbar{scrollbar-width:none;-ms-overflow-style:none}
+      .noscrollbar::-webkit-scrollbar{display:none}
       /* 첫 화면이 '탭 줄 아래'에서 딱 끝나게 무대(캐릭터 화면) 높이를 잡는다 (사용자 확정).
          빼는 값 = 시트 머리(손잡이 30 + 탭 줄 52) − 시트 겹침(24) + 무대 위 여백(8) = 66px.
          테두리 장착 시엔 위아래 4px씩 더 붙으므로 74px. (실측으로 맞춘 값)
