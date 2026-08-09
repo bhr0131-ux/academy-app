@@ -62,6 +62,26 @@ export const NAV_ICONS = {
       <path {...S} d="M8 14h2.2M13.8 14H16" />
     </svg>
   ),
+  fee: (
+    <svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true">
+      <rect {...S} x="3" y="6.4" width="18" height="11.2" rx="2.4" />
+      <circle {...S} cx="12" cy="12" r="2.6" />
+      <path {...S} d="M6.4 12h.6M17 12h.6" />
+    </svg>
+  ),
+  absence: (
+    <svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true">
+      <rect {...S} x="3.6" y="5.4" width="16.8" height="14.6" rx="2.6" />
+      <path {...S} d="M3.6 10.2h16.8M8.4 3.6v3.4M15.6 3.6v3.4" />
+      <path {...S} d="M9.4 15.4l1.8 1.8 3.4-3.6" />
+    </svg>
+  ),
+  settings: (
+    <svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true">
+      <circle {...S} cx="12" cy="12" r="3" />
+      <path {...S} d="M12 3.4v2.2M12 18.4v2.2M20.6 12h-2.2M5.6 12H3.4M18.1 5.9l-1.6 1.6M7.5 16.5l-1.6 1.6M18.1 18.1l-1.6-1.6M7.5 7.5 5.9 5.9" />
+    </svg>
+  ),
   more: (
     <svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true">
       <path {...S} d="M4.4 7.6h15.2M4.4 12h15.2M4.4 16.4h9.6" />
@@ -72,10 +92,43 @@ export const NAV_ICONS = {
 /* 본문 아래에 비워 둘 높이 = 바 높이(58) + 여유(10). 안전영역은 App에서 env()로 더한다 */
 export const PARENT_NAV_H = 58;
 
-export default function ParentNav({ items = [], accent = "#F58BB0", dim = "#9AA0A6", maxWidth = 430 }) {
+/* menu — '더보기'를 누르면 바 바로 위로 올라오는 선택 목록 (사용자 확정 2026-08-09).
+   안드로이드 오버플로 메뉴처럼 같은 칸 디자인(선형 아이콘 + 글자)으로 위에 쌓아 보여 준다.
+   바깥을 누르면 닫힌다. props: {open, items:[{key,label,icon,active,onPress}], onClose} */
+export default function ParentNav({ items = [], accent = "#F58BB0", dim = "#9AA0A6", maxWidth = 430, menu = null }) {
+  const open = !!(menu && menu.open);
   return (
     <nav aria-label="엄마 관리 메뉴"
       style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 900, pointerEvents: "none" }}>
+
+      {/* 바깥 어둡게 — 메뉴가 열렸을 때만. 화면 전체를 덮어 아무 데나 누르면 닫힌다 */}
+      {open && (
+        <div onClick={menu.onClose} aria-hidden="true"
+          style={{ position: "fixed", inset: 0, background: "rgba(20,16,14,0.32)",
+            pointerEvents: "auto", animation: "navMenuFade .16s ease both" }} />
+      )}
+
+      {open && (
+        <div style={{ maxWidth, margin: "0 auto", pointerEvents: "auto", position: "relative",
+          padding: "0 10px 8px", animation: "navMenuUp .2s cubic-bezier(.34,1.4,.64,1) both" }}>
+          <div role="menu" style={{ background: "#FFFDFC", borderRadius: 18, overflow: "hidden",
+            border: "1px solid rgba(90,70,60,0.10)", boxShadow: "0 -10px 30px -8px rgba(90,70,60,0.30)" }}>
+            {menu.items.map((it, i) => (
+              <button key={it.key} type="button" role="menuitem" onClick={it.onPress} className="nav-menu-tap"
+                aria-current={it.active ? "page" : undefined}
+                style={{ width: "100%", border: "none", background: "none", cursor: "pointer",
+                  padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, fontFamily: F,
+                  color: it.active ? accent : "#5A5048",
+                  borderTop: i === 0 ? "none" : "1px solid rgba(90,70,60,0.08)" }}>
+                {NAV_ICONS[it.icon] || NAV_ICONS.more}
+                <span style={{ fontSize: 15, fontWeight: it.active ? 900 : 700 }}>{it.label}</span>
+                {it.active && <span style={{ marginLeft: "auto", fontSize: 13, fontWeight: 900 }}>●</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div style={{ maxWidth, margin: "0 auto", pointerEvents: "auto",
         background: "#FFFDFC",                                  // 아주 연한 웜화이트
         borderTop: "1px solid rgba(90,70,60,0.10)",
