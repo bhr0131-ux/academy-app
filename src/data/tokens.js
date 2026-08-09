@@ -399,4 +399,5 @@ export const PREMIUM_ENABLED = false;
 // 창립 사용자(무료 기간 설치자)는 PREMIUM_ENABLED 가 켜져도 평생 프리미엄으로 대우할지 여부
 export const FOUNDING_USER_IS_PREMIUM = true;
 // 무료로 열어줄 테마 개수 (앞에서부터 N개는 무료, 나머지는 프리미엄 잠금)
-export const FREE_THEME_COUNT = 2;
+// [사용자 확정 2026-08-09] 색을 넷으로 줄이면서 네 개 다 무료로 연다.
+export const FREE_THEME_COUNT = 4;
