@@ -51,6 +51,10 @@
       /* 가방 카드는 덩치가 커서 같은 배율로 줄이면 화면이 출렁인다 — 살짝만 눌린다 */
       .card-tap{transition:transform .13s cubic-bezier(.34,1.56,.64,1),filter .13s ease}
       .card-tap:active{transform:scale(0.972);filter:brightness(0.975)}
+      /* 엄마용 '더보기' 메뉴 — 바 위로 톡 올라온다 */
+      .nav-menu-tap:active{background:rgba(90,70,60,0.06)}
+      @keyframes navMenuFade{from{opacity:0}to{opacity:1}}
+      @keyframes navMenuUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
       /* 첫 화면이 '탭 줄 아래'에서 딱 끝나게 무대(캐릭터 화면) 높이를 잡는다 (사용자 확정).
          빼는 값 = 시트 머리(손잡이 30 + 탭 줄 52) − 시트 겹침(24) + 무대 위 여백(8) = 66px.
          테두리 장착 시엔 위아래 4px씩 더 붙으므로 74px. (실측으로 맞춘 값)

@@ -1,5 +1,5 @@
 import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
-import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
+import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime } from "./data/sampleData.js";
@@ -11,6 +11,7 @@ import DiscoveryBook from "./components/DiscoveryBook.jsx";
 import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollMapAnimals, rollRainbow, rollSparkT } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
 import ParentNav, { PARENT_NAV_H } from "./components/parent/ParentNav.jsx";
+import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
 import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
@@ -349,6 +350,8 @@ export default function App() {
   const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
   const [bagEvent,               setBagEvent]               = useState(null);             // 가방 카드에 1분간 띄우는 소식
   const [moreTab,                setMoreTab]                = useState("fee");            // '더보기' 안에서 마지막으로 본 칸
+  const [moreMenuOpen,           setMoreMenuOpen]           = useState(false);            // '더보기' 눌러 위로 열리는 메뉴
+  const [showKindPicker,         setShowKindPicker]         = useState(false);            // 학원 종류 고르기 시트
   const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
@@ -2060,6 +2063,12 @@ export default function App() {
     boxShadow:"0 8px 24px rgba(60,90,105,0.30), inset 0 1px 0 rgba(255,255,255,0.08)",
   };
   const curAc = academies[childId]||[];
+  /* 미션 목록처럼 학원 객체가 아니라 id·이름만 들고 다니는 자리에서 아이콘을 뽑는다.
+     학원을 찾으면 등록할 때 고른 종류(kind)로, 못 찾으면 예전처럼 이름으로 추측한다. */
+  const acIconOf=(acId,acName="")=>{
+    const ac=(academies[childId]||[]).find(a=>a.id===acId);
+    return getAcademyTheme(ac?.name||acName,kidSkin,ac?.kind||"").icon;
+  };
   const curAbs = absences[childId]||[];
   const totalFee=(cid)=>(academies[cid]||[]).reduce((s,a)=>s+Number(a.fee||0),0);
 
@@ -3073,13 +3082,25 @@ export default function App() {
     const unused=PALETTE.find(c=>!used.includes(c.toUpperCase()));
     return unused||PALETTE[(curAc||[]).length%PALETTE.length];
   };
-  const openAdd=()=>{ setEditTarget(null); setConfirmDelAc(false); setNewAc({...EMPTY_AC,color:getNextAcademyColor(),baseSupplies:[],baseHomeworks:[]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(false); setAcSecSupply(false); setAcSecFee(false); setAcSecInfo(false); setAcSecMemo(false); setShowAddAcModal(true); };
-  const openEdit=(ac)=>{ setEditTarget(ac.id); setConfirmDelAc(false); setNewAc({...ac,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length)); setAcSecFee(!!ac.fee); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
+  const openAdd=()=>{ setEditTarget(null); setConfirmDelAc(false); setNewAc({...EMPTY_AC,color:getNextAcademyColor(),baseSupplies:[],baseHomeworks:[],kind:"",kindLabel:""}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(false); setAcSecSupply(false); setAcSecFee(false); setAcSecInfo(false); setAcSecMemo(false); setShowAddAcModal(true); };
+  const openEdit=(ac)=>{
+    /* 종류 없이 등록했던 예전 학원 — 이름 속 낱말로 종류를 되짚어 기본값으로 채운다
+       ("청담어학원" → 영어). 못 알아보면 비워 두고 직접 고르게 한다 —
+       학원 이름을 종류 자리에 넣어 두면 종류가 아닌 값이 그대로 굳어 버린다. */
+    const g=ac.kind?null:guessAcademyKind(ac.name||"");
+    const kind=ac.kind || (g?g.key:"");
+    const kindLabel=ac.kindLabel || (g?g.label:"");
+    setEditTarget(ac.id); setConfirmDelAc(false); setNewAc({...ac,kind,kindLabel,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length)); setAcSecFee(!!ac.fee); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
   const saveAcademy=()=>{
-    if(!newAc.name.trim()||(newAc.useCustomSchedule?(newAc.schedules||[]).length===0:(newAc.days||[]).length===0)){
-      showToast("학원명과 수업 요일을 입력해줘"); return;
+    /* [사용자 확정 2026-08-09] 필수는 '종류'와 '수업 요일'. 이름은 선택이다 —
+       비워 두면 종류 이름을 그대로 학원 이름으로 쓴다 (예: 피아노). */
+    const kindLabel=(newAc.kindLabel||getAcademyKind(newAc.kind)?.label||"").trim();
+    if(!newAc.kind||!kindLabel){ showToast("학원 종류를 골라줘"); return; }
+    if(newAc.useCustomSchedule?(newAc.schedules||[]).length===0:(newAc.days||[]).length===0){
+      showToast("수업 요일을 골라줘"); return;
     }
-    const cleaned={...newAc,name:newAc.name.trim(),fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:newAc.schedules||[]};
+    const finalName=(newAc.name||"").trim() || kindLabel;
+    const cleaned={...newAc,name:finalName,kind:newAc.kind,kindLabel,fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:newAc.schedules||[]};
     setAcademies(prev=>{
       const list=prev[childId]||[];
       return editTarget!==null
@@ -3742,7 +3763,7 @@ export default function App() {
                   return {
                     id:ac.id, name:ac.name, color:ac.color,
                     time:sc?.time||"", duration:sc?.duration||40,
-                    icon:getAcademyTheme(ac.name,kidSkin).icon,
+                    icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
                     done:doneCnt, total:totalCnt,
                   };
                 });
@@ -3848,7 +3869,7 @@ export default function App() {
                 };
                 return (
                   <AdventureSpotPicker
-                    items={jList.map(ac=>({id:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin).icon,
+                    items={jList.map(ac=>({id:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
                       passed:isPast(ac), current:isChildToday&&ac.id===curId}))}
                     selectedId={selId}
                     onSelect={setJournalAcId}
@@ -3927,7 +3948,7 @@ export default function App() {
                   const totalTodoCnt=hw.length+todos.length;
                   const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
                   const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
-                  const dungeon=getAcademyTheme(ac.name,kidSkin);
+                  const dungeon=getAcademyTheme(ac.name,kidSkin,ac.kind);
                   const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
                   const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
                   const chipSty=(checked)=>({fontSize:11,padding:"3px 11px",borderRadius:999,cursor:"pointer",fontWeight:400,transition:"all .15s",
@@ -3968,7 +3989,7 @@ export default function App() {
                     const totalTodoCnt=hw.length+todos.length;
                     const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
                     const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
-                    const dungeon=getAcademyTheme(ac.name,kidSkin);
+                    const dungeon=getAcademyTheme(ac.name,kidSkin,ac.kind);
                     // ── 탐험 카드 색 체계 (흰 카드 폐기, 다크 톤 통일) ── (이 분기는 베이커리 전용, dk는 항상 false)
                     const dk = kidSkin!=="cute";
                     // 카드 본체: 테마색을 머금은 다크. 헤더는 학원색을 살린 진한 톤.
@@ -4159,7 +4180,7 @@ export default function App() {
                             {/* 스크롤 헤더 - 학원 색 띠 (클리어 시 회색) */}
                             <div style={{padding:"10px 13px",background:item.done?"#EDEFF4":item.failed?`${C.red}0A`:`linear-gradient(135deg, ${acCol}24, ${acCol}12)`,borderBottom:`1px solid ${item.done?"#DFE3EC":item.failed?C.red+"20":acCol+"18"}`,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
                               <div style={{display:"flex",alignItems:"center",gap:9,minWidth:0}}>
-                                <span style={{fontSize:20,flexShrink:0}}>{getAcademyTheme(item.academyName,kidSkin).icon}</span>
+                                <span style={{fontSize:20,flexShrink:0}}>{acIconOf(item.academyId,item.academyName)}</span>
                                 <p style={{fontSize:14,fontWeight:900,color:C.text,margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                                   {item.academyName}
                                 </p>
@@ -5352,24 +5373,6 @@ export default function App() {
         })()}
 
         {/* ════ 학원비 탭 ════ */}
-        {/* ── 더보기 안쪽 전환 — 학원비 / 결석·보충 / 기타 (사용자 확정: 세 칸을 하나로 묶음) ── */}
-        {isMoreTab(tab)&&(
-          <div style={{display:"flex",gap:6,marginBottom:14,background:"#fff",borderRadius:14,padding:5,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm}}>
-            {MORE_TABS.map(m=>{
-              const on=tab===m.k;
-              return (
-                <button key={m.k} onClick={()=>{ if(rewardUnlocked) setRewardUnlocked(false); setMoreTab(m.k); setTab(m.k); }} className="jelly-tap"
-                  style={{flex:1,border:"none",cursor:"pointer",borderRadius:10,padding:"8px 4px",fontSize:13,
-                    fontWeight:on?900:700,whiteSpace:"nowrap",transition:"all .18s",
-                    background:on?`linear-gradient(135deg, ${mixWhite(th.main,0)}, ${mixWhite(th.main,0.22)})`:"transparent",
-                    color:on?"#fff":C.sub,boxShadow:on?`0 4px 12px ${th.main}40`:"none"}}>
-                  {m.l}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
         {tab==="fee"&&(
           <div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
@@ -6383,19 +6386,31 @@ export default function App() {
            위쪽에 몰려 있던 여섯 칸 탭을 화면 맨 아래 다섯 칸으로 옮겼다.
            스크롤과 상관없이 늘 같은 자리에 있고, 기기 안전영역만큼 아래를 더 띄운다.
            '더보기'는 학원비·결석·기타를 묶은 칸이라 그 셋 중 어디에 있어도 켜져 보인다. */}
-      <ParentNav accent={th.main} dim="#9A9086" maxWidth={430}
-        items={[
-          { key:"home",     label:"홈",     icon:"home",     active:tab==="home",
-            onPress:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("home"); } },
-          { key:"academy",  label:"학원",   icon:"academy",  active:tab==="academy",
-            onPress:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("academy"); } },
-          // 보상은 누를 때마다 PIN을 다시 받는다 (goRewardTab이 그 규칙을 갖고 있다)
-          { key:"reward",   label:"보상",   icon:"reward",   active:tab==="reward",  onPress:goRewardTab },
-          { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar",
-            onPress:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab("calendar"); } },
-          { key:"more",     label:"더보기", icon:"more",     active:isMoreTab(tab),
-            onPress:()=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab(moreTab); } },
-        ]}/>
+      {(()=>{
+        // 다른 칸으로 갈 땐 열려 있던 '더보기' 메뉴를 먼저 닫는다
+        const go=(k)=>()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab(k); };
+        const MORE_ICON={fee:"fee",absence:"absence",etc:"settings"};
+        return (
+          <ParentNav accent={th.main} dim="#9A9086" maxWidth={430}
+            menu={{
+              open:moreMenuOpen,
+              onClose:()=>setMoreMenuOpen(false),
+              items:MORE_TABS.map(m=>({ key:m.k, label:m.l, icon:MORE_ICON[m.k], active:tab===m.k,
+                onPress:()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setMoreTab(m.k); setTab(m.k); } })),
+            }}
+            items={[
+              { key:"home",     label:"홈",     icon:"home",     active:tab==="home",     onPress:go("home") },
+              { key:"academy",  label:"학원",   icon:"academy",  active:tab==="academy",  onPress:go("academy") },
+              // 보상은 누를 때마다 PIN을 다시 받는다 (goRewardTab이 그 규칙을 갖고 있다)
+              { key:"reward",   label:"보상",   icon:"reward",   active:tab==="reward",
+                onPress:()=>{ setMoreMenuOpen(false); goRewardTab(); } },
+              { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar", onPress:go("calendar") },
+              // 더보기는 화면을 바꾸지 않고 '위로 열리는 메뉴'만 띄운다 (사용자 확정 2026-08-09)
+              { key:"more",     label:"더보기", icon:"more",     active:isMoreTab(tab)||moreMenuOpen,
+                onPress:()=>setMoreMenuOpen(v=>!v) },
+            ]}/>
+        );
+      })()}
 
       {/* ════════ 모달들 ════════ */}
 
@@ -6464,7 +6479,7 @@ export default function App() {
             ...(entry.supplies||[])
               .map(x=>({key:`s-${x}`,toggleKey:"+"+x,label:x,checked:checked.includes("+"+x),extra:true})),
           ];
-          return {acId:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin).icon,color:ac.color,items};
+          return {acId:ac.id,name:ac.name,icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,color:ac.color,items};
         }).filter(g=>g.items.length>0);
         return <SupplyCheckModal dateLabel={dateLabelOf(date)} groups={groups}
           tone={careTone} onClose={()=>setShowSupplyCheck(null)}
@@ -6481,7 +6496,7 @@ export default function App() {
           const by=new Map();
           list.forEach(it=>{
             if(!by.has(it.academyId)) by.set(it.academyId,
-              {acId:it.academyId,name:it.academyName,icon:getAcademyTheme(it.academyName,kidSkin).icon,
+              {acId:it.academyId,name:it.academyName,icon:acIconOf(it.academyId,it.academyName),
                color:it.academyColor,items:[]});
             by.get(it.academyId).items.push(
               {key:`${it.kind}-${it.academyId}-${it.id}`,label:it.label,kind:it.kind,failed:!!it.failed});
@@ -6950,6 +6965,11 @@ export default function App() {
         </div>
       )}
 
+      {/* ── 학원 종류 고르기 (학원 추가/수정 모달 위에 뜬다) ── */}
+      <AcademyKindPicker open={showKindPicker} value={newAc.kind||""} customLabel={newAc.kindLabel||""}
+        accent={th.main} onClose={()=>setShowKindPicker(false)}
+        onPick={(key,label)=>{ setNewAc(p=>({...p,kind:key,kindLabel:label})); setShowKindPicker(false); }} />
+
       {/* ── 학원 추가/수정 모달 ── */}
       {showAddAcModal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:200}} onClick={()=>setShowAddAcModal(false)}>
@@ -6958,8 +6978,32 @@ export default function App() {
               <h3 style={{margin:0,fontSize:17,fontWeight:800,color:C.text}}>{editTarget?"✏️ 학원 수정":"➕ 학원 추가"} ({getGenderEmoji(curChild)} {curChild?.name})</h3>
               <button onClick={()=>setShowAddAcModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
-            <label style={lbl}>학원 이름 *</label>
-            <input value={newAc.name} onChange={e=>setNewAc(p=>({...p,name:e.target.value}))} placeholder="예: 수학학원" style={{...inp,marginBottom:16}}/>
+            {/* 학원 종류 * — 눌러서 목록에서 고른다 (검색·직접 입력).
+                종류를 골라 두면 지도·일지·미션에 쓰는 이모지가 이름과 상관없이 정확히 붙는다. */}
+            <label style={lbl}>학원 종류 *</label>
+            {(()=>{
+              const k=getAcademyKind(newAc.kind);
+              const lab=newAc.kindLabel||k?.label||"";
+              const ic=newAc.kind===ACADEMY_KIND_CUSTOM?"✏️":(k?.icon||"🏫");
+              return (
+                <button onClick={()=>setShowKindPicker(true)} className="jelly-tap"
+                  style={{...inp,marginBottom:16,display:"flex",alignItems:"center",gap:10,cursor:"pointer",textAlign:"left",
+                    border:lab?`1.5px solid ${th.main}55`:`1px solid ${CT.faintB}`,background:lab?mixWhite(th.main,0.94):CT.faint}}>
+                  <span style={{fontSize:21,flexShrink:0}}>{ic}</span>
+                  <span style={{flex:1,minWidth:0,fontWeight:lab?900:600,color:lab?C.text:C.sub,
+                    overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                    {lab||"눌러서 골라줘 (검색·직접 입력)"}
+                  </span>
+                  <span style={{flexShrink:0,color:C.sub,fontSize:15}}>›</span>
+                </button>
+              );
+            })()}
+
+            {/* 학원 이름 — 선택. 비우면 종류 이름이 그대로 학원 이름이 된다 */}
+            <label style={lbl}>학원 이름 <span style={{fontSize:13,fontWeight:600,color:C.sub}}>(선택)</span></label>
+            <input value={newAc.name} onChange={e=>setNewAc(p=>({...p,name:e.target.value}))}
+              placeholder={newAc.kindLabel?`비우면 '${newAc.kindLabel}'로 표시돼요`:"예: 000영어학원"}
+              style={{...inp,marginBottom:16}}/>
             <label style={lbl}>수업 요일 *</label>
             <div style={{display:"flex",gap:5,marginBottom:12}}>
               {DAYS.map(day=>{

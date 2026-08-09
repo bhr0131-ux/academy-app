@@ -379,6 +379,68 @@ export const ACADEMY_DUNGEON_RULES = [
   { kw:["한자","중국어","일본어","제2외국어","스페인어"],            icon:"🀄", label:"동방 문자의 길" },
   { kw:["요리","쿠킹","베이킹"],                                     icon:"🍳", label:"마녀의 부엌" },
 ];
+/* ── 학원 종류 목록 (사용자 확정 2026-08-09) ───────────────────────────
+   예전엔 학원 '이름'만 받아서 그 안의 낱말로 아이콘을 추측했다 —
+   "청담어학원"처럼 과목 낱말이 없으면 미지의 탐험(🏰)이 돼 버렸다.
+   이제 등록할 때 종류를 골라 두고, 아이콘·던전 이름은 그 종류에서 바로 꺼낸다.
+   종류가 많아 검색으로 고르며, 목록에 없으면 '직접 입력'으로 적는다.
+     key   : 저장값 (academy.kind)
+     label : 화면에 보이는 이름
+     icon  : 지도·일지·미션에 쓰는 이모지
+     kw    : 던전 이름(선율의 신전 등)을 찾을 때 쓰는 대표 낱말 (ACADEMY_DUNGEON_RULES 기준) */
+export const ACADEMY_KINDS = [
+  { key:"english",    label:"영어",        icon:"📖",  kw:"영어" },
+  { key:"math",       label:"수학",        icon:"🔢",  kw:"수학" },
+  { key:"korean",     label:"국어",        icon:"✍️",  kw:"국어" },
+  { key:"essay",      label:"논술·글쓰기",  icon:"📝",  kw:"논술" },
+  { key:"reading",    label:"독서·독해",    icon:"📚",  kw:"독서" },
+  { key:"hanja",      label:"한자",        icon:"🀄",  kw:"한자" },
+  { key:"chinese",    label:"중국어",      icon:"🇨🇳", kw:"중국어" },
+  { key:"japanese",   label:"일본어",      icon:"🇯🇵", kw:"일본어" },
+  { key:"science",    label:"과학",        icon:"🔬",  kw:"과학" },
+  { key:"coding",     label:"코딩",        icon:"💻",  kw:"코딩" },
+  { key:"robot",      label:"로봇",        icon:"🤖",  kw:"로봇" },
+  { key:"piano",      label:"피아노",      icon:"🎹",  kw:"피아노" },
+  { key:"violin",     label:"바이올린",     icon:"🎻",  kw:"바이올린" },
+  { key:"cello",      label:"첼로",        icon:"🎼",  kw:"첼로" },
+  { key:"guitar",     label:"기타(악기)",   icon:"🎸",  kw:"기타" },
+  { key:"drum",       label:"드럼",        icon:"🥁",  kw:"드럼" },
+  { key:"vocal",      label:"노래·성악",    icon:"🎤",  kw:"음악" },
+  { key:"art",        label:"미술",        icon:"🎨",  kw:"미술" },
+  { key:"drawing",    label:"그림·드로잉",  icon:"🖍️",  kw:"그림" },
+  { key:"design",     label:"디자인",      icon:"🖌️",  kw:"디자인" },
+  { key:"taekwondo",  label:"태권도",      icon:"🥋",  kw:"태권도" },
+  { key:"kendo",      label:"검도",        icon:"⚔️",  kw:"검도" },
+  { key:"jiujitsu",   label:"주짓수·유도",  icon:"🤼",  kw:"주짓수" },
+  { key:"ballet",     label:"발레",        icon:"🩰",  kw:"발레" },
+  { key:"dance",      label:"댄스·무용",    icon:"💃",  kw:"댄스" },
+  { key:"swim",       label:"수영",        icon:"🏊",  kw:"수영" },
+  { key:"soccer",     label:"축구",        icon:"⚽",  kw:"축구" },
+  { key:"basketball", label:"농구",        icon:"🏀",  kw:"농구" },
+  { key:"badminton",  label:"배드민턴",     icon:"🏸",  kw:"스포츠" },
+  { key:"pe",         label:"체육",        icon:"🤸",  kw:"체육" },
+  { key:"cooking",    label:"요리·베이킹",  icon:"🍳",  kw:"요리" },
+  { key:"baduk",      label:"바둑",        icon:"⚫",  kw:"바둑" },
+  { key:"chess",      label:"체스",        icon:"♟️",  kw:"체스" },
+  { key:"speech",     label:"스피치·웅변",  icon:"📣",  kw:"글쓰기" },
+  { key:"worksheet",  label:"학습지",      icon:"📋",  kw:"사고력" },
+  { key:"allinone",   label:"보습·종합",    icon:"🏫",  kw:"" },
+];
+export const ACADEMY_KIND_CUSTOM = "custom";   // 목록에 없어 직접 적은 종류
+export const getAcademyKind = (key) => ACADEMY_KINDS.find(k=>k.key===key) || null;
+/* 종류를 안 고르고 등록했던 예전 학원 — 이름 속 낱말로 종류를 되짚어 준다 (수정 화면 기본값용).
+   2단계로 찾는다. ① 종류 이름이 그대로 들어 있나 ("피아노학원" → 피아노)
+   ② 아니면 던전 규칙의 낱말로 과목을 알아낸 뒤 그 과목의 대표 종류로 ("청담어학원" → 어학 → 영어)
+   둘 다 안 걸리면(예: "으뜸교실") null — 화면에서 직접 고르게 둔다. */
+export const guessAcademyKind = (name="") => {
+  const n = String(name).toLowerCase();
+  const direct = ACADEMY_KINDS.find(k=>k.kw && (n.includes(k.label.toLowerCase()) || n.includes(k.kw.toLowerCase())));
+  if(direct) return direct;
+  const rule = ACADEMY_DUNGEON_RULES.find(r=>r.kw.some(k=>n.includes(k.toLowerCase())));
+  if(!rule) return null;
+  return ACADEMY_KINDS.find(k=>k.kw && rule.kw.includes(k.kw)) || null;
+};
+
 export const getAcademyDungeon = (name="") => {
   const n = String(name).toLowerCase();
   for(const r of ACADEMY_DUNGEON_RULES){
@@ -390,16 +452,22 @@ export const getAcademyDungeon = (name="") => {
 // ── 스킨별 학원 아이콘/라벨 매칭 ───────────────────────────
 // 베이커리(cute) 모드는 SKINS.cute.academyRules/academyDefault 를 사용하고,
 // 그 외(탐험 등)는 기존 getAcademyDungeon 규칙을 그대로 사용한다.
-export const getAcademyTheme = (name="", skin=DEFAULT_SKIN) => {
+/* kindKey를 주면 그 종류로 찾는다 (이름에 과목 낱말이 없어도 아이콘이 맞는다).
+   아이콘은 종류에 정해 둔 것을 쓰고, 던전 이름(라벨)만 기존 규칙에서 꺼낸다.
+   종류가 없으면 예전처럼 이름으로 추측한다 — 기존 학원이 그대로 동작한다. */
+export const getAcademyTheme = (name="", skin=DEFAULT_SKIN, kindKey="") => {
+  const kind = getAcademyKind(kindKey);
+  const base = kind && kind.kw ? kind.kw : name;
   const s = SKINS[skin];
+  let found;
   if(s && s.academyRules){
-    const n = String(name).toLowerCase();
-    for(const r of s.academyRules){
-      if(r.kw.some(k=>n.includes(k.toLowerCase()))) return r;
-    }
-    return s.academyDefault || { icon:"🏡", label:"우리 가게" };
+    const n = String(base).toLowerCase();
+    found = s.academyRules.find(r=>r.kw.some(k=>n.includes(k.toLowerCase())))
+         || s.academyDefault || { icon:"🏡", label:"우리 가게" };
+    return found;                       // 베이커리는 가게 컨셉이라 아이콘을 바꾸지 않는다
   }
-  return getAcademyDungeon(name);
+  found = getAcademyDungeon(base);
+  return kind ? { ...found, icon: kind.icon } : found;
 };
 
 // ── 오늘의 탐험 지도 / 오늘의 빵집 지도 : 섬 경로 맵 ─────────────
