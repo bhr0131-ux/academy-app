@@ -352,6 +352,8 @@ export default function App() {
   const [moreTab,                setMoreTab]                = useState("fee");            // '더보기' 안에서 마지막으로 본 칸
   const [moreMenuOpen,           setMoreMenuOpen]           = useState(false);            // '더보기' 눌러 위로 열리는 메뉴
   const [showKindPicker,         setShowKindPicker]         = useState(false);            // 학원 종류 고르기 시트
+  const [homeAcOpen,             setHomeAcOpen]             = useState({});                // 엄마용 홈 '오늘의 학원' 펼친 카드
+  const [feeEdit,                setFeeEdit]                = useState(null);             // 학원비 입력 팝업 {id,fee,payDay}
   const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
@@ -4774,7 +4776,7 @@ export default function App() {
 
       {/* ── 헤더 — 제목과 '아이용' 버튼만 (사용자 확정 2026-08-09: 간결하게, 높이·글자 조금 작게).
              핑크(테마색) 그라데이션과 장식 블롭은 그대로 둔다 — 이 화면의 정체성이라서. ── */}
-      <div style={{background:`linear-gradient(165deg, ${headerTone(th.main,0.42)} 0%, ${headerTone(th.main,0.64)} 100%)`,padding:"13px 16px 44px",position:"relative",overflow:"hidden"}}>
+      <div style={{background:`linear-gradient(165deg, ${headerTone(th.main,0.42)} 0%, ${headerTone(th.main,0.64)} 100%)`,padding:"18px 16px 50px",position:"relative",overflow:"hidden"}}>
         {/* 은은한 장식 블롭 */}
         <div style={{position:"absolute",top:-40,right:-30,width:160,height:160,borderRadius:"50%",background:`${th.main}22`,filter:"blur(8px)"}}/>
         <div style={{position:"absolute",bottom:-50,left:-20,width:120,height:120,borderRadius:"50%",background:`${headerTone(th.main,0.34)}55`,filter:"blur(6px)"}}/>
@@ -4792,8 +4794,10 @@ export default function App() {
              [사용자 확정 2026-08-09] 높이·여백을 줄이고, 고른 아이만 테마색으로 칠한다.
              안 고른 아이는 흰 바탕 + 아주 연한 테두리 — 예전엔 아이마다 옅은 자기 색이
              깔려 있어 '누가 선택된 건지'가 한눈에 안 들어왔다. ── */}
-      <div style={{position:"relative",margin:"-30px 14px 0",background:"#fff",borderRadius:18,boxShadow:SHADOW.lg,padding:"7px 7px",display:"flex",alignItems:"center",gap:7,zIndex:5}}>
-        <div style={{display:"flex",flex:1,gap:5,overflowX:"auto"}}>
+      <div style={{position:"relative",margin:"-32px 14px 0",background:"#fff",borderRadius:18,boxShadow:SHADOW.lg,padding:"11px 8px",display:"flex",alignItems:"center",gap:7,zIndex:5}}>
+        {/* 가로 스크롤 막대가 아이 이름 위로 겹쳐 보여서 막대를 숨긴다 (사용자 지적) —
+            넘치는 건 여전히 손가락으로 밀어서 본다 (.noscrollbar) */}
+        <div className="noscrollbar" style={{display:"flex",flex:1,gap:5,overflowX:"auto"}}>
           {children.map(c=>{
             const t=getChildTheme(c);
             const sel=childId===c.id;
@@ -4888,7 +4892,8 @@ export default function App() {
                   const hasAlert=alerts.length>0;
                   return (
                     <div style={{background:hasAlert?"#fff":mixWhite(th.main,0.85),border:`1px solid ${hasAlert?th.main+"22":th.main+"40"}`,borderRadius:14,padding:"13px 14px",display:"flex",alignItems:hasAlert?"flex-start":"center",gap:12,boxShadow:SHADOW.sm}}>
-                      <div style={{fontSize:28,flexShrink:0}}>{hasAlert?"🔔":"✅"}</div>
+                      {/* 알림이 있을 땐 종(🔔)을 안 그린다 (사용자 확정) — 칩만으로 충분하다 */}
+                      {!hasAlert&&<div style={{fontSize:28,flexShrink:0}}>✅</div>}
                       <div style={{flex:1,minWidth:0}}>
                         <p style={{fontSize:13,fontWeight:800,margin:"0 0 6px",color:hasAlert?C.sub:mixBlack(th.main,0.45)}}>{dayTag?`${dayTag} 챙길 일`:"이 날 챙길 일"}</p>
                         {hasAlert?(
@@ -4975,23 +4980,43 @@ export default function App() {
                 const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
                 return (
                   <div key={ac.id} style={{background:CT.card,borderRadius:16,marginBottom:10,border:`1px solid ${ac.color}45`,boxShadow:SHADOW.sm,overflow:"hidden"}}>
-                    <div style={{background:`${ac.color}1F`,padding:"11px 13px",display:"flex",alignItems:"center",gap:11}}>
-                      <div style={{width:4,height:40,borderRadius:10,background:ac.color,flexShrink:0}}/>
-                      <div style={{flex:1,minWidth:0}}>
-                        <p style={{fontSize:15,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
-                        <p style={{fontSize:13,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT} &nbsp;·&nbsp; {sc?.duration}분</p>
-                        {(()=>{
-                          const shuttleText=getShuttleText(ac,hDN);
-                          if(!shuttleText) return null;
-                          return <p style={{fontSize:12,color:C.sub,margin:"3px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
-                        })()}
-                      </div>
-                      <div style={{display:"flex",gap:7}}>
-                        {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:34,height:34,borderRadius:10,background:`${C.green}15`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,textDecoration:"none"}}>📞</a>}
-                        {ac.phone&&<button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:34,height:34,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>💬</button>}
-                      </div>
-                    </div>
+                    {/* [사용자 확정 2026-08-09] 접었을 땐 '시간 + 학원 종류'만.
+                        나머지(수업 시간·셔틀·준비물·미션·편집)는 펼쳐야 나온다 — 학원이 여럿인 날
+                        카드가 화면을 다 잡아먹어서 오늘 일정을 한눈에 못 봤다. */}
+                    <button onClick={()=>setHomeAcOpen(p=>({...p,[ac.id]:!p[ac.id]}))} className="jelly-tap"
+                      aria-expanded={!!homeAcOpen[ac.id]} aria-label={`${acKindLabel(ac)} 자세히`}
+                      style={{width:"100%",border:"none",background:`${ac.color}1F`,padding:"11px 13px",
+                        display:"flex",alignItems:"center",gap:11,cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
+                      <div style={{width:4,height:34,borderRadius:10,background:ac.color,flexShrink:0}}/>
+                      <span style={{fontSize:15,fontWeight:900,color:C.text,flexShrink:0}}>{sc?.time}</span>
+                      <span style={{flex:1,minWidth:0,fontSize:15,fontWeight:800,color:C.text,
+                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
+                      {totalTodoCnt>0&&(
+                        <span style={{flexShrink:0,fontSize:12,fontWeight:900,color:allDone?C.green:C.orange}}>
+                          {allDone?"✓":`${doneCnt}/${totalTodoCnt}`}
+                        </span>
+                      )}
+                      <span style={{flexShrink:0,fontSize:13,color:C.sub,fontWeight:900,
+                        transition:"transform .2s",transform:homeAcOpen[ac.id]?"rotate(180deg)":"none"}}>▼</span>
+                    </button>
+                    {homeAcOpen[ac.id]&&(
                     <div style={{padding:"12px 13px"}}>
+                      {/* 학원 이름·수업 시간·셔틀·전화/문자 */}
+                      <div style={{display:"flex",alignItems:"flex-start",gap:10,marginBottom:10}}>
+                        <div style={{flex:1,minWidth:0}}>
+                          <p style={{fontSize:14,fontWeight:800,margin:0,color:C.text}}>{ac.name}</p>
+                          <p style={{fontSize:13,color:C.sub,margin:"2px 0 0"}}>{sc?.time} ~ {endT} &nbsp;·&nbsp; {sc?.duration}분</p>
+                          {(()=>{
+                            const shuttleText=getShuttleText(ac,hDN);
+                            if(!shuttleText) return null;
+                            return <p style={{fontSize:12,color:C.sub,margin:"3px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
+                          })()}
+                        </div>
+                        <div style={{display:"flex",gap:7,flexShrink:0}}>
+                          {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:34,height:34,borderRadius:10,background:`${C.green}15`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,textDecoration:"none"}}>📞</a>}
+                          {ac.phone&&<button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:34,height:34,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>💬</button>}
+                        </div>
+                      </div>
                       {/* 준비물 */}
                       <div style={{marginBottom:10}}>
                         <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 6px",letterSpacing:0.3}}>🎒 준비물</p>
@@ -5033,6 +5058,7 @@ export default function App() {
                         🎯 미션 · 준비물 편집
                       </button>
                     </div>
+                    )}
                   </div>
                 );
               })}
@@ -5082,16 +5108,38 @@ export default function App() {
                       </div>
                       <button onClick={()=>openEdit(ac)} style={{padding:"4px 9px",borderRadius:10,border:`1px solid ${ac.color}40`,background:"#fff",color:ac.color,fontSize:13,fontWeight:800,cursor:"pointer",flexShrink:0}}>✏️ 수정</button>
                     </div>
-                    <div style={{padding:"8px 13px",display:"flex",alignItems:"center",gap:8,background:"#fff"}}>
-                      <div style={{flex:1,display:"flex",flexWrap:"wrap",gap:8,minWidth:0}}>
-                        <span style={{fontSize:13.5,color:C.sub,fontWeight:600}}>💰 월 {Number(ac.fee).toLocaleString()}원</span>
-                        {ac.teacher&&<span style={{fontSize:13.5,color:C.sub,fontWeight:600}}>👩‍🏫 {ac.teacher}</span>}
-                      </div>
-                      <div style={{display:"flex",gap:5,flexShrink:0}}>
-                        {ac.phone&&<a href={`tel:${ac.phone}`} style={{width:30,height:30,borderRadius:10,background:`${C.green}12`,border:`1px solid ${C.green}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,textDecoration:"none"}}>📞</a>}
-                        <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:30,height:30,borderRadius:10,background:C.purpleL,border:`1px solid ${C.purple}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>💬</button>
-                        <button onClick={()=>setShowDetailModal(ac)} style={{width:30,height:30,borderRadius:10,background:CT.faint,border:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer"}}>›</button>
-                      </div>
+                    {/* [사용자 확정 2026-08-09] 예전엔 '›'를 눌러야 상세 모달에서 보이던 내용을
+                        카드에 그대로 폈다. 아래 버튼은 전화·문자만 남긴다 (수정은 위 ✏️ 버튼). */}
+                    <div style={{padding:"4px 13px 10px",background:"#fff"}}>
+                      {[["💰","월 학원비",Number(ac.fee||0)>0?`${Number(ac.fee).toLocaleString()}원`:null],
+                        ["🗓️","납부일",Number(ac.fee||0)>0?`매월 ${ac.payDay}일`:null],
+                        ["🎒","기본 준비물",(ac.baseSupplies||[]).length?(ac.baseSupplies||[]).join(", "):null],
+                        ["👩‍🏫","선생님",ac.teacher||null],
+                        ["📍","주소",ac.address||null],
+                      ].filter(r=>r[2]).map(([em,k,v])=>(
+                        <div key={k} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"7px 0",borderBottom:`1px solid ${C.border}`}}>
+                          <span style={{fontSize:14,flexShrink:0}}>{em}</span>
+                          <span style={{fontSize:13.5,color:C.sub,fontWeight:700,flexShrink:0}}>{k}</span>
+                          <span style={{marginLeft:"auto",fontSize:13.5,color:C.text,fontWeight:800,textAlign:"right",wordBreak:"break-all"}}>{v}</span>
+                        </div>
+                      ))}
+                      {ac.memo&&(
+                        <div style={{marginTop:9,background:`${C.orange}0F`,border:`1px solid ${C.orange}30`,borderRadius:12,padding:"9px 11px"}}>
+                          <p style={{fontSize:12.5,fontWeight:900,color:C.orange,margin:"0 0 3px"}}>📝 메모</p>
+                          <p style={{fontSize:13,fontWeight:700,color:C.text,margin:0,lineHeight:1.5,whiteSpace:"pre-wrap"}}>{ac.memo}</p>
+                        </div>
+                      )}
+                      {ac.phone&&(
+                        <div style={{display:"flex",gap:8,marginTop:10}}>
+                          <a href={`tel:${ac.phone}`} style={{flex:1,padding:"10px",borderRadius:12,background:`${C.green}12`,border:`1px solid ${C.green}30`,color:C.green,fontSize:13.5,fontWeight:900,textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>📞 {ac.phone}</a>
+                          <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} className="jelly-tap"
+                            style={{flex:"0 0 auto",padding:"10px 16px",borderRadius:12,background:C.purpleL,border:`1px solid ${C.purple}30`,color:C.purple,fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>💬 문자</button>
+                        </div>
+                      )}
+                      {!ac.phone&&(
+                        <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} className="jelly-tap"
+                          style={{width:"100%",marginTop:10,padding:"10px",borderRadius:12,background:C.purpleL,border:`1px solid ${C.purple}30`,color:C.purple,fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>💬 문자 보내기</button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -5194,7 +5242,52 @@ export default function App() {
                 ))}
               </div>
 
-              {/* 선택 날짜 상세 */}
+              {/* 주간 시간표 */}
+              <div style={{background:CT.card,borderRadius:18,border:`1px solid ${th.main}22`,padding:"15px",marginTop:14,marginBottom:14,boxShadow:SHADOW.sm}}>
+                <p style={{fontSize:17,fontWeight:900,margin:"0 0 4px",color:C.text}}>📅 주간 시간표</p>
+                <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px"}}>{curChild?.name}의 요일별 학원 일정</p>
+                {(()=>{
+                  // effSelDate가 속한 주의 월요일 구하기 (월~일)
+                  const sel=new Date(effSelDate.replace(/-/g,"/"));
+                  const offset=(sel.getDay()+6)%7; // 월=0 ... 일=6
+                  const monday=new Date(sel); monday.setDate(sel.getDate()-offset);
+                  const weekDates={};
+                  DAYS.forEach((d,i)=>{ const wd=new Date(monday); wd.setDate(monday.getDate()+i); weekDates[d]=toStr(wd); });
+                  return (
+                <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3}}>
+                  {getWeeklySchedule(childId).map(({day,items})=>{
+                    const isTodayRow=day===todayDN();
+                    const dayDate=weekDates[day];
+                    return (
+                      <div key={day} style={{display:"flex",flexDirection:"column",gap:6,minWidth:0}}>
+                        <div style={{textAlign:"center",fontSize:13,fontWeight:900,padding:"6px 0",borderRadius:10,background:isTodayRow?th.main:CT.faint,color:isTodayRow?"#fff":C.sub,border:isTodayRow?"none":`1px solid ${C.border}`}}>
+                          {day}
+                        </div>
+                        <div style={{display:"flex",flexDirection:"column",gap:5,minHeight:44}}>
+                          {items.length===0?(
+                            <div style={{flex:1,display:"flex",alignItems:"flex-start",justifyContent:"center",fontSize:13,color:mixWhite(th.main,0.55),paddingTop:6}}>·</div>
+                          ):(
+                            items.map(ac=>{
+                              const onVac=isVacationDay(childId,ac.id,dayDate);
+                              return (
+                              <div key={ac.id} style={{background:onVac?CT.faint:`${ac.color}12`,border:`1px solid ${onVac?C.border:ac.color+"33"}`,borderRadius:10,padding:"5px 2px",textAlign:"center",minWidth:0,opacity:onVac?0.65:1}}>
+                                <p style={{fontSize:11,fontWeight:700,margin:0,color:onVac?C.sub:ac.color,lineHeight:1.2,wordBreak:"break-all",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden",textDecoration:onVac?"line-through":"none"}}>{ac.name}</p>
+                                <p style={{fontSize:11.5,fontWeight:700,margin:"2px 0 0",color:onVac?"#E65100":C.sub}}>{onVac?"🏖️ 방학":ac.classTime}</p>
+                              </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                  );
+                })()}
+              </div>
+
+              {/* 선택 날짜(금일) 상세 — 주간 시간표 아래로 (사용자 확정 2026-08-09:
+                  달력 → 주간 시간표 → 금일 시간표 순서) */}
               {selInfo&&(
                 <div style={{marginTop:14,background:CT.card,borderRadius:14,border:`1.5px solid ${th.main}30`,overflow:"hidden",boxShadow:`0 4px 18px ${th.main}12`}}>
                   <div style={{background:`linear-gradient(135deg, ${mixWhite(th.main,0.68)}, ${mixWhite(th.main,0.84)})`,padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
@@ -5326,50 +5419,6 @@ export default function App() {
                 </div>
               )}
 
-              {/* 주간 시간표 */}
-              <div style={{background:CT.card,borderRadius:18,border:`1px solid ${th.main}22`,padding:"15px",marginTop:14,marginBottom:14,boxShadow:SHADOW.sm}}>
-                <p style={{fontSize:17,fontWeight:900,margin:"0 0 4px",color:C.text}}>📅 주간 시간표</p>
-                <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px"}}>{curChild?.name}의 요일별 학원 일정</p>
-                {(()=>{
-                  // effSelDate가 속한 주의 월요일 구하기 (월~일)
-                  const sel=new Date(effSelDate.replace(/-/g,"/"));
-                  const offset=(sel.getDay()+6)%7; // 월=0 ... 일=6
-                  const monday=new Date(sel); monday.setDate(sel.getDate()-offset);
-                  const weekDates={};
-                  DAYS.forEach((d,i)=>{ const wd=new Date(monday); wd.setDate(monday.getDate()+i); weekDates[d]=toStr(wd); });
-                  return (
-                <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3}}>
-                  {getWeeklySchedule(childId).map(({day,items})=>{
-                    const isTodayRow=day===todayDN();
-                    const dayDate=weekDates[day];
-                    return (
-                      <div key={day} style={{display:"flex",flexDirection:"column",gap:6,minWidth:0}}>
-                        <div style={{textAlign:"center",fontSize:13,fontWeight:900,padding:"6px 0",borderRadius:10,background:isTodayRow?th.main:CT.faint,color:isTodayRow?"#fff":C.sub,border:isTodayRow?"none":`1px solid ${C.border}`}}>
-                          {day}
-                        </div>
-                        <div style={{display:"flex",flexDirection:"column",gap:5,minHeight:44}}>
-                          {items.length===0?(
-                            <div style={{flex:1,display:"flex",alignItems:"flex-start",justifyContent:"center",fontSize:13,color:mixWhite(th.main,0.55),paddingTop:6}}>·</div>
-                          ):(
-                            items.map(ac=>{
-                              const onVac=isVacationDay(childId,ac.id,dayDate);
-                              return (
-                              <div key={ac.id} style={{background:onVac?CT.faint:`${ac.color}12`,border:`1px solid ${onVac?C.border:ac.color+"33"}`,borderRadius:10,padding:"5px 2px",textAlign:"center",minWidth:0,opacity:onVac?0.65:1}}>
-                                <p style={{fontSize:11,fontWeight:700,margin:0,color:onVac?C.sub:ac.color,lineHeight:1.2,wordBreak:"break-all",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden",textDecoration:onVac?"line-through":"none"}}>{ac.name}</p>
-                                <p style={{fontSize:11.5,fontWeight:700,margin:"2px 0 0",color:onVac?"#E65100":C.sub}}>{onVac?"🏖️ 방학":ac.classTime}</p>
-                              </div>
-                              );
-                            })
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                  );
-                })()}
-              </div>
-
               {/* 방학 전체 관리 버튼 */}
               <button onClick={()=>{ setVacForm({academyId:"",start:TODAY,end:TODAY}); setShowVacModal({date:TODAY,acList:curAc}); }}
                 style={{width:"100%",marginTop:12,padding:"9px",borderRadius:10,border:"1px dashed #F0A500",background:"#FFFBF0",color:"#E65100",fontSize:13,fontWeight:700,cursor:"pointer"}}>
@@ -5413,6 +5462,24 @@ export default function App() {
                       <div><p style={{fontSize:13.5,color:C.sub,margin:0,fontWeight:600}}>납부일</p><p style={{fontSize:15,fontWeight:800,margin:"2px 0 0",color:C.text}}>매월 {a.payDay}일</p></div>
                     </div>
                     {Number(a.fee||0)!==0&&<span style={{fontSize:13,fontWeight:700,padding:"4px 10px",borderRadius:10,background:`${st.color}15`,color:st.color}}>{st.label}</span>}
+                  </div>
+                  {/* [사용자 확정 2026-08-09] 학원비를 여기서 바로 넣고 지운다.
+                      값은 학원 정보(ac.fee/ac.payDay)에 그대로 저장되므로
+                      '학원' 탭 카드의 월 학원비·납부일에도 같이 반영된다. */}
+                  <div style={{display:"flex",gap:7,marginTop:11}}>
+                    <button onClick={()=>{ setFeeEdit({id:a.id,fee:String(a.fee||""),payDay:String(a.payDay||1)}); }} className="jelly-tap"
+                      style={{flex:1,padding:"8px 10px",borderRadius:10,border:`1px solid ${th.main}40`,background:th.light,color:th.main,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+                      {Number(a.fee||0)>0?"✏️ 학원비 수정":"＋ 학원비 추가"}
+                    </button>
+                    {Number(a.fee||0)>0&&(
+                      <button onClick={()=>{
+                        setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===a.id?{...x,fee:0}:x)}));
+                        showToast("학원비를 지웠어요");
+                      }} className="jelly-tap"
+                        style={{flex:"0 0 auto",padding:"8px 14px",borderRadius:10,border:`1px solid ${C.red}35`,background:`${C.red}0C`,color:C.red,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+                        🗑 삭제
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -5554,20 +5621,6 @@ export default function App() {
                         <button onClick={()=>setRewardDate(addDays(rewardDate,1))}
                           style={{width:38,height:38,borderRadius:14,background:mixWhite(th.main,0.92),border:`1px solid ${th.main}33`,color:th.main,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0}}>›</button>
                       </div>
-                      <button onClick={()=>setShowTodoPickerModal(rewardDate)}
-                        style={{width:"100%",padding:"9px 10px",borderRadius:10,border:`1px dashed ${th.main}50`,background:`${th.main}08`,color:th.main,fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10}}>
-                        ✏️ 미션 추가/수정
-                      </button>
-                      {isRewToday&&(()=>{
-                        const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
-                        return (
-                          <button onClick={()=>setShowPastMissionModal(rewardDate)}
-                            style={{width:"100%",padding:"9px 10px",borderRadius:10,border:`1px dashed ${C.orange}55`,background:`${C.orange}0D`,color:C.orange,fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-                            <span>🕗 지난 미션 보기</span>
-                            {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
-                          </button>
-                        );
-                      })()}
                       {rewardTodayTodos.length===0?(
                         <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
                           <p style={{fontSize:24,margin:0}}>🌿</p>
@@ -5597,6 +5650,24 @@ export default function App() {
                           ))}
                         </div>
                       )}
+                      {/* [사용자 확정 2026-08-09] 두 버튼은 미션 목록 아래로 —
+                          위에 있으면 미션보다 버튼이 먼저 눈에 들어왔다 */}
+                      <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:8}}>
+                        <button onClick={()=>setShowTodoPickerModal(rewardDate)}
+                          style={{width:"100%",padding:"9px 10px",borderRadius:10,border:`1px dashed ${th.main}50`,background:`${th.main}08`,color:th.main,fontSize:13,fontWeight:900,cursor:"pointer"}}>
+                          ✏️ 미션 추가/수정
+                        </button>
+                        {isRewToday&&(()=>{
+                          const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
+                          return (
+                            <button onClick={()=>setShowPastMissionModal(rewardDate)}
+                              style={{width:"100%",padding:"9px 10px",borderRadius:10,border:`1px dashed ${C.orange}55`,background:`${C.orange}0D`,color:C.orange,fontSize:13,fontWeight:900,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                              <span>🕗 지난 미션 보기</span>
+                              {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
+                            </button>
+                          );
+                        })()}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -6004,7 +6075,8 @@ export default function App() {
                               </span>
                             </div>
 
-                            <JellyBar percent={earnedCoin+spentCoin===0?0:Math.min(100,Math.round((earnedCoin/(earnedCoin+spentCoin))*100))} height={9} fallbackTrack={CT.faint} fallbackFill={`linear-gradient(90deg, ${C.green}, ${GP.gold})`} fallbackBorder="none" fallbackGlow="none" />
+                            {/* (코인 흐름 진행바 삭제 — 사용자 확정 2026-08-09.
+                                번 코인과 쓴 코인의 비율이라 '얼마나 찼는지'로 읽혀 오해를 샀다) */}
                           </div>
                         </div>
 
@@ -6117,57 +6189,58 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* 수동 XP 조정 - 기록 관리 맨 아래 */}
-                        <div style={parentInnerCard}>
-                          <button onClick={()=>setShowParentXpAdjust(v=>!v)}
-                            style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
-                            <div style={{textAlign:"left"}}>
-                              <p style={parentInnerTitle}>✍️ 수동 {TM.xp} 조정</p>
-                              <p style={{...parentInnerSub,margin:0}}>보너스 지급 / {TM.xp} 차감</p>
-                            </div>
-                            <span style={{fontSize:13,fontWeight:900,color:th.main,background:th.light,padding:"5px 9px",borderRadius:14}}>
-                              {showParentXpAdjust?"닫기 ▲":"열기 ▼"}
-                            </span>
-                          </button>
-                          {showParentXpAdjust&&(
-                            <div style={{marginTop:12}}>
-                              <div style={{display:"flex",gap:6,marginBottom:8}}>
-                                <button onClick={()=>setXpAdjustSign("+")}
-                                  style={{flex:1,padding:"8px 0",borderRadius:10,border:`1.5px solid ${xpAdjustSign==="+"?C.green:C.border}`,background:xpAdjustSign==="+"?`${C.green}15`:"#fff",color:xpAdjustSign==="+"?C.green:C.sub,fontSize:13,fontWeight:900,cursor:"pointer"}}>
-                                  + 지급
-                                </button>
-                                <button onClick={()=>setXpAdjustSign("-")}
-                                  style={{flex:1,padding:"8px 0",borderRadius:10,border:`1.5px solid ${xpAdjustSign==="-"?C.red:C.border}`,background:xpAdjustSign==="-"?`${C.red}10`:"#fff",color:xpAdjustSign==="-"?C.red:C.sub,fontSize:13,fontWeight:900,cursor:"pointer"}}>
-                                  - 차감
-                                </button>
-                              </div>
-                              <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                                <input value={xpAdjustLabel} onChange={e=>setXpAdjustLabel(e.target.value)}
-                                  placeholder="사유"
-                                  style={{flex:1,padding:"9px 10px",borderRadius:10,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",minWidth:0}}/>
-                                <input type="number" value={xpAdjustInput} onChange={e=>setXpAdjustInput(e.target.value)}
-                                  placeholder={TM.xp}
-                                  style={{width:58,padding:"9px 6px",borderRadius:10,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",textAlign:"center",flexShrink:0}}/>
-                                <button onClick={()=>{
-                                  const v=Number(xpAdjustInput);
-                                  if(!v||v<=0){ showToast(`${TM.xp} 값을 입력해줘`); return; }
-                                  const point=xpAdjustSign==="+"?v:-v;
-                                  addChildScore(childId,point,xpAdjustLabel||"수동 조정","manual");
-                                  setXpAdjustInput(""); setXpAdjustLabel("");
-                                  showToast(xpAdjustSign==="+"?`+${v} ${TM.xp} 지급 완료`:`-${v} ${TM.xp} 차감 완료`);
-                                }} style={{padding:"9px 14px",borderRadius:10,border:"none",background:xpAdjustSign==="+"?C.green:C.red,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",flexShrink:0}}>
-                                  {xpAdjustSign==="+"?"지급":"차감"}
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
                       </>
                     );
                   })()}
                 </div>
               )}
             </div>
+
+              {/* ── 수동 XP 조정 — 기록 관리 밖으로 빼서 그 아래 독립 칸으로 (사용자 확정 2026-08-09) ── */}
+              <div style={{background:CT.card,borderRadius:20,padding:"16px",marginBottom:14,border:`1px solid ${th.main}30`,boxShadow:SHADOW.sm}}>
+                <button onClick={()=>setShowParentXpAdjust(v=>!v)}
+                  style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
+                  <div style={{textAlign:"left"}}>
+                    <p style={parentInnerTitle}>✍️ 수동 {TM.xp} 조정</p>
+                    <p style={{...parentInnerSub,margin:0}}>보너스 지급 / {TM.xp} 차감</p>
+                  </div>
+                  <span style={{fontSize:13,fontWeight:900,color:th.main,background:th.light,padding:"5px 9px",borderRadius:14}}>
+                    {showParentXpAdjust?"닫기 ▲":"열기 ▼"}
+                  </span>
+                </button>
+                {showParentXpAdjust&&(
+                  <div style={{marginTop:12}}>
+                    <div style={{display:"flex",gap:6,marginBottom:8}}>
+                      <button onClick={()=>setXpAdjustSign("+")}
+                        style={{flex:1,padding:"8px 0",borderRadius:10,border:`1.5px solid ${xpAdjustSign==="+"?C.green:C.border}`,background:xpAdjustSign==="+"?`${C.green}15`:"#fff",color:xpAdjustSign==="+"?C.green:C.sub,fontSize:13,fontWeight:900,cursor:"pointer"}}>
+                        + 지급
+                      </button>
+                      <button onClick={()=>setXpAdjustSign("-")}
+                        style={{flex:1,padding:"8px 0",borderRadius:10,border:`1.5px solid ${xpAdjustSign==="-"?C.red:C.border}`,background:xpAdjustSign==="-"?`${C.red}10`:"#fff",color:xpAdjustSign==="-"?C.red:C.sub,fontSize:13,fontWeight:900,cursor:"pointer"}}>
+                        - 차감
+                      </button>
+                    </div>
+                    <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                      <input value={xpAdjustLabel} onChange={e=>setXpAdjustLabel(e.target.value)}
+                        placeholder="사유"
+                        style={{flex:1,padding:"9px 10px",borderRadius:10,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",minWidth:0}}/>
+                      <input type="number" value={xpAdjustInput} onChange={e=>setXpAdjustInput(e.target.value)}
+                        placeholder={TM.xp}
+                        style={{width:58,padding:"9px 6px",borderRadius:10,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",textAlign:"center",flexShrink:0}}/>
+                      <button onClick={()=>{
+                        const v=Number(xpAdjustInput);
+                        if(!v||v<=0){ showToast(`${TM.xp} 값을 입력해줘`); return; }
+                        const point=xpAdjustSign==="+"?v:-v;
+                        addChildScore(childId,point,xpAdjustLabel||"수동 조정","manual");
+                        setXpAdjustInput(""); setXpAdjustLabel("");
+                        showToast(xpAdjustSign==="+"?`+${v} ${TM.xp} 지급 완료`:`-${v} ${TM.xp} 차감 완료`);
+                      }} style={{padding:"9px 14px",borderRadius:10,border:"none",background:xpAdjustSign==="+"?C.green:C.red,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",flexShrink:0}}>
+                        {xpAdjustSign==="+"?"지급":"차감"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
           </div>
         )}
 
@@ -6971,6 +7044,37 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ── 학원비 넣기/고치기 (학원비 탭) ──
+             저장은 학원 정보(fee·payDay)에 그대로 들어간다 → 학원 탭 카드에도 바로 반영된다 */}
+      {feeEdit&&(()=>{
+        const ac=curAc.find(a=>a.id===feeEdit.id);
+        if(!ac) return null;
+        return (
+          <div onClick={()=>setFeeEdit(null)} style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:260}}>
+            <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 20px 40px",width:"100%",maxWidth:430,boxSizing:"border-box"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+                <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>💰 {ac.name} 학원비</h3>
+                <button onClick={()=>setFeeEdit(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              </div>
+              <label style={lbl}>월 학원비 (원)</label>
+              <input type="number" inputMode="numeric" value={feeEdit.fee} onChange={e=>setFeeEdit(p=>({...p,fee:e.target.value}))}
+                placeholder="예: 150000" style={{...inp,marginBottom:14}}/>
+              <label style={lbl}>납부일 (매월)</label>
+              <input type="number" inputMode="numeric" value={feeEdit.payDay} onChange={e=>setFeeEdit(p=>({...p,payDay:e.target.value}))}
+                placeholder="예: 5" style={{...inp,marginBottom:20}}/>
+              <button onClick={()=>{
+                const fee=Math.max(0,Number(feeEdit.fee||0));
+                const pd=Math.min(31,Math.max(1,Number(feeEdit.payDay||1)));
+                setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===feeEdit.id?{...x,fee,payDay:pd}:x)}));
+                setFeeEdit(null); showToast("학원비를 저장했어요");
+              }} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer"}}>
+                저장하기
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── 학원 종류 고르기 (학원 추가/수정 모달 위에 뜬다) ── */}
       <AcademyKindPicker open={showKindPicker} value={newAc.kind||""} customLabel={newAc.kindLabel||""}
