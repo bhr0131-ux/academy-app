@@ -18,11 +18,13 @@ export const GENDER_THEME = {
 };
 
 export const CHILD_THEME_COLORS = [
-  // 탐험/베이커리 공통 5가지 테마색.
+  // 아이 테마색 — [사용자 확정 2026-08-09] 네 가지만 쓴다 (연두 삭제).
   // 탐험모드는 이 색을 화면 전체에 칠하지 않고, 밤하늘 베이스 위에 포인트로만 입힌다.
+  // ※ 이미 연두를 고른 아이는 색 객체(child.theme)를 통째로 저장해 두므로 그대로 유지된다.
+  //   지도 걷기 캐릭터도 연두(green) 그림을 계속 갖고 있다(mapWalkers의 WALKER_THEMES).
+  //   여기서 빠지는 건 '고르는 목록'뿐이다.
   { name:"분홍", main:"#FF6FA3", light:"#FCE7F1", lightTop:"#FFF7FB", grad:"linear-gradient(135deg,#FF6FA3,#FFB6CC)" },
   { name:"살구", main:"#FFB66B", light:"#FFF0DF", lightTop:"#FFFBF6", grad:"linear-gradient(135deg,#FF9F5A,#FFD68A)" },
-  { name:"연두", main:"#7BE0A6", light:"#E7F8ED", lightTop:"#F7FFF9", grad:"linear-gradient(135deg,#63CF88,#B9F0D2)" },
   { name:"보라", main:"#A78BFA", light:"#F0EAFF", lightTop:"#FAF8FF", grad:"linear-gradient(135deg,#8B5CF6,#CDBDFF)" },
   { name:"파랑", main:"#60A8FF", light:"#E5F1FF", lightTop:"#F6FAFF", grad:"linear-gradient(135deg,#3D79FF,#A9C9FF)" },
 ];
