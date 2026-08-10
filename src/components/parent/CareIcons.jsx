@@ -58,6 +58,14 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M20 6.5A2.5 2.5 0 0 0 17.5 4H13v15h4.5A2.5 2.5 0 0 1 20 21.5Z" {...P} />
         </svg>
       );
+    case "reward":   // 보상 (선물)
+      return (
+        <svg {...common}>
+          <rect x="3.5" y="9" width="17" height="11.5" rx="1.8" {...P} />
+          <path d="M2.5 6h19v3h-19zM12 6v14.5" {...P} />
+          <path d="M12 6C10.5 3.6 8.9 3 7.9 3.6 6.8 4.3 7.3 6 9 6ZM12 6c1.5-2.4 3.1-3 4.1-2.4 1.1.7.6 2.4-1.1 2.4Z" {...P} />
+        </svg>
+      );
     case "vacation": // 방학·휴원 (파라솔)
       return (
         <svg {...common}>
