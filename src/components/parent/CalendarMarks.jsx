@@ -35,8 +35,8 @@ export function Mark({ kind, size = 7 }) {
       </svg>
     );
   }
-  if (kind === "makeup") {   // 마름모
-    return <span style={{ ...base, width: size, height: size, background: c, transform: "rotate(45deg)" }} />;
+  if (kind === "makeup") {   // 주황 점 — 마름모는 노란 원과 헷갈렸다 (사용자 지적 2026-08-10)
+    return <span style={{ ...base, width: size, height: size, borderRadius: "50%", background: c }} />;
   }
   if (kind === "vacation") { // 속 빈 원
     return <span style={{ ...base, width: size, height: size, borderRadius: "50%",
@@ -58,14 +58,13 @@ export function Mark({ kind, size = 7 }) {
   return <span style={{ ...base, width: size, height: size, borderRadius: "50%", background: c }} />;
 }
 
+/* [사용자 확정 2026-08-10] 달력에 찍는 건 이 셋뿐이다 — 기호가 일곱 가지면
+   범례를 안 보고는 뜻이 기억나지 않는다. 휴원은 칸에 '휴원' 글자로 쓰고,
+   준비물·학원비 납부일·메모는 날짜를 눌렀을 때 아래 상세에서 본다. */
 export const MARKS = [
   { key: "absent",     label: "결석" },
   { key: "makeup",     label: "보충 예정" },
   { key: "makeupDone", label: "보충 완료" },
-  { key: "vacation",   label: "방학·휴원" },
-  { key: "supply",     label: "추가 준비물" },
-  { key: "fee",        label: "학원비 납부일" },
-  { key: "memo",       label: "메모" },
 ];
 
 /* 범례 — 달력 오른쪽 위 작은 버튼을 누르면 열리는 바텀시트 (사용자 확정).
@@ -85,19 +84,23 @@ export function CalendarLegendSheet({ onClose, tone }) {
             style={{ background: tone.faint + "88", border: "none", borderRadius: 10, width: 28, height: 28,
               cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
         </div>
-        <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 14px", lineHeight: 1.45 }}>
-          달력에는 평소와 다른 일만 표시해요. 매일 반복되는 학원·셔틀은 주간 보기와
-          날짜를 눌렀을 때 나오는 상세에서 볼 수 있어요.
+        <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 12px", lineHeight: 1.5 }}>
+          월간 달력에는 평소와 다른 일정만 표시해요.<br/>
+          반복 일정은 날짜를 누르거나 주간 보기에서 확인할 수 있어요.
         </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 10 }}>
           {MARKS.map((m, i) => (
-            <div key={m.key} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 2px",
+            <div key={m.key} style={{ display: "flex", alignItems: "center", gap: 11, padding: "7px 2px",
               borderTop: i === 0 ? "none" : `1px solid ${tone.border}` }}>
               <span style={{ width: 14, display: "flex", justifyContent: "center" }}><Mark kind={m.key} size={9} /></span>
               <span style={{ fontSize: 13.5, fontWeight: 700, color: tone.text }}>{m.label}</span>
             </div>
           ))}
         </div>
+        <p style={{ fontSize: 11.5, color: tone.sub, fontWeight: 600, margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+          휴원은 날짜 칸에 <b style={{ color: "#E65100", fontWeight: 800 }}>휴원</b> 글자로 표시돼요.<br/>
+          준비물·학원비 납부일·메모는 날짜를 누르면 아래에 나와요.
+        </p>
       </div>
     </div>
   );
