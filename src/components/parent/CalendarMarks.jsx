@@ -28,16 +28,28 @@ export const MARK_COLORS = {
    색은 그대로 유지해서 익숙해지면 색만 보고도 구분된다.
    칸이 좁아 (360px 기준 한 칸 약 44px) 두세 글자로 줄인다. */
 export const MARK_TEXT = {
-  absent: "결석", makeup: "보충", makeupDone: "완료",
+  absent: "결석", makeup: "보충", makeupDone: "보충",
   vacation: "휴원", fee: "학원비", supply: "준비물", memo: "메모",
 };
 
-/* 달력 칸에 찍는 글자 한 조각 */
+/* 달력 칸에 찍는 글자 한 조각.
+   [사용자 확정 2026-08-10] 보충 완료를 '완료'라는 다른 낱말로 쓰니 같은 일(보충수업)인데
+   말이 갈라졌다 → 똑같이 '보충'이라 쓰고 옆에 작은 초록 체크를 붙인다.
+   예정은 주황 '보충', 완료는 초록 '보충✓' — 색과 체크 둘 다로 구분된다. */
 export function MarkText({ kind, size = 8.5 }) {
+  const c = MARK_COLORS[kind] || MARK_COLORS.memo;
+  const done = kind === "makeupDone";
   return (
-    <span style={{ fontSize: size, fontWeight: 800, lineHeight: 1.15,
-      color: MARK_COLORS[kind] || MARK_COLORS.memo, whiteSpace: "nowrap" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: size * 0.18,
+      fontSize: size, fontWeight: 800, lineHeight: 1.15, color: c, whiteSpace: "nowrap" }}>
       {MARK_TEXT[kind] || ""}
+      {done && (
+        <svg width={size * 0.8} height={size * 0.8} viewBox="0 0 10 10" aria-hidden="true"
+          style={{ display: "block", flexShrink: 0 }}>
+          <path d="M1.4 5.3 L3.9 7.9 L8.6 2.3" fill="none" stroke={c} strokeWidth="2.4"
+            strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
     </span>
   );
 }
