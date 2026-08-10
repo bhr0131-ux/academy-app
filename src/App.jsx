@@ -4914,6 +4914,7 @@ export default function App() {
             getQuestItemsForDate={getQuestItemsForDate} getChildRewardRequests={getChildRewardRequests}
             acKindLabel={acKindLabel} getAcademyTheme={getAcademyTheme}
             onGoTab={(k)=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab(k); }}
+            onGoReward={goRewardTab}
             onOpenSupplyCheck={()=>setShowSupplyCheck(homeDate)}
             onOpenMissionCheck={()=>setShowMissionCheck(homeDate)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
