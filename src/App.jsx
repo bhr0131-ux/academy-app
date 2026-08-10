@@ -5017,13 +5017,21 @@ export default function App() {
             return yy===ay?`${mm}월 ${dd}일`:`${yy}. ${mm}. ${dd}.`;
           };
           /* 상태 한 벌 — '미완료' 하나로 묶으면 '날짜가 잡힌 건'과 '아직 안 잡힌 건'이
-             구분되지 않는다는 지적. 넷으로 나눈다. */
+             구분되지 않는다는 지적. 넷으로 나눈다.
+             [사용자 확정 2026-08-10]
+              · '불참'만 쓰면 원래 수업에 안 간 건지 보충에도 안 온 건지 헷갈린다 →
+                '보충 불참'으로 쓴다. 이 화면 자체가 결석 기록이라 앞말이 꼭 필요하다.
+              · btn = 그 상태에서 '결과 입력/수정' 버튼에 쓸 색. 상태 배지와 같은 색을 써서
+                배지만 봐도 어떤 버튼인지 짐작된다. 일정 미정은 배지는 회색(미정이라는 뜻)이지만
+                버튼까지 회색이면 못 누르는 버튼처럼 보여서 주황을 쓴다. */
+          const AB_PINK="#E85B9C";
+          const AB_MID="#6B7392";   // 본문 중간 톤 — C.text(진함)와 C.sub(연함) 사이
           const absState=(ab)=>{
-            if(ab.makeupStatus==="absent") return {k:"absent",label:"불참",color:C.red};
-            if(ab.makeupDone)              return {k:"done",  label:"보충 완료",color:C.green};
-            if(!ab.makeupDate)             return {k:"none",  label:"일정 미정",color:C.sub};
-            if(ab.makeupDate<TODAY)        return {k:"late",  label:"일정 지남",color:C.red};
-            return {k:"plan",label:"보충 예정",color:C.orange};
+            if(ab.makeupStatus==="absent") return {k:"absent",label:"보충 불참",color:AB_PINK,btn:AB_PINK};
+            if(ab.makeupDone)              return {k:"done",  label:"보충 완료",color:C.green, btn:C.green};
+            if(!ab.makeupDate)             return {k:"none",  label:"일정 미정",color:C.sub,   btn:C.orange};
+            if(ab.makeupDate<TODAY)        return {k:"late",  label:"일정 지남",color:C.red,   btn:C.red};
+            return {k:"plan",label:"보충 예정",color:C.orange,btn:C.orange};
           };
           // 정렬: 이월 건 먼저(결석일 최신순) → 이번 달 건(결석일 최신순)
           const sortedAll=[
@@ -5085,11 +5093,15 @@ export default function App() {
                         aria-label={`${ac.name} 결석 기록 더보기`} aria-expanded={absMenu===ab.id}
                         style={{flexShrink:0,width:22,height:22,borderRadius:8,border:"none",background:"none",color:C.sub,fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit",lineHeight:1,padding:0}}>⋮</button>
                     </div>
-                    <p style={{fontSize:12.5,color:C.sub,margin:"4px 0 0",fontWeight:600}}>
-                      결석 {korD(ab.date)}{ab.reason&&` · ${ab.reason}`}
+                    {/* [사용자 확정 2026-08-10] 학원명·날짜·상태가 다 비슷한 힘으로 보인다는 지적.
+                        이 앱 글꼴은 굵기가 하나뿐(Bold)이라 fontWeight 로는 위계가 안 생긴다 →
+                        앞말('결석'·'보충')은 연하게, 실제 값(날짜·시간)만 진하게 해서 색으로 나눈다. */}
+                    <p style={{fontSize:12,color:C.sub,margin:"4px 0 0",fontWeight:600}}>
+                      결석 <span style={{color:AB_MID}}>{korD(ab.date)}</span>{ab.reason&&` · ${ab.reason}`}
                     </p>
-                    <p style={{fontSize:12.5,margin:"2px 0 0",fontWeight:700,color:ab.makeupDate?C.text:C.sub}}>
-                      보충 {ab.makeupDate?`${korD(ab.makeupDate)}${mt?` ${mt}`:""}`:"일정 미정"}
+                    <p style={{fontSize:12.5,color:C.sub,margin:"2px 0 0",fontWeight:600}}>
+                      보충 <span style={{color:ab.makeupDate?C.text:C.sub}}>
+                        {ab.makeupDate?`${korD(ab.makeupDate)}${mt?` ${mt}`:""}`:"일정 미정"}</span>
                     </p>
 
                     {/* 보충 일정 수정 — ⋮ 에서 열거나, 아직 안 잡혔으면 바로 보인다 */}
@@ -5119,15 +5131,18 @@ export default function App() {
                       <div style={{position:"relative",flex:1,minWidth:0}}>
                         <button onClick={()=>setMakeupPick(v=>v===ab.id?null:ab.id)} className="jelly-tap"
                           aria-expanded={makeupPick===ab.id}
+                          /* [사용자 확정 2026-08-10] 회색 글자라 못 누르는 버튼처럼 보였다 →
+                             상태색을 그대로 입혀 살아 있는 버튼으로 만든다.
+                             '바꾸기'보다 '수정'이 관리 화면에 자연스럽다. */
                           style={{width:"100%",padding:"8px 0",borderRadius:10,cursor:"pointer",fontSize:12.5,fontWeight:800,fontFamily:"inherit",
-                            border:`1px solid ${C.border}`,background:"#fff",color:ab.makeupDone?st.color:C.sub}}>
-                          {ab.makeupDone?"결과 바꾸기":"결과 입력"}
+                            border:`1px solid ${st.btn}44`,background:`${st.btn}0C`,color:st.btn}}>
+                          {ab.makeupStatus?"결과 수정":"결과 입력"}
                         </button>
                         {makeupPick===ab.id&&(
                           <>
                             <div onClick={()=>setMakeupPick(null)} style={{position:"fixed",inset:0,zIndex:40}}/>
                             <div role="menu" style={{position:"absolute",bottom:40,left:0,zIndex:41,minWidth:130,background:"#fff",borderRadius:12,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
-                              {[{k:"done",l:"✓ 보충 완료",c:C.green},{k:"absent",l:"✕ 불참",c:C.red}].map((o,oi)=>(
+                              {[{k:"done",l:"✓ 보충 완료",c:C.green},{k:"absent",l:"✕ 보충 불참",c:AB_PINK}].map((o,oi)=>(
                                 <button key={o.k} role="menuitem" className="nav-menu-tap"
                                   onClick={()=>{ setMakeupResult(ab.id,o.k); setMakeupPick(null); }}
                                   style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:o.c,cursor:"pointer",fontFamily:"inherit",borderTop:oi===0?"none":`1px solid ${C.border}`}}>
@@ -5145,8 +5160,10 @@ export default function App() {
                           </>
                         )}
                       </div>
+                      {/* 보조 기능이라 색을 뺀다 — 보라색이면 정작 중요한 '결과 입력'보다
+                          먼저 눈에 들어온다(사용자 지적). 시선 순서: 상태 배지 → 결과 → 문자. */}
                       <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} className="jelly-tap"
-                        style={{flex:1,minWidth:0,padding:"8px 0",borderRadius:10,border:`1px solid ${C.border}`,background:"#fff",color:C.purple,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+                        style={{flex:1,minWidth:0,padding:"8px 0",borderRadius:10,border:`1px solid ${C.border}`,background:"#fff",color:AB_MID,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
                         문자 보내기
                       </button>
                     </div>
