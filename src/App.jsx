@@ -5021,17 +5021,21 @@ export default function App() {
              [사용자 확정 2026-08-10]
               · '불참'만 쓰면 원래 수업에 안 간 건지 보충에도 안 온 건지 헷갈린다 →
                 '보충 불참'으로 쓴다. 이 화면 자체가 결석 기록이라 앞말이 꼭 필요하다.
-              · btn = 그 상태에서 '결과 입력/수정' 버튼에 쓸 색. 상태 배지와 같은 색을 써서
-                배지만 봐도 어떤 버튼인지 짐작된다. 일정 미정은 배지는 회색(미정이라는 뜻)이지만
-                버튼까지 회색이면 못 누르는 버튼처럼 보여서 주황을 쓴다. */
-          const AB_PINK="#E85B9C";
-          const AB_MID="#6B7392";   // 본문 중간 톤 — C.text(진함)와 C.sub(연함) 사이
+              · 한 상태에 색은 하나 — 배지와 '결과 입력/수정' 버튼이 똑같은 색을 쓴다.
+                배지만 봐도 어떤 버튼인지 짐작된다.
+              · '일정 미정'은 예전에 배지 회색 / 버튼 주황으로 갈라 뒀는데, 같은 상태인데
+                색이 다르다는 지적을 받았다(사용자 제보 "색이 왜 조금씩 달라").
+                회색은 못 누르는 버튼처럼 보이고 주황은 '보충 예정'과 겹치므로,
+                둘 다 남색기 도는 회청색 하나로 맞춘다 — 눌리는 색이면서 주황과도 안 겹친다. */
+          const AB_PINK="#E85B9C";   // 보충 불참
+          const AB_SLATE="#6E7BA6";  // 일정 미정
+          const AB_MID="#6B7392";    // 본문 중간 톤 — C.text(진함)와 C.sub(연함) 사이
           const absState=(ab)=>{
-            if(ab.makeupStatus==="absent") return {k:"absent",label:"보충 불참",color:AB_PINK,btn:AB_PINK};
-            if(ab.makeupDone)              return {k:"done",  label:"보충 완료",color:C.green, btn:C.green};
-            if(!ab.makeupDate)             return {k:"none",  label:"일정 미정",color:C.sub,   btn:C.orange};
-            if(ab.makeupDate<TODAY)        return {k:"late",  label:"일정 지남",color:C.red,   btn:C.red};
-            return {k:"plan",label:"보충 예정",color:C.orange,btn:C.orange};
+            if(ab.makeupStatus==="absent") return {k:"absent",label:"보충 불참",color:AB_PINK};
+            if(ab.makeupDone)              return {k:"done",  label:"보충 완료",color:C.green};
+            if(!ab.makeupDate)             return {k:"none",  label:"일정 미정",color:AB_SLATE};
+            if(ab.makeupDate<TODAY)        return {k:"late",  label:"일정 지남",color:C.red};
+            return {k:"plan",label:"보충 예정",color:C.orange};
           };
           // 정렬: 이월 건 먼저(결석일 최신순) → 이번 달 건(결석일 최신순)
           const sortedAll=[
@@ -5132,10 +5136,10 @@ export default function App() {
                         <button onClick={()=>setMakeupPick(v=>v===ab.id?null:ab.id)} className="jelly-tap"
                           aria-expanded={makeupPick===ab.id}
                           /* [사용자 확정 2026-08-10] 회색 글자라 못 누르는 버튼처럼 보였다 →
-                             상태색을 그대로 입혀 살아 있는 버튼으로 만든다.
+                             배지와 똑같은 상태색을 입혀 살아 있는 버튼으로 만든다.
                              '바꾸기'보다 '수정'이 관리 화면에 자연스럽다. */
                           style={{width:"100%",padding:"8px 0",borderRadius:10,cursor:"pointer",fontSize:12.5,fontWeight:800,fontFamily:"inherit",
-                            border:`1px solid ${st.btn}44`,background:`${st.btn}0C`,color:st.btn}}>
+                            border:`1px solid ${st.color}44`,background:`${st.color}0C`,color:st.color}}>
                           {ab.makeupStatus?"결과 수정":"결과 입력"}
                         </button>
                         {makeupPick===ab.id&&(
