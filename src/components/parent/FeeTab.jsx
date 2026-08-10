@@ -106,7 +106,10 @@ export default function FeeTab({
                 overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</p>
               {/* 납부는 체크됐는데 상세 기록이 없으면(이 기능 이전에 체크만 한 건)
                   '납부 완료'라고만 쓰면 아래 안내와 모순처럼 읽힌다 → 배지에서 미리 밝힌다 */}
-              {hasFee&&<span style={{flexShrink:0,fontSize:paid&&!rec?10.5:11.5,fontWeight:800,padding:"3px 9px",borderRadius:9,background:`${st.color}12`,color:st.color,whiteSpace:"nowrap"}}>{paid&&!rec?"납부 완료 · 상세 미입력":st.label}</span>}
+              {/* [사용자 확정 2026-08-10] 미납 카드가 여러 개면 같은 배지가 줄줄이 반복돼
+                  화면이 붉고 답답해 보였다 → 배경과 글자색을 한 단계씩 연하게(약 12%).
+                  상태는 그대로 전달되면서 카드가 차분해진다. */}
+              {hasFee&&<span style={{flexShrink:0,fontSize:paid&&!rec?10.5:11.5,fontWeight:800,padding:"3px 9px",borderRadius:9,background:`${st.color}0D`,color:mixWhite(st.color,0.12),whiteSpace:"nowrap"}}>{paid&&!rec?"납부 완료 · 상세 미입력":st.label}</span>}
               <button onClick={()=>setFeeMenu(m=>m===a.id?null:a.id)} className="jelly-tap"
                 aria-label={`${a.name} 더보기`} aria-expanded={feeMenu===a.id}
                 style={{flexShrink:0,width:24,height:24,borderRadius:8,border:"none",background:"none",color:C.sub,fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit",lineHeight:1}}>⋮</button>
@@ -159,8 +162,14 @@ export default function FeeTab({
             {/* 미납 — 여기서 바로 처리한다. 시트는 오늘 날짜와 학원비가 미리 채워져 있어
                 결제 방법만 고르고 저장하면 끝난다 (사용자 확정 흐름). */}
             {hasFee&&!paid&&(
+              /* [사용자 확정 2026-08-10] 네 카드 모두 큰 핑크 버튼이라 화면이 버튼 위주로 보였다.
+                 핵심 정보는 금액과 상태인데 버튼이 제일 세게 보이던 상태 →
+                 그라데이션 폭을 좁혀(밝은 끝을 어둡게) 세기를 낮추고 높이를 5px 줄인다.
+                 문구는 이미 분명하므로 그대로 둔다. */
               <button onClick={()=>onPay(a.id)} className="jelly-tap"
-                style={{width:"100%",marginTop:8,padding:"9px 10px",borderRadius:11,border:"none",background:th.grad,color:"#fff",fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+                style={{width:"100%",marginTop:8,padding:"7px 10px",borderRadius:11,border:"none",
+                  background:`linear-gradient(135deg, ${th.main} 0%, ${mixWhite(th.main,0.18)} 100%)`,
+                  color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
                 납부 완료로 저장
               </button>
             )}
