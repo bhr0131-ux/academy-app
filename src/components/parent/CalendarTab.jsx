@@ -31,7 +31,7 @@ import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText } from
 import { getHolidayName } from "../../data/characters.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
-import { Mark } from "./CalendarMarks.jsx";
+import { Mark, MarkText } from "./CalendarMarks.jsx";
 
 export default function CalendarTab({
   th, CT, childId, childGender, curAc = [], curAbs = [],
@@ -127,7 +127,7 @@ export default function CalendarTab({
         {calView==="month"&&(
           <button onClick={onOpenLegend} className="jelly-tap" aria-label="달력 범례 보기"
             style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:4,background:"none",border:"none",padding:"5px 2px",fontSize:11.5,fontWeight:700,color:C.sub,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
-            <Mark kind="absent" size={7}/> 범례
+            범례
           </button>
         )}
       </div>
@@ -152,15 +152,23 @@ export default function CalendarTab({
           const isSel=effSelDate===dateStr;
           /* 달력에는 '평소와 다른 일'만 찍는다 — 매일 반복되는 학원·셔틀은 안 찍는다
              (사용자 확정: 🚌가 모든 날에 붙어 정작 결석·보충이 묻혔다). */
-          /* [사용자 확정 2026-08-10] 기호가 일곱 가지라 범례를 안 보면 뜻이 기억나지 않았다.
-             달력에는 결석·보충 예정·보충 완료 셋만 찍고, 휴원은 글자로 쓴다.
-             준비물·학원비 납부일·메모는 날짜를 눌렀을 때 아래 상세에서 본다. */
+          /* [사용자 확정 2026-08-10] 도형 셋만 찍으니 달력에서 알 수 있는 게 너무 적었다 →
+             일곱 가지를 다 되살리되, 도형 대신 '짧은 글자'로 작게 쓴다. 도형은 범례를
+             봐야 뜻을 알지만 글자는 바로 읽힌다. 색은 그대로라 익숙해지면 색만 봐도 된다.
+             앞에 오는 것부터 중요한 순서 — 결석·보충·완료·휴원·학원비·준비물·메모. */
+          const onVac=acList.some(a=>isVacationDay(childId,a.id,dateStr));
           const marks=[];
           if(curAbs.some(a=>a.date===dateStr)) marks.push("absent");
           if(curAbs.some(a=>a.makeupDate===dateStr&&!a.makeupDone)) marks.push("makeup");
           if(curAbs.some(a=>a.makeupDate===dateStr&&a.makeupDone)) marks.push("makeupDone");
-          const onVac=acList.some(a=>isVacationDay(childId,a.id,dateStr));
-          void mk;
+          if(onVac) marks.push("vacation");
+          if(curAc.some(a=>Number(a.fee||0)>0&&Math.max(1,Number(a.payDay||1))===day)) marks.push("fee");
+          /* 준비물은 '평소와 다른 것'만 — 그날 따로 넣은 준비물이 있거나
+             늘 챙기던 걸 뺀 날에만 찍는다. 매번 같은 기본 준비물로는 찍지 않는다. */
+          if(acList.some(a=>{ if(isVacationDay(childId,a.id,dateStr)) return false;
+            const e=getDailyEntry(childId,a.id,dateStr);
+            return (e.supplies||[]).length>0||(e.hiddenBase||[]).length>0; })) marks.push("supply");
+          if((dayMemos[mk]||"").trim()) marks.push("memo");
           return (
             /* [사용자 확정 2026-08-10] 칸마다 테두리를 두르니 버튼 31개를 늘어놓은 것처럼 보였다.
                보통 날은 테두리·배경 없이, 고른 날만 옅은 배경 + 테두리. 높이 50 → 38 (−24%). */
@@ -177,12 +185,12 @@ export default function CalendarTab({
                 <div style={{fontSize:9,color:"#E74C3C",fontWeight:700,lineHeight:1.1,maxWidth:"100%",
                   overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{holiday}</div>
               )}
-              {onVac&&!holiday&&(
-                <div style={{fontSize:8.5,color:"#E65100",fontWeight:800,lineHeight:1.1}}>휴원</div>
-              )}
               {marks.length>0&&(
-                <div style={{display:"flex",alignItems:"center",gap:3,marginTop:"auto",paddingBottom:1}}>
-                  {marks.map(k=><Mark key={k} kind={k} size={6}/>)}
+                /* 칸이 좁아 한 줄에 두 개쯤 들어간다 — 넘치면 아랫줄로 접힌다.
+                   글자끼리 붙어 한 단어처럼 보이지 않게 가로 간격을 세로보다 넓게 준다. */
+                <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",alignItems:"center",
+                  columnGap:4,rowGap:1,width:"100%",marginTop:1}}>
+                  {marks.map(k=><MarkText key={k} kind={k} size={8.5}/>)}
                 </div>
               )}
             </div>
