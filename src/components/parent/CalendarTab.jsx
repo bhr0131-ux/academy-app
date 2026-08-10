@@ -78,11 +78,11 @@ export default function CalendarTab({
   return (
     <div>
       {/* 보기 전환 + 월 이동 */}
-      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+      <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:12,minWidth:0}}>
         <div style={{display:"flex",background:CT.faint,borderRadius:11,padding:2,flexShrink:0}}>
           {[{k:"month",l:"월간"},{k:"week",l:"주간"}].map(v=>(
             <button key={v.k} onClick={()=>setCalView(v.k)} className="jelly-tap"
-              style={{border:"none",cursor:"pointer",borderRadius:9,padding:"5px 12px",fontFamily:"inherit",
+              style={{border:"none",cursor:"pointer",borderRadius:9,padding:"5px 10px",fontFamily:"inherit",
                 fontSize:12.5,fontWeight:calView===v.k?900:700,
                 background:calView===v.k?"#fff":"transparent",color:calView===v.k?th.main:C.sub,
                 boxShadow:calView===v.k?"0 1px 4px rgba(90,70,60,0.14)":"none"}}>{v.l}</button>
@@ -91,16 +91,17 @@ export default function CalendarTab({
         <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
           <button onClick={()=>{ setCalDate(new Date(calDate.getFullYear(),calDate.getMonth()-1,1)); setCalSelDate(null); }}
             className="jelly-tap" aria-label="이전 달"
-            style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:9,width:26,height:26,fontSize:13,cursor:"pointer",color:C.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
+            style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:9,width:24,height:24,fontSize:13,cursor:"pointer",color:C.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
           <span style={{fontWeight:900,fontSize:15,color:C.text,whiteSpace:"nowrap"}}>{calDate.getFullYear()}년 {calDate.getMonth()+1}월</span>
           <button onClick={()=>{ setCalDate(new Date(calDate.getFullYear(),calDate.getMonth()+1,1)); setCalSelDate(null); }}
             className="jelly-tap" aria-label="다음 달"
-            style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:9,width:26,height:26,fontSize:13,cursor:"pointer",color:C.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
+            style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:9,width:24,height:24,fontSize:13,cursor:"pointer",color:C.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
         </div>
         {calView==="month"&&(
+          /* 좁은 기기(320px)에서 이 버튼이 줄 밖으로 밀려나 글자를 줄였다 (2026-08-10) */
           <button onClick={onOpenLegend} className="jelly-tap" aria-label="달력 표시 보기"
-            style={{flexShrink:0,background:CT.card,border:`1px solid ${C.border}`,borderRadius:9,padding:"5px 9px",fontSize:11.5,fontWeight:700,color:C.sub,cursor:"pointer",fontFamily:"inherit"}}>
-            표시 보기
+            style={{flexShrink:0,background:CT.card,border:`1px solid ${C.border}`,borderRadius:9,padding:"5px 8px",fontSize:11,fontWeight:700,color:C.sub,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            표시
           </button>
         )}
       </div>
