@@ -4958,7 +4958,7 @@ export default function App() {
             memoEdit={memoEdit} setMemoEdit={setMemoEdit}
             memoDraft={memoDraft} setMemoDraft={setMemoDraft}
             mKey={mKey} isVacationDay={isVacationDay} getDailyEntry={getDailyEntry}
-            getWeeklySchedule={getWeeklySchedule} acKindLabel={acKindLabel} toggleMakeup={toggleMakeup}
+            getWeeklySchedule={getWeeklySchedule} toggleMakeup={toggleMakeup}
             isFeePaidOn={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
             onVacation={()=>{ setVacForm({academyId:"",start:TODAY,end:TODAY}); setShowVacModal({date:TODAY,acList:curAc}); }} />
