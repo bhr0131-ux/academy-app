@@ -30,6 +30,7 @@ export const PAY_METHODS = [
   { key: "cash",     label: "현금" },
 ];
 export const payMethodLabel = (k) => PAY_METHODS.find(m => m.key === k)?.label || "";
+const won = (v) => { const n = String(v ?? "").replace(/[^0-9]/g, ""); return n ? Number(n).toLocaleString() : ""; };
 
 export default function FeePaySheet({ ac, month, value, today, onClose, onSave, onUnpay, tone }) {
   const editing = !!value;
@@ -37,6 +38,7 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
   const [amount, setAmount] = useState(String(value?.amount ?? ac?.fee ?? ""));
   const [method, setMethod] = useState(value?.method || "transfer");
   const [memo,   setMemo]   = useState(value?.memo || "");
+  const [askUnpay, setAskUnpay] = useState(false);   // 되돌리기 확인 (한 번 더 묻는다)
   if (!ac) return null;
 
   const inp = { width: "100%", boxSizing: "border-box", background: tone.faint,
@@ -69,9 +71,17 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
         <label style={lbl}>납부일</label>
         <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ ...inp, marginBottom: 13 }} />
 
-        <label style={lbl}>납부 금액 (원)</label>
-        <input type="number" inputMode="numeric" value={amount} onChange={e => setAmount(e.target.value)}
-          placeholder={String(ac.fee || 0)} style={{ ...inp, marginBottom: 13 }} />
+        <label style={lbl}>납부 금액</label>
+        {/* 금액은 천 단위 쉼표를 넣어 보여준다 — 학원 등록 화면의 학원비 칸과 같은 방식.
+            type="number" 로는 쉼표를 못 넣어서 text + inputMode="numeric" 으로 쓴다. */}
+        <div style={{ position: "relative", marginBottom: 13 }}>
+          <input type="text" inputMode="numeric" value={won(amount)}
+            onChange={e => setAmount(e.target.value.replace(/[^0-9]/g, ""))}
+            placeholder={won(ac.fee || 0)}
+            style={{ ...inp, paddingRight: 38, textAlign: "right", fontSize: 16 }} />
+          <span style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)",
+            fontSize: 14, fontWeight: 700, color: tone.sub, pointerEvents: "none" }}>원</span>
+        </div>
 
         <label style={lbl}>결제 방법</label>
         <div style={{ display: "flex", gap: 7, marginBottom: 13 }}>
@@ -100,14 +110,36 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
           {editing ? "저장하기" : "납부 완료로 저장"}
         </button>
 
-        {/* 되돌리기는 잘못 눌렀을 때만 쓴다 — 작은 글자 버튼으로 (사용자 확정) */}
+        {/* 되돌리기는 잘못 눌렀을 때만 쓴다.
+            [사용자 확정 2026-08-10] 저장 버튼과 너무 가까워 잘못 누를 수 있어 간격을 22px로
+            벌리고, 회색 밑줄 대신 연한 빨강으로. 누르면 바로 지우지 않고 한 번 더 묻는다. */}
         {editing && onUnpay && (
-          <button onClick={onUnpay}
-            style={{ width: "100%", marginTop: 10, padding: "9px 0", background: "none", border: "none",
-              color: tone.sub, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: F,
-              textDecoration: "underline", textUnderlineOffset: 3 }}>
-            납부 기록 지우고 미납으로 되돌리기
-          </button>
+          askUnpay ? (
+            <div style={{ marginTop: 22, background: `${tone.red}0A`, border: `1px solid ${tone.red}30`,
+              borderRadius: 12, padding: "11px 12px" }}>
+              <p style={{ margin: "0 0 9px", fontSize: 12.5, fontWeight: 700, color: tone.text }}>
+                납부 기록을 지우고 미납 상태로 변경할까요?
+              </p>
+              <div style={{ display: "flex", gap: 7 }}>
+                <button onClick={() => setAskUnpay(false)} className="jelly-tap"
+                  style={{ flex: 1, padding: "9px 0", borderRadius: 10, border: `1px solid ${tone.border}`,
+                    background: "#fff", color: tone.sub, fontSize: 12.5, fontWeight: 800, cursor: "pointer", fontFamily: F }}>
+                  취소
+                </button>
+                <button onClick={onUnpay} className="jelly-tap"
+                  style={{ flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
+                    background: tone.red, color: "#fff", fontSize: 12.5, fontWeight: 900, cursor: "pointer", fontFamily: F }}>
+                  미납으로 되돌리기
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={() => setAskUnpay(true)}
+              style={{ width: "100%", marginTop: 22, padding: "9px 0", background: "none", border: "none",
+                color: `${tone.red}C0`, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: F }}>
+              납부 기록 지우고 미납으로 되돌리기
+            </button>
+          )
         )}
       </div>
     </div>

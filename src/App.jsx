@@ -369,6 +369,8 @@ export default function App() {
   const [feeMenu,                setFeeMenu]                = useState(null);             // 학원비 카드 ⋮ 더보기 (학원 id)
   const [absTimeEdit,            setAbsTimeEdit]            = useState(null);             // 보충 시간 입력 중인 결석 기록 id
   const [makeupPick,             setMakeupPick]             = useState(null);             // 보충 결과(완료/불참) 고르는 중인 결석 기록 id
+  const [absMenu,                setAbsMenu]                = useState(null);             // 결석 카드 ⋮ 더보기
+  const [absFilter,              setAbsFilter]              = useState("all");            // 결석 요약 칸 필터 all|pending|done
   const [calView,                setCalView]                = useState("month");          // 달력 보기 — 월간 | 주간
   const [calLegend,              setCalLegend]              = useState(false);            // 달력 표시 설명 시트
   const [memoEdit,               setMemoEdit]               = useState(null);             // 메모 쓰는 중인 날짜 키
@@ -3221,7 +3223,7 @@ export default function App() {
     const now=new Date(); now.setHours(0,0,0,0);
     const d=new Date(now.getFullYear(),feeMonth-1,Math.max(1,Number(a.payDay||1)));
     const diff=Math.round((d-now)/86400000);
-    if(diff<0)   return {key:"late", label:`예정일 ${Math.abs(diff)}일 지남`,color:C.red};
+    if(diff<0)   return {key:"late", label:`납부일 ${Math.abs(diff)}일 지남`,color:C.red};
     if(diff===0) return {key:"today",label:"오늘 납부일",color:C.orange};
     if(diff<=3)  return {key:"soon", label:`D-${diff}`,color:C.orange};
     return {key:"wait",label:"납부 예정",color:C.sub};
@@ -5007,126 +5009,177 @@ export default function App() {
           const doneCnt=visibleAbs.filter(a=>a.makeupDone).length;                      // 보충 완료 = 출석·불참 처리된 건(합산)
           const [ay,am]=absMonth.split("-").map(Number);
           const shiftMonth=(delta)=>{ const d=new Date(ay,am-1+delta,1); setAbsMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); };
+          /* [사용자 확정 2026-08-10] 화면에 쓰는 날짜는 '8월 8일'로 짧게.
+             연도가 다르면 그때만 '2025. 12. 8.' 처럼 붙인다. */
+          const korD=(s)=>{
+            if(!s) return "";
+            const [yy,mm,dd]=String(s).split("-").map(Number);
+            return yy===ay?`${mm}월 ${dd}일`:`${yy}. ${mm}. ${dd}.`;
+          };
+          /* 상태 한 벌 — '미완료' 하나로 묶으면 '날짜가 잡힌 건'과 '아직 안 잡힌 건'이
+             구분되지 않는다는 지적. 넷으로 나눈다. */
+          const absState=(ab)=>{
+            if(ab.makeupStatus==="absent") return {k:"absent",label:"불참",color:C.red};
+            if(ab.makeupDone)              return {k:"done",  label:"보충 완료",color:C.green};
+            if(!ab.makeupDate)             return {k:"none",  label:"일정 미정",color:C.sub};
+            if(ab.makeupDate<TODAY)        return {k:"late",  label:"일정 지남",color:C.red};
+            return {k:"plan",label:"보충 예정",color:C.orange};
+          };
           // 정렬: 이월 건 먼저(결석일 최신순) → 이번 달 건(결석일 최신순)
-          const sortedAbs=[
+          const sortedAll=[
             ...carryAbs.sort((a,b)=>b.date.localeCompare(a.date)),
             ...thisMonthAbs.sort((a,b)=>b.date.localeCompare(a.date)),
           ];
+          // 요약 칸을 누르면 그 상태만 걸러 본다 (사용자 확정)
+          const sortedAbs=absFilter==="pending"?sortedAll.filter(a=>!a.makeupDone)
+                        :absFilter==="done"   ?sortedAll.filter(a=>a.makeupDone)
+                        :sortedAll;
           return (
           <div>
             {/* 월 네비게이션 */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
-              <button onClick={()=>shiftMonth(-1)} style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:10,width:34,height:34,fontSize:15,cursor:"pointer",color:C.text}}>‹</button>
-              <span style={{fontWeight:800,fontSize:15,color:C.text}}>{ay}년 {am}월 결석</span>
-              <button onClick={()=>shiftMonth(1)} style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:10,width:34,height:34,fontSize:15,cursor:"pointer",color:C.text}}>›</button>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:2,marginBottom:12}}>
+              <button onClick={()=>shiftMonth(-1)} className="jelly-tap" aria-label="이전 달"
+                style={{background:"none",border:"none",borderRadius:9,width:32,height:32,fontSize:17,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
+              <span style={{fontWeight:900,fontSize:15.5,color:C.text,whiteSpace:"nowrap"}}>{ay}년 {am}월 결석</span>
+              <button onClick={()=>shiftMonth(1)} className="jelly-tap" aria-label="다음 달"
+                style={{background:"none",border:"none",borderRadius:9,width:32,height:32,fontSize:17,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
             </div>
-            <div style={{display:"flex",gap:8,marginBottom:16}}>
-              {[{l:"전체",v:totalCnt,c:C.red},{l:"보충 예정",v:pendingCnt,c:C.orange},{l:"보충 완료",v:doneCnt,c:C.green}].map((s,i)=>(
-                <div key={i} style={{flex:1,background:CT.card,borderRadius:16,padding:"12px 8px",textAlign:"center",border:`1px solid ${s.c}33`,boxShadow:SHADOW.sm}}>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:600}}>{s.l}</p>
-                  <p style={{fontSize:20,fontWeight:800,margin:"3px 0 0",color:s.c}}>{s.v}</p>
-                </div>
-              ))}
+            {/* 요약 3칸 — 높이를 줄이고, 누르면 그 상태만 걸러 본다 (사용자 확정 2026-08-10) */}
+            <div style={{display:"flex",gap:7,marginBottom:14}}>
+              {[{k:"all",l:"전체",v:totalCnt,c:C.red},{k:"pending",l:"보충 예정",v:pendingCnt,c:C.orange},{k:"done",l:"보충 완료",v:doneCnt,c:C.green}].map(s=>{
+                const on=absFilter===s.k;
+                return (
+                  <button key={s.k} onClick={()=>setAbsFilter(on?"all":s.k)} className="jelly-tap"
+                    aria-pressed={on} aria-label={`${s.l} ${s.v}건 보기`}
+                    style={{flex:1,minWidth:0,background:on?`${s.c}12`:CT.card,borderRadius:13,padding:"8px 6px",textAlign:"center",
+                      border:`1px solid ${on?s.c+"55":s.c+"26"}`,cursor:"pointer",fontFamily:"inherit",
+                      boxShadow:on?"none":"0 2px 8px rgba(90,70,60,0.05)"}}>
+                    <p style={{fontSize:11,color:C.sub,margin:0,fontWeight:700}}>{s.l}</p>
+                    <p style={{fontSize:17,fontWeight:900,margin:"1px 0 0",color:s.c}}>{s.v}</p>
+                  </button>
+                );
+              })}
             </div>
-            <button onClick={()=>setShowAbsModal(true)} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px dashed ${C.red}40`,background:`${C.red}06`,color:C.red,fontSize:13,fontWeight:700,cursor:"pointer",marginBottom:16}}>+ 결석 기록 추가</button>
+            <button onClick={()=>setShowAbsModal(true)} className="jelly-tap"
+              style={{width:"100%",padding:"9px",borderRadius:11,border:`1px dashed ${C.red}40`,background:`${C.red}06`,color:C.red,fontSize:13,fontWeight:800,cursor:"pointer",marginBottom:14,fontFamily:"inherit"}}>
+              ＋ 결석 기록 추가
+            </button>
+
+            {/* 카드 — [사용자 확정 2026-08-10] 카드 안에 또 큰 박스가 들어가는 이중 구조를
+                없애고 한 덩어리로 폈다. 한 화면에 1.5건만 보이던 것이 3건 이상 보인다. */}
             {sortedAbs.map(ab=>{
               const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
-              const past=ab.makeupDate&&ab.makeupDate<TODAY;
+              const st=absState(ab);
               const carried=isCarry(ab);
+              const mt=makeupTimeText(ab);
               return (
-                <div key={ab.id} style={{background:CT.card,borderRadius:18,padding:"14px 16px",marginBottom:10,border:`1px solid ${carried?C.orange+"55":ab.makeupDone?C.green+"33":th.main+"22"}`,boxShadow:SHADOW.sm}}>
-                  <div style={{display:"flex",gap:9}}>
-                    <div style={{width:9,height:9,borderRadius:"50%",background:ac.color,marginTop:5,flexShrink:0}}/>
-                    <div style={{flex:1}}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-                          <p style={{fontWeight:800,fontSize:15,margin:0,color:C.text}}>{ac.name}</p>
-                          {carried&&<span style={{fontSize:11,fontWeight:800,color:C.orange,background:`${C.orange}18`,border:`1px solid ${C.orange}44`,borderRadius:7,padding:"1px 7px"}}>↩️ 이월 · {Number(ab.date.slice(5,7))}월</span>}
+                <div key={ab.id} style={{position:"relative",background:"#fff",borderRadius:14,padding:"11px 12px 11px 0",marginBottom:9,border:`1px solid ${C.border}`,boxShadow:"0 2px 8px rgba(90,70,60,0.05)",display:"flex",gap:11}}>
+                  <div style={{width:4,borderRadius:"0 10px 10px 0",background:ac.color,flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:"flex",alignItems:"center",gap:7}}>
+                      <p style={{fontWeight:900,fontSize:14,margin:0,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
+                      {carried&&<span style={{flexShrink:0,fontSize:10,fontWeight:800,color:C.orange,background:`${C.orange}14`,borderRadius:7,padding:"1px 6px"}}>이월</span>}
+                      <span style={{marginLeft:"auto",flexShrink:0,fontSize:11,fontWeight:800,padding:"3px 9px",borderRadius:8,background:`${st.color}14`,color:st.color}}>{st.label}</span>
+                      {/* ✕ 는 '닫기'로도 읽혀서 ⋮ 메뉴로 바꿨다 (사용자 지적) */}
+                      <button onClick={()=>setAbsMenu(m=>m===ab.id?null:ab.id)} className="jelly-tap"
+                        aria-label={`${ac.name} 결석 기록 더보기`} aria-expanded={absMenu===ab.id}
+                        style={{flexShrink:0,width:22,height:22,borderRadius:8,border:"none",background:"none",color:C.sub,fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit",lineHeight:1,padding:0}}>⋮</button>
+                    </div>
+                    <p style={{fontSize:12.5,color:C.sub,margin:"4px 0 0",fontWeight:600}}>
+                      결석 {korD(ab.date)}{ab.reason&&` · ${ab.reason}`}
+                    </p>
+                    <p style={{fontSize:12.5,margin:"2px 0 0",fontWeight:700,color:ab.makeupDate?C.text:C.sub}}>
+                      보충 {ab.makeupDate?`${korD(ab.makeupDate)}${mt?` ${mt}`:""}`:"일정 미정"}
+                    </p>
+
+                    {/* 보충 일정 수정 — ⋮ 에서 열거나, 아직 안 잡혔으면 바로 보인다 */}
+                    {(absTimeEdit===ab.id)&&(
+                      <div style={{marginTop:8,background:CT.faint,borderRadius:11,padding:"9px 10px"}}>
+                        <label style={{display:"block",fontSize:11,fontWeight:700,color:C.sub,marginBottom:4}}>보충 예정일</label>
+                        <input type="date" value={ab.makeupDate||""} aria-label="보충 예정일"
+                          onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupDate:e.target.value}:x)}))}
+                          style={{width:"100%",minWidth:0,boxSizing:"border-box",display:"block",background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"7px 9px",fontSize:12.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit",marginBottom:8}}/>
+                        <label style={{display:"block",fontSize:11,fontWeight:700,color:C.sub,marginBottom:4}}>보충 시간 <span style={{fontWeight:600,opacity:0.75}}>(선택)</span></label>
+                        <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
+                          <input type="time" value={ab.makeupStart||""} aria-label="보충 시작 시간"
+                            onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupStart:e.target.value}:x)}))}
+                            style={{flex:1,minWidth:0,width:"100%",boxSizing:"border-box",background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 4px",fontSize:11.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
+                          <span style={{flexShrink:0,color:C.sub,fontSize:12,fontWeight:800}}>~</span>
+                          <input type="time" value={ab.makeupEnd||""} aria-label="보충 종료 시간"
+                            onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupEnd:e.target.value}:x)}))}
+                            style={{flex:1,minWidth:0,width:"100%",boxSizing:"border-box",background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 4px",fontSize:11.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
                         </div>
-                        <button onClick={()=>deleteAbs(ab.id)} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>
+                        <button onClick={()=>setAbsTimeEdit(null)} className="jelly-tap"
+                          style={{width:"100%",marginTop:8,padding:"7px 11px",borderRadius:9,border:"none",background:th.grad,color:"#fff",fontSize:12.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>확인</button>
                       </div>
-                      <p style={{fontSize:13.5,color:C.sub,margin:"3px 0 10px",fontWeight:600}}>결석일: {ab.date}{ab.reason&&` · ${ab.reason}`}</p>
-                      <div style={{padding:"11px 13px",borderRadius:10,background:ab.makeupDone?`${C.green}0D`:past?`${C.red}0D`:CT.faint,border:`1px solid ${ab.makeupDone?C.green+"33":past?C.red+"33":CT.faintB}`}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
-                          <div style={{flex:1,minWidth:0}}>
-                            <p style={{fontSize:11.5,color:C.sub,margin:0,fontWeight:600}}>보충 일정</p>
-                            {ab.makeupDate
-                              ? <p style={{fontSize:13,fontWeight:800,margin:"2px 0 0",color:ab.makeupDone?C.green:past?C.red:C.text}}>
-                                  {ab.makeupDate}
-                                  {makeupTimeText(ab)&&<span style={{fontWeight:700,color:C.sub,marginLeft:6}}>· {makeupTimeText(ab)}</span>}
-                                </p>
-                              : <p style={{fontSize:13,fontWeight:800,margin:"2px 0 0",color:C.sub}}>📭 미정</p>}
-                            {ab.makeupDate&&past&&!ab.makeupDone&&<p style={{fontSize:11.5,color:C.red,margin:"2px 0 0",fontWeight:600}}>⚠️ 보충일이 지났어요</p>}
-                          </div>
-                          {/* [사용자 확정 2026-08-10] 눌렀을 때 완료/불참 중에서 고른다 —
-                              보충일에 못 간 경우를 '미완료'로만 두면 나중에 구분이 안 된다.
-                              값은 예전부터 있던 makeupStatus 에 담기고, 둘 중 하나를 고르면
-                              makeupDone 도 함께 true 가 된다(기존 화면들이 그 값을 본다). */}
-                          <div style={{position:"relative",flexShrink:0}}>
-                            <button onClick={()=>setMakeupPick(v=>v===ab.id?null:ab.id)} className="jelly-tap"
-                              aria-expanded={makeupPick===ab.id}
-                              style={{padding:"5px 12px",borderRadius:10,cursor:"pointer",fontSize:13.5,fontWeight:800,fontFamily:"inherit",
-                                border:`1px solid ${ab.makeupStatus==="absent"?C.red+"44":ab.makeupDone?C.green+"33":past?C.red+"33":CT.faintB}`,
-                                background:ab.makeupStatus==="absent"?`${C.red}12`:ab.makeupDone?`${C.green}18`:CT.faint,
-                                color:ab.makeupStatus==="absent"?C.red:ab.makeupDone?C.green:C.sub}}>
-                              {ab.makeupStatus==="absent"?"✕ 불참":ab.makeupDone?"✓ 완료":"👆 미완료"}
-                            </button>
-                            {makeupPick===ab.id&&(
-                              <>
-                                <div onClick={()=>setMakeupPick(null)} style={{position:"fixed",inset:0,zIndex:40}}/>
-                                <div role="menu" style={{position:"absolute",top:36,right:0,zIndex:41,minWidth:118,background:"#fff",borderRadius:12,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
-                                  {[{k:"done",l:"✓ 완료",c:C.green},{k:"absent",l:"✕ 불참",c:C.red}].map((o,oi)=>(
-                                    <button key={o.k} role="menuitem" className="nav-menu-tap"
-                                      onClick={()=>{ setMakeupResult(ab.id,o.k); setMakeupPick(null); }}
-                                      style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:o.c,cursor:"pointer",fontFamily:"inherit",borderTop:oi===0?"none":`1px solid ${C.border}`}}>
-                                      {o.l}{ab.makeupStatus===o.k&&<span style={{marginLeft:6,fontSize:11,color:C.sub}}>선택됨</span>}
-                                    </button>
-                                  ))}
-                                  {ab.makeupStatus&&(
-                                    <button role="menuitem" className="nav-menu-tap"
-                                      onClick={()=>{ setMakeupResult(ab.id,ab.makeupStatus); setMakeupPick(null); }}
-                                      style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:12.5,fontWeight:700,color:C.sub,cursor:"pointer",fontFamily:"inherit",borderTop:`1px solid ${C.border}`}}>
-                                      ↩ 미완료로 되돌리기
-                                    </button>
-                                  )}
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                        {/* [사용자 확정 2026-08-09] 보충 시간은 나중에 정해지는 일이 많아
-                            여기서 바로 넣고 고칠 수 있게 한다. 선택 입력이라 비워 두면 안 보인다. */}
-                        {ab.makeupDate&&(absTimeEdit===ab.id?(
-                          /* [2026-08-10] 시각 입력 두 칸 + 확인 버튼이 한 줄에 다 안 들어가
-                             좁은 기기에서 카드를 화면 밖으로 밀어냈다. 시각 두 칸은 위 한 줄,
-                             확인은 아래 한 줄로 나눈다 (칸마다 minWidth:0 으로 줄어들 수 있게). */
-                          <div style={{marginTop:9}}>
-                            <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
-                              <input type="time" value={ab.makeupStart||""} aria-label="보충 시작 시간"
-                                onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupStart:e.target.value}:x)}))}
-                                style={{flex:1,minWidth:0,width:0,boxSizing:"border-box",background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 4px",fontSize:11.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
-                              <span style={{flexShrink:0,color:C.sub,fontSize:12,fontWeight:800}}>~</span>
-                              <input type="time" value={ab.makeupEnd||""} aria-label="보충 종료 시간"
-                                onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupEnd:e.target.value}:x)}))}
-                                style={{flex:1,minWidth:0,width:0,boxSizing:"border-box",background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 4px",fontSize:11.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
+                    )}
+
+                    <div style={{display:"flex",gap:7,marginTop:9}}>
+                      {/* 보충 결과 — 눌러서 완료 / 불참 중에 고른다 */}
+                      <div style={{position:"relative",flex:1,minWidth:0}}>
+                        <button onClick={()=>setMakeupPick(v=>v===ab.id?null:ab.id)} className="jelly-tap"
+                          aria-expanded={makeupPick===ab.id}
+                          style={{width:"100%",padding:"8px 0",borderRadius:10,cursor:"pointer",fontSize:12.5,fontWeight:800,fontFamily:"inherit",
+                            border:`1px solid ${C.border}`,background:"#fff",color:ab.makeupDone?st.color:C.sub}}>
+                          {ab.makeupDone?"결과 바꾸기":"결과 입력"}
+                        </button>
+                        {makeupPick===ab.id&&(
+                          <>
+                            <div onClick={()=>setMakeupPick(null)} style={{position:"fixed",inset:0,zIndex:40}}/>
+                            <div role="menu" style={{position:"absolute",bottom:40,left:0,zIndex:41,minWidth:130,background:"#fff",borderRadius:12,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
+                              {[{k:"done",l:"✓ 보충 완료",c:C.green},{k:"absent",l:"✕ 불참",c:C.red}].map((o,oi)=>(
+                                <button key={o.k} role="menuitem" className="nav-menu-tap"
+                                  onClick={()=>{ setMakeupResult(ab.id,o.k); setMakeupPick(null); }}
+                                  style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:o.c,cursor:"pointer",fontFamily:"inherit",borderTop:oi===0?"none":`1px solid ${C.border}`}}>
+                                  {o.l}{ab.makeupStatus===o.k&&<span style={{marginLeft:6,fontSize:11,color:C.sub}}>선택됨</span>}
+                                </button>
+                              ))}
+                              {ab.makeupStatus&&(
+                                <button role="menuitem" className="nav-menu-tap"
+                                  onClick={()=>{ setMakeupResult(ab.id,ab.makeupStatus); setMakeupPick(null); }}
+                                  style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:12.5,fontWeight:700,color:C.sub,cursor:"pointer",fontFamily:"inherit",borderTop:`1px solid ${C.border}`}}>
+                                  ↩ 되돌리기
+                                </button>
+                              )}
                             </div>
-                            <button onClick={()=>setAbsTimeEdit(null)} className="jelly-tap"
-                              style={{width:"100%",marginTop:6,padding:"7px 11px",borderRadius:9,border:"none",background:th.grad,color:"#fff",fontSize:12.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>확인</button>
-                          </div>
-                        ):(
-                          <button onClick={()=>setAbsTimeEdit(ab.id)}
-                            style={{marginTop:7,background:"none",border:"none",padding:0,color:th.main,fontSize:11.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>
-                            {makeupTimeText(ab)?"보충 시간 수정":"＋ 보충 시간 넣기"}
-                          </button>
-                        ))}
+                          </>
+                        )}
                       </div>
-                      <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:"100%",marginTop:9,padding:"8px",borderRadius:10,border:`1px solid ${C.purple}30`,background:C.purpleL,color:C.purple,fontSize:13,fontWeight:700,cursor:"pointer"}}>💬 결석 안내 문자 보내기</button>
+                      <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} className="jelly-tap"
+                        style={{flex:1,minWidth:0,padding:"8px 0",borderRadius:10,border:`1px solid ${C.border}`,background:"#fff",color:C.purple,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+                        문자 보내기
+                      </button>
                     </div>
                   </div>
+                  {/* ⋮ 메뉴 */}
+                  {absMenu===ab.id&&(
+                    <>
+                      <div onClick={()=>setAbsMenu(null)} style={{position:"fixed",inset:0,zIndex:40}}/>
+                      <div role="menu" style={{position:"absolute",top:34,right:8,zIndex:41,minWidth:140,background:"#fff",borderRadius:12,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
+                        <button role="menuitem" className="nav-menu-tap"
+                          onClick={()=>{ setAbsTimeEdit(ab.id); setAbsMenu(null); }}
+                          style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.text,cursor:"pointer",fontFamily:"inherit"}}>
+                          ✏️ 보충 일정 수정
+                        </button>
+                        <button role="menuitem" className="nav-menu-tap"
+                          onClick={()=>{ deleteAbs(ab.id); setAbsMenu(null); }}
+                          style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.red,cursor:"pointer",fontFamily:"inherit",borderTop:`1px solid ${C.border}`}}>
+                          🗑 기록 삭제
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}
-            {totalCnt===0&&<div style={{textAlign:"center",padding:"40px 20px",background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}><p style={{fontSize:32,margin:0}}>🙌</p><p style={{color:C.sub,fontSize:13,margin:"8px 0 0"}}>{ay}년 {am}월 결석 기록이 없어요!</p></div>}
+            {sortedAbs.length===0&&(
+              <div style={{textAlign:"center",padding:"36px 20px",background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
+                <p style={{fontSize:28,margin:0}}>🙌</p>
+                <p style={{color:C.sub,fontSize:13.5,fontWeight:700,margin:"8px 0 0"}}>
+                  {totalCnt===0?`${ay}년 ${am}월 결석 기록이 없어요!`:"이 상태의 기록이 없어요"}
+                </p>
+              </div>
+            )}
           </div>
           );
         })()}
@@ -7272,7 +7325,15 @@ export default function App() {
       {showAbsModal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:200}} onClick={()=>setShowAbsModal(false)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,boxSizing:"border-box"}}>
-            <h3 style={{margin:"0 0 20px",fontSize:17,fontWeight:800,color:C.text}}>결석 기록 추가 ({getGenderEmoji(curChild)} {curChild?.name})</h3>
+            {/* [사용자 확정 2026-08-10] 닫기 ✕ 가 없어 빠져나갈 방법이 안 보였다 */}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginBottom:18}}>
+              <div style={{minWidth:0}}>
+                <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>결석 기록 추가</h3>
+                <p style={{margin:"3px 0 0",fontSize:12,fontWeight:600,color:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{curChild?.name}의 결석을 기록해요</p>
+              </div>
+              <button onClick={()=>setShowAbsModal(false)} aria-label="닫기" className="jelly-tap"
+                style={{flexShrink:0,background:CT.faint,border:"none",borderRadius:12,width:44,height:44,cursor:"pointer",color:C.sub,fontSize:16,fontFamily:"inherit"}}>✕</button>
+            </div>
             <label style={lbl}>학원 선택</label>
             <select value={newAbs.academyId} onChange={e=>setNewAbs(p=>({...p,academyId:e.target.value}))} style={{...inp,marginBottom:14}}>
               <option value="">학원을 선택하세요</option>
@@ -7283,15 +7344,17 @@ export default function App() {
             <label style={lbl}>결석 사유</label>
             <input value={newAbs.reason} onChange={e=>setNewAbs(p=>({...p,reason:e.target.value}))} placeholder="예: 감기, 가족 행사" style={{...inp,marginBottom:14}}/>
             <label style={lbl}>보충 예정일</label>
-            <input type="date" value={newAbs.makeupDate} onChange={e=>setNewAbs(p=>({...p,makeupDate:e.target.value}))} style={{...inp,marginBottom:14}}/>
+            <input type="date" value={newAbs.makeupDate} onChange={e=>setNewAbs(p=>({...p,makeupDate:e.target.value}))} style={{...inp,marginBottom:newAbs.makeupDate?14:24}}/>
             {/* [사용자 확정 2026-08-09] 보충 시간은 선택 — 날짜만 먼저 잡히는 경우가 많다.
-                안 넣으면 화면에 시간 줄이 아예 안 나온다. */}
+                [2026-08-10] 날짜를 안 골랐으면 시간 칸 자체를 숨긴다 — 화면이 더 간결해진다. */}
+            {newAbs.makeupDate&&(<>
             <label style={lbl}>보충 시간 <span style={{fontWeight:600,opacity:0.7}}>(선택)</span></label>
             <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:24,minWidth:0}}>
               <input type="time" value={newAbs.makeupStart||""} onChange={e=>setNewAbs(p=>({...p,makeupStart:e.target.value}))} aria-label="보충 시작 시간" style={{...inp,flex:1,width:0,minWidth:0,marginBottom:0}}/>
               <span style={{flexShrink:0,color:C.sub,fontSize:14,fontWeight:800}}>~</span>
               <input type="time" value={newAbs.makeupEnd||""} onChange={e=>setNewAbs(p=>({...p,makeupEnd:e.target.value}))} aria-label="보충 종료 시간" style={{...inp,flex:1,width:0,minWidth:0,marginBottom:0}}/>
             </div>
+            </>)}
             <button onClick={addAbs} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.red},#FF8FA3)`,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>기록하기</button>
           </div>
         </div>
