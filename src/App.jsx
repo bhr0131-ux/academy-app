@@ -3272,7 +3272,9 @@ export default function App() {
   const calDays=getCalDays(calDate.getFullYear(),calDate.getMonth());
 
   // 공통 스타일
-  const inp={ width:"100%",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"12px 14px",color:C.text,fontSize:17,outline:"none",fontFamily:"inherit" };
+  /* [2026-08-10] minWidth:0 — input 은 기본 최소폭이 내용 기준이라 flex 안에서 안 줄어든다.
+     이게 없으면 좁은 기기(360px 이하)에서 입력 줄이 화면 밖으로 밀려 나간다. */
+  const inp={ width:"100%",boxSizing:"border-box",minWidth:0,background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"12px 14px",color:C.text,fontSize:17,outline:"none",fontFamily:"inherit" };
   const lbl={ fontSize:17,color:C.sub,display:"block",marginBottom:7,fontWeight:700 };
   /* (이동됨) devBtn·devMiniBtn·devGroup·devGroupTitle — DevToolsPanel.jsx 로 분리 */
   const openCloseLabel=(open)=>open?"닫기 ▲":"열기 ▼";
@@ -5095,16 +5097,21 @@ export default function App() {
                         {/* [사용자 확정 2026-08-09] 보충 시간은 나중에 정해지는 일이 많아
                             여기서 바로 넣고 고칠 수 있게 한다. 선택 입력이라 비워 두면 안 보인다. */}
                         {ab.makeupDate&&(absTimeEdit===ab.id?(
-                          <div style={{display:"flex",alignItems:"center",gap:6,marginTop:9}}>
-                            <input type="time" value={ab.makeupStart||""} aria-label="보충 시작 시간"
-                              onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupStart:e.target.value}:x)}))}
-                              style={{flex:1,minWidth:0,background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 9px",fontSize:12.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
-                            <span style={{flexShrink:0,color:C.sub,fontSize:12,fontWeight:800}}>~</span>
-                            <input type="time" value={ab.makeupEnd||""} aria-label="보충 종료 시간"
-                              onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupEnd:e.target.value}:x)}))}
-                              style={{flex:1,minWidth:0,background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 9px",fontSize:12.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
+                          /* [2026-08-10] 시각 입력 두 칸 + 확인 버튼이 한 줄에 다 안 들어가
+                             좁은 기기에서 카드를 화면 밖으로 밀어냈다. 시각 두 칸은 위 한 줄,
+                             확인은 아래 한 줄로 나눈다 (칸마다 minWidth:0 으로 줄어들 수 있게). */
+                          <div style={{marginTop:9}}>
+                            <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
+                              <input type="time" value={ab.makeupStart||""} aria-label="보충 시작 시간"
+                                onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupStart:e.target.value}:x)}))}
+                                style={{flex:1,minWidth:0,width:0,boxSizing:"border-box",background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 4px",fontSize:11.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
+                              <span style={{flexShrink:0,color:C.sub,fontSize:12,fontWeight:800}}>~</span>
+                              <input type="time" value={ab.makeupEnd||""} aria-label="보충 종료 시간"
+                                onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupEnd:e.target.value}:x)}))}
+                                style={{flex:1,minWidth:0,width:0,boxSizing:"border-box",background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 4px",fontSize:11.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
+                            </div>
                             <button onClick={()=>setAbsTimeEdit(null)} className="jelly-tap"
-                              style={{flexShrink:0,padding:"6px 11px",borderRadius:9,border:"none",background:th.grad,color:"#fff",fontSize:12,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>확인</button>
+                              style={{width:"100%",marginTop:6,padding:"7px 11px",borderRadius:9,border:"none",background:th.grad,color:"#fff",fontSize:12.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>확인</button>
                           </div>
                         ):(
                           <button onClick={()=>setAbsTimeEdit(ab.id)}
@@ -7024,7 +7031,7 @@ export default function App() {
                     <button onClick={()=>{ if(canCheck) toggleHomeworkDone(childId,academyId,date,h.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700,opacity:!canCheck&&!h.done?0.5:1}}>{h.done?"✓":""}</button>
                     {editingDailyItem&&editingDailyItem.kind==="hw"&&editingDailyItem.id===h.id ? (
                       <>
-                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:"auto",fontSize:13,padding:"6px 9px"}}/>
+                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:13,padding:"6px 9px"}}/>
                         {isParentEdit&&(<>
                           <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:13,padding:"6px 4px",textAlign:"center"}} min="1"/>
                           <span style={{fontSize:12,color:C.sub,flexShrink:0}}>점</span>
@@ -7046,7 +7053,7 @@ export default function App() {
                     <button onClick={()=>{ if(canCheck) toggleTodoDone(childId,academyId,date,t.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700,opacity:!canCheck&&!t.done?0.5:1}}>{t.done?"✓":""}</button>
                     {editingDailyItem&&editingDailyItem.kind==="todo"&&editingDailyItem.id===t.id ? (
                       <>
-                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:"auto",fontSize:13,padding:"6px 9px"}}/>
+                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:13,padding:"6px 9px"}}/>
                         {isParentEdit&&(<>
                           <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:13,padding:"6px 4px",textAlign:"center"}} min="1"/>
                           <span style={{fontSize:12,color:C.sub,flexShrink:0}}>점</span>
@@ -7066,14 +7073,14 @@ export default function App() {
               </div>
               {!isExtra&&(
               <div style={{display:"flex",gap:6,marginBottom:10,alignItems:"center"}}>
-                <input value={dailyHwInput} onChange={e=>setDailyHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addHw()} placeholder="숙제 입력" style={{...inp,flex:3,width:"auto",fontSize:13,padding:"9px 10px"}}/>
+                <input value={dailyHwInput} onChange={e=>setDailyHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addHw()} placeholder="숙제 입력" style={{...inp,flex:3,width:0,minWidth:0,fontSize:13,padding:"9px 10px"}}/>
                 <input type="number" value={isParentEdit?dailyHwPoint:DEFAULT_HOMEWORK_SCORE} onChange={e=>setDailyHwPoint(e.target.value)} disabled={!isParentEdit} title={isParentEdit?"":"점수는 엄마용에서 바꿀 수 있어요"} style={{...inp,width:52,fontSize:13,padding:"9px 6px",textAlign:"center",background:isParentEdit?inp.background:CT.faint,color:isParentEdit?C.text:C.sub,cursor:isParentEdit?"text":"not-allowed"}} min="1"/>
                 <span style={{fontSize:13,color:C.sub,flexShrink:0}}>점</span>
                 <button onClick={addHw} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",flexShrink:0}}>숙제</button>
               </div>
               )}
               <div style={{display:"flex",gap:6,marginBottom:20,alignItems:"center"}}>
-                <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="할일 입력" style={{...inp,flex:3,width:"auto",fontSize:13,padding:"9px 10px"}}/>
+                <input value={dailyTodoInput} onChange={e=>setDailyTodoInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTodo()} placeholder="할일 입력" style={{...inp,flex:3,width:0,minWidth:0,fontSize:13,padding:"9px 10px"}}/>
                 <input type="number" value={isParentEdit?dailyTodoPoint:DEFAULT_HOMEWORK_SCORE} onChange={e=>setDailyTodoPoint(e.target.value)} disabled={!isParentEdit} title={isParentEdit?"":"점수는 엄마용에서 바꿀 수 있어요"} style={{...inp,width:52,fontSize:13,padding:"9px 6px",textAlign:"center",background:isParentEdit?inp.background:CT.faint,color:isParentEdit?C.text:C.sub,cursor:isParentEdit?"text":"not-allowed"}} min="1"/>
                 <span style={{fontSize:13,color:C.sub,flexShrink:0}}>점</span>
                 <button onClick={addTodo} style={{padding:"9px 12px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",flexShrink:0}}>할일</button>
@@ -7220,10 +7227,10 @@ export default function App() {
             {/* [사용자 확정 2026-08-09] 보충 시간은 선택 — 날짜만 먼저 잡히는 경우가 많다.
                 안 넣으면 화면에 시간 줄이 아예 안 나온다. */}
             <label style={lbl}>보충 시간 <span style={{fontWeight:600,opacity:0.7}}>(선택)</span></label>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:24}}>
-              <input type="time" value={newAbs.makeupStart||""} onChange={e=>setNewAbs(p=>({...p,makeupStart:e.target.value}))} aria-label="보충 시작 시간" style={{...inp,flex:1,minWidth:0,marginBottom:0}}/>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:24,minWidth:0}}>
+              <input type="time" value={newAbs.makeupStart||""} onChange={e=>setNewAbs(p=>({...p,makeupStart:e.target.value}))} aria-label="보충 시작 시간" style={{...inp,flex:1,width:0,minWidth:0,marginBottom:0}}/>
               <span style={{flexShrink:0,color:C.sub,fontSize:14,fontWeight:800}}>~</span>
-              <input type="time" value={newAbs.makeupEnd||""} onChange={e=>setNewAbs(p=>({...p,makeupEnd:e.target.value}))} aria-label="보충 종료 시간" style={{...inp,flex:1,minWidth:0,marginBottom:0}}/>
+              <input type="time" value={newAbs.makeupEnd||""} onChange={e=>setNewAbs(p=>({...p,makeupEnd:e.target.value}))} aria-label="보충 종료 시간" style={{...inp,flex:1,width:0,minWidth:0,marginBottom:0}}/>
             </div>
             <button onClick={addAbs} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.red},#FF8FA3)`,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>기록하기</button>
           </div>
