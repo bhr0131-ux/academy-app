@@ -58,27 +58,30 @@ export default function FeeTab({
         '200,00…'처럼 잘린다. 이 화면에서 제일 중요한 숫자가 잘리면 안 되므로
         총액을 위 한 줄로 빼고 아래를 납부·남은 금액 2칸으로 나눈다.
         굵기는 라벨(600) < 금액(800~900) 으로만 차이를 준다 — 셋 다 굵으면 서로 경쟁한다. */}
-    <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.95)} 0%, ${mixWhite(th.main,0.78)} 100%)`,borderRadius:18,padding:"15px 16px 13px",marginBottom:14,border:`1px solid ${th.main}33`,boxShadow:SHADOW.sm}}>
-      <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:0,textAlign:"center"}}>{feeMonth}월 총 학원비</p>
-      <p style={{fontSize:23,fontWeight:900,color:C.text,margin:"2px 0 0",textAlign:"center",letterSpacing:-0.3}}>{won(total)}</p>
-      <div style={{display:"flex",alignItems:"stretch",marginTop:12,paddingTop:11,borderTop:`1px solid ${th.main}22`}}>
+    {/* [사용자 확정 2026-08-10] 정보는 셋뿐인데 카드가 커서 아래 목록이 늦게 보였다 —
+        높이 약 18% 축소, 그라데이션도 약하게. '2곳 중 1곳 납부'는 위 금액으로
+        이미 알 수 있어 뺐다(다 냈을 때만 축하 한 줄). */}
+    <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.96)} 0%, ${mixWhite(th.main,0.88)} 100%)`,borderRadius:16,padding:"12px 14px 11px",marginBottom:14,border:`1px solid ${th.main}2A`,boxShadow:"0 2px 8px rgba(90,70,60,0.05)"}}>
+      <p style={{fontSize:11,fontWeight:600,color:C.sub,margin:0,textAlign:"center"}}>{feeMonth}월 총 학원비</p>
+      <p style={{fontSize:21,fontWeight:900,color:C.text,margin:"1px 0 0",textAlign:"center",letterSpacing:-0.3}}>{won(total)}</p>
+      <div style={{display:"flex",alignItems:"stretch",marginTop:9,paddingTop:9,borderTop:`1px solid ${th.main}1F`}}>
         <div style={{flex:1,minWidth:0,textAlign:"center"}}>
-          <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:0}}>납부 완료</p>
-          <p style={{fontSize:16.5,fontWeight:800,color:C.green,margin:"3px 0 0",whiteSpace:"nowrap"}}>{won(paidSum)}</p>
+          <p style={{fontSize:11,fontWeight:600,color:C.sub,margin:0}}>납부 완료</p>
+          <p style={{fontSize:15.5,fontWeight:800,color:C.green,margin:"2px 0 0",whiteSpace:"nowrap"}}>{won(paidSum)}</p>
         </div>
-        <div style={{width:1,background:`${th.main}22`}}/>
+        <div style={{width:1,background:`${th.main}1F`}}/>
         <div style={{flex:1,minWidth:0,textAlign:"center"}}>
-          <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:0}}>남은 금액</p>
-          <p style={{fontSize:16.5,fontWeight:900,color:restSum>0?C.red:C.sub,margin:"3px 0 0",whiteSpace:"nowrap"}}>{won(restSum)}</p>
+          <p style={{fontSize:11,fontWeight:600,color:C.sub,margin:0}}>남은 금액</p>
+          <p style={{fontSize:15.5,fontWeight:900,color:restSum>0?C.red:C.sub,margin:"2px 0 0",whiteSpace:"nowrap"}}>{won(restSum)}</p>
         </div>
       </div>
-      <p style={{fontSize:11,fontWeight:600,color:C.sub,margin:"12px 0 0",textAlign:"center",opacity:0.85}}>
+      {(billed.length===0||restSum===0)&&(
+      <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:"9px 0 0",textAlign:"center",opacity:0.9}}>
         {billed.length===0
           ? "등록된 학원비가 없어요"
-          : restSum===0
-            ? `${billed.length}곳 모두 납부했어요 🎉`
-            : `${billed.length}곳 중 ${paidList.length}곳 납부`}
+          : `${billed.length}곳 모두 납부했어요 🎉`}
       </p>
+      )}
     </div>
 
     {curAc.map(a=>{
@@ -86,7 +89,6 @@ export default function FeeTab({
       const paid=isPaid(a.id);
       const rec=payRec(a.id);
       const hasFee=Number(a.fee||0)>0;
-      const payDayLabel=`${feeMonth}월 ${Math.max(1,Number(a.payDay||1))}일`;
       return (
         /* 카드 구조 (사용자 확정)
              [학원 색 세로선] 학원명 ─────────── 상태 배지  ⋮
@@ -113,7 +115,7 @@ export default function FeeTab({
               <p style={{margin:"3px 0 0",fontSize:15,fontWeight:800,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
                 {Number(a.fee).toLocaleString()}원
                 <span style={{fontSize:11.5,fontWeight:600,color:C.sub,opacity:0.8,marginLeft:6}}>
-                  · {paid?`매월 ${a.payDay}일`:`납부 예정일 ${payDayLabel}`}
+                  · 매월 {a.payDay}일
                 </span>
               </p>
             ):(
@@ -159,7 +161,7 @@ export default function FeeTab({
             {hasFee&&!paid&&(
               <button onClick={()=>onPay(a.id)} className="jelly-tap"
                 style={{width:"100%",marginTop:8,padding:"9px 10px",borderRadius:11,border:"none",background:th.grad,color:"#fff",fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
-                납부 완료 처리
+                납부 완료로 저장
               </button>
             )}
             {!hasFee&&(
