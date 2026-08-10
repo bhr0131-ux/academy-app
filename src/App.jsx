@@ -4899,7 +4899,7 @@ export default function App() {
 
       {/* 탭 줄은 화면 맨 아래 고정 바(ParentNav)로 옮겼다 — 아래 </div> 바깥에 있다.
           본문은 그 바 높이 + 기기 안전영역만큼 아래를 비워 둬 마지막 내용이 안 가리게 한다. */}
-      <div style={{padding:"14px 16px 0",paddingBottom:`calc(${PARENT_NAV_H + 100}px + env(safe-area-inset-bottom))`}}>
+      <div style={{padding:"22px 16px 0",paddingBottom:`calc(${PARENT_NAV_H + 100}px + env(safe-area-inset-bottom))`}}>
 
         {/* ════ 홈 탭 ════ */}
         {/* [2026-08-09] 화면 본문을 components/parent/ParentHomeTab.jsx 로 옮겼다
