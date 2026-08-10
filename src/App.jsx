@@ -2,7 +2,7 @@ import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBla
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
-import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime } from "./data/sampleData.js";
+import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
@@ -368,6 +368,7 @@ export default function App() {
   const [paySheet,               setPaySheet]               = useState(null);             // 납부 처리 바텀시트 {acId}
   const [feeMenu,                setFeeMenu]                = useState(null);             // 학원비 카드 ⋮ 더보기 (학원 id)
   const [feeAdd,                 setFeeAdd]                 = useState(false);            // 학원비 항목 추가 시트
+  const [absTimeEdit,            setAbsTimeEdit]            = useState(null);             // 보충 시간 입력 중인 결석 기록 id
   const [calView,                setCalView]                = useState("month");          // 달력 보기 — 월간 | 주간
   const [calLegend,              setCalLegend]              = useState(false);            // 달력 표시 설명 시트
   const [memoEdit,               setMemoEdit]               = useState(null);             // 메모 쓰는 중인 날짜 키
@@ -5021,13 +5022,36 @@ export default function App() {
                           <div style={{flex:1,minWidth:0}}>
                             <p style={{fontSize:11.5,color:C.sub,margin:0,fontWeight:600}}>보충 일정</p>
                             {ab.makeupDate
-                              ? <p style={{fontSize:13,fontWeight:800,margin:"2px 0 0",color:ab.makeupDone?C.green:past?C.red:C.text}}>{ab.makeupDate}</p>
+                              ? <p style={{fontSize:13,fontWeight:800,margin:"2px 0 0",color:ab.makeupDone?C.green:past?C.red:C.text}}>
+                                  {ab.makeupDate}
+                                  {makeupTimeText(ab)&&<span style={{fontWeight:700,color:C.sub,marginLeft:6}}>· {makeupTimeText(ab)}</span>}
+                                </p>
                               : <p style={{fontSize:13,fontWeight:800,margin:"2px 0 0",color:C.sub}}>📭 미정</p>}
                             {ab.makeupDate&&past&&!ab.makeupDone&&<p style={{fontSize:11.5,color:C.red,margin:"2px 0 0",fontWeight:600}}>⚠️ 보충일이 지났어요</p>}
                           </div>
                           <button onClick={()=>toggleMakeup(ab.id)} style={{padding:"5px 12px",borderRadius:10,border:`1px solid ${ab.makeupDone?C.green+"33":past?C.red+"33":CT.faintB}`,cursor:"pointer",fontSize:13.5,fontWeight:800,background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:C.sub}}>
                             {ab.makeupDone?"✓ 완료":"👆 미완료"}</button>
                         </div>
+                        {/* [사용자 확정 2026-08-09] 보충 시간은 나중에 정해지는 일이 많아
+                            여기서 바로 넣고 고칠 수 있게 한다. 선택 입력이라 비워 두면 안 보인다. */}
+                        {ab.makeupDate&&(absTimeEdit===ab.id?(
+                          <div style={{display:"flex",alignItems:"center",gap:6,marginTop:9}}>
+                            <input type="time" value={ab.makeupStart||""} aria-label="보충 시작 시간"
+                              onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupStart:e.target.value}:x)}))}
+                              style={{flex:1,minWidth:0,background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 9px",fontSize:12.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
+                            <span style={{flexShrink:0,color:C.sub,fontSize:12,fontWeight:800}}>~</span>
+                            <input type="time" value={ab.makeupEnd||""} aria-label="보충 종료 시간"
+                              onChange={e=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===ab.id?{...x,makeupEnd:e.target.value}:x)}))}
+                              style={{flex:1,minWidth:0,background:"#fff",border:`1px solid ${CT.faintB}`,borderRadius:9,padding:"6px 9px",fontSize:12.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
+                            <button onClick={()=>setAbsTimeEdit(null)} className="jelly-tap"
+                              style={{flexShrink:0,padding:"6px 11px",borderRadius:9,border:"none",background:th.grad,color:"#fff",fontSize:12,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>확인</button>
+                          </div>
+                        ):(
+                          <button onClick={()=>setAbsTimeEdit(ab.id)}
+                            style={{marginTop:7,background:"none",border:"none",padding:0,color:th.main,fontSize:11.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>
+                            {makeupTimeText(ab)?"보충 시간 수정":"＋ 보충 시간 넣기"}
+                          </button>
+                        ))}
                       </div>
                       <button onClick={()=>{ setShowSmsModal(ac); setSmsDraft(""); }} style={{width:"100%",marginTop:9,padding:"8px",borderRadius:10,border:`1px solid ${C.purple}30`,background:C.purpleL,color:C.purple,fontSize:13,fontWeight:700,cursor:"pointer"}}>💬 결석 안내 문자 보내기</button>
                     </div>
@@ -7121,7 +7145,15 @@ export default function App() {
             <label style={lbl}>결석 사유</label>
             <input value={newAbs.reason} onChange={e=>setNewAbs(p=>({...p,reason:e.target.value}))} placeholder="예: 감기, 가족 행사" style={{...inp,marginBottom:14}}/>
             <label style={lbl}>보충 예정일</label>
-            <input type="date" value={newAbs.makeupDate} onChange={e=>setNewAbs(p=>({...p,makeupDate:e.target.value}))} style={{...inp,marginBottom:24}}/>
+            <input type="date" value={newAbs.makeupDate} onChange={e=>setNewAbs(p=>({...p,makeupDate:e.target.value}))} style={{...inp,marginBottom:14}}/>
+            {/* [사용자 확정 2026-08-09] 보충 시간은 선택 — 날짜만 먼저 잡히는 경우가 많다.
+                안 넣으면 화면에 시간 줄이 아예 안 나온다. */}
+            <label style={lbl}>보충 시간 <span style={{fontWeight:600,opacity:0.7}}>(선택)</span></label>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:24}}>
+              <input type="time" value={newAbs.makeupStart||""} onChange={e=>setNewAbs(p=>({...p,makeupStart:e.target.value}))} aria-label="보충 시작 시간" style={{...inp,flex:1,minWidth:0,marginBottom:0}}/>
+              <span style={{flexShrink:0,color:C.sub,fontSize:14,fontWeight:800}}>~</span>
+              <input type="time" value={newAbs.makeupEnd||""} onChange={e=>setNewAbs(p=>({...p,makeupEnd:e.target.value}))} aria-label="보충 종료 시간" style={{...inp,flex:1,minWidth:0,marginBottom:0}}/>
+            </div>
             <button onClick={addAbs} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.red},#FF8FA3)`,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>기록하기</button>
           </div>
         </div>

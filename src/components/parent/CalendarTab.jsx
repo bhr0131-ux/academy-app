@@ -26,7 +26,7 @@
 
 import { C, DAYS, mixWhite, SHADOW } from "../../data/tokens.js";
 import { TODAY, getDN, toStr } from "../../utils/dates.js";
-import { hasClassOnDay, getScheduleForDay, getShuttleText } from "../../data/sampleData.js";
+import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText } from "../../data/sampleData.js";
 import { getHolidayName } from "../../data/characters.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
@@ -316,7 +316,10 @@ export default function CalendarTab({
                           {ab.makeupDone?"✓ 완료":"완료로"}
                         </button>
                       </div>
-                      <p style={{margin:"3px 0 0",fontSize:13.5,fontWeight:800,color:C.text}}>{ac.name}</p>
+                      <p style={{margin:"3px 0 0",fontSize:13.5,fontWeight:800,color:C.text}}>
+                        {ac.name}
+                        {makeupTimeText(ab)&&<span style={{fontWeight:800,color:C.orange,marginLeft:7}}>{makeupTimeText(ab)}</span>}
+                      </p>
                       <p style={{margin:"1px 0 0",fontSize:11.5,fontWeight:600,color:C.sub}}>
                         결석일 {korDate(ab.date)} {dnOf(ab.date)}요일
                       </p>
