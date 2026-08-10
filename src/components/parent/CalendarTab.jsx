@@ -22,6 +22,7 @@
      mKey, isVacationDay, getDailyEntry, getWeeklySchedule, acKindLabel, toggleMakeup
      onSms(ac)                             결석 학원에 문자 보내기
      onVacation()                          방학 기간 관리 열기
+     isFeePaidOn(acId, month)              그 달 학원비를 냈는지 (달력의 납부일 표시용)
    ════════════════════════════════════════════════════════════════════════ */
 
 import { C, DAYS, mixWhite, SHADOW } from "../../data/tokens.js";
@@ -37,7 +38,7 @@ export default function CalendarTab({
   calDate, setCalDate, calDays = [], calSelDate, setCalSelDate,
   calView, setCalView, onOpenLegend,
   dayMemos = {}, setDayMemos, memoEdit, setMemoEdit, memoDraft, setMemoDraft,
-  mKey, isVacationDay, getDailyEntry, getWeeklySchedule, acKindLabel, toggleMakeup,
+  mKey, isVacationDay, getDailyEntry, getWeeklySchedule, acKindLabel, toggleMakeup, isFeePaidOn,
   onSms, onVacation,
 }) {
   /* [사용자 확정 2026-08-09] 이 화면의 핵심 흐름은 '날짜를 고른다 → 그날 일정을 본다'.
@@ -71,6 +72,9 @@ export default function CalendarTab({
   if(selInfo.makeupOnDay.length) sumParts.push(`보충수업 ${selInfo.makeupOnDay.length}개`);
   const vacCnt=selInfo.acList.length-liveAc.length;
   if(vacCnt) sumParts.push(`휴원 ${vacCnt}곳`);
+  /* 학원비 납부일 — 매월 같은 날이라 '평소와 다른 일'은 아니지만 놓치면 곤란해서 예외로 둔다 */
+  const feeDueOnSel=curAc.filter(a=>Number(a.fee||0)>0&&Math.max(1,Number(a.payDay||1))===selInfo.day);
+  if(feeDueOnSel.length) sumParts.push(`학원비 납부일 ${feeDueOnSel.length}곳`);
   return (
     <div>
       {/* 보기 전환 + 월 이동 */}
@@ -127,6 +131,9 @@ export default function CalendarTab({
           if(curAbs.some(a=>a.makeupDate===dateStr&&a.makeupDone)) marks.push("makeupDone");
           if(acList.some(a=>isVacationDay(childId,a.id,dateStr))) marks.push("vacation");
           if(acList.some(a=>(getDailyEntry(childId,a.id,dateStr).supplies||[]).length>0)) marks.push("supply");
+          /* 학원비 납부일 — 이미 낸 달은 안 찍는다. 낼 일이 남은 날만 알려 주면 된다. */
+          if(curAc.some(a=>Number(a.fee||0)>0&&Math.max(1,Number(a.payDay||1))===day
+            &&!(isFeePaidOn&&isFeePaidOn(a.id,calDate.getMonth()+1)))) marks.push("fee");
           if(dayMemos[mk]) marks.push("memo");
           return (
             <div key={i} onClick={()=>setCalSelDate(dateStr)}
@@ -261,6 +268,30 @@ export default function CalendarTab({
                 </button>
               );
             })()}
+
+            {/* 학원비 납부일 */}
+            {feeDueOnSel.length>0&&(
+              <div style={{background:`${th.main}0A`,border:`1px solid ${th.main}33`,borderRadius:12,padding:"9px 11px",marginBottom:9}}>
+                <div style={{display:"flex",alignItems:"center",gap:7,color:th.main,marginBottom:4}}>
+                  <Mark kind="fee" size={9}/><span style={{fontSize:12.5,fontWeight:900}}>학원비 납부일</span>
+                </div>
+                {feeDueOnSel.map(a=>{
+                  const paid=isFeePaidOn&&isFeePaidOn(a.id,selInfo.m+1);
+                  return (
+                    <div key={a.id} style={{display:"flex",alignItems:"center",gap:8,marginTop:3}}>
+                      <span style={{flex:1,minWidth:0,fontSize:13,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                        {a.name}
+                        <span style={{fontSize:12,fontWeight:700,color:C.sub,marginLeft:6}}>{Number(a.fee).toLocaleString()}원</span>
+                      </span>
+                      <span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"3px 9px",borderRadius:9,
+                        background:paid?`${C.green}12`:`${C.orange}12`,color:paid?C.green:C.orange}}>
+                        {paid?"납부 완료":"미납"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* 휴원(방학) */}
             {(()=>{
