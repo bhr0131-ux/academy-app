@@ -73,6 +73,59 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M12 11v9M12 20a2 2 0 0 0 3 0" {...P} />
         </svg>
       );
+    case "pencil":   // 수정
+      return (
+        <svg {...common}>
+          <path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17v3Z" {...P} />
+          <path d="M14.5 6.5l3 3" {...P} />
+        </svg>
+      );
+    case "phone":
+      return (
+        <svg {...common}>
+          <path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z" {...P} />
+        </svg>
+      );
+    case "sms":
+      return (
+        <svg {...common}>
+          <path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" {...P} />
+        </svg>
+      );
+    case "fee":      // 학원비 (지폐)
+      return (
+        <svg {...common}>
+          <rect x="3" y="6.5" width="18" height="11" rx="2" {...P} />
+          <circle cx="12" cy="12" r="2.6" {...P} />
+        </svg>
+      );
+    case "calendar": // 납부일
+      return (
+        <svg {...common}>
+          <rect x="3.5" y="5" width="17" height="15" rx="2.4" {...P} />
+          <path d="M3.5 9.5h17M8 3.5v3M16 3.5v3" {...P} />
+        </svg>
+      );
+    case "bank":     // 입금 계좌
+      return (
+        <svg {...common}>
+          <path d="M3.5 9.5 12 4.5l8.5 5M5 9.5v8M9.5 9.5v8M14.5 9.5v8M19 9.5v8M3 20h18" {...P} />
+        </svg>
+      );
+    case "teacher":  // 선생님
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="8" r="3.6" {...P} />
+          <path d="M4.5 20a7.5 7.5 0 0 1 15 0" {...P} />
+        </svg>
+      );
+    case "pin":      // 주소
+      return (
+        <svg {...common}>
+          <path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z" {...P} />
+          <circle cx="12" cy="10" r="2.6" {...P} />
+        </svg>
+      );
     default:
       return null;
   }
