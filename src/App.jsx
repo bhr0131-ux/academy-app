@@ -12,7 +12,7 @@ import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscove
 import HomeSheet from "./components/HomeSheet.jsx";
 import ParentNav, { PARENT_NAV_H } from "./components/parent/ParentNav.jsx";
 import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
-import FeePaySheet, { payMethodLabel, FeeAddPicker } from "./components/parent/FeePaySheet.jsx";
+import FeePaySheet, { payMethodLabel } from "./components/parent/FeePaySheet.jsx";
 import ChildFace from "./components/parent/ChildFace.jsx";
 import { CalendarLegendSheet } from "./components/parent/CalendarMarks.jsx";
 import CalendarTab from "./components/parent/CalendarTab.jsx";
@@ -367,7 +367,6 @@ export default function App() {
   const [payInfo,                setPayInfo]                = useState({});               // {`cid-월-학원id`:{date,amount,method,memo}}
   const [paySheet,               setPaySheet]               = useState(null);             // 납부 처리 바텀시트 {acId}
   const [feeMenu,                setFeeMenu]                = useState(null);             // 학원비 카드 ⋮ 더보기 (학원 id)
-  const [feeAdd,                 setFeeAdd]                 = useState(false);            // 학원비 항목 추가 시트
   const [absTimeEdit,            setAbsTimeEdit]            = useState(null);             // 보충 시간 입력 중인 결석 기록 id
   const [calView,                setCalView]                = useState("month");          // 달력 보기 — 월간 | 주간
   const [calLegend,              setCalLegend]              = useState(false);            // 달력 표시 설명 시트
@@ -4933,6 +4932,7 @@ export default function App() {
             memoDraft={memoDraft} setMemoDraft={setMemoDraft}
             mKey={mKey} isVacationDay={isVacationDay} getDailyEntry={getDailyEntry}
             getWeeklySchedule={getWeeklySchedule} acKindLabel={acKindLabel} toggleMakeup={toggleMakeup}
+            isFeePaidOn={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
             onVacation={()=>{ setVacForm({academyId:"",start:TODAY,end:TODAY}); setShowVacModal({date:TODAY,acList:curAc}); }} />
         )}
@@ -4952,7 +4952,7 @@ export default function App() {
               setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===acId?{...x,fee:0}:x)}));
               showToast("학원비를 지웠어요");
             }}
-            onAddItem={()=>setFeeAdd(true)} />
+             />
         )}
 
         {/* ════ 결석 탭 ════ */}
@@ -6541,16 +6541,6 @@ export default function App() {
       {calLegend&&(
         <CalendarLegendSheet onClose={()=>setCalLegend(false)}
           tone={{text:C.text,sub:C.sub,border:C.border,faint:CT.faint}} />
-      )}
-
-      {/* ── 학원비 항목 추가 고르기 ── */}
-      {feeAdd&&(
-        <FeeAddPicker
-          list={curAc.filter(a=>Number(a.fee||0)===0).map(a=>({id:a.id,name:a.name,color:a.color,kindLabel:acKindLabel(a)}))}
-          tone={{text:C.text,sub:C.sub,border:C.border,faint:CT.faint,green:C.green,red:C.red,orange:C.orange,main:th.main,grad:th.grad}}
-          onClose={()=>setFeeAdd(false)}
-          onPick={(acId)=>{ const ac=curAc.find(x=>x.id===acId); setFeeAdd(false); setFeeEdit({id:acId,fee:"",payDay:String(ac?.payDay||1)}); }}
-          onAddAc={()=>{ setFeeAdd(false); setTab("academy"); openAdd(); }} />
       )}
 
       {/* ── 학원비 납부 완료 처리 (바텀시트) ── */}

@@ -42,8 +42,10 @@ export default function AcademyTab({
       )}
     </div>
     {curAc.length===0?(
-      <div style={{textAlign:"center",padding:"28px",color:C.sub,fontSize:17,background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
-        <p style={{fontSize:24,margin:"0 0 8px"}}>🏫</p>위 버튼으로 학원을 등록하세요
+      /* [사용자 확정 2026-08-10] 여기 글자만 17px이라 다른 화면(13~15px)보다 튀었다 */
+      <div style={{textAlign:"center",padding:"26px 20px",color:C.sub,background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
+        <p style={{fontSize:24,margin:"0 0 8px"}}>🏫</p>
+        <p style={{fontSize:14,fontWeight:700,margin:0}}>위 버튼으로 학원을 등록하세요</p>
       </div>
     ):(
       <div style={{display:"flex",flexDirection:"column",gap:10}}>

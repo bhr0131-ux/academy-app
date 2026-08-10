@@ -11,6 +11,7 @@
          결석   ● 빨강 동그라미      보충 예정 ◆ 주황 마름모
          보충 완료 ✓ 초록 체크        방학     ◎ 주황 링(속 빈 원)
          추가 준비물 ■ 분홍 네모       메모     ▬ 회색 막대
+         학원비 납부일 ▲ 파랑 삼각형
 
    MARKS 의 key 는 달력 칸과 범례가 같이 쓴다. 순서가 곧 표시 우선순위다.
    ════════════════════════════════════════════════════════════════════════ */
@@ -19,7 +20,7 @@ const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
 export const MARK_COLORS = {
   absent: "#E5484D", makeup: "#F5A524", makeupDone: "#2FB67C",
-  vacation: "#F0A500", supply: "#F58BB0", memo: "#9AA0A6",
+  vacation: "#F0A500", supply: "#F58BB0", memo: "#9AA0A6", fee: "#5B8DEF",
 };
 
 /* 도형 하나 — size 는 칸(6~7px)과 범례(9px)에서 다르게 쓴다 */
@@ -44,6 +45,13 @@ export function Mark({ kind, size = 7 }) {
   if (kind === "supply") {   // 네모
     return <span style={{ ...base, width: size, height: size, borderRadius: 2, background: c }} />;
   }
+  if (kind === "fee") {      // 삼각형 (학원비 납부일)
+    return (
+      <svg width={size + 1} height={size + 1} viewBox="0 0 10 10" style={base} aria-hidden="true">
+        <path d="M5 1 L9.2 8.6 L0.8 8.6 Z" fill={c} />
+      </svg>
+    );
+  }
   if (kind === "memo") {     // 가로 막대
     return <span style={{ ...base, width: size + 2, height: Math.max(2, size - 4), borderRadius: 2, background: c }} />;
   }
@@ -56,6 +64,7 @@ export const MARKS = [
   { key: "makeupDone", label: "보충 완료" },
   { key: "vacation",   label: "방학·휴원" },
   { key: "supply",     label: "추가 준비물" },
+  { key: "fee",        label: "학원비 납부일" },
   { key: "memo",       label: "메모" },
 ];
 

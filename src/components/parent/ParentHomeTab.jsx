@@ -28,6 +28,7 @@ import { C, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../dat
 import { TODAY, addDays } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getClassTime, getShuttleText, makeupTimeText } from "../../data/sampleData.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
+import CareIcon from "./CareIcons.jsx";
 
 export default function ParentHomeTab({
   th, CT, TM, childId, childGender, kidSkin, curAc = [], curAbs = [],
@@ -120,7 +121,7 @@ export default function ParentHomeTab({
           if(alerts.length===0) return (
             <div style={{background:mixWhite(th.main,0.85),border:`1px solid ${th.main}40`,borderRadius:14,
               padding:"9px 13px",display:"flex",alignItems:"center",gap:9,boxShadow:SHADOW.sm}}>
-              <span style={{fontSize:17,flexShrink:0}}>✅</span>
+              <span style={{fontSize:15,flexShrink:0}}>✅</span>
               <span style={{fontSize:13.5,fontWeight:800,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
             </div>
           );
@@ -143,11 +144,16 @@ export default function ParentHomeTab({
 
       {/* 방학 중인 학원 표시 */}
       {vacAcToday.length>0&&(
-        <div style={{background:"#FFF8E1",border:"1px solid #F0A500",borderRadius:14,padding:"12px 16px",marginBottom:12}}>
-          <p style={{fontSize:17,fontWeight:700,color:"#E65100",margin:"0 0 8px"}}>🏖️ 방학 중</p>
+        /* [사용자 확정 2026-08-10] 이 알림 세 칸(방학·결석·보충)만 글자가 17px이라
+           카드·칩(12~15px) 사이에서 혼자 튀었다. 달력 상세 카드와 같은 크기로 맞춘다.
+           제목 12.5/900 + 본문 13/700, 이모지는 선 아이콘. */
+        <div style={{background:"#FFF8E1",border:"1px solid #F0A50055",borderRadius:12,padding:"9px 11px",marginBottom:9}}>
+          <div style={{display:"flex",alignItems:"center",gap:7,color:"#E65100",marginBottom:5}}>
+            <CareIcon name="vacation" size={14}/><span style={{fontSize:12.5,fontWeight:900}}>휴원 (방학)</span>
+          </div>
           <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
             {vacAcToday.map(a=>(
-              <span key={a.id} style={{fontSize:17,padding:"4px 12px",borderRadius:20,background:`${a.color}18`,color:a.color,fontWeight:600}}>{a.name}</span>
+              <span key={a.id} style={{fontSize:12.5,padding:"3px 10px",borderRadius:20,background:`${a.color}18`,color:a.color,fontWeight:700}}>{a.name}</span>
             ))}
           </div>
         </div>
@@ -167,28 +173,37 @@ export default function ParentHomeTab({
 
       {/* 결석 표시 */}
       {absOnHome.length>0&&(
-        <div style={{background:`${C.red}08`,border:`1px solid ${C.red}25`,borderRadius:14,padding:"12px 16px",marginBottom:12}}>
-          <p style={{fontSize:17,fontWeight:700,color:C.red,margin:"0 0 6px"}}>🏥 결석</p>
+        <div style={{background:`${C.red}08`,border:`1px solid ${C.red}25`,borderRadius:12,padding:"9px 11px",marginBottom:9}}>
+          <div style={{display:"flex",alignItems:"center",gap:7,color:C.red,marginBottom:4}}>
+            <CareIcon name="absent" size={14}/><span style={{fontSize:12.5,fontWeight:900}}>결석</span>
+          </div>
           {absOnHome.map(ab=>{
             const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
-            return <p key={ab.id} style={{fontSize:17,color:C.text,margin:"2px 0"}}>{ac.name}{ab.reason&&` · ${ab.reason}`}</p>;
+            return (
+              <p key={ab.id} style={{fontSize:13,fontWeight:800,color:C.text,margin:"3px 0 0"}}>
+                {ac.name}{ab.reason&&<span style={{fontSize:12,fontWeight:600,color:C.sub}}> · {ab.reason}</span>}
+              </p>
+            );
           })}
         </div>
       )}
 
       {/* 보충수업 표시 */}
       {makeupOnHome.length>0&&(
-        <div style={{background:`${C.orange}08`,border:`1px solid ${C.orange}25`,borderRadius:14,padding:"12px 16px",marginBottom:12}}>
-          <p style={{fontSize:17,fontWeight:700,color:C.orange,margin:"0 0 6px"}}>📚 보충수업</p>
+        <div style={{background:`${C.orange}08`,border:`1px solid ${C.orange}30`,borderRadius:12,padding:"9px 11px",marginBottom:9}}>
+          <div style={{display:"flex",alignItems:"center",gap:7,color:C.orange,marginBottom:4}}>
+            <CareIcon name="makeup" size={14}/><span style={{fontSize:12.5,fontWeight:900}}>보충수업</span>
+          </div>
           {makeupOnHome.map(ab=>{
             const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
             const mt=makeupTimeText(ab);
             return (
-              <p key={ab.id} style={{fontSize:15,color:C.text,margin:"2px 0",fontWeight:700}}>
-                {ac.name}
-                {mt&&<span style={{fontWeight:800,color:C.orange,marginLeft:6}}>{mt}</span>}
-                <span style={{fontSize:12,fontWeight:600,color:C.sub,marginLeft:6}}>결석일 {ab.date}</span>
-              </p>
+              <div key={ab.id} style={{marginTop:3}}>
+                <p style={{fontSize:13,fontWeight:800,color:C.text,margin:0}}>
+                  {ac.name}{mt&&<span style={{fontWeight:800,color:C.orange,marginLeft:7}}>{mt}</span>}
+                </p>
+                <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"1px 0 0"}}>결석일 {ab.date}</p>
+              </div>
             );
           })}
         </div>
@@ -254,7 +269,12 @@ export default function ParentHomeTab({
                   {(()=>{
                     const shuttleText=getShuttleText(ac,hDN);
                     if(!shuttleText) return null;
-                    return <p style={{fontSize:12,color:C.sub,margin:"3px 0 0",lineHeight:1.35,whiteSpace:"pre-wrap"}}>🚌 {shuttleText}</p>;
+                    return (
+                      <p style={{margin:"4px 0 0",display:"flex",alignItems:"flex-start",gap:6,fontSize:12,fontWeight:600,color:C.sub,lineHeight:1.35}}>
+                        <span style={{marginTop:1}}><CareIcon name="shuttle" size={13}/></span>
+                        <span style={{minWidth:0,whiteSpace:"pre-wrap"}}>{shuttleText}</span>
+                      </p>
+                    );
                   })()}
                 </div>
                 {/* 아이콘만 두면 무슨 버튼인지 한 번 더 생각하게 된다 → 아래에 작은 글자 (사용자 확정) */}
@@ -266,19 +286,23 @@ export default function ParentHomeTab({
                     💬<span style={{fontSize:9.5,fontWeight:800}}>문자</span></button>}
                 </div>
               </div>
-              {/* 준비물 */}
-              <div style={{marginBottom:10}}>
-                <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 6px",letterSpacing:0.3}}>🎒 준비물</p>
-                <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                  {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
-                  {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${C.orange}15`,color:C.orange,fontWeight:600}}>+{s}</span>)}
-                  {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:13,color:C.sub,opacity:0.6}}>없음</span>}
-                </div>
+              {/* 준비물 — [사용자 확정 2026-08-10] '준비물' 라벨 바로 옆에 칩을 붙인다.
+                  한 줄에 다 안 들어가면 그때 다음 줄로 넘어간다(flexWrap). 아이콘은 달력과 같은 선 아이콘. */}
+              <div style={{marginBottom:10,display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
+                <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:C.sub}}>
+                  <CareIcon name="bag" size={14}/>
+                  <span style={{fontSize:13,fontWeight:700,letterSpacing:0.3}}>준비물</span>
+                </span>
+                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
+                {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${C.orange}15`,color:C.orange,fontWeight:600}}>+{s}</span>)}
+                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:12.5,color:C.sub,opacity:0.7,fontWeight:600}}>없음</span>}
               </div>
               {/* 학원별 할 일 요약 */}
               <div style={{marginBottom:10}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-                  <p style={{fontSize:13,fontWeight:800,color:C.sub,margin:0}}>🎯 미션 요약</p>
+                  <p style={{fontSize:13,fontWeight:800,color:C.sub,margin:0,display:"flex",alignItems:"center",gap:5}}>
+                    <CareIcon name="mission" size={14}/> 미션 요약
+                  </p>
                   {totalTodoCnt>0&&<span style={{fontSize:12,fontWeight:800,color:allDone?C.green:C.orange}}>{allDone?"✓ 완료":`${doneCnt}/${totalTodoCnt}`}</span>}
                 </div>
                 {totalTodoCnt===0?(

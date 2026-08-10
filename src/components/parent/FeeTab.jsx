@@ -16,7 +16,6 @@
      onPay(id)      : 납부 완료 처리 / 내역 보기 시트 열기
      onEditFee(a)   : 학원비 입력 팝업 열기 ({id,fee,payDay})
      onDeleteFee(id): 학원비 지우기
-     onAddItem()    : '학원비 항목 추가' 시트 열기
    ════════════════════════════════════════════════════════════════════════ */
 
 import { C, mixWhite, SHADOW } from "../../data/tokens.js";
@@ -25,7 +24,7 @@ import { payMethodLabel } from "./FeePaySheet.jsx";
 export default function FeeTab({
   th, CT, curAc = [], feeMonth, setFeeMonth,
   isPaid, payRec, payStatus, feeMenu, setFeeMenu,
-  onPay, onEditFee, onDeleteFee, onAddItem,
+  onPay, onEditFee, onDeleteFee,
 }) {
   /* [사용자 확정 2026-08-09] 이 화면의 일은 '예쁘게 보이기'가 아니라
      "이번 달에 얼마를 더 내야 하고, 어떤 학원이 미납인가"를 빨리 판단하게 하는 것. */
@@ -180,12 +179,8 @@ export default function FeeTab({
       );
     })}
     {curAc.length===0&&<div style={{textAlign:"center",padding:"40px",color:C.sub,fontSize:13,background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>등록된 학원이 없어요</div>}
-    {/* 항목 추가 — 마지막 카드 바로 아래에 붙인다 (사용자 확정).
-        빈 화면 가운데에 크게 띄우지 않는 이유: 학원이 늘어도 늘 목록 끝에서 누를 수 있어야 한다. */}
-    <button onClick={onAddItem} className="jelly-tap"
-      style={{width:"100%",marginTop:curAc.length===0?10:2,padding:"11px 10px",borderRadius:12,border:`1.5px dashed ${th.main}55`,background:"#fff",color:th.main,fontSize:13.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
-      ＋ 학원비 항목 추가
-    </button>
+    {/* [사용자 확정 2026-08-10] 목록 아래 '＋ 학원비 항목 추가' 버튼은 뺐다 —
+        학원비가 없는 학원 카드 안에 이미 '＋ 학원비 추가'가 있어 두 번 나오는 셈이었다. */}
   </div>
   );
 }
