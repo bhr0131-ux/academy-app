@@ -89,12 +89,23 @@ export default function FeeTab({
       const paid=isPaid(a.id);
       const rec=payRec(a.id);
       const hasFee=Number(a.fee||0)>0;
+      /* [사용자 확정 2026-08-10] 카드 안 동작은 전부 '내역 보기'와 같은 모양 —
+         네모 버튼이 아니라 밑줄 글자 — 로 통일하고, 색은 그 카드의 상태색을 쓴다.
+         납부 완료 카드의 '내역 보기'는 초록, 납부일이 지난 카드의 '납부 완료로 저장'은 빨강처럼
+         배지와 링크가 같은 색이라 눈이 배지 → 동작으로 자연스럽게 이어진다.
+         상태색을 그대로 쓰면 흰 바탕에서 흐리므로 검정을 28% 섞어 읽히게 한다. */
+      const actC=mixBlack(st.color,0.28);
+      const actLink={background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
+        fontSize:12.5,fontWeight:800,textDecoration:"underline",textUnderlineOffset:3,
+        padding:"8px 0 8px 12px",flexShrink:0,whiteSpace:"nowrap"};
       return (
         /* 카드 구조 (사용자 확정)
              [학원 색 세로선] 학원명 ─────────── 상태 배지  ⋮
-                              150,000원 · 매월 5일
-                              (납부) 8월 5일 납부 · 계좌이체     내역 보기
-                              (미납) [납부 완료 처리]
+                              (미납) 150,000원
+                                     납부 예정일 8월 5일     납부 완료로 저장
+                              (납부) 200,000원 · 매월 5일
+                                     8월 5일 납부 · 계좌이체     내역 보기
+           동작은 납부·미납 모두 '왼쪽 정보 ─ 오른쪽 밑줄 글자' 같은 줄 모양이다.
            학원 고유색은 왼쪽 세로선에만 쓴다 — 점으로 두면 민트 점이
            '납부 완료' 상태처럼 읽혀서 상태색과 섞인다.
            '매월 5일'은 금액보다 두 단계 작고 연하게 — 값끼리 시선을 나눠 갖지 않게. */
@@ -117,9 +128,9 @@ export default function FeeTab({
             {hasFee?(
               <p style={{margin:"3px 0 0",fontSize:15,fontWeight:800,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
                 {Number(a.fee).toLocaleString()}원
-                <span style={{fontSize:11.5,fontWeight:600,color:C.sub,opacity:0.8,marginLeft:6}}>
+                {paid&&<span style={{fontSize:11.5,fontWeight:600,color:C.sub,opacity:0.8,marginLeft:6}}>
                   · 매월 {a.payDay}일
-                </span>
+                </span>}
               </p>
             ):(
               <p style={{margin:"3px 0 0",fontSize:12.5,fontWeight:600,color:C.sub,opacity:0.8}}>학원비가 등록되지 않았어요</p>
@@ -133,8 +144,7 @@ export default function FeeTab({
                 <span style={{fontSize:11.5,fontWeight:600,color:C.sub,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                   {`${Number(rec.date.slice(5,7))}월 ${Number(rec.date.slice(8,10))}일 납부${rec.method?` · ${payMethodLabel(rec.method)}`:""}${rec.memo?` · ${rec.memo}`:""}`}
                 </span>
-                <button onClick={()=>onPay(a.id)}
-                  style={{marginLeft:"auto",flexShrink:0,background:"none",border:"none",color:th.main,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",padding:"2px 0",textDecoration:"underline",textUnderlineOffset:3}}>
+                <button onClick={()=>onPay(a.id)} style={{...actLink,marginLeft:"auto",color:actC}}>
                   내역 보기
                 </button>
               </div>
@@ -142,9 +152,23 @@ export default function FeeTab({
             {hasFee&&paid&&!rec&&(
               <div style={{marginTop:6,background:CT.faint,borderRadius:10,padding:"8px 10px"}}>
                 <p style={{margin:0,fontSize:11.5,fontWeight:600,color:C.sub}}>납부일과 결제 방법을 입력해 주세요</p>
-                <button onClick={()=>onPay(a.id)} className="jelly-tap"
-                  style={{marginTop:6,padding:"6px 12px",borderRadius:9,border:`1px solid ${th.main}40`,background:th.light,color:th.main,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+                <button onClick={()=>onPay(a.id)} style={{...actLink,padding:"8px 0 4px",color:actC}}>
                   납부 정보 추가
+                </button>
+              </div>
+            )}
+            {/* 미납 — 여기서 바로 처리한다. 시트는 오늘 날짜와 학원비가 미리 채워져 있어
+                결제 방법만 고르고 저장하면 끝난다 (사용자 확정 흐름).
+                [사용자 확정 2026-08-10] 좁은 화면(320px)에서 금액 줄에 링크까지 넣으면
+                '· 매월 5일'이 '· 매…'로 잘렸다 → 납부 완료 카드의 '내역 보기' 줄과 똑같이
+                따로 한 줄을 쓴다. 왼쪽에는 이번 달 납부 예정일을 온전히 적는다. */}
+            {hasFee&&!paid&&(
+              <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
+                <span style={{fontSize:11.5,fontWeight:600,color:C.sub,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                  납부 예정일 {feeMonth}월 {a.payDay}일
+                </span>
+                <button onClick={()=>onPay(a.id)} style={{...actLink,marginLeft:"auto",color:actC}}>
+                  납부 완료로 저장
                 </button>
               </div>
             )}
@@ -159,24 +183,9 @@ export default function FeeTab({
                 <span style={{flexShrink:0,fontSize:11,fontWeight:800,color:th.main}}>복사</span>
               </button>
             )}
-            {/* 미납 — 여기서 바로 처리한다. 시트는 오늘 날짜와 학원비가 미리 채워져 있어
-                결제 방법만 고르고 저장하면 끝난다 (사용자 확정 흐름). */}
-            {hasFee&&!paid&&(
-              /* [사용자 확정 2026-08-10] 미납 카드마다 꽉 찬 색 버튼이 들어가니 화면이 온통
-                 버튼으로 보였다(사용자 제보 "너무 요란해"). 핵심 정보는 금액과 상태인데
-                 버튼이 제일 세게 보이던 상태 → 채운 버튼을 옅은 테마색 배경 + 진한 글자로
-                 바꾼다. 카드 안에 버튼이 이것 하나뿐이라 눌러야 할 곳은 그대로 분명하다.
-                 글자색은 테마색을 그대로 쓰면 옅은 배경에서 흐려지므로 검정을 섞어 진하게 한다. */
-              <button onClick={()=>onPay(a.id)} className="jelly-tap"
-                style={{width:"100%",marginTop:8,padding:"8px 10px",borderRadius:11,
-                  border:`1px solid ${th.main}3A`,background:mixWhite(th.main,0.90),
-                  color:mixBlack(th.main,0.30),fontSize:13,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
-                납부 완료로 저장
-              </button>
-            )}
             {!hasFee&&(
-              <button onClick={()=>onEditFee({id:a.id,fee:"",payDay:String(a.payDay||1)})} className="jelly-tap"
-                style={{width:"100%",marginTop:8,padding:"8px 10px",borderRadius:11,border:`1px solid ${th.main}40`,background:th.light,color:th.main,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+              <button onClick={()=>onEditFee({id:a.id,fee:"",payDay:String(a.payDay||1)})}
+                style={{...actLink,padding:"8px 0 4px",color:mixBlack(th.main,0.28)}}>
                 ＋ 학원비 추가
               </button>
             )}
