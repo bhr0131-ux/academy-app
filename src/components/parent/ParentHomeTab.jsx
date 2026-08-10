@@ -201,6 +201,8 @@ export default function ParentHomeTab({
               <div key={ab.id} style={{marginTop:3}}>
                 <p style={{fontSize:13,fontWeight:800,color:C.text,margin:0}}>
                   {ac.name}{mt&&<span style={{fontWeight:800,color:C.orange,marginLeft:7}}>{mt}</span>}
+                  {ab.makeupStatus==="absent"&&<span style={{fontSize:11.5,fontWeight:800,color:C.red,marginLeft:7}}>불참</span>}
+                  {ab.makeupStatus==="done"&&<span style={{fontSize:11.5,fontWeight:800,color:C.green,marginLeft:7}}>완료</span>}
                 </p>
                 <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"1px 0 0"}}>결석일 {ab.date}</p>
               </div>
