@@ -93,7 +93,11 @@ export default function FeeTab({
          네모 버튼이 아니라 밑줄 글자 — 로 통일하고, 색은 그 카드의 상태색을 쓴다.
          납부 완료 카드의 '내역 보기'는 초록, 납부일이 지난 카드의 '납부 완료로 저장'은 빨강처럼
          배지와 링크가 같은 색이라 눈이 배지 → 동작으로 자연스럽게 이어진다.
-         상태색을 그대로 쓰면 흰 바탕에서 흐리므로 검정을 28% 섞어 읽히게 한다. */
+
+         [사용자 확정 2026-08-10 재조정] 배지는 흰색을 섞어 연하게, 링크는 검정을 섞어
+         진하게 쓰다 보니 같은 상태인데 색이 미묘하게 달랐다(사용자 제보 "색이 왜 조금씩 달라").
+         → 한 상태에 색은 하나. 이 값 하나를 배지 글자와 링크가 똑같이 쓴다.
+         상태색 원본은 흰 바탕에서 흐리므로 검정을 28% 섞은 값을 기준색으로 삼는다. */
       const actC=mixBlack(st.color,0.28);
       const actLink={background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
         fontSize:12.5,fontWeight:800,textDecoration:"underline",textUnderlineOffset:3,
@@ -118,9 +122,9 @@ export default function FeeTab({
               {/* 납부는 체크됐는데 상세 기록이 없으면(이 기능 이전에 체크만 한 건)
                   '납부 완료'라고만 쓰면 아래 안내와 모순처럼 읽힌다 → 배지에서 미리 밝힌다 */}
               {/* [사용자 확정 2026-08-10] 미납 카드가 여러 개면 같은 배지가 줄줄이 반복돼
-                  화면이 붉고 답답해 보였다 → 배경과 글자색을 한 단계씩 연하게(약 12%).
-                  상태는 그대로 전달되면서 카드가 차분해진다. */}
-              {hasFee&&<span style={{flexShrink:0,fontSize:paid&&!rec?10.5:11.5,fontWeight:800,padding:"3px 9px",borderRadius:9,background:`${st.color}0D`,color:mixWhite(st.color,0.12),whiteSpace:"nowrap"}}>{paid&&!rec?"납부 완료 · 상세 미입력":st.label}</span>}
+                  화면이 붉고 답답해 보였다 → 배경을 아주 옅게(5%) 깐다.
+                  글자는 아래 링크와 똑같은 actC 를 쓴다 — 한 상태에 색은 하나. */}
+              {hasFee&&<span style={{flexShrink:0,fontSize:paid&&!rec?10.5:11.5,fontWeight:800,padding:"3px 9px",borderRadius:9,background:`${st.color}0D`,color:actC,whiteSpace:"nowrap"}}>{paid&&!rec?"납부 완료 · 상세 미입력":st.label}</span>}
               <button onClick={()=>setFeeMenu(m=>m===a.id?null:a.id)} className="jelly-tap"
                 aria-label={`${a.name} 더보기`} aria-expanded={feeMenu===a.id}
                 style={{flexShrink:0,width:24,height:24,borderRadius:8,border:"none",background:"none",color:C.sub,fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit",lineHeight:1}}>⋮</button>
