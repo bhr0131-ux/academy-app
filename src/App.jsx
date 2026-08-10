@@ -6674,11 +6674,22 @@ export default function App() {
       {/* ── 학원 추가/수정 모달 ── */}
       {showAddAcModal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:200}} onClick={()=>setShowAddAcModal(false)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"93vh",overflowY:"auto",boxSizing:"border-box"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-              <h3 style={{margin:0,fontSize:17,fontWeight:800,color:C.text}}>{editTarget?"✏️ 학원 수정":"➕ 학원 추가"} ({getGenderEmoji(curChild)} {curChild?.name})</h3>
-              <button onClick={()=>setShowAddAcModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+          {/* [사용자 확정 2026-08-10] 제목이 브라우저 주소창에 바짝 붙어 잘려 보였다 →
+              위 여백 22px, 제목과 ✕ 를 세로 중앙에, 닫기 영역은 44×44px.
+              아이 이름은 괄호 대신 작은 보조 줄로 뺐다.
+              저장 버튼은 아래에 고정한다 — 긴 화면에서 끝까지 내려가 찾지 않아도 되게. */}
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",maxWidth:430,maxHeight:"93vh",boxSizing:"border-box",display:"flex",flexDirection:"column"}}>
+            <div style={{padding:"22px 20px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,borderBottom:`1px solid ${C.border}`,flexShrink:0}}>
+              <div style={{minWidth:0}}>
+                <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>{editTarget?"학원 수정":"학원 추가"}</h3>
+                <p style={{margin:"3px 0 0",fontSize:12,fontWeight:600,color:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                  {curChild?.name}의 학원 정보를 {editTarget?"수정해요":"등록해요"}
+                </p>
+              </div>
+              <button onClick={()=>setShowAddAcModal(false)} aria-label="닫기" className="jelly-tap"
+                style={{flexShrink:0,background:CT.faint,border:"none",borderRadius:12,width:44,height:44,cursor:"pointer",color:C.sub,fontSize:16,fontFamily:"inherit"}}>✕</button>
             </div>
+            <div style={{flex:1,minHeight:0,overflowY:"auto",padding:"18px 20px 20px"}}>
             {/* 학원 종류 * — 눌러서 목록에서 고른다 (검색·직접 입력).
                 종류를 골라 두면 지도·일지·미션에 쓰는 이모지가 이름과 상관없이 정확히 붙는다. */}
             <label style={lbl}>학원 종류 *</label>
@@ -6723,7 +6734,14 @@ export default function App() {
                       }
                       return {...p,days:newDays};
                     });
-                  }} style={{flex:1,padding:"9px 0",borderRadius:10,border:`1.5px solid ${sel?DAY_COLORS[day]:CT.faintB}`,background:sel?DAY_COLORS[day]:CT.faint,color:sel?"#fff":C.sub,fontSize:17,fontWeight:600,cursor:"pointer"}}>{day}</button>
+                  /* [사용자 확정 2026-08-10] 요일마다 다른 색을 쓰면 '어느 요일을 골랐나'보다
+                     무지개가 먼저 보인다. 고른 요일만 테마색으로 채우고 나머지는 회색.
+                     일요일은 안 고른 상태에서도 글자만 붉게 (달력과 같은 규칙). */
+                  }} style={{flex:1,minWidth:0,padding:"9px 0",borderRadius:10,fontFamily:"inherit",
+                    border:`1.5px solid ${sel?"transparent":CT.faintB}`,
+                    background:sel?th.main:CT.faint,
+                    color:sel?"#fff":day==="일"?"#E74C3C":day==="토"?"#3498DB":C.sub,
+                    fontSize:15,fontWeight:sel?900:700,cursor:"pointer"}}>{day}</button>
                 );
               })}
             </div>
@@ -6783,6 +6801,8 @@ export default function App() {
                     <button key={c} onClick={()=>setNewAc(p=>({...p,color:c}))} title={isUsed?"다른 학원이 사용 중":""}
                       style={{position:"relative",width:32,height:32,borderRadius:"50%",background:c,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
                         boxShadow:isSel?`0 0 0 3px #fff,0 0 0 5px ${c}`:"0 2px 6px rgba(0,0,0,0.15)"}}>
+                      {/* [사용자 확정 2026-08-10] 고른 색에 흰 체크 — 예전의 흰 점은 라디오 버튼처럼 보였다 */}
+                      {isSel&&<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                       {isUsed&&!isSel&&<span style={{width:8,height:8,borderRadius:"50%",background:"#fff",boxShadow:"0 0 0 1.5px rgba(0,0,0,0.15)"}}/>}
                     </button>
                   );
@@ -6790,7 +6810,9 @@ export default function App() {
               })()}
             </div>
 
-            <p style={{fontSize:12,color:C.sub,fontWeight:600,margin:"0 0 12px",textAlign:"center"}}>여기까지만 입력해도 등록돼요 · 아래는 필요할 때만 채우면 돼요</p>
+            <p style={{fontSize:12,color:C.sub,fontWeight:600,margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
+              필수 정보 입력 완료<br/><span style={{opacity:0.85}}>나머지는 필요할 때 추가할 수 있어요</span>
+            </p>
 
             <button type="button" onClick={()=>setShowAcMore(v=>!v)} style={{width:"100%",padding:"13px",borderRadius:14,border:`1.5px dashed ${th.main}80`,background:mixWhite(th.main,0.80),color:th.main,fontSize:14,fontWeight:900,cursor:"pointer",marginBottom:16}}>
               {showAcMore?"▲ 상세 정보 접기":"▼ 상세 정보 추가 (선택)"}
@@ -6798,12 +6820,12 @@ export default function App() {
             {showAcMore&&(<>
 
             {/* ① 준비물·숙제 묶음 */}
-            <div style={{border:`1.5px solid ${acSecSupply?mixWhite(th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecSupply?mixWhite(th.main,0.96):"#fff"}}>
-            <button type="button" onClick={()=>setAcSecSupply(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecSupply?mixWhite(th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
+            <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
+            <button type="button" onClick={()=>setAcSecSupply(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
               <span>🎒 상시 준비물 · 상시 숙제</span><span style={{color:C.sub}}>{acSecSupply?"▲":"▼"}</span>
             </button>
             {acSecSupply&&(
-            <div style={{padding:"13px 14px"}}>
+            <div style={{padding:"0 2px 16px"}}>
             <label style={{...lbl,fontSize:14}}>🎒 항상 챙길 준비물</label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseSupplies||[]).map((s,i)=>(
@@ -6833,15 +6855,29 @@ export default function App() {
             </div>
 
             {/* ② 학원비·납부 묶음 */}
-            <div style={{border:`1.5px solid ${acSecFee?mixWhite(th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecFee?mixWhite(th.main,0.96):"#fff"}}>
-            <button type="button" onClick={()=>setAcSecFee(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecFee?mixWhite(th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
+            <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
+            <button type="button" onClick={()=>setAcSecFee(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
               <span>💰 학원비 · 납부일 · 계좌</span><span style={{color:C.sub}}>{acSecFee?"▲":"▼"}</span>
             </button>
             {acSecFee&&(
-            <div style={{padding:"13px 14px"}}>
+            <div style={{padding:"0 2px 16px"}}>
               <div style={{display:"flex",gap:10,marginBottom:12}}>
-                <div style={{flex:1}}><label style={{...lbl,fontSize:14}}>월 학원비(원)</label><input type="number" value={newAc.fee===""?"":newAc.fee} onFocus={e=>{ if(Number(newAc.fee)===0) setNewAc(p=>({...p,fee:""})); }} onChange={e=>setNewAc(p=>({...p,fee:e.target.value===""?"":Number(e.target.value)}))} placeholder="0" style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/></div>
-                <div style={{flex:1}}><label style={{...lbl,fontSize:14}}>납부일</label><input type="number" min="1" max="31" value={newAc.payDay} onFocus={e=>e.target.select&&e.target.select()} onChange={e=>setNewAc(p=>({...p,payDay:e.target.value===""?"":Number(e.target.value)}))} style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/></div>
+                {/* [사용자 확정 2026-08-10] 150000 보다 150,000 이 읽기 쉽다 — 치는 동안에도 콤마를 찍는다.
+                    숫자 키패드는 inputMode 로 그대로 뜬다. */}
+                <div style={{flex:1,minWidth:0}}><label style={{...lbl,fontSize:13.5}}>월 학원비(원)</label>
+                  <input inputMode="numeric" value={Number(newAc.fee||0)>0?Number(newAc.fee).toLocaleString():""}
+                    onChange={e=>{ const n=Number(String(e.target.value).replace(/[^0-9]/g,"")); setNewAc(p=>({...p,fee:Number.isNaN(n)?0:n})); }}
+                    placeholder="0" style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/></div>
+                <div style={{flex:1,minWidth:0}}><label style={{...lbl,fontSize:13.5}}>납부일</label>
+                  <div style={{position:"relative"}}>
+                    <input inputMode="numeric" value={newAc.payDay===""?"":String(newAc.payDay)}
+                      onFocus={e=>e.target.select&&e.target.select()}
+                      onChange={e=>{ const v=String(e.target.value).replace(/[^0-9]/g,""); setNewAc(p=>({...p,payDay:v===""?"":Math.min(31,Number(v))})); }}
+                      style={{...inp,fontSize:15,padding:"10px 46px 10px 12px",marginBottom:0}}/>
+                    <span style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",fontSize:12.5,fontWeight:700,color:C.sub,pointerEvents:"none"}}>일</span>
+                  </div>
+                  <p style={{margin:"4px 0 0",fontSize:11.5,fontWeight:600,color:C.sub,opacity:0.85}}>매월 {newAc.payDay||1}일</p>
+                </div>
               </div>
               {/* [사용자 확정 2026-08-10] 이체할 때마다 문자를 찾아 헤매지 않게 계좌를 여기 적어 둔다.
                   선택 입력이고, 적어 두면 학원 카드에서 눌러 복사할 수 있다. */}
@@ -6853,12 +6889,12 @@ export default function App() {
             </div>
 
             {/* ③ 학원정보 묶음 */}
-            <div style={{border:`1.5px solid ${acSecInfo?mixWhite(th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecInfo?mixWhite(th.main,0.96):"#fff"}}>
-            <button type="button" onClick={()=>setAcSecInfo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecInfo?mixWhite(th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
+            <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
+            <button type="button" onClick={()=>setAcSecInfo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
               <span>📋 학원 정보 (연락처·주소·셔틀)</span><span style={{color:C.sub}}>{acSecInfo?"▲":"▼"}</span>
             </button>
             {acSecInfo&&(
-            <div style={{padding:"13px 14px"}}>
+            <div style={{padding:"0 2px 16px"}}>
               <label style={{...lbl,fontSize:14}}>👩‍🏫 담당 선생님</label>
               <input value={newAc.teacher} onChange={e=>setNewAc(p=>({...p,teacher:e.target.value}))} placeholder="예: 김민준 선생님" style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:12}}/>
               <label style={{...lbl,fontSize:14}}>📞 연락처</label>
@@ -6924,25 +6960,42 @@ export default function App() {
             </div>
 
             {/* ④ 메모 묶음 */}
-            <div style={{border:`1.5px solid ${acSecMemo?mixWhite(th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecMemo?mixWhite(th.main,0.96):"#fff"}}>
-            <button type="button" onClick={()=>setAcSecMemo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecMemo?mixWhite(th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
+            <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
+            <button type="button" onClick={()=>setAcSecMemo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
               <span>📝 메모</span><span style={{color:C.sub}}>{acSecMemo?"▲":"▼"}</span>
             </button>
             {acSecMemo&&(
-            <div style={{padding:"13px 14px"}}>
+            <div style={{padding:"0 2px 16px"}}>
               <textarea value={newAc.memo} onChange={e=>setNewAc(p=>({...p,memo:e.target.value}))} placeholder="특이사항, 레벨, 기타 메모 등" style={{...inp,fontSize:15,padding:"10px 12px",minHeight:70,resize:"none",marginBottom:0}}/>
             </div>
             )}
             </div>
             </>)}
-            <button onClick={saveAcademy} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer",boxShadow:`0 4px 16px ${th.main}40`}}>
-              {editTarget?"수정 완료 ✓":"추가하기"}
-            </button>
             {editTarget!==null&&(
-              <button onClick={()=>deleteAcademy(editTarget)} style={{width:"100%",marginTop:10,padding:13,borderRadius:14,border:`1.5px solid ${C.red}44`,background:`${C.red}0D`,color:C.red,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+              <button onClick={()=>deleteAcademy(editTarget)} style={{width:"100%",marginTop:16,padding:12,borderRadius:14,border:`1px solid ${C.red}35`,background:"#fff",color:C.red,fontSize:13.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
                 🗑 이 학원 삭제
               </button>
             )}
+            </div>
+            {/* 아래 고정 — 스크롤과 상관없이 늘 보인다.
+                필수(종류·요일)가 안 채워졌으면 눌러도 되지만 회색으로 눕혀 상태를 알린다. */}
+            {(()=>{
+              const kindOk=!!(newAc.kind&&(newAc.kindLabel||getAcademyKind(newAc.kind)?.label));
+              const dayOk=newAc.useCustomSchedule?(newAc.schedules||[]).length>0:(newAc.days||[]).length>0;
+              const ready=kindOk&&dayOk;
+              return (
+                <div style={{flexShrink:0,display:"flex",gap:9,padding:"12px 20px calc(16px + env(safe-area-inset-bottom))",borderTop:`1px solid ${C.border}`,background:"#fff"}}>
+                  <button onClick={()=>setShowAddAcModal(false)} className="jelly-tap"
+                    style={{flexShrink:0,padding:"14px 18px",borderRadius:14,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:14.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>취소</button>
+                  <button onClick={saveAcademy} className="jelly-tap"
+                    style={{flex:1,padding:14,borderRadius:14,border:"none",fontSize:15.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",
+                      background:ready?th.grad:CT.faint,color:ready?"#fff":C.sub,
+                      boxShadow:ready?`0 4px 16px ${th.main}40`:"none"}}>
+                    {editTarget?"수정 완료":"학원 저장"}
+                  </button>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
