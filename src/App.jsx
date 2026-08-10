@@ -368,6 +368,7 @@ export default function App() {
   const [paySheet,               setPaySheet]               = useState(null);             // 납부 처리 바텀시트 {acId}
   const [feeMenu,                setFeeMenu]                = useState(null);             // 학원비 카드 ⋮ 더보기 (학원 id)
   const [absTimeEdit,            setAbsTimeEdit]            = useState(null);             // 보충 시간 입력 중인 결석 기록 id
+  const [makeupPick,             setMakeupPick]             = useState(null);             // 보충 결과(완료/불참) 고르는 중인 결석 기록 id
   const [calView,                setCalView]                = useState("month");          // 달력 보기 — 월간 | 주간
   const [calLegend,              setCalLegend]              = useState(false);            // 달력 표시 설명 시트
   const [memoEdit,               setMemoEdit]               = useState(null);             // 메모 쓰는 중인 날짜 키
@@ -1673,6 +1674,16 @@ export default function App() {
   // true 로 켜진 뒤에는: 결제했거나 / 창립 사용자면 프리미엄 대우.
   const isFounding = !!installInfo?.isFoundingUser;
   const isPremiumUser = !PREMIUM_ENABLED || isPaidPremium || (FOUNDING_USER_IS_PREMIUM && isFounding);
+  /* [사용자 확정 2026-08-10] 팝업이 하나라도 떠 있으면 하단 고정 메뉴를 감춘다.
+     팝업 뒤에 남아 있으면 눌러도 화면이 안 바뀌어 고장난 것처럼 보인다.
+     (아이 모드 팝업은 하단 메뉴가 없으므로 여기 넣지 않는다) */
+  const anyModalOpen = !!(
+    showTodoPickerModal || showSupplyCheck || showMissionCheck || showPastMissionModal ||
+    showRewardModal || showPinChangeModal || showRecoverySetupModal || showRecoveryModal ||
+    showResetPinModal || showVacModal || showChildMgr || showAcademyCopyModal ||
+    calLegend || paySheet || feeEdit || showAddAcModal || showDetailModal ||
+    showDailyModal || showSmsModal || showTmplEdit || showAbsModal || showKindPicker
+  );
   // 특정 프리미엄 기능을 막아야 하는지 여부 (true 면 잠금 표시)
   const isLocked = () => !isPremiumUser;
 
@@ -2132,6 +2143,16 @@ export default function App() {
     setChildren(p=>p.filter(c=>c.id!==id));
     if(childId===id) setChildId(children.find(c=>c.id!==id)?.id||"");
     showToast("삭제됨");
+  };
+  /* 아이 순서 바꾸기 — 배열 순서가 곧 화면 위 아이 선택 탭의 순서다 (사용자 확정 2026-08-10) */
+  const moveChild=(idx,dir)=>{
+    setChildren(prev=>{
+      const to=idx+dir;
+      if(to<0||to>=prev.length) return prev;
+      const next=[...prev];
+      [next[idx],next[to]]=[next[to],next[idx]];
+      return next;
+    });
   };
   const openAddChild=()=>{
     setEditingChild(null);
@@ -3140,7 +3161,7 @@ export default function App() {
       showToast("수업 요일을 골라줘"); return;
     }
     const finalName=(newAc.name||"").trim() || kindLabel;
-    const cleaned={...newAc,name:finalName,kind:newAc.kind,kindLabel,fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:newAc.schedules||[]};
+    const cleaned={...newAc,name:finalName,kind:newAc.kind,kindLabel,fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),account:(newAc.account||"").trim(),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:newAc.schedules||[]};
     setAcademies(prev=>{
       const list=prev[childId]||[];
       return editTarget!==null
@@ -4948,6 +4969,10 @@ export default function App() {
             feeMenu={feeMenu} setFeeMenu={setFeeMenu}
             onPay={(acId)=>setPaySheet({acId})}
             onEditFee={(v)=>setFeeEdit(v)}
+            onCopyAccount={(txt)=>{
+              try { navigator.clipboard?.writeText(txt); showToast("계좌번호를 복사했어요"); }
+              catch(e){ showToast("복사할 수 없어요"); }
+            }}
             onDeleteFee={(acId)=>{
               setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===acId?{...x,fee:0}:x)}));
               showToast("학원비를 지웠어요");
@@ -5029,8 +5054,41 @@ export default function App() {
                               : <p style={{fontSize:13,fontWeight:800,margin:"2px 0 0",color:C.sub}}>📭 미정</p>}
                             {ab.makeupDate&&past&&!ab.makeupDone&&<p style={{fontSize:11.5,color:C.red,margin:"2px 0 0",fontWeight:600}}>⚠️ 보충일이 지났어요</p>}
                           </div>
-                          <button onClick={()=>toggleMakeup(ab.id)} style={{padding:"5px 12px",borderRadius:10,border:`1px solid ${ab.makeupDone?C.green+"33":past?C.red+"33":CT.faintB}`,cursor:"pointer",fontSize:13.5,fontWeight:800,background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:C.sub}}>
-                            {ab.makeupDone?"✓ 완료":"👆 미완료"}</button>
+                          {/* [사용자 확정 2026-08-10] 눌렀을 때 완료/불참 중에서 고른다 —
+                              보충일에 못 간 경우를 '미완료'로만 두면 나중에 구분이 안 된다.
+                              값은 예전부터 있던 makeupStatus 에 담기고, 둘 중 하나를 고르면
+                              makeupDone 도 함께 true 가 된다(기존 화면들이 그 값을 본다). */}
+                          <div style={{position:"relative",flexShrink:0}}>
+                            <button onClick={()=>setMakeupPick(v=>v===ab.id?null:ab.id)} className="jelly-tap"
+                              aria-expanded={makeupPick===ab.id}
+                              style={{padding:"5px 12px",borderRadius:10,cursor:"pointer",fontSize:13.5,fontWeight:800,fontFamily:"inherit",
+                                border:`1px solid ${ab.makeupStatus==="absent"?C.red+"44":ab.makeupDone?C.green+"33":past?C.red+"33":CT.faintB}`,
+                                background:ab.makeupStatus==="absent"?`${C.red}12`:ab.makeupDone?`${C.green}18`:CT.faint,
+                                color:ab.makeupStatus==="absent"?C.red:ab.makeupDone?C.green:C.sub}}>
+                              {ab.makeupStatus==="absent"?"✕ 불참":ab.makeupDone?"✓ 완료":"👆 미완료"}
+                            </button>
+                            {makeupPick===ab.id&&(
+                              <>
+                                <div onClick={()=>setMakeupPick(null)} style={{position:"fixed",inset:0,zIndex:40}}/>
+                                <div role="menu" style={{position:"absolute",top:36,right:0,zIndex:41,minWidth:118,background:"#fff",borderRadius:12,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
+                                  {[{k:"done",l:"✓ 완료",c:C.green},{k:"absent",l:"✕ 불참",c:C.red}].map((o,oi)=>(
+                                    <button key={o.k} role="menuitem" className="nav-menu-tap"
+                                      onClick={()=>{ setMakeupResult(ab.id,o.k); setMakeupPick(null); }}
+                                      style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:o.c,cursor:"pointer",fontFamily:"inherit",borderTop:oi===0?"none":`1px solid ${C.border}`}}>
+                                      {o.l}{ab.makeupStatus===o.k&&<span style={{marginLeft:6,fontSize:11,color:C.sub}}>선택됨</span>}
+                                    </button>
+                                  ))}
+                                  {ab.makeupStatus&&(
+                                    <button role="menuitem" className="nav-menu-tap"
+                                      onClick={()=>{ setMakeupResult(ab.id,ab.makeupStatus); setMakeupPick(null); }}
+                                      style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:12.5,fontWeight:700,color:C.sub,cursor:"pointer",fontFamily:"inherit",borderTop:`1px solid ${C.border}`}}>
+                                      ↩ 미완료로 되돌리기
+                                    </button>
+                                  )}
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </div>
                         {/* [사용자 확정 2026-08-09] 보충 시간은 나중에 정해지는 일이 많아
                             여기서 바로 넣고 고칠 수 있게 한다. 선택 입력이라 비워 두면 안 보인다. */}
@@ -5957,6 +6015,10 @@ export default function App() {
            스크롤과 상관없이 늘 같은 자리에 있고, 기기 안전영역만큼 아래를 더 띄운다.
            '더보기'는 학원비·결석·기타를 묶은 칸이라 그 셋 중 어디에 있어도 켜져 보인다. */}
       {(()=>{
+        /* [사용자 확정 2026-08-10] 팝업이 떠 있는 동안엔 하단 메뉴를 감춘다.
+           예전엔 학원 수정 중에 아래 '홈'을 눌러도 팝업에 가려 화면이 안 바뀌어
+           고장난 것처럼 보였다. 안 보이면 애초에 누를 일이 없다. */
+        if(anyModalOpen) return null;
         // 다른 칸으로 갈 땐 열려 있던 '더보기' 메뉴를 먼저 닫는다
         const go=(k)=>()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab(k); };
         const MORE_ICON={fee:"fee",absence:"absence",etc:"settings"};
@@ -6462,13 +6524,22 @@ export default function App() {
             {!editingChild&&children.length>0&&(
               <div style={{marginTop:24,borderTop:`1px solid ${C.border}`,paddingTop:18}}>
                 <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 12px"}}>등록된 아이 ({children.length})</p>
-                {children.map(c=>{
+                {/* [사용자 확정 2026-08-10] 위·아래 화살표로 순서를 바꾼다 —
+                    이 순서가 그대로 화면 위쪽 아이 선택 탭의 순서가 된다.
+                    저장은 기존 v6_children 배열 순서를 그대로 쓰므로 새 키가 필요 없다. */}
+                {children.map((c,ci)=>{
                   return (
-                    <div key={c.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",borderRadius:14,border:`1px solid ${C.border}`,marginBottom:8,background:CT.faint}}>
-                      <span style={{fontSize:20}}>{getGenderEmoji(c)}</span>
-                      <span style={{flex:1,fontSize:17,fontWeight:700,color:C.text}}>{c.name}</span>
-                      <button onClick={()=>{ setEditingChild(c.id); setChildForm({name:c.name,gender:c.gender}); }} style={{padding:"5px 12px",borderRadius:10,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:17,cursor:"pointer"}}>수정</button>
-                      <button onClick={()=>deleteChild(c.id)} style={{padding:"5px 12px",borderRadius:10,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,fontSize:17,cursor:"pointer"}}>삭제</button>
+                    <div key={c.id} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 10px 9px 6px",borderRadius:14,border:`1px solid ${C.border}`,marginBottom:8,background:CT.faint}}>
+                      <div style={{display:"flex",flexDirection:"column",gap:2,flexShrink:0}}>
+                        <button onClick={()=>moveChild(ci,-1)} disabled={ci===0} aria-label={`${c.name} 위로`}
+                          style={{width:26,height:20,borderRadius:7,border:`1px solid ${C.border}`,background:ci===0?"transparent":"#fff",color:ci===0?"#D8D2CC":C.sub,fontSize:11,fontWeight:900,cursor:ci===0?"default":"pointer",fontFamily:"inherit",lineHeight:1,padding:0}}>▲</button>
+                        <button onClick={()=>moveChild(ci,1)} disabled={ci===children.length-1} aria-label={`${c.name} 아래로`}
+                          style={{width:26,height:20,borderRadius:7,border:`1px solid ${C.border}`,background:ci===children.length-1?"transparent":"#fff",color:ci===children.length-1?"#D8D2CC":C.sub,fontSize:11,fontWeight:900,cursor:ci===children.length-1?"default":"pointer",fontFamily:"inherit",lineHeight:1,padding:0}}>▼</button>
+                      </div>
+                      <ChildFace child={c} size={26} bg={mixWhite(getChildTheme(c).main,0.86)}/>
+                      <span style={{flex:1,minWidth:0,fontSize:14.5,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</span>
+                      <button onClick={()=>{ setEditingChild(c.id); setChildForm({name:c.name,gender:c.gender}); }} style={{flexShrink:0,padding:"5px 11px",borderRadius:10,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>수정</button>
+                      <button onClick={()=>deleteChild(c.id)} style={{flexShrink:0,padding:"5px 11px",borderRadius:10,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>삭제</button>
                     </div>
                   );
                 })}
@@ -6754,12 +6825,19 @@ export default function App() {
             {/* ② 학원비·납부 묶음 */}
             <div style={{border:`1.5px solid ${acSecFee?mixWhite(th.main,0.45):C.border}`,borderRadius:14,overflow:"hidden",marginBottom:10,background:acSecFee?mixWhite(th.main,0.96):"#fff"}}>
             <button type="button" onClick={()=>setAcSecFee(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",border:"none",background:acSecFee?mixWhite(th.main,0.88):CT.faint,color:C.text,fontSize:15,fontWeight:800,cursor:"pointer"}}>
-              <span>💰 학원비 · 납부일</span><span style={{color:C.sub}}>{acSecFee?"▲":"▼"}</span>
+              <span>💰 학원비 · 납부일 · 계좌</span><span style={{color:C.sub}}>{acSecFee?"▲":"▼"}</span>
             </button>
             {acSecFee&&(
-            <div style={{padding:"13px 14px",display:"flex",gap:10}}>
-              <div style={{flex:1}}><label style={{...lbl,fontSize:14}}>월 학원비(원)</label><input type="number" value={newAc.fee===""?"":newAc.fee} onFocus={e=>{ if(Number(newAc.fee)===0) setNewAc(p=>({...p,fee:""})); }} onChange={e=>setNewAc(p=>({...p,fee:e.target.value===""?"":Number(e.target.value)}))} placeholder="0" style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/></div>
-              <div style={{flex:1}}><label style={{...lbl,fontSize:14}}>납부일</label><input type="number" min="1" max="31" value={newAc.payDay} onFocus={e=>e.target.select&&e.target.select()} onChange={e=>setNewAc(p=>({...p,payDay:e.target.value===""?"":Number(e.target.value)}))} style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/></div>
+            <div style={{padding:"13px 14px"}}>
+              <div style={{display:"flex",gap:10,marginBottom:12}}>
+                <div style={{flex:1}}><label style={{...lbl,fontSize:14}}>월 학원비(원)</label><input type="number" value={newAc.fee===""?"":newAc.fee} onFocus={e=>{ if(Number(newAc.fee)===0) setNewAc(p=>({...p,fee:""})); }} onChange={e=>setNewAc(p=>({...p,fee:e.target.value===""?"":Number(e.target.value)}))} placeholder="0" style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/></div>
+                <div style={{flex:1}}><label style={{...lbl,fontSize:14}}>납부일</label><input type="number" min="1" max="31" value={newAc.payDay} onFocus={e=>e.target.select&&e.target.select()} onChange={e=>setNewAc(p=>({...p,payDay:e.target.value===""?"":Number(e.target.value)}))} style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/></div>
+              </div>
+              {/* [사용자 확정 2026-08-10] 이체할 때마다 문자를 찾아 헤매지 않게 계좌를 여기 적어 둔다.
+                  선택 입력이고, 적어 두면 학원 카드에서 눌러 복사할 수 있다. */}
+              <label style={{...lbl,fontSize:14}}>🏦 입금 계좌 <span style={{fontWeight:600,opacity:0.7}}>(선택)</span></label>
+              <input value={newAc.account||""} onChange={e=>setNewAc(p=>({...p,account:e.target.value}))}
+                placeholder="예: 국민 123456-01-234567 (홍길동)" style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/>
             </div>
             )}
             </div>

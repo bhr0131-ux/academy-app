@@ -68,6 +68,7 @@ export default function AcademyTab({
             <div style={{padding:"4px 13px 10px",background:"#fff"}}>
               {[["💰","월 학원비",Number(ac.fee||0)>0?`${Number(ac.fee).toLocaleString()}원`:null],
                 ["🗓️","납부일",Number(ac.fee||0)>0?`매월 ${ac.payDay}일`:null],
+                ["🏦","입금 계좌",(ac.account||"").trim()||null],
                 ["🎒","기본 준비물",(ac.baseSupplies||[]).length?(ac.baseSupplies||[]).join(", "):null],
                 ["👩‍🏫","선생님",ac.teacher||null],
                 ["📍","주소",ac.address||null],

@@ -69,7 +69,9 @@ export const SAMPLE_TMPL = [
 ];
 
 export const EMPTY_AC = {
-  name:"", days:[], time:"15:00", duration:40,
+  /* account = 입금 계좌 (선택). [사용자 확정 2026-08-10] 없던 필드라 기존 학원에는 비어 있고,
+     읽는 쪽이 빈 값이면 계좌 줄을 안 그린다 — 마이그레이션이 필요 없다. */
+  name:"", days:[], time:"15:00", duration:40, account:"",
   useCustomSchedule:false, schedules:[],
   shuttleInfo:"", useCustomShuttle:false, shuttleSchedules:[],
   fee:0, payDay:1, color:"#FF6B6B",

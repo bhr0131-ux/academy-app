@@ -16,6 +16,7 @@
      onPay(id)      : 납부 완료 처리 / 내역 보기 시트 열기
      onEditFee(a)   : 학원비 입력 팝업 열기 ({id,fee,payDay})
      onDeleteFee(id): 학원비 지우기
+     onCopyAccount(s): 입금 계좌 복사
    ════════════════════════════════════════════════════════════════════════ */
 
 import { C, mixWhite, SHADOW } from "../../data/tokens.js";
@@ -24,7 +25,7 @@ import { payMethodLabel } from "./FeePaySheet.jsx";
 export default function FeeTab({
   th, CT, curAc = [], feeMonth, setFeeMonth,
   isPaid, payRec, payStatus, feeMenu, setFeeMenu,
-  onPay, onEditFee, onDeleteFee,
+  onPay, onEditFee, onDeleteFee, onCopyAccount,
 }) {
   /* [사용자 확정 2026-08-09] 이 화면의 일은 '예쁘게 보이기'가 아니라
      "이번 달에 얼마를 더 내야 하고, 어떤 학원이 미납인가"를 빨리 판단하게 하는 것. */
@@ -141,6 +142,17 @@ export default function FeeTab({
                   납부 정보 추가
                 </button>
               </div>
+            )}
+            {/* 입금 계좌 — [사용자 확정 2026-08-10] 이체할 때마다 문자를 찾아 헤매지 않게.
+                눌러서 복사한다. 학원 등록에서 안 적었으면 아예 안 나온다. */}
+            {hasFee&&!paid&&(a.account||"").trim()&&(
+              <button onClick={()=>onCopyAccount&&onCopyAccount(a.account)} className="jelly-tap"
+                style={{display:"flex",alignItems:"center",gap:6,width:"100%",marginTop:6,padding:"6px 9px",borderRadius:9,
+                  border:`1px solid ${C.border}`,background:"#fff",cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}>
+                <span style={{fontSize:12,flexShrink:0}}>🏦</span>
+                <span style={{flex:1,minWidth:0,fontSize:11.5,fontWeight:700,color:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.account}</span>
+                <span style={{flexShrink:0,fontSize:11,fontWeight:800,color:th.main}}>복사</span>
+              </button>
             )}
             {/* 미납 — 여기서 바로 처리한다. 시트는 오늘 날짜와 학원비가 미리 채워져 있어
                 결제 방법만 고르고 저장하면 끝난다 (사용자 확정 흐름). */}

@@ -341,10 +341,10 @@ export default function CalendarTab({
                       <div style={{display:"flex",alignItems:"center",gap:7,color:C.orange}}>
                         <CareIcon name="makeup" size={14}/>
                         <span style={{fontSize:12.5,fontWeight:900}}>보충수업</span>
-                        <span style={{fontSize:11.5,fontWeight:700,opacity:0.85}}>· {ab.makeupDone?"완료":"미완료"}</span>
+                        <span style={{fontSize:11.5,fontWeight:700,opacity:0.85}}>· {ab.makeupStatus==="absent"?"불참":ab.makeupDone?"완료":"미완료"}</span>
                         <button onClick={()=>toggleMakeup(ab.id)} className="jelly-tap"
                           style={{marginLeft:"auto",flexShrink:0,fontSize:11.5,padding:"4px 10px",borderRadius:9,border:"none",background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:C.sub,cursor:"pointer",fontWeight:800,fontFamily:"inherit"}}>
-                          {ab.makeupDone?"✓ 완료":"완료로"}
+                          {ab.makeupStatus==="absent"?"✕ 불참":ab.makeupDone?"✓ 완료":"완료로"}
                         </button>
                       </div>
                       <p style={{margin:"3px 0 0",fontSize:13.5,fontWeight:800,color:C.text}}>
