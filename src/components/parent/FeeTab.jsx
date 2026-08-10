@@ -19,7 +19,7 @@
      onCopyAccount(s): 입금 계좌 복사
    ════════════════════════════════════════════════════════════════════════ */
 
-import { C, mixWhite, SHADOW } from "../../data/tokens.js";
+import { C, mixWhite, mixBlack, SHADOW } from "../../data/tokens.js";
 import { payMethodLabel } from "./FeePaySheet.jsx";
 
 export default function FeeTab({
@@ -162,14 +162,15 @@ export default function FeeTab({
             {/* 미납 — 여기서 바로 처리한다. 시트는 오늘 날짜와 학원비가 미리 채워져 있어
                 결제 방법만 고르고 저장하면 끝난다 (사용자 확정 흐름). */}
             {hasFee&&!paid&&(
-              /* [사용자 확정 2026-08-10] 네 카드 모두 큰 핑크 버튼이라 화면이 버튼 위주로 보였다.
-                 핵심 정보는 금액과 상태인데 버튼이 제일 세게 보이던 상태 →
-                 그라데이션 폭을 좁혀(밝은 끝을 어둡게) 세기를 낮추고 높이를 5px 줄인다.
-                 문구는 이미 분명하므로 그대로 둔다. */
+              /* [사용자 확정 2026-08-10] 미납 카드마다 꽉 찬 색 버튼이 들어가니 화면이 온통
+                 버튼으로 보였다(사용자 제보 "너무 요란해"). 핵심 정보는 금액과 상태인데
+                 버튼이 제일 세게 보이던 상태 → 채운 버튼을 옅은 테마색 배경 + 진한 글자로
+                 바꾼다. 카드 안에 버튼이 이것 하나뿐이라 눌러야 할 곳은 그대로 분명하다.
+                 글자색은 테마색을 그대로 쓰면 옅은 배경에서 흐려지므로 검정을 섞어 진하게 한다. */
               <button onClick={()=>onPay(a.id)} className="jelly-tap"
-                style={{width:"100%",marginTop:8,padding:"7px 10px",borderRadius:11,border:"none",
-                  background:`linear-gradient(135deg, ${th.main} 0%, ${mixWhite(th.main,0.18)} 100%)`,
-                  color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+                style={{width:"100%",marginTop:8,padding:"8px 10px",borderRadius:11,
+                  border:`1px solid ${th.main}3A`,background:mixWhite(th.main,0.90),
+                  color:mixBlack(th.main,0.30),fontSize:13,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
                 납부 완료로 저장
               </button>
             )}
