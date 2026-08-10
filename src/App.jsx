@@ -6402,38 +6402,41 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowVacModal(null)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-              <h3 style={{margin:0,fontSize:17,fontWeight:800,color:C.text}}>🏖️ 방학 기간 설정</h3>
-              <button onClick={()=>setShowVacModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🏖️ 방학 기간 설정</h3>
+              <button onClick={()=>setShowVacModal(null)} aria-label="닫기" className="jelly-tap"
+                style={{flexShrink:0,background:CT.faint,border:"none",borderRadius:12,width:40,height:40,cursor:"pointer",color:C.sub,fontSize:15,fontFamily:"inherit"}}>✕</button>
             </div>
 
             {/* 방학 추가 폼 */}
             <div style={{background:"#FFFBF0",borderRadius:14,padding:"16px",marginBottom:20,border:"1.5px solid #F0A500"}}>
-              <p style={{fontSize:17,fontWeight:700,color:"#E65100",margin:"0 0 14px"}}>새 방학 기간 추가</p>
-              <label style={{fontSize:17,color:C.sub,display:"block",marginBottom:6,fontWeight:700}}>학원 선택</label>
+              <p style={{fontSize:14,fontWeight:900,color:"#E65100",margin:"0 0 12px"}}>새 방학 기간 추가</p>
+              <label style={{fontSize:13,color:C.sub,display:"block",marginBottom:6,fontWeight:700}}>학원 선택</label>
               <select value={vacForm.academyId} onChange={e=>setVacForm(p=>({...p,academyId:e.target.value}))}
-                style={{width:"100%",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"11px 12px",color:C.text,fontSize:17,outline:"none",marginBottom:12}}>
+                style={{width:"100%",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"10px 12px",color:C.text,fontSize:14,fontWeight:700,outline:"none",marginBottom:12,fontFamily:"inherit"}}>
                 <option value="">학원 선택</option>
                 {(showVacModal.acList||[]).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}
               </select>
-              <div style={{display:"flex",gap:10,marginBottom:14}}>
-                <div style={{flex:1}}>
-                  <label style={{fontSize:17,color:C.sub,display:"block",marginBottom:6,fontWeight:700}}>시작일</label>
+              {/* [2026-08-10] 날짜 칸 두 개가 안 줄어들어 좁은 기기에서 팝업을 화면 밖으로 밀어냈다.
+                  minWidth:0 + width:0 으로 줄어들게 하고, 글자도 17 → 14 로 (다른 화면과 맞춤). */}
+              <div style={{display:"flex",gap:8,marginBottom:14,minWidth:0}}>
+                <div style={{flex:1,minWidth:0}}>
+                  <label style={{fontSize:13,color:C.sub,display:"block",marginBottom:6,fontWeight:700}}>시작일</label>
                   <input type="date" value={vacForm.start} onChange={e=>setVacForm(p=>({...p,start:e.target.value}))}
-                    style={{width:"100%",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"11px 12px",color:C.text,fontSize:17,outline:"none"}}/>
+                    style={{width:"100%",minWidth:0,display:"block",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"10px 8px",color:C.text,fontSize:13.5,fontWeight:700,outline:"none",fontFamily:"inherit"}}/>
                 </div>
-                <div style={{flex:1}}>
-                  <label style={{fontSize:17,color:C.sub,display:"block",marginBottom:6,fontWeight:700}}>종료일</label>
+                <div style={{flex:1,minWidth:0}}>
+                  <label style={{fontSize:13,color:C.sub,display:"block",marginBottom:6,fontWeight:700}}>종료일</label>
                   <input type="date" value={vacForm.end} onChange={e=>setVacForm(p=>({...p,end:e.target.value}))}
-                    style={{width:"100%",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"11px 12px",color:C.text,fontSize:17,outline:"none"}}/>
+                    style={{width:"100%",minWidth:0,display:"block",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"10px 8px",color:C.text,fontSize:13.5,fontWeight:700,outline:"none",fontFamily:"inherit"}}/>
                 </div>
               </div>
-              <button onClick={addVacation} style={{width:"100%",padding:13,borderRadius:14,border:"none",background:"linear-gradient(135deg,#F0A500,#FFD54F)",color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>
+              <button onClick={addVacation} className="jelly-tap" style={{width:"100%",padding:12,borderRadius:13,border:"none",background:"linear-gradient(135deg,#F0A500,#FFD54F)",color:"#fff",fontSize:14,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
                 🏖️ 방학 등록
               </button>
             </div>
 
             {/* 등록된 방학 목록 */}
-            <p style={{fontSize:17,fontWeight:700,color:C.sub,margin:"0 0 10px"}}>등록된 방학 기간</p>
+            <p style={{fontSize:13,fontWeight:800,color:C.sub,margin:"0 0 10px"}}>등록된 방학 기간</p>
             {curAc.map(ac=>{
               const vacs=getVacations(childId,ac.id);
               if(vacs.length===0) return null;
@@ -6441,25 +6444,29 @@ export default function App() {
                 <div key={ac.id} style={{marginBottom:12}}>
                   <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
                     <div style={{width:8,height:8,borderRadius:"50%",background:ac.color}}/>
-                    <span style={{fontSize:17,fontWeight:700,color:C.text}}>{ac.name}</span>
+                    <span style={{fontSize:13.5,fontWeight:800,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</span>
                   </div>
-                  {vacs.map(v=>(
-                    <div key={v.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",borderRadius:10,background:"#FFF8E1",border:"1px solid #F0A500",marginBottom:6}}>
-                      <span style={{fontSize:20}}>🏖️</span>
-                      <div style={{flex:1}}>
-                        <p style={{fontSize:17,fontWeight:600,color:C.text,margin:0}}>{v.start} ~ {v.end}</p>
-                        <p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>
+                  {vacs.map(v=>{
+                    const kor=(d)=>{ const [,mm,dd]=String(d).split("-").map(Number); return `${mm}월 ${dd}일`; };
+                    return (
+                    <div key={v.id} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 11px",borderRadius:10,background:"#FFF8E1",border:"1px solid #F0A50055",marginBottom:6,minWidth:0}}>
+                      <span style={{fontSize:15,flexShrink:0}}>🏖️</span>
+                      <div style={{flex:1,minWidth:0}}>
+                        <p style={{fontSize:13,fontWeight:800,color:C.text,margin:0}}>{kor(v.start)} ~ {kor(v.end)}</p>
+                        <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"2px 0 0"}}>
                           {Math.ceil((new Date(v.end)-new Date(v.start))/86400000)+1}일간
                         </p>
                       </div>
-                      <button onClick={()=>deleteVacation(ac.id,v.id)} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:17}}>✕</button>
+                      <button onClick={()=>deleteVacation(ac.id,v.id)} aria-label="방학 삭제"
+                        style={{flexShrink:0,background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15,fontFamily:"inherit"}}>✕</button>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               );
             })}
             {curAc.every(ac=>getVacations(childId,ac.id).length===0)&&(
-              <div style={{textAlign:"center",padding:"20px",color:C.sub,fontSize:17,background:CT.faint,borderRadius:14}}>
+              <div style={{textAlign:"center",padding:"20px",color:C.sub,fontSize:13.5,fontWeight:700,background:CT.faint,borderRadius:14}}>
                 등록된 방학이 없어요
               </div>
             )}

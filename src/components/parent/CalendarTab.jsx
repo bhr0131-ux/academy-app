@@ -26,7 +26,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { C, DAYS, mixWhite, SHADOW } from "../../data/tokens.js";
-import { TODAY, getDN, toStr } from "../../utils/dates.js";
+import { TODAY, getDN, toStr, addDays, parseLocal } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText } from "../../data/sampleData.js";
 import { getHolidayName } from "../../data/characters.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
@@ -75,18 +75,36 @@ export default function CalendarTab({
   /* 학원비 납부일 — 매월 같은 날이라 '평소와 다른 일'은 아니지만 놓치면 곤란해서 예외로 둔다 */
   const feeDueOnSel=curAc.filter(a=>Number(a.fee||0)>0&&Math.max(1,Number(a.payDay||1))===selInfo.day);
   if(feeDueOnSel.length) sumParts.push(`학원비 납부일 ${feeDueOnSel.length}곳`);
+
+  /* [사용자 확정 2026-08-10] 월 이동 화살표가 주간 보기에서는 아무 일도 하지 않았다 —
+     주간은 effSelDate가 속한 주를 그리는데, 화살표는 calDate(달)만 바꿨기 때문이다.
+     월간은 달 단위, 주간은 주 단위로 넘긴다. 주를 옮기면 calDate도 같이 맞춰 둬서
+     월간으로 돌아갔을 때 그 달이 열린다. */
+  const weekMon=(()=>{ const d=parseLocal(effSelDate); const off=(d.getDay()+6)%7; return addDays(effSelDate,-off); })();
+  const weekSun=addDays(weekMon,6);
+  const korMD=(s)=>{ const [,mm,dd]=s.split("-").map(Number); return `${mm}월 ${dd}일`; };
+  const goWeek=(dir)=>{
+    const next=addDays(weekMon,dir*7);
+    setCalSelDate(next);
+    const d=parseLocal(next);
+    setCalDate(new Date(d.getFullYear(),d.getMonth(),1));
+  };
+  const goMonth=(dir)=>{ setCalDate(new Date(calDate.getFullYear(),calDate.getMonth()+dir,1)); setCalSelDate(null); };
+  const isWeek=calView==="week";
   return (
     <div>
       {/* [사용자 확정 2026-08-10] 월간|주간·화살표·월 제목·범례가 한 줄에서 비슷한 무게로
           경쟁해 무엇이 중심인지 안 잡혔다. 월 제목과 화살표를 한 묶음으로 첫 줄에,
           보기 전환은 둘째 줄로 내린다. '표시' → '범례'(뜻이 바로 통한다). */}
       <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:2,marginBottom:10,position:"relative",minWidth:0}}>
-        <button onClick={()=>{ setCalDate(new Date(calDate.getFullYear(),calDate.getMonth()-1,1)); setCalSelDate(null); }}
-          className="jelly-tap" aria-label="이전 달"
+        <button onClick={()=>isWeek?goWeek(-1):goMonth(-1)}
+          className="jelly-tap" aria-label={isWeek?"이전 주":"이전 달"}
           style={{background:"none",border:"none",borderRadius:9,width:32,height:32,fontSize:17,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
-        <span style={{fontWeight:900,fontSize:16,color:C.text,whiteSpace:"nowrap",minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>{calDate.getFullYear()}년 {calDate.getMonth()+1}월</span>
-        <button onClick={()=>{ setCalDate(new Date(calDate.getFullYear(),calDate.getMonth()+1,1)); setCalSelDate(null); }}
-          className="jelly-tap" aria-label="다음 달"
+        <span style={{fontWeight:900,fontSize:isWeek?14.5:16,color:C.text,whiteSpace:"nowrap",minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>
+          {isWeek?`${korMD(weekMon)} ~ ${korMD(weekSun)}`:`${calDate.getFullYear()}년 ${calDate.getMonth()+1}월`}
+        </span>
+        <button onClick={()=>isWeek?goWeek(1):goMonth(1)}
+          className="jelly-tap" aria-label={isWeek?"다음 주":"다음 달"}
           style={{background:"none",border:"none",borderRadius:9,width:32,height:32,fontSize:17,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10,minWidth:0}}>
@@ -100,6 +118,12 @@ export default function CalendarTab({
           ))}
         </div>
         <div style={{flex:1}}/>
+        {isWeek&&!(TODAY>=weekMon&&TODAY<=weekSun)&&(
+          <button onClick={()=>setCalSelDate(TODAY)} className="jelly-tap"
+            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:9,color:th.main,fontSize:11.5,fontWeight:800,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            이번 주
+          </button>
+        )}
         {calView==="month"&&(
           <button onClick={onOpenLegend} className="jelly-tap" aria-label="달력 범례 보기"
             style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:4,background:"none",border:"none",padding:"5px 2px",fontSize:11.5,fontWeight:700,color:C.sub,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
@@ -170,11 +194,8 @@ export default function CalendarTab({
       {/* ── 주간 보기 — 요일을 가로 7칸으로 쪼개면 글자가 두세 줄로 끊긴다.
              세로 목록으로 두면 시간과 학원을 한 줄에 읽을 수 있다 (사용자 확정). ── */}
       {calView==="week"&&(()=>{
-        const sel=new Date(effSelDate.replace(/-/g,"/"));
-        const offset=(sel.getDay()+6)%7;                      // 월=0 ... 일=6
-        const monday=new Date(sel); monday.setDate(sel.getDate()-offset);
         const weekDates={};
-        DAYS.forEach((d,i)=>{ const wd=new Date(monday); wd.setDate(monday.getDate()+i); weekDates[d]=toStr(wd); });
+        DAYS.forEach((d,i)=>{ weekDates[d]=addDays(weekMon,i); });
         return (
           <div style={{display:"flex",flexDirection:"column",gap:7}}>
             {getWeeklySchedule(childId).map(({day,items})=>{
