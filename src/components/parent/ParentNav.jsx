@@ -131,7 +131,7 @@ export default function ParentNav({ items = [], accent = "#F58BB0", dim = "#9AA0
 
       <div style={{ maxWidth, margin: "0 auto", pointerEvents: "auto",
         background: "#FFFDFC",                                  // 아주 연한 웜화이트
-        borderTop: "1px solid rgba(90,70,60,0.10)",
+        borderTop: "1px solid rgba(90,70,60,0.06)",
         boxShadow: "0 -6px 18px -10px rgba(90,70,60,0.28)",
         paddingBottom: "env(safe-area-inset-bottom)" }}>
         <div style={{ display: "flex", height: PARENT_NAV_H }}>
@@ -140,10 +140,10 @@ export default function ParentNav({ items = [], accent = "#F58BB0", dim = "#9AA0
               aria-label={it.label} aria-current={it.active ? "page" : undefined}
               style={{ flex: 1, border: "none", background: "none", padding: 0, cursor: "pointer",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                gap: 3, fontFamily: F, color: it.active ? accent : dim,
+                gap: 2, fontFamily: F, color: it.active ? accent : dim,
                 transition: "color .15s" }}>
               {NAV_ICONS[it.icon] || NAV_ICONS.more}
-              <span style={{ fontSize: 11, fontWeight: it.active ? 900 : 700, letterSpacing: -0.2 }}>{it.label}</span>
+              <span style={{ fontSize: 10, fontWeight: it.active ? 900 : 700, letterSpacing: -0.2 }}>{it.label}</span>
             </button>
           ))}
         </div>

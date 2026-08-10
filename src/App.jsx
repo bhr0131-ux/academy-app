@@ -4845,15 +4845,15 @@ export default function App() {
 
       {/* ── 헤더 — 제목과 '아이용' 버튼만 (사용자 확정 2026-08-09: 간결하게, 높이·글자 조금 작게).
              핑크(테마색) 그라데이션과 장식 블롭은 그대로 둔다 — 이 화면의 정체성이라서. ── */}
-      <div style={{background:`linear-gradient(165deg, ${headerTone(th.main,0.42)} 0%, ${headerTone(th.main,0.64)} 100%)`,padding:"18px 16px 50px",position:"relative",overflow:"hidden"}}>
+      <div style={{background:`linear-gradient(165deg, ${headerTone(th.main,0.42)} 0%, ${headerTone(th.main,0.64)} 100%)`,padding:"14px 16px 44px",position:"relative",overflow:"hidden"}}>
         {/* 은은한 장식 블롭 */}
         <div style={{position:"absolute",top:-40,right:-30,width:160,height:160,borderRadius:"50%",background:`${th.main}22`,filter:"blur(8px)"}}/>
         <div style={{position:"absolute",bottom:-50,left:-20,width:120,height:120,borderRadius:"50%",background:`${headerTone(th.main,0.34)}55`,filter:"blur(6px)"}}/>
 
         <div style={{position:"relative",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <h1 style={{fontSize:19,fontWeight:900,margin:0,color:mixBlack(th.main,0.45)}}>🎒 엄마 관리</h1>
+          <h1 style={{fontSize:17,fontWeight:900,margin:0,color:mixBlack(th.main,0.45)}}>🎒 엄마 관리</h1>
           <button onClick={exitParentMode} className="jelly-tap"
-            style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:13,padding:"8px 13px",fontSize:12.5,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`}}>
+            style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:12,padding:"7px 12px",fontSize:12,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`}}>
             🎒 아이용
           </button>
         </div>
@@ -4863,7 +4863,7 @@ export default function App() {
              [사용자 확정 2026-08-09] 높이·여백을 줄이고, 고른 아이만 테마색으로 칠한다.
              안 고른 아이는 흰 바탕 + 아주 연한 테두리 — 예전엔 아이마다 옅은 자기 색이
              깔려 있어 '누가 선택된 건지'가 한눈에 안 들어왔다. ── */}
-      <div style={{position:"relative",margin:"-32px 14px 0",background:"#fff",borderRadius:18,boxShadow:SHADOW.lg,padding:"9px 8px",display:"flex",alignItems:"center",gap:7,zIndex:5}}>
+      <div style={{position:"relative",margin:"-28px 14px 0",background:"#fff",borderRadius:16,boxShadow:SHADOW.lg,padding:"7px 8px",display:"flex",alignItems:"center",gap:7,zIndex:5}}>
         {/* 가로 스크롤 막대가 아이 이름 위로 겹쳐 보여서 막대를 숨긴다 (사용자 지적) —
             넘치는 건 여전히 손가락으로 밀어서 본다 (.noscrollbar) */}
         <div className="noscrollbar" ref={childStripRef} style={{display:"flex",flex:1,gap:5,overflowX:"auto"}}>
@@ -4875,22 +4875,23 @@ export default function App() {
                  이름 앞은 기기마다 모양이 다른 운영체제 이모지 대신 앱 캐릭터 얼굴을 쓴다. */
               <button key={c.id} data-child={c.id}
                 onClick={()=>{ setChildId(c.id); setRewardDate(TODAY); }} className="jelly-tap"
-                style={{flex:"0 0 auto",display:"flex",alignItems:"center",gap:6,padding:"5px 11px 5px 6px",cursor:"pointer",
-                  fontSize:13.5,fontWeight:sel?900:700,borderRadius:12,
+                style={{flex:"0 0 auto",display:"flex",alignItems:"center",gap:6,padding:"4px 10px 4px 5px",cursor:"pointer",
+                  fontSize:13,fontWeight:sel?900:700,borderRadius:11,
                   border:sel?"none":"1px solid #ECE6E2",
                   background:sel?`linear-gradient(135deg, ${mixWhite(t.main,0.10)}, ${mixWhite(t.main,0.30)})`:"#fff",
                   color:sel?"#fff":C.sub,whiteSpace:"nowrap",transition:"all 0.2s",
                   maxWidth:118,overflow:"hidden",                            // 이름이 길면 말줄임 (사용자 확정)
                   boxShadow:sel?`0 3px 10px ${t.main}3A`:"none",fontFamily:"inherit"}}>
-                <ChildFace child={c} size={22} bg={sel?"#ffffff33":mixWhite(t.main,0.86)}/>
+                <ChildFace child={c} size={20} bg={sel?"#ffffff33":mixWhite(t.main,0.86)}/>
                 <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>{c.name}</span>
               </button>
             );
           })}
         </div>
         {/* 아이 추가 */}
+        {/* [사용자 확정 2026-08-10] 점선 테두리 대신 단순한 원형 ＋ — 아이 칩과 형태가 겹치지 않게 */}
         <button onClick={openAddChild} className="jelly-tap"
-          style={{flexShrink:0,width:36,height:36,borderRadius:12,border:`1.5px dashed ${th.main}55`,background:mixWhite(th.main,0.95),color:th.main,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1,fontSize:16,fontWeight:900}}
+          style={{flexShrink:0,width:30,height:30,borderRadius:"50%",border:"none",background:mixWhite(th.main,0.90),color:th.main,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1,fontSize:16,fontWeight:900,fontFamily:"inherit"}}
           title="아이 추가" aria-label="아이 추가">＋</button>
       </div>
 
@@ -6022,8 +6023,9 @@ export default function App() {
         // 다른 칸으로 갈 땐 열려 있던 '더보기' 메뉴를 먼저 닫는다
         const go=(k)=>()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab(k); };
         const MORE_ICON={fee:"fee",absence:"absence",etc:"settings"};
+        // 비활성 색은 따뜻한 갈회색 대신 중성 회청색 — 화면의 파랑 계열과 겉돌지 않게 (사용자 확정 2026-08-10)
         return (
-          <ParentNav accent={th.main} dim="#7C7268" maxWidth={430}
+          <ParentNav accent={th.main} dim="#8A93A0" maxWidth={430}
             menu={{
               open:moreMenuOpen,
               onClose:()=>setMoreMenuOpen(false),

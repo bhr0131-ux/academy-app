@@ -42,7 +42,7 @@ function Sheet({ title, desc, tone, onClose, children }) {
       display: "flex", alignItems: "flex-end", zIndex: 1000 }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: "22px 22px 0 0",
         padding: "10px 18px calc(26px + env(safe-area-inset-bottom))", width: "100%", maxWidth: 430,
-        boxSizing: "border-box", maxHeight: "82vh", overflowY: "auto", fontFamily: F }}>
+        boxSizing: "border-box", maxHeight: "74vh", overflowY: "auto", fontFamily: F }}>
         {/* 드래그 손잡이 (장식) */}
         <div aria-hidden="true" style={{ width: 38, height: 4, borderRadius: 999,
           background: tone.border, margin: "0 auto 12px" }} />
@@ -147,7 +147,9 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
       <p style={{ margin: 0, fontSize: 13.5, fontWeight: 800, minWidth: 0, flex: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         color: it.failed ? tone.red : faded ? tone.sub : tone.text,
-        textDecoration: faded && !it.failed ? "line-through" : "none" }}>{it.label}</p>
+        /* [사용자 확정 2026-08-10] 흐린 글자 + 취소선이 겹쳐 읽기 어려웠다.
+           앞의 ✅ 가 이미 완료를 뜻하므로 취소선은 뺀다 (실패만 남긴다). */
+        textDecoration: it.failed ? "line-through" : "none" }}>{it.label}</p>
       {/* 종류 꼬리표 — 위 학원 머리의 '개수'와 같은 오른쪽 칸(TAIL_W)에 맞춰 세로로 줄 세운다 */}
       <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11,
         fontWeight: 700, color: tone.sub, opacity: 0.8 }}>
@@ -160,8 +162,8 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
     <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
       {list.map(g => (
         <div key={g.acId} style={{ padding: "9px 12px 8px", borderRadius: 14,
-          border: `1.5px solid ${tone.border}`, background: faded ? "#fff" : tone.faint,
-          opacity: faded ? 0.9 : 1 }}>
+          border: `1px solid ${tone.border}`, background: faded ? "#fff" : tone.faint,
+          opacity: faded ? 0.95 : 1 }}>
           <AcHead icon={g.icon} name={g.name} tone={tone} color={g.color}
             right={`${g.items.length}개`} />
           <div style={{ borderTop: `1px solid ${tone.border}`, paddingTop: 1 }}>
@@ -174,7 +176,7 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
 
   return (
     <Sheet title="🎯 미션 확인" tone={tone} onClose={onClose}
-      desc={`${dateLabel} 숙제와 미션이에요. 남은 것이 위, 끝낸 것이 아래에 있어요.`}>
+      desc={`${dateLabel} 남은 미션을 확인해 주세요.`}>
       {nRemain + nDone === 0 ? (
         <Empty emoji="🗒️" title="이 날은 미션이 없어요" sub="학원별로 숙제나 미션을 넣으면 여기에 보여요" tone={tone} />
       ) : (
