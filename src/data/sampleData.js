@@ -75,7 +75,19 @@ export const EMPTY_AC = {
   fee:0, payDay:1, color:"#FF6B6B",
   baseSupplies:[], baseHomeworks:[], phone:"", teacher:"", address:"", memo:""
 };
-export const EMPTY_ABS = { academyId:"", date:TODAY, reason:"", makeupDate:"", makeupDone:false, makeupStatus:"" };
+/* [사용자 확정 2026-08-09] 보충 수업의 시작·종료 시각(makeupStart/makeupEnd)은 선택 입력이다.
+   보충 날짜만 잡히고 시간은 나중에 정해지는 경우가 많아 필수로 두지 않는다.
+   기존 기록에는 이 두 값이 없다 — 읽는 쪽에서 빈 값으로 보고 시간 줄을 안 그리면 된다
+   (저장 키 v6_abs 의 구조를 바꾸지 않고 필드만 늘리는 방식이라 기존 데이터가 안전하다). */
+export const EMPTY_ABS = { academyId:"", date:TODAY, reason:"", makeupDate:"", makeupStart:"", makeupEnd:"", makeupDone:false, makeupStatus:"" };
+
+/* 보충 시간 표시용 — 둘 다 없으면 빈 문자열, 시작만 있으면 시작만 */
+export const makeupTimeText = (ab) => {
+  const s=(ab?.makeupStart||"").trim(), e=(ab?.makeupEnd||"").trim();
+  if(!s&&!e) return "";
+  if(s&&e) return `${s}–${e}`;
+  return s||e;
+};
 
 // ── 요일별 스케줄 유틸 (하이브리드: 기본 공통시간 + 예외 요일별 시간) ──
 export const hasClassOnDay = (academy, day) => {

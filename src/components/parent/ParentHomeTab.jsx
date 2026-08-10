@@ -26,7 +26,7 @@
 
 import { C, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
-import { hasClassOnDay, getScheduleForDay, getClassTime, getShuttleText } from "../../data/sampleData.js";
+import { hasClassOnDay, getScheduleForDay, getClassTime, getShuttleText, makeupTimeText } from "../../data/sampleData.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
 
 export default function ParentHomeTab({
@@ -182,7 +182,14 @@ export default function ParentHomeTab({
           <p style={{fontSize:17,fontWeight:700,color:C.orange,margin:"0 0 6px"}}>📚 보충수업</p>
           {makeupOnHome.map(ab=>{
             const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
-            return <p key={ab.id} style={{fontSize:17,color:C.text,margin:"2px 0"}}>{ac.name} (결석일: {ab.date})</p>;
+            const mt=makeupTimeText(ab);
+            return (
+              <p key={ab.id} style={{fontSize:15,color:C.text,margin:"2px 0",fontWeight:700}}>
+                {ac.name}
+                {mt&&<span style={{fontWeight:800,color:C.orange,marginLeft:6}}>{mt}</span>}
+                <span style={{fontSize:12,fontWeight:600,color:C.sub,marginLeft:6}}>결석일 {ab.date}</span>
+              </p>
+            );
           })}
         </div>
       )}
