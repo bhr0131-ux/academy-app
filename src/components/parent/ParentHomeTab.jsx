@@ -20,6 +20,7 @@
      acKindLabel, getAcademyTheme  : App이 들고 있는 판단·조회 함수
      onGoTab(key)          : 다른 탭으로 이동 (보상 잠금 해제 포함)
      onOpenSupplyCheck() / onOpenMissionCheck()  : 오늘 챙길 일 칩
+     onGoReward()          : 보상 탭으로 (PIN 확인 포함)
      onSms(ac)             : 학원에 문자 보내기
      onEditDaily(ac, date) : 미션·준비물 편집 팝업 열기
    ════════════════════════════════════════════════════════════════════════ */
@@ -35,7 +36,7 @@ export default function ParentHomeTab({
   homeDate, setHomeDate, homeAcOpen = {}, setHomeAcOpen, navH = 58,
   isVacationDay, getDailyEntry, getQuestItemsForDate, getChildRewardRequests,
   acKindLabel, getAcademyTheme,
-  onGoTab, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
+  onGoTab, onGoReward, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
 }) {
   const hd=new Date(homeDate.replace(/-/g,"/"));
   const hDN=["일","월","화","수","목","금","토"][hd.getDay()];
@@ -79,40 +80,68 @@ export default function ParentHomeTab({
           style={{width:34,height:34,borderRadius:10,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,flexShrink:0,fontFamily:"inherit"}}>›</button>
       </div>
 
-      {/* 오늘 할 일 — [사용자 확정 2026-08-10] 칩을 줄줄이 늘어놓지 않고 같은 폭 칸으로 나눈다.
-          라벨은 작은 회색, 숫자만 크게 색으로. 0인 칸은 회색으로 눕혀 '할 일 없음'을 바로 알린다.
-          칸이 늘 같은 자리에 있어서 매일 같은 위치를 보면 된다. */}
-      {(()=>{
-        const pendingRewardCnt=getChildRewardRequests(childId).filter(r=>r.status==="pending").length;
-        const cells=[
-          {k:"sup",  label:"준비물",  icon:"bag",     n:homeSupplyCount,  color:th.main,  go:onOpenSupplyCheck},
-          {k:"mis",  label:"미션",    icon:"mission", n:homePendingQuest, color:C.orange, go:onOpenMissionCheck},
-        ];
-        if(pendingRewardCnt>0) cells.push({k:"rew",label:"보상승인",icon:"reward",n:pendingRewardCnt,color:C.green,go:goRewardTab});
-        else if(absOnHome.length>0) cells.push({k:"abs",label:"결석",icon:"absent",n:absOnHome.length,color:C.red,go:()=>onGoTab("absence")});
-        else cells.push({k:"mk",label:"보충수업",icon:"makeup",n:makeupOnHome.length,color:C.orange,go:()=>onGoTab("absence")});
-        const total=cells.reduce((n,c)=>n+c.n,0);
-        return (
-          <div style={{display:"flex",gap:7,marginBottom:12}}>
-            {cells.map(c=>{
-              const on=c.n>0;
-              return (
-                <button key={c.k} onClick={c.go} className="jelly-tap" aria-label={`${c.label} ${c.n}개 확인`}
-                  style={{flex:1,minWidth:0,background:"#fff",border:`1px solid ${on?c.color+"33":C.border}`,borderRadius:13,
-                    padding:"8px 6px 9px",cursor:"pointer",fontFamily:"inherit",display:"flex",flexDirection:"column",
-                    alignItems:"center",gap:2,boxShadow:on?"0 2px 8px rgba(90,70,60,0.06)":"none"}}>
-                  <span style={{display:"flex",alignItems:"center",gap:4,color:on?C.sub:"#B9B3AD"}}>
-                    <CareIcon name={c.icon} size={12}/>
-                    <span style={{fontSize:11,fontWeight:700}}>{c.label}</span>
-                  </span>
-                  <span style={{fontSize:19,fontWeight:900,lineHeight:1.1,color:on?c.color:"#C9C3BD"}}>{c.n}</span>
-                </button>
-              );
-            })}
-          </div>
-        );
-        void total;
-      })()}
+      {/* [사용자 확정 2026-08-10] '오늘 할 일' 3칸 요약으로 바꿨다가 원래의
+          '오늘 챙길 일' 칩 카드로 되돌린다 — 사용자 요청. 개수에 따라 높이가
+          달라지는 규칙(0개 배너 / 1개 한 줄 / 2개+ 펼침)도 그대로다. */}
+      {/* [사용자 확정 2026-08-08] 현황 카드에서 아이 이름·레벨 줄과 요약 3칸(학원·결석·
+          보충수업)을 빼고, 감싸던 파스텔 카드도 없앴다. 이름·레벨은 바로 위 아이 선택
+          줄에 이미 있고, 요약 3칸의 결석·보충수업은 '오늘 챙길 일' 칩과 겹쳤다.
+          이제 이 자리에는 '오늘 챙길 일' 한 칸만 남는다. */}
+      <div style={{marginBottom:16}}>
+        {/* 오늘 챙길 일 알림 */}
+        {(()=>{
+          const pendingRewardCnt=getChildRewardRequests(childId).filter(r=>r.status==="pending").length;
+          // 칩마다 누르면 갈 곳을 함께 둔다 (사용자 확정: 개수만 보여 주지 말고 내용까지 확인 가능하게).
+          // 준비물·미션은 팝업, 보상승인·결석·보충수업은 이미 처리 화면이 있는 탭으로 보낸다.
+          const alerts=[];
+          if(homeSupplyCount>0) alerts.push({label:`🎒 준비물 ${homeSupplyCount}개`,color:th.main,
+            go:onOpenSupplyCheck});
+          if(homePendingQuest>0) alerts.push({label:`🎯 미완료 미션 ${homePendingQuest}개`,color:th.main,
+            go:onOpenMissionCheck});
+          if(pendingRewardCnt>0) alerts.push({label:`🎁 보상승인 ${pendingRewardCnt}개`,color:C.green,
+            go:onGoReward});
+          if(absOnHome.length>0) alerts.push({label:`🏥 결석 ${absOnHome.length}개`,color:C.red,
+            go:()=>onGoTab("absence")});
+          if(makeupOnHome.length>0) alerts.push({label:`📚 보충수업 ${makeupOnHome.length}개`,color:C.orange,
+            go:()=>onGoTab("absence")});
+          /* [사용자 확정 2026-08-09] 내용 개수에 따라 카드 높이가 달라진다.
+             예전엔 준비물 하나뿐인 날에도 두 줄짜리 카드가 자리를 차지해 비어 보였다.
+               0개  → 한 줄 완료 배너
+               1개  → 라벨과 칩이 한 줄에 나란히
+               2개+ → 지금처럼 라벨 아래에 칩을 펼친다 */
+          const label=dayTag?`${dayTag} 챙길 일`:"이 날 챙길 일";
+          const chip=(a,i)=>(
+            <button key={i} onClick={a.go} className="jelly-tap" aria-label={`${a.label} 확인`}
+              style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",
+                fontSize:13,fontWeight:900,color:mixBlack(a.color,0.5),background:mixWhite(a.color,0.88),
+                border:`1px solid ${a.color}33`,borderRadius:10,padding:"5px 10px",whiteSpace:"nowrap",
+                cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
+              {a.label}<span style={{fontSize:10,opacity:0.65}}>›</span>
+            </button>
+          );
+          if(alerts.length===0) return (
+            <div style={{background:mixWhite(th.main,0.85),border:`1px solid ${th.main}40`,borderRadius:14,
+              padding:"9px 13px",display:"flex",alignItems:"center",gap:9,boxShadow:SHADOW.sm}}>
+              <span style={{fontSize:15,flexShrink:0}}>✅</span>
+              <span style={{fontSize:13.5,fontWeight:800,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
+            </div>
+          );
+          if(alerts.length===1) return (
+            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:14,
+              padding:"9px 13px",display:"flex",alignItems:"center",gap:10,boxShadow:SHADOW.sm}}>
+              <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>{label}</span>
+              <span style={{marginLeft:"auto"}}>{chip(alerts[0],0)}</span>
+            </div>
+          );
+          return (
+            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:14,padding:"11px 13px",boxShadow:SHADOW.sm}}>
+              <p style={{fontSize:12.5,fontWeight:800,margin:"0 0 7px",color:C.sub}}>{label}</p>
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>{alerts.map(chip)}</div>
+            </div>
+          );
+        })()}
+
+      </div>
 
       {/* 방학 중인 학원 표시 */}
       {vacAcToday.length>0&&(
