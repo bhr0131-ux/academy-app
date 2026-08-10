@@ -19,7 +19,7 @@
      calView, setCalView                   "month" | "week"
      onOpenLegend()                        표시 설명 시트 열기
      dayMemos, setDayMemos, memoEdit, setMemoEdit, memoDraft, setMemoDraft
-     mKey, isVacationDay, getDailyEntry, getWeeklySchedule, acKindLabel, toggleMakeup
+     mKey, isVacationDay, getDailyEntry, getWeeklySchedule, toggleMakeup
      onSms(ac)                             결석 학원에 문자 보내기
      onVacation()                          방학 기간 관리 열기
      isFeePaidOn(acId, month)              그 달 학원비를 냈는지 (달력의 납부일 표시용)
@@ -38,7 +38,7 @@ export default function CalendarTab({
   calDate, setCalDate, calDays = [], calSelDate, setCalSelDate,
   calView, setCalView, onOpenLegend,
   dayMemos = {}, setDayMemos, memoEdit, setMemoEdit, memoDraft, setMemoDraft,
-  mKey, isVacationDay, getDailyEntry, getWeeklySchedule, acKindLabel, toggleMakeup, isFeePaidOn,
+  mKey, isVacationDay, getDailyEntry, getWeeklySchedule, toggleMakeup, isFeePaidOn,
   onSms, onVacation,
 }) {
   /* [사용자 확정 2026-08-09] 이 화면의 핵심 흐름은 '날짜를 고른다 → 그날 일정을 본다'.
@@ -211,7 +211,7 @@ export default function CalendarTab({
                       {isTodayRow?"오늘":korDate(dayDate)}
                     </p>
                   </div>
-                  <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:4}}>
+                  <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:10}}>
                     {items.length===0
                       ? <p style={{margin:0,fontSize:12.5,fontWeight:600,color:C.sub,opacity:0.7}}>일정 없음</p>
                       : items.map(ac=>{
@@ -219,18 +219,22 @@ export default function CalendarTab({
                           return (
                             /* [사용자 확정 2026-08-10] 취소선이 글꼴과 겹쳐 지저분했다 →
                                줄 전체를 흐리게 하고 시간 자리에 주황 '휴원' 배지를 넣는다.
-                               오른쪽 학원 이름도 너무 연해 보여 한 단계 진하게. */
-                            <div key={ac.id} style={{display:"flex",alignItems:"center",gap:8,minWidth:0,opacity:onVac?0.55:1}}>
-                              <span style={{width:3,height:14,borderRadius:9,background:ac.color,flexShrink:0}}/>
+
+                               [2026-08-10 재조정] '피아노·수학' 종류 칸을 뺐다 — 학원 이름과 같은 뜻이
+                               두 번 나오는 데다, 정작 중요한 학원 이름이 오른쪽 끝 연한 글씨라
+                               한눈에 안 들어왔다(사용자 제보). 이제 색 띠 → 시간(회색) → 학원 이름
+                               (진한 남색·굵게, 남는 폭 전부) 순으로, 왼쪽부터 바로 읽힌다.
+                               이름이 길면 두 줄로 내리지 않고 말줄임 — 카드 높이를 일정하게 두고,
+                               카드를 누르면 월간 상세에서 전체 이름을 볼 수 있다. */
+                            <div key={ac.id} style={{display:"flex",alignItems:"center",gap:9,minWidth:0,opacity:onVac?0.55:1}}>
+                              <span style={{width:3,height:15,borderRadius:9,background:ac.color,flexShrink:0}}/>
                               <span style={{flexShrink:0,minWidth:46,display:"flex"}}>
                                 {onVac
                                   ? <span style={{fontSize:10.5,fontWeight:900,color:"#E65100",background:"#F0A50022",borderRadius:7,padding:"2px 7px"}}>휴원</span>
                                   : <span style={{fontSize:12.5,fontWeight:700,color:C.sub}}>{ac.classTime}</span>}
                               </span>
-                              <span style={{fontSize:13.5,fontWeight:800,color:C.text,minWidth:0,
-                                overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
-                              <span style={{marginLeft:"auto",flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub,
-                                maxWidth:104,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</span>
+                              <span style={{flex:1,minWidth:0,fontSize:13.5,fontWeight:800,color:C.text,
+                                overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</span>
                             </div>
                           );
                         })}
