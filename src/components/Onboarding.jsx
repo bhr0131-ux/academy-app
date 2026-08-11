@@ -53,13 +53,14 @@ export function ModeSelect({ onPick }){
 export function CoachmarkOverlay({ th, onFinish }){
   const TH=th||{ main:"#3B7ECD", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" };
   /* [2026-08-09] 하단 고정 메뉴 5칸으로 개편 — 안내도 같은 순서·같은 이름으로 맞췄다.
-     [2026-08-10] 미션이 칸으로 나오고 달력이 '더보기' 안으로 들어갔다. */
+     [2026-08-11] 지금 화면에 맞춰 설명을 다시 썼다 — 각 칸에서 '실제로 무엇을 하는지'만 적는다. */
   const items=[
-    { icon:"🏠", name:"홈", desc:"오늘 일정과 '오늘 챙길 일', 오늘 가는 학원을 한눈에 봐요." },
-    { icon:"🏫", name:"학원", desc:"등록한 학원을 관리해요. 학원 추가·수정, 셔틀·준비물·숙제를 여기서 챙겨요." },
-    { icon:"🎯", name:"미션", desc:"날짜별로 미션을 추가·수정하고 점수를 관리해요." },
-    { icon:"🎁", name:"보상", desc:"아이가 모은 코인으로 받을 보상을 설정하고, 구매 요청을 승인해요." },
-    { icon:"⋯", name:"더보기", desc:"달력·학원비·결석·보충·기타(백업, 비밀번호, 사용 가이드)를 여기 모아 뒀어요." },
+    { icon:"🏠", name:"홈", desc:"오늘 가는 학원과 챙길 준비물·미션을 한눈에 봐요.\n학원 카드를 누르면 셔틀·준비물까지 펼쳐져요." },
+    { icon:"🎓", name:"학원", desc:"학원을 추가·수정해요.\n준비물·반복 숙제·학원비·계좌·셔틀을 여기서 정해 둬요." },
+    { icon:"🎯", name:"미션", desc:"날짜별로 미션을 넣고 고쳐요.\n점수를 바꾸거나 지난 미션을 마감할 수 있어요." },
+    { icon:"🎁", name:"보상", desc:"코인으로 바꿀 보상을 정하고, 아이가 신청하면 승인해요." },
+    { icon:"☰", name:"더보기", desc:"달력 · 학원비 · 결석·보충이 여기 있어요.\n백업·비밀번호·사용 가이드도 '기타'에 있어요." },
+    { icon:"🔒", name:"미션·보상은 잠금", desc:"점수를 고치고 미션을 지울 수 있는 곳이라\n비밀번호를 한 번 물어봐요 (처음 1234)." },
     { icon:"🎒", name:"아이용", desc:"오른쪽 위 '🎒 아이용' 버튼을 누르면\n아이 화면으로 바뀌어요." },
   ];
   const [i,setI]=useState(0);
@@ -103,8 +104,11 @@ export function OnboardingFlow({ onFinish }){
   const [acName,setAcName]=useState("");
   const [acDays,setAcDays]=useState([]);
   const [acTime,setAcTime]=useState("16:00");
-  const [homework,setHomework]=useState("");
-  const [todo,setTodo]=useState("");
+  const [acDuration,setAcDuration]=useState("40");
+  const [supply,setSupply]=useState("");          // 항상 챙길 준비물 (선택)
+  const [baseHw,setBaseHw]=useState("");          // 반복 숙제 (선택)
+  const [mission,setMission]=useState("");        // 오늘 미션 하나 (선택)
+  const [missionKind,setMissionKind]=useState("hw");   // hw | todo
 
   const inp={width:"100%",padding:"15px 16px",borderRadius:14,border:"1.5px solid #E3E8F0",fontSize:17,boxSizing:"border-box",outline:"none",fontWeight:600};
   const lbl={fontSize:22,fontWeight:900,color:"#1A1A35",margin:"0 0 6px",lineHeight:1.3};
@@ -112,20 +116,28 @@ export function OnboardingFlow({ onFinish }){
 
   const toggleDay=(d)=>setAcDays(p=>p.includes(d)?p.filter(x=>x!==d):[...p,d]);
 
+  /* [사용자 확정 2026-08-11] 앱이 커지면서 첫 등록이 지금 화면과 어긋나 있었다.
+     · '오늘의 숙제'와 '오늘의 미션(할 일)'을 따로 물으면서 둘 다 필수라 건너뛸 수 없었다
+       → 미션 화면과 같은 방식(종류 고르기 + 내용 하나)으로 합치고 선택으로 바꾼다.
+     · 학원 카드가 '수업 40분 · 준비물 · 반복 숙제'까지 보여 주는데 첫 등록에는 없었다
+       → 수업 시간(분)과 준비물·반복 숙제를 넣는다. 둘 다 선택이다.
+     · 마지막에 '이제 어디서 무엇을 하면 되는지' 한 장을 둔다. */
   const steps=[
     { kind:"welcome" },
     { kind:"input", title:"아이의 이름이 무엇인가요?", sub:"아이 화면과 미션에 표시돼요.", canNext:()=>childName.trim().length>0 },
     { kind:"age", title:"아이의 연령대를 골라주세요", sub:"연령대에 맞는 보상 목록을 자동으로 준비해드려요. 나중에 바꿀 수 있어요.", canNext:()=>age!=="" },
     { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>acName.trim().length>0 },
-    { kind:"homework", title:"오늘의 숙제가 있나요?", sub:"하나만 적어볼게요. 나중에 자유롭게 바꿀 수 있어요.", canNext:()=>homework.trim().length>0 },
-    { kind:"todo", title:"오늘의 미션(할 일)이 있나요?", sub:"숙제 외에 스스로 할 일을 하나 적어주세요.", canNext:()=>todo.trim().length>0 },
+    { kind:"routine", title:"갈 때마다 챙기는 게 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 자동으로 보여요. 비워 둬도 괜찮아요." },
+    { kind:"mission", title:"오늘 할 미션을 하나 정해볼까요?", sub:"아이가 완료하면 코인을 받아요. 지금 비워 두고 나중에 넣어도 돼요." },
+    { kind:"done", title:"준비 끝났어요!", sub:"" },
   ];
   const cur=steps[step];
   const isLast=step===steps.length-1;
 
   const next=()=>{ if(isLast){ finish(); } else setStep(s=>s+1); };
   const prev=()=>setStep(s=>Math.max(0,s-1));
-  const finish=()=>onFinish({ childName, gender, age, acName, acDays, acTime, homework, todo });
+  const finish=()=>onFinish({ childName, gender, age, acName, acDays, acTime,
+    acDuration:Number(acDuration)||40, supply, baseHw, mission, missionKind });
 
   return (
     <div style={{position:"fixed",inset:0,zIndex:9999,background:"#fff",display:"flex",flexDirection:"column",wordBreak:"keep-all"}}>
@@ -198,33 +210,94 @@ export function OnboardingFlow({ onFinish }){
             <p style={sub}>{cur.sub}</p>
             <input autoFocus value={acName} onChange={e=>setAcName(e.target.value)} placeholder="예: 피아노 학원" style={inp}/>
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"22px 0 10px"}}>수업 요일</p>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {/* 일곱 칸이 한 줄에 들어가게 폭을 나눠 갖는다 — 고정 폭이면 좁은 기기에서 두 줄로 접혔다 */}
+            <div style={{display:"flex",gap:5}}>
               {DAYS.map(d=>(
-                <button key={d} onClick={()=>toggleDay(d)} style={{width:42,height:42,borderRadius:12,border:`2px solid ${acDays.includes(d)?TH.main:"#E3E8F0"}`,background:acDays.includes(d)?TH.main:"#fff",color:acDays.includes(d)?"#fff":"#8890B0",fontSize:15,fontWeight:800,cursor:"pointer"}}>{d}</button>
+                <button key={d} onClick={()=>toggleDay(d)} style={{flex:1,minWidth:0,height:42,borderRadius:12,border:`2px solid ${acDays.includes(d)?TH.main:"#E3E8F0"}`,background:acDays.includes(d)?TH.main:"#fff",color:acDays.includes(d)?"#fff":"#8890B0",fontSize:15,fontWeight:800,cursor:"pointer",padding:0}}>{d}</button>
               ))}
             </div>
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"22px 0 10px"}}>수업 시간</p>
-            <input type="time" value={acTime} onChange={e=>setAcTime(e.target.value)} style={inp}/>
+            <div style={{display:"flex",gap:10,marginTop:22}}>
+              <div style={{flex:1,minWidth:0}}>
+                <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>시작 시간</p>
+                <input type="time" value={acTime} onChange={e=>setAcTime(e.target.value)} style={{...inp,minWidth:0}}/>
+              </div>
+              <div style={{width:112,flexShrink:0}}>
+                <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>수업 시간</p>
+                <div style={{position:"relative"}}>
+                  <input type="number" inputMode="numeric" min="10" value={acDuration}
+                    onChange={e=>setAcDuration(e.target.value.replace(/[^0-9]/g,""))} aria-label="수업 시간(분)"
+                    style={{...inp,minWidth:0,paddingRight:34,textAlign:"right"}}/>
+                  <span style={{position:"absolute",right:14,top:"50%",transform:"translateY(-50%)",fontSize:15,fontWeight:700,color:"#8890B0",pointerEvents:"none"}}>분</span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {cur.kind==="homework"&&(
+        {cur.kind==="routine"&&(
           <div>
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
-            <input autoFocus value={homework} onChange={e=>setHomework(e.target.value)} placeholder="예: 문제집 5쪽" style={inp}
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 8px"}}>🎒 항상 챙길 준비물</p>
+            <input autoFocus value={supply} onChange={e=>setSupply(e.target.value)} placeholder="예: 교재, 악보" style={inp}/>
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"22px 0 8px"}}>📚 반복 숙제</p>
+            <input value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 하농 1번 연습" style={inp}
+              onKeyDown={e=>e.key==="Enter"&&next()}/>
+            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"10px 2px 0",lineHeight:1.6}}>
+              반복 숙제는 미션 화면에서 눌러 그날 미션에 넣어요.
+            </p>
+          </div>
+        )}
+
+        {cur.kind==="mission"&&(
+          <div>
+            <p style={lbl}>{cur.title}</p>
+            <p style={sub}>{cur.sub}</p>
+            {/* 종류 고르기는 앱의 미션 편집 화면과 같은 모양으로 (사용자 확정) */}
+            <div style={{display:"flex",gap:8,marginBottom:12}}>
+              {[{k:"hw",t:"📚 숙제"},{k:"todo",t:"✅ 할 일"}].map(o=>(
+                <button key={o.k} onClick={()=>setMissionKind(o.k)} aria-pressed={missionKind===o.k}
+                  style={{flex:1,padding:13,borderRadius:14,border:`2px solid ${missionKind===o.k?TH.main:"#E3E8F0"}`,
+                    background:missionKind===o.k?`${TH.main}12`:"#fff",color:missionKind===o.k?TH.main:"#8890B0",
+                    fontSize:15,fontWeight:800,cursor:"pointer"}}>{o.t}</button>
+              ))}
+            </div>
+            <input autoFocus value={mission} onChange={e=>setMission(e.target.value)}
+              placeholder={missionKind==="hw"?"예: 문제집 5쪽":"예: 책가방 스스로 챙기기"} style={inp}
               onKeyDown={e=>e.key==="Enter"&&next()}/>
           </div>
         )}
 
-        {cur.kind==="todo"&&(
-          <div>
-            <p style={lbl}>{cur.title}</p>
-            <p style={sub}>{cur.sub}</p>
-            <input autoFocus value={todo} onChange={e=>setTodo(e.target.value)} placeholder="예: 책가방 스스로 챙기기" style={inp}
-              onKeyDown={e=>e.key==="Enter"&&next()}/>
+        {cur.kind==="done"&&(
+          <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center"}}>
+            <div style={{fontSize:52,textAlign:"center",marginBottom:14}}>🎉</div>
+            <h2 style={{fontSize:23,fontWeight:900,color:"#1A1A35",margin:"0 0 6px",textAlign:"center",lineHeight:1.35}}>
+              {childName.trim()||"우리 아이"}의 미션팡 준비 끝!
+            </h2>
+            <p style={{fontSize:14,fontWeight:600,color:"#8890B0",margin:"0 0 22px",textAlign:"center",lineHeight:1.6}}>
+              아래 다섯 칸으로 오가며 관리해요.
+            </p>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {[{ic:"🏠",t:"홈",d:"오늘 일정·챙길 일을 한눈에"},
+                {ic:"🎓",t:"학원",d:"학원 추가·수정, 준비물과 반복 숙제"},
+                {ic:"🎯",t:"미션",d:"날짜별 미션 추가·수정과 점수"},
+                {ic:"🎁",t:"보상",d:"코인으로 바꿀 보상 관리·승인"},
+                {ic:"☰",t:"더보기",d:"달력 · 학원비 · 결석·보충"}].map(x=>(
+                <div key={x.t} style={{display:"flex",alignItems:"center",gap:12,background:TH.faint,borderRadius:13,padding:"11px 13px"}}>
+                  <span style={{flexShrink:0,width:32,height:32,borderRadius:10,background:"#fff",fontSize:17,display:"flex",alignItems:"center",justifyContent:"center"}}>{x.ic}</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <p style={{fontSize:14.5,fontWeight:900,color:"#1A1A35",margin:0}}>{x.t}</p>
+                    <p style={{fontSize:12,fontWeight:600,color:"#8890B0",margin:"2px 0 0",lineHeight:1.45}}>{x.d}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"16px 2px 0",lineHeight:1.6,textAlign:"center"}}>
+              오른쪽 위 <b style={{color:TH.main}}>🎒 아이용</b> 을 누르면 아이 화면으로 바뀌어요.
+            </p>
           </div>
         )}
+
       </div>
 
       <div style={{padding:"16px 24px 28px",display:"flex",gap:10}}>
@@ -233,7 +306,7 @@ export function OnboardingFlow({ onFinish }){
         )}
         <button onClick={next} disabled={cur.canNext&&!cur.canNext()}
           style={{flex:2,padding:16,borderRadius:14,border:"none",background:(cur.canNext&&!cur.canNext())?"#C8D0DE":TH.grad,color:"#fff",fontSize:16,fontWeight:900,cursor:(cur.canNext&&!cur.canNext())?"default":"pointer",boxShadow:(cur.canNext&&!cur.canNext())?"none":`0 6px 18px ${TH.main}40`}}>
-          {cur.kind==="welcome"?"시작하기":isLast?"완료하고 시작하기 🎉":"다음"}
+          {cur.kind==="welcome"?"시작하기":isLast?"미션팡 시작하기":"다음"}
         </button>
       </div>
     </div>
@@ -248,21 +321,23 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
   const coinW=isCute?"쿠키":"코인";
 
   const steps=isWelcome
+    /* [2026-08-11] '보상탭에서 점수 수정' 은 옛 구조다 — 미션 관리가 '미션' 탭으로 나왔고
+       미션·보상 두 칸이 같은 잠금을 쓴다. 지금 동작대로 다시 썼다. */
     ? [
-        { ic:"🔓", t:"아이가 직접 미션을 추가해요", d:"홈탭 또는 아이용에서 숙제·할 일을 등록" },
-        { ic:"🔒", t:"점수·삭제는 엄마만", d:"보상탭에서 엄마권한으로 점수 수정·미션 삭제" },
-        { ic:"🎁", t:"보상은 엄마가 승인", d:"아이가 신청하면 여기서 확인하고 승인" },
+        { ic:"🔓", t:"미션은 아이도 넣을 수 있어요", d:"아이용 화면에서 숙제·할 일을 스스로 추가" },
+        { ic:"🔒", t:"점수·삭제는 엄마만", d:"미션·보상 칸은 비밀번호를 한 번 물어봐요" },
+        { ic:"🎁", t:"보상은 엄마가 승인", d:"아이가 신청하면 보상 칸에서 확인하고 승인" },
       ]
     : isReward
     ? [
-        { ic:"🔓", t:"아이가 직접 미션을 추가해요", d:"홈탭 또는 아이용에서 숙제·할 일을 등록" },
-        { ic:"🔒", t:"점수·삭제는 엄마만", d:"보상탭에서 엄마권한으로 점수 수정·미션 삭제" },
-        { ic:"🎁", t:"보상은 엄마가 승인", d:"아이가 신청하면 여기서 확인하고 승인" },
+        { ic:"🎁", t:"보상 목록 정하기", d:`${coinW}으로 바꿀 보상을 추가·수정` },
+        { ic:"✅", t:"구매 요청 승인", d:"아이가 신청한 보상을 확인하고 승인" },
+        { ic:"🎯", t:"미션은 옆 '미션' 칸에서", d:"미션 추가·수정과 점수는 그쪽에서" },
       ]
     : [
         { ic:"🧒", t:"아이 등록", d:"" },
-        { ic:"🏫", t:"학원 등록", d:"" },
-        { ic:"📝", t:"미션 추가", d:"숙제·할 일을 미션으로" },
+        { ic:"🎓", t:"학원 등록", d:"준비물·반복 숙제까지 한 번에" },
+        { ic:"🎯", t:"미션 추가", d:"숙제·할 일을 그날 미션으로" },
         { ic:"✅", t:"아이가 직접 체크", d:"완수하면 스스로 체크!" },
         { ic:"⭐", t:`${xpW}·${coinW} 획득`, d:"" },
         { ic:"🎁", t:"보상 받기", d:`${coinW}으로 원하는 보상을` },
@@ -303,7 +378,7 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
           <h2 style={{fontSize:isReward||isWelcome?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isWelcome?"여기는 엄마 권한이에요 🔒":isReward?"보상탭은 엄마 공간이에요 🔒":"오늘의 미션"}</h2>
           <div style={{width:38,height:3,borderRadius:99,background:"rgba(255,255,255,0.6)",margin:"12px auto 14px"}}/>
           <p style={{fontSize:14.5,fontWeight:800,lineHeight:1.6,margin:0}}>
-            {isWelcome?<>점수와 보상은 엄마가 관리,<br/>아이는 미션에만 집중! ✨</>:isReward?<>미션은 아이가 홈탭에서,<br/>점수·보상 관리는 엄마가 여기서 ✨</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨</>}
+            {isWelcome?<>점수와 보상은 엄마가 관리,<br/>아이는 미션에만 집중! ✨</>:isReward?<>보상은 여기서, 미션은 '미션' 칸에서<br/>따로 관리해요 ✨</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨</>}
           </p>
         </div>
 

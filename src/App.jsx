@@ -857,7 +857,8 @@ export default function App() {
 
   // 온보딩 완료: 입력값을 실제 데이터에 반영 → 홈 진입 → 코치마크
   const finishOnboarding=(data)=>{
-    // data = { childName, gender, acName, acDays:[], acTime, homework, todo }
+    // data = { childName, gender, age, acName, acDays:[], acTime, acDuration,
+    //          supply, baseHw, mission, missionKind }
     const cid="child_1";
     setChildren([{ id:cid, name:(data.childName||"우리 아이").trim(), gender:data.gender||"boy" }]);
     setChildId(cid);
@@ -871,15 +872,24 @@ export default function App() {
     let acId=null;
     if(data.acName && data.acName.trim()){
       acId="ac_"+Date.now();
+      /* [2026-08-11] 첫 등록에서도 화면이 쓰는 값을 다 채워 둔다 —
+         종류는 이름에서 추측해 넣는다(없으면 학원 카드가 이름을 종류 자리에 그대로 쓴다).
+         준비물·반복 숙제는 비워 둘 수 있고, 넣으면 그 학원 가는 날마다 보인다. */
+      const guessed=guessAcademyKind(data.acName.trim());
       const newAcademy={ ...EMPTY_AC, id:acId, name:data.acName.trim(),
-        days:(data.acDays&&data.acDays.length)?data.acDays:[], time:data.acTime||"16:00", duration:40,
+        kind:guessed?.key||"", kindLabel:guessed?.label||"",
+        days:(data.acDays&&data.acDays.length)?data.acDays:[], time:data.acTime||"16:00",
+        duration:Number(data.acDuration)||40,
+        baseSupplies:(data.supply||"").trim()?[data.supply.trim()]:[],
+        baseHomeworks:(data.baseHw||"").trim()?[data.baseHw.trim()]:[],
         color:"#6C63FF" };
       setAcademies({ [cid]:[newAcademy] });
 
-      // 첫 미션(오늘 날짜에 숙제/할일)
+      // 첫 미션 — 고른 종류(숙제|할 일)로 오늘 날짜에 하나
       const hw=[], todos=[];
-      if(data.homework && data.homework.trim()) hw.push({id:Date.now()+1,text:data.homework.trim(),done:false,point:DEFAULT_HOMEWORK_SCORE});
-      if(data.todo && data.todo.trim()) todos.push({id:Date.now()+2,text:data.todo.trim(),done:false,point:DEFAULT_HOMEWORK_SCORE});
+      const m=(data.mission||"").trim();
+      if(m&&data.missionKind!=="todo") hw.push({id:Date.now()+1,text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
+      if(m&&data.missionKind==="todo") todos.push({id:Date.now()+2,text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
       if(hw.length||todos.length){
         const key=`${cid}-${acId}-${TODAY}`;
         setDailyData({ [key]:{homeworks:hw,todos,supplies:[]} });
