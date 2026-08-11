@@ -5244,13 +5244,13 @@ export default function App() {
                       <div role="menu" style={{position:"absolute",top:34,right:8,zIndex:41,minWidth:140,background:"#fff",borderRadius:12,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
                         <button role="menuitem" className="nav-menu-tap"
                           onClick={()=>{ setAbsTimeEdit(ab.id); setAbsMenu(null); }}
-                          style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.text,cursor:"pointer",fontFamily:"inherit"}}>
-                          ✏️ 보충 일정 수정
+                          style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.text,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:8}}>
+                          <CareIcon name="pencil" size={14}/>보충 일정 수정
                         </button>
                         <button role="menuitem" className="nav-menu-tap"
                           onClick={()=>{ deleteAbs(ab.id); setAbsMenu(null); }}
-                          style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.red,cursor:"pointer",fontFamily:"inherit",borderTop:`1px solid ${C.border}`}}>
-                          🗑 기록 삭제
+                          style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.red,cursor:"pointer",fontFamily:"inherit",borderTop:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:8}}>
+                          <CareIcon name="trash" size={14}/>기록 삭제
                         </button>
                       </div>
                     </>
@@ -5260,7 +5260,10 @@ export default function App() {
             })}
             {sortedAbs.length===0&&(
               <div style={{textAlign:"center",padding:"36px 20px",background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
-                <p style={{fontSize:28,margin:0}}>🙌</p>
+                <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:52,height:52,
+                  borderRadius:"50%",background:`${C.green}14`,color:C.green}}>
+                  <CareIcon name="check" size={26}/>
+                </span>
                 <p style={{color:C.sub,fontSize:13.5,fontWeight:700,margin:"8px 0 0"}}>
                   {totalCnt===0?`${ay}년 ${am}월 결석 기록이 없어요!`:"이 상태의 기록이 없어요"}
                 </p>
@@ -7121,11 +7124,11 @@ export default function App() {
             {/* ① 준비물·숙제 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
             <button type="button" onClick={()=>setAcSecSupply(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
-              <span>🎒 항상 챙길 준비물 · 반복 숙제</span><span style={{color:C.sub}}>{acSecSupply?"▲":"▼"}</span>
+              <span style={{display:"flex",alignItems:"center",gap:7}}><CareIcon name="bag" size={15}/>항상 챙길 준비물 · 반복 숙제</span><span style={{color:C.sub}}>{acSecSupply?"▲":"▼"}</span>
             </button>
             {acSecSupply&&(
             <div style={{padding:"0 2px 16px"}}>
-            <label style={{...lbl,fontSize:14}}>🎒 항상 챙길 준비물</label>
+            <label style={{...lbl,fontSize:14,display:"flex",alignItems:"center",gap:6}}><CareIcon name="bag" size={14}/>항상 챙길 준비물</label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseSupplies||[]).map((s,i)=>(
                 <span key={i} style={{fontSize:14,padding:"5px 11px",borderRadius:16,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
@@ -7316,15 +7319,17 @@ export default function App() {
                 </p>
               </div>
             </div>
-            {[["💰 월 학원비",`${Number(showDetailModal.fee||0).toLocaleString()}원`],["📆 납부일",`매월 ${showDetailModal.payDay}일`],["🎒 기본 준비물",(showDetailModal.baseSupplies||[]).join(", ")||"없음"],...(showDetailModal.teacher?[["👩‍🏫 선생님",showDetailModal.teacher]]:[]),...(showDetailModal.address?[["📍 주소",showDetailModal.address]]:[])].map(([k,v])=>(
+            {/* [사용자 확정 2026-08-11] 💰 📆 🎒 👩‍🏫 📍 는 기기마다 그림체가 달라
+                한 줄씩 색이 튀었다 → 학원 탭·학원비 탭과 같은 선 아이콘으로. */}
+            {[["fee","월 학원비",`${Number(showDetailModal.fee||0).toLocaleString()}원`],["calendar","납부일",`매월 ${showDetailModal.payDay}일`],["bag","기본 준비물",(showDetailModal.baseSupplies||[]).join(", ")||"없음"],...(showDetailModal.teacher?[["teacher","선생님",showDetailModal.teacher]]:[]),...(showDetailModal.address?[["pin","주소",showDetailModal.address]]:[])].map(([ic,k,v])=>(
               <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
-                <span style={{fontSize:17,color:C.sub,flexShrink:0}}>{k}</span>
+                <span style={{fontSize:17,color:C.sub,flexShrink:0,display:"flex",alignItems:"center",gap:7}}><CareIcon name={ic} size={15}/>{k}</span>
                 <span style={{fontSize:17,fontWeight:600,color:C.text,textAlign:"right",maxWidth:"58%",marginLeft:8}}>{v}</span>
               </div>
             ))}
             {showDetailModal.memo&&(
               <div style={{background:`${C.orange}0D`,borderRadius:10,padding:"12px 14px",marginTop:12,border:`1px solid ${C.orange}30`}}>
-                <p style={{fontSize:17,color:C.orange,margin:"0 0 4px",fontWeight:600}}>📝 메모</p>
+                <p style={{fontSize:17,color:C.orange,margin:"0 0 4px",fontWeight:600,display:"flex",alignItems:"center",gap:7}}><CareIcon name="memo" size={15}/>메모</p>
                 <p style={{fontSize:17,color:C.text,margin:0}}>{showDetailModal.memo}</p>
               </div>
             )}

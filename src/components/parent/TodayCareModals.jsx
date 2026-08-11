@@ -28,7 +28,14 @@
                  (기본 준비물은 이름 그대로, 그날 추가분은 앞에 '+')
    ════════════════════════════════════════════════════════════════════════ */
 
+import CareIcon from "./CareIcons.jsx";
+
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
+
+/* [사용자 확정 2026-08-11] 제목의 🎒 🎯, 체크의 ✅ ⬜, 줄머리의 📝 ✖️ 가 전부
+   운영체제 이모지라 기기마다 그림체가 달랐다 → 앱의 선 아이콘(CareIcon)으로 맞춘다.
+   색은 감싼 쪽 color 하나로 정해지므로 완료/실패 색과 저절로 같아진다.
+   ※ 학원 머리의 아이콘(g.icon)은 학원 '종류'를 나타내는 표식이라 그대로 둔다. */
 
 /* 바텀시트 껍데기 — 앱의 다른 엄마용 팝업(지난 미션 보기)과 같은 모양
 
@@ -36,7 +43,7 @@ const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
    화면 절반을 차지하면 비어 보인다. 그래서 높이를 따로 정하지 않고(auto) 최대치만
    막아 두고, 아래 여백도 44px → 안전영역 + 26px 으로 줄였다.
    위쪽 짧은 손잡이 막대는 '아래로 내려 닫는 창'이라는 신호다(장식이라 눌리지 않는다). */
-function Sheet({ title, desc, tone, onClose, children }) {
+function Sheet({ title, icon, desc, tone, onClose, children }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(20,20,40,0.55)",
       display: "flex", alignItems: "flex-end", zIndex: 1000 }} onClick={onClose}>
@@ -47,7 +54,11 @@ function Sheet({ title, desc, tone, onClose, children }) {
         <div aria-hidden="true" style={{ width: 38, height: 4, borderRadius: 999,
           background: tone.border, margin: "0 auto 12px" }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: tone.text }}>{title}</h3>
+          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: tone.text,
+            display: "flex", alignItems: "center", gap: 7 }}>
+            {icon && <span style={{ color: tone.main, display: "flex" }}><CareIcon name={icon} size={17} /></span>}
+            {title}
+          </h3>
           <button onClick={onClose} aria-label="닫기" className="jelly-tap"
             style={{ background: tone.faint + "88", border: "none", borderRadius: 10, width: 28, height: 28,
               cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
@@ -67,7 +78,9 @@ const TAIL_W = 30;
 function AcHead({ icon, name, color, right, tone }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
-      <span style={{ fontSize: 15, flexShrink: 0 }}>{icon || "📘"}</span>
+      <span style={{ fontSize: 15, flexShrink: 0, display: "flex", alignItems: "center", color: tone.sub }}>
+        {icon || <CareIcon name="school" size={15} />}
+      </span>
       <p style={{ margin: 0, fontSize: 13.5, fontWeight: 900, color: tone.text, minWidth: 0, flex: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</p>
       {right && <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11.5,
@@ -76,10 +89,15 @@ function AcHead({ icon, name, color, right, tone }) {
   );
 }
 
-function Empty({ emoji, title, sub, tone }) {
+function Empty({ icon, title, sub, tone }) {
   return (
     <div style={{ textAlign: "center", padding: "22px 10px 10px", color: tone.sub }}>
-      <p style={{ fontSize: 32, margin: 0 }}>{emoji}</p>
+      {/* 이모지 32px 한 글자 대신, 연한 동그라미 안에 선 아이콘 —
+          미션 탭·지난 미션 팝업의 빈 상태와 같은 모양이다 (사용자 확정 2026-08-11) */}
+      <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center",
+        width: 52, height: 52, borderRadius: "50%", background: tone.faint, color: tone.sub }}>
+        <CareIcon name={icon} size={26} />
+      </span>
       <p style={{ fontSize: 14, fontWeight: 800, margin: "8px 0 0", color: tone.text }}>{title}</p>
       {sub && <p style={{ fontSize: 12, margin: "4px 0 0" }}>{sub}</p>}
     </div>
@@ -93,10 +111,10 @@ export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onCl
   const all = groups.reduce((n, g) => n + g.items.length, 0);
   const got = groups.reduce((n, g) => n + g.items.filter(i => i.checked).length, 0);
   return (
-    <Sheet title="🎒 준비물 확인" tone={tone} onClose={onClose}
+    <Sheet title="준비물 확인" icon="bag" tone={tone} onClose={onClose}
       desc={all === 0 ? undefined : `${dateLabel} 준비물 ${all}개 중 ${got}개 챙겼어요. 눌러서 체크할 수 있고, 아이 탐험일지에도 똑같이 반영됩니다.`}>
       {all === 0 ? (
-        <Empty emoji="🎒" title="챙길 준비물이 없어요" sub="학원에 기본 준비물을 등록하면 여기에 보여요" tone={tone} />
+        <Empty icon="bag" title="챙길 준비물이 없어요" sub="학원에 기본 준비물을 등록하면 여기에 보여요" tone={tone} />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {groups.map(g => {
@@ -117,8 +135,10 @@ export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onCl
                         whiteSpace: "nowrap", cursor: onToggle ? "pointer" : "default",
                         background: it.checked ? tone.green + "1F" : "#fff",
                         border: `1px solid ${it.checked ? tone.green + "88" : tone.border}`,
-                        color: it.checked ? tone.green : tone.sub }}>
-                      {it.checked ? "✅" : "⬜"} {it.extra ? "+" : ""}{it.label}
+                        color: it.checked ? tone.green : tone.sub,
+                        display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      <CareIcon name={it.checked ? "check" : "checkEmpty"} size={14} />
+                      {it.extra ? "+" : ""}{it.label}
                     </button>
                   ))}
                 </div>
@@ -141,14 +161,15 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
 
   const Row = ({ it, faded }) => (
     <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0" }}>
-      <span style={{ fontSize: 13, flexShrink: 0, opacity: faded ? 0.55 : 1 }}>
-        {it.failed ? "✖️" : faded ? "✅" : it.kind === "homework" ? "📝" : "🎯"}
+      <span style={{ flexShrink: 0, display: "flex", opacity: faded ? 0.75 : 1,
+        color: it.failed ? tone.red : faded ? tone.green : tone.sub }}>
+        <CareIcon name={it.failed ? "absent" : faded ? "check" : it.kind === "homework" ? "memo" : "mission"} size={14} />
       </span>
       <p style={{ margin: 0, fontSize: 13.5, fontWeight: 800, minWidth: 0, flex: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         color: it.failed ? tone.red : faded ? tone.sub : tone.text,
         /* [사용자 확정 2026-08-10] 흐린 글자 + 취소선이 겹쳐 읽기 어려웠다.
-           앞의 ✅ 가 이미 완료를 뜻하므로 취소선은 뺀다 (실패만 남긴다). */
+           앞의 체크 표시가 이미 완료를 뜻하므로 취소선은 뺀다 (실패만 남긴다). */
         textDecoration: it.failed ? "line-through" : "none" }}>{it.label}</p>
       {/* 종류 꼬리표 — 위 학원 머리의 '개수'와 같은 오른쪽 칸(TAIL_W)에 맞춰 세로로 줄 세운다 */}
       <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11,
@@ -175,10 +196,10 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
   );
 
   return (
-    <Sheet title="🎯 미션 확인" tone={tone} onClose={onClose}
+    <Sheet title="미션 확인" icon="mission" tone={tone} onClose={onClose}
       desc={`${dateLabel} 남은 미션을 확인해 주세요.`}>
       {nRemain + nDone === 0 ? (
-        <Empty emoji="🗒️" title="이 날은 미션이 없어요" sub="학원별로 숙제나 미션을 넣으면 여기에 보여요" tone={tone} />
+        <Empty icon="memo" title="이 날은 미션이 없어요" sub="학원별로 숙제나 미션을 넣으면 여기에 보여요" tone={tone} />
       ) : (
         <>
           {/* 위 — 남은 것.
@@ -188,7 +209,7 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
             color: nRemain ? tone.text : tone.green }}>
             {nRemain
               ? <>아직 남은 미션 <b style={{ fontWeight: 900, color: tone.orange }}>{nRemain}개</b></>
-              : "남은 미션 없음 — 다 끝냈어요! 🎉"}
+              : "남은 미션 없음 — 다 끝냈어요!"}
           </p>
           {nRemain > 0 && <Section list={groups.remain} faded={false} />}
 

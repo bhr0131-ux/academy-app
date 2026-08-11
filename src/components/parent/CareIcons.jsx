@@ -23,11 +23,15 @@ export default function CareIcon({ name, size = 14 }) {
           <circle cx="16.5" cy="18.5" r="1.6" {...P} />
         </svg>
       );
-    case "bag":      // 준비물 가방
+    case "bag":      // 준비물 가방 (책가방)
+      /* [사용자 확정 2026-08-11] 예전 모양은 몸통 위에 반원 손잡이 하나뿐이라
+         13~15px 로 줄이면 자물쇠 고리처럼 읽혔다 → 구분되는 특징을 아래로 옮긴다.
+         둥근 어깨 + 아래 앞주머니 = 자물쇠에는 없는 실루엣. */
       return (
         <svg {...common}>
-          <path d="M5 9.5h14a1 1 0 0 1 1 1V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8.5a1 1 0 0 1 1-1Z" {...P} />
-          <path d="M9 9.5V7a3 3 0 0 1 6 0v2.5M9 14h6" {...P} />
+          <path d="M5.4 11a6.6 6.6 0 0 1 13.2 0v8a2 2 0 0 1-2 2H7.4a2 2 0 0 1-2-2v-8Z" {...P} />
+          <path d="M9 21v-4.4a3 3 0 0 1 6 0V21" {...P} />
+          <path d="M10.2 5.9V5a1.8 1.8 0 0 1 3.6 0v.9" {...P} />
         </svg>
       );
     case "clock":    // 지난 미션 — 지나간 시각
@@ -44,6 +48,27 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M16.4 2.4 19.6 5l-3.2 2.6" {...P} />
           <path d="M19.5 13.5A5.5 5.5 0 0 1 14 19H5" {...P} />
           <path d="M7.6 21.6 4.4 19l3.2-2.6" {...P} />
+        </svg>
+      );
+    case "check":    // 완료 — 동그라미 안 체크 (✅ 자리)
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="8.4" {...P} />
+          <path d="m8.4 12.2 2.5 2.5 4.7-5" {...P} />
+        </svg>
+      );
+    case "checkEmpty": // 아직 안 함 — 빈 동그라미 (⬜ 자리)
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="8.4" {...P} />
+        </svg>
+      );
+    case "school":   // 학원 — 하단 메뉴의 '학원'과 같은 학사모
+      return (
+        <svg {...common}>
+          <path d="M12 3.8 20.6 8 12 12.2 3.4 8 12 3.8Z" {...P} />
+          <path d="M6.9 9.9v4.6c0 1.5 2.3 2.8 5.1 2.8s5.1-1.3 5.1-2.8V9.9" {...P} />
+          <path d="M19.9 8.6v4.8" {...P} />
         </svg>
       );
     case "mission":  // 미션 과녁
@@ -94,6 +119,14 @@ export default function CareIcon({ name, size = 14 }) {
         <svg {...common}>
           <path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17v3Z" {...P} />
           <path d="M14.5 6.5l3 3" {...P} />
+        </svg>
+      );
+    case "trash":    // 지우기
+      return (
+        <svg {...common}>
+          <path d="M4.4 6.6h15.2M9.6 6.6V4.8a1 1 0 0 1 1-1h2.8a1 1 0 0 1 1 1v1.8" {...P} />
+          <path d="M6.4 6.6 7.3 20a1 1 0 0 0 1 .9h7.4a1 1 0 0 0 1-.9l.9-13.4" {...P} />
+          <path d="M10.4 10.4v6.6M13.6 10.4v6.6" {...P} />
         </svg>
       );
     case "phone":
