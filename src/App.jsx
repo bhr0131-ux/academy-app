@@ -359,6 +359,7 @@ export default function App() {
   const [openTitle,              setOpenTitle]              = useState(initUi.openTitle);
   const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
   const [bagEvent,               setBagEvent]               = useState(null);             // 가방 카드에 1분간 띄우는 소식
+  const [holidayRest,            setHolidayRest]            = useState(null);             // 공휴일 '쉬는 학원 고르기' 시트 {name, ids:[]}
   const [moreTab,                setMoreTab]                = useState("calendar");       // '더보기' 안에서 마지막으로 본 칸
   const [moreMenuOpen,           setMoreMenuOpen]           = useState(false);            // '더보기' 눌러 위로 열리는 메뉴
   const [showKindPicker,         setShowKindPicker]         = useState(false);            // 학원 종류 고르기 시트
@@ -1698,7 +1699,8 @@ export default function App() {
     showRewardModal || showPinChangeModal || showRecoverySetupModal || showRecoveryModal ||
     showResetPinModal || showVacModal || showChildMgr || showAcademyCopyModal ||
     calLegend || paySheet || feeEdit || showAddAcModal || showDetailModal ||
-    showDailyModal || showSmsModal || showTmplEdit || showAbsModal || showKindPicker
+    showDailyModal || showSmsModal || showTmplEdit || showAbsModal || showKindPicker ||
+    holidayRest
   );
   // 특정 프리미엄 기능을 막아야 하는지 여부 (true 면 잠금 표시)
   const isLocked = () => !isPremiumUser;
@@ -3270,6 +3272,28 @@ export default function App() {
   const vacKey=(cid,aId)=>`${cid}-${String(aId)}`;
   const getVacations=(cid,aId)=>vacations[vacKey(cid,aId)]||[];
   const isVacationDay=(cid,aId,dateStr)=>getVacations(cid,aId).some(v=>v.start<=dateStr&&dateStr<=v.end);
+  /* [사용자 확정 2026-08-10] 공휴일에 홈에서 고른 '오늘 쉬는 학원'을 저장한다.
+     새 저장 키를 만들지 않고 기존 방학·휴원(v6_vac)에 '하루짜리 기간'으로 넣는다 —
+     그래야 홈·달력·학원 화면이 이미 아는 방식대로 휴원으로 보인다.
+     뺄 때는 start===end 인 하루짜리만 지운다. 여러 날짜리 진짜 방학은 건드리지 않는다. */
+  const isLongVacDay=(cid,aId,dateStr)=>getVacations(cid,aId)
+    .some(v=>v.start!==v.end&&v.start<=dateStr&&dateStr<=v.end);
+  const applyHolidayRest=(dateStr,restIds)=>{
+    const want=new Set((restIds||[]).map(String));
+    setVacations(p=>{
+      const next={...p};
+      let seq=0;
+      curAc.forEach(a=>{
+        if(isLongVacDay(childId,a.id,dateStr)) return;          // 진짜 방학 중이면 그대로 둔다
+        const k=vacKey(childId,a.id);
+        const list=next[k]||[];
+        const has=list.some(v=>v.start===dateStr&&v.end===dateStr);
+        if(want.has(String(a.id))&&!has) next[k]=[...list,{id:Date.now()+(seq++),start:dateStr,end:dateStr}];
+        else if(!want.has(String(a.id))&&has) next[k]=list.filter(v=>!(v.start===dateStr&&v.end===dateStr));
+      });
+      return next;
+    });
+  };
   const addVacation=()=>{
     if(!vacForm.academyId||!vacForm.start||!vacForm.end){ showToast("학원과 기간을 입력해줘"); return; }
     if(vacForm.start>vacForm.end){ showToast("시작일이 종료일보다 늦어요"); return; }
@@ -4940,6 +4964,13 @@ export default function App() {
               setShowDailyModal({academyId:ac.id,date,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies});
               setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
               setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+            }}
+            onHolidayRest={(name)=>{
+              const hd=new Date(homeDate.replace(/-/g,"/"));
+              const dn=["일","월","화","수","목","금","토"][hd.getDay()];
+              // 처음 열 때는 지금 휴원인 학원에 체크가 들어가 있다
+              const ids=curAc.filter(a=>hasClassOnDay(a,dn)&&isVacationDay(childId,a.id,homeDate)).map(a=>String(a.id));
+              setHolidayRest({name,ids});
             }} />
         )}
 
@@ -6152,6 +6183,69 @@ export default function App() {
       })()}
 
       {/* ════════ 모달들 ════════ */}
+
+      {/* ── 공휴일 '쉬는 학원 고르기' 시트 (사용자 확정 2026-08-10) ──
+             빨간날에 앱이 학원을 알아서 다 빼면, 그날 여는 학원이 있을 때
+             준비물·미션이 통째로 안 보인다. 그래서 엄마가 그날 쉬는 곳만 고른다.
+             고른 결과는 기존 방학·휴원(v6_vac)에 하루짜리로 들어간다. */}
+      {holidayRest&&(()=>{
+        const hd=new Date(homeDate.replace(/-/g,"/"));
+        const dn=["일","월","화","수","목","금","토"][hd.getDay()];
+        const list=curAc.filter(a=>hasClassOnDay(a,dn));
+        const toggle=(id)=>setHolidayRest(v=>({...v,
+          ids:v.ids.includes(String(id))?v.ids.filter(x=>x!==String(id)):[...v.ids,String(id)]}));
+        const allOn=list.length>0&&list.every(a=>holidayRest.ids.includes(String(a.id))||isLongVacDay(childId,a.id,homeDate));
+        return (
+        <div onClick={()=>setHolidayRest(null)} style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:1000}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"10px 18px calc(26px + env(safe-area-inset-bottom))",width:"100%",maxWidth:430,boxSizing:"border-box",maxHeight:"84vh",overflowY:"auto"}}>
+            <div aria-hidden="true" style={{width:38,height:4,borderRadius:999,background:C.border,margin:"0 auto 12px"}}/>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                {holidayRest.name}, 쉬는 학원
+              </h3>
+              <button onClick={()=>setHolidayRest(null)} aria-label="닫기" className="jelly-tap"
+                style={{marginLeft:"auto",flexShrink:0,background:`${CT.faint}`,border:"none",borderRadius:10,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15,fontFamily:"inherit"}}>✕</button>
+            </div>
+            <p style={{fontSize:12,color:C.sub,fontWeight:600,margin:"0 0 12px",lineHeight:1.5}}>
+              {`${hd.getMonth()+1}월 ${hd.getDate()}일`}에 쉬는 학원을 골라 주세요. 고른 학원만 그날 휴원으로 표시돼요.
+            </p>
+            {list.length===0?(
+              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"18px 0 22px",textAlign:"center"}}>이 날 수업이 있는 학원이 없어요</p>
+            ):(<>
+              <button onClick={()=>setHolidayRest(v=>({...v,ids:allOn?[]:list.map(a=>String(a.id))}))} className="jelly-tap"
+                style={{marginBottom:8,background:"none",border:"none",padding:"4px 0",color:th.main,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>
+                {allOn?"모두 해제":"모두 쉬어요"}
+              </button>
+              <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:14}}>
+                {list.map(a=>{
+                  const locked=isLongVacDay(childId,a.id,homeDate);       // 여러 날짜리 방학 중 — 여기서 못 바꾼다
+                  const on=locked||holidayRest.ids.includes(String(a.id));
+                  return (
+                    <button key={a.id} onClick={()=>!locked&&toggle(a.id)} className={locked?"":"jelly-tap"}
+                      aria-pressed={on} disabled={locked}
+                      style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"11px 12px",borderRadius:12,
+                        border:`1px solid ${on?th.main+"55":C.border}`,background:on?mixWhite(th.main,0.94):"#fff",
+                        cursor:locked?"default":"pointer",fontFamily:"inherit",textAlign:"left",opacity:locked?0.7:1}}>
+                      <span style={{width:20,height:20,borderRadius:6,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",
+                        border:`1.5px solid ${on?th.main:C.border}`,background:on?th.main:"#fff",color:"#fff",fontSize:12,fontWeight:900}}>{on?"✓":""}</span>
+                      <span style={{width:4,height:18,borderRadius:9,background:a.color,flexShrink:0}}/>
+                      <span style={{flex:1,minWidth:0,fontSize:14,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</span>
+                      {locked&&<span style={{flexShrink:0,fontSize:11,fontWeight:800,color:C.orange}}>방학 중</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              <button onClick={()=>{ applyHolidayRest(homeDate,holidayRest.ids); setHolidayRest(null);
+                  showToast(holidayRest.ids.length?`${holidayRest.ids.length}곳 휴원으로 표시했어요`:"휴원 표시를 지웠어요"); }}
+                className="jelly-tap"
+                style={{width:"100%",padding:13,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+                완료
+              </button>
+            </>)}
+          </div>
+        </div>
+        );
+      })()}
 
       {/* ── 미션 수정 학원 선택 피커 ── */}
       {showTodoPickerModal&&(
