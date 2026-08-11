@@ -114,13 +114,6 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M3.2 8.4v8.2L12 20.4l8.8-3.8V8.4M12 12.2v8.2" {...P} />
         </svg>
       );
-    case "crown":    // 전설 등급 — 가장 귀한 것
-      return (
-        <svg {...common}>
-          <path d="M3.6 7.4 7 12l5-6.4L17 12l3.4-4.6 -1.4 11H5L3.6 7.4Z" {...P} />
-          <path d="M5 20.6h14" {...P} />
-        </svg>
-      );
     case "cart":     // 보상 구매 (코인 사용)
       return (
         <svg {...common}>

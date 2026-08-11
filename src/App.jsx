@@ -5688,13 +5688,13 @@ export default function App() {
                             gap:8,
                             marginTop:10
                           }}>
-                            {/* [사용자 확정 2026-08-11] 📦 🎁 👑 은 기기마다 그림체가 달라진다 →
-                                등급 색을 그대로 따르는 선 아이콘으로 (아이 화면의 상자 이모지는 그대로 둔다 —
-                                거기선 상자 자체가 놀이의 대상이다). */}
+                            {/* [사용자 확정 2026-08-11] 상자 그림은 이모지 그대로 둔다 —
+                                아이 화면의 상자와 같은 그림이어야 엄마도 '그 상자'로 알아본다.
+                                (한때 선 아이콘으로 바꿨다가 되돌렸다) */}
                             {[
-                              {label:getBoxInfo("normal",kidSkin).name,icon:"box",count:treasure.normalBox||0,range:"20~40",color:C.sub},
-                              {label:getBoxInfo("rare",kidSkin).name,icon:"reward",count:treasure.rareBox||0,range:"40~80",color:C.purple},
-                              {label:getBoxInfo("legend",kidSkin).name,icon:"crown",count:treasure.legendBox||0,range:"100~160",color:"#F5B301"},
+                              {label:getBoxInfo("normal",kidSkin).name,emoji:getBoxInfo("normal",kidSkin).emoji,count:treasure.normalBox||0,range:"20~40",color:C.sub},
+                              {label:getBoxInfo("rare",kidSkin).name,emoji:getBoxInfo("rare",kidSkin).emoji,count:treasure.rareBox||0,range:"40~80",color:C.purple},
+                              {label:getBoxInfo("legend",kidSkin).name,emoji:getBoxInfo("legend",kidSkin).emoji,count:treasure.legendBox||0,range:"100~160",color:"#F5B301"},
                             ].map(box=>(
                               <div key={box.label} style={{
                                 background:"#fff",
@@ -5703,7 +5703,7 @@ export default function App() {
                                 padding:"10px 6px",
                                 textAlign:"center"
                               }}>
-                                <span style={{display:"inline-flex",color:box.color}}><CareIcon name={box.icon} size={20}/></span>
+                                <p style={{fontSize:20,margin:0}}>{box.emoji}</p>
                                 <p style={{fontSize:17,fontWeight:900,margin:"3px 0 0",color:box.color}}>
                                   {box.count}
                                 </p>
