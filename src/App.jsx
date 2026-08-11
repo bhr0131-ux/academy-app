@@ -857,8 +857,8 @@ export default function App() {
 
   // 온보딩 완료: 입력값을 실제 데이터에 반영 → 홈 진입 → 코치마크
   const finishOnboarding=(data)=>{
-    // data = { childName, gender, age, acName, acDays:[], acTime, acDuration,
-    //          supply, baseHw, mission, missionKind }
+    // data = { childName, gender, age, acKind, acKindLabel, acName, acDays:[], acTime,
+    //          acDuration, supply, baseHw, mission, missionKind }
     const cid="child_1";
     setChildren([{ id:cid, name:(data.childName||"우리 아이").trim(), gender:data.gender||"boy" }]);
     setChildId(cid);
@@ -870,14 +870,15 @@ export default function App() {
     save("v6_reward_age_group",data.age||"kid");
 
     let acId=null;
-    if(data.acName && data.acName.trim()){
+    // 학원은 '종류'가 있어야 만든다 — 이름은 선택이다 (앱의 학원 등록과 같은 규칙)
+    if(data.acKind){
       acId="ac_"+Date.now();
-      /* [2026-08-11] 첫 등록에서도 화면이 쓰는 값을 다 채워 둔다 —
-         종류는 이름에서 추측해 넣는다(없으면 학원 카드가 이름을 종류 자리에 그대로 쓴다).
+      /* [2026-08-11] 첫 등록에서도 화면이 쓰는 값을 다 채워 둔다.
+         이름을 비우면 종류 이름을 그대로 쓴다 — saveAcademy 와 같은 규칙이다.
          준비물·반복 숙제는 비워 둘 수 있고, 넣으면 그 학원 가는 날마다 보인다. */
-      const guessed=guessAcademyKind(data.acName.trim());
-      const newAcademy={ ...EMPTY_AC, id:acId, name:data.acName.trim(),
-        kind:guessed?.key||"", kindLabel:guessed?.label||"",
+      const kLabel=(data.acKindLabel||"").trim();
+      const newAcademy={ ...EMPTY_AC, id:acId, name:(data.acName||"").trim()||kLabel,
+        kind:data.acKind, kindLabel:kLabel,
         days:(data.acDays&&data.acDays.length)?data.acDays:[], time:data.acTime||"16:00",
         duration:Number(data.acDuration)||40,
         baseSupplies:(data.supply||"").trim()?[data.supply.trim()]:[],

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { DAYS, C } from "../data/tokens.js";
+import { getAcademyKind, ACADEMY_KIND_CUSTOM } from "../data/gameData.jsx";
+import AcademyKindPicker from "./parent/AcademyKindPicker.jsx";
 
 // 코치마크 직후 1회, 또는 설정에서 호출. onPick(skinId) 으로 선택 전달.
 /* ════════════════════════════════════════════════════════════════════════
@@ -101,7 +103,10 @@ export function OnboardingFlow({ onFinish }){
   const [childName,setChildName]=useState("");
   const [gender,setGender]=useState("boy");
   const [age,setAge]=useState("");  // kid | elem | teen
-  const [acName,setAcName]=useState("");
+  const [acKind,setAcKind]=useState("");            // 학원 종류 (필수)
+  const [acKindLabel,setAcKindLabel]=useState("");
+  const [kindOpen,setKindOpen]=useState(false);
+  const [acName,setAcName]=useState("");            // 학원 이름 (선택)
   const [acDays,setAcDays]=useState([]);
   const [acTime,setAcTime]=useState("16:00");
   const [acDuration,setAcDuration]=useState("40");
@@ -126,8 +131,11 @@ export function OnboardingFlow({ onFinish }){
     { kind:"welcome" },
     { kind:"input", title:"아이의 이름이 무엇인가요?", sub:"아이 화면과 미션에 표시돼요.", canNext:()=>childName.trim().length>0 },
     { kind:"age", title:"아이의 연령대를 골라주세요", sub:"연령대에 맞는 보상 목록을 자동으로 준비해드려요. 나중에 바꿀 수 있어요.", canNext:()=>age!=="" },
-    { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>acName.trim().length>0 },
-    { kind:"routine", title:"갈 때마다 챙기는 게 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 자동으로 보여요. 비워 둬도 괜찮아요." },
+    /* [사용자 지적 2026-08-11] 앱의 학원 등록은 '종류'가 필수고 '이름'이 선택이다.
+       첫 등록만 이름을 필수로 받고 있어 규칙이 어긋났다 → 같은 순서·같은 규칙으로 맞춘다.
+       이름을 비우면 종류 이름을 그대로 학원 이름으로 쓴다(앱의 saveAcademy 와 같은 규칙). */
+    { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind },
+    { kind:"routine", title:"갈 때마다 챙기는 게 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 보여요. 비워 둬도 괜찮아요." },
     { kind:"mission", title:"오늘 할 미션을 하나 정해볼까요?", sub:"아이가 완료하면 코인을 받아요. 지금 비워 두고 나중에 넣어도 돼요." },
     { kind:"done", title:"준비 끝났어요!", sub:"" },
   ];
@@ -136,7 +144,7 @@ export function OnboardingFlow({ onFinish }){
 
   const next=()=>{ if(isLast){ finish(); } else setStep(s=>s+1); };
   const prev=()=>setStep(s=>Math.max(0,s-1));
-  const finish=()=>onFinish({ childName, gender, age, acName, acDays, acTime,
+  const finish=()=>onFinish({ childName, gender, age, acKind, acKindLabel, acName, acDays, acTime,
     acDuration:Number(acDuration)||40, supply, baseHw, mission, missionKind });
 
   return (
@@ -208,7 +216,29 @@ export function OnboardingFlow({ onFinish }){
           <div>
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
-            <input autoFocus value={acName} onChange={e=>setAcName(e.target.value)} placeholder="예: 피아노 학원" style={inp}/>
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>학원 종류 *</p>
+            {(()=>{
+              const k=getAcademyKind(acKind);
+              const lab=acKindLabel||k?.label||"";
+              const ic=acKind===ACADEMY_KIND_CUSTOM?"✏️":(k?.icon||"🏫");
+              return (
+                <button onClick={()=>setKindOpen(true)}
+                  style={{...inp,display:"flex",alignItems:"center",gap:10,cursor:"pointer",textAlign:"left",
+                    border:`2px solid ${lab?TH.main:"#E3E8F0"}`,background:lab?`${TH.main}0E`:"#fff"}}>
+                  <span style={{fontSize:21,flexShrink:0}}>{ic}</span>
+                  <span style={{flex:1,minWidth:0,fontWeight:lab?900:600,color:lab?"#1A1A35":"#8890B0",
+                    overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                    {lab||"눌러서 골라 주세요 (검색·직접 입력)"}
+                  </span>
+                  <span style={{flexShrink:0,color:"#8890B0",fontSize:15}}>›</span>
+                </button>
+              );
+            })()}
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"22px 0 10px"}}>
+              학원 이름 <span style={{fontSize:13,fontWeight:600,color:"#8890B0"}}>(선택)</span>
+            </p>
+            <input value={acName} onChange={e=>setAcName(e.target.value)}
+              placeholder={acKindLabel?`비우면 '${acKindLabel}' 로 저장돼요`:"예: 노아피아노"} style={inp}/>
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"22px 0 10px"}}>수업 요일</p>
             {/* 일곱 칸이 한 줄에 들어가게 폭을 나눠 갖는다 — 고정 폭이면 좁은 기기에서 두 줄로 접혔다 */}
             <div style={{display:"flex",gap:5}}>
@@ -299,6 +329,10 @@ export function OnboardingFlow({ onFinish }){
         )}
 
       </div>
+
+      <AcademyKindPicker open={kindOpen} value={acKind} customLabel={acKind===ACADEMY_KIND_CUSTOM?acKindLabel:""}
+        accent={TH.main} onClose={()=>setKindOpen(false)}
+        onPick={(k,label)=>{ setAcKind(k); setAcKindLabel(label); setKindOpen(false); }}/>
 
       <div style={{padding:"16px 24px 28px",display:"flex",gap:10}}>
         {step>0&&(
