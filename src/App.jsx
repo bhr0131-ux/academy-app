@@ -5296,8 +5296,8 @@ export default function App() {
                   <div style={{textAlign:"left"}}>
                     {/* [사용자 확정 2026-08-11] 이모지는 기기마다 그림체가 달라 화면이 섞여 보였다 →
                         하단 메뉴와 같은 결의 선 아이콘(CareIcon)으로 바꾼다. 색은 테마색을 따른다. */}
-                    <p style={{fontSize:15.5,fontWeight:900,margin:"0 0 2px",color:C.text,display:"flex",alignItems:"center",gap:6}}>
-                      <span style={{color:th.main,display:"flex"}}><CareIcon name="mission" size={16}/></span>미션 관리
+                    <p style={{fontSize:15,fontWeight:900,margin:"0 0 2px",color:C.text,display:"flex",alignItems:"center",gap:6}}>
+                      <span style={{color:th.main,display:"flex"}}><CareIcon name="mission" size={15}/></span>미션 관리
                     </p>
                     <p style={{fontSize:12,color:C.sub,margin:0,fontWeight:600,opacity:0.85}}>날짜별 미션 추가·수정 · 점수 관리</p>
                   </div>
@@ -5307,12 +5307,14 @@ export default function App() {
                       {/* [사용자 확정 2026-08-11] 화살표 상자가 커서 날짜 줄이 통째로 높아 보였다 →
                           배경·테두리를 빼고 글자만 남긴다(누르는 자리는 44×44 그대로).
                           '0/1 완료'는 가운데 따로 두지 않고 날짜 아래 한 줄 문장으로. */}
+                      {/* [사용자 확정 2026-08-11] 날짜 19는 앱에서 가장 큰 글자였다(달력 월 제목이 16) →
+                          달력과 같은 16으로. 화살표도 날짜에 맞춰 함께 줄인다. */}
                       <div style={{display:"flex",alignItems:"center",gap:4,marginBottom:20}}>
                         <button onClick={()=>setRewardDate(addDays(rewardDate,-1))} className="jelly-tap" aria-label="이전 날"
-                          style={{width:44,height:44,borderRadius:12,background:"none",border:"none",color:C.sub,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,fontFamily:"inherit"}}>‹</button>
+                          style={{width:44,height:44,borderRadius:12,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,fontFamily:"inherit"}}>‹</button>
                         <div style={{flex:1,minWidth:0,textAlign:"center"}}>
                           <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,flexWrap:"wrap"}}>
-                            <span style={{fontSize:19,fontWeight:900,color:C.text}}>{rFullLabel}</span>
+                            <span style={{fontSize:16,fontWeight:900,color:C.text}}>{rFullLabel}</span>
                             {rDayTag&&<span style={{fontSize:11.5,background:th.main,color:"#fff",borderRadius:9,padding:"2px 8px",fontWeight:800,flexShrink:0}}>{rDayTag}</span>}
                             {!isRewToday&&(
                               <button onClick={()=>setRewardDate(TODAY)} className="jelly-tap"
@@ -5321,12 +5323,12 @@ export default function App() {
                               </button>
                             )}
                           </div>
-                          <p style={{fontSize:12.5,color:C.sub,margin:"5px 0 0",fontWeight:600}}>
+                          <p style={{fontSize:12,color:C.sub,margin:"5px 0 0",fontWeight:600}}>
                             {rewardTodayTodos.length===0?"등록된 미션 없음":`오늘 미션 ${rewardTodayTodos.length}개 · ${doneCnt}개 완료`}
                           </p>
                         </div>
                         <button onClick={()=>setRewardDate(addDays(rewardDate,1))} className="jelly-tap" aria-label="다음 날"
-                          style={{width:44,height:44,borderRadius:12,background:"none",border:"none",color:C.sub,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,fontFamily:"inherit"}}>›</button>
+                          style={{width:44,height:44,borderRadius:12,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,fontFamily:"inherit"}}>›</button>
                       </div>
                       {rewardTodayTodos.length===0?(
                         <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
@@ -5361,10 +5363,12 @@ export default function App() {
                                   미션명은 두 줄까지 보여 주고 그다음에 말줄임 — 한 줄만 보이면
                                   비슷한 미션끼리 구별이 안 된다. XP는 오른쪽 위에 붙여 제목 폭을 넓혔다. */}
                               {/* [사용자 확정 2026-08-11] 제목·날짜보다 미션이 먼저 보여야 한다 →
-                                  미션명을 14.5 → 17 로 키우고, XP 는 오른쪽 위가 아니라
-                                  학원·종류와 같은 아랫줄에 작은 배지로 붙여 카드가 덜 흩어지게 한다. */}
+                                  XP 는 오른쪽 위가 아니라 학원·종류와 같은 아랫줄에 작은 배지로
+                                  붙여 카드가 덜 흩어지게 한다.
+                                  ※ 한때 17까지 키웠으나 미션 탭만 글자가 커 보인다는 지적 →
+                                    다른 탭의 주요 항목(홈 15 · 학원 14.5 · 학원비 14)에 맞춰 15. */}
                               <div style={{flex:1,minWidth:0,paddingTop:6}}>
-                                <p style={{fontSize:17,fontWeight:800,margin:0,lineHeight:1.35,
+                                <p style={{fontSize:15,fontWeight:800,margin:0,lineHeight:1.35,
                                   color:item.done||item.failed?C.sub:C.text,
                                   textDecoration:item.done||item.failed?"line-through":"none",
                                   display:"-webkit-box",WebkitBoxOrient:"vertical",WebkitLineClamp:2,overflow:"hidden",
@@ -5374,7 +5378,7 @@ export default function App() {
                                   {item.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:item.academyColor||th.main,background:`${item.academyColor||th.main}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}
                                 </p>
                                 <div style={{display:"flex",alignItems:"center",gap:7,margin:"5px 0 0",minWidth:0}}>
-                                  <span style={{display:"flex",alignItems:"center",gap:5,minWidth:0,fontSize:12.5,color:C.sub,fontWeight:600}}>
+                                  <span style={{display:"flex",alignItems:"center",gap:5,minWidth:0,fontSize:12,color:C.sub,fontWeight:600}}>
                                     <span style={{width:6,height:6,borderRadius:"50%",background:item.academyColor||th.main,flexShrink:0}}/>
                                     <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                                       {item.academyName} · {item.kind==="homework"?"숙제":"할 일"}
@@ -5397,7 +5401,7 @@ export default function App() {
                             핵심 행동이므로 진한 테마색으로 채운다. 문구도 상태에 따라 바꾼다 —
                             미션이 없으면 '오늘 미션 추가', 있으면 '미션 추가·관리'. */}
                         <button onClick={()=>setShowTodoPickerModal(rewardDate)} className="jelly-tap"
-                          style={{width:"100%",padding:"13px 10px",borderRadius:12,border:"none",background:th.grad,color:"#fff",fontSize:14.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 12px ${th.main}33`}}>
+                          style={{width:"100%",padding:"13px 10px",borderRadius:12,border:"none",background:th.grad,color:"#fff",fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 12px ${th.main}33`}}>
                           {rewardTodayTodos.length===0?"오늘 미션 추가":"미션 추가·관리"}
                         </button>
                         {isRewToday&&(()=>{
@@ -7367,12 +7371,16 @@ export default function App() {
                 <div style={{width:14,height:14,borderRadius:"50%",background:acColor}}/>
                 <div style={{flex:1}}>
                   <p style={{fontWeight:800,fontSize:17,margin:0,color:C.text}}>{acName}</p>
-                  <p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>{fmt(date)} {date===TODAY?"(오늘)":""}</p>
+                  {/* [사용자 확정 2026-08-11] 날짜가 학원 이름과 같은 17이라 둘 다 제목처럼 읽혔다 →
+                      보조 정보이므로 다른 화면의 보조 줄(12~12.5)에 맞춘다. */}
+                  <p style={{fontSize:12.5,color:C.sub,fontWeight:600,margin:"2px 0 0"}}>{fmt(date)} {date===TODAY?"(오늘)":""}</p>
                 </div>
                 <button onClick={()=>setShowDailyModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
               </div>
-              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
-                <span style={{color:acColor,display:"flex"}}><CareIcon name="mission" size={17}/></span>오늘의 미션
+              {/* [사용자 확정 2026-08-11] 팝업 안 구역 제목이 창 제목과 같은 17이었다 →
+                  다른 화면의 구역 제목(홈 15 · 결석 15.5)에 맞춰 15. */}
+              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
+                <span style={{color:acColor,display:"flex"}}><CareIcon name="mission" size={15}/></span>오늘의 미션
               </p>
               {hw.length===0&&todos.length===0&&(
                 <div style={{background:CT.faint,borderRadius:12,padding:"14px 14px",marginBottom:12,textAlign:"center"}}>
@@ -7515,8 +7523,8 @@ export default function App() {
               const hideBase=(s)=>upd({...entry,hiddenBase:[...hiddenBase,s]});
               const restoreBase=(s)=>upd({...entry,hiddenBase:hiddenBase.filter(x=>x!==s)});
               return (<>
-              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
-                <span style={{color:acColor,display:"flex"}}><CareIcon name="bag" size={17}/></span>오늘의 준비물
+              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
+                <span style={{color:acColor,display:"flex"}}><CareIcon name="bag" size={15}/></span>오늘의 준비물
               </p>
               {visibleBase.length===0&&sup.length===0&&<p style={{fontSize:13.5,fontWeight:600,color:C.sub,marginBottom:10}}>등록된 준비물이 없어요. 아래에서 추가할 수 있어요.</p>}
               <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:hiddenBase.length>0?8:10}}>
@@ -7525,13 +7533,13 @@ export default function App() {
                      연한 배경 + 진한 글씨로 낮춘다. 그날 추가분과는 앞의 📌 로 구분된다. */
                   /* [사용자 확정 2026-08-11] 긴 이름이 들어오면 줄이 무너졌다 → 최대 폭 + 말줄임.
                      ✕ 는 누르기 쉽게 32px 자리를 준다. 📌 는 태그마다 반복하지 않고 제목에만. */
-                  <span key={`base${i}`} style={{maxWidth:"100%",fontSize:14,padding:"5px 4px 5px 12px",borderRadius:20,background:mixWhite(acColor,0.86),color:mixBlack(acColor,0.32),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
+                  <span key={`base${i}`} style={{maxWidth:"100%",fontSize:13.5,padding:"5px 4px 5px 12px",borderRadius:20,background:mixWhite(acColor,0.86),color:mixBlack(acColor,0.32),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
                     <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s}</span>
                     <button onClick={()=>hideBase(s)} aria-label={`${s} 오늘 제외`} className="jelly-tap" style={{flexShrink:0,width:32,height:26,background:"none",border:"none",color:mixBlack(acColor,0.32),opacity:0.65,cursor:"pointer",fontSize:13,padding:0,lineHeight:1,fontFamily:"inherit"}}>✕</button>
                   </span>
                 ))}
                 {sup.map((s,i)=>(
-                  <span key={`day${i}`} style={{maxWidth:"100%",fontSize:14,padding:"5px 4px 5px 12px",borderRadius:20,background:`${acColor}15`,color:mixBlack(acColor,0.2),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
+                  <span key={`day${i}`} style={{maxWidth:"100%",fontSize:13.5,padding:"5px 4px 5px 12px",borderRadius:20,background:`${acColor}15`,color:mixBlack(acColor,0.2),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
                     <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s}</span>
                     <button onClick={()=>upd({...entry,supplies:sup.filter((_,j)=>j!==i)})} aria-label={`${s} 지우기`} className="jelly-tap" style={{flexShrink:0,width:32,height:26,background:"none",border:"none",color:mixBlack(acColor,0.2),opacity:0.65,cursor:"pointer",fontSize:13,padding:0,lineHeight:1,fontFamily:"inherit"}}>✕</button>
                   </span>
@@ -7550,8 +7558,9 @@ export default function App() {
                 </div>
               )}
               <div style={{display:"flex",gap:8,marginBottom:22}}>
-                <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="준비물 입력" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"10px 14px"}}/>
-                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>추가</button>
+                {/* 위 '미션 내용 입력'은 14인데 여기만 15라 같은 창 안에서 크기가 어긋났다 → 14로 통일 */}
+                <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="준비물 입력" style={{...inp,flex:1,width:"auto",fontSize:14,padding:"10px 14px"}}/>
+                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
               </div>
               </>);
               })()}
@@ -7559,7 +7568,7 @@ export default function App() {
                   실제로는 넣는 즉시 저장되고 이 버튼은 창을 닫기만 한다 → 이름을 사실대로 바꾸고
                   바로 저장된다는 것을 위에 한 줄로 알린다. */}
               <p style={{fontSize:11.5,fontWeight:600,color:C.sub,textAlign:"center",margin:"0 0 8px"}}>넣거나 지우면 바로 저장돼요.</p>
-              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:14,border:"none",background:acColor,color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
+              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:14,border:"none",background:acColor,color:"#fff",fontSize:14.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
             </div>
           </div>
         );
