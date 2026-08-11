@@ -971,7 +971,7 @@ export default function App() {
   const parentLocked=()=>!rewardUnlocked;
   const goMissionTab=()=>{
     if(!parentLocked()){ setTab("mission"); return; }
-    askPin(()=>{ setRewardUnlocked(true); setTab("mission"); }, "🎯 미션 관리");
+    askPin(()=>{ setRewardUnlocked(true); setTab("mission"); }, "미션 관리");
   };
 
   // 보상탭 이동 — 누를 때마다 PIN을 받는다(이미 열려 있으면 그대로).
@@ -4974,9 +4974,17 @@ export default function App() {
             onOpenMissionCheck={()=>setShowMissionCheck(homeDate)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
             onEditDaily={(ac,date)=>{
-              setShowDailyModal({academyId:ac.id,date,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies});
-              setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
-              setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+              /* [사용자 확정 2026-08-11] 같은 편집 팝업인데 미션 탭에서 열면 점수 수정·삭제·
+                 체크가 다 되고, 홈의 '수정'으로 열면 잠겨 있었다 — 화면이 똑같아서 왜 어떤 때는
+                 안 되는지 알 수 없었다. 여는 곳과 상관없이 '미션 편집 = 잠금 뒤'로 하나로 맞춘다.
+                 잠금은 미션·보상과 같은 것이라 한 번 풀면 이 안에서는 다시 안 묻는다. */
+              const open=()=>{
+                setShowDailyModal({academyId:ac.id,date,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies});
+                setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
+                setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+              };
+              if(!parentLocked()){ open(); return; }
+              askPin(()=>{ setRewardUnlocked(true); open(); }, "미션 수정");
             }}
             onHolidayRest={(name)=>{
               const hd=new Date(homeDate.replace(/-/g,"/"));
@@ -7569,10 +7577,9 @@ export default function App() {
               </div>
               </>);
               })()}
-              {/* [사용자 확정 2026-08-11] '＋ 추가'와 '저장하기'가 둘 다 저장처럼 읽혔다.
-                  실제로는 넣는 즉시 저장되고 이 버튼은 창을 닫기만 한다 → 이름을 사실대로 바꾸고
-                  바로 저장된다는 것을 위에 한 줄로 알린다. */}
-              <p style={{fontSize:11.5,fontWeight:600,color:C.sub,textAlign:"center",margin:"0 0 8px"}}>넣거나 지우면 바로 저장돼요.</p>
+              {/* [사용자 확정 2026-08-11] '＋ 추가'와 '저장하기'가 둘 다 저장처럼 읽혀서
+                  버튼 이름을 사실대로 '닫기'로 바꿨다. 그때 같이 붙였던
+                  '넣거나 지우면 바로 저장돼요' 안내 줄은 사용자 요청으로 뺀다. */}
               <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:14,border:"none",background:acColor,color:"#fff",fontSize:14.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
             </div>
           </div>
