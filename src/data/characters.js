@@ -37,7 +37,7 @@ export const ADV_STAGE_BG_OF = (g, stage) => ADV_STAGE_BG_MEADOW;
 export const ADV_STAGE_BG_ALL = [ADV_STAGE_BG_MEADOW];
 /* 꾸미기 배경 중 '무대 그림을 통째로 바꾸는' 것들의 경로 (프리로드용).
    DECOR_BGS 는 아래에 선언돼 있어 여기서 못 읽는다 → 파일 목록만 따로 둔다. */
-export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp"];
+export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp", "/assets/stage-bg-dino.webp"];
 
 /* 성장 캐릭터 이미지 — /public/assets/ 경로 방식 (base64 내장 폐지)
    파일 규칙: /assets/growth-characters/{테마}/{성별}/stage-{단계}.webp
@@ -401,7 +401,13 @@ export const DECOR_BGS = [
      세기를 절반 아래로 (수면에서 빛이 드는 느낌을 더하는 쪽으로). */
   { id:"bg_rainbow", emoji:"🌊", name:"별빛 심해",   price:220,  rarity:"rare",      darkStage:true, img:"/assets/stage-bg-deepsea.webp", deco:["🫧","🐠","✨","🐬","🐙","🫧"],       tint:"rgba(150,225,250,0.16)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
   { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      darkStage:true, deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
-  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      darkStage:true, deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
+  /* [사용자 확정 2026-08-11] 원화 탑재. 그림에 이미 들어 있는 것은 장식에서 뺀다 —
+     공룡 둘·화산·고사리·바위·발자국·구름이 다 그려져 있다. 남는 건 그림에 없으면서
+     공룡 섬다운 것들: 알·뼈·바람에 날리는 잎.
+     tint 는 올리브 0.30 이었는데 이 그림 위쪽은 밝은 하늘색이라 올리브를 덮으면 탁해진다 →
+     하늘과 같은 연한 파랑을 아주 옅게.
+     darkStage 도 끈다 — 위쪽이 밝은 하늘이라 무대 문구를 크림색으로 반전하면 안 읽힌다. */
+  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      img:"/assets/stage-bg-dino.webp", deco:["🥚","🍃","🦴","🥚","🍃"],            tint:"rgba(165,220,250,0.12)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)", darkStage:true } },
   { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      darkStage:true, deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
   { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:560, rarity:"legendary", darkStage:true, deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
 ];
