@@ -3448,18 +3448,22 @@ export default function App() {
       // (예전 탐험↔미션 맞교환 때 이 줄만 안 따라와서 브라운 바에 초록 화살표가 얹혀 있었다 — 이번에 함께 정리)
       const _dnDeep=childTab==="today"?"#28495C":childTab==="growth"?"#2F4A2C":"#5C452C";
       return (
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"6px 10px",marginBottom:14}}>
+      /* [사용자 확정 2026-08-11] 날짜바는 조작 자리일 뿐인데 그림자가 세서 지도보다 먼저 보였다 →
+         그림자를 약 35% 낮추고 바 높이도 한 단계 줄인다(6/10 → 5/9, 글씨 15 → 14).
+         좌우 화살표도 바와 같은 계열의 불투명 칩이라 덩어리가 커 보였다 →
+         흰색 반투명으로 바꿔 바에 얹힌 조작 버튼처럼 보이게 한다. */
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",...jellyBox({background:_dn?_dnBg:GP.boxBg,border:_dn?"1px solid rgba(240,243,243,0.18)":`1px solid ${GP.boxBorder}`,borderRadius:16,boxShadow:_dn?"0 4px 12px rgba(70,55,38,0.16)":`0 6px 18px ${GP.boxShadowCol}`},{radius:18}),padding:"5px 9px",marginBottom:12}}>
         <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
-          style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?_dnDeep:GP.chipText,width:30,height:30,fontSize:17,cursor:"pointer",fontWeight:900}}>‹</button>
+          style={{...jellyChip({background:_dn?"rgba(255,255,255,0.20)":GP.chipBg,border:_dn?"1px solid rgba(255,255,255,0.30)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#FFF8EB":GP.chipText,width:28,height:28,fontSize:16,cursor:"pointer",fontWeight:900}}>‹</button>
         <div style={{textAlign:"center"}}>
-          <p style={{fontSize:15,fontWeight:900,margin:0,color:_dn?"#F0F3F3":GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
-          {!isChildToday&&<p style={{fontSize:11,color:_dn?"#FFF8EB":GP.gold,margin:"2px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
+          <p style={{fontSize:14,fontWeight:900,margin:0,color:_dn?"#F0F3F3":GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
+          {!isChildToday&&<p style={{fontSize:10.5,color:_dn?"#FFF8EB":GP.gold,margin:"1px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
         </div>
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
           {!isChildToday&&<button onClick={()=>setChildDate(TODAY)}
-            style={{background:_dn?"#FFF8EB":`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:_dn?_dnDeep:"#fff",borderRadius:10,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
+            style={{background:_dn?"#FFF8EB":`linear-gradient(135deg, ${GP.gold}, ${th.main})`,border:"none",color:_dn?_dnDeep:"#fff",borderRadius:10,padding:"5px 9px",fontSize:11,cursor:"pointer",fontWeight:900}}>오늘</button>}
           <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()+1);setChildDate(toStr(d));}}
-            style={{...jellyChip({background:_dn?_dnBtn:GP.chipBg,border:_dn?"1px solid rgba(240,243,243,0.22)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?_dnDeep:GP.chipText,width:30,height:30,fontSize:17,cursor:"pointer",fontWeight:900}}>›</button>
+            style={{...jellyChip({background:_dn?"rgba(255,255,255,0.20)":GP.chipBg,border:_dn?"1px solid rgba(255,255,255,0.30)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#FFF8EB":GP.chipText,width:28,height:28,fontSize:16,cursor:"pointer",fontWeight:900}}>›</button>
         </div>
       </div>
       );
@@ -3908,11 +3912,13 @@ export default function App() {
                     <>
                     {/* 섹션 구분 — 탐험지도 (캐릭터 탭 즐기기·내기록과 같은 디자인, 갈색톤 — 사용자 확정. 탭과의 여백 축소) */}
                     <div style={{display:"flex",alignItems:"center",gap:12,margin:"-4px 2px 12px"}}>
-                      <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.4))"}}/>
-                      <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>🗺️ 탐험지도</span>
-                      <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)"}}/>
+                      <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.32))"}}/>
+                      <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>탐험지도</span>
+                      <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.32), rgba(138,107,71,0) 90%)"}}/>
                     </div>
-                    <div style={{margin:"-4px -16px 26px"}}>
+                    {/* [사용자 확정 2026-08-11] 지도~탐험장소~탐험일지 사이 여백이 커서
+                        아래로 한참 내려야 했다 → 구간마다 20~25%씩 줄인다 (26 → 20). */}
+                    <div style={{margin:"-4px -16px 20px"}}>
                       <AdventureMap
                         items={ringItems}
                         fullBleed
@@ -4011,10 +4017,10 @@ export default function App() {
               })()}
               {/* 섹션 구분 — 탐험일지 (탐험 스킨 전용, 지도 아래·학원카드 위, 갈색톤 — 사용자 확정) */}
               {kidSkin!=="cute"&&(
-                <div style={{display:"flex",alignItems:"center",gap:12,margin:"28px 2px 14px"}}>
-                  <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.4))"}}/>
-                  <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>📜 탐험일지</span>
-                  <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)"}}/>
+                <div style={{display:"flex",alignItems:"center",gap:12,margin:"21px 2px 11px"}}>
+                  <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.32))"}}/>
+                  <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>탐험일지</span>
+                  <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.32), rgba(138,107,71,0) 90%)"}}/>
                 </div>
               )}
               {/* 오늘의 발견 한 줄 — 발견 지점을 지나갔으면 무엇을 찾았는지, 아직이면 펫이 흘리는 힌트.
@@ -4032,24 +4038,29 @@ export default function App() {
                    힌트를 띄우면 지나가도 아무 일이 없어 아이가 헛기다린다. */
                 if(!canDiscoverOn(childId,_dd)&&!_d) return null;
                 return (
-                  <div style={{display:"flex",alignItems:"center",gap:9,margin:"0 2px 14px",padding:"9px 13px",borderRadius:14,
+                  /* [사용자 확정 2026-08-11] '오늘의 발견'·'새싹'·'도감 16'이 비슷한 무게라
+                     정작 무엇을 찾았는지가 안 도드라졌다 → 찾은 것(새싹)을 한 단계 키우고
+                     머리말은 더 작고 연하게. '도감 16'은 개수인지 번호인지 몰라 '도감 16개'로.
+                     카드 안에 또 테두리 상자가 있어 카드 속 카드처럼 보이던 것도 글자 버튼으로. */
+                  <div style={{display:"flex",alignItems:"center",gap:9,margin:"0 2px 11px",padding:"8px 12px",borderRadius:14,
                     background:_d?"rgba(255,255,255,0.72)":"rgba(138,107,71,0.07)",
                     border:_d?"1.5px solid rgba(138,107,71,0.32)":"1.5px dashed rgba(138,107,71,0.3)"}}>
-                    <span style={{fontSize:19,flexShrink:0}}>{_d?_d.emoji:"🐾"}</span>
+                    <span style={{fontSize:22,flexShrink:0}}>{_d?_d.emoji:"🐾"}</span>
                     <div style={{flex:1,minWidth:0}}>
-                      <p style={{margin:0,fontSize:10.5,fontWeight:900,color:"#A2917C",letterSpacing:0.3}}>🌿 오늘의 발견</p>
+                      <p style={{margin:0,fontSize:10,fontWeight:800,color:"#B3A493",letterSpacing:0.3}}>오늘의 발견</p>
                       {/* 힌트가 길면 한 줄로는 잘린다 (사용자 지적) → 두 줄까지 접어서 보여 준다 */}
-                      <p style={{margin:"1px 0 0",fontSize:13,fontWeight:800,color:_d?"#5A4430":"#8C7E6B",
-                        lineHeight:1.35,wordBreak:"keep-all",overflow:"hidden",
+                      <p style={{margin:"1px 0 0",fontSize:14.5,fontWeight:900,color:_d?"#5A4430":"#8C7E6B",
+                        lineHeight:1.3,wordBreak:"keep-all",overflow:"hidden",
                         display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>
                         {_d?_d.name:getTodayHint(childId,_dd)}
                       </p>
                     </div>
                     <button onClick={()=>setOpenDiscoveryBook(true)}
-                      style={{flexShrink:0,border:"1.5px solid rgba(138,107,71,0.4)",background:"#fff",color:"#6B523A",
-                        borderRadius:999,padding:"6px 11px",fontSize:11.5,fontWeight:900,cursor:"pointer",
+                      style={{flexShrink:0,border:"none",background:"none",color:"#8A6B47",
+                        padding:"6px 2px",fontSize:11.5,fontWeight:900,cursor:"pointer",
+                        textDecoration:"underline",textUnderlineOffset:3,
                         fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif"}}>
-                      📖 도감 {getCollectedCount(discoveryData,childId)}
+                      도감 {getCollectedCount(discoveryData,childId)}개
                     </button>
                   </div>
                 );
@@ -4084,29 +4095,41 @@ export default function App() {
                   const dungeon=getAcademyTheme(ac.name,kidSkin,ac.kind);
                   const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
                   const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
-                  const chipSty=(checked)=>({fontSize:11,padding:"3px 11px",borderRadius:999,cursor:"pointer",fontWeight:400,transition:"all .15s",
+                  const chipSty=(checked)=>({fontSize:11,padding:"3px 10px",borderRadius:999,cursor:"pointer",fontWeight:400,transition:"all .15s",
                     fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",
+                    display:"inline-flex",alignItems:"center",gap:4,
                     background:checked?"rgba(127,163,90,0.30)":"rgba(122,88,50,0.10)",
                     border:checked?"1.5px solid #7FA35A":"1px solid rgba(122,88,50,0.4)",
                     color:checked?"#3E5C28":"#5A4430"});
+                  /* [사용자 확정 2026-08-11] 칩 앞의 ✅ ⬜ 도 운영체제 이모지라 종이 위에서 튀었다 →
+                     칩 글자색을 그대로 따르는 작은 체크·빈 동그라미로. */
+                  const chipMark=(checked)=>(
+                    <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" style={{flexShrink:0}}>
+                      {checked
+                        ? <path d="m5.5 12.6 4.2 4.2 8.8-9.6" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                        : <circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" strokeWidth="2.4" opacity="0.6"/>}
+                    </svg>
+                  );
                   return (
                     <PageFlip flipKey={ac.id} order={jIdx} total={jList.length}>
                       <AdventureJournalCard
                         onPrev={()=>goJournal(-1)} onNext={()=>goJournal(1)}
                         icon={dungeon.icon} title={dungeon.label} name={acKindLabel(ac)}
                         time={sc?.time?toKoreanTime(sc.time):"-"}
-                        remain={rl?`${rl.icon} ${rl.text}`:""}
+                        remain={rl?rl.text:""} remainTone={rl?rl.tone:""}
                         shuttle={shuttleText||"없음"}
-                        missionText={totalTodoCnt===0?"미션 없음":allDone?"미션 클리어! 🎉":`미션 ${totalTodoCnt-doneCnt}개 남음`}
-                        missionTone={totalTodoCnt===0?"#8A7458":allDone?"#4E7B3A":"#B4652A"}
+                        /* [사용자 확정 2026-08-11] '미션 없음'은 빠진 것처럼 읽힌다 →
+                           없는 게 정상인 날도 있으니 편안한 말로. 클리어의 🎉 도 뺀다. */
+                        missionText={totalTodoCnt===0?"추가 미션은 없어!":allDone?"미션 클리어!":`미션 ${totalTodoCnt-doneCnt}개 남음`}
+                        missionTone={totalTodoCnt===0?"#A2917C":allDone?"#4E7B3A":"#B4652A"}
                         supplies={<>
                           {baseSup.map((s,i)=>{
                             const checked=(entry.checkedSupplies||[]).includes(s);
-                            return <button key={`b${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,s)} style={chipSty(checked)}>{checked?"✅":"⬜"} {s}</button>;
+                            return <button key={`b${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,s)} style={chipSty(checked)}>{chipMark(checked)}{s}</button>;
                           })}
                           {sup.map((s,i)=>{
                             const key="+"+s; const checked=(entry.checkedSupplies||[]).includes(key);
-                            return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={chipSty(checked)}>{checked?"✅":"⬜"} +{s}</button>;
+                            return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={chipSty(checked)}>{chipMark(checked)}+{s}</button>;
                           })}
                           {baseSup.length===0&&sup.length===0&&<span style={{fontSize:13,color:"#8A7458",fontWeight:700,alignSelf:"center"}}>없음</span>}
                         </>}

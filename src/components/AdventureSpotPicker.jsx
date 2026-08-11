@@ -44,13 +44,16 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
       <style>{`
         @keyframes spNow{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
       `}</style>
-      {/* 섹션 구분 — 탐험장소 (탐험지도·탐험일지 구분선과 동일 디자인·갈색톤) */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "2px 2px 12px" }}>
-        <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.4))" }} />
-        <span style={{ flexShrink: 0, fontSize: 13.5, fontWeight: 900, letterSpacing: 0.4, color: "#8A6B47" }}>🧭 탐험장소</span>
-        <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0.4), rgba(138,107,71,0) 90%)" }} />
+      {/* 섹션 구분 — 탐험장소 (탐험지도·탐험일지 구분선과 동일 디자인·갈색톤)
+          [사용자 확정 2026-08-11] 제목 앞 이모지(🧭 🗺️ 📜)는 운영체제 그림이라 수채화
+          일러스트 옆에서 임시 아이콘처럼 보였다 → 글자와 양쪽 선만 남긴다.
+          선도 20% 연하게(0.4 → 0.32) — 지도보다 먼저 보이면 안 된다. */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "2px 2px 10px" }}>
+        <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.32))" }} />
+        <span style={{ flexShrink: 0, fontSize: 13.5, fontWeight: 900, letterSpacing: 0.4, color: "#8A6B47" }}>탐험장소</span>
+        <div style={{ flex: 1, height: 2, borderRadius: 2, background: "linear-gradient(90deg, rgba(138,107,71,0.32), rgba(138,107,71,0) 90%)" }} />
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", marginBottom: 16 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", marginBottom: 12 }}>
       {rows.map((row, ri) => (
       /* paddingTop — 지나온 칸의 깃발이 원판 위로 14px 솟으므로 윗줄과 부딪히지 않게 공간을 준다 */
       <div key={ri} style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 12, width: "100%" }}>

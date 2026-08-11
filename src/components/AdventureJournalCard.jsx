@@ -26,6 +26,7 @@
      name     : string   실제 학원명 (부제)
      time     : string   시작 시각 (한글 변환된 값)
      remain   : string   남은시간 라벨 (오늘만, 없으면 "")
+     remainTone : "done"|"now"|"urgent"|"soon"  남은시간 상태 (배지 색·체크 표시)
      shuttle  : string   셔틀 정보 (없으면 "없음")
      supplies : node     준비물 체크 칩들 (App이 토글 핸들러와 함께 생성)
      missionText : string  남은 미션 요약 (예: 3개 남음 / 🎉 클리어!)
@@ -50,11 +51,20 @@ const Y_MISSION = "83.8%";
 
 // onPrev/onNext: 좌우 스와이프로 시간순 이전/다음 학원 일지로 전환 (App이 순환 이동 전달)
 // 카드가 학원 전환으로 다시 마운트될 때(key=학원 id) 페이지 넘김 애니메이션 재생
+/* [사용자 확정 2026-08-11] '수업 종료' 앞의 ✅ 는 운영체제 이모지라 종이·수채화 위에서
+   혼자 튀었다 → 노트의 올리브색을 쓴 둥근 배지로. 수업 중일 땐 따뜻한 갈색 배지,
+   아직 남았을 땐 예전처럼 연한 글자만 (조용해야 할 상태라 배지를 씌우지 않는다). */
+const REMAIN_BADGE = {
+  done: { bg: "rgba(127,163,90,0.22)", border: "#7FA35A", color: "#3E5C28" },
+  now:  { bg: "rgba(180,101,42,0.16)", border: "#C08046", color: "#8C4E1E" },
+};
+
 export default function AdventureJournalCard({
-  icon, title, name, time, remain = "", shuttle = "없음",
+  icon, title, name, time, remain = "", remainTone = "", shuttle = "없음",
   supplies, missionText, missionTone = "#5A3F22", onPrev, onNext,
 }) {
   const touch = useRef(null);
+  const badge = REMAIN_BADGE[remainTone];
   return (
     <div
       onTouchStart={(e) => { const t = e.touches[0]; touch.current = [t.clientX, t.clientY]; }}
@@ -95,8 +105,20 @@ export default function AdventureJournalCard({
         columnGap: 8, rowGap: 0, pointerEvents: "none" }}>
         <span style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(11px, 3.7vw, 15.4px)",
           color: "#4E432A", lineHeight: 1.15, whiteSpace: "nowrap", flexShrink: 0 }}>{time}</span>
-        {remain && <span style={{ fontFamily: F_BODY, fontSize: "clamp(8.8px, 3vw, 12.1px)", color: "#7A6E48",
-          whiteSpace: "nowrap", marginLeft: "auto", flexShrink: 0 }}>{remain}</span>}
+        {remain && (badge
+          ? <span style={{ fontFamily: F_BODY, fontSize: "clamp(8.8px, 3vw, 12.1px)", color: badge.color,
+              whiteSpace: "nowrap", marginLeft: "auto", flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4,
+              background: badge.bg, border: `1px solid ${badge.border}`, borderRadius: 999, padding: "2px 9px" }}>
+              {remainTone === "done" && (
+                <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" style={{ flexShrink: 0 }}>
+                  <path d="m5.5 12.6 4.2 4.2 8.8-9.6" fill="none" stroke="currentColor" strokeWidth="3"
+                    strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+              {remain}
+            </span>
+          : <span style={{ fontFamily: F_BODY, fontSize: "clamp(8.8px, 3vw, 12.1px)", color: "#7A6E48",
+              whiteSpace: "nowrap", marginLeft: "auto", flexShrink: 0 }}>{remain}</span>)}
       </div>
 
       {/* 셔틀 (버스) */}
