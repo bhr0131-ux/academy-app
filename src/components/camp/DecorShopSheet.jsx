@@ -152,10 +152,21 @@ export default function DecorShopSheet({
                         <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#fff",background:"rgba(78,163,255,.95)",borderRadius:999,padding:"2px 8px",boxShadow:"0 0 12px rgba(78,163,255,.35)"}}>구매 가능</span>
                       ):null}
                       {/* 미리보기 */}
-                      <div style={{position:"relative",width:54,height:54,borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,
+                      <div style={{position:"relative",width:54,height:54,borderRadius:16,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,
                         background:grp.key==="bg"?`radial-gradient(circle at 50% 40%, ${it.tint||rc+"22"}, ${dungeon?DUNGEON_DECOR_CARD.previewBg:C.faint})`:(grp.key==="border"?it.grad:(dungeon?DUNGEON_DECOR_CARD.previewBg:C.faint)),
                         border:grp.key==="border"?"none":`1px solid ${dungeon?DUNGEON_DECOR_CARD.previewBorder:C.border}`,boxShadow:grp.key==="border"?`0 0 12px ${(kidSkin==="cute"&&it.glowCute)?it.glowCute:it.glow}`:"none"}}>
-                        {grp.key==="border"?<span style={{width:38,height:38,borderRadius:11,background:dungeon?"#27314F":C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>🧒</span>:it.emoji}
+                        {/* [사용자 확정 2026-08-11] 원화가 있는 배경(it.img)은 상점에서도 그 그림으로
+                            미리 보여 준다 — 이모지만 보면 무엇을 사는지 알 수 없다.
+                            그림이 아직 없으면 onError 로 이모지 미리보기로 되돌아간다. */}
+                        {grp.key==="border"
+                          ? <span style={{width:38,height:38,borderRadius:11,background:dungeon?"#27314F":C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>🧒</span>
+                          : it.img
+                            ? <img src={it.img} alt="" draggable={false}
+                                onError={e=>{ e.currentTarget.style.display="none";
+                                  if(e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display=""; }}
+                                style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",borderRadius:16}}/>
+                            : it.emoji}
+                        {it.img&&grp.key!=="border"&&<span style={{display:"none"}}>{it.emoji}</span>}
                       </div>
                       <p style={{fontSize:12.5,fontWeight:900,margin:0,color:dungeon?"#EAF0FF":C.text,textAlign:"center",lineHeight:1.25}}>{it.name}</p>
                       <span style={{fontSize:10,fontWeight:900,color:dungeon?dr.badgeText:rc,background:dungeon?dr.badgeBg:`${rc}18`,borderRadius:8,padding:"1px 7px"}}>{DECOR_RARITY[it.rarity]?({common:"일반",rare:"희귀",epic:"영웅",legendary:"전설"}[it.rarity]):"일반"}</span>

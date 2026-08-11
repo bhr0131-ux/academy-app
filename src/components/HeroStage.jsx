@@ -88,6 +88,15 @@ export default function HeroStage({ D }) {
               {/* ── 장착 배경 꾸미기 (은은한 tint + 떠다니는 장식) — 탐험·베이커리 공통 ── */}
               {/* 구매 배경의 테마 풍경(탐험: 숲/바다/섬/정글/공룡/우주, 베이커리: 벚꽃/딸기/별사탕/초콜릿/천상/무지개) */}
               {stageBgDeco&&<AdventureBgScenery bgId={stageBgDeco.id}/>}
+              {/* 원화 배경 — SVG 풍경 '위에' 덮는 한 장. 그림이 아직 없으면 이 장만 사라지고
+                  아래 SVG 풍경이 그대로 보인다 (사용자 확정 2026-08-11: 그림이 없다고 기본
+                  초원으로 떨어지면, 바다를 산 아이가 산을 보게 된다). */}
+              {stageBgDeco?.img&&(
+                <img src={stageBgDeco.img} alt="" draggable={false}
+                  onError={e=>{ e.currentTarget.style.display="none"; }}
+                  style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",
+                    objectPosition:"center 68%",borderRadius:"inherit",pointerEvents:"none",zIndex:0}}/>
+              )}
               {/* 탐험·베이커리 모두 구매한 배경 이모지를 흩뿌려 표시 */}
               {stageBgDeco&&(()=>{
                 const own = (stageBgDeco.deco||[]).filter(Boolean);
