@@ -19,13 +19,18 @@
      calView, setCalView                   "month" | "week"
      onOpenLegend()                        표시 설명 시트 열기
      dayMemos, setDayMemos, memoEdit, setMemoEdit, memoDraft, setMemoDraft
-     mKey, isVacationDay, getDailyEntry, getWeeklySchedule, toggleMakeup
+     mKey, isVacationDay, getDailyEntry, getWeeklySchedule, acKindLabel, toggleMakeup
      onSms(ac)                             결석 학원에 문자 보내기
      onVacation()                          방학 기간 관리 열기
      isFeePaidOn(acId, month)              그 달 학원비를 냈는지 (달력의 납부일 표시용)
    ════════════════════════════════════════════════════════════════════════ */
 
-import { C, DAYS, mixWhite, SHADOW } from "../../data/tokens.js";
+import { C, mixWhite, SHADOW } from "../../data/tokens.js";
+
+/* [사용자 확정 2026-08-11] 달력은 일요일부터 토요일 순으로 늘어놓는다.
+   앱의 공용 DAYS 는 월요일부터라(학원 등록의 요일 고르기 등이 그 순서를 쓴다)
+   달력에서만 쓰는 순서를 여기에 따로 둔다. */
+const CAL_DAYS = ["일","월","화","수","목","금","토"];
 import { TODAY, getDN, toStr, addDays, parseLocal } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText } from "../../data/sampleData.js";
 import { getHolidayName } from "../../data/characters.js";
@@ -38,7 +43,7 @@ export default function CalendarTab({
   calDate, setCalDate, calDays = [], calSelDate, setCalSelDate,
   calView, setCalView, onOpenLegend,
   dayMemos = {}, setDayMemos, memoEdit, setMemoEdit, memoDraft, setMemoDraft,
-  mKey, isVacationDay, getDailyEntry, getWeeklySchedule, toggleMakeup, isFeePaidOn,
+  mKey, isVacationDay, getDailyEntry, getWeeklySchedule, acKindLabel, toggleMakeup, isFeePaidOn,
   onSms, onVacation,
 }) {
   /* [사용자 확정 2026-08-09] 이 화면의 핵심 흐름은 '날짜를 고른다 → 그날 일정을 본다'.
@@ -80,8 +85,8 @@ export default function CalendarTab({
      주간은 effSelDate가 속한 주를 그리는데, 화살표는 calDate(달)만 바꿨기 때문이다.
      월간은 달 단위, 주간은 주 단위로 넘긴다. 주를 옮기면 calDate도 같이 맞춰 둬서
      월간으로 돌아갔을 때 그 달이 열린다. */
-  const weekMon=(()=>{ const d=parseLocal(effSelDate); const off=(d.getDay()+6)%7; return addDays(effSelDate,-off); })();
-  const weekSun=addDays(weekMon,6);
+  const weekMon=(()=>{ const d=parseLocal(effSelDate); return addDays(effSelDate,-d.getDay()); })();   // 그 주의 일요일
+  const weekSun=addDays(weekMon,6);                                                                    // 그 주의 토요일
   const korMD=(s)=>{ const [,mm,dd]=s.split("-").map(Number); return `${mm}월 ${dd}일`; };
   const goWeek=(dir)=>{
     const next=addDays(weekMon,dir*7);
@@ -135,8 +140,8 @@ export default function CalendarTab({
       {/* ── 월간 보기 ── */}
       {calView==="month"&&(<>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",textAlign:"center",marginBottom:4}}>
-        {["월","화","수","목","금","토","일"].map((d,i)=>(
-          <div key={d} style={{fontSize:12,fontWeight:700,color:i===5?"#3498DB":i===6?"#E74C3C":C.sub,padding:"4px 0"}}>{d}</div>
+        {CAL_DAYS.map((d,i)=>(
+          <div key={d} style={{fontSize:12,fontWeight:700,color:i===0?"#E74C3C":i===6?"#3498DB":C.sub,padding:"4px 0"}}>{d}</div>
         ))}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3}}>
@@ -203,10 +208,13 @@ export default function CalendarTab({
              세로 목록으로 두면 시간과 학원을 한 줄에 읽을 수 있다 (사용자 확정). ── */}
       {calView==="week"&&(()=>{
         const weekDates={};
-        DAYS.forEach((d,i)=>{ weekDates[d]=addDays(weekMon,i); });
+        CAL_DAYS.forEach((d,i)=>{ weekDates[d]=addDays(weekMon,i); });
+        // getWeeklySchedule 은 월~일 순으로 주므로 달력 순서(일~토)로 다시 늘어놓는다
+        const byDay={}; getWeeklySchedule(childId).forEach(r=>{ byDay[r.day]=r.items; });
         return (
           <div style={{display:"flex",flexDirection:"column",gap:7}}>
-            {getWeeklySchedule(childId).map(({day,items})=>{
+            {CAL_DAYS.map(day=>{
+              const items=byDay[day]||[];
               const dayDate=weekDates[day];
               const isTodayRow=dayDate===TODAY;
               return (
@@ -228,12 +236,13 @@ export default function CalendarTab({
                             /* [사용자 확정 2026-08-10] 취소선이 글꼴과 겹쳐 지저분했다 →
                                줄 전체를 흐리게 하고 시간 자리에 주황 '휴원' 배지를 넣는다.
 
-                               [2026-08-10 재조정] '피아노·수학' 종류 칸을 뺐다 — 학원 이름과 같은 뜻이
-                               두 번 나오는 데다, 정작 중요한 학원 이름이 오른쪽 끝 연한 글씨라
-                               한눈에 안 들어왔다(사용자 제보). 이제 색 띠 → 시간(회색) → 학원 이름
-                               (진한 남색·굵게, 남는 폭 전부) 순으로, 왼쪽부터 바로 읽힌다.
-                               이름이 길면 두 줄로 내리지 않고 말줄임 — 카드 높이를 일정하게 두고,
-                               카드를 누르면 월간 상세에서 전체 이름을 볼 수 있다. */
+                               [2026-08-10] 한 줄에 종류와 학원 이름이 둘 다 있어 같은 뜻이 두 번
+                               나왔다 → 한 칸만 남기고, 색 띠 → 시간(회색) → 이름(진한 남색·굵게,
+                               남는 폭 전부) 순으로 왼쪽부터 바로 읽히게 했다.
+                               [2026-08-11] 남기는 쪽을 학원 이름에서 '과목 종류'로 바꿨다(사용자 확정).
+                               주간은 한 주 흐름을 훑는 화면이라 '무슨 수업인가'가 먼저다.
+                               어느 학원인지는 날짜를 눌러 월간 상세에서 본다.
+                               길면 두 줄로 내리지 않고 말줄임 — 카드 높이를 일정하게 둔다. */
                             <div key={ac.id} style={{display:"flex",alignItems:"center",gap:9,minWidth:0,opacity:onVac?0.55:1}}>
                               <span style={{width:3,height:15,borderRadius:9,background:ac.color,flexShrink:0}}/>
                               <span style={{flexShrink:0,minWidth:46,display:"flex"}}>
@@ -242,7 +251,7 @@ export default function CalendarTab({
                                   : <span style={{fontSize:12.5,fontWeight:700,color:C.sub}}>{ac.classTime}</span>}
                               </span>
                               <span style={{flex:1,minWidth:0,fontSize:13.5,fontWeight:800,color:C.text,
-                                overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</span>
+                                overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
                             </div>
                           );
                         })}

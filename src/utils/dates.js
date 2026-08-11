@@ -13,9 +13,11 @@ export const toStr = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStar
 export const fmt = (s) => { const d=parseLocal(s); return `${d.getMonth()+1}/${d.getDate()}(${["일","월","화","수","목","금","토"][d.getDay()]})`; };
 export const addDays = (s,n) => { const d=parseLocal(s); d.setDate(d.getDate()+n); return toStr(d); };
 export const todayDN = () => ["일","월","화","수","목","금","토"][new Date().getDay()];
+/* [사용자 확정 2026-08-11] 달력 첫 칸을 월요일에서 일요일로 바꿨다.
+   한국에서 흔히 쓰는 배열이고, 주말(토·일)이 양쪽 끝으로 갈리지 않고
+   일요일이 맨 앞·토요일이 맨 끝에 오면 빨간날을 한눈에 찾기 쉽다. */
 export const getCalDays = (y,m) => {
-  const first=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate();
-  const offset=first===0?6:first-1, arr=[];
+  const offset=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate(), arr=[];
   for(let i=0;i<offset;i++) arr.push(null);
   for(let d=1;d<=last;d++) arr.push(d);
   return arr;
