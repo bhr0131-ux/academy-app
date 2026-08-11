@@ -4974,17 +4974,15 @@ export default function App() {
             onOpenMissionCheck={()=>setShowMissionCheck(homeDate)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
             onEditDaily={(ac,date)=>{
-              /* [사용자 확정 2026-08-11] 같은 편집 팝업인데 미션 탭에서 열면 점수 수정·삭제·
-                 체크가 다 되고, 홈의 '수정'으로 열면 잠겨 있었다 — 화면이 똑같아서 왜 어떤 때는
-                 안 되는지 알 수 없었다. 여는 곳과 상관없이 '미션 편집 = 잠금 뒤'로 하나로 맞춘다.
-                 잠금은 미션·보상과 같은 것이라 한 번 풀면 이 안에서는 다시 안 묻는다. */
-              const open=()=>{
-                setShowDailyModal({academyId:ac.id,date,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies});
-                setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
-                setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
-              };
-              if(!parentLocked()){ open(); return; }
-              askPin(()=>{ setRewardUnlocked(true); open(); }, "미션 수정");
+              /* [사용자 확정 2026-08-11] 미션 편집은 권한을 일부러 두 단계로 둔다 —
+                 여기(홈의 '수정')는 비밀번호 없이 여는 자리라 '오늘 할 일을 넣는' 것까지만.
+                 점수를 고치거나 미션을 지우는 건 비밀번호를 넣고 들어가는 미션 탭에서.
+                   홈    : 미션·준비물 추가 ○ / 점수 수정 ✕ / 삭제 ✕ / 완료 체크 ✕
+                   미션 탭 : 전부 ○ (PIN 통과 = rewardUnlocked)
+                 ※ 한때 여기도 PIN 뒤로 옮겼다가 되돌렸다. 두 단계가 맞다. */
+              setShowDailyModal({academyId:ac.id,date,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies});
+              setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
+              setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
             }}
             onHolidayRest={(name)=>{
               const hd=new Date(homeDate.replace(/-/g,"/"));
