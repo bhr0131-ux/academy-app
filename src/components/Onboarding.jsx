@@ -149,10 +149,11 @@ export function OnboardingFlow({ onFinish }){
     { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind },
     { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 보여요. 비워 둬도 괜찮아요." },
     /* [사용자 확정 2026-08-11] 반복 숙제를 준비물과 떼어 미션 단계로 옮겼다 — 둘 다 '숙제'라
-       미션 이야기를 할 때 같이 보는 게 자연스럽다. 둘 중 하나는 반드시 넣게 한다
-       (아무 미션도 없이 시작하면 첫 화면이 텅 비어 무엇을 할지 모른다). */
-    { kind:"mission", title:"숙제를 하나 넣어 볼까요?", sub:"둘 중 하나는 꼭 적어 주세요. 나머지는 나중에 넣어도 돼요.",
-      canNext:()=>baseHw.trim().length>0||mission.trim().length>0 },
+       미션 이야기를 할 때 같이 보는 게 자연스럽다.
+       [2026-08-11] 필수는 '오늘 미션' 하나로 정했다(사용자 확정) — 아무 미션도 없이 시작하면
+       첫 화면이 텅 비어 무엇을 할지 모른다. 반복 숙제는 없는 학원도 많아 선택으로 둔다. */
+    { kind:"mission", title:"오늘 할 미션을 정해볼까요?", sub:"오늘 미션 하나만 넣으면 시작할 수 있어요.",
+      canNext:()=>mission.trim().length>0 },
   ];
   const cur=steps[step];
   const isLast=step===steps.length-1;
@@ -313,13 +314,13 @@ export function OnboardingFlow({ onFinish }){
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 4px"}}>
-              📚 반복 숙제 {!mission.trim()&&<span style={{fontSize:12.5,fontWeight:800,color:"#E5484D"}}>필수</span>}
+              📚 반복 숙제 <span style={{fontSize:12.5,fontWeight:600,color:"#8890B0"}}>(선택)</span>
             </p>
             <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>학원에 갈 때마다 하는 숙제예요.</p>
-            <input autoFocus value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 하농 1번 연습" style={inp}/>
+            <input value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 하농 1번 연습" style={inp}/>
 
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"24px 0 4px"}}>
-              🎯 오늘 미션 {!baseHw.trim()&&<span style={{fontSize:12.5,fontWeight:800,color:"#E5484D"}}>필수</span>}
+              🎯 오늘 미션 <span style={{fontSize:12.5,fontWeight:800,color:"#E5484D"}}>필수</span>
             </p>
             <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>오늘 하루만 하는 일이에요.</p>
             {/* 종류 고르기는 앱의 미션 편집 화면과 같은 모양으로 (사용자 확정) */}
@@ -331,7 +332,7 @@ export function OnboardingFlow({ onFinish }){
                     fontSize:14.5,fontWeight:800,cursor:"pointer"}}>{o.t}</button>
               ))}
             </div>
-            <input value={mission} onChange={e=>setMission(e.target.value)}
+            <input autoFocus value={mission} onChange={e=>setMission(e.target.value)}
               placeholder={missionKind==="hw"?"예: 문제집 5쪽":"예: 책가방 스스로 챙기기"} style={inp}
               onKeyDown={e=>e.key==="Enter"&&cur.canNext()&&next()}/>
           </div>
