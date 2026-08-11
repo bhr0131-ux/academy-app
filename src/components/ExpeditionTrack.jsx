@@ -335,24 +335,22 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
     {/* ── 제목·진행 칩 — [사용자 확정 2026-07-31] 그림 밖으로 빼서 날짜와 그림 사이에 둔다.
            풀블리드 카드는 좌우로 16px 삐져나와 있으니 헤더는 그만큼 안쪽으로 넣어 본문과 맞춘다.
            그림 위가 아니라 배경(크림색) 위에 놓이므로 어두운 씬에서도 밝은 칩을 쓴다. ── */}
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
-      gap: 8, padding: fullBleed ? "0 16px" : 0, marginBottom: 8 }}>
-      <div style={{ background: "rgba(255,251,240,0.88)", border: "1px solid rgba(155,114,74,0.35)",
+    {/* [사용자 확정 2026-08-11] 제목 칩과 진행 칩이 따로 떠 있어 위쪽이 복잡했다 →
+        한 칸 안에 넣고 제목은 왼쪽, 진행은 오른쪽으로 줄 세운다. 산 그림은 제목 앞에 한 번만
+        (진행 칩에도 같은 산이 또 있어 두 번 나왔다). */}
+    <div style={{ padding: fullBleed ? "0 16px" : 0, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8,
+        background: "rgba(255,251,240,0.88)", border: "1px solid rgba(155,114,74,0.35)",
         borderRadius: 12, padding: "5px 11px", boxShadow: "0 2px 6px rgba(0,0,0,0.08)" }}>
-        {/* 한 줄 표기 (사용자 확정: 줄바꿈 없이, 글씨 크기는 그대로) */}
-        <p style={{ margin: 0, whiteSpace: "nowrap" }}>
+        <p style={{ margin: 0, minWidth: 0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 0.5, color: "rgba(90,68,48,0.75)" }}>오늘의 탐험</span>
           <span style={{ fontSize: 14.5, fontWeight: 900, marginLeft: 7, color: "#4B3A2F" }}>{exp.emoji} {exp.title}</span>
         </p>
+        {total > 0 && (
+          /* [사용자 확정] '탐험 성공!' 문구는 뺀다 — 도착해도 숫자만 (연출은 만세 포즈로 충분) */
+          <span style={{ fontSize: 12.5, fontWeight: 900, color: "#4B3A2F", flexShrink: 0 }}>{done} / {total}</span>
+        )}
       </div>
-      {total > 0 && (
-        <div style={{ background: "rgba(255,251,240,0.88)", border: "1px solid rgba(155,114,74,0.35)",
-          borderRadius: 999, padding: "5px 11px", fontSize: 12, fontWeight: 900,
-          color: "#4B3A2F", boxShadow: "0 2px 6px rgba(0,0,0,0.08)", flexShrink: 0 }}>
-          {/* [사용자 확정] '탐험 성공!' 문구는 뺀다 — 도착해도 숫자만 (연출은 만세 포즈로 충분) */}
-          {`${exp.emoji} ${done}/${total}`}
-        </div>
-      )}
     </div>
 
     <div style={{ position: "relative", overflow: "hidden", borderRadius: fullBleed ? 0 : 22,
