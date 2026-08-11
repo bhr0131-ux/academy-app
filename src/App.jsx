@@ -20,6 +20,7 @@ import CalendarTab from "./components/parent/CalendarTab.jsx";
 import ParentHomeTab from "./components/parent/ParentHomeTab.jsx";
 import AcademyTab from "./components/parent/AcademyTab.jsx";
 import FeeTab from "./components/parent/FeeTab.jsx";
+import RewardApprovals from "./components/parent/RewardApprovals.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
 import { getMapWalker } from "./data/mapWalkers.js";
 import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
@@ -248,6 +249,7 @@ export default function App() {
   const [rewardData,     setRewardData]     = useState(initReward.rewardData);
   const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elemLow|elemHigh|teen|custom)
   const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
+  const [pendingReject,    setPendingReject]    = useState(null); // 보상 구매 거절 확인 모달용 (요청 객체)
   const [pendingRestore, setPendingRestore] = useState(null); // 백업 복원 확인 모달용 (파싱된 데이터)
   const [lastBackupDate, setLastBackupDate] = useState(null); // 마지막 백업 날짜 (YYYY-MM-DD), 없으면 null
   const [lastNudgeDate, setLastNudgeDate] = useState(null); // 마지막으로 백업 권유를 띄운 날짜 (YYYY-MM-DD), 없으면 null
@@ -2994,7 +2996,10 @@ export default function App() {
     if(!request) return;
     // 코인은 요청 시 이미 차감됨 → 승인은 상태만 변경
     setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"approved",approvedAt:new Date().toISOString()}:r)}));
-    showToast("구매 승인 완료! 🎉");
+    /* [사용자 확정 2026-08-11] '구매 승인 완료!'만으로는 무엇을 승인했는지 안 남는다 →
+       무엇을·얼마에 승인했는지 함께 알린다. (코인은 요청 시 이미 빠져 있으므로
+       '차감했어요'가 아니라 '사용'이라고 쓴다 — 지금 빠지는 것처럼 읽히면 안 된다) */
+    showToast(`'${request.title}' 승인 · ${TM.coin} ${request.point} 사용`, 2200);
   };
   const rejectRewardRequest=(requestId)=>{
     const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
@@ -3332,6 +3337,25 @@ export default function App() {
   /* (이동됨) devBtn·devMiniBtn·devGroup·devGroupTitle — DevToolsPanel.jsx 로 분리 */
   const openCloseLabel=(open)=>open?"닫기 ▲":"열기 ▼";
   const openClosePill=(open)=>({fontSize:12,fontWeight:900,color:th.main,background:th.light,padding:"6px 9px",borderRadius:14,whiteSpace:"nowrap",flexShrink:0});
+  /* ── 보상 탭 관리 카드 ───────────────────────────────────────────────
+     [사용자 확정 2026-08-11]
+     · 접힌 카드가 높아 한 화면에 셋밖에 안 들어왔다 → 여백·글자를 한 단계씩 줄인다.
+     · 분홍 '열기 ▼' 캡슐이 버튼처럼 세 보였다. 카드 전체가 이미 눌리므로
+       화살표 하나만 남기고 열리면 돌아간다.
+     · 하나를 열면 나머지는 닫힌다 — 넷이 다 열리면 화면이 한없이 길어진다. */
+  const rewardSecCard={background:CT.card,borderRadius:18,padding:"13px 14px",marginBottom:11,border:`1px solid ${th.main}30`,boxShadow:SHADOW.sm};
+  const rewardSecTitle={fontSize:15,fontWeight:900,margin:"0 0 2px",color:C.text};
+  const rewardSecSub={fontSize:12,color:C.sub,margin:0,fontWeight:600};
+  const rewardSecArrow=(open)=>({fontSize:13,fontWeight:900,color:th.main,flexShrink:0,marginLeft:10,
+    transition:"transform .2s",transform:open?"rotate(180deg)":"none",display:"inline-block"});
+  const toggleRewardSec=(key)=>{
+    const cur={reward:showParentRewardManage,growth:showParentGrowthManage,record:showParentRecordManage,xp:showParentXpAdjust};
+    const next=!cur[key];
+    setShowParentRewardManage(key==="reward"&&next);
+    setShowParentGrowthManage(key==="growth"&&next);
+    setShowParentRecordManage(key==="record"&&next);
+    setShowParentXpAdjust(key==="xp"&&next);
+  };
   const parentInnerCard={background:CT.faint,border:`1px solid ${C.border}`,borderRadius:14,padding:"13px"};
   const parentInnerTitle={fontSize:15,fontWeight:900,color:C.text,margin:"0 0 4px"};
   const parentInnerSub={fontSize:12,fontWeight:700,color:C.sub,margin:0,lineHeight:1.45};
@@ -4851,6 +4875,29 @@ export default function App() {
         <GuideModal type="welcome" th={th} skin={kidSkin} onClose={()=>setShowParentWelcome(false)} />
       )}
 
+      {/* 보상 구매 거절 확인 모달 — 거절하면 코인을 돌려주고 요청이 사라진다.
+          되돌릴 수 없는 일이라 한 번 물어본다 (사용자 확정 2026-08-11) */}
+      {pendingReject&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>setPendingReject(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:340,boxSizing:"border-box"}}>
+            <h3 style={{fontSize:17,fontWeight:900,margin:"0 0 8px",textAlign:"center",color:C.text}}>
+              '{pendingReject.title}' 요청을 거절할까요?
+            </h3>
+            <p style={{fontSize:13,fontWeight:600,color:C.sub,textAlign:"center",lineHeight:1.6,margin:"0 0 18px"}}>
+              {TM.coin} {pendingReject.point}개를 돌려주고<br/>요청은 사라져요.
+            </p>
+            <button onClick={()=>{ rejectRewardRequest(pendingReject.id); setPendingReject(null); }} className="jelly-tap"
+              style={{width:"100%",padding:13,borderRadius:14,border:"none",background:C.red,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer",marginBottom:8,fontFamily:"inherit"}}>
+              네, 거절할게요
+            </button>
+            <button onClick={()=>setPendingReject(null)} className="jelly-tap"
+              style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+              그대로 둘게요
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 보상 연령대 변경 확인 모달 (window.confirm 대체) */}
       {pendingAgeChange&&(()=>{
         const isCustom=pendingAgeChange==="custom";
@@ -5459,42 +5506,24 @@ export default function App() {
         {tab==="reward"&&(
           <div>
 
-            {getChildRewardRequests(childId).filter(r=>r.status==="pending").length>0&&(
-              <div style={{background:mixWhite(C.orange,0.9),border:`1.5px solid ${C.orange}55`,borderRadius:20,padding:"16px",marginBottom:14,boxShadow:SHADOW.sm}}>
-                <p style={{fontSize:17,fontWeight:900,margin:"0 0 10px",color:mixWhite(C.orange,0.1)}}>🔔 확인 필요한 구매 요청</p>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {getChildRewardRequests(childId).filter(r=>r.status==="pending").map(req=>(
-                    <div key={req.id} style={{background:"#fff",borderRadius:16,padding:"12px",border:`1px solid ${C.orange}40`,boxShadow:SHADOW.sm}}>
-                      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                        <span style={{fontSize:24}}>{req.emoji}</span>
-                        <div style={{flex:1}}>
-                          <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{req.title}</p>
-                          <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{req.point} {TM.coin} 사용</p>
-                        </div>
-                      </div>
-                      <div style={{display:"flex",gap:8}}>
-                        <button onClick={()=>approveRewardRequest(req.id)}
-                          style={{flex:1,border:"none",background:C.green,color:"#fff",borderRadius:10,padding:"10px",fontSize:13,fontWeight:900,cursor:"pointer"}}>승인</button>
-                        <button onClick={()=>rejectRewardRequest(req.id)}
-                          style={{flex:1,border:`1px solid ${C.red}40`,background:`${C.red}0A`,color:C.red,borderRadius:10,padding:"10px",fontSize:13,fontWeight:900,cursor:"pointer"}}>거절</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <RewardApprovals
+              requests={getChildRewardRequests(childId).filter(r=>r.status==="pending")}
+              childName={curChild?.name||""} showWho={children.length>1}
+              coinLabel={TM.coin} th={th} CT={CT}
+              onApprove={approveRewardRequest}
+              /* 거절은 코인을 돌려주고 되돌릴 수 없다 → 한 번 물어본다 (사용자 확정 2026-08-11) */
+              onReject={(req)=>setPendingReject(req)} />
 
             {/* 보상 관리 */}
-            <div style={{background:CT.card,borderRadius:20,padding:"16px",marginBottom:14,border:`1px solid ${th.main}30`,boxShadow:SHADOW.sm}}>
-              <button onClick={()=>setShowParentRewardManage(v=>!v)}
-                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
-                <div style={{textAlign:"left"}}>
-                  <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 관리</p>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{rewardAgeGroup==="custom"?"✏️ 나만의 목록":`${(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).emoji} ${(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label}용`} · 보상승인 · 추가/삭제</p>
+            <div style={rewardSecCard}>
+              <button onClick={()=>toggleRewardSec("reward")}
+                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
+                <div style={{textAlign:"left",minWidth:0}}>
+                  <p style={rewardSecTitle}>보상 관리</p>
+                  {/* '어린이용' 뒤에 '용'을 또 붙여 '어린이용용'이 됐다 — 이모지를 떼면서 드러났다 */}
+                  <p style={rewardSecSub}>{rewardAgeGroup==="custom"?"나만의 목록":(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label} · 보상승인 · 추가/삭제</p>
                 </div>
-                <span style={openClosePill(showParentRewardManage)}>
-                  {openCloseLabel(showParentRewardManage)}
-                </span>
+                <span aria-hidden="true" style={rewardSecArrow(showParentRewardManage)}>⌄</span>
               </button>
               {showParentRewardManage&&(
                 <div style={{marginTop:14}}>
@@ -5530,14 +5559,14 @@ export default function App() {
             {/* 꾸미기 상점은 카탈로그 기본 가격으로 자동 운영 — 부모 가격 설정 UI 제거 */}
 
             {/* 성장 관리 */}
-            <div style={{background:CT.card,borderRadius:20,padding:"16px",marginBottom:14,border:`1px solid ${th.main}30`,boxShadow:SHADOW.sm}}>
-              <button onClick={()=>setShowParentGrowthManage(v=>!v)}
-                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
-                <div style={{textAlign:"left"}}>
-                  <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎮 성장 관리</p>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{TM.book} · 연속 달성 · 상장</p>
+            <div style={rewardSecCard}>
+              <button onClick={()=>toggleRewardSec("growth")}
+                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
+                <div style={{textAlign:"left",minWidth:0}}>
+                  <p style={rewardSecTitle}>성장 관리</p>
+                  <p style={rewardSecSub}>{TM.book} · 연속 달성 · 상장</p>
                 </div>
-                <span style={openClosePill(showParentGrowthManage)}>{openCloseLabel(showParentGrowthManage)}</span>
+                <span aria-hidden="true" style={rewardSecArrow(showParentGrowthManage)}>⌄</span>
               </button>
               {showParentGrowthManage&&(
                 <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:10}}>
@@ -5734,14 +5763,14 @@ export default function App() {
             </div>
 
             {/* 기록 관리 */}
-            <div style={{background:CT.card,borderRadius:20,padding:"16px",marginBottom:14,border:`1px solid ${th.main}30`,boxShadow:SHADOW.sm}}>
-              <button onClick={()=>setShowParentRecordManage(v=>!v)}
-                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
-                <div style={{textAlign:"left"}}>
-                  <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>📖 기록 관리</p>
-                  <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>{T.logName||"활동 기록"} · {TM.xp} 통장</p>
+            <div style={rewardSecCard}>
+              <button onClick={()=>toggleRewardSec("record")}
+                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
+                <div style={{textAlign:"left",minWidth:0}}>
+                  <p style={rewardSecTitle}>기록 관리</p>
+                  <p style={rewardSecSub}>{T.logName||"활동 기록"} · {TM.xp} 통장</p>
                 </div>
-                <span style={openClosePill(showParentRecordManage)}>{openCloseLabel(showParentRecordManage)}</span>
+                <span aria-hidden="true" style={rewardSecArrow(showParentRecordManage)}>⌄</span>
               </button>
               {showParentRecordManage&&(
                 <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:10}}>
@@ -5982,16 +6011,14 @@ export default function App() {
             </div>
 
               {/* ── 수동 XP 조정 — 기록 관리 밖으로 빼서 그 아래 독립 칸으로 (사용자 확정 2026-08-09) ── */}
-              <div style={{background:CT.card,borderRadius:20,padding:"16px",marginBottom:14,border:`1px solid ${th.main}30`,boxShadow:SHADOW.sm}}>
-                <button onClick={()=>setShowParentXpAdjust(v=>!v)}
-                  style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
-                  <div style={{textAlign:"left"}}>
-                    <p style={parentInnerTitle}>✍️ 수동 {TM.xp} 조정</p>
-                    <p style={{...parentInnerSub,margin:0}}>보너스 지급 / {TM.xp} 차감</p>
+              <div style={rewardSecCard}>
+                <button onClick={()=>toggleRewardSec("xp")}
+                  style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
+                  <div style={{textAlign:"left",minWidth:0}}>
+                    <p style={rewardSecTitle}>수동 {TM.xp} 조정</p>
+                    <p style={rewardSecSub}>보너스 지급 / {TM.xp} 차감</p>
                   </div>
-                  <span style={{fontSize:13,fontWeight:900,color:th.main,background:th.light,padding:"5px 9px",borderRadius:14}}>
-                    {showParentXpAdjust?"닫기 ▲":"열기 ▼"}
-                  </span>
+                  <span aria-hidden="true" style={rewardSecArrow(showParentXpAdjust)}>⌄</span>
                 </button>
                 {showParentXpAdjust&&(
                   <div style={{marginTop:12}}>
