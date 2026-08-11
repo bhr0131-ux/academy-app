@@ -5294,7 +5294,11 @@ export default function App() {
                   {/* [사용자 확정 2026-08-10] 보상 탭 안의 접히는 카드였는데 미션 탭으로 나왔다.
                       탭 자체가 미션 화면이라 접을 이유가 없어 여닫는 버튼 대신 제목 줄만 둔다. */}
                   <div style={{textAlign:"left"}}>
-                    <p style={{fontSize:15.5,fontWeight:900,margin:"0 0 2px",color:C.text}}>🎯 미션 관리</p>
+                    {/* [사용자 확정 2026-08-11] 이모지는 기기마다 그림체가 달라 화면이 섞여 보였다 →
+                        하단 메뉴와 같은 결의 선 아이콘(CareIcon)으로 바꾼다. 색은 테마색을 따른다. */}
+                    <p style={{fontSize:15.5,fontWeight:900,margin:"0 0 2px",color:C.text,display:"flex",alignItems:"center",gap:6}}>
+                      <span style={{color:th.main,display:"flex"}}><CareIcon name="mission" size={16}/></span>미션 관리
+                    </p>
                     <p style={{fontSize:12,color:C.sub,margin:0,fontWeight:600,opacity:0.85}}>날짜별 미션 추가·수정 · 점수 관리</p>
                   </div>
                   {(
@@ -5326,8 +5330,10 @@ export default function App() {
                       </div>
                       {rewardTodayTodos.length===0?(
                         <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
-                          <p style={{fontSize:24,margin:0}}>🌿</p>
-                          <p style={{fontSize:13,margin:"6px 0 0"}}>등록된 미션이 없어요</p>
+                          <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:44,height:44,borderRadius:"50%",background:CT.faint,color:C.sub}}>
+                            <CareIcon name="mission" size={22}/>
+                          </span>
+                          <p style={{fontSize:13,fontWeight:700,margin:"8px 0 0"}}>등록된 미션이 없어요</p>
                         </div>
                       ):(
                         <div style={{display:"flex",flexDirection:"column",gap:7}}>
@@ -5399,7 +5405,7 @@ export default function App() {
                           return (
                             <button onClick={()=>setShowPastMissionModal(rewardDate)} className="jelly-tap"
                               style={{width:"100%",padding:"9px 10px",borderRadius:12,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-                              <span>🕗 지난 미션 보기</span>
+                              <span style={{display:"flex",alignItems:"center",gap:5}}><CareIcon name="clock" size={14}/> 지난 미션 보기</span>
                               {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
                             </button>
                           );
@@ -6313,7 +6319,9 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowTodoPickerModal(null)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 18px 44px",width:"100%",maxWidth:430,boxSizing:"border-box",maxHeight:"80vh",overflowY:"auto"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>✏️ 미션 추가·수정</h3>
+              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text,display:"flex",alignItems:"center",gap:7}}>
+                <span style={{color:th.main,display:"flex"}}><CareIcon name="pencil" size={17}/></span>미션 추가·수정
+              </h3>
               <button onClick={()=>setShowTodoPickerModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
             <p style={{fontSize:13,color:C.sub,fontWeight:600,margin:"0 0 14px"}}>수정할 학원을 선택하거나, 새로운 할 일을 추가해 주세요.</p>
@@ -6416,7 +6424,9 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowPastMissionModal(null)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 18px 44px",width:"100%",maxWidth:430,boxSizing:"border-box",maxHeight:"82vh",overflowY:"auto"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🕗 지난 미션 보기</h3>
+              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text,display:"flex",alignItems:"center",gap:7}}>
+                <span style={{color:th.main,display:"flex"}}><CareIcon name="clock" size={17}/></span>지난 미션 보기
+              </h3>
               <button onClick={()=>setShowPastMissionModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
             <p style={{fontSize:13,color:C.sub,fontWeight:600,margin:"0 0 14px",lineHeight:1.55}}>지난 날짜에 미완료로 남아 있는 미션이에요.<br/>완료 또는 미완료로 처리할 수 있어요.</p>
@@ -7361,7 +7371,9 @@ export default function App() {
                 </div>
                 <button onClick={()=>setShowDailyModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
               </div>
-              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>🎯 오늘의 미션</p>
+              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
+                <span style={{color:acColor,display:"flex"}}><CareIcon name="mission" size={17}/></span>오늘의 미션
+              </p>
               {hw.length===0&&todos.length===0&&(
                 <div style={{background:CT.faint,borderRadius:12,padding:"14px 14px",marginBottom:12,textAlign:"center"}}>
                   <p style={{fontSize:14,fontWeight:800,color:C.text,margin:0}}>등록된 미션이 없어요</p>
@@ -7386,7 +7398,7 @@ export default function App() {
                         <span style={{flex:1,fontSize:13,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
                         <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
-                        {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h.point)} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15,flexShrink:0}}>✏️</button>}
+                        {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
                     )}
                   </div>
@@ -7408,7 +7420,7 @@ export default function App() {
                         <span style={{flex:1,fontSize:13,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
                         <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
-                        {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t.point)} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15,flexShrink:0}}>✏️</button>}
+                        {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
                     )}
                   </div>
@@ -7473,7 +7485,9 @@ export default function App() {
                     {/* [사용자 확정 2026-08-11] 위 '오늘의 미션'과 같은 글이 아래에도 보여
                         같은 미션이 두 번 등록된 줄 알았다는 지적 → 무엇인지 한 줄로 밝힌다.
                         ※ '자동으로 추가된다'고 쓰지 않는다 — 실제로는 여기서 눌러야 들어간다. */}
-                    <p style={{fontSize:13,fontWeight:800,color:acColor,margin:"0 0 3px"}}>📌 반복 숙제</p>
+                    <p style={{fontSize:13,fontWeight:800,color:acColor,margin:"0 0 3px",display:"flex",alignItems:"center",gap:5}}>
+                      <CareIcon name="repeat" size={14}/>반복 숙제
+                    </p>
                     <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
                       학원에 등록한 숙제를 빠르게 불러올 수 있어요.
                     </p>
@@ -7501,7 +7515,9 @@ export default function App() {
               const hideBase=(s)=>upd({...entry,hiddenBase:[...hiddenBase,s]});
               const restoreBase=(s)=>upd({...entry,hiddenBase:hiddenBase.filter(x=>x!==s)});
               return (<>
-              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px"}}>🎒 오늘의 준비물</p>
+              <p style={{fontSize:17,fontWeight:700,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
+                <span style={{color:acColor,display:"flex"}}><CareIcon name="bag" size={17}/></span>오늘의 준비물
+              </p>
               {visibleBase.length===0&&sup.length===0&&<p style={{fontSize:13.5,fontWeight:600,color:C.sub,marginBottom:10}}>등록된 준비물이 없어요. 아래에서 추가할 수 있어요.</p>}
               <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:hiddenBase.length>0?8:10}}>
                 {visibleBase.map((s,i)=>(
