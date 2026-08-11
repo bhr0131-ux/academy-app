@@ -23,12 +23,13 @@
      onGoReward()          : 보상 탭으로 (PIN 확인 포함)
      onSms(ac)             : 학원에 문자 보내기
      onEditDaily(ac, date) : 미션·준비물 편집 팝업 열기
+     onHolidayRest(name)   : 공휴일에만 나오는 '공휴일엔 쉬어요' 시트 열기
    ════════════════════════════════════════════════════════════════════════ */
 
 import { C, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getClassTime, getShuttleText, makeupTimeText } from "../../data/sampleData.js";
-import { ADV_SIT_IMG } from "../../data/characters.js";
+import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 
 /* [사용자 확정 2026-08-10] 카드 안 보조 글자가 너무 연해 잘 안 읽혔다 →
@@ -42,6 +43,7 @@ export default function ParentHomeTab({
   isVacationDay, getDailyEntry, getQuestItemsForDate, getChildRewardRequests,
   acKindLabel, getAcademyTheme,
   onGoTab, onGoReward, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
+  onHolidayRest,
 }) {
   const hd=new Date(homeDate.replace(/-/g,"/"));
   const hDN=["일","월","화","수","목","금","토"][hd.getDay()];
@@ -50,6 +52,7 @@ export default function ParentHomeTab({
   const isYesterday=homeDate===addDays(TODAY,-1);
   const dayTag=isToday?"오늘":isTomorrow?"내일":isYesterday?"어제":null;
   const fullLabel=`${hd.getMonth()+1}월 ${hd.getDate()}일 ${hDN}요일`;
+  const holidayName=getHolidayName(homeDate);
   const homeAc=curAc.filter(a=>hasClassOnDay(a,hDN)&&!isVacationDay(childId,a.id,homeDate)).sort((a,b)=>getClassTime(a,hDN).localeCompare(getClassTime(b,hDN)));
   const vacAcToday=curAc.filter(a=>hasClassOnDay(a,hDN)&&isVacationDay(childId,a.id,homeDate));
   const absOnHome=curAbs.filter(a=>a.date===homeDate);
@@ -376,6 +379,25 @@ export default function ParentHomeTab({
           </div>
         );
       })}
+
+      {/* [사용자 확정 2026-08-10] 빨간날에 학원을 앱이 알아서 다 빼면, 그날 여는 학원이
+          있을 때 준비물·미션이 통째로 안 보인다. 그래서 자동으로 빼지 않고
+          공휴일에만 이 줄을 띄워, 쉬는 학원만 골라 휴원 처리하게 한다.
+          고른 결과는 기존 방학·휴원(v6_vac)에 하루짜리로 들어가므로
+          홈·달력·학원 화면이 이미 아는 방식대로 '휴원'으로 보인다. */}
+      {holidayName&&(homeAc.length>0||vacAcToday.length>0)&&(
+        <button onClick={()=>onHolidayRest&&onHolidayRest(holidayName)} className="jelly-tap"
+          style={{width:"100%",marginTop:homeAc.length>0?2:0,marginBottom:4,padding:"11px 12px",borderRadius:13,
+            border:`1px dashed ${C.red}45`,background:`${C.red}08`,cursor:"pointer",fontFamily:"inherit",
+            display:"flex",alignItems:"center",gap:8,textAlign:"left"}}>
+          <span style={{fontSize:13,fontWeight:900,color:C.red,flexShrink:0}}>{holidayName}</span>
+          <span style={{flex:1,minWidth:0,fontSize:12.5,fontWeight:700,color:SUBD,
+            overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+            {vacAcToday.length>0?`${vacAcToday.length}곳 휴원 · 바꾸기`:"쉬는 학원 고르기"}
+          </span>
+          <span style={{flexShrink:0,fontSize:12,fontWeight:900,color:C.red}}>›</span>
+        </button>
+      )}
 
     </div>
   );
