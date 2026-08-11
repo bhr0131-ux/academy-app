@@ -3608,39 +3608,51 @@ export default function App() {
         {showKidAddModal&&(()=>{
           const cute=kidSkin==="cute";
           const acOptions=[...curAc,{id:EXTRA_QUEST_ID,name:"할일"}];
-          const sheetBg=cute?"#fff":(GP.appBg||"#1e1b2e");
-          const titleColor=cute?th.main:"#fff";
-          const fieldBg=cute?mixWhite(th.main,0.93):"rgba(255,255,255,0.10)";
-          const fieldBorder=cute?mixWhite(th.main,0.7):`${th.main}66`;
-          const fieldText=cute?C.text:"#fff";
+          /* [사용자 확정 2026-08-11] 짙은 초록 바탕 + 강한 핑크 버튼이라 앞의 민트·베이지
+             탐험 화면과 따로 놀았다. 입력칸의 분홍 테두리는 오류 상태처럼 보였다 →
+             밝은 아이보리 바탕 / 진한 브라운 제목 / 흰 입력칸 + 연한 베이지 테두리 /
+             등록은 미션 탭 파랑 / 닫기는 연회색 원. 베이커리는 원래 톤 그대로. */
+          const sheetBg=cute?"#fff":"#FBF6EC";
+          const titleColor=cute?th.main:"#4B3A2F";
+          const subColor=cute?C.sub:"#8A8072";
+          const fieldBg=cute?mixWhite(th.main,0.93):"#fff";
+          const fieldBorder=cute?mixWhite(th.main,0.7):"#E4DCC8";
+          const fieldText=cute?C.text:"#3E3832";
+          const canAdd=!!kidAddAcId&&!!kidAddText.trim();
           const inputStyle={width:"100%",boxSizing:"border-box",background:fieldBg,border:`1.5px solid ${fieldBorder}`,borderRadius:cute?16:14,padding:"13px 14px",color:fieldText,fontSize:15,fontWeight:700,outline:"none",fontFamily:"inherit"};
           return (
           <div onClick={()=>setShowKidAddModal(false)} style={{position:"fixed",inset:0,zIndex:400,background:"rgba(20,16,28,0.55)",backdropFilter:"blur(3px)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
             <div onClick={e=>e.stopPropagation()} style={{width:"100%",maxWidth:430,background:sheetBg,borderRadius:"28px 28px 0 0",boxShadow:"0 -10px 40px rgba(0,0,0,0.3)",padding:"22px 20px 40px",boxSizing:"border-box",animation:"popInUp .35s ease both"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
-                <p style={{fontSize:18,fontWeight:900,margin:0,color:titleColor}}>{cute?"🧁 미션 추가하기":"✨ 새 미션 추가"}</p>
-                <button onClick={()=>setShowKidAddModal(false)} style={{border:"none",background:cute?mixWhite(th.main,0.88):"rgba(255,255,255,0.14)",color:cute?th.main:"#fff",width:32,height:32,borderRadius:"50%",fontSize:16,fontWeight:900,cursor:"pointer"}}>✕</button>
+                {/* 제목의 ✨ 는 운영체제 이모지라 수채화 화면에서 튀었다 → 글자만 (사용자 확정) */}
+                <p style={{fontSize:18,fontWeight:900,margin:0,color:titleColor}}>{cute?"🧁 미션 추가하기":"새 미션 추가"}</p>
+                <button onClick={()=>setShowKidAddModal(false)} aria-label="닫기"
+                  style={{border:"none",background:cute?mixWhite(th.main,0.88):"#EDE7DA",color:cute?th.main:"#8A8072",width:32,height:32,borderRadius:"50%",fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>✕</button>
               </div>
               {/* 종류 선택 (학원들 + 할일) */}
-              <p style={{fontSize:13,fontWeight:800,margin:"0 0 7px",color:cute?C.sub:"rgba(255,255,255,0.75)"}}>종류</p>
+              <p style={{fontSize:13,fontWeight:800,margin:"0 0 7px",color:subColor}}>종류</p>
               <select value={kidAddAcId} onChange={e=>setKidAddAcId(e.target.value)}
                 style={{...inputStyle,marginBottom:14,cursor:"pointer"}}>
                 <option value="" style={{color:"#333"}}>선택해줘</option>
                 {acOptions.map(a=><option key={a.id} value={a.id} style={{color:"#333"}}>{a.name}</option>)}
               </select>
               {/* 내용 입력 */}
-              <p style={{fontSize:13,fontWeight:800,margin:"0 0 7px",color:cute?C.sub:"rgba(255,255,255,0.75)"}}>내용</p>
+              <p style={{fontSize:13,fontWeight:800,margin:"0 0 7px",color:subColor}}>내용</p>
               <input value={kidAddText} onChange={e=>setKidAddText(e.target.value)}
-                onKeyDown={e=>e.key==="Enter"&&kidAddMission()} autoFocus
-                placeholder={cute?"예: 책 30분 읽기":"예: 책 30분 읽기"}
-                style={{...inputStyle,marginBottom:18}}/>
-              {/* 등록 버튼 */}
-              <button onClick={kidAddMission}
-                style={{width:"100%",padding:"15px",borderRadius:cute?18:14,border:"none",
-                  background:cute?`linear-gradient(135deg, ${th.main}, ${mixWhite(th.main,0.3)})`:`linear-gradient(135deg, ${th.main}, ${mixBlack(th.main,0.25)})`,
-                  color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer",
-                  boxShadow:cute?`0 8px 20px ${th.main}40`:`0 6px 18px ${mixBlack(th.main,0.3)}66`}}>
-                ➕ 등록하기
+                onKeyDown={e=>e.key==="Enter"&&canAdd&&kidAddMission()} autoFocus
+                placeholder="예: 책 30분 읽기"
+                style={{...inputStyle,marginBottom:12}}/>
+              {/* [사용자 확정 2026-08-11] 보상이 늘 10/10 로 정해져 있는데 어디에도 안 적혀 있었다 */}
+              <p style={{fontSize:12.5,fontWeight:800,margin:"0 0 14px",color:subColor,textAlign:"center"}}>
+                다 하면 {TM.xpEmoji} {DEFAULT_HOMEWORK_SCORE} {TM.xp} · {TM.coinEmoji} {DEFAULT_HOMEWORK_SCORE} {TM.coin}
+              </p>
+              {/* 등록 버튼 — 아무것도 안 넣었으면 못 누르게 (빈 상태인데 색이 진해 눌리는 줄 알았다) */}
+              <button onClick={kidAddMission} disabled={!canAdd}
+                style={{width:"100%",padding:"15px",borderRadius:cute?18:14,border:"none",fontFamily:"inherit",
+                  background:!canAdd?"#E4DCC8":(cute?`linear-gradient(135deg, ${th.main}, ${mixWhite(th.main,0.3)})`:"linear-gradient(135deg, #6E9CB8, #5E93C5)"),
+                  color:!canAdd?"#A79E8D":"#fff",fontSize:16,fontWeight:900,cursor:canAdd?"pointer":"default",
+                  boxShadow:!canAdd?"none":(cute?`0 8px 20px ${th.main}40`:"0 6px 18px rgba(40,73,92,0.30)")}}>
+                등록하기
               </button>
             </div>
           </div>
@@ -4369,29 +4381,40 @@ export default function App() {
                         // 베이커리(cute)면 학원색을 따뜻한 쪽으로 부드럽게 보정(색 구분은 유지)
                         const acCol = item.academyColor||th.main;
                         return (
-                          <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{borderRadius:GP.radMid||22,overflow:"hidden",background:kidSkin==="cute"?(item.done?"#F7F8FB":"#fff"):(item.done?"linear-gradient(180deg,#EEEDF5 0%,#E7E5F0 100%)":item.failed?"linear-gradient(180deg,#ECEAF3 0%,#E6E4EE 100%)":`linear-gradient(180deg, ${mixWhite(acCol,0.88)} 0%, ${mixWhite(acCol,0.96)} 100%)`),border:`2px solid ${item.done?(kidSkin==="cute"?"#D8DCE6":"#C2C7D6"):item.failed?(kidSkin==="cute"?C.red+"45":"#D8D7E5"):acCol+(kidSkin==="cute"?"55":"")}`,boxShadow:item.done?"0 3px 12px rgba(20,24,60,0.06)":item.failed?"0 3px 12px rgba(0,0,0,0.05)":(kidSkin==="cute"?`0 10px 26px ${acCol}26, 0 3px 8px rgba(0,0,0,0.05)`:`0 0 18px ${acCol}40, 0 8px 24px rgba(0,0,0,0.18)`),opacity:item.done?0.82:1,marginBottom:12,animation:item.done?`squishCard .5s ease-out`:`jellyIn .4s cubic-bezier(.34,1.56,.64,1) ${idx*0.05}s both`}}>
-                            {/* 스크롤 헤더 - 학원 색 띠 (클리어 시 회색) */}
-                            <div style={{padding:"10px 13px",background:item.done?"#EDEFF4":item.failed?`${C.red}0A`:`linear-gradient(135deg, ${acCol}24, ${acCol}12)`,borderBottom:`1px solid ${item.done?"#DFE3EC":item.failed?C.red+"20":acCol+"18"}`,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-                              <div style={{display:"flex",alignItems:"center",gap:9,minWidth:0}}>
-                                <span style={{fontSize:20,flexShrink:0}}>{acIconOf(item.academyId,item.academyName)}</span>
-                                <p style={{fontSize:14,fontWeight:900,color:C.text,margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                                  {item.academyName}
-                                </p>
-                              </div>
-                              {/* 준비 배지: 탐험은 학원색 대신 팔레트 Sky 고정(#7BB5E6) — 쨍한 학원색이 튀지 않게 */}
-                              <span style={{fontSize:11,fontWeight:900,color:item.done?"#7C8398":item.failed?"#8A8A9A":"#fff",background:item.done?"#E6E9F0":item.failed?"#ECEAF3":(kidSkin==="cute"?acCol:"#5E93C5"),border:`1px solid ${item.done?"#D2D7E2":item.failed?"#D8D7E5":(kidSkin==="cute"?"transparent":"#4E7FA9")}`,padding:"5px 12px",borderRadius:999,flexShrink:0,boxShadow:item.done||item.failed?"none":(kidSkin==="cute"?`0 6px 16px ${acCol}40`:"0 6px 16px rgba(94,147,197,0.35)")}}>
-                                {item.done?(ST.on?ST.face:"✓"):status.emoji} {status.label}
-                              </span>
+                          /* [사용자 확정 2026-08-11] 카드마다 조작이 셋(준비 배지·체크 버튼·실패)이라
+                             무엇을 먼저 눌러야 하는지 알 수 없었다 → '준비' 배지를 없앤다.
+                             상태는 왼쪽 동그라미 하나가 다 말한다(빈 원 → ✓ → ×).
+                             학원마다 카드를 통째로 칠하니 넉 장이 이어지면 색이 내용보다 먼저 보이고,
+                             빨강 계열 카드는 실패한 미션처럼 읽혔다 → 바탕은 아이보리로 통일하고
+                             학원색은 왼쪽 세로 띠와 아이콘 배경에만 남긴다(엄마용 카드와 같은 규칙).
+                             아이가 먼저 알아야 하는 건 '어디'가 아니라 '무엇'이다 →
+                             학원명은 작고 연하게, 미션 내용을 키운다. '숙제 :' '할일 :' 머리말은 뺀다. */
+                          <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{borderRadius:GP.radMid||20,overflow:"hidden",display:"flex",
+                            background:item.done?"#F1EFEA":item.failed?"#F2F0EC":(kidSkin==="cute"?"#fff":"#FDFAF2"),
+                            border:`1.5px solid ${item.done||item.failed?"#DFDACE":"#E6DDC8"}`,
+                            boxShadow:item.done||item.failed?"0 2px 8px rgba(80,70,50,0.06)":"0 4px 14px rgba(80,70,50,0.10)",
+                            opacity:item.done?0.85:1,marginBottom:10,
+                            animation:item.done?`squishCard .5s ease-out`:`jellyIn .4s cubic-bezier(.34,1.56,.64,1) ${idx*0.05}s both`}}>
+                            {/* 학원 구분 — 왼쪽 세로 띠 하나 (완료·실패는 회색) */}
+                            <div style={{width:4,flexShrink:0,background:item.done||item.failed?"#C9C4B8":acCol}}/>
+                            <div style={{flex:1,minWidth:0}}>
+                            {/* 머리줄 — 학원 아이콘 + 학원명만. 얇게 */}
+                            <div style={{padding:"6px 12px 0",display:"flex",alignItems:"center",gap:7,minWidth:0}}>
+                              <span style={{flexShrink:0,width:20,height:20,borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,
+                                background:item.done||item.failed?"#E4E0D6":`${acCol}1F`}}>{acIconOf(item.academyId,item.academyName)}</span>
+                              <p style={{fontSize:12.5,fontWeight:700,color:"#8A8072",margin:0,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                                {item.academyName}
+                              </p>
                             </div>
-                            {/* 스크롤 본문 */}
-                            <div style={{padding:"14px 14px 13px",display:"flex",alignItems:"center",gap:12}}>
+                            {/* 본문 — 동그라미 + 미션 내용 + 보상 + 실패 */}
+                            <div style={{padding:"6px 12px 11px",display:"flex",alignItems:"center",gap:11}}>
                               <div style={{position:"relative",flexShrink:0,width:38,height:38,display:"flex",alignItems:"center",justifyContent:"center"}}>
                                 {/* 미완료: 맥박 링 + 점선 회전 (눌러봐 유혹) */}
                                 {!item.done&&!item.failed&&!(ST.on&&item.done)&&(<>
                                   <span style={{position:"absolute",inset:0,borderRadius:"50%",border:`2px solid ${acCol}`,animation:"checkRing 1.8s ease-out infinite",pointerEvents:"none"}}/>
                                   <span style={{position:"absolute",inset:-3,borderRadius:"50%",border:`2px dashed ${acCol}66`,animation:"dashSpin 6s linear infinite",pointerEvents:"none"}}/>
                                 </>)}
-                                <button className="jelly-tap" onClick={()=>{
+                                <button className="jelly-tap" aria-label={`${item.label} 완료`} onClick={()=>{
                                 if(item.failed) return;
                                 if(item.date<TODAY){ setPastQuestBlockModal({label:item.label,date:item.date}); return; }
                                 if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id);
@@ -4404,24 +4427,33 @@ export default function App() {
                                 display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1.0,letterSpacing:-0.5,
                                 animation:ST.anim
                               }:{
-                                position:"relative",zIndex:1,width:38,height:38,borderRadius:"50%",border:`2.5px solid ${item.done?"#AEB4C2":item.failed?C.red:acCol}`,background:item.done?`linear-gradient(135deg,#B4BAC8,#C9CDD8)`:item.failed?C.red:"#fff",color:item.done||item.failed?"#fff":acCol,fontWeight:900,cursor:item.failed?"default":"pointer",flexShrink:0,fontSize:18,boxShadow:item.done?"0 3px 10px rgba(120,128,150,0.35)":item.failed?"none":`0 4px 12px ${acCol}44`,display:"flex",alignItems:"center",justifyContent:"center",animation:item.done||item.failed?"none":"tapNudge 1.8s ease-in-out infinite"}}>
+                                position:"relative",zIndex:1,width:38,height:38,borderRadius:"50%",border:`2.5px solid ${item.done?"#AEB4C2":item.failed?C.red:acCol}`,background:item.done?`linear-gradient(135deg,#B4BAC8,#C9CDD8)`:item.failed?C.red:"#fff",color:item.done||item.failed?"#fff":acCol,fontWeight:900,cursor:item.failed?"default":"pointer",flexShrink:0,padding:0,boxShadow:item.done?"0 3px 10px rgba(120,128,150,0.35)":item.failed?"none":`0 4px 12px ${acCol}44`,display:"flex",alignItems:"center",justifyContent:"center",animation:item.done||item.failed?"none":"tapNudge 1.8s ease-in-out infinite"}}>
                                 {ST.on&&item.done
                                   ? <span style={{fontSize:17,lineHeight:1}}>{ST.face}</span>
-                                  : <span style={{display:"inline-block",lineHeight:1,animation:item.done?"checkPop .45s cubic-bezier(.34,1.56,.64,1)":"none",fontSize:item.done||item.failed?18:13,opacity:item.done||item.failed?1:0.5}}>{item.done?"✓":item.failed?"×":"👆"}</span>}
+                                  /* [사용자 확정 2026-08-11] 👆 는 크기도 크고 뜻도 모호했다 →
+                                     '누르면 체크된다'가 바로 읽히게 옅은 체크 표시로. 색은 학원색을 따른다. */
+                                  : <span style={{display:"flex",lineHeight:1,animation:item.done?"checkPop .45s cubic-bezier(.34,1.56,.64,1)":"none"}}>
+                                      <svg viewBox="0 0 24 24" width={item.done||item.failed?18:19} height={item.done||item.failed?18:19} aria-hidden="true"
+                                        style={{opacity:item.done||item.failed?1:0.42}}>
+                                        {item.failed
+                                          ? <path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                                          : <path d="m5.4 12.4 4.3 4.3 8.9-9.6" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>}
+                                      </svg>
+                                    </span>}
                               </button>
                               </div>
                               <div style={{flex:1,minWidth:0}}>
-                                <p style={{fontSize:15,fontWeight:900,color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",margin:"0 0 5px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                                  {item.kind==="homework"?`숙제 : ${item.label}`:`할일 : ${item.label}`}{item.byKid&&<span title="내가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:item.academyColor||th.main,background:`${item.academyColor||th.main}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}
+                                <p style={{fontSize:17,fontWeight:900,color:item.done||item.failed?C.sub:"#3E3832",textDecoration:item.done||item.failed?"line-through":"none",margin:"0 0 3px",lineHeight:1.3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                                  {item.label}{item.byKid&&<span title="내가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:item.academyColor||th.main,background:`${item.academyColor||th.main}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}
                                 </p>
                                 {item.failed
-                                  ? <p style={{fontSize:13,fontWeight:900,color:C.red,margin:0}}>보상 없음</p>
+                                  ? <p style={{fontSize:12.5,fontWeight:900,color:C.red,margin:0}}>보상 없음</p>
                                   : kidSkin==="cute"
-                                    ? <p style={{fontSize:13,fontWeight:900,color:GP.gold,margin:0}}>{getQuestRewardText(item)}</p>
+                                    ? <p style={{fontSize:12.5,fontWeight:900,color:GP.gold,margin:0}}>{getQuestRewardText(item)}</p>
                                     : (()=>{const pt=item.point||DEFAULT_HOMEWORK_SCORE;return (
-                                        <div style={{display:"flex",gap:12,fontWeight:900,fontSize:15,opacity:item.done?0.7:1}}>
-                                          <span style={{color:"#F6B93B"}}>{TM.xpEmoji} +{pt} {TM.xp}</span>
-                                          <span style={{color:"#2EA8FF"}}>{TM.coinEmoji} +{pt} {TM.coin}</span>
+                                        <div style={{display:"flex",gap:10,fontWeight:900,fontSize:13.5,opacity:item.done?0.7:1}}>
+                                          <span style={{color:"#D89A26"}}>{TM.xpEmoji} +{pt} {TM.xp}</span>
+                                          <span style={{color:"#2E8FD6"}}>{TM.coinEmoji} +{pt} {TM.coin}</span>
                                         </div>
                                       );})()}
                               </div>
@@ -4430,10 +4462,11 @@ export default function App() {
                                   if(item.date<TODAY){ setPastQuestBlockModal({label:item.label,date:item.date}); return; }
                                   if(item.kind==="homework") failHomeworkQuest(childId,item.academyId,item.date,item.id);
                                   else failTodoQuest(childId,item.academyId,item.date,item.id);
-                                }} style={{border:"none",background:item.failed?`${C.red}16`:`${C.sub}14`,color:item.failed?C.red:C.sub,borderRadius:10,padding:"7px 9px",fontSize:11,fontWeight:900,cursor:"pointer",flexShrink:0}}>
+                                }} style={{border:"none",background:item.failed?`${C.red}16`:"rgba(120,110,95,0.10)",color:item.failed?C.red:"#8A8072",borderRadius:9,padding:"6px 9px",fontSize:11,fontWeight:900,cursor:"pointer",flexShrink:0,fontFamily:"inherit"}}>
                                   {item.failed?UI_TEXT.button.cancelFail:UI_TEXT.button.fail}
                                 </button>
                               )}
+                            </div>
                             </div>
                           </div>
                         );
@@ -4445,16 +4478,26 @@ export default function App() {
 
               {/* ── 미션 추가 버튼 (현재 보는 날짜) ── */}
               {/* [탐험] 미션 추가 버튼은 미션 탭 테마(블루 — 사용자 확정: 미션↔캐릭터 톤 맞교환에 맞춤) */}
-              {(childDate||TODAY)>=TODAY&&(
-                  <button onClick={()=>{ setKidAddAcId(""); setKidAddText(""); setShowKidAddModal(true); }}
-                    style={{width:"100%",...jellyBox({background:kidSkin==="cute"?GP.boxBg:"#6E9CB8",border:kidSkin==="cute"?`1px solid ${GP.boxBorder}`:"1px solid #83B4D4",borderRadius:16,boxShadow:kidSkin==="cute"?`0 6px 18px ${GP.boxShadowCol}`:"0 6px 18px rgba(40,73,92,0.32)"},{radius:18}),
-                      padding:"13px 12px",marginBottom:14,cursor:"pointer",
-                      display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-                      color:kidSkin==="cute"?GP.boxText:"#FFF8EB",fontSize:16,fontWeight:900}}>
-                    <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:26,height:26,borderRadius:"50%",background:kidSkin==="cute"?`linear-gradient(135deg, ${GP.gold}, ${th.main})`:"rgba(255,248,235,0.28)",color:"#fff",fontSize:17,fontWeight:900,flexShrink:0}}>＋</span>
-                    미션 추가하기
-                  </button>
-              )}
+              {/* [사용자 확정 2026-08-11] 미션이 많아지면 끝까지 내려가야 추가할 수 있었다 →
+                  화면 아래에 붙여 둔다. 마지막 미션 카드처럼 보이던 것도 같이 고친다 —
+                  높이 한 단계(13 → 10 · 글씨 16 → 15 · ＋ 26 → 22), 그림자 절반. */}
+              {(childDate||TODAY)>=TODAY&&(<>
+                {/* 고정 버튼에 가려지는 만큼 아래를 비워 둔다 */}
+                <div aria-hidden="true" style={{height:64}}/>
+                <div style={{position:"fixed",left:0,right:0,bottom:0,zIndex:30,pointerEvents:"none",
+                  padding:"0 16px calc(10px + env(safe-area-inset-bottom))"}}>
+                  <div style={{maxWidth:430,margin:"0 auto",pointerEvents:"auto"}}>
+                    <button onClick={()=>{ setKidAddAcId(""); setKidAddText(""); setShowKidAddModal(true); }}
+                      style={{width:"100%",...jellyBox({background:kidSkin==="cute"?GP.boxBg:"#6E9CB8",border:kidSkin==="cute"?`1px solid ${GP.boxBorder}`:"1px solid #83B4D4",borderRadius:16,boxShadow:kidSkin==="cute"?`0 3px 9px ${GP.boxShadowCol}`:"0 3px 9px rgba(40,73,92,0.30)"},{radius:18}),
+                        padding:"10px 12px",cursor:"pointer",fontFamily:"inherit",
+                        display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+                        color:kidSkin==="cute"?GP.boxText:"#FFF8EB",fontSize:15,fontWeight:900}}>
+                      <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:22,height:22,borderRadius:"50%",background:kidSkin==="cute"?`linear-gradient(135deg, ${GP.gold}, ${th.main})`:"rgba(255,248,235,0.28)",color:"#fff",fontSize:15,fontWeight:900,flexShrink:0}}>＋</span>
+                      미션 추가하기
+                    </button>
+                  </div>
+                </div>
+              </>)}
 
             </>
           )}
