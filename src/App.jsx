@@ -3073,7 +3073,9 @@ export default function App() {
   };
 
   // addReward = XP/코인 지급 (미션/보물상자용)
-  const addReward=(cid,point,reason="quest")=>addChildScore(cid,point,"",reason);
+  /* [사용자 확정 2026-08-11] 기록 목록에 '미션 클리어'만 줄줄이 찍혀 무엇을 했는지 안 남았다 →
+     미션 이름을 memo 로 함께 넘긴다. (기존 기록은 memo 가 없으므로 예전처럼 '미션 클리어'로 보인다) */
+  const addReward=(cid,point,reason="quest",memo="")=>addChildScore(cid,point,memo,reason);
   // spendCoin = 코인만 차감 (구매용)
   const spendCoin=(cid,amount,memo="")=>spendChildScore(cid,amount,memo);
   // refundCoin = 코인만 환불 (구매 거절 시 되돌려줌, XP·레벨 영향 없음)
@@ -3107,7 +3109,7 @@ export default function App() {
     if(nextDone&&appMode==="child") playCompleteSound(); // 누르는 즉시 소리 (상태 갱신 전)
     const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:nextDone,failed:false}:h)});
-    addReward(cid,nextDone?point:-point,"homework");
+    addReward(cid,nextDone?point:-point,"homework",target.text);
     if(nextDone){
       if(isFirstEver) setFirstTipPending(true);
       giveTreasureForQuestOnce(
@@ -3131,7 +3133,7 @@ export default function App() {
     if(nextDone&&appMode==="child") playCompleteSound(); // 누르는 즉시 소리 (상태 갱신 전)
     const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:nextDone,failed:false}:t)});
-    addReward(cid,nextDone?point:-point,"todo");
+    addReward(cid,nextDone?point:-point,"todo",target.text);
     if(nextDone){
       if(isFirstEver) setFirstTipPending(true);
       giveTreasureForQuestOnce(
@@ -3343,7 +3345,11 @@ export default function App() {
      · 분홍 '열기 ▼' 캡슐이 버튼처럼 세 보였다. 카드 전체가 이미 눌리므로
        화살표 하나만 남기고 열리면 돌아간다.
      · 하나를 열면 나머지는 닫힌다 — 넷이 다 열리면 화면이 한없이 길어진다. */
-  const rewardSecCard={background:CT.card,borderRadius:18,padding:"13px 14px",marginBottom:11,border:`1px solid ${th.main}30`,boxShadow:SHADOW.sm};
+  /* [사용자 확정 2026-08-11] 바깥 카드도 연분홍, 안쪽 구역 카드도 연분홍이라 단계가 겹쳐
+     화면이 뿌옇게 보였다 → 바깥은 흰색 / 구역은 아주 옅은 회색 / 세부는 흰색 3단으로.
+     테두리도 대부분 연회색으로 내리고, 분홍은 강조가 필요한 곳(승인 카드·버튼)에만. */
+  const rewardSecCard={background:"#fff",borderRadius:18,padding:"13px 14px",marginBottom:11,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm};
+  const rewardSecInner={background:"#F8F6F8",border:`1px solid ${C.border}`,borderRadius:14,padding:"12px"};
   const rewardSecTitle={fontSize:15,fontWeight:900,margin:"0 0 2px",color:C.text};
   const rewardSecSub={fontSize:12,color:C.sub,margin:0,fontWeight:600};
   const rewardSecArrow=(open)=>({fontSize:13,fontWeight:900,color:th.main,flexShrink:0,marginLeft:10,
@@ -3356,7 +3362,6 @@ export default function App() {
     setShowParentRecordManage(key==="record"&&next);
     setShowParentXpAdjust(key==="xp"&&next);
   };
-  const parentInnerCard={background:CT.faint,border:`1px solid ${C.border}`,borderRadius:14,padding:"13px"};
   const parentInnerTitle={fontSize:15,fontWeight:900,color:C.text,margin:"0 0 4px"};
   const parentInnerSub={fontSize:12,fontWeight:700,color:C.sub,margin:0,lineHeight:1.45};
 
@@ -5581,8 +5586,8 @@ export default function App() {
                     return (
                       <>
                         {/* 캐릭터 성장 현황 */}
-                        <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>🧬 캐릭터 성장 : {curChild?.name}</p>
+                        <div style={rewardSecInner}>
+                          <p style={parentInnerTitle}>캐릭터 성장 · {curChild?.name}</p>
 
                           <div style={{
                             display:"flex",
@@ -5612,21 +5617,45 @@ export default function App() {
                                 alt="" draggable={false} style={{display:"block",height:46,width:"auto",maxWidth:"none",margin:"0 auto"}}/>
                             </div>
 
+                            {/* [사용자 확정 2026-08-11] 레벨·XP·코인이 같은 크기로 나열돼
+                                무엇이 핵심인지 안 보였다 → 레벨을 맨 위에, 그 아래 XP 진행바,
+                                맨 아래 남은 XP. 코인은 이 카드의 주인공이 아니라 오른쪽 위에 작게.
+                                '50 XP 남음' 글자만 있을 때보다 막대가 있어야 자라는 게 보인다. */}
                             <div style={{flex:1,minWidth:0}}>
-                              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:0}}>
-                                {level.emoji} Lv.{level.level} {level.name}
-                              </p>
-                              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"4px 0 0"}}>
-                                {TM.xpEmoji} {getChildXP(childId)} {TM.xp}
-                              </p>
-                              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"4px 0 0"}}>
-                                {TM.coinEmoji} {getChildCoin(childId)} {TM.coin}
-                              </p>
-                              {getNextLevel(childId)&&(
-                                <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:"8px 0 0"}}>
-                                  다음 레벨까지 {getLevelProgressInfo(childId).remainXp} {TM.xp} 남음
-                                </p>
-                              )}
+                              {(()=>{
+                                const pg=getLevelProgressInfo(childId);
+                                const hasNext=!!getNextLevel(childId);
+                                return (<>
+                                  {/* 레벨 이름은 줄 전체를 쓴다 — 코인을 옆에 두면 '씩씩한 탐…' 처럼 잘렸다 */}
+                                  <p style={{fontSize:15,fontWeight:900,color:C.text,margin:0,minWidth:0,
+                                    overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                                    Lv.{level.level} {level.name}
+                                  </p>
+                                  <div style={{display:"flex",alignItems:"baseline",gap:6,margin:"7px 0 4px"}}>
+                                    {/* pg.currentXp 는 '이번 레벨 안에서 쌓은 양'이라 총 XP 와 단위가 다르다.
+                                        오른쪽 목표치는 '지금 총 XP + 남은 XP' 로 잡아야 왼쪽 숫자와 짝이 맞는다 */}
+                                    <span style={{fontSize:16,fontWeight:900,color:C.text}}>{getChildXP(childId).toLocaleString()}</span>
+                                    <span style={{fontSize:11.5,fontWeight:700,color:C.sub}}>
+                                      {hasNext?`/ ${(getChildXP(childId)+pg.remainXp).toLocaleString()} ${TM.xp}`:TM.xp}
+                                    </span>
+                                  </div>
+                                  {hasNext&&(
+                                    <div style={{height:8,borderRadius:999,background:CT.faint,overflow:"hidden"}}>
+                                      <div style={{width:`${Math.max(3,Math.min(100,pg.percent))}%`,height:"100%",
+                                        background:th.grad,borderRadius:999,transition:"width .3s"}}/>
+                                    </div>
+                                  )}
+                                  {/* 코인은 이 카드의 주인공이 아니라 참고값 → 맨 아랫줄 오른쪽에 작게 */}
+                                  <div style={{display:"flex",alignItems:"baseline",gap:8,margin:"5px 0 0"}}>
+                                    {hasNext&&<span style={{fontSize:11,fontWeight:700,color:C.sub}}>
+                                      다음 레벨까지 {pg.remainXp} {TM.xp}
+                                    </span>}
+                                    <span style={{marginLeft:"auto",flexShrink:0,fontSize:11,fontWeight:700,color:C.sub}}>
+                                      {TM.coin} {getChildCoin(childId).toLocaleString()}
+                                    </span>
+                                  </div>
+                                </>);
+                              })()}
                             </div>
                           </div>
                           {evoMsgView(evo.name,kidSkin)&&(
@@ -5637,10 +5666,13 @@ export default function App() {
                         </div>
 
                         {/* 보물창고 */}
-                        <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>{TM.bookEmoji} {TM.book}</p>
+                        <div style={rewardSecInner}>
+                          <p style={parentInnerTitle}>{TM.book}</p>
+                          {/* [사용자 확정 2026-08-11] '미션 완료 누적 30개 · 상자 총 0개 보유'는
+                              한 줄에 두 가지가 붙어 잘 안 읽혔다 → 둘로 나눈다. */}
                           <p style={parentInnerSub}>
-                            미션 완료 누적 {treasure.completedQuestCount||0}개 · {kidSkin==="cute"?TM.box:"상자"} 총 {getTotalTreasureCount(childId)}개 보유
+                            완료한 미션 {treasure.completedQuestCount||0}개<br/>
+                            보유 {kidSkin==="cute"?TM.box:"상자"} {getTotalTreasureCount(childId)}개
                           </p>
 
                           <div style={{
@@ -5668,8 +5700,9 @@ export default function App() {
                                 <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:0}}>
                                   {box.label}
                                 </p>
-                                <p style={{fontSize:11,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>
-                                  {TM.coinEmoji} {box.range}
+                                {/* '💎 20~40'만 있으면 사는 값인지 받는 값인지 헷갈린다 (사용자 지적) */}
+                                <p style={{fontSize:10.5,color:C.sub,fontWeight:700,margin:"3px 0 0"}}>
+                                  열면 {TM.coinEmoji} {box.range}
                                 </p>
                               </div>
                             ))}
@@ -5677,8 +5710,8 @@ export default function App() {
                         </div>
 
                         {/* 연속 달성 */}
-                        <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>🔥 연속 달성</p>
+                        <div style={rewardSecInner}>
+                          <p style={parentInnerTitle}>연속 달성</p>
                           <p style={parentInnerSub}>미션을 빠짐없이 완료한 기록이에요.</p>
 
                           <div style={{
@@ -5716,8 +5749,8 @@ export default function App() {
                         </div>
 
                         {/* 상장 관리 */}
-                        <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>👑 상장 관리</p>
+                        <div style={rewardSecInner}>
+                          <p style={parentInnerTitle}>상장 관리</p>
                           <p style={parentInnerSub}>
                             현재 전시 중인 상장과 전체 획득 현황이에요.
                           </p>
@@ -5791,112 +5824,35 @@ export default function App() {
                     return (
                       <>
                         {/* XP 통장 요약 */}
-                        <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>{TM.xpEmoji} {TM.xp} 통장</p>
+                        <div style={rewardSecInner}>
+                          <p style={parentInnerTitle}>{TM.xp} 통장</p>
                           <p style={parentInnerSub}>
                             지금까지 쌓은 {TM.xp}와 {TM.coin} 흐름을 한눈에 확인해요.
                           </p>
 
-                          <div style={{
-                            display:"grid",
-                            gridTemplateColumns:"repeat(2,1fr)",
-                            gap:8,
-                            marginTop:10
-                          }}>
-                            <div style={{
-                              background:"#fff",
-                              border:`1px solid ${C.border}`,
-                              borderRadius:14,
-                              padding:"10px",
-                              textAlign:"center"
-                            }}>
-                              <p style={{fontSize:17,margin:0}}>{TM.xpEmoji}</p>
-                              <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0",color:C.text}}>
-                                {getChildXP(childId)}
-                              </p>
-                              <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:0}}>
-                                현재 {TM.xp}
-                              </p>
-                            </div>
-
-                            <div style={{
-                              background:"#fff",
-                              border:`1px solid ${C.border}`,
-                              borderRadius:14,
-                              padding:"10px",
-                              textAlign:"center"
-                            }}>
-                              <p style={{fontSize:17,margin:0}}>{TM.coinEmoji}</p>
-                              <p style={{fontSize:20,fontWeight:900,margin:"3px 0 0",color:C.green}}>
-                                {getChildCoin(childId)}
-                              </p>
-                              <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:0}}>
-                                보유 {TM.coin}
-                              </p>
-                            </div>
-
-                            <div style={{
-                              background:"#fff",
-                              border:`1px solid ${C.border}`,
-                              borderRadius:14,
-                              padding:"10px",
-                              textAlign:"center"
-                            }}>
-                              <p style={{fontSize:17,margin:0}}>📈</p>
-                              <p style={{fontSize:17,fontWeight:900,margin:"3px 0 0",color:GP.gold}}>
-                                {earnedXp}
-                              </p>
-                              <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:0}}>
-                                총 획득 {TM.xp}
-                              </p>
-                            </div>
-
-                            <div style={{
-                              background:"#fff",
-                              border:`1px solid ${C.border}`,
-                              borderRadius:14,
-                              padding:"10px",
-                              textAlign:"center"
-                            }}>
-                              <p style={{fontSize:17,margin:0}}>🛒</p>
-                              <p style={{fontSize:17,fontWeight:900,margin:"3px 0 0",color:C.red}}>
-                                {spentCoin}
-                              </p>
-                              <p style={{fontSize:11,color:C.sub,fontWeight:800,margin:0}}>
-                                사용 {TM.coin}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div style={{
-                            marginTop:10,
-                            background:"#fff",
-                            border:`1px solid ${C.border}`,
-                            borderRadius:14,
-                            padding:"10px 12px"
-                          }}>
-                            <div style={{
-                              display:"flex",
-                              justifyContent:"space-between",
-                              alignItems:"center",
-                              marginBottom:6
-                            }}>
-                              <span style={{fontSize:13,fontWeight:900,color:C.sub}}>
-                                {TM.coin} 흐름
-                              </span>
-                              <span style={{fontSize:13,fontWeight:900,color:C.text}}>
-                                획득 {earnedCoin} · 사용 {spentCoin}
-                              </span>
-                            </div>
-
-                            {/* (코인 흐름 진행바 삭제 — 사용자 확정 2026-08-09.
-                                번 코인과 쓴 코인의 비율이라 '얼마나 찼는지'로 읽혀 오해를 샀다) */}
+                          {/* [사용자 확정 2026-08-11] 숫자 카드 넷 + 아래 '코인 흐름' 카드까지
+                              카드 안에 카드가 다섯이라 답답했다 → XP·코인을 두 줄 표로 묶고,
+                              '코인 흐름'은 코인 줄의 '누적'에 이미 들어가므로 통째로 뺀다. */}
+                          <div style={{marginTop:10,background:"#fff",border:`1px solid ${C.border}`,borderRadius:14,overflow:"hidden"}}>
+                            {[{k:TM.xp,cur:getChildXP(childId),curTone:C.text,sum:`${earnedXp} 획득`},
+                              {k:TM.coin,cur:getChildCoin(childId),curTone:C.green,sum:`${earnedCoin} 획득 · ${spentCoin} 사용`}].map((row,ri)=>(
+                              <div key={row.k} style={{display:"flex",alignItems:"baseline",gap:10,padding:"10px 12px",
+                                borderTop:ri?`1px solid ${C.border}`:"none"}}>
+                                <span style={{flexShrink:0,width:38,fontSize:11.5,fontWeight:800,color:C.sub}}>{row.k}</span>
+                                <span style={{flexShrink:0,fontSize:19,fontWeight:900,color:row.curTone,lineHeight:1.1}}>
+                                  {row.cur.toLocaleString()}
+                                </span>
+                                <span style={{marginLeft:"auto",flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub,textAlign:"right"}}>
+                                  {row.sum}
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         </div>
 
                         {/* 탐험기록 상세 */}
-                        <div style={parentInnerCard}>
-                          <p style={parentInnerTitle}>📖 {T.logName||"활동 기록"}</p>
+                        <div style={rewardSecInner}>
+                          <p style={parentInnerTitle}>{T.logName||"활동 기록"}</p>
                           <p style={parentInnerSub}>
                             최근 미션 완료, {kidSkin==="cute"?TM.box:"보물상자"}, 보상 구매 기록이에요.
                           </p>
@@ -5957,7 +5913,13 @@ export default function App() {
                                         textOverflow:"ellipsis",
                                         whiteSpace:"nowrap"
                                       }}>
-                                        {info.title}
+                                        {/* [사용자 확정 2026-08-11] '미션 클리어'만 줄줄이 찍혀서
+                                            무엇을 했는지 몰랐다 → 미션 이름이 있으면 그걸 제목으로.
+                                            점수가 빠진 줄에 '미션 클리어'라고 쓰면 말이 안 되니
+                                            '완료 취소'라고 사실대로 적는다. */}
+                                        {isMinus&&/^(homework|todo|quest)$/.test(item.type)
+                                          ? `${item.memo||"미션"} 완료 취소`
+                                          : (item.memo||info.title)}
                                       </p>
 
                                       <p style={{
@@ -5969,7 +5931,7 @@ export default function App() {
                                         textOverflow:"ellipsis",
                                         whiteSpace:"nowrap"
                                       }}>
-                                        {item.memo || item.date || ""}
+                                        {item.memo ? `${info.title} · ${item.date||""}` : (item.date||"")}
                                       </p>
                                     </div>
 
