@@ -237,6 +237,22 @@ const CHEST_SPARKS = [
   { x: 4, y: 58, s: 10, d: 1.6 }, { x: 92, y: 62, s: 12, d: 2.1 },
 ];
 
+/* 이름표·보물칩의 작은 선 아이콘
+   [사용자 확정 2026-08-11] 🕘 ✅ 🔒 🔓 는 운영체제 이모지라 기기마다 그림체가 달라지고,
+   수채화 지도 위에서 혼자 튀었다 → 글자색(currentColor)을 그대로 따르는 선 아이콘으로.
+   지도 위 글자가 10~10.5px 이라 획을 2.2로 두껍게 잡아야 작아도 형태가 남는다. */
+const MP = { fill: "none", stroke: "currentColor", strokeWidth: 2.2, strokeLinecap: "round", strokeLinejoin: "round" };
+const MapIcon = ({ name, size = 11 }) => {
+  const c = { viewBox: "0 0 24 24", width: size, height: size, "aria-hidden": "true",
+    style: { display: "inline-block", verticalAlign: "-1.5px", flexShrink: 0 } };
+  if (name === "clock") return (<svg {...c}><circle cx="12" cy="12" r="8.6" {...MP} /><path d="M12 7.2V12l3.2 2" {...MP} /></svg>);
+  if (name === "check") return (<svg {...c}><path d="m4.8 12.6 4.4 4.4 9-9.8" {...MP} strokeWidth="2.8" /></svg>);
+  // 자물쇠 — 잠김은 고리가 몸통에 닫혀 있고, 열림은 고리 한쪽이 위로 벌어진다
+  if (name === "lock") return (<svg {...c}><rect x="4.6" y="10.6" width="14.8" height="9.6" rx="2.4" {...MP} /><path d="M8.4 10.6V7.8a3.6 3.6 0 0 1 7.2 0v2.8" {...MP} /></svg>);
+  if (name === "unlock") return (<svg {...c}><rect x="4.6" y="10.6" width="14.8" height="9.6" rx="2.4" {...MP} /><path d="M8.4 10.6V7.8a3.6 3.6 0 0 1 7.2 0" {...MP} /></svg>);
+  return null;
+};
+
 const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
@@ -522,13 +538,19 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         const chip = past
           ? { background: "rgba(238,233,221,0.90)", border: "1px solid rgba(155,114,74,0.30)", borderRadius: 9, padding: "2px 8px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.14)" }
           : { background: "rgba(255,251,240,0.92)", border: "1px solid rgba(155,114,74,0.35)", borderRadius: 9, padding: "2px 8px", fontSize: 10, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.18)" };
-        // 이름표 2줄 통일 (사용자 확정): 1줄 학원명 / 2줄 🕘 시간 — 엄마는 시간부터 보므로 시간을 진하게
+        // 이름표 2줄 통일 (사용자 확정): 1줄 학원명 / 2줄 시각 — 엄마는 시간부터 보므로 시간을 진하게
         const label = (<>
-          <span style={{ fontWeight: 700 }}>{d ? "✅ " : ""}{ac.name}</span>
-          {ac.time ? <div style={{ fontSize: 10.5, marginTop: 1, color: "#3F2E1E" }}>🕘 {ac.time}</div> : null}
+          <span style={{ fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3 }}>
+            {d ? <MapIcon name="check" size={10} /> : null}{ac.name}
+          </span>
+          {ac.time ? <div style={{ fontSize: 10.5, marginTop: 1, color: "#3F2E1E", display: "flex", alignItems: "center", justifyContent: "center", gap: 3 }}>
+            <MapIcon name="clock" size={10} />{ac.time}
+          </div> : null}
         </>);
         // 5곳 이상(compact)은 한 줄 '아이콘 + 시간'만
-        const timeLabel = <span style={{ fontSize: 10.5, color: "#3F2E1E" }}>🕘 {ac.time || "-"}</span>;
+        const timeLabel = <span style={{ fontSize: 10.5, color: "#3F2E1E", display: "inline-flex", alignItems: "center", gap: 3 }}>
+          <MapIcon name="clock" size={10} />{ac.time || "-"}
+        </span>;
         // 다녀온 학원은 이름표를 떼고 지붕에 깃발을 꽂는다 (사용자 확정 — 탐험장소 줄과 같은 표현).
         // 단 '떼기'는 visibility로만 — 자리 좌표가 [이름표+건물] 블록 기준이라 통째로 빼면 건물이 밀린다.
         const labelOff = compact || past;
@@ -620,12 +642,15 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
         );
       })()}
 
-      {/* ── 보물상자 진행도 칩 — 🔒 n/N, 전부 완료하면 🔓. 상자 '아래' 배치 (사용자 확정) ── */}
+      {/* ── 보물상자 진행도 칩 — 자물쇠 n/N, 전부 완료하면 열린 자물쇠. 상자 '아래' 배치 (사용자 확정) ── */}
       {n > 0 && mode !== "future" && (
         <div style={{ position: "absolute", left: `${CHEST[0]}%`, top: `${CHEST[1] + (M.cdy || 8)}%`, transform: "translate(-50%,-50%)", zIndex: 2, pointerEvents: "none",
           background: "rgba(255,251,240,0.94)", border: `1px solid ${doneCount >= n ? "rgba(212,160,60,0.75)" : "rgba(155,114,74,0.4)"}`, borderRadius: 999,
-          padding: "2px 8px", fontSize: 10.5, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.2)" }}>
-          {doneCount >= n ? "🔓" : "🔒"} {doneCount}/{n}
+          padding: "2px 8px", fontSize: 10.5, fontWeight: 900, whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.2)",
+          // 다 열었으면 상자 테두리와 같은 황금빛으로 — 잠겨 있을 땐 종이 글자색 그대로
+          color: doneCount >= n ? "#9A6F1E" : "#5D4633",
+          display: "flex", alignItems: "center", gap: 4 }}>
+          <MapIcon name={doneCount >= n ? "unlock" : "lock"} size={11} />{doneCount}/{n}
         </div>
       )}
 
