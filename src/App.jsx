@@ -131,7 +131,10 @@ const initOnboarding = {
   pinHintSeen: false, showParentRewardGuide: false, parentRewardGuideSeen: false, showParentWelcome: false, parentWelcomeSeen: false,
 };
 /* '더보기' 안에 묶인 세 화면 (사용자 확정 2026-08-09: 하단 메뉴 5칸으로 줄이면서 통합) */
-const MORE_TABS = [{ k:"fee", l:"학원비" }, { k:"absence", l:"결석·보충" }, { k:"etc", l:"기타" }];
+/* [사용자 확정 2026-08-10] 하단 5칸을 홈·학원·미션·보상·더보기로 바꾸면서
+   달력이 '더보기' 안으로 들어왔다. 순서는 사용자가 정한 대로 달력 → 학원비 → 결석·보충.
+   '기타'(사용 가이드·오픈채팅)는 목록에는 없었지만 들어갈 다른 자리가 없어 맨 뒤에 남겨 둔다. */
+const MORE_TABS = [{ k:"calendar", l:"달력" }, { k:"fee", l:"학원비" }, { k:"absence", l:"결석·보충" }, { k:"etc", l:"기타" }];
 const isMoreTab = (t) => MORE_TABS.some(m => m.k === t);
 
 /* 엄마용을 되살려 주는 시간 (사용자 요청: '잠깐' 다른 앱 갔다 온 경우).
@@ -356,7 +359,7 @@ export default function App() {
   const [openTitle,              setOpenTitle]              = useState(initUi.openTitle);
   const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
   const [bagEvent,               setBagEvent]               = useState(null);             // 가방 카드에 1분간 띄우는 소식
-  const [moreTab,                setMoreTab]                = useState("fee");            // '더보기' 안에서 마지막으로 본 칸
+  const [moreTab,                setMoreTab]                = useState("calendar");       // '더보기' 안에서 마지막으로 본 칸
   const [moreMenuOpen,           setMoreMenuOpen]           = useState(false);            // '더보기' 눌러 위로 열리는 메뉴
   const [showKindPicker,         setShowKindPicker]         = useState(false);            // 학원 종류 고르기 시트
   const [homeAcOpen,             setHomeAcOpen]             = useState({});                // 엄마용 홈 '오늘의 학원' 펼친 카드
@@ -946,10 +949,21 @@ export default function App() {
   // run: PIN 통과 시 실행할 함수, title: 모달에 표시할 안내 문구
   const askPin=(run,title)=>{ setGatePin(""); setGateAction({run,title}); };
 
+  /* 미션 탭 이동 — 보상과 같은 잠금 뒤에 둔다.
+     [사용자 확정 2026-08-10] 미션 관리를 보상 안에서 독립 탭으로 꺼냈는데,
+     여기서 점수를 고치고 미션을 지울 수 있으므로 잠금까지 같이 풀어 두면
+     아이가 엄마용으로 넘어와 자기 점수를 올릴 수 있다.
+     대신 잠금은 보상과 하나로 공유한다 — 한 번 풀면 미션↔보상 사이는 다시 안 묻는다. */
+  const parentLocked=()=>!rewardUnlocked;
+  const goMissionTab=()=>{
+    if(!parentLocked()){ setTab("mission"); return; }
+    askPin(()=>{ setRewardUnlocked(true); setTab("mission"); }, "🎯 미션 관리");
+  };
+
   // 보상탭 이동 — 누를 때마다 PIN을 받는다(이미 열려 있으면 그대로).
   // 탭 바와 엄마용 홈 '오늘 챙길 일'의 보상승인 칩이 같이 쓴다.
   const goRewardTab=()=>{
-    if(tab==="reward" && rewardUnlocked) return;
+    if(!parentLocked()){ setTab("reward"); return; }
     askPin(()=>{
       setRewardUnlocked(true); setTab("reward");
       // 보상탭 첫 진입 시: 권한 구조 안내(welcome)를 1회만 노출
@@ -5205,10 +5219,12 @@ export default function App() {
           );
         })()}
 
-        {/* ════ 보상 탭 ════ */}
-        {tab==="reward"&&(
+        {/* ════ 미션 탭 ════ */}
+        {/* [사용자 확정 2026-08-10] 보상 탭 안에 접혀 있던 '미션 관리'를 독립 탭으로 뺐다.
+            날마다 들여다보는 화면인데 보상 탭을 열고 카드를 또 펴야 해서 손이 많이 갔다.
+            내용은 그대로 옮겼고, 저장 키(v6_daily 등)도 손대지 않는다. */}
+        {tab==="mission"&&(
           <div>
-            {/* 오늘의 미션 카드 */}
             {(()=>{
               const isRewToday=rewardDate===TODAY;
               const rd=new Date(rewardDate.replace(/-/g,"/"));
@@ -5222,15 +5238,13 @@ export default function App() {
               const allDone=rewardTodayTodos.length>0&&doneCnt===rewardTodayTodos.length;
               return (
                 <div style={{background:CT.card,borderRadius:20,padding:"16px",marginBottom:14,border:`1.5px solid ${allDone&&isRewToday?C.green+"40":th.main+"30"}`,boxShadow:SHADOW.sm}}>
-                  <button onClick={()=>setShowParentTodayQuest(v=>!v)}
-                    style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}>
-                    <div style={{textAlign:"left"}}>
-                      <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎯 미션 관리</p>
-                      <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>날짜별 미션 추가·수정 · 점수 관리</p>
-                    </div>
-                    <span style={openClosePill(showParentTodayQuest)}>{openCloseLabel(showParentTodayQuest)}</span>
-                  </button>
-                  {showParentTodayQuest&&(
+                  {/* [사용자 확정 2026-08-10] 보상 탭 안의 접히는 카드였는데 미션 탭으로 나왔다.
+                      탭 자체가 미션 화면이라 접을 이유가 없어 여닫는 버튼 대신 제목 줄만 둔다. */}
+                  <div style={{textAlign:"left"}}>
+                    <p style={{fontSize:17,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎯 미션 관리</p>
+                    <p style={{fontSize:13,color:C.sub,margin:0,fontWeight:700}}>날짜별 미션 추가·수정 · 점수 관리</p>
+                  </div>
+                  {(
                     <div style={{marginTop:14}}>
                       {/* 날짜 이동 */}
                       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
@@ -5304,6 +5318,12 @@ export default function App() {
                 </div>
               );
             })()}
+          </div>
+        )}
+
+        {/* ════ 보상 탭 ════ */}
+        {tab==="reward"&&(
+          <div>
 
             {getChildRewardRequests(childId).filter(r=>r.status==="pending").length>0&&(
               <div style={{background:mixWhite(C.orange,0.9),border:`1.5px solid ${C.orange}55`,borderRadius:20,padding:"16px",marginBottom:14,boxShadow:SHADOW.sm}}>
@@ -6103,8 +6123,8 @@ export default function App() {
            고장난 것처럼 보였다. 안 보이면 애초에 누를 일이 없다. */
         if(anyModalOpen) return null;
         // 다른 칸으로 갈 땐 열려 있던 '더보기' 메뉴를 먼저 닫는다
-        const go=(k)=>()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab(k); };
-        const MORE_ICON={fee:"fee",absence:"absence",etc:"settings"};
+        const go=(k)=>()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab(k); };   // 미션·보상 밖으로 나가면 잠금이 다시 걸린다
+        const MORE_ICON={calendar:"calendar",fee:"fee",absence:"absence",etc:"settings"};
         // 비활성 색은 따뜻한 갈회색 대신 중성 회청색 — 화면의 파랑 계열과 겉돌지 않게 (사용자 확정 2026-08-10)
         return (
           <ParentNav accent={th.main} dim="#8A93A0" maxWidth={430}
@@ -6117,10 +6137,13 @@ export default function App() {
             items={[
               { key:"home",     label:"홈",     icon:"home",     active:tab==="home",     onPress:go("home") },
               { key:"academy",  label:"학원",   icon:"academy",  active:tab==="academy",  onPress:go("academy") },
+              // [사용자 확정 2026-08-10] 보상 안에 접혀 있던 미션 관리를 이 자리로 꺼냈다.
+              // 미션은 매일 보는 화면이라 보상보다 앞에 둔다. 달력은 '더보기'로 내려갔다.
+              { key:"mission",  label:"미션",   icon:"mission",  active:tab==="mission",
+                onPress:()=>{ setMoreMenuOpen(false); goMissionTab(); } },
               // 보상은 누를 때마다 PIN을 다시 받는다 (goRewardTab이 그 규칙을 갖고 있다)
               { key:"reward",   label:"보상",   icon:"reward",   active:tab==="reward",
                 onPress:()=>{ setMoreMenuOpen(false); goRewardTab(); } },
-              { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar", onPress:go("calendar") },
               // 더보기는 화면을 바꾸지 않고 '위로 열리는 메뉴'만 띄운다 (사용자 확정 2026-08-09)
               { key:"more",     label:"더보기", icon:"more",     active:isMoreTab(tab)||moreMenuOpen,
                 onPress:()=>setMoreMenuOpen(v=>!v) },
