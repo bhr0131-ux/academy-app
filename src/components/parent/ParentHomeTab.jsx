@@ -101,16 +101,18 @@ export default function ParentHomeTab({
           const pendingRewardCnt=getChildRewardRequests(childId).filter(r=>r.status==="pending").length;
           // 칩마다 누르면 갈 곳을 함께 둔다 (사용자 확정: 개수만 보여 주지 말고 내용까지 확인 가능하게).
           // 준비물·미션은 팝업, 보상승인·결석·보충수업은 이미 처리 화면이 있는 탭으로 보낸다.
+          /* [사용자 확정 2026-08-11] 🎒🎯🎁🏥📚 다섯 이모지가 한 줄에 나란히 있으니
+             색·그림체가 제각각이라 칩이 시끄러웠다 → 칩 글자색을 그대로 따르는 선 아이콘으로. */
           const alerts=[];
-          if(homeSupplyCount>0) alerts.push({label:`🎒 준비물 ${homeSupplyCount}개`,color:th.main,
+          if(homeSupplyCount>0) alerts.push({icon:"bag",label:`준비물 ${homeSupplyCount}개`,color:th.main,
             go:onOpenSupplyCheck});
-          if(homePendingQuest>0) alerts.push({label:`🎯 미완료 미션 ${homePendingQuest}개`,color:th.main,
+          if(homePendingQuest>0) alerts.push({icon:"mission",label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
             go:onOpenMissionCheck});
-          if(pendingRewardCnt>0) alerts.push({label:`🎁 보상승인 ${pendingRewardCnt}개`,color:C.green,
+          if(pendingRewardCnt>0) alerts.push({icon:"reward",label:`보상승인 ${pendingRewardCnt}개`,color:C.green,
             go:onGoReward});
-          if(absOnHome.length>0) alerts.push({label:`🏥 결석 ${absOnHome.length}개`,color:C.red,
+          if(absOnHome.length>0) alerts.push({icon:"absent",label:`결석 ${absOnHome.length}개`,color:C.red,
             go:()=>onGoTab("absence")});
-          if(makeupOnHome.length>0) alerts.push({label:`📚 보충수업 ${makeupOnHome.length}개`,color:C.orange,
+          if(makeupOnHome.length>0) alerts.push({icon:"makeup",label:`보충수업 ${makeupOnHome.length}개`,color:C.orange,
             go:()=>onGoTab("absence")});
           /* [사용자 확정 2026-08-09] 내용 개수에 따라 카드 높이가 달라진다.
              예전엔 준비물 하나뿐인 날에도 두 줄짜리 카드가 자리를 차지해 비어 보였다.
@@ -124,13 +126,13 @@ export default function ParentHomeTab({
                 fontSize:13,fontWeight:900,color:mixBlack(a.color,0.5),background:mixWhite(a.color,0.88),
                 border:`1px solid ${a.color}33`,borderRadius:10,padding:"5px 10px",whiteSpace:"nowrap",
                 cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
-              {a.label}<span style={{fontSize:10,opacity:0.65}}>›</span>
+              <CareIcon name={a.icon} size={13}/>{a.label}<span style={{fontSize:10,opacity:0.65}}>›</span>
             </button>
           );
           if(alerts.length===0) return (
             <div style={{background:mixWhite(th.main,0.85),border:`1px solid ${th.main}40`,borderRadius:14,
               padding:"9px 13px",display:"flex",alignItems:"center",gap:9,boxShadow:SHADOW.sm}}>
-              <span style={{fontSize:15,flexShrink:0}}>✅</span>
+              <span style={{flexShrink:0,color:mixBlack(th.main,0.45),display:"flex"}}><CareIcon name="check" size={15}/></span>
               <span style={{fontSize:13.5,fontWeight:800,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
             </div>
           );
@@ -235,7 +237,9 @@ export default function ParentHomeTab({
       {/* 학원 카드 */}
       {homeAc.length>0&&(
         <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 15px"}}>
-          <span style={{fontSize:15,fontWeight:900,color:C.text,letterSpacing:0.3}}>📍 오늘의 학원</span>
+          <span style={{fontSize:15,fontWeight:900,color:C.text,letterSpacing:0.3,display:"inline-flex",alignItems:"center",gap:6}}>
+            <span style={{color:th.main,display:"flex"}}><CareIcon name="school" size={15}/></span>오늘의 학원
+          </span>
           <div style={{flex:1,height:1,background:C.border}}/>
         </div>
       )}
@@ -369,8 +373,8 @@ export default function ParentHomeTab({
               {/* 수정 — 보조 기능이라 오른쪽 아래에 작게 (사용자 확정 2026-08-10) */}
               <div style={{display:"flex",justifyContent:"flex-end"}}>
                 <button onClick={()=>onEditDaily(ac,homeDate)}
-                  style={{border:"none",background:"none",color:SUBD,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px"}}>
-                  ✎ 수정
+                  style={{border:"none",background:"none",color:SUBD,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px",display:"inline-flex",alignItems:"center",gap:5}}>
+                  <CareIcon name="pencil" size={13}/>수정
                 </button>
               </div>
             </div>
