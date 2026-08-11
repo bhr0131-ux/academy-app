@@ -150,6 +150,20 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M14.5 6.5l3 3" {...P} />
         </svg>
       );
+    case "lock":     // 잠금 (비밀번호를 묻는 자리)
+      return (
+        <svg {...common}>
+          <rect x="4.8" y="10.6" width="14.4" height="9.6" rx="2.4" {...P} />
+          <path d="M8.6 10.6V7.9a3.4 3.4 0 0 1 6.8 0v2.7" {...P} />
+        </svg>
+      );
+    case "unlock":   // 잠금 풀림 (아이도 할 수 있는 일)
+      return (
+        <svg {...common}>
+          <rect x="4.8" y="10.6" width="14.4" height="9.6" rx="2.4" {...P} />
+          <path d="M8.6 10.6V7.9a3.4 3.4 0 0 1 6.8 0" {...P} />
+        </svg>
+      );
     case "trash":    // 지우기
       return (
         <svg {...common}>

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { DAYS, C } from "../data/tokens.js";
 import { getAcademyKind, ACADEMY_KIND_CUSTOM } from "../data/gameData.jsx";
 import AcademyKindPicker from "./parent/AcademyKindPicker.jsx";
+import CareIcon from "./parent/CareIcons.jsx";
+import { NAV_ICONS } from "./parent/ParentNav.jsx";
 
 // 코치마크 직후 1회, 또는 설정에서 호출. onPick(skinId) 으로 선택 전달.
 /* ════════════════════════════════════════════════════════════════════════
@@ -58,14 +60,19 @@ export function CoachmarkOverlay({ th, onFinish }){
      [사용자 확정 2026-08-11] 일곱 장은 그대로 두고 설명만 한 줄로 줄였다 —
      두 줄씩 읽어야 해서 일곱 번 넘기기 전에 지친다. 문구는 사용자가 정한 그대로 쓴다.
      (잠금만 두 줄 — 비밀번호를 왜 묻는지까지 말해야 뜻이 통한다) */
+  /* [사용자 확정 2026-08-11] 안내 카드의 이모지(🏠 🎓 🎯 🎁 ☰ 🔒 🎒)는 기기마다 그림체가
+     달라지고, 정작 아이 어머니가 화면에서 보게 될 그림과도 달랐다 →
+     탭 다섯은 하단 메뉴에 실제로 그려지는 아이콘(NAV_ICONS)을 그대로 쓴다.
+     '이 그림을 찾으면 된다'가 바로 통한다. 잠금·아이용은 같은 결의 선 아이콘. */
   const items=[
-    { icon:"🏠", name:"홈", desc:"오늘 챙길 일과 오늘 가는 학원을 한눈에 봐요." },
-    { icon:"🎓", name:"학원", desc:"학원을 등록하고 수정해요." },
-    { icon:"🎯", name:"미션", desc:"날짜별 미션과 점수를 관리해요." },
-    { icon:"🎁", name:"보상", desc:"코인으로 바꿀 보상을 정하고, 아이가 신청하면 승인해요." },
-    { icon:"☰", name:"더보기", desc:"달력 · 학원비 · 결석·보충 · 기타가 여기 있어요." },
-    { icon:"🔒", name:"미션·보상은 잠금", desc:"점수를 고치고 미션을 지울 수 있는 곳이라\n비밀번호를 한 번 물어봐요 (초기 비밀번호 1234)." },
-    { icon:"🎒", name:"아이용", desc:"오른쪽 위 '🎒 아이용' 버튼을 누르면 아이 화면으로 바뀌어요." },
+    { icon:NAV_ICONS.home,     name:"홈", desc:"오늘 챙길 일과 오늘 가는 학원을 한눈에 봐요." },
+    { icon:NAV_ICONS.academy,  name:"학원", desc:"학원을 등록하고 수정해요." },
+    { icon:NAV_ICONS.mission,  name:"미션", desc:"날짜별 미션과 점수를 관리해요." },
+    { icon:NAV_ICONS.reward,   name:"보상", desc:"코인으로 바꿀 보상을 정하고, 아이가 신청하면 승인해요." },
+    { icon:NAV_ICONS.more,     name:"더보기", desc:"달력 · 학원비 · 결석·보충 · 기타가 여기 있어요." },
+    { icon:<CareIcon name="lock" size={23}/>, name:"미션·보상은 잠금",
+      desc:"이곳은 엄마 권한이라서\n비밀번호를 한번 물어봐요.\n(초기 비밀번호 1234)." },
+    { icon:<CareIcon name="bag" size={23}/>, name:"아이용", desc:"오른쪽 위 '🎒 아이용' 버튼을 누르면 아이 화면으로 바뀌어요." },
   ];
   const [i,setI]=useState(0);
   const last=i===items.length-1;
@@ -78,7 +85,7 @@ export function CoachmarkOverlay({ th, onFinish }){
       </div>
       <div style={{background:"#fff",borderRadius:22,padding:"24px 22px",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
-          <div style={{width:48,height:48,borderRadius:14,background:`${TH.main}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0}}>{it.icon}</div>
+          <div style={{width:48,height:48,borderRadius:14,background:`${TH.main}15`,color:TH.main,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0}}>{it.icon}</div>
           <p style={{fontSize:20,fontWeight:900,color:"#1A1A35",margin:0}}>{it.name}</p>
         </div>
         <div style={{minHeight:54,marginBottom:20}}>
@@ -131,7 +138,13 @@ export function OnboardingFlow({ onFinish }){
 
   const inp={width:"100%",padding:"15px 16px",borderRadius:14,border:"1.5px solid #E3E8F0",fontSize:17,boxSizing:"border-box",outline:"none",fontWeight:600};
   const lbl={fontSize:22,fontWeight:900,color:"#1A1A35",margin:"0 0 6px",lineHeight:1.3};
-  const sub={fontSize:14,color:"#8890B0",margin:"0 0 24px",fontWeight:600,lineHeight:1.5};
+  /* whiteSpace:pre-line — 안내 문장에 \n 을 넣어 문장 단위로 줄을 나눈다 (사용자 확정 2026-08-11) */
+  const sub={fontSize:14,color:"#8890B0",margin:"0 0 24px",fontWeight:600,lineHeight:1.5,whiteSpace:"pre-line"};
+  /* '(선택)'과 '필수' 가 괄호 유무·굵기까지 달라 서로 다른 것처럼 보였다 →
+     모양은 하나로 두고 색만 다르게 (사용자 확정 2026-08-11) */
+  const tagBase={fontSize:11.5,fontWeight:800,borderRadius:8,padding:"2px 8px",marginLeft:6,verticalAlign:"middle"};
+  const tagOpt={...tagBase,color:"#8890B0",background:"#EEF1F6"};
+  const tagReq={...tagBase,color:"#E5484D",background:"#FDECEC"};
 
   const toggleDay=(d)=>setAcDays(p=>p.includes(d)?p.filter(x=>x!==d):[...p,d]);
 
@@ -149,7 +162,7 @@ export function OnboardingFlow({ onFinish }){
        첫 등록만 이름을 필수로 받고 있어 규칙이 어긋났다 → 같은 순서·같은 규칙으로 맞춘다.
        이름을 비우면 종류 이름을 그대로 학원 이름으로 쓴다(앱의 saveAcademy 와 같은 규칙). */
     { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind },
-    { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 보여요. 비워 둬도 괜찮아요." },
+    { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 보여요.\n비워 둬도 괜찮아요." },
     /* [사용자 확정 2026-08-11] 반복 숙제를 준비물과 떼어 미션 단계로 옮겼다 — 둘 다 '숙제'라
        미션 이야기를 할 때 같이 보는 게 자연스럽다.
        [2026-08-11] 필수는 '오늘 미션' 하나로 정했다(사용자 확정) — 아무 미션도 없이 시작하면
@@ -250,7 +263,8 @@ export function OnboardingFlow({ onFinish }){
           <div>
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>학원 종류 *</p>
+            {/* '*' 하나로만 필수를 표시하던 자리 — 미션 단계의 '필수' 배지와 같은 모양으로 (사용자 확정) */}
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>학원 종류 <span style={tagReq}>필수</span></p>
             {(()=>{
               const k=getAcademyKind(acKind);
               const lab=acKindLabel||k?.label||"";
@@ -269,7 +283,7 @@ export function OnboardingFlow({ onFinish }){
               );
             })()}
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"22px 0 10px"}}>
-              학원 이름 <span style={{fontSize:13,fontWeight:600,color:"#8890B0"}}>(선택)</span>
+              학원 이름 <span style={tagOpt}>선택</span>
             </p>
             <input value={acName} onChange={e=>setAcName(e.target.value)}
               placeholder={acKindLabel?`비우면 '${acKindLabel}'${withRo(acKindLabel).slice(acKindLabel.length)} 저장돼요`:"예: 노아피아노"} style={inp}/>
@@ -302,7 +316,7 @@ export function OnboardingFlow({ onFinish }){
           <div>
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 8px"}}>🎒 항상 챙길 준비물</p>
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 8px"}}>항상 챙길 준비물</p>
             <input autoFocus value={supply} onChange={e=>setSupply(e.target.value)} placeholder="예: 교재, 악보" style={inp}
               onKeyDown={e=>e.key==="Enter"&&next()}/>
             <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"10px 2px 0",lineHeight:1.6}}>
@@ -316,18 +330,19 @@ export function OnboardingFlow({ onFinish }){
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 4px"}}>
-              📚 반복 숙제 <span style={{fontSize:12.5,fontWeight:600,color:"#8890B0"}}>(선택)</span>
+              반복 숙제 <span style={tagOpt}>선택</span>
             </p>
             <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>학원에 갈 때마다 하는 숙제예요.</p>
-            <input value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 하농 1번 연습" style={inp}/>
+            <input value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 단어 5개 암기" style={inp}/>
 
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"24px 0 4px"}}>
-              🎯 오늘 미션 <span style={{fontSize:12.5,fontWeight:800,color:"#E5484D"}}>필수</span>
+              오늘 미션 <span style={tagReq}>필수</span>
             </p>
             <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>오늘 하루만 하는 일이에요.</p>
             {/* 종류 고르기는 앱의 미션 편집 화면과 같은 모양으로 (사용자 확정) */}
             <div style={{display:"flex",gap:8,marginBottom:10}}>
-              {[{k:"hw",t:"📚 숙제"},{k:"todo",t:"✅ 할 일"}].map(o=>(
+              {/* 앱의 미션 편집 팝업은 '숙제' '할 일' 글자만 쓴다 — 여기만 이모지가 붙어 있었다 */}
+              {[{k:"hw",t:"숙제"},{k:"todo",t:"할 일"}].map(o=>(
                 <button key={o.k} onClick={()=>setMissionKind(o.k)} aria-pressed={missionKind===o.k}
                   style={{flex:1,padding:12,borderRadius:14,border:`2px solid ${missionKind===o.k?TH.main:"#E3E8F0"}`,
                     background:missionKind===o.k?`${TH.main}12`:"#fff",color:missionKind===o.k?TH.main:"#8890B0",
@@ -368,24 +383,25 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
   const steps=isWelcome
     /* [2026-08-11] '보상탭에서 점수 수정' 은 옛 구조다 — 미션 관리가 '미션' 탭으로 나왔고
        미션·보상 두 칸이 같은 잠금을 쓴다. 지금 동작대로 다시 썼다. */
+    /* 줄머리 아이콘도 코치마크와 같은 선 아이콘으로 (사용자 확정 2026-08-11) */
     ? [
-        { ic:"🔓", t:"미션은 아이도 넣을 수 있어요", d:"아이용 화면에서 숙제·할 일을 스스로 추가" },
-        { ic:"🔒", t:"점수·삭제는 엄마만", d:"미션·보상 칸은 비밀번호를 한 번 물어봐요" },
-        { ic:"🎁", t:"보상은 엄마가 승인", d:"아이가 신청하면 보상 칸에서 확인하고 승인" },
+        { ic:"unlock",  t:"미션은 아이도 넣을 수 있어요", d:"아이용 화면에서 숙제·할 일을 스스로 추가" },
+        { ic:"lock",    t:"점수·삭제는 엄마만", d:"미션·보상 칸은 비밀번호를 한 번 물어봐요" },
+        { ic:"reward",  t:"보상은 엄마가 승인", d:"아이가 신청하면 보상 칸에서 확인하고 승인" },
       ]
     : isReward
     ? [
-        { ic:"🎁", t:"보상 목록 정하기", d:`${coinW}으로 바꿀 보상을 추가·수정` },
-        { ic:"✅", t:"구매 요청 승인", d:"아이가 신청한 보상을 확인하고 승인" },
-        { ic:"🎯", t:"미션은 옆 '미션' 칸에서", d:"미션 추가·수정과 점수는 그쪽에서" },
+        { ic:"reward",  t:"보상 목록 정하기", d:`${coinW}으로 바꿀 보상을 추가·수정` },
+        { ic:"check",   t:"구매 요청 승인", d:"아이가 신청한 보상을 확인하고 승인" },
+        { ic:"mission", t:"미션은 옆 '미션' 칸에서", d:"미션 추가·수정과 점수는 그쪽에서" },
       ]
     : [
-        { ic:"🧒", t:"아이 등록", d:"" },
-        { ic:"🎓", t:"학원 등록", d:"준비물·반복 숙제까지 한 번에" },
-        { ic:"🎯", t:"미션 추가", d:"숙제·할 일을 그날 미션으로" },
-        { ic:"✅", t:"아이가 직접 체크", d:"완수하면 스스로 체크!" },
-        { ic:"⭐", t:`${xpW}·${coinW} 획득`, d:"" },
-        { ic:"🎁", t:"보상 받기", d:`${coinW}으로 원하는 보상을` },
+        { ic:"teacher", t:"아이 등록", d:"" },
+        { ic:"school",  t:"학원 등록", d:"준비물·반복 숙제까지 한 번에" },
+        { ic:"mission", t:"미션 추가", d:"숙제·할 일을 그날 미션으로" },
+        { ic:"check",   t:"아이가 직접 체크", d:"완수하면 스스로 체크!" },
+        { ic:"star",    t:`${xpW}·${coinW} 획득`, d:"" },
+        { ic:"reward",  t:"보상 받기", d:`${coinW}으로 원하는 보상을` },
       ];
 
   return (
@@ -441,9 +457,9 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
                   width:34,height:34,
                   borderRadius:10,
                   background:`${th.main}18`,
-                  fontSize:18,
+                  color:th.main,
                   display:"flex",alignItems:"center",justifyContent:"center"
-                }}>{s.ic}</span>
+                }}><CareIcon name={s.ic} size={18}/></span>
                 <div style={{flex:1,minWidth:0}}>
                   <p style={{fontSize:14.5,fontWeight:900,color:C.text,margin:0,lineHeight:1.2}}>
                     <span style={{color:th.main,marginRight:5}}>{i+1}</span>{s.t}
