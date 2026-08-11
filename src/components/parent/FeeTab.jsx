@@ -21,6 +21,7 @@
 
 import { C, mixWhite, mixBlack, SHADOW } from "../../data/tokens.js";
 import { payMethodLabel } from "./FeePaySheet.jsx";
+import CareIcon from "./CareIcons.jsx";
 
 export default function FeeTab({
   th, CT, curAc = [], feeMonth, setFeeMonth,
@@ -79,7 +80,7 @@ export default function FeeTab({
       <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:"9px 0 0",textAlign:"center",opacity:0.9}}>
         {billed.length===0
           ? "등록된 학원비가 없어요"
-          : `${billed.length}곳 모두 납부했어요 🎉`}
+          : `${billed.length}곳 모두 납부했어요`}
       </p>
       )}
     </div>
@@ -182,7 +183,7 @@ export default function FeeTab({
               <button onClick={()=>onCopyAccount&&onCopyAccount(a.account)} className="jelly-tap"
                 style={{display:"flex",alignItems:"center",gap:6,width:"100%",marginTop:6,padding:"6px 9px",borderRadius:9,
                   border:`1px solid ${C.border}`,background:"#fff",cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}>
-                <span style={{fontSize:12,flexShrink:0}}>🏦</span>
+                <span style={{flexShrink:0,display:"flex",color:C.sub}}><CareIcon name="bank" size={13}/></span>
                 <span style={{flex:1,minWidth:0,fontSize:11.5,fontWeight:700,color:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.account}</span>
                 <span style={{flexShrink:0,fontSize:11,fontWeight:800,color:th.main}}>복사</span>
               </button>
@@ -201,12 +202,12 @@ export default function FeeTab({
               <div onClick={()=>setFeeMenu(null)} style={{position:"fixed",inset:0,zIndex:40}}/>
               <div role="menu" style={{position:"absolute",top:36,right:8,zIndex:41,minWidth:146,background:"#fff",borderRadius:12,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
                 <button role="menuitem" className="nav-menu-tap" onClick={()=>{ onEditFee({id:a.id,fee:String(a.fee||""),payDay:String(a.payDay||1)}); setFeeMenu(null); }}
-                  style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.text,cursor:"pointer",fontFamily:"inherit"}}>
-                  ✏️ 학원비 수정
+                  style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.text,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:8}}>
+                  <CareIcon name="pencil" size={14}/>학원비 수정
                 </button>
                 {hasFee&&(
-                  <button role="menuitem" className="nav-menu-tap" onClick={()=>{ onDeleteFee(a.id); setFeeMenu(null); }} style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.red,cursor:"pointer",fontFamily:"inherit",borderTop:`1px solid ${C.border}`}}>
-                    🗑 학원비 삭제
+                  <button role="menuitem" className="nav-menu-tap" onClick={()=>{ onDeleteFee(a.id); setFeeMenu(null); }} style={{width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",fontSize:13,fontWeight:800,color:C.red,cursor:"pointer",fontFamily:"inherit",borderTop:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:8}}>
+                    <CareIcon name="trash" size={14}/>학원비 삭제
                   </button>
                 )}
               </div>

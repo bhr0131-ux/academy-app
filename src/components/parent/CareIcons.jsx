@@ -121,6 +121,14 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M14.5 6.5l3 3" {...P} />
         </svg>
       );
+    case "trash":    // 지우기
+      return (
+        <svg {...common}>
+          <path d="M4.4 6.6h15.2M9.6 6.6V4.8a1 1 0 0 1 1-1h2.8a1 1 0 0 1 1 1v1.8" {...P} />
+          <path d="M6.4 6.6 7.3 20a1 1 0 0 0 1 .9h7.4a1 1 0 0 0 1-.9l.9-13.4" {...P} />
+          <path d="M10.4 10.4v6.6M13.6 10.4v6.6" {...P} />
+        </svg>
+      );
     case "phone":
       return (
         <svg {...common}>

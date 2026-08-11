@@ -118,8 +118,13 @@ export default function AcademyTab({
 
     {curAc.length===0?(
       <div style={{textAlign:"center",padding:"26px 20px",color:C.sub,background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
-        <p style={{fontSize:24,margin:"0 0 8px"}}>🏫</p>
-        <p style={{fontSize:14,fontWeight:700,margin:0}}>위 버튼으로 학원을 등록하세요</p>
+        {/* 빈 상태는 앱의 다른 화면(미션 탭·오늘 챙길 일)과 같은 모양 —
+            연한 동그라미 안 선 아이콘 (사용자 확정 2026-08-11) */}
+        <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:52,height:52,
+          borderRadius:"50%",background:mixWhite(th.main,0.82),color:th.main}}>
+          <CareIcon name="school" size={26}/>
+        </span>
+        <p style={{fontSize:14,fontWeight:700,margin:"8px 0 0"}}>위 버튼으로 학원을 등록하세요</p>
       </div>
     ):(
       <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -233,7 +238,7 @@ export default function AcademyTab({
     {showSample && (
       <button onClick={onSeedSample}
         style={{width:"100%",marginTop:14,padding:"12px",borderRadius:14,border:`1.5px dashed ${th.main}55`,background:mixWhite(th.main,0.9),color:th.main,fontSize:13.5,fontWeight:800,cursor:"pointer",lineHeight:1.5,fontFamily:"inherit"}}>
-        🌱 샘플 학원 추가해보기
+        <span style={{display:"inline-flex",alignItems:"center",gap:6}}><CareIcon name="school" size={14}/>샘플 학원 추가해보기</span>
         <span style={{display:"block",fontSize:11.5,fontWeight:600,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
       </button>
     )}
