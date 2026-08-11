@@ -53,13 +53,13 @@ export function ModeSelect({ onPick }){
 export function CoachmarkOverlay({ th, onFinish }){
   const TH=th||{ main:"#3B7ECD", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" };
   /* [2026-08-09] 하단 고정 메뉴 5칸으로 개편 — 안내도 같은 순서·같은 이름으로 맞췄다.
-     학원비·결석·기타는 '더보기' 안으로 들어갔다. */
+     [2026-08-10] 미션이 칸으로 나오고 달력이 '더보기' 안으로 들어갔다. */
   const items=[
     { icon:"🏠", name:"홈", desc:"오늘 일정과 '오늘 챙길 일', 오늘 가는 학원을 한눈에 봐요." },
     { icon:"🏫", name:"학원", desc:"등록한 학원을 관리해요. 학원 추가·수정, 셔틀·준비물·숙제를 여기서 챙겨요." },
+    { icon:"🎯", name:"미션", desc:"날짜별로 미션을 추가·수정하고 점수를 관리해요." },
     { icon:"🎁", name:"보상", desc:"아이가 모은 코인으로 받을 보상을 설정하고, 구매 요청을 승인해요." },
-    { icon:"🗓", name:"달력", desc:"날짜별 학원 일정과 미션을 달력으로 확인해요." },
-    { icon:"⋯", name:"더보기", desc:"학원비·결석·기타(백업, 비밀번호, 사용 가이드)를 여기 모아 뒀어요." },
+    { icon:"⋯", name:"더보기", desc:"달력·학원비·결석·보충·기타(백업, 비밀번호, 사용 가이드)를 여기 모아 뒀어요." },
     { icon:"🎒", name:"아이용", desc:"오른쪽 위 '🎒 아이용' 버튼을 누르면\n아이 화면으로 바뀌어요." },
   ];
   const [i,setI]=useState(0);
