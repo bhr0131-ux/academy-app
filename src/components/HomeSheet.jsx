@@ -121,7 +121,9 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
   return (
     <Fragment>
       {/* ── ① 손잡이 — 맨 위(top:0)에 붙어 계속 남는다. 위로 끌거나 탭하면 올리고, 아래로 끌거나 다시 탭하면 내린다 ── */}
-      <div ref={gripRef} style={{position:"sticky",top:0,zIndex:9,margin:0,marginTop:-24,padding:"18px 18px 7px",
+      {/* [사용자 확정 2026-08-11] 손잡이+탭+날짜바가 화면의 1/5을 먹어 지도가 늦게 시작됐다 →
+          세 칸의 위아래 여백을 한 단계씩 줄인다 (손잡이 18/7 → 14/6). */}
+      <div ref={gripRef} style={{position:"sticky",top:0,zIndex:9,margin:0,marginTop:-24,padding:"14px 18px 6px",
         borderRadius:stuck?0:"30px 30px 0 0",background:"#F0F3F3", // Cloud — 순백 대신 수채화와 이어지는 아이보리·회색
         boxShadow:stuck?"none":"0 -10px 30px -12px rgba(40,70,45,0.30)",
         transition:"border-radius .18s ease"}}>
@@ -135,23 +137,23 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
         </button>
       </div>
       {/* ── ② 탭 줄 — 손잡이 바로 아래(top=손잡이 높이)에 붙어 계속 남는다 ── */}
-      <div style={{position:"sticky",top:gripH,zIndex:8,padding:"1px 18px 10px",background:"#F0F3F3",
+      <div style={{position:"sticky",top:gripH,zIndex:8,padding:"1px 18px 8px",background:"#F0F3F3",
         // 붙으면 아래로 그림자를 깔아 '지나가는 내용'과 층을 나눈다
         boxShadow:stuck?"0 6px 16px -6px rgba(40,70,45,0.30)":"none",
         transition:"box-shadow .18s ease"}}>
         {/* 탭 3개 (탐험/미션/캐릭터) — 글자만 (사용자 확정: 이모지·부제를 빼 높이를 줄임) */}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
           {tiles.map(t=>{
             const on=activeTab===t.k;
             const ac=TILE_ACCENT[t.k]||TILE_ACCENT.area;
             return (
               <button key={t.k} onClick={()=>onSelect&&onSelect(t.k)} className="jelly-tap" style={{
                 display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",cursor:"pointer",
-                padding:"9px 8px",borderRadius:16,minWidth:0,
+                padding:"7px 8px",borderRadius:14,minWidth:0,
                 border:on?`2px solid ${ac.border}`:"1.5px solid #D8C9A8",
                 background:on?ac.bg:"#F8F2E6",
                 boxShadow:"0 3px 11px rgba(155,114,74,0.10)"}}>
-                <b style={{fontFamily:F,fontSize:16,fontWeight:400,color:on?ac.text:"#4B3A2F",lineHeight:1.2,whiteSpace:"nowrap"}}>{t.title}</b>
+                <b style={{fontFamily:F,fontSize:15,fontWeight:400,color:on?ac.text:"#4B3A2F",lineHeight:1.2,whiteSpace:"nowrap"}}>{t.title}</b>
               </button>
             );
           })}
@@ -160,7 +162,7 @@ export default function HomeSheet({ dateNav, tiles = [], activeTab, onSelect }) 
       {/* ── ③ 날짜바 — 탭 아래 (사용자 확정). 고정하지 않아 위로 밀려 올라가 탭 뒤로 숨는다 (z-index가 낮아서).
              dateNav 가 없으면(캐릭터 탭) 칸 자체를 안 그린다 — 빈 div만 남으면 아래 여백 14px이 그대로 남는다 ── */}
       {dateNav && (
-        <div style={{position:"relative",zIndex:1,padding:"0 18px 14px",background:"#F0F3F3"}}>
+        <div style={{position:"relative",zIndex:1,padding:"0 18px 10px",background:"#F0F3F3"}}>
           {dateNav}
         </div>
       )}
