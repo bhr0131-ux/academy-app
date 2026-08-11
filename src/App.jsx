@@ -2198,7 +2198,7 @@ export default function App() {
     showToast("추가 완료! ✅");
   };
 
-  // ── 상시 숙제: 자동 추가하지 않음. 미션 모달의 '미션에 추가' 버튼으로만 반영 ──
+  // ── 반복 숙제: 자동 추가하지 않음. 미션 모달의 '미션에 추가' 버튼으로만 반영 ──
 
   const getAcademyById=(cid,academyId)=>{
     if(String(academyId)===String(EXTRA_QUEST_ID)){
@@ -4986,6 +4986,11 @@ export default function App() {
             onAdd={openAdd} onEdit={openEdit}
             onCopy={(fromId)=>{ setCopySourceChildId(fromId); setCopySelectedAcademyIds([]); setShowAcademyCopyModal(true); }}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
+            onCopyAccount={(txt)=>{
+              try { navigator.clipboard?.writeText(txt); showToast("계좌번호를 복사했어요"); }
+              catch(e){ showToast("복사할 수 없어요"); }
+            }}
+            onOpenMap={(addr)=>window.open(`https://map.naver.com/p/search/${encodeURIComponent(addr)}`,"_blank","noopener,noreferrer")}
             onSeedSample={addStarterAcademy} />
         )}
 
@@ -7048,7 +7053,7 @@ export default function App() {
             {/* ① 준비물·숙제 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
             <button type="button" onClick={()=>setAcSecSupply(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
-              <span>🎒 상시 준비물 · 상시 숙제</span><span style={{color:C.sub}}>{acSecSupply?"▲":"▼"}</span>
+              <span>🎒 항상 챙길 준비물 · 반복 숙제</span><span style={{color:C.sub}}>{acSecSupply?"▲":"▼"}</span>
             </button>
             {acSecSupply&&(
             <div style={{padding:"0 2px 16px"}}>
@@ -7064,7 +7069,7 @@ export default function App() {
               <input value={supplyInput} onChange={e=>setSupplyInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseSupply()} placeholder="예: 교재, 필통" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"10px 12px",marginBottom:0}}/>
               <button onClick={addBaseSupply} style={{padding:"0 16px",borderRadius:10,border:"none",background:th.main,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer"}}>추가</button>
             </div>
-            <label style={{...lbl,fontSize:14}}>📚 항상 해야 할 숙제 <span style={{fontSize:12,color:C.sub,fontWeight:400}}>(미션에서 버튼으로 추가)</span></label>
+            <label style={{...lbl,fontSize:14}}>📚 반복 숙제 <span style={{fontSize:12,color:C.sub,fontWeight:400}}>(미션 화면에서 눌러 추가)</span></label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseHomeworks||[]).map((s,i)=>(
                 <span key={i} style={{fontSize:14,padding:"5px 11px",borderRadius:16,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
@@ -7401,14 +7406,14 @@ export default function App() {
                 const addOne=(t)=>{
                   if(existing.includes(t)){ showToast("이미 추가된 숙제예요"); return; }
                   upd({...entry,homeworks:[...hw,{id:Date.now(),text:t,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
-                  showToast("상시 숙제를 추가했어요 📚");
+                  showToast("반복 숙제를 추가했어요 📚");
                 };
                 return (
                   <div style={{marginBottom:20}}>
                     {/* [사용자 확정 2026-08-11] 위 '오늘의 미션'과 같은 글이 아래에도 보여
                         같은 미션이 두 번 등록된 줄 알았다는 지적 → 무엇인지 한 줄로 밝힌다.
                         ※ '자동으로 추가된다'고 쓰지 않는다 — 실제로는 여기서 눌러야 들어간다. */}
-                    <p style={{fontSize:13,fontWeight:800,color:acColor,margin:"0 0 3px"}}>📌 상시 숙제</p>
+                    <p style={{fontSize:13,fontWeight:800,color:acColor,margin:"0 0 3px"}}>📌 반복 숙제</p>
                     <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
                       학원에 등록해 둔 숙제예요. 눌러서 오늘 미션에 넣을 수 있어요.
                     </p>
