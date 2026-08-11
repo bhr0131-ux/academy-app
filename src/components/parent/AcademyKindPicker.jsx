@@ -39,10 +39,14 @@ export default function AcademyKindPicker({ open, value = "", customLabel = "", 
 
   if (!open) return null;
 
+  /* [사용자 확정 2026-08-11] 목록이 서른 개가 넘는데 순서가 과목 묶음별이라
+     찾는 종류가 어디쯤 있는지 짐작이 안 됐다 → 가나다순으로 늘어놓는다.
+     (원본 ACADEMY_KINDS 순서는 그대로 두고 여기서만 정렬한다) */
+  const sorted = [...ACADEMY_KINDS].sort((a, b) => a.label.localeCompare(b.label, "ko"));
   const key = q.trim().toLowerCase();
   const list = key
-    ? ACADEMY_KINDS.filter(k => k.label.toLowerCase().includes(key) || (k.kw || "").toLowerCase().includes(key))
-    : ACADEMY_KINDS;
+    ? sorted.filter(k => k.label.toLowerCase().includes(key) || (k.kw || "").toLowerCase().includes(key))
+    : sorted;
 
   const inp = {
     width: "100%", boxSizing: "border-box", padding: "12px 14px", borderRadius: 13,
