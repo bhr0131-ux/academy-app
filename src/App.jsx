@@ -7398,7 +7398,7 @@ export default function App() {
                   (미션 탭은 PIN 을 통과한 자리라 이 줄이 안 나온다) */}
               {isParent&&!isParentEdit&&(hw.length>0||todos.length>0)&&(
                 <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"0 0 10px"}}>
-                  미션 삭제 · {TM.xp} 수정은 미션 탭에서
+                  미션 삭제 · {TM.xp} 수정은 미션 탭에서 가능해요
                 </p>
               )}
               {hw.length===0&&todos.length===0&&(
