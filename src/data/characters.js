@@ -389,8 +389,17 @@ export const DECOR_BGS = [
   /* [사용자 확정 2026-08-11] '깊은 바다' → '별빛 심해'.
      img 가 있는 배경은 무대에 그 원화를 한 장 덮는다 — 지금 있는 SVG 바다 풍경 위에.
      그림 파일이 없으면 덮는 장만 사라지고 예전 바다가 그대로 보인다.
-     떠다니는 장식(deco)과 tint 는 원화가 들어온 뒤 눈으로 보고 조절한다. */
-  { id:"bg_rainbow", emoji:"🌊", name:"별빛 심해",   price:220,  rarity:"rare",      darkStage:true, img:"/assets/stage-bg-deepsea.webp", deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
+
+     deco·tint 를 원화(해저 신전 · 수면 빛줄기 · 모랫길)에 맞춰 조절 —
+       · 🌊 파도 둘 : 물속 장면인데 수면 파도가 떠다니면 말이 안 된다 → 뺀다
+       · 🐚 조개    : 원화 모랫바닥에 이미 그려져 있다 → 겹쳐서 지저분해진다 → 뺀다
+       · 🫧 기포    : 원화에서 기포가 좌우로 올라간다 → 같은 결이라 남기고 맨 앞(메인)으로
+       · ✨ 추가    : 아치 포털과 파란 크리스털이 빛난다 → 그 반짝임을 이어받는다
+       · 🐠 🐬 🐙  : 원화엔 물고기가 없어 이 셋이 생기를 맡는다
+     tint 는 위에서 내려오는 방향 그대로 두되, 원화 위쪽이 이미 가장 진한 파랑이라
+     같은 파랑을 0.32 로 덮으면 빛줄기가 죽는다 → 빛줄기와 같은 밝은 청록으로 바꾸고
+     세기를 절반 아래로 (수면에서 빛이 드는 느낌을 더하는 쪽으로). */
+  { id:"bg_rainbow", emoji:"🌊", name:"별빛 심해",   price:220,  rarity:"rare",      darkStage:true, img:"/assets/stage-bg-deepsea.webp", deco:["🫧","🐠","✨","🐬","🐙","🫧"],       tint:"rgba(150,225,250,0.16)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
   { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      darkStage:true, deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
   { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      darkStage:true, deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
   { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      darkStage:true, deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
