@@ -31,6 +31,11 @@ import { hasClassOnDay, getScheduleForDay, getClassTime, getShuttleText, makeupT
 import { ADV_SIT_IMG } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 
+/* [사용자 확정 2026-08-10] 카드 안 보조 글자가 너무 연해 잘 안 읽혔다 →
+   C.sub(#8890B0)보다 한 단계 진한 청회색. 칩은 펼친 카드에서 한 모양으로 쓴다. */
+const SUBD="#5F678C";
+const chip={fontSize:12.5,fontWeight:700,padding:"3px 9px",borderRadius:20,lineHeight:1.5};
+
 export default function ParentHomeTab({
   th, CT, TM, childId, childGender, kidSkin, curAc = [], curAbs = [],
   homeDate, setHomeDate, homeAcOpen = {}, setHomeAcOpen, navH = 58,
@@ -241,6 +246,13 @@ export default function ParentHomeTab({
         const totalTodoCnt=hw.length+todos.length;
         const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
         const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
+        const baseSup=(ac.baseSupplies||[]).filter(x=>!(entry.hiddenBase||[]).includes(x));
+        /* 미션은 제목을 칩 하나로 보여 준다 — '등록된 미션 없음' 같은 문장보다 짧고 바로 읽힌다.
+           아직 안 한 것을 먼저 보여 주고 나머지는 '+N'. 여러 개를 다 칩으로 깔면
+           칸이 좁아 줄줄이 접혀서 오히려 길어진다. 자세한 목록·점수는 미션 탭과 ✎ 수정에서 본다. */
+        const missionAll=[...hw.map(h=>({text:h.text,done:h.done})),...todos.map(t=>({text:t.text,done:t.done}))];
+        const missionChips=[...missionAll].sort((x,y)=>(x.done?1:0)-(y.done?1:0)).slice(0,1);
+        const moreCnt=missionAll.length-missionChips.length;
         return (
           /* [사용자 확정 2026-08-09] 카드 색을 옅게(배경 1F→12), 테두리는 한 단계 진하게(45→55),
              그림자는 약하게, 카드 간격은 14로 통일. 왼쪽 세로선만 원래 색을 유지해 구분을 준다. */
@@ -263,7 +275,8 @@ export default function ParentHomeTab({
                 overflow:"hidden",whiteSpace:"nowrap"}}>
                 <span style={{fontSize:15,fontWeight:900,color:ac.color,minWidth:0,
                   overflow:"hidden",textOverflow:"ellipsis"}}>{acKindLabel(ac)}</span>
-                <span style={{fontSize:14,fontWeight:700,color:C.sub,flexShrink:0}}>{sc?.time}–{endT}</span>
+                {/* 시간은 한 단계 진하게 — 접힌 줄에서 가장 자주 읽는 값이다 (사용자 확정) */}
+                <span style={{fontSize:14,fontWeight:700,color:SUBD,flexShrink:0}}>{sc?.time}–{endT}</span>
               </span>
               {/* [사용자 확정 2026-08-10] '✓'와 '0/1'이 섞여 기준이 달라 보였다.
                   무엇의 상태인지까지 적어 한 벌로 맞춘다. 미션이 없으면 배지 자체를 안 그린다. */}
@@ -277,88 +290,86 @@ export default function ParentHomeTab({
                 transition:"transform .2s",transform:homeAcOpen[ac.id]?"rotate(180deg)":"none"}}>⌄</span>
             </button>
             {homeAcOpen[ac.id]&&(
-            /* [사용자 확정 2026-08-10] 줄마다 똑같이 벌리면 정보가 한 덩어리로 읽힌다.
-               같은 정보끼리는 6px, 제목과 그 내용은 10px, 다른 정보 그룹 사이는 16~20px —
-               세 단계만 쓴다. */
-            <div style={{padding:"16px 14px 18px"}}>
-              {/* ① 학원 기본정보 — 이름·수업시간·셔틀은 한 덩어리라 6px 로 촘촘하게.
-                     전화·문자는 세 줄 전체의 세로 중앙에 맞춘다. */}
-              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
-                <div style={{flex:1,minWidth:0}}>
-                  <p style={{fontSize:14.5,fontWeight:900,margin:0,color:C.text,
+            /* [사용자 확정 2026-08-10] 줄마다 한 항목씩 세로로 늘어놔 카드가 너무 길었다.
+               펼쳐도 아래 학원(수학·태권도)이 같이 보이게 3단으로 압축한다.
+                 ① 🎹 학원 이름 · 40분 수업            ☎ 💬
+                 ② 🚌 16:00  아파트 정문
+                 ③ 준비물 [악보]      오늘 미션 [없음]
+                                                  ✎ 수정
+               '총 40분 수업'을 이름 옆으로 붙이고, '등록된 미션 없음' 문장은 칩으로 바꿨다.
+               간격은 ①②사이 10 / ②③사이 16 / ③과 수정 14 (사용자 지정값). */
+            <div style={{padding:"14px 16px 10px"}}>
+              {/* ① 학원 이름 · 수업 길이 + 전화·문자 */}
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+                {/* 이름과 '· 40분 수업'을 한 덩어리 글로 두면 320px에서 '40분 …'처럼
+                    꼬리부터 잘렸다 → 이름만 줄어들게 하고 수업 길이는 통째로 지킨다. */}
+                <p style={{flex:1,minWidth:0,margin:0,display:"flex",alignItems:"baseline",gap:5}}>
+                  <span style={{minWidth:0,fontSize:14.5,fontWeight:900,color:C.text,
                     overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                     {getAcademyTheme(ac.name,kidSkin,ac.kind).icon} {ac.name}
-                  </p>
-                  <p style={{fontSize:13,color:C.sub,margin:"6px 0 0",fontWeight:600}}>총 {sc?.duration}분 수업</p>
-                  {(()=>{
-                    const shuttleText=getShuttleText(ac,hDN);
-                    if(!shuttleText) return null;
-                    return (
-                      <p style={{margin:"6px 0 0",display:"flex",alignItems:"flex-start",gap:6,fontSize:12,fontWeight:600,color:C.sub,lineHeight:1.35}}>
-                        <span style={{marginTop:1}}><CareIcon name="shuttle" size={13}/></span>
-                        <span style={{minWidth:0,whiteSpace:"pre-wrap"}}>{shuttleText}</span>
-                      </p>
-                    );
-                  })()}
-                </div>
-                {/* [사용자 확정 2026-08-10] 배경색 있는 큰 버튼이라 학원 정보보다 먼저 눈에 들어왔다.
-                    같은 모양의 작은 원형 선 버튼 둘로 맞춘다 (읽어 주는 이름은 aria-label에 남긴다). */}
+                  </span>
+                  {sc?.duration&&<span style={{flexShrink:0,fontSize:12.5,fontWeight:600,color:SUBD,whiteSpace:"nowrap"}}>
+                    · {sc.duration}분 수업</span>}
+                </p>
+                {/* [사용자 확정 2026-08-10] 원형 선 버튼을 한 단계 더 줄인다(30 → 26). */}
                 <div style={{display:"flex",gap:6,flexShrink:0}}>
                   {ac.phone&&<a href={`tel:${ac.phone}`} aria-label={`${ac.name} 전화`} title="전화"
-                    style={{width:30,height:30,borderRadius:"50%",border:`1px solid ${C.border}`,color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",background:"#fff"}}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></a>}
+                    style={{width:26,height:26,borderRadius:"50%",border:`1px solid ${C.border}`,color:SUBD,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",background:"#fff"}}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></a>}
                   {ac.phone&&<button onClick={()=>onSms(ac)} className="jelly-tap" aria-label={`${ac.name} 문자`} title="문자"
-                    style={{width:30,height:30,borderRadius:"50%",border:`1px solid ${C.border}`,color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",background:"#fff",fontFamily:"inherit",padding:0}}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></button>}
+                    style={{width:26,height:26,borderRadius:"50%",border:`1px solid ${C.border}`,color:SUBD,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",background:"#fff",fontFamily:"inherit",padding:0}}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></button>}
                 </div>
               </div>
-              {/* 준비물 — [사용자 확정 2026-08-10] '준비물' 라벨 바로 옆에 칩을 붙인다.
-                  한 줄에 다 안 들어가면 그때 다음 줄로 넘어간다(flexWrap). 아이콘은 달력과 같은 선 아이콘. */}
-              <div style={{marginBottom:16,display:"flex",alignItems:"center",flexWrap:"wrap",gap:8}}>
-                <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:C.sub}}>
-                  <CareIcon name="bag" size={14}/>
-                  <span style={{fontSize:13,fontWeight:700,letterSpacing:0.3}}>준비물</span>
-                </span>
-                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).map((s,i)=><span key={`b${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${ac.color}18`,color:ac.color,fontWeight:600}}>{s}</span>)}
-                {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${C.orange}15`,color:C.orange,fontWeight:600}}>+{s}</span>)}
-                {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:12.5,color:C.sub,opacity:0.7,fontWeight:600}}>없음</span>}
-              </div>
-              {/* 학원별 할 일 요약 */}
-              <div style={{marginBottom:18}}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-                  <p style={{fontSize:13,fontWeight:800,color:C.sub,margin:0,display:"flex",alignItems:"center",gap:5}}>
-                    <CareIcon name="mission" size={14}/> 오늘 미션
+              {/* ② 셔틀 — 시각은 진하게, 장소는 보통 굵기 */}
+              {(()=>{
+                const shuttleText=getShuttleText(ac,hDN);
+                if(!shuttleText) return null;
+                const m=shuttleText.match(/^(\d{1,2}:\d{2})\s+([\s\S]+)$/);
+                return (
+                  <p style={{margin:"0 0 16px",display:"flex",alignItems:"flex-start",gap:5,fontSize:12.5,fontWeight:600,color:SUBD,lineHeight:1.35}}>
+                    <span style={{marginTop:1,flexShrink:0}}><CareIcon name="shuttle" size={13}/></span>
+                    <span style={{minWidth:0,whiteSpace:"pre-wrap"}}>
+                      {m?<><span style={{fontWeight:900,color:C.text}}>{m[1]}</span>{"  "}{m[2]}</>:shuttleText}
+                    </span>
                   </p>
-                  {totalTodoCnt>0&&<span style={{fontSize:11.5,fontWeight:800,color:allDone?C.green:C.orange}}>{allDone?"완료 ✓":`${doneCnt}/${totalTodoCnt}`}</span>}
+                );
+              })()}
+              {/* ③ 준비물과 오늘 미션을 한 줄에 나란히.
+                     칩이 길어지면 각 묶음 안에서 접히고, 그래도 좁으면 위아래로 나뉜다. */}
+              <div style={{display:"flex",alignItems:"flex-start",flexWrap:"wrap",gap:"10px 14px",marginBottom:14}}>
+                <div style={{flex:"1 1 auto",minWidth:"max-content",maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
+                  <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
+                    <CareIcon name="bag" size={14}/>
+                    <span style={{fontSize:12.5,fontWeight:700}}>준비물</span>
+                  </span>
+                  {baseSup.map((x,i)=><span key={`b${i}`} style={{...chip,background:`${ac.color}18`,color:ac.color}}>{x}</span>)}
+                  {sup.map((x,i)=><span key={`d${i}`} style={{...chip,background:`${C.orange}15`,color:C.orange}}>+{x}</span>)}
+                  {baseSup.length===0&&sup.length===0&&<span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>}
                 </div>
-                {totalTodoCnt===0?(
-                  <p style={{fontSize:12,color:C.sub,opacity:0.7,margin:0}}>등록된 미션 없음</p>
-                ):(
-                  /* 한 줄뿐일 때도 너무 납작해 보이지 않게 최소 높이를 준다 (사용자 확정 52~56px) */
-                  <div style={{display:"flex",flexDirection:"column",justifyContent:"center",gap:8,minHeight:54,boxSizing:"border-box",background:CT.faint,border:`1px solid ${C.border}`,borderRadius:14,padding:"12px 14px"}}>
-                    {hw.map(h=>(
-                      <div key={`hw-summary-${h.id}`} style={{display:"flex",alignItems:"center",gap:8,fontSize:13,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>
-                        <span>{h.done?"✅":"⬜"}</span>
-                        <span style={{flex:1}}>숙제: {h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:ac.color,background:`${ac.color}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
-                      </div>
-                    ))}
-                    {todos.map(t=>(
-                      <div key={`todo-summary-${t.id}`} style={{display:"flex",alignItems:"center",gap:8,fontSize:13,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>
-                        <span>{t.done?"✅":"⬜"}</span>
-                        <span style={{flex:1}}>{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:ac.color,background:`${ac.color}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:11,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div style={{flex:"1 1 auto",minWidth:"max-content",maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
+                  <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
+                    <CareIcon name="mission" size={14}/>
+                    <span style={{fontSize:12.5,fontWeight:700}}>오늘 미션</span>
+                  </span>
+                  {totalTodoCnt===0
+                    ? <span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>
+                    : missionChips.map((mc,i)=>(
+                        <span key={`m${i}`} style={{...chip,maxWidth:170,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
+                          background:mc.done?`${C.green}14`:`${C.orange}15`,color:mc.done?C.green:C.orange}}>
+                          {mc.done?"✓ ":""}{mc.text}
+                        </span>
+                      ))}
+                  {moreCnt>0&&<span style={{...chip,background:CT.faint,color:SUBD}}>+{moreCnt}</span>}
+                </div>
               </div>
-              {/* [사용자 확정 2026-08-10] 편집은 보조 기능인데 테두리·색이 강해 미션보다 도드라졌다.
-                  배경·테두리를 빼고 작은 글자 버튼으로 낮춘다. */}
-              <button onClick={()=>onEditDaily(ac,homeDate)}
-                style={{width:"100%",height:34,padding:0,border:"none",background:"none",color:C.sub,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
-                ✎ 준비물 · 미션 수정
-              </button>
+              {/* 수정 — 보조 기능이라 오른쪽 아래에 작게 (사용자 확정 2026-08-10) */}
+              <div style={{display:"flex",justifyContent:"flex-end"}}>
+                <button onClick={()=>onEditDaily(ac,homeDate)}
+                  style={{border:"none",background:"none",color:SUBD,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px"}}>
+                  ✎ 수정
+                </button>
+              </div>
             </div>
             )}
             </div>
