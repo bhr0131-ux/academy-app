@@ -6,9 +6,11 @@
    스크롤이 길었다. '학원 관리 화면'이 아니라 '학원 정보 문서'처럼 읽혔다.
 
    그래서 기본은 매일 확인하는 것만 보여 준다.
-     요일·시간 / 준비물 / 메모 / 전화·문자
+     요일·시간 / 준비물 / 상시 숙제 / 메모 / 전화·문자
    나머지(학원비·납부일·계좌·선생님·주소)는 '상세보기'를 눌러야 나온다 —
    매일 확인하는 정보가 아니기 때문이다.
+   [2026-08-11] 상시 숙제만 '상세보기' 안에 있어서 준비물과 짝이 안 맞았다 →
+   준비물 바로 아래로 올려 같은 모양으로 늘 보이게 했다 (사용자 확정).
 
    색은 왼쪽 세로선에만 진하게 쓰고 나머지는 아주 연하게 (테두리·머리·버튼까지
    같은 색을 반복하면 과해 보인다는 지적).
@@ -103,6 +105,7 @@ export default function AcademyTab({
         {curAc.map(ac=>{
           const isOpen=!!open[ac.id];
           const supplies=(ac.baseSupplies||[]);
+          const homeworks=(ac.baseHomeworks||[]);
           const timeLine=ac.useCustomSchedule
             ? (ac.schedules||[]).map(s=>`${s.day} ${ampm(s.time)}`).join(" / ")
             : `${daysLabel(ac.days)} · ${ampm(ac.time)} · ${ac.duration}분`;
@@ -123,15 +126,20 @@ export default function AcademyTab({
                 </div>
 
                 <div style={{padding:"10px 13px 12px"}}>
-                  {/* 매일 보는 것 — 준비물과 메모만 기본으로 (사용자 확정) */}
-                  <div style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:7}}>
-                    <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:C.sub}}>
-                      <CareIcon name="bag" size={13}/><span style={{fontSize:12.5,fontWeight:700}}>준비물</span>
-                    </span>
-                    {supplies.length
-                      ? supplies.map((s,i)=><span key={i} style={{fontSize:12.5,padding:"3px 10px",borderRadius:20,background:`${ac.color}16`,color:ac.color,fontWeight:700}}>{s}</span>)
-                      : <span style={{fontSize:12,fontWeight:600,color:C.sub,opacity:0.7}}>없음</span>}
-                  </div>
+                  {/* 매일 보는 것 — 준비물·상시 숙제·메모만 기본으로 (사용자 확정).
+                      [2026-08-11] 상시 숙제는 '상세보기' 안에 있어서 준비물만 늘 보였다 →
+                      준비물 바로 아래로 옮기고 같은 모양으로 늘 보이게 한다(사용자 확정). */}
+                  {[{k:"bag",   label:"준비물",   items:supplies},
+                    {k:"mission",label:"상시 숙제",items:homeworks}].map((row,ri)=>(
+                    <div key={row.k} style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:7,marginTop:ri?8:0}}>
+                      <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:C.sub}}>
+                        <CareIcon name={row.k} size={13}/><span style={{fontSize:12.5,fontWeight:700}}>{row.label}</span>
+                      </span>
+                      {row.items.length
+                        ? row.items.map((s,i)=><span key={i} style={{fontSize:12.5,padding:"3px 10px",borderRadius:20,background:`${ac.color}16`,color:ac.color,fontWeight:700}}>{s}</span>)
+                        : <span style={{fontSize:12,fontWeight:600,color:C.sub,opacity:0.7}}>없음</span>}
+                    </div>
+                  ))}
                   {ac.memo&&(
                     <div style={{marginTop:10,background:`${C.orange}0D`,borderRadius:11,padding:"8px 11px",display:"flex",gap:7}}>
                       <span style={{color:C.orange,flexShrink:0,marginTop:1}}><CareIcon name="memo" size={13}/></span>
@@ -148,8 +156,7 @@ export default function AcademyTab({
                       {ac.teacher&&<Row icon="teacher" label="선생님" value={ac.teacher}/>}
                       {ac.address&&<Row icon="pin" label="주소" value={ac.address}/>}
                       {ac.shuttleInfo&&<Row icon="shuttle" label="셔틀" value={ac.shuttleInfo}/>}
-                      {(ac.baseHomeworks||[]).length>0&&<Row icon="mission" label="상시 숙제" value={(ac.baseHomeworks||[]).join(", ")}/>}
-                      {!(Number(ac.fee||0)>0||ac.teacher||ac.address||ac.shuttleInfo||(ac.account||"").trim()||(ac.baseHomeworks||[]).length)&&(
+                      {!(Number(ac.fee||0)>0||ac.teacher||ac.address||ac.shuttleInfo||(ac.account||"").trim())&&(
                         <p style={{margin:"8px 0 2px",fontSize:12.5,fontWeight:600,color:C.sub,opacity:0.75}}>더 등록된 정보가 없어요</p>
                       )}
                     </div>
