@@ -386,8 +386,8 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
     /* 줄머리 아이콘도 코치마크와 같은 선 아이콘으로 (사용자 확정 2026-08-11) */
     ? [
         { ic:"unlock",  t:"미션은 아이도 넣을 수 있어요", d:"아이용 화면에서 숙제·할 일을 스스로 추가" },
-        { ic:"lock",    t:"점수·삭제는 엄마만", d:"미션·보상 칸은 비밀번호를 한 번 물어봐요" },
-        { ic:"reward",  t:"보상은 엄마가 승인", d:"아이가 신청하면 보상 칸에서 확인하고 승인" },
+        { ic:"lock",    t:`미션 삭제·${xpW} 점수 수정은 엄마만`, d:"미션·보상 탭은 비밀번호를 한 번 물어봐요" },
+        { ic:"reward",  t:"보상은 엄마가 승인", d:"아이가 신청하면 보상 탭에서 확인하고 승인" },
       ]
     : isReward
     ? [
@@ -436,17 +436,17 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
           textAlign:"center"
         }}>
           <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>{isWelcome?"GUIDE":isReward?"REWARD":"미션팡"}</p>
-          <h2 style={{fontSize:isReward||isWelcome?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isWelcome?"여기는 엄마 권한이에요 🔒":isReward?"보상탭은 엄마 공간이에요 🔒":"오늘의 미션"}</h2>
+          <h2 style={{fontSize:isReward||isWelcome?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isWelcome?"여기는 엄마 권한이에요":isReward?"보상탭은 엄마 공간이에요":"오늘의 미션"}</h2>
           <div style={{width:38,height:3,borderRadius:99,background:"rgba(255,255,255,0.6)",margin:"12px auto 14px"}}/>
           <p style={{fontSize:14.5,fontWeight:800,lineHeight:1.6,margin:0}}>
-            {isWelcome?<>점수와 보상은 엄마가 관리,<br/>아이는 미션에만 집중! ✨</>:isReward?<>보상은 여기서, 미션은 '미션' 칸에서<br/>따로 관리해요 ✨</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요 ✨</>}
+            {isWelcome?<>점수와 보상은 엄마가 관리,<br/>아이는 미션에만 집중!</>:isReward?<>보상은 여기서, 미션은 '미션' 탭에서<br/>따로 관리해요</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요</>}
           </p>
         </div>
 
         {/* 사용 방법 */}
         <div style={{padding:"22px 24px 24px"}}>
           <p style={{fontSize:13,fontWeight:900,letterSpacing:0.5,color:th.main,margin:"0 0 14px"}}>
-            {isWelcome?"💡 이렇게 설계됐어요":isReward?"🔑 엄마가 할 수 있는 것":"🚀 이렇게 시작해요"}
+            {isWelcome?"이렇게 설계됐어요":isReward?"엄마가 할 수 있는 것":"이렇게 시작해요"}
           </p>
 
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -478,7 +478,7 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
             margin:"16px 0 0",
             fontSize:12,fontWeight:700,color:C.sub,lineHeight:1.55
           }}>
-            {isCute?"🍪":"💎"} 미션을 완료하면 {xpW}와 {coinW}을 받고, {coinW}으로 원하는 보상을 받을 수 있어요!
+            미션을 완료하면 {xpW}와 {coinW}을 받고, {coinW}으로 원하는 보상을 받을 수 있어요!
           </div>
           )}
 
@@ -498,7 +498,7 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
               boxShadow:`0 6px 18px ${th.main}40`
             }}
           >
-            {isWelcome?"알겠어요 👍":isReward?"보상 탭으로 가기 🎁":"닫기"}
+            {isWelcome?"알겠어요":isReward?"보상 탭으로 가기":"닫기"}
           </button>
         </div>
       </div>

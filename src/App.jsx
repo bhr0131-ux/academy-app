@@ -972,9 +972,21 @@ export default function App() {
      아이가 엄마용으로 넘어와 자기 점수를 올릴 수 있다.
      대신 잠금은 보상과 하나로 공유한다 — 한 번 풀면 미션↔보상 사이는 다시 안 묻는다. */
   const parentLocked=()=>!rewardUnlocked;
+  /* [사용자 확정 2026-08-11] 권한 안내(엄마 권한 팝업)는 미션·보상 중
+     '먼저 비밀번호로 들어간 곳'에서 딱 한 번만 뜬다. 예전엔 보상 탭에서만 띄워서,
+     미션 탭으로 먼저 들어간 엄마는 왜 비밀번호를 묻는지 못 듣고 지나갔다.
+     본 적이 있으면 false 를 돌려준다 — 보상 탭은 그 뒤에 따로 띄울 안내가 하나 더 있다.
+     저장 키(v6_parent_welcome_seen)는 그대로 쓴다. */
+  const showParentWelcomeOnce=()=>{
+    if(parentWelcomeSeen) return false;
+    setParentWelcomeSeen(true);
+    save("v6_parent_welcome_seen","1");
+    setTimeout(()=>setShowParentWelcome(true),450);
+    return true;
+  };
   const goMissionTab=()=>{
     if(!parentLocked()){ setTab("mission"); return; }
-    askPin(()=>{ setRewardUnlocked(true); setTab("mission"); }, "미션 관리");
+    askPin(()=>{ setRewardUnlocked(true); setTab("mission"); showParentWelcomeOnce(); }, "미션 관리");
   };
 
   // 보상탭 이동 — 누를 때마다 PIN을 받는다(이미 열려 있으면 그대로).
@@ -983,12 +995,8 @@ export default function App() {
     if(!parentLocked()){ setTab("reward"); return; }
     askPin(()=>{
       setRewardUnlocked(true); setTab("reward");
-      // 보상탭 첫 진입 시: 권한 구조 안내(welcome)를 1회만 노출
-      if(!parentWelcomeSeen){
-        setParentWelcomeSeen(true);
-        save("v6_parent_welcome_seen","1");
-        setTimeout(()=>setShowParentWelcome(true),450);
-      } else if(!parentRewardGuideSeen){
+      // 권한 구조 안내는 미션·보상 중 먼저 들어간 곳에서 1회 (showParentWelcomeOnce)
+      if(!showParentWelcomeOnce() && !parentRewardGuideSeen){
         // (별개) 첫 구매요청이 있는데 아직 안내 안 봤으면 1회 안내
         const anyPending=Object.values(rewardRequests).some(list=>(list||[]).some(r=>r.status==="pending"));
         if(anyPending){
@@ -997,7 +1005,7 @@ export default function App() {
           setTimeout(()=>setShowParentRewardGuide(true),450);
         }
       }
-    }, "🎁 보상 관리");
+    }, "보상 관리");
   };
   const submitGatePin=()=>{
     // 개발자 도구: DEV_MODE에서 DEV_PIN 입력 시 보상탭 대신 개발자 도구 진입
