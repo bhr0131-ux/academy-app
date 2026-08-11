@@ -35,6 +35,9 @@ export const ADV_STAGE_BG_MEADOW = "/assets/stage-adventure-meadow.webp";
 export const ADV_STAGE_BG_OF = (g, stage) => ADV_STAGE_BG_MEADOW;
 // 프리로드 대상 목록 (아래 이미지 프리로드 useEffect에서 사용)
 export const ADV_STAGE_BG_ALL = [ADV_STAGE_BG_MEADOW];
+/* 꾸미기 배경 중 '무대 그림을 통째로 바꾸는' 것들의 경로 (프리로드용).
+   DECOR_BGS 는 아래에 선언돼 있어 여기서 못 읽는다 → 파일 목록만 따로 둔다. */
+export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp"];
 
 /* 성장 캐릭터 이미지 — /public/assets/ 경로 방식 (base64 내장 폐지)
    파일 규칙: /assets/growth-characters/{테마}/{성별}/stage-{단계}.webp
@@ -383,7 +386,11 @@ export const DECOR_BORDERS = [
 // darkStage: 장착 시 무대가 밤하늘 톤(어두움)으로 바뀌는 배경 — 무대 위 글씨(응원문구 등)를 밝은색으로 반전하는 기준.
 export const DECOR_BGS = [
   { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    darkStage:true, deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
-  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:220,  rarity:"rare",      darkStage:true, deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
+  /* [사용자 확정 2026-08-11] '깊은 바다' → '별빛 심해'.
+     img 가 있는 배경은 무대에 그 원화를 한 장 덮는다 — 지금 있는 SVG 바다 풍경 위에.
+     그림 파일이 없으면 덮는 장만 사라지고 예전 바다가 그대로 보인다.
+     떠다니는 장식(deco)과 tint 는 원화가 들어온 뒤 눈으로 보고 조절한다. */
+  { id:"bg_rainbow", emoji:"🌊", name:"별빛 심해",   price:220,  rarity:"rare",      darkStage:true, img:"/assets/stage-bg-deepsea.webp", deco:["🌊","🐠","🐬","🐚","🐙","🫧","🌊"],       tint:"rgba(56,150,220,0.32)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)" } },
   { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      darkStage:true, deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
   { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      darkStage:true, deco:["🦕","🦖","🥚","🌋","🌴","🦴"],            tint:"rgba(120,160,90,0.30)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)" } },
   { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      darkStage:true, deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
@@ -476,7 +483,10 @@ export const computeDecorPurchase = (ownedList = [], equippedMap = {}, decorId) 
 export const decorView = (d, skin) => {
   if(!d) return d;
   if(skin==="cute" && d.bakery){
-    return { ...d, ...d.bakery };
+    // 원화(img)는 그 모드 전용이다 — 베이커리로 넘어올 때 탐험 그림이 딸려오면
+    // '무지개 배경'인데 심해 그림이 뜬다. bakery 쪽에 img 가 있으면 그것만 쓴다.
+    const { img, ...rest } = d;
+    return { ...rest, ...d.bakery };
   }
   return d;
 };
