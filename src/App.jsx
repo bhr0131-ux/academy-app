@@ -5189,10 +5189,12 @@ export default function App() {
                           aria-expanded={makeupPick===ab.id}
                           /* [사용자 확정 2026-08-10] 회색 글자라 못 누르는 버튼처럼 보였다 →
                              배지와 똑같은 상태색을 입혀 살아 있는 버튼으로 만든다.
-                             '바꾸기'보다 '수정'이 관리 화면에 자연스럽다. */
+                             [2026-08-11] '결과 입력'은 무엇의 결과인지 막연했다 →
+                             누르면 고르는 게 '보충 완료 / 보충 불참'이므로 그대로 이름에 쓴다.
+                             이미 넣은 뒤에는 '수정'으로 바꿔 되돌릴 수 있다는 걸 알린다. */
                           style={{width:"100%",padding:"8px 0",borderRadius:10,cursor:"pointer",fontSize:12.5,fontWeight:800,fontFamily:"inherit",
-                            border:`1px solid ${st.color}44`,background:`${st.color}0C`,color:st.color}}>
-                          {ab.makeupStatus?"결과 수정":"결과 입력"}
+                            border:`1px solid ${st.color}44`,background:`${st.color}0C`,color:st.color,whiteSpace:"nowrap"}}>
+                          {ab.makeupStatus?"보충 출석 수정":"보충 출석 여부"}
                         </button>
                         {makeupPick===ab.id&&(
                           <>
