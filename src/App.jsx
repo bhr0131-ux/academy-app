@@ -7390,9 +7390,17 @@ export default function App() {
               </div>
               {/* [사용자 확정 2026-08-11] 팝업 안 구역 제목이 창 제목과 같은 17이었다 →
                   다른 화면의 구역 제목(홈 15 · 결석 15.5)에 맞춰 15. */}
-              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
+              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:isParent&&!isParentEdit&&(hw.length>0||todos.length>0)?"0 0 3px":"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
                 <span style={{color:acColor,display:"flex"}}><CareIcon name="mission" size={15}/></span>오늘의 미션
               </p>
+              {/* [사용자 확정 2026-08-11] 홈에서 연 팝업과 미션 탭에서 연 팝업이 똑같이 생겨서
+                  '왜 여기선 점수가 안 바뀌지'가 됐다 → 잠긴 쪽에만 어디로 가면 되는지 한 줄 적는다.
+                  (미션 탭은 PIN 을 통과한 자리라 이 줄이 안 나온다) */}
+              {isParent&&!isParentEdit&&(hw.length>0||todos.length>0)&&(
+                <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"0 0 10px"}}>
+                  미션 삭제 · {TM.xp} 수정은 미션 탭에서
+                </p>
+              )}
               {hw.length===0&&todos.length===0&&(
                 <div style={{background:CT.faint,borderRadius:12,padding:"14px 14px",marginBottom:12,textAlign:"center"}}>
                   <p style={{fontSize:14,fontWeight:800,color:C.text,margin:0}}>등록된 미션이 없어요</p>
