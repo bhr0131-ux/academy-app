@@ -2281,6 +2281,13 @@ export default function App() {
     return `${TM.xpEmoji} +${point} ${TM.xp}  ·  ${TM.coinEmoji} +${point} ${TM.coin}`;
   };
 
+  /* 기록 종류 → 선 아이콘 (엄마용 '탐험 기록' 목록 전용).
+     아이 화면의 기록 이모지는 스킨 글(T.log)이 그대로 맡는다 — 거기선 분위기의 일부다. */
+  const LOG_ICON={ homework:"mission", todo:"mission", quest:"mission",
+    treasure:"box", reward:"cart", avatar_refund:"cart",
+    level_bonus:"star", badge_reward:"trophy", title_reward:"trophy",
+    manual:"pencil", dev_xp:"pencil", dev_coin:"pencil", dev_level:"pencil",
+    default:"memo" };
   const getAdventureLogInfo=(item)=>{
     const L = T.log;
     if(!L) {
@@ -5681,10 +5688,13 @@ export default function App() {
                             gap:8,
                             marginTop:10
                           }}>
+                            {/* [사용자 확정 2026-08-11] 📦 🎁 👑 은 기기마다 그림체가 달라진다 →
+                                등급 색을 그대로 따르는 선 아이콘으로 (아이 화면의 상자 이모지는 그대로 둔다 —
+                                거기선 상자 자체가 놀이의 대상이다). */}
                             {[
-                              {label:getBoxInfo("normal",kidSkin).name,emoji:getBoxInfo("normal",kidSkin).emoji,count:treasure.normalBox||0,range:"20~40",color:C.sub},
-                              {label:getBoxInfo("rare",kidSkin).name,emoji:getBoxInfo("rare",kidSkin).emoji,count:treasure.rareBox||0,range:"40~80",color:C.purple},
-                              {label:getBoxInfo("legend",kidSkin).name,emoji:getBoxInfo("legend",kidSkin).emoji,count:treasure.legendBox||0,range:"100~160",color:"#F5B301"},
+                              {label:getBoxInfo("normal",kidSkin).name,icon:"box",count:treasure.normalBox||0,range:"20~40",color:C.sub},
+                              {label:getBoxInfo("rare",kidSkin).name,icon:"reward",count:treasure.rareBox||0,range:"40~80",color:C.purple},
+                              {label:getBoxInfo("legend",kidSkin).name,icon:"crown",count:treasure.legendBox||0,range:"100~160",color:"#F5B301"},
                             ].map(box=>(
                               <div key={box.label} style={{
                                 background:"#fff",
@@ -5693,7 +5703,7 @@ export default function App() {
                                 padding:"10px 6px",
                                 textAlign:"center"
                               }}>
-                                <p style={{fontSize:20,margin:0}}>{box.emoji}</p>
+                                <span style={{display:"inline-flex",color:box.color}}><CareIcon name={box.icon} size={20}/></span>
                                 <p style={{fontSize:17,fontWeight:900,margin:"3px 0 0",color:box.color}}>
                                   {box.count}
                                 </p>
@@ -5770,8 +5780,11 @@ export default function App() {
                               <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 3px"}}>
                                 {title.emoji} {title.name}
                               </p>
-                              <p style={{fontSize:11,fontWeight:900,color:rarity.color,margin:0}}>
-                                {rarity.icon} {rarity.name}
+                              {/* 등급 표시가 ⚪ 🔵 🟣 👑 이모지라 기기마다 크기·색이 달랐다 →
+                                  등급색을 그대로 쓴 작은 점으로 (사용자 확정 2026-08-11) */}
+                              <p style={{fontSize:11,fontWeight:900,color:rarity.color,margin:0,display:"flex",alignItems:"center",gap:5}}>
+                                <span style={{width:7,height:7,borderRadius:"50%",background:rarity.color,flexShrink:0}}/>
+                                {rarity.name}
                               </p>
                             </div>
 
@@ -5897,10 +5910,12 @@ export default function App() {
                                       display:"flex",
                                       alignItems:"center",
                                       justifyContent:"center",
-                                      fontSize:17,
-                                      flexShrink:0
+                                      flexShrink:0,
+                                      color:isMinus?C.red:C.sub
                                     }}>
-                                      {info.icon}
+                                      {/* [사용자 확정 2026-08-11] ⚔️ 🎁 🛒 ✨ 🏆 ✍️ 📜 대신 선 아이콘.
+                                          종류를 나누는 역할은 그대로고, 색은 줄의 상태(빠진 줄=빨강)를 따른다. */}
+                                      <CareIcon name={LOG_ICON[item.type]||LOG_ICON.default} size={17}/>
                                     </div>
 
                                     <div style={{flex:1,minWidth:0}}>

@@ -107,6 +107,42 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M12 6C10.5 3.6 8.9 3 7.9 3.6 6.8 4.3 7.3 6 9 6ZM12 6c1.5-2.4 3.1-3 4.1-2.4 1.1.7.6 2.4-1.1 2.4Z" {...P} />
         </svg>
       );
+    case "box":      // 보물상자 — 일반 등급 / 기록의 '상자 오픈'
+      return (
+        <svg {...common}>
+          <path d="M3.2 8.4 12 4.6l8.8 3.8-8.8 3.8-8.8-3.8Z" {...P} />
+          <path d="M3.2 8.4v8.2L12 20.4l8.8-3.8V8.4M12 12.2v8.2" {...P} />
+        </svg>
+      );
+    case "crown":    // 전설 등급 — 가장 귀한 것
+      return (
+        <svg {...common}>
+          <path d="M3.6 7.4 7 12l5-6.4L17 12l3.4-4.6 -1.4 11H5L3.6 7.4Z" {...P} />
+          <path d="M5 20.6h14" {...P} />
+        </svg>
+      );
+    case "cart":     // 보상 구매 (코인 사용)
+      return (
+        <svg {...common}>
+          <path d="M2.8 4.4h2.6l2.4 10.2h9.4l2-7.2H6.4" {...P} />
+          <circle cx="9.4" cy="19" r="1.5" {...P} />
+          <circle cx="16.8" cy="19" r="1.5" {...P} />
+        </svg>
+      );
+    case "star":     // 레벨업 보너스
+      return (
+        <svg {...common}>
+          <path d="m12 3.6 2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.9l6-.8L12 3.6Z" {...P} />
+        </svg>
+      );
+    case "trophy":   // 업적·상장 보상
+      return (
+        <svg {...common}>
+          <path d="M7.4 3.8h9.2v5.4a4.6 4.6 0 0 1-9.2 0V3.8Z" {...P} />
+          <path d="M7.4 5.4H4.6v1.4a3 3 0 0 0 3 3M16.6 5.4h2.8v1.4a3 3 0 0 1-3 3" {...P} />
+          <path d="M12 13.8v3.4M8.4 20.4h7.2" {...P} />
+        </svg>
+      );
     case "vacation": // 방학·휴원 (파라솔)
       return (
         <svg {...common}>
