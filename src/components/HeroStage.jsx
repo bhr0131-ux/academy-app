@@ -5,6 +5,17 @@ import { CHAR_DISPLAY_AVATAR } from "../data/avatarEquipment.js";
 import { getDiscovery, getDiscoveryOn } from "../data/discoveries.js";
 import { TODAY } from "../utils/dates.js";
 
+/* [사용자 확정 2026-08-12] 무대 배경 위에 떠다니던 장식 이모지를 끈다.
+   배경이 전부 수채화 원화로 바뀌면서, 그 위에 얹힌 운영체제 이모지가
+   그림체가 달라 붙여 놓은 딱지처럼 보였다. 우선 싹 빼 본다.
+
+   끄는 방식을 '데이터 삭제'가 아니라 '그리기 스위치'로 둔 이유 —
+   characters.js 의 deco 목록은 그림마다 무엇을 넣고 뺄지 오래 다듬어 온 값이라
+   지우면 되살리기 번거롭다. 값은 그대로 두고 화면에만 안 그린다.
+   다시 켜려면 이 값만 true 로 바꾸면 된다 (그 외 수정 불필요).
+   ※ tint(배경 색 얹기)는 그대로 둔다 — 이모지가 아니라 그림 톤이다. */
+const SHOW_BG_DECO_EMOJI = false;
+
 /* ════════════════════════════════════════════════════════════════════════
    HeroStage — 아이 홈 상단 '대형 캐릭터 영웅 무대' (메인 주인공 화면)
    ────────────────────────────────────────────────────────────────────────
@@ -97,8 +108,9 @@ export default function HeroStage({ D }) {
                   style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",
                     objectPosition:"center 68%",borderRadius:"inherit",pointerEvents:"none",zIndex:0}}/>
               )}
-              {/* 탐험·베이커리 모두 구매한 배경 이모지를 흩뿌려 표시 */}
-              {stageBgDeco&&(()=>{
+              {/* 탐험·베이커리 모두 구매한 배경 이모지를 흩뿌려 표시
+                  (2026-08-12: SHOW_BG_DECO_EMOJI 로 꺼 둔 상태 — 파일 맨 위 주석 참고) */}
+              {stageBgDeco&&SHOW_BG_DECO_EMOJI&&(()=>{
                 const own = (stageBgDeco.deco||[]).filter(Boolean);
                 if(own.length===0) return null;
                 // ── 베이커리 전용 배경: id별 고정 좌표 배치(자동 분산 대신) ──
