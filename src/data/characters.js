@@ -37,7 +37,7 @@ export const ADV_STAGE_BG_OF = (g, stage) => ADV_STAGE_BG_MEADOW;
 export const ADV_STAGE_BG_ALL = [ADV_STAGE_BG_MEADOW];
 /* 꾸미기 배경 중 '무대 그림을 통째로 바꾸는' 것들의 경로 (프리로드용).
    DECOR_BGS 는 아래에 선언돼 있어 여기서 못 읽는다 → 파일 목록만 따로 둔다. */
-export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp", "/assets/stage-bg-dino.webp", "/assets/stage-bg-space.webp"];
+export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp", "/assets/stage-bg-dino.webp", "/assets/stage-bg-space.webp", "/assets/stage-bg-jungle.webp"];
 
 /* 성장 캐릭터 이미지 — /public/assets/ 경로 방식 (base64 내장 폐지)
    파일 규칙: /assets/growth-characters/{테마}/{성별}/stage-{단계}.webp
@@ -409,7 +409,15 @@ export const DECOR_BGS = [
      darkStage 는 끈다 — v6 위쪽이 흰 빛줄기라 무대 문구를 크림색으로 반전하면 안 읽힌다.
      bakery(무지개 배경)는 원화가 없는 예전 그대로라 거기에만 darkStage 를 남긴다. */
   { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:220,  rarity:"rare",      img:"/assets/stage-bg-deepsea.webp", deco:["🐠","✨","🐙","🐠","🫧"],       tint:"rgba(150,225,250,0.10)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)", darkStage:true } },
-  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      darkStage:true, deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
+  /* [사용자 확정 2026-08-12] 원화 탑재. 그림에 이미 들어 있는 것은 장식에서 뺀다 —
+     야자·큰 잎·덤불(🌴 🍃 🌿)이 화면을 가득 채우고, 큰부리새(🦜)·나무늘보·재규어·
+     파란 나비까지 다 그려져 있다. 남는 건 그림에 없으면서 정글다운 것들:
+     🐒 원숭이(나무늘보는 있어도 원숭이는 없다) · 🐍 뱀 · 🌺 꽃(그림에 꽃이 하나도 없다).
+     tint 는 초록 0.30 이었는데 원화가 이미 초록으로 꽉 차 있어 같은 색을 덮으면 탁해진다 →
+     연한 초록을 아주 옅게만.
+     darkStage 도 끈다 — 위쪽이 밝은 하늘·연둣빛이라 무대 문구를 크림색으로 반전하면 안 읽힌다.
+     원화가 없는 bakery(민트 정원)는 예전 그대로라 거기에만 darkStage 를 남긴다. */
+  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      img:"/assets/stage-bg-jungle.webp", deco:["🐒","🌺","🐍","🌺","🐒"],       tint:"rgba(120,200,130,0.10)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)", darkStage:true } },
   /* [사용자 확정 2026-08-11] 원화 탑재. 그림에 이미 들어 있는 것은 장식에서 뺀다 —
      공룡 둘·화산·고사리·바위·발자국·구름이 다 그려져 있다. 남는 건 그림에 없으면서
      공룡 섬다운 것들: 알·뼈·바람에 날리는 잎.
