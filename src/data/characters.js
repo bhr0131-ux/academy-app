@@ -418,7 +418,7 @@ export const DECOR_BGS = [
      darkStage 도 끈다 — 위쪽이 밝은 하늘이라 무대 문구를 크림색으로 반전하면 안 읽힌다. */
   { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      img:"/assets/stage-bg-dino.webp", deco:["🥚","🍃","🦴","🥚","🍃"],            tint:"rgba(165,220,250,0.12)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)", darkStage:true } },
   { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      darkStage:true, deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
-  /* [사용자 확정 2026-08-12] 원화 탑재 (v2 — 달 기지 그림에서 '우주에서 본 지구' 그림으로 교체).
+  /* [사용자 확정 2026-08-12] 원화 탑재 (v3 — v2와 같은 구도를 더 맑게 다시 그린 판).
      아래쪽 지구의 둥근 지평선이 그대로 아이가 서는 바닥이 된다.
      이 그림은 장식으로 넣던 것을 거의 다 이미 그리고 있다 —
      🚀 로켓 · 🪐 토성 · 🌎 지구 · 🌙 달 · ⭐ 별 · 🌌 은하가 전부 화면 안에 있다.
