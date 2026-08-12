@@ -37,7 +37,7 @@ export const ADV_STAGE_BG_OF = (g, stage) => ADV_STAGE_BG_MEADOW;
 export const ADV_STAGE_BG_ALL = [ADV_STAGE_BG_MEADOW];
 /* 꾸미기 배경 중 '무대 그림을 통째로 바꾸는' 것들의 경로 (프리로드용).
    DECOR_BGS 는 아래에 선언돼 있어 여기서 못 읽는다 → 파일 목록만 따로 둔다. */
-export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp", "/assets/stage-bg-dino.webp", "/assets/stage-bg-space.webp", "/assets/stage-bg-jungle.webp"];
+export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp", "/assets/stage-bg-dino.webp", "/assets/stage-bg-space.webp", "/assets/stage-bg-jungle.webp", "/assets/stage-bg-island.webp"];
 
 /* 성장 캐릭터 이미지 — /public/assets/ 경로 방식 (base64 내장 폐지)
    파일 규칙: /assets/growth-characters/{테마}/{성별}/stage-{단계}.webp
@@ -434,7 +434,15 @@ export const DECOR_BGS = [
      하늘과 같은 연한 파랑을 아주 옅게.
      darkStage 도 끈다 — 위쪽이 밝은 하늘이라 무대 문구를 크림색으로 반전하면 안 읽힌다. */
   { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      img:"/assets/stage-bg-dino.webp", deco:["🥚","🍃","🦴","🥚","🍃"],            tint:"rgba(165,220,250,0.12)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)", darkStage:true } },
-  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      darkStage:true, deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
+  /* [사용자 확정 2026-08-12] 원화 탑재. 그림에 이미 들어 있는 것은 장식에서 뺀다 —
+     섬·바위·야자수·폭포·모랫길·바다, 그리고 동굴 안에서 빛나는 보물상자와 오른쪽 아래 조개까지
+     다 그려져 있다. 남는 건 그림에 없으면서 보물섬다운 것들:
+     🗺️ 보물지도 · 🏴‍☠️ 해적기 · ⚓ 닻 · 🦀 게(모래사장에 어울리는데 그림엔 없다).
+     tint 는 골드 0.30 이었는데 이 그림 위쪽은 밝은 하늘색이라 골드를 덮으면 탁해진다 →
+     하늘과 같은 연한 파랑을 아주 옅게 (공룡 섬과 같은 판단).
+     darkStage 도 끈다 — 위쪽이 밝은 하늘이라 무대 문구를 크림색으로 반전하면 안 읽힌다.
+     원화가 없는 bakery(푸딩 섬)는 예전 그대로라 거기에만 darkStage 를 남긴다. */
+  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      img:"/assets/stage-bg-island.webp", deco:["🗺️","🏴‍☠️","⚓","🦀","🗺️"],          tint:"rgba(165,220,250,0.10)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)", darkStage:true } },
   /* [사용자 확정 2026-08-12] 원화 탑재 (v3 — v2와 같은 구도를 더 맑게 다시 그린 판).
      아래쪽 지구의 둥근 지평선이 그대로 아이가 서는 바닥이 된다.
      이 그림은 장식으로 넣던 것을 거의 다 이미 그리고 있다 —
