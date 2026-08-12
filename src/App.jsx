@@ -2163,6 +2163,21 @@ export default function App() {
     || guessAcademyKind(ac?.name||"")?.label
     || ac?.name || "";
   const curAbs = absences[childId]||[];
+  /* [버그 수정 2026-08-12] 화면에 뿌릴 결석은 '학원이 아직 있는 것'만 (사용자 신고).
+     증상 — 결석 탭은 0건인데 홈·달력에는 결석이 떴다.
+     원인 — 학원을 지울 때 그 학원 결석도 함께 지우는데(deleteAcademy), 그 정리가
+     Number(a.academyId)!==id 로 비교하고 있었다. 예시(샘플) 학원 id 는
+     "sample_ac_1754..." 같은 글자라 Number()가 NaN 이 되어 조건이 늘 참 →
+     결석만 남는 '주인 없는 기록'이 생겼다. (원인은 deleteAcademy 에서 String 비교로 고쳤다.
+     여기는 이미 생겨 버린 기록 대응이다.)
+     결석 탭은 원래 이 기록을 걸러서 0건으로 보여 줬는데 홈·달력은 안 걸렀다 →
+     헤더 '결석'만 뜨고 안은 비어 있는 유령 칸이 나왔다(학원 이름 줄이 null 이라).
+     홈·달력에도 이 목록을 넘겨 세 화면이 같은 것을 보게 한다.
+     ※ 저장된 데이터는 건드리지 않는다 — 화면에서만 뺀다 (CLAUDE.md 8·11). */
+  const curAbsLive = (()=>{
+    const ids=new Set(curAc.map(a=>String(a.id)));
+    return curAbs.filter(a=>ids.has(String(a.academyId)));
+  })();
   const totalFee=(cid)=>(academies[cid]||[]).reduce((s,a)=>s+Number(a.fee||0),0);
 
   // 아이 관리 함수
@@ -3263,7 +3278,10 @@ export default function App() {
     // 학원 삭제
     setAcademies(p=>({...p,[childId]:(p[childId]||[]).filter(a=>a.id!==id)}));
     // 해당 학원 결석 기록 삭제
-    setAbsences(p=>({...p,[childId]:(p[childId]||[]).filter(a=>Number(a.academyId)!==id)}));
+    /* [버그 수정 2026-08-12] Number() 비교였다. 예시 학원 id 는 "sample_ac_..." 같은
+       글자라 Number()가 NaN 이 되어 조건이 늘 참 → 결석이 안 지워지고 주인 없는 기록으로
+       남았다. 다른 곳(결석 탭·홈·달력)과 같이 String 으로 맞춘다. */
+    setAbsences(p=>({...p,[childId]:(p[childId]||[]).filter(a=>String(a.academyId)!==String(id))}));
     // 해당 학원 날짜별 숙제/준비물 삭제
     setDailyData(p=>{
       const next={...p};
@@ -5136,7 +5154,7 @@ export default function App() {
           <ParentHomeTab
             th={th} CT={CT} TM={TM}
             childId={childId} childGender={childGender} kidSkin={kidSkin}
-            curAc={curAc} curAbs={curAbs}
+            curAc={curAc} curAbs={curAbsLive}
             homeDate={homeDate} setHomeDate={setHomeDate}
             homeAcOpen={homeAcOpen} setHomeAcOpen={setHomeAcOpen}
             navH={PARENT_NAV_H}
@@ -5193,7 +5211,7 @@ export default function App() {
         {tab==="calendar"&&(
           <CalendarTab
             th={th} CT={CT} childId={childId} childGender={childGender}
-            curAc={curAc} curAbs={curAbs}
+            curAc={curAc} curAbs={curAbsLive}
             calDate={calDate} setCalDate={setCalDate} calDays={calDays}
             calSelDate={calSelDate} setCalSelDate={setCalSelDate}
             calView={calView} setCalView={setCalView}
@@ -5233,8 +5251,7 @@ export default function App() {
         {/* ════ 결석 탭 ════ */}
         {tab==="absence"&&(()=>{
           // 삭제된 학원의 결석은 제외하고 집계(유효 학원만)
-          const validAcIds=new Set(curAc.map(a=>String(a.id)));
-          const liveAbs=curAbs.filter(a=>validAcIds.has(String(a.academyId)));
+          const liveAbs=curAbsLive;   // 걸러 두는 곳을 한 군데(curAbsLive)로 모았다
           const inMonth=(a)=>(a.date||"").slice(0,7)===absMonth;                       // 이번 달에 결석한 건
           // 이월 규칙: 지난달 이전 결석 중 미처리(출석/불참 안 누름)인 것만.
           //  - 보충일정 있으면 → 그 보충일이 속한 달까지만 이월(보충월 ≥ 현재 보는 달)
