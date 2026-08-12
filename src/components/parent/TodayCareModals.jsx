@@ -111,8 +111,10 @@ export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onCl
   const all = groups.reduce((n, g) => n + g.items.length, 0);
   const got = groups.reduce((n, g) => n + g.items.filter(i => i.checked).length, 0);
   return (
+    /* [사용자 확정 2026-08-12] desc 앞머리 '오늘 준비물 N개 중 M개 챙겼어요'는 뺐다 —
+       바로 아래 목록이 학원별로 몇 개 챙겼는지 그대로 보여서 같은 말이 두 번이었다. */
     <Sheet title="준비물 확인" icon="bag" tone={tone} onClose={onClose}
-      desc={all === 0 ? undefined : `${dateLabel} 준비물 ${all}개 중 ${got}개 챙겼어요. 눌러서 체크할 수 있고, 아이 탐험일지에도 똑같이 반영됩니다.`}>
+      desc={all === 0 ? undefined : "눌러서 체크할 수 있고, 아이 탐험일지에도 똑같이 반영됩니다."}>
       {all === 0 ? (
         <Empty icon="bag" title="챙길 준비물이 없어요" sub="학원에 기본 준비물을 등록하면 여기에 보여요" tone={tone} />
       ) : (
