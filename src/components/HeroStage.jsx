@@ -371,14 +371,14 @@ export default function HeroStage({ D }) {
                      안 옮긴다. 그래서 이 줄을 그냥 두면 캐릭터만 올라가고 줄은 제자리에 남아
                      탭 시트 바로 위에 붙어 보인다. 같은 만큼 끌어올린 뒤 4px 더 붙여
                      '발밑에 쓴 글씨'로 만들고, 아래 여백은 marginBottom 으로 넉넉히 남긴다. */
-                  <div style={{position:"relative",zIndex:2,marginTop:-34,marginBottom:26,display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-                    fontSize:13.5,fontWeight:900,color:lineCol,textShadow:lineSh,whiteSpace:"nowrap",letterSpacing:"0.01em"}}>
-                    <span style={{display:"flex",alignItems:"center",gap:4.5}}>
+                  <div style={{position:"relative",zIndex:2,marginTop:-28,marginBottom:24,display:"flex",alignItems:"center",justifyContent:"center",gap:5,
+                    fontSize:12.5,fontWeight:900,color:lineCol,textShadow:lineSh,whiteSpace:"nowrap",letterSpacing:"0.01em"}}>
+                    <span style={{display:"flex",alignItems:"center",gap:4}}>
                       <span style={{fontSize:"1.1em",lineHeight:1}}>{level.emoji}</span>
                       Lv.{level.level} {kidName}
                     </span>
                     <span style={{opacity:0.42,fontSize:"0.95em"}}>│</span>
-                    <span style={{display:"flex",alignItems:"center",gap:4.5}}>
+                    <span style={{display:"flex",alignItems:"center",gap:4}}>
                       <span style={{fontSize:"1.1em",lineHeight:1}}>{title.emoji}</span>
                       {title.name}
                     </span>
