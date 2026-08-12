@@ -230,8 +230,10 @@ export default function HeroStage({ D }) {
                 {/* ── 중앙(탐험)·좌측(베이커리): 캐릭터 + 펫 ── */}
                 {/* [탐험] 펫은 절대배치(우측 하단) → 캐릭터 본체가 화면 정중앙에 정확히 옴 / [베이커리] 기존 flex 나란히 유지 */}
                 {/* [탐험] translateY 6→-14: 발끝이 하단 시트에 눌려 보여 캐릭터·펫을 화면 높이 약 3% 위로 (아바타/성장 공통 컨테이너라 함께 이동)
-                    X -14px: 펫이 오른쪽에 붙으면서 우측으로 쏠린 시각 무게중심 보정 (우측 뱃지 아이콘들과의 간격 확보) */}
-                <div style={{flex:1,minWidth:0,position:"relative",display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:14,transform:cute?undefined:"translate(-14px, -14px)"}}>
+                    X -14px: 펫이 오른쪽에 붙으면서 우측으로 쏠린 시각 무게중심 보정 (우측 뱃지 아이콘들과의 간격 확보)
+                    [사용자 확정 2026-08-12] -14 → -30: 발밑에 '레벨·이름·상장' 한 줄이 들어오면서
+                    그 줄이 앉을 자리를 캐릭터를 올려서 만든다 (줄 높이만큼 그대로 16px) */}
+                <div style={{flex:1,minWidth:0,position:"relative",display:"flex",alignItems:"flex-end",justifyContent:"center",gap:cute?26:14,transform:cute?undefined:"translate(-14px, -30px)"}}>
                   {/* 메인 캐릭터 + 레벨 이모지 뱃지 */}
                   <div style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"}}>
                     <div style={{position:"relative",zIndex:1}}>
@@ -353,9 +355,33 @@ export default function HeroStage({ D }) {
                   </div>
                   );
                 };
-                // [탐험] 팻말 버튼은 우측 상단 뱃지로 이동 — 이 줄은 베이커리 칩 전용, 탐험은 빈 줄(마진)만 남아 하단 여백 유지
+                /* [탐험] 캐릭터 발밑 한 줄 — 알약칩이 아니라 '그림 위에 쓴 글씨'로 (사용자 확정 2026-08-12).
+                   ⭐ Lv.1 이연우 │ 🏅 꼬마 모험가
+                   칩(테두리+배경)을 두면 원화 위에 UI 딱지를 붙인 것처럼 보여서, 무대 응원문구와 같은
+                   방식으로 글씨만 얹는다 — 색·그림자도 응원문구와 같은 규칙(어두운 배경이면 크림색 반전).
+                   베이커리(cute)는 예전 알약칩 그대로 둔다 (배경이 원화가 아니라 칩이 어울린다). */
+                const kidName=children.find(c=>c.id===childId)?.name||"";
+                const _onDark=!!stageBgDeco?.darkStage;
+                const lineCol=_onDark?"#FFF3D9":"#5D4633";
+                const lineSh=_onDark
+                  ? "0 1px 2px rgba(10,20,15,0.65), 0 3px 12px rgba(0,0,0,0.45)"
+                  : "0 1px 2px rgba(255,255,255,0.8), 0 2px 9px rgba(93,70,51,0.28)";
+                if(!cute) return (
+                  <div style={{position:"relative",zIndex:2,marginTop:2,marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:9,
+                    fontSize:15,fontWeight:900,color:lineCol,textShadow:lineSh,whiteSpace:"nowrap",letterSpacing:"0.01em"}}>
+                    <span style={{display:"flex",alignItems:"center",gap:5}}>
+                      <span style={{fontSize:"1.1em",lineHeight:1}}>{level.emoji}</span>
+                      Lv.{level.level} {kidName}
+                    </span>
+                    <span style={{opacity:0.42,fontSize:"0.95em"}}>│</span>
+                    <span style={{display:"flex",alignItems:"center",gap:5}}>
+                      <span style={{fontSize:"1.1em",lineHeight:1}}>{title.emoji}</span>
+                      {title.name}
+                    </span>
+                  </div>
+                );
                 return (
-                  <div style={{position:"relative",zIndex:2,marginTop:cute?10:4,marginBottom:cute?0:10,display:"flex",alignItems:"center",justifyContent:cute?"center":"flex-start",gap:8,flexWrap:"wrap"}}>
+                  <div style={{position:"relative",zIndex:2,marginTop:10,marginBottom:0,display:"flex",alignItems:"center",justifyContent:"center",gap:8,flexWrap:"wrap"}}>
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
                     {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 탐험 모드는 우측 상단 원형 뱃지로 이동(사용자 확정), 베이커리(cute)만 여기 칩 유지 */}
