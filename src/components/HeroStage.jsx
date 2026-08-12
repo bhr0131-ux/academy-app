@@ -367,14 +367,18 @@ export default function HeroStage({ D }) {
                   ? "0 1px 2px rgba(10,20,15,0.65), 0 3px 12px rgba(0,0,0,0.45)"
                   : "0 1px 2px rgba(255,255,255,0.8), 0 2px 9px rgba(93,70,51,0.28)";
                 if(!cute) return (
-                  <div style={{position:"relative",zIndex:2,marginTop:2,marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:9,
-                    fontSize:15,fontWeight:900,color:lineCol,textShadow:lineSh,whiteSpace:"nowrap",letterSpacing:"0.01em"}}>
-                    <span style={{display:"flex",alignItems:"center",gap:5}}>
+                  /* marginTop -34 — 캐릭터 컨테이너의 translateY(-30)는 transform 이라 자리(layout)를
+                     안 옮긴다. 그래서 이 줄을 그냥 두면 캐릭터만 올라가고 줄은 제자리에 남아
+                     탭 시트 바로 위에 붙어 보인다. 같은 만큼 끌어올린 뒤 4px 더 붙여
+                     '발밑에 쓴 글씨'로 만들고, 아래 여백은 marginBottom 으로 넉넉히 남긴다. */
+                  <div style={{position:"relative",zIndex:2,marginTop:-34,marginBottom:26,display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+                    fontSize:13.5,fontWeight:900,color:lineCol,textShadow:lineSh,whiteSpace:"nowrap",letterSpacing:"0.01em"}}>
+                    <span style={{display:"flex",alignItems:"center",gap:4.5}}>
                       <span style={{fontSize:"1.1em",lineHeight:1}}>{level.emoji}</span>
                       Lv.{level.level} {kidName}
                     </span>
                     <span style={{opacity:0.42,fontSize:"0.95em"}}>│</span>
-                    <span style={{display:"flex",alignItems:"center",gap:5}}>
+                    <span style={{display:"flex",alignItems:"center",gap:4.5}}>
                       <span style={{fontSize:"1.1em",lineHeight:1}}>{title.emoji}</span>
                       {title.name}
                     </span>
