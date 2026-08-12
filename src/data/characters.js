@@ -37,7 +37,7 @@ export const ADV_STAGE_BG_OF = (g, stage) => ADV_STAGE_BG_MEADOW;
 export const ADV_STAGE_BG_ALL = [ADV_STAGE_BG_MEADOW];
 /* 꾸미기 배경 중 '무대 그림을 통째로 바꾸는' 것들의 경로 (프리로드용).
    DECOR_BGS 는 아래에 선언돼 있어 여기서 못 읽는다 → 파일 목록만 따로 둔다. */
-export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp", "/assets/stage-bg-dino.webp", "/assets/stage-bg-space.webp", "/assets/stage-bg-jungle.webp", "/assets/stage-bg-island.webp"];
+export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp", "/assets/stage-bg-dino.webp", "/assets/stage-bg-space.webp", "/assets/stage-bg-jungle.webp", "/assets/stage-bg-island.webp", "/assets/stage-bg-forest.webp"];
 
 /* 성장 캐릭터 이미지 — /public/assets/ 경로 방식 (base64 내장 폐지)
    파일 규칙: /assets/growth-characters/{테마}/{성별}/stage-{단계}.webp
@@ -385,7 +385,15 @@ export const DECOR_BORDERS = [
 // 기본(base) = 탐험 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
 // darkStage: 장착 시 무대가 밤하늘 톤(어두움)으로 바뀌는 배경 — 무대 위 글씨(응원문구 등)를 밝은색으로 반전하는 기준.
 export const DECOR_BGS = [
-  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    darkStage:true, deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
+  /* [사용자 확정 2026-08-12] 원화 탑재 — 이로써 꾸미기 배경 여섯 판이 모두 원화가 됐다.
+     안개 낀 연민트빛 숲, 가운데 큰 나무, 왼쪽에 하얀 여우, 빛나는 버섯, 반짝임, 가운데로 난 길.
+     tint 는 초록 0.28 이었는데 이 그림은 이미 연민트로 옅게 깔려 있어 진한 초록을 덮으면
+     안개가 탁해진다 → 같은 결의 연민트를 아주 옅게만.
+     darkStage 는 끈다 — 위쪽이 거의 흰빛이라 무대 문구를 크림색으로 반전하면 안 읽힌다.
+     원화가 없는 bakery(벚꽃 배경)는 예전 그대로라 거기에만 darkStage 를 남긴다.
+     deco 목록은 손대지 않았다 — 지금 장식 이모지는 화면에서 통째로 꺼 둔 상태라
+     (HeroStage 의 SHOW_BG_DECO_EMOJI) 눈으로 맞춰 볼 수가 없다. 다시 켤 때 그림 보고 고른다. */
+  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    img:"/assets/stage-bg-forest.webp", deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(150,220,205,0.10)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)", darkStage:true } },
   /* [사용자 확정 2026-08-12] 이름은 '깊은 바다'.
      (2026-08-11 에 '별빛 심해'로 바꿨다가 되돌렸다 — 다시 바꾸지 말 것)
      img 가 있는 배경은 무대에 그 원화를 한 장 덮는다 — 지금 있는 SVG 바다 풍경 위에.
