@@ -37,7 +37,7 @@ export const ADV_STAGE_BG_OF = (g, stage) => ADV_STAGE_BG_MEADOW;
 export const ADV_STAGE_BG_ALL = [ADV_STAGE_BG_MEADOW];
 /* 꾸미기 배경 중 '무대 그림을 통째로 바꾸는' 것들의 경로 (프리로드용).
    DECOR_BGS 는 아래에 선언돼 있어 여기서 못 읽는다 → 파일 목록만 따로 둔다. */
-export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp", "/assets/stage-bg-dino.webp"];
+export const DECOR_STAGE_BG_ALL = ["/assets/stage-bg-deepsea.webp", "/assets/stage-bg-dino.webp", "/assets/stage-bg-space.webp"];
 
 /* 성장 캐릭터 이미지 — /public/assets/ 경로 방식 (base64 내장 폐지)
    파일 규칙: /assets/growth-characters/{테마}/{성별}/stage-{단계}.webp
@@ -417,7 +417,14 @@ export const DECOR_BGS = [
      darkStage 도 끈다 — 위쪽이 밝은 하늘이라 무대 문구를 크림색으로 반전하면 안 읽힌다. */
   { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      img:"/assets/stage-bg-dino.webp", deco:["🥚","🍃","🦴","🥚","🍃"],            tint:"rgba(165,220,250,0.12)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)", darkStage:true } },
   { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      darkStage:true, deco:["🏝️","🗺️","💰","🏴‍☠️","⚓","🌴"],          tint:"rgba(240,190,90,0.30)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)" } },
-  { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:560, rarity:"legendary", darkStage:true, deco:["🚀","🪐","🌎","☄️","🛰️","⭐","🌌"],       tint:"rgba(90,110,200,0.32)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
+  /* [사용자 확정 2026-08-12] 원화 탑재. 이 그림은 장식으로 넣던 것을 거의 다 이미 그리고 있다 —
+     🚀 로켓 · 🪐 토성 · 🌎 지구 · ⭐ 별 · 🛰️ 접시안테나 · 🌌 별밭이 전부 화면 안에 있다.
+     그래서 남길 게 없다시피 하다 → 그림에 없는 셋만 남긴다: ☄️ 혜성 · 🛸 비행접시 · 🌠 별똥별.
+     (셋 다 '지나가는 것'이라 정지된 그림 위에서 움직임을 맡기에도 맞다)
+     tint 는 남색 0.32 였는데 원화 자체가 이미 짙은 남보라라 같은 색을 덮으면 그림이 뭉갠다 →
+     아주 옅게만 (달 지면의 연보랏빛을 살리는 정도).
+     darkStage 는 그대로 켠다 — 위쪽이 짙은 밤하늘이라 응원문구는 크림색이 맞다. */
+  { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:560, rarity:"legendary", darkStage:true, img:"/assets/stage-bg-space.webp", deco:["☄️","🛸","🌠","☄️","🛸"],       tint:"rgba(140,150,235,0.12)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
 ];
 // 베이커리 전용 배경 6슬롯 (탐험 4슬롯과 분리). deco[0]=메인(가장 자주 등장). 종류 4개↑면 무대카드 전체에 고르게 분산됨.
 export const BAKERY_BGS = [
