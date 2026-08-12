@@ -2925,6 +2925,30 @@ export default function App() {
   },[loaded,childId,petData,treasureData,selectedTitles,bestStreakData,dailyData,scoreData,kidSkin]);
   useEffect(()=>()=>clearTimeout(bagTimerRef.current),[]);
 
+  /* ── 안 연 보물상자 다시 알리기 (사용자 요청 2026-08-12) ─────────────────────
+     위 '소식'은 상자가 **생긴 순간** 한 번만 뜬다. 그래서 그때 못 보고 지나가면
+     상자가 몇 날이고 안 열린 채 남았다. 남아 있는 동안 가방 카드에 한 번씩 다시 띄운다.
+     3분마다 25초씩 — 계속 떠 있으면 레벨 화면을 가리므로 '한 번씩'이 맞다.
+     진짜 소식(레벨업·펫 진화 등)이 떠 있을 땐 비켜 준다.
+     저장하지 않는다 — 위 소식과 같이 지금 보고 있는 동안의 알림이다(새 저장 키 없음). */
+  const bagEventRef=useRef(null);
+  useEffect(()=>{ bagEventRef.current=bagEvent; },[bagEvent]);
+  const boxNudgeRef=useRef(null);
+  useEffect(()=>{
+    if(!loaded||!childId||appMode!=="child") return;
+    const tick=()=>{
+      const n=getTotalTreasureCount(childId);
+      if(n<=0) return;
+      if(bagEventRef.current) return;                       // 진짜 소식이 떠 있으면 건너뛴다
+      setBagEvent({emoji:TM.boxEmoji,title:`안 연 ${TM.box} ${n}개`,sub:`${TM.book}에서 열어 보세요`,nudge:true});
+      clearTimeout(boxNudgeRef.current);
+      boxNudgeRef.current=setTimeout(()=>setBagEvent(p=>(p&&p.nudge)?null:p),25000);
+    };
+    const first=setTimeout(tick,15000);                     // 아이 화면에 들어오고 15초쯤 뒤 첫 알림
+    const id=setInterval(tick,180000);                      // 그 뒤 3분마다
+    return ()=>{ clearTimeout(first); clearInterval(id); clearTimeout(boxNudgeRef.current); };
+  },[loaded,childId,appMode,treasureData,kidSkin]);
+
   /* '오늘 챙길 일'의 결석 칩처럼 다른 곳에서 곧장 학원비·결석·기타로 보내는 길이 있다.
      그때도 하단 '더보기'를 다시 누르면 방금 보던 칸으로 돌아오게 기억해 둔다. */
   useEffect(()=>{ if(isMoreTab(tab)) setMoreTab(tab); },[tab]);
@@ -3133,7 +3157,11 @@ export default function App() {
         getQuestTreasureKey("homework",academyId,date,homeworkId)
       );
       showQuestResult({type:"clear",xp:point,title:target.text});
+      /* [사용자 확정 2026-08-12] 아이 화면은 큰 연출(cheerCharacter)로 +XP·+코인을 보여 주는데
+         엄마 화면에는 아무 표시가 없었다 — 체크를 풀 때만 토스트가 떠서 '주는 건 안 보이고
+         뺏는 것만 보이는' 상태였다. 엄마 화면에도 같은 모양의 토스트를 띄운다. */
       if(appMode==="child") cheerCharacter(point);
+      else showToast(`체크 완료 +${point} ${TM.xp} / +${point} ${TM.coin}`);
     } else {
       showToast(`체크 취소 -${point} ${TM.xp} / -${point} ${TM.coin}`);
     }
@@ -3157,7 +3185,11 @@ export default function App() {
         getQuestTreasureKey("todo",academyId,date,todoId)
       );
       showQuestResult({type:"clear",xp:point,title:target.text});
+      /* [사용자 확정 2026-08-12] 아이 화면은 큰 연출(cheerCharacter)로 +XP·+코인을 보여 주는데
+         엄마 화면에는 아무 표시가 없었다 — 체크를 풀 때만 토스트가 떠서 '주는 건 안 보이고
+         뺏는 것만 보이는' 상태였다. 엄마 화면에도 같은 모양의 토스트를 띄운다. */
       if(appMode==="child") cheerCharacter(point);
+      else showToast(`체크 완료 +${point} ${TM.xp} / +${point} ${TM.coin}`);
     } else {
       showToast(`체크 취소 -${point} ${TM.xp} / -${point} ${TM.coin}`);
     }
@@ -3370,13 +3402,22 @@ export default function App() {
   const rewardSecSub={fontSize:12,color:C.sub,margin:0,fontWeight:600};
   const rewardSecArrow=(open)=>({fontSize:13,fontWeight:900,color:th.main,flexShrink:0,marginLeft:10,
     transition:"transform .2s",transform:open?"rotate(180deg)":"none",display:"inline-block"});
-  const toggleRewardSec=(key)=>{
+  /* [사용자 확정 2026-08-12] 한 칸을 열면 먼저 열려 있던 칸이 접힌다 → 그만큼 문서가 짧아져
+     방금 누른 칸이 화면 위로 올라가 버리고, 화면은 아래에 그대로 남아 다시 스크롤해야 했다.
+     누른 칸을 화면 맨 위로 데려온다 (접을 때는 그대로 둔다 — 제자리에 있으니 옮길 이유가 없다).
+     레이아웃이 다시 잡힌 뒤에 재야 하므로 rAF 두 번 뒤에 옮긴다. */
+  const toggleRewardSec=(key,ev)=>{
     const cur={reward:showParentRewardManage,growth:showParentGrowthManage,record:showParentRecordManage,xp:showParentXpAdjust};
     const next=!cur[key];
     setShowParentRewardManage(key==="reward"&&next);
     setShowParentGrowthManage(key==="growth"&&next);
     setShowParentRecordManage(key==="record"&&next);
     setShowParentXpAdjust(key==="xp"&&next);
+    const el=next?ev?.currentTarget:null;
+    if(el) requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      const top=el.getBoundingClientRect().top+window.scrollY-12;
+      window.scrollTo({top:Math.max(0,top),behavior:"smooth"});
+    }));
   };
   const parentInnerTitle={fontSize:15,fontWeight:900,color:C.text,margin:"0 0 4px"};
   const parentInnerSub={fontSize:12,fontWeight:700,color:C.sub,margin:0,lineHeight:1.45};
@@ -5434,18 +5475,11 @@ export default function App() {
                 /* [사용자 확정 2026-08-11] 카드·항목·버튼이 다 연분홍이라 무엇이 중요한지 구분이 안 됐다
                    → 카드는 흰색, 테두리만 아주 연한 테마색. 진한 색은 '미션 추가' 하나에만 쓴다. */
                 <div style={{background:"#fff",borderRadius:20,padding:"16px",marginBottom:14,border:`1px solid ${allDone&&isRewToday?C.green+"33":th.main+"22"}`,boxShadow:SHADOW.sm}}>
-                  {/* [사용자 확정 2026-08-10] 보상 탭 안의 접히는 카드였는데 미션 탭으로 나왔다.
-                      탭 자체가 미션 화면이라 접을 이유가 없어 여닫는 버튼 대신 제목 줄만 둔다. */}
-                  <div style={{textAlign:"left"}}>
-                    {/* [사용자 확정 2026-08-11] 이모지는 기기마다 그림체가 달라 화면이 섞여 보였다 →
-                        하단 메뉴와 같은 결의 선 아이콘(CareIcon)으로 바꾼다. 색은 테마색을 따른다. */}
-                    <p style={{fontSize:15,fontWeight:900,margin:"0 0 2px",color:C.text,display:"flex",alignItems:"center",gap:6}}>
-                      <span style={{color:th.main,display:"flex"}}><CareIcon name="mission" size={15}/></span>미션 관리
-                    </p>
-                    <p style={{fontSize:12,color:C.sub,margin:0,fontWeight:600,opacity:0.85}}>날짜별 미션 추가·수정 · 점수 관리</p>
-                  </div>
+                  {/* [사용자 확정 2026-08-12] 제목 줄('미션 관리 / 날짜별 미션 추가·수정 · 점수 관리')을 뺐다.
+                      탭 이름이 이미 '미션'이라 같은 말을 두 번 하는 자리였고, 매일 쓰는 날짜 이동이
+                      한 화면 아래로 밀려 있었다. 카드를 열면 바로 날짜 줄이 온다. */}
                   {(
-                    <div style={{marginTop:14}}>
+                    <div>
                       {/* 날짜 이동 */}
                       {/* [사용자 확정 2026-08-11] 화살표 상자가 커서 날짜 줄이 통째로 높아 보였다 →
                           배경·테두리를 빼고 글자만 남긴다(누르는 자리는 44×44 그대로).
@@ -5580,7 +5614,7 @@ export default function App() {
 
             {/* 보상 관리 */}
             <div style={rewardSecCard}>
-              <button onClick={()=>toggleRewardSec("reward")}
+              <button onClick={e=>toggleRewardSec("reward",e)}
                 style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
                 <div style={{textAlign:"left",minWidth:0}}>
                   <p style={rewardSecTitle}>보상 관리</p>
@@ -5624,7 +5658,7 @@ export default function App() {
 
             {/* 성장 관리 */}
             <div style={rewardSecCard}>
-              <button onClick={()=>toggleRewardSec("growth")}
+              <button onClick={e=>toggleRewardSec("growth",e)}
                 style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
                 <div style={{textAlign:"left",minWidth:0}}>
                   <p style={rewardSecTitle}>성장 관리</p>
@@ -5704,12 +5738,14 @@ export default function App() {
                                         background:th.grad,borderRadius:999,transition:"width .3s"}}/>
                                     </div>
                                   )}
-                                  {/* 코인은 이 카드의 주인공이 아니라 참고값 → 맨 아랫줄 오른쪽에 작게 */}
-                                  <div style={{display:"flex",alignItems:"baseline",gap:8,margin:"5px 0 0"}}>
+                                  {/* [사용자 확정 2026-08-12] 한 줄에 좌우로 갈라 놓았더니 서로 다른 이야기
+                                      ('레벨까지 얼마 남았나' vs '코인이 얼마 있나')가 한 줄처럼 읽혔다 →
+                                      두 줄로 나눠 각각 한 줄씩 갖는다. */}
+                                  <div style={{margin:"5px 0 0",display:"flex",flexDirection:"column",gap:2}}>
                                     {hasNext&&<span style={{fontSize:11,fontWeight:700,color:C.sub}}>
                                       다음 레벨까지 {pg.remainXp} {TM.xp}
                                     </span>}
-                                    <span style={{marginLeft:"auto",flexShrink:0,fontSize:11,fontWeight:700,color:C.sub}}>
+                                    <span style={{fontSize:11,fontWeight:700,color:C.sub}}>
                                       {TM.coin} {getChildCoin(childId).toLocaleString()}
                                     </span>
                                   </div>
@@ -5862,7 +5898,7 @@ export default function App() {
 
             {/* 기록 관리 */}
             <div style={rewardSecCard}>
-              <button onClick={()=>toggleRewardSec("record")}
+              <button onClick={e=>toggleRewardSec("record",e)}
                 style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
                 <div style={{textAlign:"left",minWidth:0}}>
                   <p style={rewardSecTitle}>기록 관리</p>
@@ -6041,7 +6077,7 @@ export default function App() {
 
               {/* ── 수동 XP 조정 — 기록 관리 밖으로 빼서 그 아래 독립 칸으로 (사용자 확정 2026-08-09) ── */}
               <div style={rewardSecCard}>
-                <button onClick={()=>toggleRewardSec("xp")}
+                <button onClick={e=>toggleRewardSec("xp",e)}
                   style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
                   <div style={{textAlign:"left",minWidth:0}}>
                     <p style={rewardSecTitle}>수동 {TM.xp} 조정</p>
