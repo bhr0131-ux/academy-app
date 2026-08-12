@@ -386,7 +386,8 @@ export const DECOR_BORDERS = [
 // darkStage: 장착 시 무대가 밤하늘 톤(어두움)으로 바뀌는 배경 — 무대 위 글씨(응원문구 등)를 밝은색으로 반전하는 기준.
 export const DECOR_BGS = [
   { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    darkStage:true, deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(34,150,90,0.28)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)" } },
-  /* [사용자 확정 2026-08-11] '깊은 바다' → '별빛 심해'.
+  /* [사용자 확정 2026-08-12] 이름은 '깊은 바다'.
+     (2026-08-11 에 '별빛 심해'로 바꿨다가 되돌렸다 — 다시 바꾸지 말 것)
      img 가 있는 배경은 무대에 그 원화를 한 장 덮는다 — 지금 있는 SVG 바다 풍경 위에.
      그림 파일이 없으면 덮는 장만 사라지고 예전 바다가 그대로 보인다.
 
@@ -407,7 +408,7 @@ export const DECOR_BGS = [
      tint 도 0.16 → 0.10 (밝아진 물색 위에 같은 세기로 덮으면 뿌옇게 뜬다).
      darkStage 는 끈다 — v6 위쪽이 흰 빛줄기라 무대 문구를 크림색으로 반전하면 안 읽힌다.
      bakery(무지개 배경)는 원화가 없는 예전 그대로라 거기에만 darkStage 를 남긴다. */
-  { id:"bg_rainbow", emoji:"🌊", name:"별빛 심해",   price:220,  rarity:"rare",      img:"/assets/stage-bg-deepsea.webp", deco:["🐠","✨","🐙","🐠","🫧"],       tint:"rgba(150,225,250,0.10)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)", darkStage:true } },
+  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:220,  rarity:"rare",      img:"/assets/stage-bg-deepsea.webp", deco:["🐠","✨","🐙","🐠","🫧"],       tint:"rgba(150,225,250,0.10)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)", darkStage:true } },
   { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      darkStage:true, deco:["🌴","🦜","🐒","🍃","🐍","🌿","🌴"],       tint:"rgba(34,160,80,0.30)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)" } },
   /* [사용자 확정 2026-08-11] 원화 탑재. 그림에 이미 들어 있는 것은 장식에서 뺀다 —
      공룡 둘·화산·고사리·바위·발자국·구름이 다 그려져 있다. 남는 건 그림에 없으면서
