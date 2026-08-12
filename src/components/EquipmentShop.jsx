@@ -252,7 +252,18 @@ export default function EquipmentShop({
                   )
                 ) : (
                   <button
-                    onClick={() => onToggle && onToggle(item.id)}
+                    onClick={() => {
+                      /* [버그 수정 2026-08-12] 미리보기(preview)가 실제 장착(equipped)을 덮어쓰는
+                         구조라(previewEquipped = {...equipped, ...preview}), 같은 슬롯을 입어보던
+                         중에 다른 파츠를 '장착'하면 화면이 안 바뀌어 고장난 것처럼 보였다.
+                         직접 장착/벗기를 눌렀다는 건 '이걸로 하겠다'는 뜻이므로, 그 슬롯의
+                         입어보기를 먼저 걷어낸 뒤 장착한다. */
+                      setPreview((p) => {
+                        if (!(item.slot in p)) return p;
+                        const next = { ...p }; delete next[item.slot]; return next;
+                      });
+                      onToggle && onToggle(item.id);
+                    }}
                     style={{
                       width: "100%", border: "none", borderRadius: 10, padding: "7px 4px",
                       fontWeight: 800, fontSize: 12, cursor: "pointer",
