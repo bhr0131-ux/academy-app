@@ -108,6 +108,62 @@ export const getSchedules = (academy) => {
   return (academy.days||[]).map(day=>({day, time:academy.time||"", duration:academy.duration||40}));
 };
 
+/* ── 그날 실제로 가는 학원 (사용자 확정 2026-08-13) ───────────────────────
+   엄마용 '오늘의 학원'과 아이용 탐험지도가 같은 목록을 보게 하려고 한 곳에서 만든다.
+   예전엔 두 화면이 각자 '요일에 수업 있는 학원 − 휴원'만 걸러서, 결석한 학원도
+   그대로 걸어가야 했고 보충 수업은 어디에도 안 나왔다.
+
+   담기는 것
+     · 그 요일에 수업 있는 학원 (휴원 제외)      → absent 플래그로 결석 표시
+     · 그날이 보충일(makeupDate)인 결석 기록      → makeup:true
+
+   시각 규칙
+     · 보통 수업       : 그 요일 시간표 (time·duration)
+     · 보충(시간 있음) : makeupStart 자리에 끼워 넣는다. 라벨 '보충 HH:MM'
+     · 보충(시간 없음) : 그날 맨 뒤. 앞 수업이 끝나고 30분 뒤에 끝난 것으로 친다
+                         (time = 앞 수업 종료, duration = 30). 라벨은 '보충'.
+                         앞 수업이 아예 없으면 그 학원의 평소 수업 시간을 기준으로 쓴다.
+   반환값은 '학원 객체 + 밑줄 필드'라 기존 코드가 ac.id·ac.name·ac.color 를 그대로 쓴다.
+     _time/_duration : 위 규칙으로 정해진 실제 시각 (정렬·완료 판정에 쓴다)
+     _label          : 시간 자리에 쓸 글자 ('14:00' · '보충 14:00' · '보충' · '결석')
+     _makeup/_absent : 표시 구분용
+     _key            : React key — 같은 학원이 '보통 수업 + 보충'으로 두 번 담길 수 있어 따로 둔다
+   ──────────────────────────────────────────────────────────────────────── */
+const _min = (t) => { const [h,m]=String(t||"00:00").split(":").map(Number); return (h||0)*60+(m||0); };
+const _hhmm = (n) => `${String(Math.floor(((n%1440)+1440)%1440/60)).padStart(2,"0")}:${String(((n%60)+60)%60).padStart(2,"0")}`;
+
+export const getDayPlan = (academies = [], absences = [], date, day, isVacation = () => false) => {
+  const absToday = new Set((absences||[]).filter(a=>a.date===date).map(a=>String(a.academyId)));
+  const timed = (academies||[])
+    .filter(a => hasClassOnDay(a, day) && !isVacation(a.id))
+    .map(a => {
+      const sc = getScheduleForDay(a, day);
+      const absent = absToday.has(String(a.id));
+      return { ...a, _key: String(a.id), _time: sc?.time||"", _duration: sc?.duration||40,
+               _makeup: false, _absent: absent, _label: absent ? "결석" : (sc?.time||"") };
+    });
+  const makeups = (absences||[])
+    .filter(ab => ab.makeupDate === date)
+    .map(ab => {
+      const ac = (academies||[]).find(x => String(x.id) === String(ab.academyId));
+      if (!ac) return null;                       // 학원이 지워진 주인 없는 기록
+      const t = String(ab.makeupStart||"").trim();
+      return { ac, ab, t };
+    })
+    .filter(Boolean);
+  makeups.filter(m => m.t).forEach(m => {
+    timed.push({ ...m.ac, _key: `${m.ac.id}-mk`, _time: m.t, _duration: 40, _makeup: true, _absent: false, _label: `보충 ${m.t}` });
+  });
+  timed.sort((x, y) => _min(x._time) - _min(y._time));
+  // 시간 없는 보충은 맨 뒤 — 앞 수업이 끝나고 30분 뒤에 끝난 것으로 친다
+  makeups.filter(m => !m.t).forEach(m => {
+    const prev = timed[timed.length-1];
+    const start = prev ? _min(prev._time) + Number(prev._duration||0) : _min(m.ac.time||"15:00");
+    timed.push({ ...m.ac, _key: `${m.ac.id}-mk`, _time: _hhmm(start), _duration: 30, _makeup: true, _absent: false, _label: "보충" });
+  });
+  return timed;
+};
+
 // ── 셔틀 헬퍼 ──────────────────────────────
 export const getShuttleText = (academy, day) => {
   if (!academy) return "";

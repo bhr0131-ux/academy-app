@@ -316,7 +316,11 @@ const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
 // onPick: 학원 건물 탭 → 탐험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
 export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, spark = null, onSparkPass = null, eventId = null, dayAnimals = [], showRainbow = false }) {
-  const sorted = [...items].sort((a, b) => toMin(a.time) - toMin(b.time));
+  /* [사용자 확정 2026-08-13] time 은 '이름표에 찍는 글자'(14:00 · 보충 14:00 · 보충)이고,
+     시각 계산은 at(HH:MM)으로 한다 — 보충은 글자와 실제 시각이 다르기 때문이다.
+     at 이 없는 예전 호출은 time 을 그대로 시각으로 읽는다(그때는 둘이 같았다). */
+  const atOf = (a) => a.at || a.time;
+  const sorted = [...items].sort((a, b) => toMin(atOf(a)) - toMin(atOf(b)));
   const n = sorted.length;
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
   const M = n <= 3 ? MAP_SHORT : MAP_LONG;
@@ -409,7 +413,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
     return () => clearInterval(iv);
   }, [mode]);
   const nowMin = (() => { const dt = new Date(); return dt.getHours() * 60 + dt.getMinutes(); })();
-  const starts = sorted.map(a => toMin(a.time));
+  const starts = sorted.map(a => toMin(atOf(a)));
   const ends = sorted.map((a, i) => starts[i] + (a.duration || 40));
   const lastEnded = n > 0 && nowMin >= ends[n - 1];
 

@@ -2,7 +2,7 @@ import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBla
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
-import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime } from "./data/sampleData.js";
+import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
@@ -3454,9 +3454,13 @@ export default function App() {
     const childDt=new Date(childDate+"T00:00:00");
     const childTodayDN=["일","월","화","수","목","금","토"][childDt.getDay()];
     const isChildToday=childDate===TODAY;
-    const childTodayAc=curAc
-      .filter(a=>hasClassOnDay(a,childTodayDN)&&!isVacationDay(childId,a.id,childDate))
-      .sort((a,b)=>getClassTime(a,childTodayDN).localeCompare(getClassTime(b,childTodayDN)));
+    /* [사용자 확정 2026-08-13] 아이 지도는 엄마용 '오늘의 학원'과 같은 목록을 본다.
+       getDayPlan 이 '요일 수업 − 휴원 + 그날 보충'을 시간순으로 만들어 준다.
+       아이용은 여기서 결석한 학원을 아예 뺀다 (엄마용은 카드를 남기고 시간 자리에 '결석'을 쓴다).
+       각 항목에 _time·_duration·_label 이 붙어 있다 — 보충은 시간이 없으면
+       앞 수업 종료 +30분으로 잡히므로, 정렬·완료 판정은 반드시 _time 을 쓴다. */
+    const childTodayAc=getDayPlan(curAc,curAbsLive,childDate,childTodayDN,
+      (acId)=>isVacationDay(childId,acId,childDate)).filter(a=>!a._absent);
     // 캐릭터 상태창 (HUD) — '내 캐릭터' 탭 안에서 사용
     const childHud=(()=>{
             const level=getChildLevel(childId);
@@ -4009,14 +4013,14 @@ export default function App() {
                 const total=childTodayAc.length;
                 // 링에 넘길 학원별 데이터(시각·수업길이·아이콘·미션완료율)
                 const ringItems=childTodayAc.map(ac=>{
-                  const sc=getScheduleForDay(ac,childTodayDN);
                   const e=getDailyEntry(childId,ac.id,childDate);
                   const hw=e.homeworks||[], td=e.todos||[];
                   const totalCnt=hw.length+td.length;
                   const doneCnt=hw.filter(h=>h.done).length+td.filter(t=>t.done).length;
                   return {
                     id:ac.id, name:acKindLabel(ac), color:ac.color,
-                    time:sc?.time||"", duration:sc?.duration||40,
+                    // 보충은 시각 대신 '보충 14:00' · '보충' 이 이름표에 찍힌다 (_label)
+                    time:ac._label||ac._time||"", duration:ac._duration||40, at:ac._time||"",
                     icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
                     done:doneCnt, total:totalCnt,
                   };
@@ -4112,7 +4116,7 @@ export default function App() {
               {/* 탐험장소 선택 줄 — 시간순 학원을 지도 건물 아이콘으로 나열, 누르면 아래 탐험일지에 표시 (사용자 확정) */}
               {kidSkin!=="cute"&&childTodayAc.length>0&&(()=>{
                 const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
-                const jList=[...childTodayAc].sort((a,b)=>mOf(getClassTime(a,childTodayDN))-mOf(getClassTime(b,childTodayDN)));
+                const jList=[...childTodayAc].sort((a,b)=>mOf(a._time)-mOf(b._time));
                 const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
                 // 진행 상태(지나온/현재) — 오늘만 시간 기준, 과거 날짜는 전부 지나온 것으로
                 const _now=new Date(), _nowMin=_now.getHours()*60+_now.getMinutes();
@@ -4197,7 +4201,7 @@ export default function App() {
                 ):kidSkin!=="cute"?(()=>{
                   // [탐험] 양피지 탐험일지 — 선택된 학원 1곳만, 책장 넘김(PageFlip)으로 전환 (사용자 확정)
                   const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
-                  const jList=[...childTodayAc].sort((a,b)=>mOf(getClassTime(a,childTodayDN))-mOf(getClassTime(b,childTodayDN)));
+                  const jList=[...childTodayAc].sort((a,b)=>mOf(a._time)-mOf(b._time));
                   const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
                   const jIdx=Math.max(0,jList.findIndex(a=>a.id===selId));
                   const ac=jList[jIdx];
@@ -4255,7 +4259,9 @@ export default function App() {
                   );
                 })():(
                   childTodayAc.map(ac=>{
-                    const sc=getScheduleForDay(ac,childTodayDN);
+                    /* 보충은 그날 시간표가 없어 getScheduleForDay 가 null 이다 →
+                       getDayPlan 이 정해 준 _time/_duration 을 쓴다 (사용자 확정 2026-08-13) */
+                    const sc={time:ac._time,duration:ac._duration};
                     const entry=getDailyEntry(childId,ac.id,childDate);
                     const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
                     const shuttleText=getShuttleText(ac,childTodayDN);
