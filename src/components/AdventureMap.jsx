@@ -92,7 +92,6 @@ const ANIMAL_IMG = {
   ev_toucan: "assets/map-ev/toucan.webp",
   ev_boar:   "assets/map-ev/boar.webp",
   ev_frog:   "assets/map-ev/frog.webp",
-  ev_butterfly: "assets/map-ev/butterfly.webp",
   ev_turtle: "assets/map-ev/turtle.webp",
 };
 /* [사용자 확정 2026-08-13] 같은 그룹끼리는 하루에 같이 안 나온다.
@@ -110,7 +109,7 @@ const ANIMAL_GROUP = {
      높이% = 폭% / (원화비율 × 지도세로비) */
 const ANIMAL_AR = { ev_parrot: 738/1158, ev_monkey: 813/936, ev_toucan: 967/809,
                     ev_boar: 870/749, ev_frog: 1406/886,
-                    ev_butterfly: 240/249, ev_turtle: 300/175 };
+                    ev_turtle: 300/175 };
 const animalTop = (M, id) => {
   const a = M.animals?.[id]; if (!a) return null;
   const [ax, by, aw] = a;
@@ -141,7 +140,7 @@ const MAP_LONG = {
   animals: { ev_parrot: [82, 30, 20], ev_monkey: [70, 54, 20], ev_toucan: [15, 74, 20],
              ev_boar: [85, 73, 20], ev_frog: [15, 86, 28.6],
              /* 나비·거북이는 예전 '손님' 자리(중심 기준)를 바닥 기준으로 환산해 옮겼다 */
-             ev_butterfly: [28, 25.3, 11.2], ev_turtle: [15, 91, 20] },
+             ev_turtle: [15, 91, 20] },
   /* [사용자 확정 2026-07-31] 지도 원화에 없는 손님 3종은 '그날만' 그려 넣는다.
      [중심x%, 중심y%, 폭%] — 평소엔 아예 없다가 그 이벤트가 걸린 날에만 나타난다. */
   evImg: { ev_rainbow: [64, 6, 30] },
@@ -219,12 +218,8 @@ const MAP_SHORT = {
      폭은 20 으로 통일하고 개구리만 28.6(20에서 40% 확대 — 원화가 납작해 같은 폭에서 작아 보인다).
      높이는 원화 비율을 따라가므로 폭이 같아도 종마다 다르다 — 높이% = 폭% / (원화비율 × yr).
 
-     ※ 나비(ev_butterfly)는 짧은 지도에서 뺐다 (사용자 확정 2026-08-13).
-       여기 목록에 없으면 그날 뽑혀도 그려지지 않고(그리는 쪽이 좌표가 없으면 건너뛴다)
-       다음 동물이 대신 나온다 — rollMapAnimals 는 일곱 마리를 다 돌려주고
-       지도가 '가리지 않는 앞 두 마리'를 고르는 구조라, 목록에서 빼는 것만으로 충분하다.
-       긴 지도에는 그대로 둔다 (그쪽은 위쪽 잔디라 아무것도 안 가린다). */
-  animals: { ev_parrot: [81.9, 31.2, 20], ev_monkey: [88, 42.5, 20], ev_toucan: [11.9, 33, 20],
+     ※ 나비는 두 지도 모두에서 뺐다 (사용자 확정 2026-08-13) — 그림·목록·뽑기 풀에서 전부. */
+  animals: { ev_parrot: [81.9, 31.2, 20], ev_monkey: [88, 42.5, 20], ev_toucan: [11.9, 36, 20],
              ev_boar: [87.8, 74.1, 20], ev_frog: [17.4, 66.7, 28.6],
              ev_turtle: [68, 87.9, 20] },
   evImg: { ev_rainbow: [62, 5.5, 31] },

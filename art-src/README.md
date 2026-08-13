@@ -178,7 +178,6 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | expedition/bg/bg-cave-v3-src.webp | 동굴 배경 v3 (1483×1061 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-cave.webp |
 | expedition/bg/bg-meadow-v2-src.webp | 초원 배경 v2 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 언덕·들꽃, 현행) | expedition/bg-meadow.webp |
 | expedition/bg/bg-skyisle-v3-src.webp | 하늘섬 배경 v3 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-skyisle.webp |
-| map-ev/butterfly-src.webp | 지도 이벤트 손님 나비 — 이벤트 날에만 지도에 나타남 (ev_butterfly) | map-ev/butterfly.webp |
 | map-ev/turtle-src.webp | 지도 이벤트 손님 거북이 — 이벤트 날에만 지도에 나타남 (ev_turtle) | map-ev/turtle.webp |
 | map-ev/rainbow-src.webp | 지도 이벤트 손님 무지개 — 이벤트 날에만 지도 하늘에 나타남 (ev_rainbow, 👋 없음) | map-ev/rainbow.webp |
 | expedition/bg/bg-snow-v2-src.webp | 설원 배경 v2 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-snow.webp |
