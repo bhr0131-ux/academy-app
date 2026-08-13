@@ -393,7 +393,7 @@ export const DECOR_BGS = [
      원화가 없는 bakery(벚꽃 배경)는 예전 그대로라 거기에만 darkStage 를 남긴다.
      deco 목록은 손대지 않았다 — 지금 장식 이모지는 화면에서 통째로 꺼 둔 상태라
      (HeroStage 의 SHOW_BG_DECO_EMOJI) 눈으로 맞춰 볼 수가 없다. 다시 켤 때 그림 보고 고른다. */
-  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    img:"/assets/stage-bg-forest.webp", deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(150,220,205,0.10)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)", darkStage:true } },
+  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    img:"/assets/stage-bg-forest.webp", deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(200,180,245,0.10)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)", darkStage:true } },
   /* [사용자 확정 2026-08-12] 이름은 '깊은 바다'.
      (2026-08-11 에 '별빛 심해'로 바꿨다가 되돌렸다 — 다시 바꾸지 말 것)
      img 가 있는 배경은 무대에 그 원화를 한 장 덮는다 — 지금 있는 SVG 바다 풍경 위에.
