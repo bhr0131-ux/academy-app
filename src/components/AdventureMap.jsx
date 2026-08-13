@@ -148,7 +148,9 @@ const MAP_LONG = {
              ev_turtle: [78, 84, 17] },
   /* [사용자 확정 2026-07-31] 지도 원화에 없는 손님 3종은 '그날만' 그려 넣는다.
      [중심x%, 중심y%, 폭%] — 평소엔 아예 없다가 그 이벤트가 걸린 날에만 나타난다. */
-  evImg: { ev_rainbow: [64, 6, 30] },
+  /* [사용자 확정 2026-08-13] 무지개를 오른쪽 위 → 왼쪽 위로 옮기고 살짝 기울였다
+     (사용자가 지도에 그려 준 자리). 값은 [중심x%, 중심y%, 폭%, 기울기°]. */
+  evImg: { ev_rainbow: [27, 12, 30, -15] },
   yr: 1777 / 885,
   bw: 14.4, fs: 13.6, // 건물 표시 폭(%)·이모지 크기 (사용자 조정 2026-08-12: 여기서 20% 더 축소 18→14.4)
   fpk: 46,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 64→46)
@@ -229,7 +231,7 @@ const MAP_SHORT = {
   animals: { ev_parrot: [81.9, 31.2, 17], ev_monkey: [88, 42.5, 17], ev_toucan: [11.9, 36, 17],
              ev_boar: [87.8, 74.1, 17], ev_frog: [17.4, 66.7, 24.3],
              ev_turtle: [78, 84, 17] },
-  evImg: { ev_rainbow: [62, 5.5, 31] },
+  evImg: { ev_rainbow: [27, 12.5, 31, -15] },
   yr: 1692 / 930,
   bw: 15.96, fs: 14.44, // 짧은 지도 건물 크기 (사용자 조정 2026-08-12: 20% 축소 21→16.8 뒤 짧은 지도만 5% 더 16.8→15.96)
   fpk: 36,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 50→36)
@@ -747,10 +749,10 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
              무지개는 땅에 서지 않으므로 중심 기준으로 놓고, 동물이 아니라 👋도 안 붙인다.
              나오는 빈도는 rollRainbow(5%)가 정한다 — 동물보다 드물게. ── */}
       {showRainbow && M.evImg?.ev_rainbow && (() => {
-        const [ax, ay, aw] = M.evImg.ev_rainbow;
+        const [ax, ay, aw, arot] = M.evImg.ev_rainbow;
         return (
           <div style={{ position: "absolute", left: `${ax}%`, top: `${ay}%`, width: `${aw}%`,
-            transform: "translate(-50%,-50%)", pointerEvents: "none", zIndex: 2 }}>
+            transform: `translate(-50%,-50%) rotate(${arot || 0}deg)`, pointerEvents: "none", zIndex: 2 }}>
             <img src={EV_IMG.ev_rainbow} alt="" draggable={false}
               style={{ width: "100%", display: "block",
                 animation: "amGuestSky 4s ease-in-out infinite",

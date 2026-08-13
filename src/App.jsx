@@ -9,7 +9,7 @@ import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import RewardTab from "./components/parent/RewardTab.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
-import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, rollMapAnimals, rollRainbow, rollSparkT } from "./data/discoveries.js";
+import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, DISCO_EVENTS, rollMapAnimals, rollRainbow, rollSparkT } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
 import ParentNav, { PARENT_NAV_H } from "./components/parent/ParentNav.jsx";
 import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
@@ -3871,6 +3871,12 @@ export default function App() {
               const _dde=getDiscoveryOn(discoveryData,childId,childDate||TODAY);
               const _ddi=_dde?getDiscovery(_dde.id):null;
               const _dev=rollEvent(childId,childDate||TODAY);
+              /* [버그 수정 2026-08-13] 무지개는 이벤트 뽑기와 별개로 확률(3.3%)로도 뜬다.
+                 그런 날엔 지도엔 무지개가 걸렸는데 무대엔 아무 말이 없었다.
+                 그날 이벤트가 무지개가 아니면서 무지개가 떠 있으면 그 한 줄을 따로 붙인다. */
+              const _rain=rollRainbow(childId,childDate||TODAY,_dev?.id||null);
+              const _rainLine=(_rain&&_dev?.id!=="ev_rainbow")
+                ? DISCO_EVENTS.find(e=>e.id==="ev_rainbow") : null;
               /* [사용자 확정 2026-08-05] 전설 탈것이 걸린 날 뜨던 한 줄
                  ("✨ 오늘은 특별한 탐험! 🐉 드래곤과 함께 떠나요!")은 뺐다.
                  무대 문구는 응원 한 줄 + 발견/만남 한 줄이면 충분하다.
@@ -3885,6 +3891,7 @@ export default function App() {
                   {/* 발견·만남 줄은 응원 문구에서 한 뼘 떨어뜨린다 (사용자 조정: 9→18px) */}
                   {_ddi&&<span style={{display:"block",fontSize:13.5,marginTop:18,opacity:0.96}}>{_ddi.emoji} {_ddi.msg}</span>}
                   {_dev&&<span style={{display:"block",fontSize:13.5,marginTop:_ddi?4:18,opacity:0.9}}>{_dev.emoji} {_dev.msg}</span>}
+                  {_rainLine&&<span style={{display:"block",fontSize:13.5,marginTop:(_ddi||_dev)?4:18,opacity:0.9}}>{_rainLine.emoji} {_rainLine.msg}</span>}
                 </h1>
               );
             })()}
@@ -4018,7 +4025,8 @@ export default function App() {
                   const totalCnt=hw.length+td.length;
                   const doneCnt=hw.filter(h=>h.done).length+td.filter(t=>t.done).length;
                   return {
-                    id:ac.id, name:acKindLabel(ac), color:ac.color,
+                    // id 는 _key — 같은 학원이 '보통 수업 + 보충'으로 두 번 담겨도 눌렀을 때 구분된다
+                    id:ac._key, name:acKindLabel(ac), color:ac.color,
                     // 보충은 시각 대신 '보충 14:00' · '보충' 이 이름표에 찍힌다 (_label)
                     time:ac._label||ac._time||"", duration:ac._duration||40, at:ac._time||"",
                     icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
@@ -4117,20 +4125,24 @@ export default function App() {
               {kidSkin!=="cute"&&childTodayAc.length>0&&(()=>{
                 const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
                 const jList=[...childTodayAc].sort((a,b)=>mOf(a._time)-mOf(b._time));
-                const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
+                /* [버그 수정 2026-08-13] 같은 학원이 '보통 수업 + 보충'으로 두 번 담기면
+                   id 가 같아서 두 칸이 한꺼번에 골드로 켜졌다 → 칸 구분은 _key 로 한다.
+                   (_key 는 보충이면 'id-mk' 라 겹치지 않는다) */
+                const _pickId=pickJournalAc(childTodayAc,childTodayDN,isChildToday);
+                const _keyOf=(id)=>(childTodayAc.find(a=>a.id===id)?._key)||id;
+                const selId=childTodayAc.some(a=>a._key===journalAcId)?journalAcId:_keyOf(_pickId);
                 // 진행 상태(지나온/현재) — 오늘만 시간 기준, 과거 날짜는 전부 지나온 것으로
                 const _now=new Date(), _nowMin=_now.getHours()*60+_now.getMinutes();
-                const curId=pickJournalAc(childTodayAc,childTodayDN,isChildToday);
+                const curId=_keyOf(_pickId);
                 const isPast=(ac)=>{
                   if(childDate<TODAY) return true;
                   if(!isChildToday) return false;
-                  const sc=getScheduleForDay(ac,childTodayDN);
-                  return _nowMin >= mOf(sc?.time)+(sc?.duration||40);
+                  return _nowMin >= mOf(ac._time)+(ac._duration||40);
                 };
                 return (
                   <AdventureSpotPicker
-                    items={jList.map(ac=>({id:ac.id,name:acKindLabel(ac),icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
-                      passed:isPast(ac), current:isChildToday&&ac.id===curId}))}
+                    items={jList.map(ac=>({id:ac._key,name:ac._makeup?`${acKindLabel(ac)} (보충)`:acKindLabel(ac),icon:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
+                      passed:isPast(ac), current:isChildToday&&ac._key===curId}))}
                     selectedId={selId}
                     onSelect={setJournalAcId}
                   />
@@ -4144,48 +4156,6 @@ export default function App() {
                   <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.32), rgba(138,107,71,0) 90%)"}}/>
                 </div>
               )}
-              {/* 오늘의 발견 한 줄 — 발견 지점을 지나갔으면 무엇을 찾았는지, 아직이면 펫이 흘리는 힌트.
-                  힌트는 오늘 발견의 hint라 "오늘은 반짝이는 걸 찾을 것 같아!" → 기대하며 시작하게 된다. */}
-              {kidSkin!=="cute"&&(()=>{
-                const _dd=childDate||TODAY;
-                const _de=getDiscoveryOn(discoveryData,childId,_dd);
-                const _d=_de?getDiscovery(_de.id):null;
-                /* [사용자 확정 2026-08-09] 탐험 갈 곳이 없는 날엔 힌트를 안 띄운다 —
-                   발견은 지도 위를 지나가야 생기는데, 갈 곳이 없으면 오늘은 아예 못 만난다.
-                   못 만날 걸 "찾을 것 같아!" 하고 기대시키면 안 된다.
-                   이미 찾은 날이면(_d) 그건 힌트가 아니라 결과라 그대로 보여 준다. */
-                if(childTodayAc.length===0&&!_d) return null;
-                /* 학원 등록 전(또는 앞날)이라 오늘은 수집품을 얻을 수 없는 날 —
-                   힌트를 띄우면 지나가도 아무 일이 없어 아이가 헛기다린다. */
-                if(!canDiscoverOn(childId,_dd)&&!_d) return null;
-                return (
-                  /* [사용자 확정 2026-08-11] '오늘의 발견'·'새싹'·'도감 16'이 비슷한 무게라
-                     정작 무엇을 찾았는지가 안 도드라졌다 → 찾은 것(새싹)을 한 단계 키우고
-                     머리말은 더 작고 연하게. '도감 16'은 개수인지 번호인지 몰라 '도감 16개'로.
-                     카드 안에 또 테두리 상자가 있어 카드 속 카드처럼 보이던 것도 글자 버튼으로. */
-                  <div style={{display:"flex",alignItems:"center",gap:9,margin:"0 2px 11px",padding:"8px 12px",borderRadius:14,
-                    background:_d?"rgba(255,255,255,0.72)":"rgba(138,107,71,0.07)",
-                    border:_d?"1.5px solid rgba(138,107,71,0.32)":"1.5px dashed rgba(138,107,71,0.3)"}}>
-                    <span style={{fontSize:22,flexShrink:0}}>{_d?_d.emoji:"🐾"}</span>
-                    <div style={{flex:1,minWidth:0}}>
-                      <p style={{margin:0,fontSize:10,fontWeight:800,color:"#B3A493",letterSpacing:0.3}}>오늘의 발견</p>
-                      {/* 힌트가 길면 한 줄로는 잘린다 (사용자 지적) → 두 줄까지 접어서 보여 준다 */}
-                      <p style={{margin:"1px 0 0",fontSize:14.5,fontWeight:900,color:_d?"#5A4430":"#8C7E6B",
-                        lineHeight:1.3,wordBreak:"keep-all",overflow:"hidden",
-                        display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>
-                        {_d?_d.name:getTodayHint(childId,_dd)}
-                      </p>
-                    </div>
-                    <button onClick={()=>setOpenDiscoveryBook(true)}
-                      style={{flexShrink:0,border:"none",background:"none",color:"#8A6B47",
-                        padding:"6px 2px",fontSize:11.5,fontWeight:900,cursor:"pointer",
-                        textDecoration:"underline",textUnderlineOffset:3,
-                        fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif"}}>
-                      도감 {getCollectedCount(discoveryData,childId)}개
-                    </button>
-                  </div>
-                );
-              })()}
               {/* 오늘 학원 일정 섹션 */}
               <div style={{marginTop:2,marginBottom:14}}>
                 {childTodayAc.length===0?(
@@ -4202,10 +4172,12 @@ export default function App() {
                   // [탐험] 양피지 탐험일지 — 선택된 학원 1곳만, 책장 넘김(PageFlip)으로 전환 (사용자 확정)
                   const mOf=(t)=>{const [h,m]=String(t||"23:59").split(":").map(Number);return (h||0)*60+(m||0);};
                   const jList=[...childTodayAc].sort((a,b)=>mOf(a._time)-mOf(b._time));
-                  const selId=childTodayAc.some(a=>a.id===journalAcId)?journalAcId:pickJournalAc(childTodayAc,childTodayDN,isChildToday);
-                  const jIdx=Math.max(0,jList.findIndex(a=>a.id===selId));
+                  const _pickId2=pickJournalAc(childTodayAc,childTodayDN,isChildToday);
+                  const _k2=(childTodayAc.find(a=>a.id===_pickId2)?._key)||_pickId2;
+                  const selId=childTodayAc.some(a=>a._key===journalAcId)?journalAcId:_k2;
+                  const jIdx=Math.max(0,jList.findIndex(a=>a._key===selId));
                   const ac=jList[jIdx];
-                  const goJournal=(d)=>{if(jList.length<2)return;setJournalAcId(jList[(jIdx+d+jList.length)%jList.length].id);};
+                  const goJournal=(d)=>{if(jList.length<2)return;setJournalAcId(jList[(jIdx+d+jList.length)%jList.length]._key);};
                   const sc=getScheduleForDay(ac,childTodayDN);
                   const entry=getDailyEntry(childId,ac.id,childDate);
                   const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
@@ -4235,7 +4207,7 @@ export default function App() {
                     <PageFlip flipKey={ac.id} order={jIdx} total={jList.length}>
                       <AdventureJournalCard
                         onPrev={()=>goJournal(-1)} onNext={()=>goJournal(1)}
-                        icon={dungeon.icon} title={dungeon.label} name={acKindLabel(ac)}
+                        icon={dungeon.icon} title={dungeon.label} name={ac._makeup?`${acKindLabel(ac)} (보충)`:acKindLabel(ac)}
                         time={sc?.time?toKoreanTime(sc.time):"-"}
                         remain={rl?rl.text:""} remainTone={rl?rl.tone:""}
                         shuttle={shuttleText||"없음"}
@@ -4358,6 +4330,51 @@ export default function App() {
                   })
                 )}
               </div>
+              {/* [사용자 확정 2026-08-13] 이 줄을 탐험일지 수첩 "아래"로 내렸다 —
+                  수첩(오늘 학원 일정)이 이 탭의 본문인데 발견 한 줄이 그 위에 있어
+                  먼저 눈에 걸렸다. 발견은 걷다가 얻는 덤이라 수첩을 읽고 난 뒤에 본다. */}
+              {/* 오늘의 발견 한 줄 — 발견 지점을 지나갔으면 무엇을 찾았는지, 아직이면 펫이 흘리는 힌트.
+                  힌트는 오늘 발견의 hint라 "오늘은 반짝이는 걸 찾을 것 같아!" → 기대하며 시작하게 된다. */}
+              {kidSkin!=="cute"&&(()=>{
+                const _dd=childDate||TODAY;
+                const _de=getDiscoveryOn(discoveryData,childId,_dd);
+                const _d=_de?getDiscovery(_de.id):null;
+                /* [사용자 확정 2026-08-09] 탐험 갈 곳이 없는 날엔 힌트를 안 띄운다 —
+                   발견은 지도 위를 지나가야 생기는데, 갈 곳이 없으면 오늘은 아예 못 만난다.
+                   못 만날 걸 "찾을 것 같아!" 하고 기대시키면 안 된다.
+                   이미 찾은 날이면(_d) 그건 힌트가 아니라 결과라 그대로 보여 준다. */
+                if(childTodayAc.length===0&&!_d) return null;
+                /* 학원 등록 전(또는 앞날)이라 오늘은 수집품을 얻을 수 없는 날 —
+                   힌트를 띄우면 지나가도 아무 일이 없어 아이가 헛기다린다. */
+                if(!canDiscoverOn(childId,_dd)&&!_d) return null;
+                return (
+                  /* [사용자 확정 2026-08-11] '오늘의 발견'·'새싹'·'도감 16'이 비슷한 무게라
+                     정작 무엇을 찾았는지가 안 도드라졌다 → 찾은 것(새싹)을 한 단계 키우고
+                     머리말은 더 작고 연하게. '도감 16'은 개수인지 번호인지 몰라 '도감 16개'로.
+                     카드 안에 또 테두리 상자가 있어 카드 속 카드처럼 보이던 것도 글자 버튼으로. */
+                  <div style={{display:"flex",alignItems:"center",gap:9,margin:"0 2px 11px",padding:"8px 12px",borderRadius:14,
+                    background:_d?"rgba(255,255,255,0.72)":"rgba(138,107,71,0.07)",
+                    border:_d?"1.5px solid rgba(138,107,71,0.32)":"1.5px dashed rgba(138,107,71,0.3)"}}>
+                    <span style={{fontSize:22,flexShrink:0}}>{_d?_d.emoji:"🐾"}</span>
+                    <div style={{flex:1,minWidth:0}}>
+                      <p style={{margin:0,fontSize:10,fontWeight:800,color:"#B3A493",letterSpacing:0.3}}>오늘의 발견</p>
+                      {/* 힌트가 길면 한 줄로는 잘린다 (사용자 지적) → 두 줄까지 접어서 보여 준다 */}
+                      <p style={{margin:"1px 0 0",fontSize:14.5,fontWeight:900,color:_d?"#5A4430":"#8C7E6B",
+                        lineHeight:1.3,wordBreak:"keep-all",overflow:"hidden",
+                        display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>
+                        {_d?_d.name:getTodayHint(childId,_dd)}
+                      </p>
+                    </div>
+                    <button onClick={()=>setOpenDiscoveryBook(true)}
+                      style={{flexShrink:0,border:"none",background:"none",color:"#8A6B47",
+                        padding:"6px 2px",fontSize:11.5,fontWeight:900,cursor:"pointer",
+                        textDecoration:"underline",textUnderlineOffset:3,
+                        fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif"}}>
+                      도감 {getCollectedCount(discoveryData,childId)}개
+                    </button>
+                  </div>
+                );
+              })()}
             </>
           )}
 
