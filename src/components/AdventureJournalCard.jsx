@@ -84,18 +84,27 @@ export default function AdventureJournalCard({
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block",
           filter: "drop-shadow(0 6px 14px rgba(74,90,37,0.22))" }} />
 
-      {/* 제목 — 학원 이모지 + 던전명, 아래에 학원명.
-          나침반(x 84.8~ / y 7.7~14.9)과 발자국(y ~9.2)을 피해 y 16~29%, 오른쪽은 82%까지만. */}
-      <div style={{ position: "absolute", left: "9%", right: "18%", top: "16%", height: "13%",
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        textAlign: "center", pointerEvents: "none" }}>
-        <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(12.7px, 4.3vw, 19.8px)",
-          color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,255,255,0.7)",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>
-          <span style={{ marginRight: 5 }}>{icon}</span>{title}
-        </p>
-        <p style={{ margin: "2px 0 0", fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(8.2px, 2.8vw, 12.1px)",
-          color: "#7A6E48", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{name}</p>
+      {/* 제목 — [사용자 확정 2026-08-13] 한 줄로 폈다: 학원 이모지 · 던전명 · 학원명.
+          예전엔 가운데 정렬 두 줄(던전명 / 그 아래 학원명)이었는데, 아래 네 줄(시계·버스·
+          가방·과녁)은 왼쪽 아이콘 열 기준이라 머리말만 혼자 가운데라 축이 어긋나 보였다.
+          이제 이모지를 아래 아이콘과 같은 열(9~31%) 가운데에 두고, 글자는 아래 글자열과
+          같은 31% 에서 시작한다 — 세로선이 위아래로 쭉 맞는다.
+          크기도 한 단계 키웠다(약 +20%). 이모지는 던전명보다 크게(1.35배),
+          학원명은 예전처럼 던전명보다 작은 비율(0.61)을 그대로 지킨다.
+          top 16% → 13% — 사용자 요청대로 약간 위로. */}
+      <div style={{ position: "absolute", left: "14.1%", right: COL_R, top: "13%", height: "13%",
+        display: "flex", alignItems: "center", pointerEvents: "none" }}>
+        {/* 이모지 칸 14.1~31% — 이모지 글자가 자체 여백 때문에 왼쪽으로 치우쳐서, 칸을 아래 아이콘 네 개의 중심과 맞는다.
+            칸 오른쪽 끝은 31%(COL_L)라 글자는 아래 글자열과 같은 자리에서 시작한다. */}
+        <span style={{ width: "16.9%", flexShrink: 0, textAlign: "center",
+          fontSize: "clamp(20.5px, 7vw, 32.1px)", lineHeight: 1 }}>{icon}</span>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "baseline", gap: 7, overflow: "hidden" }}>
+          <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(15.2px, 5.2vw, 23.8px)",
+            color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,255,255,0.7)",
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</p>
+          <p style={{ margin: 0, fontFamily: F_BODY, fontWeight: 400, fontSize: "clamp(9.3px, 3.2vw, 14.5px)",
+            color: "#7A6E48", flexShrink: 0, whiteSpace: "nowrap" }}>{name}</p>
+        </div>
       </div>
 
       {/* 탐험 시작 (시계) — 시각은 왼쪽, 남은시간은 줄 맨 오른쪽 끝에 (사용자 확정: 시각에 붙이지 말고 떼서 우측).
