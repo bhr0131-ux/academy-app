@@ -104,6 +104,7 @@ const ANIMAL_GROUP = {
   ev_boar:   "boar-turtle",   ev_turtle: "boar-turtle",     // 오른쪽 아래
   ev_frog:   "frog-toucan",   ev_toucan: "frog-toucan",     // 왼쪽
 };
+/* 하루에 나오는 마릿수 = 그룹 수(3). 그룹마다 한 마리씩 뽑는다 — shownAnimals 참고. */
 /* 원화 실측 가로/세로 — 말풍선을 동물 '머리 위'에 놓으려면 높이를 알아야 한다.
    폭만 %로 주고 높이는 비율로 따라오므로, 지도 높이 % 로 환산해서 쓴다:
      높이% = 폭% / (원화비율 × 지도세로비) */
@@ -223,7 +224,7 @@ const MAP_SHORT = {
        다음 동물이 대신 나온다 — rollMapAnimals 는 일곱 마리를 다 돌려주고
        지도가 '가리지 않는 앞 두 마리'를 고르는 구조라, 목록에서 빼는 것만으로 충분하다.
        긴 지도에는 그대로 둔다 (그쪽은 위쪽 잔디라 아무것도 안 가린다). */
-  animals: { ev_parrot: [81.9, 31.2, 20], ev_monkey: [88, 42.5, 20], ev_toucan: [11.9, 30, 20],
+  animals: { ev_parrot: [81.9, 31.2, 20], ev_monkey: [88, 42.5, 20], ev_toucan: [11.9, 33, 20],
              ev_boar: [87.8, 74.1, 20], ev_frog: [17.4, 66.7, 28.6],
              ev_turtle: [68, 87.9, 20] },
   evImg: { ev_rainbow: [62, 5.5, 31] },
@@ -353,23 +354,22 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       const ah = aw / ((ANIMAL_AR[id] || 1) * M.yr);
       return !boxes.some(b => cx - aw / 2 < b.x1 && cx + aw / 2 > b.x0 && by - ah < b.y1 && by > b.y0);
     };
-    /* [사용자 확정 2026-08-13] 같은 그룹끼리는 하루에 같이 안 나온다 (ANIMAL_GROUP).
-       고르는 순서는 그대로 dayAnimals(그날의 뽑기 순서)이고, 앞에서부터 담되
-       이미 담은 것과 같은 그룹이면 건너뛴다.
-       두 마리를 못 채우면 '가리는 자리'까지 포함해 다시 훑어 채운다 —
-       그때도 그룹 규칙은 지킨다(같은 그룹을 붙이느니 한 마리만 낸다). */
-    const take = (list, pick) => {
-      for (const id of list) {
-        if (pick.length >= 2) break;
-        if (pick.includes(id)) continue;
-        const g = ANIMAL_GROUP[id];
-        if (g && pick.some(p => ANIMAL_GROUP[p] === g)) continue;
-        pick.push(id);
-      }
-      return pick;
-    };
-    const pick = take(dayAnimals.filter(clear), []);
-    return pick.length >= 2 ? pick : take(dayAnimals, pick);
+    /* [사용자 확정 2026-08-13] 하루에 세 마리 — 그룹마다 반드시 한 마리씩.
+       (예전엔 두 마리였는데 지도가 허전해서 늘렸다. 그룹은 ANIMAL_GROUP 참고)
+       고르는 순서는 그대로 dayAnimals(그날의 뽑기 순서)다. 그룹 안에서
+       '건물·상자에 안 가리는' 첫 마리를 고르고, 그런 게 없으면 그룹의 첫 마리를 쓴다
+       (한 마리라도 내보내는 쪽이 그룹이 통째로 비는 것보다 낫다).
+       ※ 그룹이 없는 동물(나비)은 이 규칙에선 안 뽑힌다 — 긴 지도의 나비가 그렇다. */
+    const groups = [...new Set(Object.values(ANIMAL_GROUP))];
+    const pick = [];
+    for (const g of groups) {
+      const inG = dayAnimals.filter(id => ANIMAL_GROUP[id] === g && M.animals?.[id]);
+      if (!inG.length) continue;
+      // 그날 이벤트로 걸린 동물은 자기 그룹에서 무조건 이긴다 (말풍선이 그 동물 머리 위에 뜬다)
+      const chosen = inG[0] === eventId ? inG[0] : (inG.find(clear) || inG[0]);
+      pick.push(chosen);
+    }
+    return pick.sort((a, b) => dayAnimals.indexOf(a) - dayAnimals.indexOf(b));
   })();
 
   // 도착 지점 = '건물이 길에 걸쳐지는 지점' (사용자 확정).
