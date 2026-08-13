@@ -155,20 +155,16 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | map-ev/toucan-v1-src.webp | 지도 동물 — 큰부리새 (나뭇가지, 투명. 지도 폭의 20%) | map-ev/toucan.webp |
 | map-ev/boar-v1-src.webp | 지도 동물 — 멧돼지 (투명. 지도 폭의 17%) | map-ev/boar.webp |
 | map-ev/frog-v1-src.webp | 지도 동물 — 개구리 (바위+수풀, 투명. 지도 폭의 24% — 사용자 요청으로 20→24% 확대) | map-ev/frog.webp |
-| map-bld-treehouse-v2.webp | 지도 학원 건물 v7-1 (나무 위의 집, 흰 원→투명 펀칭) | map-bld-treehouse.webp |
-| map-bld-stonearch-v2.webp | 지도 학원 건물 v7-2 (돌 아치문, 흰 원→투명 펀칭) | map-bld-stonearch.webp |
-| map-bld-tent-v2.webp | 지도 학원 건물 v7-3 (탐험가 텐트, 흰 원→투명 펀칭) | map-bld-tent.webp |
-| map-bld-tikihut-v2.webp | 지도 학원 건물 v7-4 (티키 초가 오두막, 흰 원→투명 펀칭) | map-bld-tikihut.webp |
+| map-bld-v9/thatch-src.webp | 지도 학원 건물 v9-1 (초가 오두막 — 통나무 벽·툇마루·항아리). 499×511 → 배포 340×348. 원화의 크림 원(아이콘 자리)이 막혀 있어 그 덩어리만 알파 0으로 뚫어서 탑재했다. cx 49.3 · cy 59.2 · d 39.3 · k 0.88. **네 채의 표시 높이를 같게 맞추는 규칙** — 표시높이 = `bw × k / ar` 가 항상 14.4(지도 폭 %)가 되도록 `k = ar / 1.1083`. 그래서 원화 비율이 달라도 크기는 예전과 같다. v7·v8 세트(각 4장)는 규칙 6에 따라 삭제했다 | map-bld-treehouse2.webp |
+| map-bld-v9/cottage-src.webp | 지도 학원 건물 v9-2 (주황 기와 오두막 — 굴뚝·돌계단·항아리). 518×490 → 배포 340×322. 크림 원 뚫어서 탑재. cx 40.9 · cy 58.5 · d 38.9 · k 0.95 | map-bld-stonearch2.webp |
+| map-bld-v9/stall-src.webp | 지도 학원 건물 v9-3 (나무 가판대 — 청록 차양·랜턴·물통·나무통). 503×501 → 배포 340×339. 크림 원 뚫어서 탑재. cx 45.3 · cy 61.6 · d 37.0 · k 0.91 | map-bld-tent2.webp |
+| map-bld-v9/shell-src.webp | 지도 학원 건물 v9-4 (조개집 — 불가사리·산호·조개 계단). 521×489 → 배포 340×319. 크림 원 뚫어서 탑재. cx 42.5 · cy 58.8 · d 38.9 · k 0.96 | map-bld-tikihut2.webp |
 | journal-card-v6-src.webp | 모험일지 스프링 노트 원화 v6 (1254×1254 — 제본링·나침반·발자국 장식이 들어간 판. 왼쪽 세로줄에 아이콘 넷(시계·버스·배낭·과녁)만 있고 글자는 앱이 오른쪽에 얹는다. 모서리 검정→투명 펀칭 후 1254px q86 그대로 탑재, 현행) | journal-card.webp |
 | chest-open-v2.webp | 열린 보물상자 원화 v2 (도착 시 지도의 닫힌 상자 위에 덮어 그림) | chest-open.webp |
 | chest-patch.webp | 모래 텍스처 조각 (도착 시 배경의 '닫힌 상자'를 지우는 용도, 타원 마스크로 이음매 제거) | chest-patch.webp |
 | coin-front.webp | 금화 원화 정면 (상자 도착 연출, 뒤집히며 튀어오름) | coin-front.webp |
 | coin-tilt.webp | 금화 원화 반측면 (상자 도착 연출, 구르듯 회전) | coin-tilt.webp |
 | map-walkers/{pink,apricot,green,purple,blue}-{boy,girl}.webp | 지도 위를 걷는 탐험가 10종 (5테마×성별, 이모지 대체) | map-char/*.webp |
-| map-bld-v8/treehouse2-src.webp | 지도 학원 건물 v8-1 (나무 위의 집, 구멍 투명 제공됨) | map-bld-treehouse2.webp |
-| map-bld-v8/stonearch2-src.webp | 지도 학원 건물 v8-2 (돌 아치문+팻말, 구멍 투명 제공됨) | map-bld-stonearch2.webp |
-| map-bld-v8/tent2-src.webp | 지도 학원 건물 v8-3 (텐트+모닥불·배낭·랜턴, 흰 원→투명 펀칭) | map-bld-tent2.webp |
-| map-bld-v8/tikihut2-src.webp | 지도 학원 건물 v8-4 (티키 초가+항아리, 구멍 투명 제공됨) | map-bld-tikihut2.webp |
 | expedition/char/common-{walk,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 3종 (남아 원화, halo 보정 후 탑재) | expedition/char/common-*.webp |
 | expedition/char/girl-{idle,walk,run,swim,success}-src.webp | 탐험 씬 캐릭터 포즈 5종 여아 원화 (2026-08-08 — 원본 316×597 / 197×345 / 521×867 / 414×266 / 217×370. halo 재색칠 후 **남아와 같은 높이**(412·276·220·207·301)로 줄여 탑재 — 그림은 높이로만 크기가 정해져서 높이를 맞춰야 두 성별이 같게 그려진다. 이로써 포즈는 남녀 전부 따로) | expedition/char/girl-*.webp |
 | expedition/ride/{키}-girl-src.webp | 탐험 씬 탈것 여아 원화 **32종 전부** (2026-08-08). 탈것 그림에는 타고 있는 아이도 같이 그려져 있어 성별이 갈린다. 대개 남아 판과 크기가 거의 같아 그대로 탑재하지만, 크게 온 것은 **남아와 같은 높이로 줄인다**(거북이 487→302 · 고래 888→266 · 잠수함 1341→356 등) — 그림은 높이로만 크기가 정해지므로 높이를 맞춰야 두 성별이 같은 해상도로 보인다. 배경이 박혀 온 것(열기구 여아 마젠타 · 열기구/잠수함 검정)은 테두리 flood fill 로만 지운다 — 색으로 지우면 눈·외곽선까지 뚫린다. halo 재색칠은 전부 적용 | expedition/ride/{키}-girl.webp |
