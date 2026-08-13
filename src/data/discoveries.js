@@ -210,6 +210,9 @@ export const DISCO_EVENTS = [
   { id: "ev_frog",    emoji: "🐸", msg: "개구리와 인사했어!" },
   { id: "ev_boar",    emoji: "🐗", msg: "멧돼지를 조심조심 지나갔어!" },
   { id: "ev_rainbow", emoji: "🌈", msg: "하늘에 무지개가 떴어!" },
+  /* [2026-08-13] 나비는 지도에서 뺐지만 이 줄은 남긴다 — 위 [주의]대로 목록의
+     순서·개수를 바꾸면 지난 모든 날짜의 이벤트가 바뀌어 아이의 지난 추억이 뒤틀린다.
+     그래서 이벤트 문구는 그대로 두고, 그날 지도에 나비만 안 나온다(👋 말풍선도 없다). */
   { id: "ev_butterfly", emoji: "🦋", msg: "나비들이 길 안내를 해 줬어!" },
   { id: "ev_turtle",  emoji: "🐢", msg: "거북이가 느릿느릿 응원해 줬어!" },
   { id: "ev_toucan",  emoji: "🐦", msg: "큰부리새가 노래를 불러 줬어!" },
@@ -235,8 +238,7 @@ export function rollEvent(childId, dateStr) {
    고르는 것은 지도 쪽 몫이다 — 학원 건물이 동물을 덮는 자리가 있어서,
    오늘 건물이 가리는 동물은 건너뛰고 다음 순서를 쓴다. 자리를 억지로
    비켜 놓으면 폭포 위나 지도 가장자리처럼 어색한 곳으로 밀려난다. */
-export const MAP_ANIMALS = ["ev_parrot", "ev_monkey", "ev_toucan", "ev_boar", "ev_frog",
-                            "ev_butterfly", "ev_turtle"];
+export const MAP_ANIMALS = ["ev_parrot", "ev_monkey", "ev_toucan", "ev_boar", "ev_frog", "ev_turtle"];
 export function rollMapAnimals(childId, dateStr, eventId = null) {
   const pool = MAP_ANIMALS.slice();
   const out = [];
