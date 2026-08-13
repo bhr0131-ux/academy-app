@@ -28,7 +28,7 @@
 
 import { C, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
-import { hasClassOnDay, getScheduleForDay, getClassTime, getShuttleText, makeupTimeText } from "../../data/sampleData.js";
+import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan } from "../../data/sampleData.js";
 import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 
@@ -53,7 +53,11 @@ export default function ParentHomeTab({
   const dayTag=isToday?"오늘":isTomorrow?"내일":isYesterday?"어제":null;
   const fullLabel=`${hd.getMonth()+1}월 ${hd.getDate()}일 ${hDN}요일`;
   const holidayName=getHolidayName(homeDate);
-  const homeAc=curAc.filter(a=>hasClassOnDay(a,hDN)&&!isVacationDay(childId,a.id,homeDate)).sort((a,b)=>getClassTime(a,hDN).localeCompare(getClassTime(b,hDN)));
+  /* [사용자 확정 2026-08-13] 아이용 탐험지도와 같은 목록을 본다 (getDayPlan).
+     결석한 학원도 카드는 남기고 시간 자리에만 '결석'을 쓴다 — 아이용 지도에서는 아예 뺀다.
+     그날이 보충일인 학원은 목록에 끼워 넣는다(시간 있으면 그 자리, 없으면 맨 뒤).
+     아래 결석·보충 요약 줄은 그대로 둔다 — 사유·보충 날짜는 거기서만 볼 수 있다. */
+  const homeAc=getDayPlan(curAc,curAbs,homeDate,hDN,(acId)=>isVacationDay(childId,acId,homeDate));
   const vacAcToday=curAc.filter(a=>hasClassOnDay(a,hDN)&&isVacationDay(childId,a.id,homeDate));
   const absOnHome=curAbs.filter(a=>a.date===homeDate);
   const makeupOnHome=curAbs.filter(a=>a.makeupDate===homeDate);
@@ -245,9 +249,14 @@ export default function ParentHomeTab({
       )}
       {homeAc.map((ac,hi)=>{
         const sc=getScheduleForDay(ac,hDN);
-        const [h,m]=(sc?.time||"00:00").split(":").map(Number);
-        const tm=h*60+m+Number(sc?.duration||0);
+        const [h,m]=(ac._time||"00:00").split(":").map(Number);
+        const tm=h*60+m+Number(ac._duration||0);
         const endT=`${String(Math.floor(tm/60)%24).padStart(2,"0")}:${String(tm%60).padStart(2,"0")}`;
+        /* 접힌 줄의 시간 자리 — 결석이면 '결석', 보충이면 '보충 14:00–14:40'(시간 없으면 '보충').
+           보통 수업은 예전 그대로 '14:00–14:40'. */
+        const timeText = ac._absent ? "결석"
+          : ac._makeup ? (String(ac._label).includes(":") ? `${ac._label}–${endT}` : ac._label)
+          : `${ac._time}–${endT}`;
         const entry=getDailyEntry(childId,ac.id,homeDate);
         const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
         const totalTodoCnt=hw.length+todos.length;
@@ -265,7 +274,7 @@ export default function ParentHomeTab({
              그림자는 약하게, 카드 간격은 14로 통일. 왼쪽 세로선만 원래 색을 유지해 구분을 준다. */
           /* [사용자 확정 2026-08-10] 학원마다 카드를 통째로 칠하면 학원이 늘수록 화면이 요란해진다.
              카드 배경은 흰색으로 통일하고, 학원 고유색은 왼쪽 세로선과 종류 글자에만 쓴다. */
-          <div key={ac.id} style={{background:"#fff",borderRadius:14,marginBottom:14,border:`1px solid ${C.border}`,boxShadow:"0 2px 8px rgba(90,70,60,0.05)",overflow:"hidden",display:"flex"}}>
+          <div key={ac._key||ac.id} style={{background:"#fff",borderRadius:14,marginBottom:14,border:`1px solid ${C.border}`,boxShadow:"0 2px 8px rgba(90,70,60,0.05)",overflow:"hidden",display:"flex"}}>
             <div style={{width:4,background:ac.color,flexShrink:0}}/>
             <div style={{flex:1,minWidth:0}}>
             {/* [사용자 확정 2026-08-09] 접었을 땐 '종류 · 시간 범위'만.
@@ -283,7 +292,8 @@ export default function ParentHomeTab({
                 <span style={{fontSize:15,fontWeight:900,color:ac.color,minWidth:0,
                   overflow:"hidden",textOverflow:"ellipsis"}}>{acKindLabel(ac)}</span>
                 {/* 시간은 한 단계 진하게 — 접힌 줄에서 가장 자주 읽는 값이다 (사용자 확정) */}
-                <span style={{fontSize:14,fontWeight:700,color:SUBD,flexShrink:0}}>{sc?.time}–{endT}</span>
+                <span style={{fontSize:14,fontWeight:700,flexShrink:0,
+                  color:ac._absent?C.red:ac._makeup?C.orange:SUBD}}>{timeText}</span>
               </span>
               {/* [사용자 확정 2026-08-10] '✓'와 '0/1'이 섞여 기준이 달라 보였다.
                   무엇의 상태인지까지 적어 한 벌로 맞춘다. 미션이 없으면 배지 자체를 안 그린다. */}
