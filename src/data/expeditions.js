@@ -423,6 +423,18 @@ export function getExpedition(dateStr) {
             강이 세 번 더 지나기 전엔 돌고래가 안 나온다.
    [규칙 3] 남은 후보를 희귀도 가중치로 뽑는다 (⚪65 · 🟢25 · 🟣10 · 🟡5).
    기본 이동(걷기·수영·달리기)도 하나의 후보(⚪)로 함께 경쟁한다.
+   [규칙 5] 결손 보정 — 한 챕터에서 너무 오래 안 나온 탈것은 다음 차례에 강제로 넣는다.
+            (사용자 요청 2026-08-14: "테마별로 최대한 골고루")
+            규칙 3은 '등급을 먼저 뽑고 그 등급 안에서 하나'라, 그 등급에 혼자 있는
+            탈것은 확률이 곱해져 몇 년을 해도 안 나올 수 있었다. 1,440일(챕터당 120회)
+            재생으로 실측한 결과 바위산 유니콘 0% · 동굴 드래곤 0% · 보물상자 드래곤 0%,
+            한 탈것의 최장 공백이 120회(= 그 챕터에서 한 번도 못 봄)였다.
+            그래서 '후보 수 × 2회 방문'을 넘기면 그 탈것을 먼저 태운다. 전설만 ×4로
+            길게 잡는다 — 안 그러면 전설이 흔해져(8.5% → 14%) '🟡 전설'이 싱거워진다.
+            보정을 걸어도 '연달아 금지'(규칙 2의 lapsBlock)만은 반드시 지킨다.
+   [규칙 6] 같은 등급 안에서는 무작위 대신 '이 챕터에서 가장 적게 나온 것'을 고른다.
+            바다의 돌고래·고래·잠수정처럼 한 등급에 여럿이 몰린 챕터에서 몇몇만
+            계속 뽑히던 걸 막는다 (등급이 뽑힐 확률 자체는 규칙 3 그대로).
 
    ── 저장하지 않는다 ──
    '최근'을 알려면 이력이 필요한데, 저장해 두면 기기마다 달라지고 기존 저장 키도
@@ -432,6 +444,12 @@ export function getExpedition(dateStr) {
 const _RECENT_DAYS = 5;      // 규칙 1
 const _RECENT_LAPS = 3;      // 규칙 2
 const _LEGEND_COOL = 20;     // 규칙 4 — 전설은 최소 20일 간격 (목표 5%에 맞춘 값)
+/* 규칙 5 — 결손 보정 한계. '후보 수 × 이 배수' 회 방문을 넘기면 강제로 태운다.
+   후보 수에 비례시키는 이유: 후보가 9종인 바다와 4종인 우주에 같은 회수를 쓰면
+   바다 쪽이 한 바퀴도 못 돌기 때문이다. 값을 키우면 희귀도가 더 잘 지켜지고,
+   줄이면 더 골고루 나온다 (실측: 전설 ×4 → 전설 11% / ×2 → 14% / ×1.5 → 16.5%). */
+const _PITY_LAPS = 2;
+const _PITY_LAPS_LEGEND = 4;
 
 /* 날짜 시드 난수 (mulberry32) — 같은 시드면 언제나 같은 값 */
 function _rng(seed) {
@@ -460,6 +478,7 @@ function _pickUpTo(days) {
   const lastDay = {};        // 후보 → 마지막으로 탄 날 (규칙 1)
   const lastVisit = {};      // "챕터|후보" → 그 챕터 몇 번째 방문에서 탔는지 (규칙 2)
   const visits = {};         // 챕터 → 지금까지 방문 횟수
+  const chapCnt = {};        // "챕터|후보" → 그 챕터에서 지금까지 나온 횟수 (규칙 6)
   let picked = null;
   let lastLegend = -1e9;     // 마지막으로 전설이 나온 날 (규칙 4)
   for (let d = 0; d <= days; d++) {
@@ -479,6 +498,21 @@ function _pickUpTo(days) {
     if (d - lastLegend <= _LEGEND_COOL) {
       const noL = ok.filter((c) => _rarityOf(c) !== "legendary");
       if (noL.length) ok = noL;
+    }
+    /* 규칙 5 — 결손 보정. 이 챕터에서 '후보 수 × 배수' 회 방문을 넘도록 안 나온
+       탈것이 있으면, 확률 뽑기보다 먼저 그 탈것을 태운다 (가장 오래 굶은 것부터).
+       한 번도 안 나온 탈것은 lastVisit 이 없어 0으로 보므로 첫 한 바퀴 뒤 바로 걸린다.
+       연달아 금지(lapsBlock)는 여기서도 지킨다 — 어제 탄 게 또 나오면 안 되니까. */
+    let forced = null;
+    {
+      const lim = (c) => Math.round(all.length * (_rarityOf(c) === "legendary" ? _PITY_LAPS_LEGEND : _PITY_LAPS));
+      const starved = all.filter((c) =>
+        v - (lastVisit[key + "|" + c] ?? 0) > lim(c) &&
+        v - (lastVisit[key + "|" + c] ?? -1e9) > lapsBlock);
+      if (starved.length) {
+        starved.sort((a, b) => (lastVisit[key + "|" + a] ?? 0) - (lastVisit[key + "|" + b] ?? 0));
+        forced = starved[0];
+      }
     }
     /* 규칙끼리 부딪히면(후보가 적고 다른 챕터와 겹칠 때) 규칙을 버리는 대신
        '가장 오래전에 탄 것'들만 남긴다 — 그래야 어제 탄 게 또 나오는 일이 없다 */
@@ -508,9 +542,20 @@ function _pickUpTo(days) {
     let tier = tiers[tiers.length - 1];
     for (let i = 0; i < tiers.length; i++) { r -= tw[i]; if (r < 0) { tier = tiers[i]; break; } }
     const bucket = byTier[tier];
-    const hit = bucket[Math.min(bucket.length - 1, Math.floor(rnd() * bucket.length))];
+    /* 규칙 6 — 등급 안에서는 '이 챕터에서 가장 적게 나온 것' → 그중 가장 오래된 것.
+       무작위로 고르면 한 등급에 여럿인 챕터(바다의 돌고래·고래·잠수정)에서
+       몇몇만 계속 뽑힌다. 등급이 뽑힐 확률(규칙 3)은 그대로다. */
+    let hit = forced;
+    if (!hit) {
+      const cnt = (c) => chapCnt[key + "|" + c] || 0;
+      const mn = Math.min(...bucket.map(cnt));
+      const tie = bucket.filter((c) => cnt(c) === mn);
+      tie.sort((a, b) => (lastVisit[key + "|" + a] ?? -1) - (lastVisit[key + "|" + b] ?? -1));
+      hit = tie[0];
+    }
     lastDay[hit] = d;
     lastVisit[key + "|" + hit] = v;
+    chapCnt[key + "|" + hit] = (chapCnt[key + "|" + hit] || 0) + 1;
     if (_rarityOf(hit) === "legendary") lastLegend = d;
     picked = hit;
     if (d >= days - 400) _memo.set(d, hit);   // 최근 구간만 캐시 (메모리 보호)
