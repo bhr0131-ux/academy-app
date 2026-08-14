@@ -114,12 +114,26 @@ export const AVATAR_CATALOG = [
   /* 초기 장비 6종 — 탐험 테마 */
   // 모자 4종 — 전부 hidesHead: 베이스 머리를 지우고 이 그림(모자+얼굴)으로 대체한다.
   //   원화의 눈 간격을 베이스 머리(124.5)에 맞춰 키우고, 턱 끝을 y=404·중심 x=506에 정렬해 탑재.
-  { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/explorer-helmet.webp", imgGirl: "assets/avatar/hat/explorer-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_explorer.webp" },
-  { id: "hat_safari",     slot: "hat",   label: "사파리 모자", emoji: "⛑️", price: 180, rarity: "rare",   theme: "adventure", img: "assets/avatar/hat/safari-brown.webp",    imgGirl: "assets/avatar/hat/safari-brown-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_safari.webp" },
+  /* [사용자 확정 2026-08-14] 남아 모자 4종을 0.86배로 줄여 다시 탑재했다 (?v=2).
+     증상: "여아는 모자를 써도 얼굴 크기가 비슷한데 남아는 모자를 쓰면 머리가 너무 커진다".
+     원인: 위 줄의 '베이스 머리 눈 간격 124.5'가 옛 값이다. 남아 베이스 머리는 그 뒤에
+       0.965배로 한 번 줄었는데(art-src/README '남아는 이후 별도 조정') 모자 원화는 안 줄였다.
+       게다가 남아 모자 원화 자체가 여아 것보다 1.16배 크게 그려져 있었다.
+     실측(1024 캔버스에서 몸통+모자를 겹쳐 잰 머리 상자 폭):
+       탐험 남 426 / 여 368 · 사파리 남 417 / 여 360 · 꽃 남 430 / 여 367
+       눈 간격도 남 124.2~124.6 / 여 106.1~107.2 로 같은 비율(1.16)이었다.
+     조치: 남아 모자 4종을 0.86배 축소. 기준점은 '턱 끝'(x=506, y=405/405/404/410) —
+       여기를 고정해야 목 이음매가 안 벌어진다(고친 뒤에도 목 열 투명 틈은 전과 같은 1곳뿐).
+       결과 머리 폭 367/360/370 으로 여아 368/360/367 과 사실상 같아졌고,
+       눈 간격도 106.9~107.3 으로 여아와 맞는다.
+     비행사 모자는 상점에 안 나오지만(winter) 같은 베이스라 함께 줄였다.
+     파일명은 그대로 덮어썼고 경로에 ?v=2 를 붙여 기존 기기의 캐시를 끊는다. */
+  { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/explorer-helmet.webp?v=2", imgGirl: "assets/avatar/hat/explorer-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_explorer.webp" },
+  { id: "hat_safari",     slot: "hat",   label: "사파리 모자", emoji: "⛑️", price: 180, rarity: "rare",   theme: "adventure", img: "assets/avatar/hat/safari-brown.webp?v=2",    imgGirl: "assets/avatar/hat/safari-brown-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_safari.webp" },
   /* 비행사(방한) 모자 — 겨울 시즌·설원 맵 전용으로 빼 둔다 (사용자 확정).
      그림·데이터는 그대로 두고 ACTIVE_SEASONS에 "winter"를 넣는 순간 상점에 다시 나온다. */
-  { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp",     imgGirl: "assets/avatar/hat/aviator-cap-girl.webp",  hidesHead: true, season: "winter" },
-  { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_blossom.webp" },
+  { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp?v=2",     imgGirl: "assets/avatar/hat/aviator-cap-girl.webp",  hidesHead: true, season: "winter" },
+  { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp?v=2",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_blossom.webp" },
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp" },
   { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp" },
   /* 하의 3종 — 베이스의 초록 반바지를 완전히 덮도록 배치했다. 초록이 1px도 새지 않는
