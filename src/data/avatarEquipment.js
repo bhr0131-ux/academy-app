@@ -40,6 +40,15 @@ export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp"; // �
    → 예전처럼 베이스 머리 위에 덮어 씌우면 크기가 조금만 안 맞아도 턱선·귀선이 겹쳐 보였는데,
      아예 안 그리므로 그 문제가 원천적으로 사라진다.
    두 장은 합본과 같은 1024×1024 좌표계라 그냥 겹쳐 그리면 정확히 맞는다. */
+/* 하의를 입었을 때 쓰는 '속옷 차림' 몸통 (사용자 원화 2026-08-14).
+   [왜 필요한가] 베이스 몸통에는 초록 반바지가 그려져 있어서, 하의 장비는 그 초록이
+   1px도 안 새도록 '실제 다리보다 넉넉하게' 그려야 했다(그래서 바지가 벙벙해 보였다).
+   하의를 입는 순간 몸통을 이 그림으로 바꾸면 덮을 초록이 없으므로,
+   앞으로 하의는 다리 굵기에 맞춰 그대로 그리면 된다.
+   같은 1024 좌표계로 정렬해 넣었다 — 기존 몸통과 알파 IoU 0.90, 머리·팔·양말 위치 일치.
+   남녀 같은 원화를 각자 몸통에 맞춰 따로 정렬했다(남 0.293배 / 여 0.300배). */
+export const AVATAR_BASE_BODY_UNDER_IMG      = "assets/avatar/base/body-under.webp";
+export const AVATAR_BASE_BODY_UNDER_IMG_GIRL = "assets/avatar/base/body-under-girl.webp";
 export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp";
 export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp";
 export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp";
