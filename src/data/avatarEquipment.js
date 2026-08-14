@@ -40,6 +40,19 @@ export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp"; // �
    → 예전처럼 베이스 머리 위에 덮어 씌우면 크기가 조금만 안 맞아도 턱선·귀선이 겹쳐 보였는데,
      아예 안 그리므로 그 문제가 원천적으로 사라진다.
    두 장은 합본과 같은 1024×1024 좌표계라 그냥 겹쳐 그리면 정확히 맞는다. */
+/* 하의를 입었을 때 쓰는 '속옷 차림' 몸통 v2 (사용자 원화 2026-08-14, 723×1536 투명).
+   [왜] 베이스 몸통에는 초록 반바지가 그려져 있어서, 하의 장비는 그 초록이 1px도 안 새도록
+     '실제 다리보다 넉넉하게' 그려야 했다(그래서 바지가 벙벙해 보였다). 하의를 입는 순간
+     몸통을 이 그림으로 바꾸면 덮을 초록이 없으므로, 하의를 다리 굵기 그대로 그리면 된다.
+   [v1과 다른 점] v1은 반팔 셔츠+양말이었고 v2는 민소매+맨발이다.
+     → 하의만 입고 상의를 안 입으면 팔·어깨가 드러난다(민소매).
+     → 맨발이라 발끝이 기존(양말)보다 11~12px 아래로 내려간다. 표시 크기에선 2px라
+       접지 그림자와의 어긋남이 눈에 안 띈다. 발끝을 억지로 맞추려면 몸을 3.6% 줄여야 하는데,
+       그러면 팔·다리가 기존 몸과 더 어긋난다(IoU 0.849 → 0.830)에서 A안을 택했다.
+   정렬 — 기존 몸통과 알파 IoU 최대화 탐색: 남아 0.361배 @(380,395) IoU 0.849 /
+     여아 0.369배 @(381,385) IoU 0.844. 남녀 같은 원화를 각자 몸통에 맞춰 따로 정렬했다. */
+export const AVATAR_BASE_BODY_UNDER_IMG      = "assets/avatar/base/body-under.webp";
+export const AVATAR_BASE_BODY_UNDER_IMG_GIRL = "assets/avatar/base/body-under-girl.webp";
 export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp";
 export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp";
 export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp";
@@ -136,11 +149,18 @@ export const AVATAR_CATALOG = [
   { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp?v=2",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_blossom.webp" },
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp" },
   { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp" },
-  /* 하의 3종 — 베이스의 초록 반바지를 완전히 덮도록 배치했다. 초록이 1px도 새지 않는
-     (배율, 좌상단)을 탐색해서 정한 값이라 임의로 바꾸면 가랑이 사이로 초록이 비친다. */
-  { id: "bottom_khaki",   slot: "bottom", label: "카키 반바지", emoji: "🩳", price: 130, rarity: "common", theme: "adventure", img: "assets/avatar/bottom/khaki-cargo.webp", thumb: "assets/avatar/thumb/bottom_khaki.webp" },
-  { id: "bottom_cream",   slot: "bottom", label: "크림 반바지", emoji: "🩳", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/cream-cargo.webp", thumb: "assets/avatar/thumb/bottom_cream.webp" },
-  { id: "bottom_denim",   slot: "bottom", label: "데님 반바지", emoji: "🩳", price: 170, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/denim-shorts.webp", thumb: "assets/avatar/thumb/bottom_denim.webp" },
+  /* 하의 3종 — [사용자 확정 2026-08-14] 다리 굵기에 맞춰 0.88배로 줄였다 (?v=2).
+     예전엔 베이스의 초록 반바지를 덮어야 해서 '초록이 1px도 안 새는 최소 배율'로
+     넉넉하게 키워 놨었다 → 바지가 다리보다 벙벙했다(바짓단 x412~606인데 다리는 x429~594).
+     속옷 몸통(AVATAR_BASE_BODY_UNDER_IMG)이 덮을 초록을 없애 줘서 그 여유가 필요 없어졌다.
+     기준점은 '허리선'(x=509, y=549) — 여기를 고정해야 벨트가 셔츠 밑단에 그대로 물린다.
+     한 점만 고정하고 균등 축소했더니 폭·길이가 한 번에 맞았다:
+       카키 x412~606·y549~721 → x423~595·y549~701
+       크림 → x422~592·y560~713 / 데님 → x425~592·y565~699
+     앞으로 새 하의는 이 상자(폭 ≈170 · 허리 y549~565 · 밑단 y700 안팎)에 맞춰 그리면 된다. */
+  { id: "bottom_khaki",   slot: "bottom", label: "카키 반바지", emoji: "🩳", price: 130, rarity: "common", theme: "adventure", img: "assets/avatar/bottom/khaki-cargo.webp?v=2", thumb: "assets/avatar/thumb/bottom_khaki.webp" },
+  { id: "bottom_cream",   slot: "bottom", label: "크림 반바지", emoji: "🩳", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/cream-cargo.webp?v=2", thumb: "assets/avatar/thumb/bottom_cream.webp" },
+  { id: "bottom_denim",   slot: "bottom", label: "데님 반바지", emoji: "🩳", price: 170, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/denim-shorts.webp?v=2", thumb: "assets/avatar/thumb/bottom_denim.webp" },
   /* 신발 3종 — 좌·우 짝을 따로 배치해 남녀 각각 손으로 맞춘 값이다(사용자 확정).
      soleY/soleYGirl = 그 신발을 신었을 때의 밑창 높이. 접지 그림자가 이 값을 따라간다
      (맨발보다 30~45px 아래라, 안 쓰면 신발만 그림자 밖으로 나간다). */
