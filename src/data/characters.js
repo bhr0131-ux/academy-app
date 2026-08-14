@@ -49,13 +49,18 @@ export const _charSet = (theme)=>({
 });
 export const ADV_CHAR_IMG = _charSet("adventure");
 export const BAKERY_CHAR_IMG = _charSet("bakery");
-/* 앉기 포즈 — 사용자 원화 2026-08-09, 남녀 각 한 장.
+/* 앉기(쉬는) 포즈 — 사용자 원화 v2 2026-08-14, 남녀 각 한 장.
    [사용자 확정] 무대 캐릭터를 바꾸는 게 아니라, '오늘은 탐험 장소가 없어요' ·
    '오늘은 미션이 없어요!' 빈 칸의 이모지(😴 · 🗒️) 자리에 대신 넣는다.
+   엄마용 홈·달력의 '일정 없는 날' 빈 칸도 같은 그림을 쓴다 (높이만 다르다).
+   [사용자 확정 2026-08-14] v1은 안장에 올라타 고삐를 쥔 '라이드 포즈'였다 —
+   쉬는 자리에 쓰는 그림인데 타고 있는 모양이라 어울리지 않아 통째로 바꿨다.
+   새 포즈는 땅에 앉아 한 손을 뒤로 짚고 다리를 뻗은 자세다.
+   여기 한 곳만 보므로, 그림을 갈아 끼울 땐 같은 파일명으로 덮어쓰면 네 자리가 같이 바뀐다.
    탐험 스킨 전용 — 베이커리(디저트) 앉기 원화는 없다. */
 export const ADV_SIT_IMG = {
-  boy:  "/assets/expedition/char/common-sit.webp",
-  girl: "/assets/expedition/char/girl-sit.webp",
+  boy:  "/assets/expedition/char/common-sit.webp?v=2",
+  girl: "/assets/expedition/char/girl-sit.webp?v=2",
 };
 export const ADV_SIT_EMPTY_H = 108;   // 빈 칸 안에서 그릴 높이(px) — 이모지 38~42px 자리를 대신한다
 // 베이커리 모드 캐릭터 (남아/여아 × 5단계) — 진화 구간은 탐험과 동일(1/5/9/13/17)
