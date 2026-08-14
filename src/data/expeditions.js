@@ -144,18 +144,24 @@ export const mountImgOf = (mount, gender) =>
 
 /* ── 희귀도 4단계 (사용자 확정 2026-07-31) ────────────────────────────────
    아이가 "오늘은 평소보다 특별한 탈것이다!"를 바로 느끼게 하는 장치.
-     ⚪ common(65%) · 🟢 rare(25%) · 🟣 epic(10%) · 🟡 legendary(5%)
-   기본 이동(걷기·수영·달리기)도 common 취급이다. */
+   기본 이동(걷기·수영·달리기)도 common 취급이다.
+   [사용자 확정 2026-08-14] **등급은 더 이상 나올 확률을 정하지 않는다.**
+   ⚪🟢🟣 셋은 확률이 완전히 같고(챕터 안에서 한 바퀴씩 돌아간다), 🟡 전설만
+   따로 3주에 한 번 나온다. 아래 아래쪽 뽑기 규칙(규칙 A·B) 참고. */
 export const RARITY = { common:"common", rare:"rare", epic:"epic", legendary:"legendary" };
 export const RARITY_LABEL = { common:"⚪ 흔함", rare:"🟢 조금 특별", epic:"🟣 아주 특별", legendary:"🟡 전설" };
+/* (2026-08-14부터 뽑기에 안 쓴다 — 가중치 방식으로 되돌릴 때를 대비해 남겨 둔다) */
 export const RARITY_WEIGHT = { common:65, rare:25, epic:10, legendary:5 };
+/* [사용자 확정 2026-08-14] 등급을 아래처럼 손봤다.
+     돌고래 🟣 → 🟡 전설   /  거북이·플라밍고 🟢 → 🟣 아주 특별
+     유성   🟡 → ⚪ 흔함    /  범선은 🟢 그대로 (강 챕터로 옮겨 감)
+   ※ 같은 날 바뀐 뽑기 규칙과 함께 읽을 것 — 이제 등급은 '전설이냐 아니냐'만
+     확률에 영향을 준다. ⚪🟢🟣 셋은 확률이 같고, 아이에게 보여 주는 이름표로만 쓴다. */
 const _RARITY_OF = {
-  common: ["horse","deer","donkey","camel","canoe","raft","ship","sled"],
-  /* [사용자 확정] 로켓은 우주 챕터의 '기본 이동'이라 rare — 우주 후보가 전부 전설이면
-     12일마다 전설이 확정돼 전설이 흔해진다 (실측 15% → 8%). */
-  rare:   ["flamingo","turtle","goat","cablecar","sailboat","balloon","eagle","minecart","sandboard","reindeersled","rocket"],
-  epic:   ["cloud","bat","crystal","dolphin","whale","submarine","motorbike","iceslide","owl"],   // [사용자 확정 2026-08-01] 돌고래↔플라밍고 교환
-  legendary: ["unicorn","dragon","carpet","meteor"],
+  common: ["horse","deer","donkey","camel","canoe","raft","ship","sled","meteor"],
+  rare:   ["goat","cablecar","sailboat","balloon","eagle","minecart","sandboard","reindeersled","rocket"],
+  epic:   ["cloud","bat","crystal","whale","submarine","motorbike","iceslide","owl","turtle","flamingo"],
+  legendary: ["unicorn","dragon","carpet","dolphin"],
 };
 Object.entries(_RARITY_OF).forEach(([r, keys]) => keys.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].r = r; }));
 Object.values(MOUNTS).forEach((m) => { if (!m.r) m.r = "common"; });
@@ -201,7 +207,9 @@ export const GOAL_MARK_ENABLED = false;
 export const EXPEDITIONS = {
   river: { key:"river", title:"강을 건너자!", emoji:"🌊",
     /* Ch2 강 — 물 위를 건넌다 (목록 안 탈것은 모두 동등) */
-    mounts:["canoe","raft","dolphin","turtle","flamingo","ship"],   // [사용자 확정 2026-08-01] 범선은 뺀다 (바다 챕터에는 그대로)
+    /* [사용자 확정 2026-08-14] 큰배 ↔ 범선을 바다 챕터와 맞바꿨다 — 큰배는 바다에,
+       범선은 강에. (2026-08-01엔 반대로 '범선은 강에서 뺀다'였다) */
+    mounts:["canoe","raft","dolphin","turtle","flamingo","sailboat"],
     pose:"swim", goal:"⛺", goalImg:"assets/expedition/flag/blue.webp",   // 도착 = 물방울 깃발 (사용자 원화)
     bgImg:"assets/expedition/bg-river.webp",   // 사용자 배경 원화 v4 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#BFE3F2","#E8F5EC"], ground:["#7FC4DE","#5FA8CC"], groundH:34,
@@ -284,7 +292,10 @@ export const EXPEDITIONS = {
       deco:[[7,30,"🌵",22],[16,78,"🪨",13],[92,26,"☀️",20],[87,66,"🌵",15],[6,84,"🦂",10]] } },
   sea: { key:"sea", title:"보물섬에 도착하자!", emoji:"🏝️",
     /* Ch9 바다 — 수평선 위 섬까지 간다 */
-    mounts:["ship","dolphin","canoe","raft","sailboat","turtle","whale","submarine"],
+    /* [사용자 확정 2026-08-14] 고래를 뺐고, 범선은 강 챕터로 보냈다(큰배가 바다에 남는다).
+       고래 정의·원화(MOUNTS.whale · ride/whale.webp)는 지우지 않고 남겨 둔다 —
+       다른 챕터에 넣고 싶어질 때 목록에 키만 다시 적으면 된다. */
+    mounts:["ship","dolphin","canoe","raft","turtle","submarine"],
     pose:"swim",   // 기획서: 바다의 기본은 수영 — 배·돌고래 등은 회차마다 mounts에서
     idlePose:"swim",   // 출발지도 바다 한가운데 — 서 있을 땅이 없어 물에 떠서 기다린다
     goal:"🏝️", goalImg:"assets/expedition/flag/blue.webp",   // 바다 = 물방울 깃발
@@ -417,39 +428,53 @@ export function getExpedition(dateStr) {
   return EXPEDITIONS[EXPEDITION_ORDER[idx]] || EXPEDITIONS.treasure;
 }
 
-/* ── 그날의 탈것 — 희귀도 + 중복 방지 (사용자 확정 2026-07-31) ─────────────
-   [규칙 1] 최근 5일 안에 탄 것은 후보에서 뺀다 (챕터가 달라도).
-   [규칙 2] 같은 챕터에서 최근 3회 안에 탄 것도 뺀다 — 강에서 돌고래가 나왔으면
-            강이 세 번 더 지나기 전엔 돌고래가 안 나온다.
-   [규칙 3] 남은 후보를 희귀도 가중치로 뽑는다 (⚪65 · 🟢25 · 🟣10 · 🟡5).
-   기본 이동(걷기·수영·달리기)도 하나의 후보(⚪)로 함께 경쟁한다.
-   [규칙 5] 결손 보정 — 한 챕터에서 너무 오래 안 나온 탈것은 다음 차례에 강제로 넣는다.
-            (사용자 요청 2026-08-14: "테마별로 최대한 골고루")
-            규칙 3은 '등급을 먼저 뽑고 그 등급 안에서 하나'라, 그 등급에 혼자 있는
-            탈것은 확률이 곱해져 몇 년을 해도 안 나올 수 있었다. 1,440일(챕터당 120회)
-            재생으로 실측한 결과 바위산 유니콘 0% · 동굴 드래곤 0% · 보물상자 드래곤 0%,
-            한 탈것의 최장 공백이 120회(= 그 챕터에서 한 번도 못 봄)였다.
-            그래서 '후보 수 × 2회 방문'을 넘기면 그 탈것을 먼저 태운다. 전설만 ×4로
-            길게 잡는다 — 안 그러면 전설이 흔해져(8.5% → 14%) '🟡 전설'이 싱거워진다.
-            보정을 걸어도 '연달아 금지'(규칙 2의 lapsBlock)만은 반드시 지킨다.
-   [규칙 6] 같은 등급 안에서는 무작위 대신 '이 챕터에서 가장 적게 나온 것'을 고른다.
-            바다의 돌고래·고래·잠수정처럼 한 등급에 여럿이 몰린 챕터에서 몇몇만
-            계속 뽑히던 걸 막는다 (등급이 뽑힐 확률 자체는 규칙 3 그대로).
+/* ── 그날의 탈것 — '전설은 3주에 한 번, 나머지는 고르게' (사용자 확정 2026-08-14) ──
+   예전에는 희귀도 가중치(⚪65 🟢25 🟣10 🟡5)로 뽑았는데, '등급을 먼저 뽑고 그 등급
+   안에서 하나' 구조라 그 등급에 혼자 있는 탈것은 확률이 곱해져 몇 년을 해도 안 나왔다
+   (실측: 바위산 유니콘 0% · 동굴 드래곤 0%). 그래서 규칙을 통째로 단순하게 바꿨다.
+
+   [규칙 A] 전설이 아닌 탈것은 등급을 안 본다 — 챕터 안에서 '가장 적게 나온 것'을
+            골라 한 바퀴씩 돌린다. ⚪🟢🟣 는 확률이 같고, 이름표로만 남는다
+            (아이에게 보여 주는 RARITY_LABEL 은 그대로 쓴다).
+            같은 챕터에서 방금 탄 게 또 나오는 일은 구조상 생기지 않는다 —
+            방금 탄 것은 횟수가 가장 많아 맨 뒤로 밀리기 때문이다.
+            동점일 때만 '최근 5일 안에 다른 챕터에서 탄 것'을 뒤로 미룬다(규칙 C).
+
+   [규칙 B] 전설(🟡)은 챕터별 확률로 뽑지 않는다. 전체를 통틀어 3주에 한 번,
+            LEGEND_ORDER 순서대로 돌아가며 나온다.
+            **탈것만이 아니라 '나오는 챕터'도 돌아간다** — 유니콘은 8개 챕터에 있는데
+            그냥 '21일 뒤 처음 만나는 챕터'로 잡으면 매번 같은 챕터에 떨어진다(실측:
+            유니콘이 숲에만 11.7%, 나머지 7개 챕터엔 0%). 그래서 탈것마다 자기 챕터
+            목록을 한 칸씩 돌며 '이번엔 이 챕터'를 미리 정해 두고 그날을 기다린다.
+            챕터 주기가 12일이라 목표 챕터가 오는 날은 들쭉날쭉하다 → 마지막 전설에서
+            _LEGEND_MIN(15일)만 지나면 받아들여, 실제 간격이 평균 21일이 되게 맞췄다.
+            전설은 이 규칙으로만 나오고, 규칙 A의 후보에서는 아예 빠진다.
+
+   [규칙 C] 최근 5일 안에 (챕터가 달라도) 탄 것은 동점일 때 뒤로 미룬다.
+            말·사슴처럼 여러 챕터에 걸친 탈것이 며칠 사이에 겹쳐 보이지 않게 하는 장치다.
 
    ── 저장하지 않는다 ──
    '최근'을 알려면 이력이 필요한데, 저장해 두면 기기마다 달라지고 기존 저장 키도
    건드려야 한다. 그래서 기준일부터 그날까지를 매번 '재생'해서 이력을 만든다.
-   난수도 날짜로 만든 고정 시드라 어느 기기·어느 시점에 열어도 결과가 같다.
+   날짜만으로 정해지므로 어느 기기·어느 시점에 열어도 결과가 같다.
    (하루 한 번 계산이라 기준일에서 몇 년이 지나도 수천 번 루프 = 1ms 미만) */
-const _RECENT_DAYS = 5;      // 규칙 1
-const _RECENT_LAPS = 3;      // 규칙 2
-const _LEGEND_COOL = 20;     // 규칙 4 — 전설은 최소 20일 간격 (목표 5%에 맞춘 값)
-/* 규칙 5 — 결손 보정 한계. '후보 수 × 이 배수' 회 방문을 넘기면 강제로 태운다.
-   후보 수에 비례시키는 이유: 후보가 9종인 바다와 4종인 우주에 같은 회수를 쓰면
-   바다 쪽이 한 바퀴도 못 돌기 때문이다. 값을 키우면 희귀도가 더 잘 지켜지고,
-   줄이면 더 골고루 나온다 (실측: 전설 ×4 → 전설 11% / ×2 → 14% / ×1.5 → 16.5%). */
-const _PITY_LAPS = 2;
-const _PITY_LAPS_LEGEND = 4;
+const _RECENT_DAYS = 5;      // 규칙 C
+/* 규칙 B — 전설 사이 간격. 목표는 3주(21일)다.
+   목표 챕터가 오는 날이 12일 주기로 흩어져 있어, 최소 15일만 지나면 받아들이면
+   실제 간격이 15~26일에 고르게 퍼져 평균이 21일 근처가 된다.
+   (그냥 21일을 최소로 잡으면 대기가 얹혀 평균 26일 = 3.8주로 늘어난다) */
+const _LEGEND_MIN = 15;
+/* 전설이 나오는 순서 (규칙 B). 한 바퀴 돌면 처음으로 돌아간다.
+   [주의] 이 배열의 순서·길이를 바꾸면 그날 이후 전설이 나오는 날짜가 전부 다시 계산된다.
+   마법양탄자는 사막·보물상자 두 챕터, 돌고래는 강·보물섬 두 챕터에만 있어서
+   차례가 와도 그 챕터가 돌아올 때까지 며칠 기다린다 — 그래서 간격이 21~29일로 벌어진다. */
+const LEGEND_ORDER = ["unicorn", "dragon", "carpet", "dolphin"];
+/* 전설별로 '자기가 들어 있는 챕터' 목록 — EXPEDITION_ORDER 순서 그대로.
+   규칙 B가 이 목록을 한 칸씩 돌며 이번 차례의 챕터를 정한다. */
+const _LEGEND_CHAPTERS = {};
+LEGEND_ORDER.forEach((m) => {
+  _LEGEND_CHAPTERS[m] = EXPEDITION_ORDER.filter((c) => (EXPEDITIONS[c]?.mounts || []).includes(m));
+});
 
 /* 날짜 시드 난수 (mulberry32) — 같은 시드면 언제나 같은 값 */
 function _rng(seed) {
@@ -475,88 +500,60 @@ const _memo = new Map();     // days → 그날 뽑힌 키 (재생 결과 캐시
 function _pickUpTo(days) {
   if (_memo.has(days)) return _memo.get(days);
   const n = EXPEDITION_ORDER.length;
-  const lastDay = {};        // 후보 → 마지막으로 탄 날 (규칙 1)
-  const lastVisit = {};      // "챕터|후보" → 그 챕터 몇 번째 방문에서 탔는지 (규칙 2)
+  const lastDay = {};        // 후보 → 마지막으로 탄 날 (규칙 C)
+  const lastVisit = {};      // "챕터|후보" → 그 챕터 몇 번째 방문에서 탔는지 (동점 정리용)
   const visits = {};         // 챕터 → 지금까지 방문 횟수
-  const chapCnt = {};        // "챕터|후보" → 그 챕터에서 지금까지 나온 횟수 (규칙 6)
+  const chapCnt = {};        // "챕터|후보" → 그 챕터에서 지금까지 나온 횟수 (규칙 A)
   let picked = null;
-  let lastLegend = -1e9;     // 마지막으로 전설이 나온 날 (규칙 4)
+  let lastLegend = 0;        // 마지막으로 전설이 나온 날 (규칙 B)
+  let legendIdx = 0;         // 다음에 나올 전설의 차례 (규칙 B)
+  const legChapIdx = {};     // 전설 → 그 전설이 다음에 나올 챕터의 차례 (규칙 B)
+  const lastPick = {};       // 챕터 → 그 챕터에서 바로 앞 방문에 나온 것 (연달아 금지)
   for (let d = 0; d <= days; d++) {
     const key = EXPEDITION_ORDER[((d % n) + n) % n];
     const exp = EXPEDITIONS[key];
     const all = _candidates(exp);
     const v = (visits[key] = (visits[key] || 0) + 1);
-    /* 규칙 1: 최근 5일 안에 탄 것 제외 / 규칙 2: 이 챕터 최근 3회 안에 탄 것 제외 */
-    /* 규칙 2의 제외 창은 후보 수에 맞춘다 — 후보가 4개뿐인 우주에서 3회를 막으면
-       비전설(로켓)이 4번에 1번밖에 못 나와 전설이 강제된다 */
-    const lapsBlock = Math.min(_RECENT_LAPS, Math.max(1, all.length - 3));
-    let ok = all.filter((c) =>
-      d - (lastDay[c] ?? -1e9) > _RECENT_DAYS &&
-      v - (lastVisit[key + "|" + c] ?? -1e9) > lapsBlock);
-    /* 규칙 4 — 전설은 최소 열흘 간격. 전설이 여러 개인 챕터(하늘·우주)에서 전설이
-       몰려 나오는 걸 막는다. 전설밖에 없는 챕터(우주)면 이 줄이 비워져 그대로 나온다 */
-    if (d - lastLegend <= _LEGEND_COOL) {
-      const noL = ok.filter((c) => _rarityOf(c) !== "legendary");
-      if (noL.length) ok = noL;
+    let hit = null;
+
+    /* 규칙 B — 전설 차례. 21일이 지났고 오늘 챕터에 '차례인 전설'이 있으면 그걸 태운다.
+       없으면 그냥 넘어가고, 그 챕터가 돌아오는 날 태운다 (차례는 밀리지 않는다). */
+    const nextLegend = LEGEND_ORDER[legendIdx % LEGEND_ORDER.length];
+    const legChaps = _LEGEND_CHAPTERS[nextLegend] || [];
+    const wantChap = legChaps[(legChapIdx[nextLegend] || 0) % (legChaps.length || 1)];
+    if (d - lastLegend >= _LEGEND_MIN && key === wantChap && all.includes(nextLegend)) {
+      hit = nextLegend;
+      lastLegend = d;
+      legendIdx++;
+      legChapIdx[nextLegend] = (legChapIdx[nextLegend] || 0) + 1;
     }
-    /* 규칙 5 — 결손 보정. 이 챕터에서 '후보 수 × 배수' 회 방문을 넘도록 안 나온
-       탈것이 있으면, 확률 뽑기보다 먼저 그 탈것을 태운다 (가장 오래 굶은 것부터).
-       한 번도 안 나온 탈것은 lastVisit 이 없어 0으로 보므로 첫 한 바퀴 뒤 바로 걸린다.
-       연달아 금지(lapsBlock)는 여기서도 지킨다 — 어제 탄 게 또 나오면 안 되니까. */
-    let forced = null;
-    {
-      const lim = (c) => Math.round(all.length * (_rarityOf(c) === "legendary" ? _PITY_LAPS_LEGEND : _PITY_LAPS));
-      const starved = all.filter((c) =>
-        v - (lastVisit[key + "|" + c] ?? 0) > lim(c) &&
-        v - (lastVisit[key + "|" + c] ?? -1e9) > lapsBlock);
-      if (starved.length) {
-        starved.sort((a, b) => (lastVisit[key + "|" + a] ?? 0) - (lastVisit[key + "|" + b] ?? 0));
-        forced = starved[0];
-      }
-    }
-    /* 규칙끼리 부딪히면(후보가 적고 다른 챕터와 겹칠 때) 규칙을 버리는 대신
-       '가장 오래전에 탄 것'들만 남긴다 — 그래야 어제 탄 게 또 나오는 일이 없다 */
-    let pool = ok;
-    if (!pool.length) {
-      /* 규칙끼리 부딪히면 '가장 오래전에 탄 것'들만 남긴다. 이때도 전설 쿨타임은
-         지킨다 — 안 그러면 후보가 빠듯한 챕터에서 전설이 새어 나온다 */
-      let base2 = all;
-      if (d - lastLegend <= _LEGEND_COOL) {
-        const noL = all.filter((c) => _rarityOf(c) !== "legendary");
-        if (noL.length) base2 = noL;
-      }
-      const sorted = base2.slice().sort((a, b) => (lastDay[a] ?? -1e9) - (lastDay[b] ?? -1e9));
-      pool = sorted.slice(0, Math.max(1, Math.ceil(sorted.length / 2)));
-    }
-    /* 규칙 3 — 희귀도 확률. [중요] 후보 하나하나에 가중치를 주면 전설이 여러 개인
-       챕터에서 전설이 몰려 나온다(실측 22%). 그래서 '등급을 먼저 뽑고 → 그 등급
-       안에서 하나를 고르는' 2단계로 한다. 그래야 어느 챕터든 ⚪65 🟢25 🟣10 🟡5 에 맞는다
-       (그 등급이 아예 없는 챕터는 남은 등급끼리 비율을 다시 나눈다). */
-    const byTier = {};
-    pool.forEach((c) => (byTier[_rarityOf(c)] ||= []).push(c));
-    const tiers = Object.keys(byTier);
-    const tw = tiers.map((t) => RARITY_WEIGHT[t] || 1);
-    const tsum = tw.reduce((a, b) => a + b, 0);
-    const rnd = _rng(d * 977 + 17);
-    let r = rnd() * tsum;
-    let tier = tiers[tiers.length - 1];
-    for (let i = 0; i < tiers.length; i++) { r -= tw[i]; if (r < 0) { tier = tiers[i]; break; } }
-    const bucket = byTier[tier];
-    /* 규칙 6 — 등급 안에서는 '이 챕터에서 가장 적게 나온 것' → 그중 가장 오래된 것.
-       무작위로 고르면 한 등급에 여럿인 챕터(바다의 돌고래·고래·잠수정)에서
-       몇몇만 계속 뽑힌다. 등급이 뽑힐 확률(규칙 3)은 그대로다. */
-    let hit = forced;
+
+    /* 규칙 A — 전설이 아닌 후보 중 '이 챕터에서 가장 적게 나온 것'.
+       동점이면 규칙 C(최근 5일)로 한 번 거르고, 그래도 동점이면 가장 오래전에 나온 것. */
     if (!hit) {
+      let pool = all.filter((c) => _rarityOf(c) !== "legendary");
+      if (!pool.length) pool = all;          // 전설밖에 없는 챕터는 없지만 안전장치
+      /* 바로 앞 방문에 나온 건 뺀다 — 후보가 둘뿐인 우주에서 횟수가 동점일 때
+         같은 게 두 번 이어 나오는 걸 막는다 (실측 1회 있었다) */
+      if (pool.length > 1 && lastPick[key]) {
+        const p2 = pool.filter((c) => c !== lastPick[key]);
+        if (p2.length) pool = p2;
+      }
       const cnt = (c) => chapCnt[key + "|" + c] || 0;
-      const mn = Math.min(...bucket.map(cnt));
-      const tie = bucket.filter((c) => cnt(c) === mn);
+      const mn = Math.min(...pool.map(cnt));
+      let tie = pool.filter((c) => cnt(c) === mn);
+      if (tie.length > 1) {
+        const fresh = tie.filter((c) => d - (lastDay[c] ?? -1e9) > _RECENT_DAYS);
+        if (fresh.length) tie = fresh;
+      }
       tie.sort((a, b) => (lastVisit[key + "|" + a] ?? -1) - (lastVisit[key + "|" + b] ?? -1));
       hit = tie[0];
     }
+
     lastDay[hit] = d;
     lastVisit[key + "|" + hit] = v;
     chapCnt[key + "|" + hit] = (chapCnt[key + "|" + hit] || 0) + 1;
-    if (_rarityOf(hit) === "legendary") lastLegend = d;
+    lastPick[key] = hit;
     picked = hit;
     if (d >= days - 400) _memo.set(d, hit);   // 최근 구간만 캐시 (메모리 보호)
   }
