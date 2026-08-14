@@ -173,7 +173,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | expedition/bg/bg-river-v4-src.webp | 강 배경 v4 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-river.webp |
 | expedition/flag/{red,blue,green,yellow}-src.webp | 도착 깃발 4색 (빨강 잎가지·파랑 물방울·초록 잎·노랑 별 — halo 보정 후 탑재) | expedition/flag/*.webp |
 | expedition/bg/bg-mountain-v2-src.webp | 바위산 배경 v2 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 돌계단 대각선 등반, 현행) | expedition/bg-mountain.webp |
-| expedition/bg/bg-forest-v3-src.webp | 깊은 숲 배경 v3 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 여우·부엉이·개울, 현행) | expedition/bg-forest.webp |
+| expedition/bg/bg-forest-v4-src.webp | 깊은 숲 배경 v4 (1484×1060 = 1.4:1 — v3와 같은 크기). v3와 구도가 거의 같다 — 왼쪽 큰 나무 위 부엉이, 이끼 낀 통나무, 가운데 흙길, 아래 개울과 돌. 달라진 건 채색과 배치다: 색면이 정리돼 훨씬 밝고 선명해졌고, 여우가 길 오른쪽으로 옮겨 갔으며 흙길이 조금 아래로 내려와 더 곧게 지난다. 걷는 선(charB 31~32%)을 새 그림에 얹어 확인 — 그대로 길 위라 scene 좌표는 하나도 안 건드렸다. 배포본 49KB → 58KB | expedition/bg-forest.webp |
 | expedition/bg/bg-wood-v4-src.webp | 숲길 산책 배경 v4 (1485×1059 = 1.4:1 — 토끼 크기 축소, 현행) | expedition/bg-wood.webp |
 | expedition/bg/bg-cave-v3-src.webp | 동굴 배경 v3 (1483×1061 = 1.4:1 — 큰 카드용 재제작, 현행) | expedition/bg-cave.webp |
 | expedition/bg/bg-meadow-v2-src.webp | 초원 배경 v2 (1484×1060 = 1.4:1 — 큰 카드용 재제작, 언덕·들꽃, 현행) | expedition/bg-meadow.webp |
@@ -202,7 +202,8 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | expedition/ride/turtle-src.webp | 탑승 원화 6 거북이 — 강·바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/turtle.webp |
 | expedition/ride/raft-src.webp | 탑승 원화 2 뗏목 — 강 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/raft.webp |
 | expedition/ride/donkey-src.webp | 탑승 원화 8 당나귀 — 숲·깊은숲·초원 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/donkey.webp |
-| expedition/ride/dragon-src.webp | 탑승 원화 17 드래곤 — 깊은숲·동굴·보물 변형 (하늘 lift 5) (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/dragon.webp |
+| expedition/ride/dragon-src.webp | 탑승 원화 17 드래곤 v2 남아 (1536×1536 투명 → 잘라 1423×1348, 사용자 원화 2026-08-14). v1과 같은 구도를 수채화 톤으로 다시 그린 판 — 선이 부드러워지고 v1 꼬리에 있던 흰 얼룩(halo)이 없어졌다. 가로세로비 1.07 → 1.06 이라 표시 크기는 사실상 그대로다(_RIDE_AR 갱신). 배포본은 높이 160px 로 줄여 v1(171×160)과 같은 크기 | expedition/ride/dragon.webp |
+| expedition/ride/dragon-girl-src.webp | 탑승 원화 17 드래곤 v2 여아 (사용자 원화 2026-08-14). 남아 v2와 같은 그림에 아이만 여아. **받은 파일이 알파 없는 RGB 라 투명 배경 자리에 체커보드가 그려져 들어와서**, 체커 두 색(253/242)을 읽어 테두리부터 번지며 지우고 · 그림에 둘러싸여 갇힌 웅덩이(머리·날개·등 사이 한 곳)까지 지운 뒤 · 가장자리 흰 띠를 한 겹 깎아 냈다. 남아는 뒤에 투명 PNG 를 다시 받아 그걸 썼다 | expedition/ride/dragon-girl.webp |
 | expedition/ride/cloud-src.webp | 탑승 원화 15 구름 남아 — 초원·사막·보물 변형 (하늘 lift 7). **2026-08-08 재제작 137×153 → 280×310** (표시 77×86px의 3.5배 — 실측으로 정한 값). 여아 판도 같은 높이 310으로 다시 뽑아 둘이 같은 해상도다 | expedition/ride/cloud.webp |
 | expedition/ride/eagle-src.webp | 탑승 원화 13 독수리 — 바위산·사막 변형 (하늘 lift 8) (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/eagle.webp |
 | expedition/ride/crystal-src.webp | 탑승 원화 23 수정 슬라이드 — 동굴 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/crystal.webp |
