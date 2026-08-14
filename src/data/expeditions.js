@@ -361,7 +361,10 @@ export const EXPEDITIONS = {
       deco:[[6,26,"🌴",26],[14,64,"💎",14],[93,28,"🎁",22],[87,66,"🌿",13],[95,84,"✨",10]] } },
   snow: { key:"snow", title:"설원을 건너자!", emoji:"❄️",
     /* Ch8 설원 — 눈길을 건넌다 */
-    mounts:["sled","reindeersled","iceslide","dragon","unicorn"],
+    /* [사용자 확정 2026-08-14] 얼음 미끄럼틀을 뺐다.
+       고래(바다)와 같은 처리 — MOUNTS.iceslide 정의와 원화(ride/iceslide.webp)는
+       지우지 않고 남긴다. 다른 챕터에 넣고 싶으면 목록에 키만 다시 적으면 된다. */
+    mounts:["sled","reindeersled","dragon","unicorn"],
     pose:"walk", goal:"🏡", goalImg:"assets/expedition/flag/red.webp",   // 눈 대비 빨간 깃발
     bgImg:"assets/expedition/bg-snow.webp",   // 사용자 배경 원화 v2 (1.4:1 — 큰 카드용, 원본 art-src)
     scene:{ sky:["#BBD9F7","#E8F3FC"], ground:["#EAF2FA","#CFE2F2"], groundH:34,
