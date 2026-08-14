@@ -158,8 +158,9 @@ export const AVATAR_CATALOG = [
      (배율 0.3922 · 원화(364.5,0) → 캔버스(512,340))을 쓰되, 원화끼리 6px 어긋나 있어
      오른쪽 +6px · 위로 -45px 을 더해 탑재했다 (art-src/README 에 실측값과 근거).
      탑재 상자 x408~612 · y513~666 — 허리가 민소매 밑단 안으로 들어가 흰 셔츠가 안 샌다.
-     남녀 공용 (몸통이 공용이라 여아 전용 그림이 필요 없다). */
-  { id: "bottom_magic_skirt", slot: "bottom", label: "별빛 마법사 주름치마", emoji: "🌟", price: 200, rarity: "epic", theme: "magic", img: "assets/avatar/bottom/magic-skirt.webp" },
+     몸통이 남녀 공용이라 그림은 한 장이지만, 여아 옷이라 상점에는 여아에게만 보인다
+     (forGender). 마법학교 세트 나머지도 같은 값으로 들어온다. */
+  { id: "bottom_magic_skirt", slot: "bottom", label: "별빛 마법사 주름치마", emoji: "🌟", price: 200, rarity: "epic", theme: "magic", forGender: "girl", img: "assets/avatar/bottom/magic-skirt.webp" },
   { id: "bottom_denim",   slot: "bottom", label: "데님 반바지", emoji: "🩳", price: 170, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/denim-shorts.webp?v=2", thumb: "assets/avatar/thumb/bottom_denim.webp" },
   /* 신발 3종 — 좌·우 짝을 따로 배치해 남녀 각각 손으로 맞춘 값이다(사용자 확정).
      soleY/soleYGirl = 그 신발을 신었을 때의 밑창 높이. 접지 그림자가 이 값을 따라간다
@@ -184,10 +185,17 @@ export const getAvatarItem  = (id) => AVATAR_CATALOG.find(it => it.id === id) ||
 export const ACTIVE_SEASONS = [];
 export const isItemInSeason = (it) => !it.season || ACTIVE_SEASONS.includes(it.season);
 
-/* 상점 목록 — 시즌이 안 열린 아이템은 빼고 보여 준다.
-   (getAvatarItem/레이어 조회는 시즌과 무관하게 그대로 동작 → 보유·착용 데이터 안 깨짐) */
-export const getItemsBySlot = (slotKey) =>
-  AVATAR_CATALOG.filter(it => it.slot === slotKey && isItemInSeason(it));
+/* ── 성별 전용 아이템 ───────────────────────────────────────────────────
+   forGender가 붙은 아이템("girl"/"boy")은 그 성별에게만 상점에 나온다.
+   시즌과 같은 방식이라 getAvatarItem/레이어 조회는 성별과 무관하게 동작한다
+   → 이미 산·입은 아이템은 성별을 바꿔도 그대로 유지된다(데이터 안 깨짐).      */
+export const isItemForGender = (it, gender) => !it.forGender || !gender || it.forGender === gender;
+
+/* 상점 목록 — 시즌이 안 열렸거나 다른 성별 전용인 아이템은 빼고 보여 준다.
+   gender를 안 넘기면 예전처럼 전부 돌려준다(기존 호출부 보호).
+   (getAvatarItem/레이어 조회는 시즌·성별과 무관하게 그대로 동작 → 보유·착용 데이터 안 깨짐) */
+export const getItemsBySlot = (slotKey, gender) =>
+  AVATAR_CATALOG.filter(it => it.slot === slotKey && isItemInSeason(it) && isItemForGender(it, gender));
 export const STARTER_ITEM_IDS = AVATAR_CATALOG.filter(it => it.starter).map(it => it.id);
 
 /** 신규 사용자 기본 장착: 스타터(하늘 배경)만. 장비 슬롯은 전부 비움 */
