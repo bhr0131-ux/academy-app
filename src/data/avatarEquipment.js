@@ -63,6 +63,10 @@ export const AVATAR_THEMES = {
   bakery:    { label: "베이커리", emoji: "🧁", color: "#F472B6" },
   common:    { label: "공용",   emoji: "⭐", color: "#64748B" },
   seasonal:  { label: "시즌",   emoji: "🎄", color: "#DC2626" },
+  /* [2026-08-14] 마법학교 세트 — 탐험복과 분위기를 확실히 나누려고 테마를 따로 뒀다.
+     모자·신발·상의·하의·가방·목장식·얼굴장식·손장비 8종을 채울 예정이고,
+     지금은 하의(별빛 마법사 주름치마) 한 종만 들어와 있다. */
+  magic:     { label: "마법학교", emoji: "🪄", color: "#5B4B8A" },
 };
 
 /* ── 슬롯 구조 (렌더 순서 = zIndex 오름차순) ─────────────────────────────
@@ -149,6 +153,13 @@ export const AVATAR_CATALOG = [
      기본 바지는 사용자 원화를 받아 하의 슬롯의 기본 지급 아이템으로 넣을 예정. */
   { id: "bottom_khaki",   slot: "bottom", label: "카키 반바지", emoji: "🩳", price: 130, rarity: "common", theme: "adventure", img: "assets/avatar/bottom/khaki-cargo.webp?v=2", thumb: "assets/avatar/thumb/bottom_khaki.webp" },
   { id: "bottom_cream",   slot: "bottom", label: "크림 반바지", emoji: "🩳", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/cream-cargo.webp?v=2", thumb: "assets/avatar/thumb/bottom_cream.webp" },
+  /* 마법학교 세트 1번 — 별빛 마법사 주름치마 (사용자 원화 2026-08-14).
+     원화가 베이스 몸통과 같은 723×1536 캔버스에 그려져 있어 몸통과 같은 변환
+     (배율 0.3922 · 원화(364.5,0) → 캔버스(512,340))을 쓰되, 원화끼리 6px 어긋나 있어
+     오른쪽 +6px · 위로 -45px 을 더해 탑재했다 (art-src/README 에 실측값과 근거).
+     탑재 상자 x408~612 · y513~666 — 허리가 민소매 밑단 안으로 들어가 흰 셔츠가 안 샌다.
+     남녀 공용 (몸통이 공용이라 여아 전용 그림이 필요 없다). */
+  { id: "bottom_magic_skirt", slot: "bottom", label: "별빛 마법사 주름치마", emoji: "🌟", price: 200, rarity: "epic", theme: "magic", img: "assets/avatar/bottom/magic-skirt.webp" },
   { id: "bottom_denim",   slot: "bottom", label: "데님 반바지", emoji: "🩳", price: 170, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/denim-shorts.webp?v=2", thumb: "assets/avatar/thumb/bottom_denim.webp" },
   /* 신발 3종 — 좌·우 짝을 따로 배치해 남녀 각각 손으로 맞춘 값이다(사용자 확정).
      soleY/soleYGirl = 그 신발을 신었을 때의 밑창 높이. 접지 그림자가 이 값을 따라간다
