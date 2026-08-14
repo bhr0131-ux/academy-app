@@ -155,7 +155,7 @@ function BaseCharacter({ baseCharImg, size, gender = "boy", hideHead = false }) 
    그림자 폭은 부츠 발 폭보다 살짝 넓게 잡아 발 바깥으로 조금 번지게 한다.
    퍼센트는 상자 한 변(size) 대비. */
 const SHADOW = { w: 0.235, h: 0.055, blur: 0.010 };
-const BARE_SOLE = 939;   // 맨발 바닥 — 베이스 v5 남녀 공통 발끝 (2026-08-14)
+const BARE_SOLE = 938;   // 맨발 바닥 — 베이스 v6 남녀 공통 발끝 (2026-08-14)
 
 function GroundShadow({ size, soleY = BARE_SOLE }) {
   const w = Math.round(size * SHADOW.w);
