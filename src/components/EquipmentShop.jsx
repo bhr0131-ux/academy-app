@@ -82,7 +82,7 @@ export default function EquipmentShop({
   useEffect(() => {
     if (!open) return;
     const seen = new Set();
-    for (const s of SHOP_SLOTS) for (const it of getItemsBySlot(s.key)) {
+    for (const s of SHOP_SLOTS) for (const it of getItemsBySlot(s.key, gender)) {
       for (const p of [it.img, it.imgGirl, it.thumb]) {
         if (!p || seen.has(p)) continue;
         seen.add(p);
@@ -90,11 +90,12 @@ export default function EquipmentShop({
         img.src = "/" + p.replace(/^\/+/, "");
       }
     }
-  }, [open]);
+  }, [open, gender]);
 
   if (!open) return null;
 
-  const items = getItemsBySlot(activeSlot);
+  /* 여아 전용·남아 전용 아이템은 그 성별에게만 보인다(데이터의 forGender). */
+  const items = getItemsBySlot(activeSlot, gender);
   const slotMeta = getSlot(activeSlot);
 
   return (
