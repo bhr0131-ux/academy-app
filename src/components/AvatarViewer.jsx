@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
   getAvatarLayers, DEFAULT_AVATAR_BG, AVATAR_BASE_IMG, AVATAR_BASE_IMG_GIRL, AVATAR_BASE_EMOJI, AVATAR_BASE_Z,
   AVATAR_BASE_BODY_IMG, AVATAR_BASE_HEAD_IMG, AVATAR_BASE_BODY_IMG_GIRL, AVATAR_BASE_HEAD_IMG_GIRL,
-  AVATAR_BASE_BODY_UNDER_IMG, AVATAR_BASE_BODY_UNDER_IMG_GIRL,
 } from "../data/avatarEquipment.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -88,15 +87,12 @@ function AvatarLayer({ item, emojiPos, size, gender = "boy" }) {
 }
 
 /* 베이스 캐릭터 — 몸통+머리 2장 → 합본 1장 → 성장 캐릭터 → 이모지 폴백 */
-function BaseCharacter({ baseCharImg, size, gender = "boy", hideHead = false, underBody = false }) {
+function BaseCharacter({ baseCharImg, size, gender = "boy", hideHead = false }) {
   const [baseFailed, setBaseFailed] = useState(false);   // 합본까지 실패
   const [splitFailed, setSplitFailed] = useState(false); // 분리본만 실패 → 합본으로
   const girl = gender === "girl";
   const baseSrc = girl ? AVATAR_BASE_IMG_GIRL : AVATAR_BASE_IMG;
-  /* 하의를 입으면 '속옷 차림' 몸통으로 바꾼다 — 하의가 초록 반바지를 덮을 필요가 없어진다 */
-  const bodySrc = underBody
-    ? (girl ? AVATAR_BASE_BODY_UNDER_IMG_GIRL : AVATAR_BASE_BODY_UNDER_IMG)
-    : (girl ? AVATAR_BASE_BODY_IMG_GIRL : AVATAR_BASE_BODY_IMG);
+  const bodySrc = girl ? AVATAR_BASE_BODY_IMG_GIRL : AVATAR_BASE_BODY_IMG;
   const headSrc = girl ? AVATAR_BASE_HEAD_IMG_GIRL : AVATAR_BASE_HEAD_IMG;
   const imgStyle = { position: "absolute", inset: 0, width: "100%", height: "100%",
     objectFit: "contain", pointerEvents: "none" };
@@ -199,11 +195,6 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
   const soleY = (gender === "girl" ? shoeItem?.soleYGirl : shoeItem?.soleY)
     ?? shoeItem?.soleY ?? BARE_SOLE;
 
-  /* 하의 착용 여부 — 베이스 몸통을 속옷 차림으로 바꿀지 정한다.
-     그림이 실제로 로드된 뒤에 바꾸는 hidesHead 와 달리, 몸통은 어느 쪽이든 '옷 입은 몸'이라
-     한 박자 어긋나도 이상하지 않아 바로 바꾼다. */
-  const wearsBottom = layers.some((l) => l.slot === "bottom" && l.item?.img);
-
   const hidesHeadItem = layers.find((l) => l.item?.hidesHead)?.item || null;
   const hidesHeadSrc = hidesHeadItem ? equipSrc(hidesHeadItem, gender) : null;
   const [readySrc, setReadySrc] = useState(null);
@@ -250,7 +241,7 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
         </div>
       ))}
       <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z }}>
-        <BaseCharacter baseCharImg={baseCharImg} size={size} gender={gender} hideHead={hideHead} underBody={wearsBottom} />
+        <BaseCharacter baseCharImg={baseCharImg} size={size} gender={gender} hideHead={hideHead} />
       </div>
     </div>
   );
