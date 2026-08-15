@@ -248,7 +248,7 @@ export default function App() {
   const [showKidAddModal,     setShowKidAddModal]     = useState(false);   // 아이용 미션추가 모달
 
   // ── 도메인 D: reward (점수/보상/구매요청/XP조정) ──────────────────
-  const [scoreData,      setScoreData]      = useState(initReward.scoreData);
+  const [scoreData,      setScoreData, scoreRef] = useSyncState(initReward.scoreData);
   const [rewardData,     setRewardData]     = useState(initReward.rewardData);
   const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elemLow|elemHigh|teen|custom)
   const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
@@ -275,11 +275,11 @@ export default function App() {
   const [earnedTitleIds,   setEarnedTitleIds]   = useState(initProgress.earnedTitleIds);
   const [specialTitles,    setSpecialTitles]    = useState(initProgress.specialTitles);
   const [treasureData,     setTreasureData]     = useState(initProgress.treasureData);
-  const [ownedDecor,       setOwnedDecor]       = useState(initProgress.ownedDecor);
+  const [ownedDecor,       setOwnedDecor, ownedDecorRef] = useSyncState(initProgress.ownedDecor);
   const [equippedDecor,    setEquippedDecor]    = useState(initProgress.equippedDecor);
   // ── 꾸미기 아바타 장비 시스템 (신규, 아이별 맵. 기존 decor와 별개) ──
-  const [avatarOwned,      setAvatarOwned]      = useState({});   // { [childId]: string[] }
-  const [avatarEquipped,   setAvatarEquipped]   = useState({});   // { [childId]: {slot:itemId} }
+  const [avatarOwned,      setAvatarOwned, avatarOwnedRef] = useSyncState({});   // { [childId]: string[] }
+  const [avatarEquipped,   setAvatarEquipped, avatarEquippedRef] = useSyncState({});   // { [childId]: {slot:itemId} }
   const [charDisplayMode,  setCharDisplayMode]  = useState({});   // { [childId]: "growth"|"avatar" }
   const [showEquipShop,    setShowEquipShop]    = useState(false);
   const [decorPrices,      setDecorPrices]      = useState(initProgress.decorPrices);
@@ -2475,7 +2475,9 @@ export default function App() {
     if(o===0||o>0) return Number(o);
     return decor.price;
   };
-  const isDecorOwned=(cid,decorId)=>(ownedDecor[cid]||[]).includes(decorId);
+  /* 연타 안전 — ownedDecor(state)가 아니라 동기 거울에서 읽는다.
+     예전엔 같은 카드를 두 번 빠르게 누르면 둘 다 '아직 없음'으로 통과해 코인이 두 번 빠졌다. */
+  const isDecorOwned=(cid,decorId)=>(ownedDecorRef.current[cid]||[]).includes(decorId);
   // 보유 데코 구매 (아이가 코인으로 즉시 구매, 승인 불필요)
   // 구매 "규칙"(보유 추가·자동 장착)은 순수 함수 computeDecorPurchase가 담당하고,
   // 여기서는 검증·코인 차감·토스트 같은 부수효과만 처리한다.
@@ -2502,9 +2504,10 @@ export default function App() {
     });
   };
   /* ── 꾸미기 아바타: 아이별 조회 헬퍼 ──
-     저장 안 된 아이는 기본값(스타터 장착)으로 폴백해 항상 유효한 값을 돌려준다. */
-  const getAvatarOwned    = (cid)=> avatarOwned[cid]    || normalizeOwned([]);
-  const getAvatarEquipped = (cid)=> avatarEquipped[cid] || getDefaultEquipped();
+     저장 안 된 아이는 기본값(스타터 장착)으로 폴백해 항상 유효한 값을 돌려준다.
+     연타 안전 — 동기 거울에서 읽는다(구매·장착 판단이 옛 값을 보면 안 된다). */
+  const getAvatarOwned    = (cid)=> avatarOwnedRef.current[cid]    || normalizeOwned([]);
+  const getAvatarEquipped = (cid)=> avatarEquippedRef.current[cid] || getDefaultEquipped();
   const getCharMode       = (cid)=> charDisplayMode[cid] || DEFAULT_CHAR_DISPLAY_MODE;
 
   /* 아바타 베이스 몸체로 쓸 3단계 성장 캐릭터 이미지 경로.
@@ -2830,13 +2833,18 @@ export default function App() {
     });
   };
 
+  /* [버그 수정 2026-08-15] scoreData(state) 대신 scoreRef(동기 거울)에서 읽는다.
+     구매 버튼을 연타하면 두 번 다 차감 전 코인을 읽어 '살 수 있다'로 판단했고,
+     결과로 200코인 파츠를 2연타하면 코인만 400 빠지고 아이템은 1개였다.
+     ref 는 setScoreData 하는 순간 바뀌므로 두 번째 클릭이 차감된 코인을 본다.
+     (렌더 중 읽어도 state 와 같거나 한 발 앞선 값이라 화면에는 문제가 없다) */
   const getChildXP=(cid)=>{
-    const data=scoreData[cid];
+    const data=scoreRef.current[cid];
     if(!data) return 0;
     return Number(data.xp??data.total??0);
   };
   const getChildCoin=(cid)=>{
-    const data=scoreData[cid];
+    const data=scoreRef.current[cid];
     if(!data) return 0;
     return Number(data.coin??data.balance??data.total??0);
   };
