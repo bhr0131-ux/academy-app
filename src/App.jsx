@@ -1682,7 +1682,23 @@ export default function App() {
       parentPin,
       recoveryQuestion,
       recoveryAnswer,
-      installInfo
+      installInfo,
+
+      /* [버그 수정 2026-08-15] 아래 8가지가 백업에서 통째로 빠져 있었다.
+         폰을 바꾸거나 앱을 지웠다 깔고 복원하면, 코인·보물상자·연속기록은 돌아오는데
+         "그 코인으로 산 것"과 "매일 모은 것"은 하나도 안 돌아왔다(실측 확인).
+           꾸미기 상점에서 산 테두리·배경(ownedDecor/equippedDecor/decorPrices)
+           아바타 파츠(avatarOwned/avatarEquipped)와 캐릭터 표시 모드
+           오늘의 발견 도감(discoveryData)
+           보상 목록 연령대(rewardAgeGroup)                                      */
+      ownedDecor,
+      equippedDecor,
+      decorPrices,
+      avatarOwned,
+      avatarEquipped,
+      charDisplayMode,
+      discoveryData,
+      rewardAgeGroup
     };
 
     const blob=new Blob([JSON.stringify(backup,null,2)],{
@@ -1755,6 +1771,17 @@ export default function App() {
         setParentPin(data.parentPin||"1234");
         if(data.recoveryQuestion!==undefined) setRecoveryQuestion(data.recoveryQuestion||"");
         if(data.recoveryAnswer!==undefined) setRecoveryAnswer(data.recoveryAnswer||"");
+
+        /* 꾸미기·아바타·도감 — 백업 파일에 있을 때만 덮어쓴다.
+           이 항목들이 없던 시절의 옛 백업을 복원할 때 지금 기기의 것을 지우면 안 된다. */
+        if(data.ownedDecor!==undefined)     setOwnedDecor(data.ownedDecor||{});
+        if(data.equippedDecor!==undefined)  setEquippedDecor(data.equippedDecor||{});
+        if(data.decorPrices!==undefined)    setDecorPrices(data.decorPrices||{});
+        if(data.avatarOwned!==undefined)    setAvatarOwned(data.avatarOwned||{});
+        if(data.avatarEquipped!==undefined) setAvatarEquipped(data.avatarEquipped||{});
+        if(data.charDisplayMode!==undefined)setCharDisplayMode(data.charDisplayMode||{});
+        if(data.discoveryData!==undefined)  setDiscoveryData(data.discoveryData||{});
+        if(data.rewardAgeGroup!==undefined){ setRewardAgeGroup(data.rewardAgeGroup||"kid"); save("v6_reward_age_group",data.rewardAgeGroup||"kid"); }
 
         // 설치 정보: 복원본과 현재 중 더 이른 설치일을 유지 (창립 사용자 자격 보존)
         if(data.installInfo?.installDate){
@@ -2265,10 +2292,35 @@ export default function App() {
     setShowChildMgr(false); setEditingChild(null);
     setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0]});
   };
+  /* [버그 수정 2026-08-15] 아이를 지워도 그 아이 데이터가 저장소에 그대로 남았다.
+     실측: 아이 하나 삭제 후에도 10개 키(v6_ac·v6_score·v6_treasure·v6_pet·v6_abs·
+     v6_owned_decor·v6_avatar_owned2·v6_avatar_equipped2·v6_char_display_mode·
+     v6_discoveries)와 일별 데이터에 그 아이 기록이 남아 있었다. 화면에서는 영영
+     닿을 수 없는데 용량만 차지한다.
+     같은 파일의 deleteAcademy 가 이미 '지울 땐 딸린 데이터까지 함께 지운다'는
+     방식을 쓰고 있어 그대로 따랐다.
+     학원비 합계 같은 계산은 원래 아이별로 갈라져 있어(academies[cid]) 금액이
+     틀리지는 않았다 — 용량 문제였다. */
   const deleteChild=(id)=>{
     if(children.length<=1){ showToast("마지막 아이는 삭제할 수 없어요"); return; }
     setChildren(p=>p.filter(c=>c.id!==id));
     if(childId===id) setChildId(children.find(c=>c.id!==id)?.id||"");
+
+    // 아이 id 를 열쇠로 쓰는 저장소 — 그 칸만 덜어낸다
+    const dropKey=(setter)=>setter(p=>{ if(!p||!(id in p)) return p; const n={...p}; delete n[id]; return n; });
+    [setAcademies,setAbsences,setPaidStatus,setVacations,setScoreData,setRewardRequests,
+     setTreasureData,setPetData,setSkinByChild,setSelectedTitles,setSeenTitles,setEarnedTitleIds,
+     setSpecialTitles,setBestStreakData,setLastLevelByChild,setOwnedDecor,setEquippedDecor,
+     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData].forEach(dropKey);
+
+    // 앞머리에 아이 id 가 붙는 저장소 (일별 미션·날짜 메모·기본 숙제 심은 기록)
+    const dropPrefix=(setter)=>setter(p=>{
+      const n={...p}; let hit=false;
+      Object.keys(n).forEach(k=>{ if(k.startsWith(`${id}-`)){ delete n[k]; hit=true; } });
+      return hit?n:p;
+    });
+    [setDailyData,setDayMemos,setBaseSeededKeys].forEach(dropPrefix);
+
     showToast("삭제됨");
   };
   /* 아이 순서 바꾸기 — 배열 순서가 곧 화면 위 아이 선택 탭의 순서다 (사용자 확정 2026-08-10) */
