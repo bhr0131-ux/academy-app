@@ -106,6 +106,51 @@ export const newId = () => {
   return __lastId;
 };
 
+/* ── 저장소 상태 ────────────────────────────────────────────────────────
+   [사용자 질문 2026-08-15] "@capacitor/preferences 가 실제로 깔렸는지 어떻게 확인해?"
+   → 앱을 열어 개발자 도구에서 바로 보이게 한다. 코드나 프로젝트 파일을 뒤질 필요 없이,
+     실제 기기에서 돌아가는 앱이 어디에 저장하고 있는지가 답이다.
+   Preferences 플러그인이 안 깔려 있으면 웹뷰 localStorage 로 내려가고,
+   그러면 5MiB 한도가 그대로 걸린다.                                        */
+export const STORAGE_KIND = __CAP_PREFS ? "capacitor" : (__hasLS ? "localstorage" : "memory");
+export const STORAGE_LABEL = {
+  capacitor:    "Capacitor Preferences (네이티브)",
+  localstorage: "localStorage (웹뷰)",
+  memory:       "메모리 (앱을 끄면 사라져요)",
+}[STORAGE_KIND];
+/** 웹뷰 localStorage 한도 — 크롬 계열 실측 5 MiB(글자 수 기준, 한글도 1글자=1칸) */
+export const LOCALSTORAGE_LIMIT = 5 * 1024 * 1024;
+
+/** 지금 저장소에 무엇이 얼마나 들어 있는지. { kind, label, used, count, limit, top } */
+export const storageInfo = async () => {
+  let used = 0, count = 0;
+  const sizes = [];
+  const add = (k, len) => { used += k.length + len; count++; sizes.push([k, len]); };
+  try {
+    if (__CAP_PREFS) {
+      const r = await __CAP_PREFS.keys();
+      for (const k of (r && r.keys) || []) {
+        const v = await __CAP_PREFS.get({ key: k });
+        add(k, (v && v.value && v.value.length) || 0);
+      }
+    } else if (__hasLS) {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        add(k, (localStorage.getItem(k) || "").length);
+      }
+    } else {
+      for (const k of Object.keys(__MEM_STORE)) add(k, JSON.stringify(__MEM_STORE[k]).length);
+    }
+  } catch (e) {}
+  sizes.sort((a, b) => b[1] - a[1]);
+  return {
+    kind: STORAGE_KIND, label: STORAGE_LABEL, used, count,
+    /* Capacitor Preferences 는 기기 저장공간을 쓰므로 정해진 한도가 없다 */
+    limit: STORAGE_KIND === "localstorage" ? LOCALSTORAGE_LIMIT : null,
+    top: sizes.slice(0, 5),
+  };
+};
+
 // ── SMS ─────────────────────────────────
 export const smsLink=(phone,body="")=>{ const enc=encodeURIComponent(body); const ios=/iPad|iPhone|iPod/.test(navigator.userAgent); return `sms:${phone}${body?(ios?`&body=${enc}`:`?body=${enc}`):""}` };
 
