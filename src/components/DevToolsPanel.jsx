@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import { C } from "../data/tokens.js";
+import { storageInfo } from "../utils/dates.js";
 import { ADV_CHAR_STAGE_OF } from "../data/characters.js";
 import { DISCOVERIES, getCollectedCount } from "../data/discoveries.js";
 
@@ -11,6 +13,48 @@ import { DISCOVERIES, getCollectedCount } from "../data/discoveries.js";
    필요한 값·함수는 D 프로퍼티 하나로 통째로 받는다.
    열고 닫기(DEV_MODE && showDevTools)는 App이 결정한다.
    ════════════════════════════════════════════════════════════════════════ */
+/* ── 저장소 상태 카드 (사용자 질문 2026-08-15) ────────────────────────────
+   "@capacitor/preferences 가 실제로 깔렸는지 어떻게 확인해?" 에 대한 답.
+   프로젝트 파일을 뒤질 필요 없이, 실제 기기에서 앱을 열어 여기를 보면 된다.
+     Capacitor Preferences (네이티브)  → 플러그인이 깔려 있다. 용량 여유 있음.
+     localStorage (웹뷰)              → 플러그인이 없다. 5MiB 한도가 그대로 걸린다.
+     메모리                            → 저장이 아예 안 된다(앱을 끄면 사라짐).       */
+function StorageCard({ CT }) {
+  const [info, setInfo] = useState(null);
+  useEffect(() => { let alive = true; storageInfo().then((r) => alive && setInfo(r)); return () => { alive = false; }; }, []);
+  const box = { background: CT.faint, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 };
+  if (!info) return <div style={box}><p style={{ margin: 0, fontSize: 12.5, fontWeight: 800, color: C.sub }}>저장소 확인 중…</p></div>;
+  const ok = info.kind === "capacitor";
+  const color = ok ? (C.green || "#16A34A") : info.kind === "memory" ? "#DC2626" : (C.orange || "#EA580C");
+  const pct = info.limit ? (info.used / info.limit) * 100 : null;
+  /* 글자 수를 읽기 좋은 단위로 — 작은 값이 전부 "0KB"로 보이면 쓸모가 없다 */
+  const size = (n) => n >= 1048576 ? (n / 1048576).toFixed(2) + "MB"
+                    : n >= 1024    ? (n / 1024).toFixed(n >= 10240 ? 0 : 1) + "KB"
+                    : n + "자";
+  return (
+    <div style={box}>
+      <p style={{ fontSize: 11, margin: "0 0 4px", fontWeight: 900, letterSpacing: 1, color: C.sub }}>저장소</p>
+      <p style={{ fontSize: 14, fontWeight: 900, margin: 0, color }}>{ok ? "✅ " : "⚠️ "}{info.label}</p>
+      <p style={{ fontSize: 12, fontWeight: 700, margin: "6px 0 0", color: C.sub }}>
+        {info.count}개 항목 · {info.used.toLocaleString()} 글자 ({size(info.used)})
+        {pct != null && <> · 한도의 <b style={{ color: pct > 70 ? "#DC2626" : C.sub }}>{pct.toFixed(1)}%</b> (5 MiB)</>}
+        {pct == null && ok && <> · 한도 없음 (기기 저장공간)</>}
+      </p>
+      {info.kind === "localstorage" && (
+        <p style={{ fontSize: 11.5, fontWeight: 700, margin: "7px 0 0", color: "#B45309", lineHeight: 1.5 }}>
+          Capacitor Preferences 플러그인이 안 깔려 있습니다. Capacitor 프로젝트에서<br />
+          <code>npm i @capacitor/preferences</code> → <code>npx cap sync</code> 하면 여유가 생깁니다.
+        </p>
+      )}
+      {info.top?.length > 0 && (
+        <p style={{ fontSize: 11, fontWeight: 700, margin: "7px 0 0", color: C.sub, lineHeight: 1.6, wordBreak: "break-all" }}>
+          큰 항목: {info.top.map(([k, n]) => `${k} ${size(n)}`).join(" · ")}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function DevToolsPanel({ D }) {
   const { children, childId, childDate, kidSkin, th, CT, GP, TM, fmt, getChildLevel, getChildXP, getChildCoin, loadSampleData, generateTestData, generateLegendTestData, addDevQuests, addDevHomeworks, giveDevBox, getQuestStreak, getBestStreak, setDevStreak, setDevBestStreak, diagnoseStreak, stepDevLevel, setDevLevel, addDevXP, addDevCoin, unlockAllTitlesForDev, showDevEvent, devDiscoverNow, devClearTodayDiscovery, devDiscoverAs, devFillDiscoveryDays, devFillDiscoveryAll, devResetDiscovery, resetGameData, resetAllAppData, setShowDevTools, setShowExpPreview, discoveryData } = D;
   /* 패널 전용 스타일 헬퍼 (분리 전 App에 있던 것 그대로) */
@@ -34,6 +78,8 @@ export default function DevToolsPanel({ D }) {
                 <p style={{fontSize:11,opacity:0.7,margin:"0 0 2px",fontWeight:900,letterSpacing:1}}>CURRENT PLAYER</p>
                 <p style={{fontSize:13,fontWeight:900,margin:0}}>{children.find(c=>c.id===childId)?.name||"없음"} · Lv.{getChildLevel(childId).level} · {TM.xpEmoji}{getChildXP(childId)} · {TM.coinEmoji}{getChildCoin(childId)}</p>
               </div>
+
+              <StorageCard CT={CT} />
 
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 <button onClick={loadSampleData} style={devBtn(C.green)}>🌱 샘플 데이터 채우기 (아이·학원·미션)</button>
