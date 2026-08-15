@@ -249,7 +249,7 @@ export default function App() {
 
   // ── 도메인 D: reward (점수/보상/구매요청/XP조정) ──────────────────
   const [scoreData,      setScoreData, scoreRef] = useSyncState(initReward.scoreData);
-  const [rewardData,     setRewardData]     = useState(initReward.rewardData);
+  const [rewardData,     setRewardData, rewardRef] = useSyncState(initReward.rewardData);
   const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elemLow|elemHigh|teen|custom)
   const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
   const [pendingReject,    setPendingReject]    = useState(null); // 보상 구매 거절 확인 모달용 (요청 객체)
@@ -258,7 +258,7 @@ export default function App() {
   const [lastNudgeDate, setLastNudgeDate] = useState(null); // 마지막으로 백업 권유를 띄운 날짜 (YYYY-MM-DD), 없으면 null
   const [showBackupNudge, setShowBackupNudge] = useState(false); // 백업 권유 모달 표시 여부
   const [backupNudgeChecked, setBackupNudgeChecked] = useState(false); // 이번 세션에서 넛지 체크를 이미 했는지
-  const [rewardRequests, setRewardRequests] = useState(initReward.rewardRequests);
+  const [rewardRequests, setRewardRequests, rewardReqRef] = useSyncState(initReward.rewardRequests);
   const [rewardForm,     setRewardForm]     = useState(initReward.rewardForm);
   const [editingRewardId,setEditingRewardId]= useState(initReward.editingRewardId);
   const [showRewardModal,setShowRewardModal]= useState(initReward.showRewardModal);
@@ -2576,7 +2576,9 @@ export default function App() {
   /* 홈 캐릭터 표시 모드 토글 (성장 ↔ 아바타) */
   const toggleCharDisplayMode=()=>{
     const cid=childId;
-    setCharDisplayMode(prev=>({...prev,[cid]:computeCharDisplayToggle(getCharMode(cid))}));
+    /* prev 기준으로 뒤집는다 — 렌더 시점 값을 쓰면 연타할 때 두 번 다 같은 값에서 뒤집혀
+       한 번만 바뀐 것처럼 보인다. */
+    setCharDisplayMode(prev=>({...prev,[cid]:computeCharDisplayToggle(prev[cid]||DEFAULT_CHAR_DISPLAY_MODE)}));
   };
 
   // 현재 장착 데코 객체 조회 (스킨 반영). 없으면 null
@@ -3056,7 +3058,8 @@ export default function App() {
     return levelView(lv,kidSkin,children.find(c=>c.id===cid)?.gender);
   };
 
-  const getChildRewards=()=>rewardData["shared"]||DEFAULT_REWARDS;
+  /* 판단용 조회는 동기 거울에서 (연타·연속 갱신 안전) */
+  const getChildRewards=()=>rewardRef.current["shared"]||DEFAULT_REWARDS;
 
   const getCharacterEvolution=(cid)=>{
     const level=getChildLevel(cid).level;
@@ -3075,7 +3078,7 @@ export default function App() {
   // 펫 최종 진화(마지막 단계) 도달 여부 — 펫 스킨 잠금 해제 기준
   const isMaxPet=(cid)=>getPetStage(cid)>=PET_STAGES.length-1;
 
-  const getChildRewardRequests=(cid)=>rewardRequests[cid]||[];
+  const getChildRewardRequests=(cid)=>rewardReqRef.current[cid]||[];
   const hasPendingRewardRequest=(cid,rewardId)=>getChildRewardRequests(cid).some(r=>r.rewardId===rewardId&&r.status==="pending");
 
   const requestReward=(reward)=>{
@@ -3085,14 +3088,14 @@ export default function App() {
     // 요청과 동시에 코인 차감 (엄마 승인 전이라도 미리 빠짐 → 거절 시 환불)
     spendCoin(childId,reward.point,`${reward.title} 구매 요청`);
     const newRequest={id:Date.now(),rewardId:reward.id,title:reward.title,point:reward.point,emoji:reward.emoji,status:"pending",requestedAt:new Date().toISOString()};
-    setRewardRequests(prev=>({...prev,[childId]:[...getChildRewardRequests(childId),newRequest]}));
+    setRewardRequests(prev=>({...prev,[childId]:[...(prev[childId]||[]),newRequest]}));
     showToast("구매 요청을 보냈어요 🛒");
   };
   const approveRewardRequest=(requestId)=>{
     const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
     if(!request) return;
     // 코인은 요청 시 이미 차감됨 → 승인은 상태만 변경
-    setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"approved",approvedAt:new Date().toISOString()}:r)}));
+    setRewardRequests(prev=>({...prev,[childId]:(prev[childId]||[]).map(r=>r.id===requestId?{...r,status:"approved",approvedAt:new Date().toISOString()}:r)}));
     /* [사용자 확정 2026-08-11] '구매 승인 완료!'만으로는 무엇을 승인했는지 안 남는다 →
        무엇을·얼마에 승인했는지 함께 알린다. (코인은 요청 시 이미 빠져 있으므로
        '차감했어요'가 아니라 '사용'이라고 쓴다 — 지금 빠지는 것처럼 읽히면 안 된다) */
@@ -3103,7 +3106,7 @@ export default function App() {
     if(!request) return;
     // 거절 시 요청할 때 미리 빠진 코인을 환불 (대기 상태였던 건만)
     if(request.status==="pending") refundCoin(childId,request.point,`${request.title} 구매 거절 환불`);
-    setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"rejected",rejectedAt:new Date().toISOString()}:r)}));
+    setRewardRequests(prev=>({...prev,[childId]:(prev[childId]||[]).map(r=>r.id===requestId?{...r,status:"rejected",rejectedAt:new Date().toISOString()}:r)}));
     showToast(`요청을 거절했어요 (${request.point} ${TM.coin} 돌려줬어요)`);
   };
   const openEditReward=(reward)=>{
@@ -3115,10 +3118,10 @@ export default function App() {
     if(!rewardForm.title.trim()){ showToast("보상 이름을 입력해줘"); return; }
     const rewardPayload={title:rewardForm.title.trim(),point:Number(rewardForm.point||0),emoji:rewardForm.emoji||"🎁",grade:rewardForm.grade||"common"};
     if(editingRewardId){
-      setRewardData(prev=>({...prev,shared:getChildRewards().map(r=>r.id===editingRewardId?{...r,...rewardPayload}:r)}));
+      setRewardData(prev=>({...prev,shared:(prev["shared"]||DEFAULT_REWARDS).map(r=>r.id===editingRewardId?{...r,...rewardPayload}:r)}));
       showToast("보상이 수정됐어요 ✏️");
     } else {
-      setRewardData(prev=>({...prev,shared:[...getChildRewards(),{id:Date.now(),...rewardPayload}]}));
+      setRewardData(prev=>({...prev,shared:[...(prev["shared"]||DEFAULT_REWARDS),{id:Date.now(),...rewardPayload}]}));
       showToast("보상이 추가됐어요 🎁");
     }
     setRewardForm({title:"",point:300,emoji:"🎁",grade:"common"});
@@ -3126,7 +3129,7 @@ export default function App() {
     setShowRewardModal(false);
   };
   const deleteReward=(rewardId)=>{
-    setRewardData(prev=>({...prev,shared:getChildRewards().filter(r=>r.id!==rewardId)}));
+    setRewardData(prev=>({...prev,shared:(prev["shared"]||DEFAULT_REWARDS).filter(r=>r.id!==rewardId)}));
     showToast("보상이 삭제됐어요");
   };
 
