@@ -7,7 +7,21 @@ export const getToday = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 };
-export const TODAY = getToday();
+/* [버그 수정 2026-08-15] TODAY 는 앱을 켤 때 한 번만 계산됐다.
+   폰에서 앱을 끄지 않고 자정을 넘기면 출석·오늘의 미션·연속 달성·일별 저장 키가
+   전부 '어제' 날짜로 기록됐다(TODAY 를 쓰는 곳이 98군데).
+   const → let 으로 바꿔 ES 모듈 라이브 바인딩을 쓴다 — refreshToday() 가 값을
+   갱신하면 `import { TODAY }` 한 모든 파일이 새 값을 본다.
+   갱신 시점을 잡아 다시 그리는 건 App 쪽 useDayRollover 가 맡는다. */
+export let TODAY = getToday();
+
+/** 날짜가 바뀌었으면 TODAY 를 갱신하고 새 날짜를 돌려준다. 안 바뀌었으면 null. */
+export const refreshToday = () => {
+  const t = getToday();
+  if (t === TODAY) return null;
+  TODAY = t;
+  return t;
+};
 export const parseLocal = (s) => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
 export const toStr = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 export const fmt = (s) => { const d=parseLocal(s); return `${d.getMonth()+1}/${d.getDate()}(${["일","월","화","수","목","금","토"][d.getDay()]})`; };

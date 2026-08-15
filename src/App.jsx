@@ -1,7 +1,7 @@
 import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
-import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
+import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
@@ -182,7 +182,7 @@ const initUi = {
   showAddAcModal: false,
   showDetailModal: null,
   showAbsModal: false,
-  newAbs: EMPTY_ABS,
+  newAbs: {...EMPTY_ABS},   // getter(date)를 지금 값으로 펼쳐 담는다 — 원본은 공유하지 않는다
   toast: "",
 };
 
@@ -713,6 +713,34 @@ export default function App() {
       }
       setLoaded(true);
     })();
+  },[]);
+
+  /* ── 자정 넘김 (사용자 보고 2026-08-15) ────────────────────────────────
+     TODAY 는 앱을 켤 때 한 번만 계산되던 값이라, 폰에서 앱을 끄지 않고 날이 바뀌면
+     출석·오늘의 미션·연속 달성·일별 저장 키가 계속 어제 날짜로 기록됐다.
+     1분마다, 그리고 앱으로 돌아올 때 확인해서 날짜가 바뀌었으면
+     TODAY 를 갱신하고(dates.js의 라이브 바인딩) 화면을 다시 그린다.
+     '오늘'을 보고 있던 날짜 상태들만 새 날짜로 따라 옮긴다 —
+     지난 날짜를 일부러 열어 둔 경우에는 건드리지 않는다.
+     저장하지 않는다(새 키 없음). */
+  /* 값은 안 쓴다 — 날짜가 바뀐 걸 알리려고 화면을 다시 그리게 하는 용도다. */
+  const [,setDayStamp]=useState(TODAY);
+  useEffect(()=>{
+    const check=()=>{
+      const prev=TODAY;
+      const next=refreshToday();
+      if(!next) return;
+      setChildDate(d=>d===prev?next:d);
+      setHomeDate(d=>d===prev?next:d);
+      setRewardDate(d=>d===prev?next:d);
+      setAbsMonth(m=>m===prev.slice(0,7)?next.slice(0,7):m);
+      setDayStamp(next);
+    };
+    const id=setInterval(check,60000);
+    const onVis=()=>{ if(!document.hidden) check(); };
+    document.addEventListener("visibilitychange",onVis);
+    window.addEventListener("focus",check);
+    return ()=>{ clearInterval(id); document.removeEventListener("visibilitychange",onVis); window.removeEventListener("focus",check); };
   },[]);
 
   useEffect(()=>{ if(loaded) save("v6_children",children); },[children,loaded]);
