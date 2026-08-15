@@ -145,8 +145,8 @@ export const AVATAR_CATALOG = [
      그림·데이터는 그대로 두고 ACTIVE_SEASONS에 "winter"를 넣는 순간 상점에 다시 나온다. */
   { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp?v=2",     imgGirl: "assets/avatar/hat/aviator-cap-girl.webp",  hidesHead: true, season: "winter" },
   { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp?v=2",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_blossom.webp" },
-  { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp" },
-  { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp" },
+  { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp", artPending: true },
+  { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp", artPending: true },
   /* 하의 3종 — [주의] 베이스 v5(2026-08-14)로 몸이 바뀌면서 자리가 어긋나 있다.
      예전 몸(초록 반바지)에 맞춰 놓은 값이라 새 몸에 다시 맞춰야 한다.
      새 몸 기준값: 허리 y? · 다리 ? — 재측정 후 이 주석을 갱신할 것.
@@ -168,7 +168,7 @@ export const AVATAR_CATALOG = [
   { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp", imgGirl: "assets/avatar/shoes/explorer-boots-girl.webp", soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots.webp" },
   { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp",    imgGirl: "assets/avatar/shoes/green-boots-girl.webp",    soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
   { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp",    imgGirl: "assets/avatar/shoes/cream-boots-girl.webp",    soleY: 966, soleYGirl: 968, thumb: "assets/avatar/thumb/shoes_boots_sand.webp" },
-  { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp" },
+  { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp", artPending: true },
   /* 탐험 배낭 — 원화가 '앞에서 본 어깨끈'(침낭 롤 + 버클 + 칼집)이라 캐릭터 뒤(z15)에 그리면
      몸통에 완전히 가려진다. 그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
   { id: "back_backpack",       slot: "back", label: "탐험 배낭", emoji: "🎒", price: 250, rarity: "epic", theme: "adventure", img: "assets/avatar/back/explorer-straps.webp", z: 37, thumb: "assets/avatar/thumb/back_backpack.webp" },
@@ -191,11 +191,20 @@ export const isItemInSeason = (it) => !it.season || ACTIVE_SEASONS.includes(it.s
    → 이미 산·입은 아이템은 성별을 바꿔도 그대로 유지된다(데이터 안 깨짐).      */
 export const isItemForGender = (it, gender) => !it.forGender || !gender || it.forGender === gender;
 
+/* ── 그림 대기 아이템 ────────────────────────────────────────────────────
+   [버그 2026-08-15] 카탈로그에는 있는데 img 파일이 없는 아이템이 3종 있었다
+   (탐험 고글 120 · 탐험 조끼 150 · 빨간 스카프 90). 사면 그림 대신 이모지만
+   떠서, 돈을 내고 미완성품을 받는 상태였다.
+   artPending 이 붙으면 상점에 안 나온다. 시즌과 같은 방식이라
+   getAvatarItem·레이어 조회는 그대로 → 이미 산 아이는 계속 쓸 수 있다.
+   그림이 들어오면 이 한 줄만 지우면 원래대로 팔린다. */
+export const isItemArtReady = (it) => !it.artPending;
+
 /* 상점 목록 — 시즌이 안 열렸거나 다른 성별 전용인 아이템은 빼고 보여 준다.
    gender를 안 넘기면 예전처럼 전부 돌려준다(기존 호출부 보호).
    (getAvatarItem/레이어 조회는 시즌·성별과 무관하게 그대로 동작 → 보유·착용 데이터 안 깨짐) */
 export const getItemsBySlot = (slotKey, gender) =>
-  AVATAR_CATALOG.filter(it => it.slot === slotKey && isItemInSeason(it) && isItemForGender(it, gender));
+  AVATAR_CATALOG.filter(it => it.slot === slotKey && isItemInSeason(it) && isItemForGender(it, gender) && isItemArtReady(it));
 export const STARTER_ITEM_IDS = AVATAR_CATALOG.filter(it => it.starter).map(it => it.id);
 
 /** 신규 사용자 기본 장착: 스타터(하늘 배경)만. 장비 슬롯은 전부 비움 */
