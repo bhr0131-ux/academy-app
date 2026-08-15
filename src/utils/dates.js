@@ -7,7 +7,21 @@ export const getToday = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 };
-export const TODAY = getToday();
+/* [버그 수정 2026-08-15] TODAY 는 앱을 켤 때 한 번만 계산됐다.
+   폰에서 앱을 끄지 않고 자정을 넘기면 출석·오늘의 미션·연속 달성·일별 저장 키가
+   전부 '어제' 날짜로 기록됐다(TODAY 를 쓰는 곳이 98군데).
+   const → let 으로 바꿔 ES 모듈 라이브 바인딩을 쓴다 — refreshToday() 가 값을
+   갱신하면 `import { TODAY }` 한 모든 파일이 새 값을 본다.
+   갱신 시점을 잡아 화면을 다시 그리는 건 App.jsx 의 자정 감지 effect 가 맡는다. */
+export let TODAY = getToday();
+
+/** 날짜가 바뀌었으면 TODAY 를 갱신하고 새 날짜를 돌려준다. 안 바뀌었으면 null. */
+export const refreshToday = () => {
+  const t = getToday();
+  if (t === TODAY) return null;
+  TODAY = t;
+  return t;
+};
 export const parseLocal = (s) => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
 export const toStr = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 export const fmt = (s) => { const d=parseLocal(s); return `${d.getMonth()+1}/${d.getDate()}(${["일","월","화","수","목","금","토"][d.getDay()]})`; };
@@ -31,13 +45,28 @@ export const __MEM_STORE = {};
 export const __CAP_PREFS = (typeof window!=="undefined" && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) || null;
 export const __hasLS = (()=>{ try { if(typeof localStorage==="undefined") return false; const t="__v6_ls_test__"; localStorage.setItem(t,"1"); localStorage.removeItem(t); return true; } catch(e){ return false; } })();
 
+/* ── 저장 실패 알림 ──────────────────────────────────────────────────────
+   [버그 2026-08-15] save() 가 catch(e){} 로 조용히 삼켜서, 저장소가 꽉 차면
+   (localStorage 한도 초과 등) 아무 표시 없이 저장만 멈췄다. 이력·일별 데이터는
+   지우는 코드가 없어 계속 쌓이므로 오래 쓰면 실제로 닿을 수 있는 상태다.
+   화면 쪽에서 onSaveError 를 등록해 두면 실패를 한 번 알려 준다.
+   (저장 로직 자체는 그대로 — 알림만 추가한다)                              */
+let __onSaveError = null;
+export const setSaveErrorHandler = (fn) => { __onSaveError = fn; };
+
 export const save = async (k, v) => {
   try {
     const s = JSON.stringify(v);
     if(__CAP_PREFS){ await __CAP_PREFS.set({ key:k, value:s }); return; }
     if(__hasLS){ localStorage.setItem(k, s); return; }
     __MEM_STORE[k] = JSON.parse(s);
-  } catch (e) {}
+  } catch (e) {
+    /* 한도 초과는 브라우저마다 이름이 달라(QuotaExceededError /
+       NS_ERROR_DOM_QUOTA_REACHED / code 22·1014) 이름 대신 넓게 잡는다. */
+    const full = e && (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED"
+      || e.code === 22 || e.code === 1014);
+    try { __onSaveError && __onSaveError({ key:k, full:!!full, error:e }); } catch (_) {}
+  }
 };
 export const load = async (k) => {
   try {
@@ -53,6 +82,19 @@ export const clearAllStorage = async () => {
     if(__hasLS){ localStorage.clear(); return; }
     Object.keys(__MEM_STORE).forEach(k=>delete __MEM_STORE[k]);
   } catch (e) {}
+};
+
+/* ── id 발급 ──────────────────────────────────────────────────────────────
+   [버그 2026-08-15] 새 항목 id 를 Date.now() 로 만들다 보니 같은 밀리초에 두 건이
+   생기면 id 가 겹쳤다(점수 이력에서 실제로 같은 id 2건이 관찰됐다).
+   겹친 id 는 목록에서 서로를 못 가려내고 React key 도 중복된다.
+   시간 순서는 그대로 두면서 항상 다른 값을 주는 발급기를 쓴다.
+   기존 저장 데이터의 id 와 같은 숫자 범위라 마이그레이션이 필요 없다. */
+let __lastId = 0;
+export const newId = () => {
+  const t = Date.now();
+  __lastId = t > __lastId ? t : __lastId + 1;
+  return __lastId;
 };
 
 // ── SMS ─────────────────────────────────

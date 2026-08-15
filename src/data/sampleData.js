@@ -81,7 +81,10 @@ export const EMPTY_AC = {
    보충 날짜만 잡히고 시간은 나중에 정해지는 경우가 많아 필수로 두지 않는다.
    기존 기록에는 이 두 값이 없다 — 읽는 쪽에서 빈 값으로 보고 시간 줄을 안 그리면 된다
    (저장 키 v6_abs 의 구조를 바꾸지 않고 필드만 늘리는 방식이라 기존 데이터가 안전하다). */
-export const EMPTY_ABS = { academyId:"", date:TODAY, reason:"", makeupDate:"", makeupStart:"", makeupEnd:"", makeupDone:false, makeupStatus:"" };
+/* 결석 등록 폼의 빈 값. date 는 '오늘'이라 모듈 로드 시점에 굳히면 안 된다
+   (앱을 켠 채 자정을 넘기면 어제 날짜가 기본값으로 뜬다) → getter 로 둔다. */
+export const EMPTY_ABS = { academyId:"", reason:"", makeupDate:"", makeupStart:"", makeupEnd:"", makeupDone:false, makeupStatus:"",
+  get date(){ return TODAY; } };
 
 /* 보충 시간 표시용 — 둘 다 없으면 빈 문자열, 시작만 있으면 시작만 */
 export const makeupTimeText = (ab) => {

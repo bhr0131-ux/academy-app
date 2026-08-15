@@ -1,7 +1,8 @@
 import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
-import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
+import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
+import { useSyncState } from "./utils/useSyncState.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
@@ -181,7 +182,7 @@ const initUi = {
   showAddAcModal: false,
   showDetailModal: null,
   showAbsModal: false,
-  newAbs: EMPTY_ABS,
+  newAbs: {...EMPTY_ABS},   // getter(date)를 지금 값으로 펼쳐 담는다 — 원본은 공유하지 않는다
   toast: "",
 };
 
@@ -227,7 +228,8 @@ export default function App() {
   const [showVacModal,setShowVacModal]= useState(initAcademy.showVacModal);
 
   // ── 도메인 C: daily (일별 숙제/준비물/할일 + 입력) ────────────────
-  const [dailyData,           setDailyData]           = useState(initDaily.dailyData);
+  /* 연타 안전 — 판단용 읽기는 dailyRef 로 한다 (utils/useSyncState.js 주석 참고) */
+  const [dailyData,           setDailyData, dailyRef] = useSyncState(initDaily.dailyData);
   const [baseSeededKeys,      setBaseSeededKeys]      = useState(initDaily.baseSeededKeys);
   const [dailyHwInput,        setDailyHwInput]        = useState(initDaily.dailyHwInput);
   const [dailySupInput,       setDailySupInput]       = useState(initDaily.dailySupInput);
@@ -246,8 +248,8 @@ export default function App() {
   const [showKidAddModal,     setShowKidAddModal]     = useState(false);   // 아이용 미션추가 모달
 
   // ── 도메인 D: reward (점수/보상/구매요청/XP조정) ──────────────────
-  const [scoreData,      setScoreData]      = useState(initReward.scoreData);
-  const [rewardData,     setRewardData]     = useState(initReward.rewardData);
+  const [scoreData,      setScoreData, scoreRef] = useSyncState(initReward.scoreData);
+  const [rewardData,     setRewardData, rewardRef] = useSyncState(initReward.rewardData);
   const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elemLow|elemHigh|teen|custom)
   const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
   const [pendingReject,    setPendingReject]    = useState(null); // 보상 구매 거절 확인 모달용 (요청 객체)
@@ -256,7 +258,7 @@ export default function App() {
   const [lastNudgeDate, setLastNudgeDate] = useState(null); // 마지막으로 백업 권유를 띄운 날짜 (YYYY-MM-DD), 없으면 null
   const [showBackupNudge, setShowBackupNudge] = useState(false); // 백업 권유 모달 표시 여부
   const [backupNudgeChecked, setBackupNudgeChecked] = useState(false); // 이번 세션에서 넛지 체크를 이미 했는지
-  const [rewardRequests, setRewardRequests] = useState(initReward.rewardRequests);
+  const [rewardRequests, setRewardRequests, rewardReqRef] = useSyncState(initReward.rewardRequests);
   const [rewardForm,     setRewardForm]     = useState(initReward.rewardForm);
   const [editingRewardId,setEditingRewardId]= useState(initReward.editingRewardId);
   const [showRewardModal,setShowRewardModal]= useState(initReward.showRewardModal);
@@ -273,11 +275,11 @@ export default function App() {
   const [earnedTitleIds,   setEarnedTitleIds]   = useState(initProgress.earnedTitleIds);
   const [specialTitles,    setSpecialTitles]    = useState(initProgress.specialTitles);
   const [treasureData,     setTreasureData]     = useState(initProgress.treasureData);
-  const [ownedDecor,       setOwnedDecor]       = useState(initProgress.ownedDecor);
+  const [ownedDecor,       setOwnedDecor, ownedDecorRef] = useSyncState(initProgress.ownedDecor);
   const [equippedDecor,    setEquippedDecor]    = useState(initProgress.equippedDecor);
   // ── 꾸미기 아바타 장비 시스템 (신규, 아이별 맵. 기존 decor와 별개) ──
-  const [avatarOwned,      setAvatarOwned]      = useState({});   // { [childId]: string[] }
-  const [avatarEquipped,   setAvatarEquipped]   = useState({});   // { [childId]: {slot:itemId} }
+  const [avatarOwned,      setAvatarOwned, avatarOwnedRef] = useSyncState({});   // { [childId]: string[] }
+  const [avatarEquipped,   setAvatarEquipped, avatarEquippedRef] = useSyncState({});   // { [childId]: {slot:itemId} }
   const [charDisplayMode,  setCharDisplayMode]  = useState({});   // { [childId]: "growth"|"avatar" }
   const [showEquipShop,    setShowEquipShop]    = useState(false);
   const [decorPrices,      setDecorPrices]      = useState(initProgress.decorPrices);
@@ -645,7 +647,7 @@ export default function App() {
           const amt=avRefunds[rcid];
           scoreFinal[rcid]={...cur,
             coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+amt),
-            history:[...(cur.history||[]),{id:Date.now(),point:0,xp:0,coin:amt,date:TODAY,type:"avatar_refund",memo:`꾸미기 상점 개편 코인 환불 +${amt}`}]
+            history:[...(cur.history||[]),{id:newId(),point:0,xp:0,coin:amt,date:TODAY,type:"avatar_refund",memo:`꾸미기 상점 개편 코인 환불 +${amt}`}]
           };
         }
         save("v6_score",scoreFinal); // 즉시 저장 (v2 키 생성 후엔 재실행 안 됨)
@@ -711,6 +713,34 @@ export default function App() {
       }
       setLoaded(true);
     })();
+  },[]);
+
+  /* ── 자정 넘김 (사용자 보고 2026-08-15) ────────────────────────────────
+     TODAY 는 앱을 켤 때 한 번만 계산되던 값이라, 폰에서 앱을 끄지 않고 날이 바뀌면
+     출석·오늘의 미션·연속 달성·일별 저장 키가 계속 어제 날짜로 기록됐다.
+     1분마다, 그리고 앱으로 돌아올 때 확인해서 날짜가 바뀌었으면
+     TODAY 를 갱신하고(dates.js의 라이브 바인딩) 화면을 다시 그린다.
+     '오늘'을 보고 있던 날짜 상태들만 새 날짜로 따라 옮긴다 —
+     지난 날짜를 일부러 열어 둔 경우에는 건드리지 않는다.
+     저장하지 않는다(새 키 없음). */
+  /* 값은 안 쓴다 — 날짜가 바뀐 걸 알리려고 화면을 다시 그리게 하는 용도다. */
+  const [,setDayStamp]=useState(TODAY);
+  useEffect(()=>{
+    const check=()=>{
+      const prev=TODAY;
+      const next=refreshToday();
+      if(!next) return;
+      setChildDate(d=>d===prev?next:d);
+      setHomeDate(d=>d===prev?next:d);
+      setRewardDate(d=>d===prev?next:d);
+      setAbsMonth(m=>m===prev.slice(0,7)?next.slice(0,7):m);
+      setDayStamp(next);
+    };
+    const id=setInterval(check,60000);
+    const onVis=()=>{ if(!document.hidden) check(); };
+    document.addEventListener("visibilitychange",onVis);
+    window.addEventListener("focus",check);
+    return ()=>{ clearInterval(id); document.removeEventListener("visibilitychange",onVis); window.removeEventListener("focus",check); };
   },[]);
 
   useEffect(()=>{ if(loaded) save("v6_children",children); },[children,loaded]);
@@ -859,6 +889,22 @@ export default function App() {
 
   const showToast=(msg="저장됨 ✓",ms=1600)=>{ setToast(msg); setTimeout(()=>setToast(""),ms); };
 
+  /* 저장 실패 알림 (사용자 보고 2026-08-15) — 예전엔 save() 가 오류를 조용히 삼켜서
+     저장소가 꽉 차도 아무 표시 없이 기록만 안 남았다. 한 번만 알리고 그 뒤로는
+     조용히 둔다 — 저장은 수시로 일어나서 매번 띄우면 화면을 덮는다.
+     저장하지 않는다(새 키 없음). */
+  const saveErrShownRef=useRef(false);
+  useEffect(()=>{
+    setSaveErrorHandler((info)=>{
+      if(saveErrShownRef.current) return;
+      saveErrShownRef.current=true;
+      showToast(info.full
+        ? "저장 공간이 가득 찼어요. 기록이 저장되지 않아요 ⚠️"
+        : "저장에 실패했어요. 앱을 다시 켜 주세요 ⚠️", 6000);
+    });
+    return ()=>setSaveErrorHandler(null);
+  },[]);
+
   // 온보딩 완료: 입력값을 실제 데이터에 반영 → 홈 진입 → 코치마크
   const finishOnboarding=(data)=>{
     // data = { childName, gender, age, acKind, acKindLabel, acName, acDays:[], acTime,
@@ -893,8 +939,8 @@ export default function App() {
       // 첫 미션 — 고른 종류(숙제|할 일)로 오늘 날짜에 하나
       const hw=[], todos=[];
       const m=(data.mission||"").trim();
-      if(m&&data.missionKind!=="todo") hw.push({id:Date.now()+1,text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
-      if(m&&data.missionKind==="todo") todos.push({id:Date.now()+2,text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
+      if(m&&data.missionKind!=="todo") hw.push({id:newId(),text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
+      if(m&&data.missionKind==="todo") todos.push({id:newId(),text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
       if(hw.length||todos.length){
         const key=`${cid}-${acId}-${TODAY}`;
         setDailyData({ [key]:{homeworks:hw,todos,supplies:[]} });
@@ -910,7 +956,7 @@ export default function App() {
 
   const showGameEvent=(event)=>{
     setEventQueue(prev=>[...prev,{
-      id:Date.now()+Math.random(),
+      id:newId(),
       type:"title",
       emoji:"🏆",
       title:"NEW EVENT",
@@ -1035,7 +1081,7 @@ export default function App() {
       const cur=prev[childId]||{xp:0,coin:0,history:[]};
       return {...prev,[childId]:{...cur,
         coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+amount),
-        history:[...(cur.history||[]),{id:Date.now(),point:amount,xp:0,coin:amount,date:TODAY,type:"dev_coin",memo:`개발자 도구 코인 ${amount>=0?"+":""}${amount}`}]
+        history:[...(cur.history||[]),{id:newId(),point:amount,xp:0,coin:amount,date:TODAY,type:"dev_coin",memo:`개발자 도구 코인 ${amount>=0?"+":""}${amount}`}]
       }};
     });
     showToast(`💎 코인 ${amount>=0?"+":""}${amount}`);
@@ -1060,7 +1106,7 @@ export default function App() {
         const cur=prev[childId]||{xp:0,coin:0,history:[]};
         return {...prev,[childId]:{...cur,
           xp:Math.max(0,lv.minScore),
-          history:[...(cur.history||[]),{id:Date.now(),point:delta,xp:delta,coin:0,date:TODAY,type:"dev_level",memo:`개발자 도구 레벨 → Lv.${targetLevel}`}]
+          history:[...(cur.history||[]),{id:newId(),point:delta,xp:delta,coin:0,date:TODAY,type:"dev_level",memo:`개발자 도구 레벨 → Lv.${targetLevel}`}]
         }};
       });
       showToast(`⬇️ Lv.${targetLevel} (XP ${lv.minScore})`);
@@ -1241,7 +1287,7 @@ export default function App() {
         coin:5000,
         history:[
           {
-            id:Date.now(),
+            id:newId(),
             point:3000,
             xp:3000,
             coin:5000,
@@ -1275,7 +1321,7 @@ export default function App() {
         coin:10000,
         history:[
           {
-            id:Date.now(),
+            id:newId(),
             point:12000,
             xp:12000,
             coin:10000,
@@ -1491,7 +1537,7 @@ export default function App() {
     const selected=getChildAcademies(copySourceChildId).filter(ac=>copySelectedAcademyIds.includes(ac.id));
     setAcademies(prev=>{
       const current=prev[childId]||[];
-      const copied=selected.map(ac=>({...ac,id:Date.now()+Math.random()}));
+      const copied=selected.map(ac=>({...ac,id:newId()}));
       return {...prev,[childId]:[...current,...copied]};
     });
     setShowAcademyCopyModal(false);
@@ -2188,9 +2234,9 @@ export default function App() {
       setChildren(p=>p.map(c=>c.id===editingChild?{...c,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}:c));
       showToast("수정됨 ✓");
     } else {
-      const newId=`child_${Date.now()}`;
-      setChildren(p=>[...p,{id:newId,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}]);
-      setChildId(newId);
+      const newChildId=`child_${Date.now()}`;
+      setChildren(p=>[...p,{id:newChildId,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}]);
+      setChildId(newChildId);
       showToast("추가됨 ✓");
     }
     setShowChildMgr(false); setEditingChild(null);
@@ -2220,7 +2266,10 @@ export default function App() {
 
   // dailyKey
   const dKey=(cid,aId,date)=>`${cid}-${aId}-${date}`;
-  const getDailyEntry=(cid,aId,date)=>dailyData[dKey(cid,aId,date)]||{homeworks:[],supplies:[],todos:[]};
+  /* [버그 수정 2026-08-15] dailyData(state) 가 아니라 dailyRef(동기 거울)에서 읽는다.
+     예전엔 미션 체크를 연타하면 두 번 다 '아직 안 함'을 읽어 보상이 두 배로 나갔다
+     (10코인짜리 5연타 → +50 실측). 이제 두 번째 클릭이 첫 번째 결과를 본다. */
+  const getDailyEntry=(cid,aId,date)=>dailyRef.current[dKey(cid,aId,date)]||{homeworks:[],supplies:[],todos:[]};
   const setDailyEntry=(cid,aId,date,entry)=>setDailyData(p=>({...p,[dKey(cid,aId,date)]:entry}));
 
   // 아이용 미션 추가 (현재 보는 날짜에 할일로 추가, 점수 기본값)
@@ -2230,7 +2279,7 @@ export default function App() {
     if(!v){ showToast("내용을 입력해줘"); return; }
     const date=childDate||TODAY;
     const entry=getDailyEntry(childId,kidAddAcId,date);
-    const item={id:Date.now(),text:v,done:false,point:DEFAULT_HOMEWORK_SCORE,byKid:true};
+    const item={id:newId(),text:v,done:false,point:DEFAULT_HOMEWORK_SCORE,byKid:true};
     setDailyEntry(childId,kidAddAcId,date,{...entry,todos:[...(entry.todos||[]),item]});
     setKidAddText(""); setKidAddAcId(""); setShowKidAddModal(false);
     showToast("추가 완료! ✅");
@@ -2441,7 +2490,7 @@ export default function App() {
           coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+reward.coin),
           history:[
             ...(cur.history||[]),
-            { id:Date.now()+Math.random(), titleId:title.id, point:reward.xp, xp:reward.xp, coin:reward.coin, date:TODAY, type:"title_reward", memo:`${title.name} 상장 보상` }
+            { id:newId(), titleId:title.id, point:reward.xp, xp:reward.xp, coin:reward.coin, date:TODAY, type:"title_reward", memo:`${title.name} 상장 보상` }
           ]
         }
       };
@@ -2470,7 +2519,9 @@ export default function App() {
     if(o===0||o>0) return Number(o);
     return decor.price;
   };
-  const isDecorOwned=(cid,decorId)=>(ownedDecor[cid]||[]).includes(decorId);
+  /* 연타 안전 — ownedDecor(state)가 아니라 동기 거울에서 읽는다.
+     예전엔 같은 카드를 두 번 빠르게 누르면 둘 다 '아직 없음'으로 통과해 코인이 두 번 빠졌다. */
+  const isDecorOwned=(cid,decorId)=>(ownedDecorRef.current[cid]||[]).includes(decorId);
   // 보유 데코 구매 (아이가 코인으로 즉시 구매, 승인 불필요)
   // 구매 "규칙"(보유 추가·자동 장착)은 순수 함수 computeDecorPurchase가 담당하고,
   // 여기서는 검증·코인 차감·토스트 같은 부수효과만 처리한다.
@@ -2497,9 +2548,10 @@ export default function App() {
     });
   };
   /* ── 꾸미기 아바타: 아이별 조회 헬퍼 ──
-     저장 안 된 아이는 기본값(스타터 장착)으로 폴백해 항상 유효한 값을 돌려준다. */
-  const getAvatarOwned    = (cid)=> avatarOwned[cid]    || normalizeOwned([]);
-  const getAvatarEquipped = (cid)=> avatarEquipped[cid] || getDefaultEquipped();
+     저장 안 된 아이는 기본값(스타터 장착)으로 폴백해 항상 유효한 값을 돌려준다.
+     연타 안전 — 동기 거울에서 읽는다(구매·장착 판단이 옛 값을 보면 안 된다). */
+  const getAvatarOwned    = (cid)=> avatarOwnedRef.current[cid]    || normalizeOwned([]);
+  const getAvatarEquipped = (cid)=> avatarEquippedRef.current[cid] || getDefaultEquipped();
   const getCharMode       = (cid)=> charDisplayMode[cid] || DEFAULT_CHAR_DISPLAY_MODE;
 
   /* 아바타 베이스 몸체로 쓸 3단계 성장 캐릭터 이미지 경로.
@@ -2540,7 +2592,9 @@ export default function App() {
   /* 홈 캐릭터 표시 모드 토글 (성장 ↔ 아바타) */
   const toggleCharDisplayMode=()=>{
     const cid=childId;
-    setCharDisplayMode(prev=>({...prev,[cid]:computeCharDisplayToggle(getCharMode(cid))}));
+    /* prev 기준으로 뒤집는다 — 렌더 시점 값을 쓰면 연타할 때 두 번 다 같은 값에서 뒤집혀
+       한 번만 바뀐 것처럼 보인다. */
+    setCharDisplayMode(prev=>({...prev,[cid]:computeCharDisplayToggle(prev[cid]||DEFAULT_CHAR_DISPLAY_MODE)}));
   };
 
   // 현재 장착 데코 객체 조회 (스킨 반영). 없으면 null
@@ -2699,7 +2753,7 @@ export default function App() {
       return {...prev,[childId]:{
         ...score,
         coin:Number(score.coin??score.balance??score.total??0)+rewardCoin,
-        history:[...(score.history||[]),{id:Date.now(),point:rewardCoin,xp:0,coin:rewardCoin,date:TODAY,type:"treasure",memo:`${boxName} 보상`}]
+        history:[...(score.history||[]),{id:newId(),point:rewardCoin,xp:0,coin:rewardCoin,date:TODAY,type:"treasure",memo:`${boxName} 보상`}]
       }};
     });
     // 오픈 애니메이션 → 딜레이 후 결과 모달
@@ -2790,7 +2844,7 @@ export default function App() {
           ...cur,
           xp:Math.max(0,Number(cur.xp??cur.total??0)+totalBonus),
           coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+totalBonus),
-          history:[...(cur.history||[]),{id:Date.now()+Math.random(),point:totalBonus,xp:totalBonus,coin:totalBonus,date:TODAY,type:"level_bonus",memo:`레벨업 보너스 합계 (Lv.${topLevelNum} 도달)`}]
+          history:[...(cur.history||[]),{id:newId(),point:totalBonus,xp:totalBonus,coin:totalBonus,date:TODAY,type:"level_bonus",memo:`레벨업 보너스 합계 (Lv.${topLevelNum} 도달)`}]
         }};
       });
     }
@@ -2825,13 +2879,18 @@ export default function App() {
     });
   };
 
+  /* [버그 수정 2026-08-15] scoreData(state) 대신 scoreRef(동기 거울)에서 읽는다.
+     구매 버튼을 연타하면 두 번 다 차감 전 코인을 읽어 '살 수 있다'로 판단했고,
+     결과로 200코인 파츠를 2연타하면 코인만 400 빠지고 아이템은 1개였다.
+     ref 는 setScoreData 하는 순간 바뀌므로 두 번째 클릭이 차감된 코인을 본다.
+     (렌더 중 읽어도 state 와 같거나 한 발 앞선 값이라 화면에는 문제가 없다) */
   const getChildXP=(cid)=>{
-    const data=scoreData[cid];
+    const data=scoreRef.current[cid];
     if(!data) return 0;
     return Number(data.xp??data.total??0);
   };
   const getChildCoin=(cid)=>{
-    const data=scoreData[cid];
+    const data=scoreRef.current[cid];
     if(!data) return 0;
     return Number(data.coin??data.balance??data.total??0);
   };
@@ -3015,7 +3074,8 @@ export default function App() {
     return levelView(lv,kidSkin,children.find(c=>c.id===cid)?.gender);
   };
 
-  const getChildRewards=()=>rewardData["shared"]||DEFAULT_REWARDS;
+  /* 판단용 조회는 동기 거울에서 (연타·연속 갱신 안전) */
+  const getChildRewards=()=>rewardRef.current["shared"]||DEFAULT_REWARDS;
 
   const getCharacterEvolution=(cid)=>{
     const level=getChildLevel(cid).level;
@@ -3034,7 +3094,7 @@ export default function App() {
   // 펫 최종 진화(마지막 단계) 도달 여부 — 펫 스킨 잠금 해제 기준
   const isMaxPet=(cid)=>getPetStage(cid)>=PET_STAGES.length-1;
 
-  const getChildRewardRequests=(cid)=>rewardRequests[cid]||[];
+  const getChildRewardRequests=(cid)=>rewardReqRef.current[cid]||[];
   const hasPendingRewardRequest=(cid,rewardId)=>getChildRewardRequests(cid).some(r=>r.rewardId===rewardId&&r.status==="pending");
 
   const requestReward=(reward)=>{
@@ -3043,15 +3103,15 @@ export default function App() {
     if(hasPendingRewardRequest(childId,reward.id)){ showToast("이미 요청한 보상이에요"); return; }
     // 요청과 동시에 코인 차감 (엄마 승인 전이라도 미리 빠짐 → 거절 시 환불)
     spendCoin(childId,reward.point,`${reward.title} 구매 요청`);
-    const newRequest={id:Date.now(),rewardId:reward.id,title:reward.title,point:reward.point,emoji:reward.emoji,status:"pending",requestedAt:new Date().toISOString()};
-    setRewardRequests(prev=>({...prev,[childId]:[...getChildRewardRequests(childId),newRequest]}));
+    const newRequest={id:newId(),rewardId:reward.id,title:reward.title,point:reward.point,emoji:reward.emoji,status:"pending",requestedAt:new Date().toISOString()};
+    setRewardRequests(prev=>({...prev,[childId]:[...(prev[childId]||[]),newRequest]}));
     showToast("구매 요청을 보냈어요 🛒");
   };
   const approveRewardRequest=(requestId)=>{
     const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
     if(!request) return;
     // 코인은 요청 시 이미 차감됨 → 승인은 상태만 변경
-    setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"approved",approvedAt:new Date().toISOString()}:r)}));
+    setRewardRequests(prev=>({...prev,[childId]:(prev[childId]||[]).map(r=>r.id===requestId?{...r,status:"approved",approvedAt:new Date().toISOString()}:r)}));
     /* [사용자 확정 2026-08-11] '구매 승인 완료!'만으로는 무엇을 승인했는지 안 남는다 →
        무엇을·얼마에 승인했는지 함께 알린다. (코인은 요청 시 이미 빠져 있으므로
        '차감했어요'가 아니라 '사용'이라고 쓴다 — 지금 빠지는 것처럼 읽히면 안 된다) */
@@ -3062,7 +3122,7 @@ export default function App() {
     if(!request) return;
     // 거절 시 요청할 때 미리 빠진 코인을 환불 (대기 상태였던 건만)
     if(request.status==="pending") refundCoin(childId,request.point,`${request.title} 구매 거절 환불`);
-    setRewardRequests(prev=>({...prev,[childId]:getChildRewardRequests(childId).map(r=>r.id===requestId?{...r,status:"rejected",rejectedAt:new Date().toISOString()}:r)}));
+    setRewardRequests(prev=>({...prev,[childId]:(prev[childId]||[]).map(r=>r.id===requestId?{...r,status:"rejected",rejectedAt:new Date().toISOString()}:r)}));
     showToast(`요청을 거절했어요 (${request.point} ${TM.coin} 돌려줬어요)`);
   };
   const openEditReward=(reward)=>{
@@ -3074,10 +3134,10 @@ export default function App() {
     if(!rewardForm.title.trim()){ showToast("보상 이름을 입력해줘"); return; }
     const rewardPayload={title:rewardForm.title.trim(),point:Number(rewardForm.point||0),emoji:rewardForm.emoji||"🎁",grade:rewardForm.grade||"common"};
     if(editingRewardId){
-      setRewardData(prev=>({...prev,shared:getChildRewards().map(r=>r.id===editingRewardId?{...r,...rewardPayload}:r)}));
+      setRewardData(prev=>({...prev,shared:(prev["shared"]||DEFAULT_REWARDS).map(r=>r.id===editingRewardId?{...r,...rewardPayload}:r)}));
       showToast("보상이 수정됐어요 ✏️");
     } else {
-      setRewardData(prev=>({...prev,shared:[...getChildRewards(),{id:Date.now(),...rewardPayload}]}));
+      setRewardData(prev=>({...prev,shared:[...(prev["shared"]||DEFAULT_REWARDS),{id:newId(),...rewardPayload}]}));
       showToast("보상이 추가됐어요 🎁");
     }
     setRewardForm({title:"",point:300,emoji:"🎁",grade:"common"});
@@ -3085,7 +3145,7 @@ export default function App() {
     setShowRewardModal(false);
   };
   const deleteReward=(rewardId)=>{
-    setRewardData(prev=>({...prev,shared:getChildRewards().filter(r=>r.id!==rewardId)}));
+    setRewardData(prev=>({...prev,shared:(prev["shared"]||DEFAULT_REWARDS).filter(r=>r.id!==rewardId)}));
     showToast("보상이 삭제됐어요");
   };
 
@@ -3102,7 +3162,7 @@ export default function App() {
         ...cur,
         xp:Math.max(0,curXp+p),
         coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+p),
-        history:[...(cur.history||[]),{id:Date.now(),point:p,xp:p,coin:p,date:TODAY,type,memo}]
+        history:[...(cur.history||[]),{id:newId(),point:p,xp:p,coin:p,date:TODAY,type,memo}]
       }};
     });
     // 상태 반영 후, 캡처한 정확한 before/after로 레벨업 판정
@@ -3123,7 +3183,7 @@ export default function App() {
         ...cur,
         xp:Number(cur.xp??cur.total??0),
         coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)-cost),
-        history:[...(cur.history||[]),{id:Date.now(),point:-cost,xp:0,coin:-cost,date:TODAY,type:"reward",memo}]
+        history:[...(cur.history||[]),{id:newId(),point:-cost,xp:0,coin:-cost,date:TODAY,type:"reward",memo}]
       }};
     });
   };
@@ -3143,7 +3203,7 @@ export default function App() {
         ...cur,
         xp:Number(cur.xp??cur.total??0),
         coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+back),
-        history:[...(cur.history||[]),{id:Date.now(),point:back,xp:0,coin:back,date:TODAY,type:"reward",memo}]
+        history:[...(cur.history||[]),{id:newId(),point:back,xp:0,coin:back,date:TODAY,type:"reward",memo}]
       }};
     });
   };
@@ -3270,7 +3330,7 @@ export default function App() {
         // 수정은 등록일(createdAt)을 건드리지 않는다 — 원래 값을 그대로 이어받는다
         ? {...prev,[childId]:list.map(a=>a.id===editTarget?{...cleaned,id:editTarget,createdAt:a.createdAt}:a)}
         // 새 학원은 등록일을 남긴다 — 수집품이 언제부터 열리는지의 기준이 된다
-        : {...prev,[childId]:[...list,{...cleaned,id:Date.now(),createdAt:new Date().toISOString()}]};
+        : {...prev,[childId]:[...list,{...cleaned,id:newId(),createdAt:new Date().toISOString()}]};
     });
     setShowAddAcModal(false); setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[],baseHomeworks:[]});
     showToast(editTarget?"수정됨 ✓":"추가됨 ✓");
@@ -3335,7 +3395,7 @@ export default function App() {
   // 결석
   const addAbs=()=>{
     if(!newAbs.academyId||!newAbs.date){ showToast("학원과 결석일을 선택해줘"); return; }
-    setAbsences(p=>({...p,[childId]:[...(p[childId]||[]),{...newAbs,id:Date.now()}]}));
+    setAbsences(p=>({...p,[childId]:[...(p[childId]||[]),{...newAbs,id:newId()}]}));
     setNewAbs({...EMPTY_ABS}); setShowAbsModal(false); showToast();
   };
   const deleteAbs=(id)=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).filter(a=>a.id!==id)}));
@@ -3351,7 +3411,7 @@ export default function App() {
   const applyTmpl=(tmpl,ac)=>setSmsDraft(tmpl.body.replace(/{아이이름}/g,curChild?.name||"").replace(/{학원명}/g,ac.name).replace(/{날짜}/g,fmt(TODAY)).replace(/{시간}/g,getClassTime(ac,todayDN())||getSchedules(ac)[0]?.time||""));
   const saveTmpl=()=>{
     if(!editTmpl.title.trim()||!editTmpl.body.trim()){ showToast("제목과 내용을 입력해줘"); return; }
-    setTemplates(p=>showTmplEdit==="new"?[...p,{...editTmpl,id:Date.now()}]:p.map(t=>t.id===showTmplEdit?{...editTmpl,id:t.id}:t));
+    setTemplates(p=>showTmplEdit==="new"?[...p,{...editTmpl,id:newId()}]:p.map(t=>t.id===showTmplEdit?{...editTmpl,id:t.id}:t));
     setShowTmplEdit(null); showToast();
   };
 
@@ -3375,7 +3435,7 @@ export default function App() {
         const k=vacKey(childId,a.id);
         const list=next[k]||[];
         const has=list.some(v=>v.start===dateStr&&v.end===dateStr);
-        if(want.has(String(a.id))&&!has) next[k]=[...list,{id:Date.now()+(seq++),start:dateStr,end:dateStr}];
+        if(want.has(String(a.id))&&!has) next[k]=[...list,{id:newId(),start:dateStr,end:dateStr}];
         else if(!want.has(String(a.id))&&has) next[k]=list.filter(v=>!(v.start===dateStr&&v.end===dateStr));
       });
       return next;
@@ -3385,7 +3445,7 @@ export default function App() {
     if(!vacForm.academyId||!vacForm.start||!vacForm.end){ showToast("학원과 기간을 입력해줘"); return; }
     if(vacForm.start>vacForm.end){ showToast("시작일이 종료일보다 늦어요"); return; }
     const k=vacKey(childId,vacForm.academyId);
-    setVacations(p=>({...p,[k]:[...(p[k]||[]),{id:Date.now(),start:vacForm.start,end:vacForm.end}]}));
+    setVacations(p=>({...p,[k]:[...(p[k]||[]),{id:newId(),start:vacForm.start,end:vacForm.end}]}));
     setVacForm({academyId:"",start:"",end:""});
     setShowVacModal(null); showToast("방학 등록됨 🏖️");
   };
@@ -3604,7 +3664,6 @@ export default function App() {
             <div key={`deco${i}`} style={{position:"absolute",top:d.top,left:d.left,fontSize:d.size,opacity:d.op,filter:"grayscale(0.2)",pointerEvents:"none",zIndex:0,userSelect:"none"}}>{d.e}</div>
           ));
         })()}
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
         <style dangerouslySetInnerHTML={{__html:`
           @keyframes boxBounce{0%{transform:scale(1) rotate(-3deg)}40%{transform:scale(1.18) rotate(3deg)}70%{transform:scale(1.08) rotate(-2deg)}100%{transform:scale(1) rotate(0deg)}}
           @keyframes shimmer{0%,100%{opacity:0.6}50%{opacity:1}}
@@ -4951,7 +5010,6 @@ export default function App() {
 
   return (
     <div style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:90,wordBreak:"keep-all"}}>
-      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
 
       {/* 토스트 */}
       {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
@@ -7018,9 +7076,9 @@ export default function App() {
         const isParent=(appMode==="parent");   // 엄마용: 수정 가능 + 완료 체크 비활성
         const isParentEdit=rewardUnlocked;      // 보상탭(PIN) 통과: 삭제·점수수정 허용
         const canCheck=(!isParent)||isParentEdit; // 체크 가능: 아이용 또는 보상탭 통과한 엄마 (엄마 홈탭은 체크 불가)
-        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyHwPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,homeworks:[...hw,{id:Date.now(),text:v,done:false,point:pt}]}); setDailyHwInput(""); };
+        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyHwPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,homeworks:[...hw,{id:newId(),text:v,done:false,point:pt}]}); setDailyHwInput(""); };
         const addSup=()=>{ const v=dailySupInput.trim(); if(!v) return; upd({...entry,supplies:[...sup,v]}); setDailySupInput(""); };
-        const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyTodoPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,todos:[...todos,{id:Date.now(),text:v,done:false,point:pt}]}); setDailyTodoInput(""); };
+        const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyTodoPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,todos:[...todos,{id:newId(),text:v,done:false,point:pt}]}); setDailyTodoInput(""); };
         const startEditItem=(kind,id,text,point)=>{ setEditingDailyItem({kind,id}); setEditingDailyText(text); setEditingDailyPoint(String(point||DEFAULT_HOMEWORK_SCORE)); };
         const saveEditItem=()=>{
           const v=editingDailyText.trim(); if(!v||!editingDailyItem){ setEditingDailyItem(null); return; }
@@ -7159,7 +7217,7 @@ export default function App() {
                 const existing=hw.map(h=>h.text);
                 const addOne=(t)=>{
                   if(existing.includes(t)){ showToast("이미 추가된 숙제예요"); return; }
-                  upd({...entry,homeworks:[...hw,{id:Date.now(),text:t,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
+                  upd({...entry,homeworks:[...hw,{id:newId(),text:t,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
                   showToast("반복 숙제를 추가했어요 📚");
                 };
                 return (
