@@ -2312,20 +2312,27 @@ export default function App() {
     setChildren(p=>p.filter(c=>c.id!==id));
     if(childId===id) setChildId(children.find(c=>c.id!==id)?.id||"");
 
-    // 아이 id 를 열쇠로 쓰는 저장소 — 그 칸만 덜어낸다
+    /* 아이 id 자체가 열쇠인 저장소 — 그 칸만 덜어낸다.
+       (academies[cid] · scoreData[cid] 처럼 아이별로 통째 나뉜 것들) */
     const dropKey=(setter)=>setter(p=>{ if(!p||!(id in p)) return p; const n={...p}; delete n[id]; return n; });
-    [setAcademies,setAbsences,setPaidStatus,setVacations,setScoreData,setRewardRequests,
+    [setAcademies,setAbsences,setScoreData,setRewardRequests,
      setTreasureData,setPetData,setSkinByChild,setSelectedTitles,setSeenTitles,setEarnedTitleIds,
      setSpecialTitles,setBestStreakData,setLastLevelByChild,setOwnedDecor,setEquippedDecor,
      setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData].forEach(dropKey);
 
-    // 앞머리에 아이 id 가 붙는 저장소 (일별 미션·날짜 메모·기본 숙제 심은 기록)
+    /* 열쇠 앞머리에 아이 id 가 붙는 저장소 — 접두어로 지운다.
+         일별 미션   dailyData[`아이-학원-날짜`]     (dKey)
+         날짜 메모   dayMemos[`아이-연-월-일`]        (mKey)
+         학원비 납부 paidStatus[`아이-월-학원`]       (pKey)
+         방학·휴원   vacations[`아이-학원`]           (vacKey)
+       paidStatus·vacations 는 아이 id 가 열쇠인 줄 알고 처음엔 위쪽에 넣었다가
+       실제 열쇠 모양을 확인하고 이쪽으로 옮겼다. */
     const dropPrefix=(setter)=>setter(p=>{
       const n={...p}; let hit=false;
       Object.keys(n).forEach(k=>{ if(k.startsWith(`${id}-`)){ delete n[k]; hit=true; } });
       return hit?n:p;
     });
-    [setDailyData,setDayMemos,setBaseSeededKeys].forEach(dropPrefix);
+    [setDailyData,setDayMemos,setPaidStatus,setVacations,setBaseSeededKeys].forEach(dropPrefix);
 
     showToast("삭제됨");
   };
