@@ -2,6 +2,7 @@ import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBla
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
+import { useSyncState } from "./utils/useSyncState.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
@@ -227,7 +228,8 @@ export default function App() {
   const [showVacModal,setShowVacModal]= useState(initAcademy.showVacModal);
 
   // ── 도메인 C: daily (일별 숙제/준비물/할일 + 입력) ────────────────
-  const [dailyData,           setDailyData]           = useState(initDaily.dailyData);
+  /* 연타 안전 — 판단용 읽기는 dailyRef 로 한다 (utils/useSyncState.js 주석 참고) */
+  const [dailyData,           setDailyData, dailyRef] = useSyncState(initDaily.dailyData);
   const [baseSeededKeys,      setBaseSeededKeys]      = useState(initDaily.baseSeededKeys);
   const [dailyHwInput,        setDailyHwInput]        = useState(initDaily.dailyHwInput);
   const [dailySupInput,       setDailySupInput]       = useState(initDaily.dailySupInput);
@@ -2220,7 +2222,10 @@ export default function App() {
 
   // dailyKey
   const dKey=(cid,aId,date)=>`${cid}-${aId}-${date}`;
-  const getDailyEntry=(cid,aId,date)=>dailyData[dKey(cid,aId,date)]||{homeworks:[],supplies:[],todos:[]};
+  /* [버그 수정 2026-08-15] dailyData(state) 가 아니라 dailyRef(동기 거울)에서 읽는다.
+     예전엔 미션 체크를 연타하면 두 번 다 '아직 안 함'을 읽어 보상이 두 배로 나갔다
+     (10코인짜리 5연타 → +50 실측). 이제 두 번째 클릭이 첫 번째 결과를 본다. */
+  const getDailyEntry=(cid,aId,date)=>dailyRef.current[dKey(cid,aId,date)]||{homeworks:[],supplies:[],todos:[]};
   const setDailyEntry=(cid,aId,date,entry)=>setDailyData(p=>({...p,[dKey(cid,aId,date)]:entry}));
 
   // 아이용 미션 추가 (현재 보는 날짜에 할일로 추가, 점수 기본값)
