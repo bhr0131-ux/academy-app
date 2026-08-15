@@ -2941,8 +2941,21 @@ export default function App() {
     return count;
   };
 
-  // 전체 활동(숙제+미션) 누적 — 미션 계열 업적/상장 진척용 (운영 패턴과 무관하게 고르게 적립)
-  const getTotalActivityCount=(cid)=>getCompletedHomeworkCount(cid)+getCompletedQuestCount(cid);
+  /* 전체 활동(숙제+미션) 누적 — 미션 계열 업적/상장 진척용.
+
+     [버그 수정 2026-08-15] 일별 데이터를 최근 1년만 보관하게 되면서, 이 값이
+     '지금 남아 있는 1년치'만 세게 됐다. 그러면 오래 쓴 아이일수록 숫자가 오히려
+     줄어들고, 특히 '미션 700개' 상장은 주5일 하루 2개 쓰는 집에서 1년에 522개까지만
+     쌓여 영원히 못 받는 상태가 된다(예전엔 1.4년쯤에 받았다).
+
+     v6_treasure.completedQuestCount 는 미션을 하나 끝낼 때마다 1씩 늘고 절대
+     줄지 않는 누적 카운터라 보관 기간의 영향을 받지 않는다. 둘 중 큰 값을 쓴다.
+     상장 조건은 원래 '한 번이라도 N개 달성'이라(받은 상장은 earnedTitleIds 로
+     영구 유지) 누적값을 쓰는 쪽이 의도에도 맞다. */
+  const getTotalActivityCount=(cid)=>Math.max(
+    getCompletedHomeworkCount(cid)+getCompletedQuestCount(cid),
+    Number(treasureData[cid]?.completedQuestCount||0),
+  );
 
   const getApprovedRewardCount=(cid)=>getChildRewardRequests(cid).filter(r=>r.status==="approved").length;
 
