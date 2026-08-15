@@ -1492,6 +1492,10 @@ export default function App() {
     setAvatarOwned(prev=>({...prev,[cid]:normalizeOwned([])}));
     setAvatarEquipped(prev=>({...prev,[cid]:getDefaultEquipped()}));
     setCharDisplayMode(prev=>({...prev,[cid]:DEFAULT_CHAR_DISPLAY_MODE}));
+    /* [버그 수정 2026-08-15] 오늘의 발견 도감이 빠져 있었다. 코인·꾸미기·아바타·보물은
+       0으로 돌아가는데 도감만 그대로 남아, 초기화한 아이의 수집품이 계속 보였다.
+       (발견 도감은 나중에 붙은 기능이라 백업·초기화 여러 곳에서 함께 누락돼 있었다) */
+    setDiscoveryData(prev=>({...prev,[cid]:{log:[]}}));
     showToast("게임 데이터 초기화 완료");
     }, `🧹 ${nm} 데이터 초기화`);
   };
@@ -1511,6 +1515,11 @@ export default function App() {
     setSelectedTitles({}); setTreasureData({}); setSeenTitles({});
     setEarnedTitleIds({});
     setSpecialTitles({}); setBestStreakData({}); setVacations({});
+    /* [버그 수정 2026-08-15] 아래 네 가지가 빠져 있었다. clearAllStorage 가 저장소는
+       비우지만 화면(메모리) 값은 그대로 남아, 초기화 뒤에 발견을 하나 하거나 값이
+       바뀌는 순간 예전 것이 통째로 다시 저장됐다 — 지운 도감이 되살아난다. */
+    setDiscoveryData({}); setRewardAgeGroup("kid");
+    setRecoveryQuestion(""); setRecoveryAnswer("");
     setTemplates(SAMPLE_TMPL); setParentPin("1234");
     setLastBackupDate(null); setLastNudgeDate(null); // 백업·안내 기록도 초기화
     setShowDevTools(false); setShowSettingsModal(false); setAppMode("child"); setRewardUnlocked(false);
