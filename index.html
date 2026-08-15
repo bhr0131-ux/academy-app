@@ -2,6 +2,10 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
+    <!-- 파비콘이 없어 브라우저가 매번 /favicon.ico 를 찾다 404 를 냈다.
+         별도 파일을 두는 대신 이모지를 SVG 로 인라인해 요청 자체를 없앤다
+         (에셋 규칙과 무관 — 그림 파일이 아니라 문서 안의 아이콘 선언이다). -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚩</text></svg>" />
     <link rel="preload" href="/assets/fonts/cafe24-ssurround.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/stage-adventure-meadow.webp" as="image" fetchpriority="high" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />

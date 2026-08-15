@@ -1,7 +1,7 @@
 import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
-import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
+import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
@@ -647,7 +647,7 @@ export default function App() {
           const amt=avRefunds[rcid];
           scoreFinal[rcid]={...cur,
             coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+amt),
-            history:[...(cur.history||[]),{id:Date.now(),point:0,xp:0,coin:amt,date:TODAY,type:"avatar_refund",memo:`꾸미기 상점 개편 코인 환불 +${amt}`}]
+            history:[...(cur.history||[]),{id:newId(),point:0,xp:0,coin:amt,date:TODAY,type:"avatar_refund",memo:`꾸미기 상점 개편 코인 환불 +${amt}`}]
           };
         }
         save("v6_score",scoreFinal); // 즉시 저장 (v2 키 생성 후엔 재실행 안 됨)
@@ -939,8 +939,8 @@ export default function App() {
       // 첫 미션 — 고른 종류(숙제|할 일)로 오늘 날짜에 하나
       const hw=[], todos=[];
       const m=(data.mission||"").trim();
-      if(m&&data.missionKind!=="todo") hw.push({id:Date.now()+1,text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
-      if(m&&data.missionKind==="todo") todos.push({id:Date.now()+2,text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
+      if(m&&data.missionKind!=="todo") hw.push({id:newId(),text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
+      if(m&&data.missionKind==="todo") todos.push({id:newId(),text:m,done:false,point:DEFAULT_HOMEWORK_SCORE});
       if(hw.length||todos.length){
         const key=`${cid}-${acId}-${TODAY}`;
         setDailyData({ [key]:{homeworks:hw,todos,supplies:[]} });
@@ -956,7 +956,7 @@ export default function App() {
 
   const showGameEvent=(event)=>{
     setEventQueue(prev=>[...prev,{
-      id:Date.now()+Math.random(),
+      id:newId(),
       type:"title",
       emoji:"🏆",
       title:"NEW EVENT",
@@ -1081,7 +1081,7 @@ export default function App() {
       const cur=prev[childId]||{xp:0,coin:0,history:[]};
       return {...prev,[childId]:{...cur,
         coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+amount),
-        history:[...(cur.history||[]),{id:Date.now(),point:amount,xp:0,coin:amount,date:TODAY,type:"dev_coin",memo:`개발자 도구 코인 ${amount>=0?"+":""}${amount}`}]
+        history:[...(cur.history||[]),{id:newId(),point:amount,xp:0,coin:amount,date:TODAY,type:"dev_coin",memo:`개발자 도구 코인 ${amount>=0?"+":""}${amount}`}]
       }};
     });
     showToast(`💎 코인 ${amount>=0?"+":""}${amount}`);
@@ -1106,7 +1106,7 @@ export default function App() {
         const cur=prev[childId]||{xp:0,coin:0,history:[]};
         return {...prev,[childId]:{...cur,
           xp:Math.max(0,lv.minScore),
-          history:[...(cur.history||[]),{id:Date.now(),point:delta,xp:delta,coin:0,date:TODAY,type:"dev_level",memo:`개발자 도구 레벨 → Lv.${targetLevel}`}]
+          history:[...(cur.history||[]),{id:newId(),point:delta,xp:delta,coin:0,date:TODAY,type:"dev_level",memo:`개발자 도구 레벨 → Lv.${targetLevel}`}]
         }};
       });
       showToast(`⬇️ Lv.${targetLevel} (XP ${lv.minScore})`);
@@ -1287,7 +1287,7 @@ export default function App() {
         coin:5000,
         history:[
           {
-            id:Date.now(),
+            id:newId(),
             point:3000,
             xp:3000,
             coin:5000,
@@ -1321,7 +1321,7 @@ export default function App() {
         coin:10000,
         history:[
           {
-            id:Date.now(),
+            id:newId(),
             point:12000,
             xp:12000,
             coin:10000,
@@ -1537,7 +1537,7 @@ export default function App() {
     const selected=getChildAcademies(copySourceChildId).filter(ac=>copySelectedAcademyIds.includes(ac.id));
     setAcademies(prev=>{
       const current=prev[childId]||[];
-      const copied=selected.map(ac=>({...ac,id:Date.now()+Math.random()}));
+      const copied=selected.map(ac=>({...ac,id:newId()}));
       return {...prev,[childId]:[...current,...copied]};
     });
     setShowAcademyCopyModal(false);
@@ -2234,9 +2234,9 @@ export default function App() {
       setChildren(p=>p.map(c=>c.id===editingChild?{...c,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}:c));
       showToast("수정됨 ✓");
     } else {
-      const newId=`child_${Date.now()}`;
-      setChildren(p=>[...p,{id:newId,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}]);
-      setChildId(newId);
+      const newChildId=`child_${Date.now()}`;
+      setChildren(p=>[...p,{id:newChildId,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}]);
+      setChildId(newChildId);
       showToast("추가됨 ✓");
     }
     setShowChildMgr(false); setEditingChild(null);
@@ -2279,7 +2279,7 @@ export default function App() {
     if(!v){ showToast("내용을 입력해줘"); return; }
     const date=childDate||TODAY;
     const entry=getDailyEntry(childId,kidAddAcId,date);
-    const item={id:Date.now(),text:v,done:false,point:DEFAULT_HOMEWORK_SCORE,byKid:true};
+    const item={id:newId(),text:v,done:false,point:DEFAULT_HOMEWORK_SCORE,byKid:true};
     setDailyEntry(childId,kidAddAcId,date,{...entry,todos:[...(entry.todos||[]),item]});
     setKidAddText(""); setKidAddAcId(""); setShowKidAddModal(false);
     showToast("추가 완료! ✅");
@@ -2490,7 +2490,7 @@ export default function App() {
           coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+reward.coin),
           history:[
             ...(cur.history||[]),
-            { id:Date.now()+Math.random(), titleId:title.id, point:reward.xp, xp:reward.xp, coin:reward.coin, date:TODAY, type:"title_reward", memo:`${title.name} 상장 보상` }
+            { id:newId(), titleId:title.id, point:reward.xp, xp:reward.xp, coin:reward.coin, date:TODAY, type:"title_reward", memo:`${title.name} 상장 보상` }
           ]
         }
       };
@@ -2753,7 +2753,7 @@ export default function App() {
       return {...prev,[childId]:{
         ...score,
         coin:Number(score.coin??score.balance??score.total??0)+rewardCoin,
-        history:[...(score.history||[]),{id:Date.now(),point:rewardCoin,xp:0,coin:rewardCoin,date:TODAY,type:"treasure",memo:`${boxName} 보상`}]
+        history:[...(score.history||[]),{id:newId(),point:rewardCoin,xp:0,coin:rewardCoin,date:TODAY,type:"treasure",memo:`${boxName} 보상`}]
       }};
     });
     // 오픈 애니메이션 → 딜레이 후 결과 모달
@@ -2844,7 +2844,7 @@ export default function App() {
           ...cur,
           xp:Math.max(0,Number(cur.xp??cur.total??0)+totalBonus),
           coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+totalBonus),
-          history:[...(cur.history||[]),{id:Date.now()+Math.random(),point:totalBonus,xp:totalBonus,coin:totalBonus,date:TODAY,type:"level_bonus",memo:`레벨업 보너스 합계 (Lv.${topLevelNum} 도달)`}]
+          history:[...(cur.history||[]),{id:newId(),point:totalBonus,xp:totalBonus,coin:totalBonus,date:TODAY,type:"level_bonus",memo:`레벨업 보너스 합계 (Lv.${topLevelNum} 도달)`}]
         }};
       });
     }
@@ -3103,7 +3103,7 @@ export default function App() {
     if(hasPendingRewardRequest(childId,reward.id)){ showToast("이미 요청한 보상이에요"); return; }
     // 요청과 동시에 코인 차감 (엄마 승인 전이라도 미리 빠짐 → 거절 시 환불)
     spendCoin(childId,reward.point,`${reward.title} 구매 요청`);
-    const newRequest={id:Date.now(),rewardId:reward.id,title:reward.title,point:reward.point,emoji:reward.emoji,status:"pending",requestedAt:new Date().toISOString()};
+    const newRequest={id:newId(),rewardId:reward.id,title:reward.title,point:reward.point,emoji:reward.emoji,status:"pending",requestedAt:new Date().toISOString()};
     setRewardRequests(prev=>({...prev,[childId]:[...(prev[childId]||[]),newRequest]}));
     showToast("구매 요청을 보냈어요 🛒");
   };
@@ -3137,7 +3137,7 @@ export default function App() {
       setRewardData(prev=>({...prev,shared:(prev["shared"]||DEFAULT_REWARDS).map(r=>r.id===editingRewardId?{...r,...rewardPayload}:r)}));
       showToast("보상이 수정됐어요 ✏️");
     } else {
-      setRewardData(prev=>({...prev,shared:[...(prev["shared"]||DEFAULT_REWARDS),{id:Date.now(),...rewardPayload}]}));
+      setRewardData(prev=>({...prev,shared:[...(prev["shared"]||DEFAULT_REWARDS),{id:newId(),...rewardPayload}]}));
       showToast("보상이 추가됐어요 🎁");
     }
     setRewardForm({title:"",point:300,emoji:"🎁",grade:"common"});
@@ -3162,7 +3162,7 @@ export default function App() {
         ...cur,
         xp:Math.max(0,curXp+p),
         coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+p),
-        history:[...(cur.history||[]),{id:Date.now(),point:p,xp:p,coin:p,date:TODAY,type,memo}]
+        history:[...(cur.history||[]),{id:newId(),point:p,xp:p,coin:p,date:TODAY,type,memo}]
       }};
     });
     // 상태 반영 후, 캡처한 정확한 before/after로 레벨업 판정
@@ -3183,7 +3183,7 @@ export default function App() {
         ...cur,
         xp:Number(cur.xp??cur.total??0),
         coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)-cost),
-        history:[...(cur.history||[]),{id:Date.now(),point:-cost,xp:0,coin:-cost,date:TODAY,type:"reward",memo}]
+        history:[...(cur.history||[]),{id:newId(),point:-cost,xp:0,coin:-cost,date:TODAY,type:"reward",memo}]
       }};
     });
   };
@@ -3203,7 +3203,7 @@ export default function App() {
         ...cur,
         xp:Number(cur.xp??cur.total??0),
         coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+back),
-        history:[...(cur.history||[]),{id:Date.now(),point:back,xp:0,coin:back,date:TODAY,type:"reward",memo}]
+        history:[...(cur.history||[]),{id:newId(),point:back,xp:0,coin:back,date:TODAY,type:"reward",memo}]
       }};
     });
   };
@@ -3330,7 +3330,7 @@ export default function App() {
         // 수정은 등록일(createdAt)을 건드리지 않는다 — 원래 값을 그대로 이어받는다
         ? {...prev,[childId]:list.map(a=>a.id===editTarget?{...cleaned,id:editTarget,createdAt:a.createdAt}:a)}
         // 새 학원은 등록일을 남긴다 — 수집품이 언제부터 열리는지의 기준이 된다
-        : {...prev,[childId]:[...list,{...cleaned,id:Date.now(),createdAt:new Date().toISOString()}]};
+        : {...prev,[childId]:[...list,{...cleaned,id:newId(),createdAt:new Date().toISOString()}]};
     });
     setShowAddAcModal(false); setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[],baseHomeworks:[]});
     showToast(editTarget?"수정됨 ✓":"추가됨 ✓");
@@ -3395,7 +3395,7 @@ export default function App() {
   // 결석
   const addAbs=()=>{
     if(!newAbs.academyId||!newAbs.date){ showToast("학원과 결석일을 선택해줘"); return; }
-    setAbsences(p=>({...p,[childId]:[...(p[childId]||[]),{...newAbs,id:Date.now()}]}));
+    setAbsences(p=>({...p,[childId]:[...(p[childId]||[]),{...newAbs,id:newId()}]}));
     setNewAbs({...EMPTY_ABS}); setShowAbsModal(false); showToast();
   };
   const deleteAbs=(id)=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).filter(a=>a.id!==id)}));
@@ -3411,7 +3411,7 @@ export default function App() {
   const applyTmpl=(tmpl,ac)=>setSmsDraft(tmpl.body.replace(/{아이이름}/g,curChild?.name||"").replace(/{학원명}/g,ac.name).replace(/{날짜}/g,fmt(TODAY)).replace(/{시간}/g,getClassTime(ac,todayDN())||getSchedules(ac)[0]?.time||""));
   const saveTmpl=()=>{
     if(!editTmpl.title.trim()||!editTmpl.body.trim()){ showToast("제목과 내용을 입력해줘"); return; }
-    setTemplates(p=>showTmplEdit==="new"?[...p,{...editTmpl,id:Date.now()}]:p.map(t=>t.id===showTmplEdit?{...editTmpl,id:t.id}:t));
+    setTemplates(p=>showTmplEdit==="new"?[...p,{...editTmpl,id:newId()}]:p.map(t=>t.id===showTmplEdit?{...editTmpl,id:t.id}:t));
     setShowTmplEdit(null); showToast();
   };
 
@@ -3435,7 +3435,7 @@ export default function App() {
         const k=vacKey(childId,a.id);
         const list=next[k]||[];
         const has=list.some(v=>v.start===dateStr&&v.end===dateStr);
-        if(want.has(String(a.id))&&!has) next[k]=[...list,{id:Date.now()+(seq++),start:dateStr,end:dateStr}];
+        if(want.has(String(a.id))&&!has) next[k]=[...list,{id:newId(),start:dateStr,end:dateStr}];
         else if(!want.has(String(a.id))&&has) next[k]=list.filter(v=>!(v.start===dateStr&&v.end===dateStr));
       });
       return next;
@@ -3445,7 +3445,7 @@ export default function App() {
     if(!vacForm.academyId||!vacForm.start||!vacForm.end){ showToast("학원과 기간을 입력해줘"); return; }
     if(vacForm.start>vacForm.end){ showToast("시작일이 종료일보다 늦어요"); return; }
     const k=vacKey(childId,vacForm.academyId);
-    setVacations(p=>({...p,[k]:[...(p[k]||[]),{id:Date.now(),start:vacForm.start,end:vacForm.end}]}));
+    setVacations(p=>({...p,[k]:[...(p[k]||[]),{id:newId(),start:vacForm.start,end:vacForm.end}]}));
     setVacForm({academyId:"",start:"",end:""});
     setShowVacModal(null); showToast("방학 등록됨 🏖️");
   };
@@ -3664,7 +3664,6 @@ export default function App() {
             <div key={`deco${i}`} style={{position:"absolute",top:d.top,left:d.left,fontSize:d.size,opacity:d.op,filter:"grayscale(0.2)",pointerEvents:"none",zIndex:0,userSelect:"none"}}>{d.e}</div>
           ));
         })()}
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
         <style dangerouslySetInnerHTML={{__html:`
           @keyframes boxBounce{0%{transform:scale(1) rotate(-3deg)}40%{transform:scale(1.18) rotate(3deg)}70%{transform:scale(1.08) rotate(-2deg)}100%{transform:scale(1) rotate(0deg)}}
           @keyframes shimmer{0%,100%{opacity:0.6}50%{opacity:1}}
@@ -5011,7 +5010,6 @@ export default function App() {
 
   return (
     <div style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:90,wordBreak:"keep-all"}}>
-      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
 
       {/* 토스트 */}
       {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
@@ -7078,9 +7076,9 @@ export default function App() {
         const isParent=(appMode==="parent");   // 엄마용: 수정 가능 + 완료 체크 비활성
         const isParentEdit=rewardUnlocked;      // 보상탭(PIN) 통과: 삭제·점수수정 허용
         const canCheck=(!isParent)||isParentEdit; // 체크 가능: 아이용 또는 보상탭 통과한 엄마 (엄마 홈탭은 체크 불가)
-        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyHwPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,homeworks:[...hw,{id:Date.now(),text:v,done:false,point:pt}]}); setDailyHwInput(""); };
+        const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyHwPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,homeworks:[...hw,{id:newId(),text:v,done:false,point:pt}]}); setDailyHwInput(""); };
         const addSup=()=>{ const v=dailySupInput.trim(); if(!v) return; upd({...entry,supplies:[...sup,v]}); setDailySupInput(""); };
-        const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyTodoPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,todos:[...todos,{id:Date.now(),text:v,done:false,point:pt}]}); setDailyTodoInput(""); };
+        const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyTodoPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,todos:[...todos,{id:newId(),text:v,done:false,point:pt}]}); setDailyTodoInput(""); };
         const startEditItem=(kind,id,text,point)=>{ setEditingDailyItem({kind,id}); setEditingDailyText(text); setEditingDailyPoint(String(point||DEFAULT_HOMEWORK_SCORE)); };
         const saveEditItem=()=>{
           const v=editingDailyText.trim(); if(!v||!editingDailyItem){ setEditingDailyItem(null); return; }
@@ -7219,7 +7217,7 @@ export default function App() {
                 const existing=hw.map(h=>h.text);
                 const addOne=(t)=>{
                   if(existing.includes(t)){ showToast("이미 추가된 숙제예요"); return; }
-                  upd({...entry,homeworks:[...hw,{id:Date.now(),text:t,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
+                  upd({...entry,homeworks:[...hw,{id:newId(),text:t,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
                   showToast("반복 숙제를 추가했어요 📚");
                 };
                 return (

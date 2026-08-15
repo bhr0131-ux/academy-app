@@ -12,7 +12,7 @@ export const getToday = () => {
    전부 '어제' 날짜로 기록됐다(TODAY 를 쓰는 곳이 98군데).
    const → let 으로 바꿔 ES 모듈 라이브 바인딩을 쓴다 — refreshToday() 가 값을
    갱신하면 `import { TODAY }` 한 모든 파일이 새 값을 본다.
-   갱신 시점을 잡아 다시 그리는 건 App 쪽 useDayRollover 가 맡는다. */
+   갱신 시점을 잡아 화면을 다시 그리는 건 App.jsx 의 자정 감지 effect 가 맡는다. */
 export let TODAY = getToday();
 
 /** 날짜가 바뀌었으면 TODAY 를 갱신하고 새 날짜를 돌려준다. 안 바뀌었으면 null. */
@@ -82,6 +82,19 @@ export const clearAllStorage = async () => {
     if(__hasLS){ localStorage.clear(); return; }
     Object.keys(__MEM_STORE).forEach(k=>delete __MEM_STORE[k]);
   } catch (e) {}
+};
+
+/* ── id 발급 ──────────────────────────────────────────────────────────────
+   [버그 2026-08-15] 새 항목 id 를 Date.now() 로 만들다 보니 같은 밀리초에 두 건이
+   생기면 id 가 겹쳤다(점수 이력에서 실제로 같은 id 2건이 관찰됐다).
+   겹친 id 는 목록에서 서로를 못 가려내고 React key 도 중복된다.
+   시간 순서는 그대로 두면서 항상 다른 값을 주는 발급기를 쓴다.
+   기존 저장 데이터의 id 와 같은 숫자 범위라 마이그레이션이 필요 없다. */
+let __lastId = 0;
+export const newId = () => {
+  const t = Date.now();
+  __lastId = t > __lastId ? t : __lastId + 1;
+  return __lastId;
 };
 
 // ── SMS ─────────────────────────────────
