@@ -75,6 +75,15 @@ export const load = async (k) => {
     return k in __MEM_STORE ? __MEM_STORE[k] : null;
   } catch (e) { return null; }
 };
+/* 키 하나 지우기 — 월별 분할 저장이 예전 키를 정리할 때만 쓴다.
+   (검증을 통과한 뒤에만 부른다 — utils/dailyStore.js 참고) */
+export const removeStored = async (k) => {
+  try {
+    if(__CAP_PREFS){ await __CAP_PREFS.remove({ key:k }); return; }
+    if(__hasLS){ localStorage.removeItem(k); return; }
+    delete __MEM_STORE[k];
+  } catch (e) {}
+};
 // 전체 저장소 초기화 (데이터 리셋용)
 export const clearAllStorage = async () => {
   try {

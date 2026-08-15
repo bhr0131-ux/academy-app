@@ -3,6 +3,7 @@ import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
+import { loadOrMigrateDaily, saveDailyShards, dirtyMonths } from "./utils/dailyStore.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
@@ -230,6 +231,7 @@ export default function App() {
   // ── 도메인 C: daily (일별 숙제/준비물/할일 + 입력) ────────────────
   /* 연타 안전 — 판단용 읽기는 dailyRef 로 한다 (utils/useSyncState.js 주석 참고) */
   const [dailyData,           setDailyData, dailyRef] = useSyncState(initDaily.dailyData);
+  const lastSavedDailyRef=useRef(null);   // 마지막으로 저장한 일별 데이터 — 바뀐 달만 골라내는 기준
   const [baseSeededKeys,      setBaseSeededKeys]      = useState(initDaily.baseSeededKeys);
   const [dailyHwInput,        setDailyHwInput]        = useState(initDaily.dailyHwInput);
   const [dailySupInput,       setDailySupInput]       = useState(initDaily.dailySupInput);
@@ -480,7 +482,7 @@ export default function App() {
   useEffect(()=>{
     (async()=>{
       const ch=await load("v6_children"), ac=await load("v6_ac"), ab=await load("v6_abs"),
-            p=await load("v6_paid"), dm=await load("v6_dm"), dd=await load("v6_daily"),
+            p=await load("v6_paid"), dm=await load("v6_dm"),
             bsk=await load("v6_base_seeded"),
             petD=await load("v6_pet"), discD=await load(DISCOVERY_KEY),
             tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac"),
@@ -613,7 +615,16 @@ export default function App() {
       }
       if(ch) setChildren(ch);
       if(ac) setAcademies(ac); if(ab) setAbsences(ab);
-      if(p) setPaidStatus(p); if(dm) setDayMemos(dm); if(dd) setDailyData(dd);
+      if(p) setPaidStatus(p); if(dm) setDayMemos(dm);
+      /* 일별 데이터는 달별로 쪼개 저장한다 (utils/dailyStore.js).
+         쪼갠 게 없으면 예전 키 v6_daily 에서 읽어 한 번 옮기고, 옮긴 걸 다시 읽어
+         원본과 같은지 확인한 뒤에만 예전 키를 정리한다. */
+      const _daily=await loadOrMigrateDaily();
+      setDailyData(_daily.dailyData);
+      /* 방금 저장한(또는 이미 저장돼 있던) 상태를 기준선으로 잡아 둔다 —
+         이러면 앱을 켤 때 전체를 다시 쓰지 않고, 이후 바뀐 달만 저장한다. */
+      lastSavedDailyRef.current=_daily.dailyData;
+      if(_daily.migrated&&!_daily.verified) console.warn("[일별 저장] 월별 분할 검증 실패 — 예전 키를 그대로 씁니다");
       const payI=await load("v6_fee_pay_info"); if(payI) setPayInfo(payI);
       if(bsk) setBaseSeededKeys(bsk);
       if(petD) setPetData(petD);
@@ -774,7 +785,18 @@ export default function App() {
     box.scrollTo({left:Math.max(0,to),behavior:"smooth"});
   },[childId,appMode,children.length]);
   useEffect(()=>{ if(loaded) save("v6_dm",dayMemos); },[dayMemos,loaded]);
-  useEffect(()=>{ if(loaded) save("v6_daily",dailyData); },[dailyData,loaded]);
+  /* [성능 2026-08-15] 예전엔 미션 하나 체크할 때마다 지금까지 쌓인 모든 날짜를
+     통째로 문자열로 만들어 저장했다(400만 글자에서 176ms, 폰은 3~5배).
+     이제 바뀐 달만 저장한다 — 몇 년을 써도 한 달치 쓰기로 고정된다.
+     어느 달이 바뀌었는지는 직전 저장본과 참조 비교로 찾는다(문자열로 안 만든다). */
+  useEffect(()=>{
+    if(!loaded) return;
+    const prev=lastSavedDailyRef.current;
+    const dirty=dirtyMonths(prev,dailyData);
+    lastSavedDailyRef.current=dailyData;
+    if(dirty&&dirty.size===0) return;      // 실제로 바뀐 달이 없으면 저장 안 한다
+    saveDailyShards(dailyData,dirty);
+  },[dailyData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_base_seeded",baseSeededKeys); },[baseSeededKeys,loaded]);
   useEffect(()=>{ if(loaded) save("v6_pet",petData); },[petData,loaded]);
   useEffect(()=>{ if(loaded) save(DISCOVERY_KEY,discoveryData); },[discoveryData,loaded]);
@@ -2638,12 +2660,12 @@ export default function App() {
     if(!questKey) return;
     // 적립 "규칙"은 순수 함수가 계산. 여기선 상태 반영과 팝업 알림만.
     const cur=treasureData[cid];
-    const { changed, earned, nextCount } = computeQuestTreasure(cur, questKey);
+    const { changed, earned, nextCount } = computeQuestTreasure(cur, questKey, TODAY);
     if(!changed) return; // 이미 이 미션으로 보상 처리됨
 
     setTreasureData(prev=>{
       // 최신 prev 기준으로 다시 계산(동시 갱신 안전)
-      const r=computeQuestTreasure(prev[cid], questKey);
+      const r=computeQuestTreasure(prev[cid], questKey, TODAY);
       if(!r.changed) return prev;
       return {...prev,[cid]:r.next};
     });
