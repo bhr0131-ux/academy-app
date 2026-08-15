@@ -45,13 +45,28 @@ export const __MEM_STORE = {};
 export const __CAP_PREFS = (typeof window!=="undefined" && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) || null;
 export const __hasLS = (()=>{ try { if(typeof localStorage==="undefined") return false; const t="__v6_ls_test__"; localStorage.setItem(t,"1"); localStorage.removeItem(t); return true; } catch(e){ return false; } })();
 
+/* ── 저장 실패 알림 ──────────────────────────────────────────────────────
+   [버그 2026-08-15] save() 가 catch(e){} 로 조용히 삼켜서, 저장소가 꽉 차면
+   (localStorage 한도 초과 등) 아무 표시 없이 저장만 멈췄다. 이력·일별 데이터는
+   지우는 코드가 없어 계속 쌓이므로 오래 쓰면 실제로 닿을 수 있는 상태다.
+   화면 쪽에서 onSaveError 를 등록해 두면 실패를 한 번 알려 준다.
+   (저장 로직 자체는 그대로 — 알림만 추가한다)                              */
+let __onSaveError = null;
+export const setSaveErrorHandler = (fn) => { __onSaveError = fn; };
+
 export const save = async (k, v) => {
   try {
     const s = JSON.stringify(v);
     if(__CAP_PREFS){ await __CAP_PREFS.set({ key:k, value:s }); return; }
     if(__hasLS){ localStorage.setItem(k, s); return; }
     __MEM_STORE[k] = JSON.parse(s);
-  } catch (e) {}
+  } catch (e) {
+    /* 한도 초과는 브라우저마다 이름이 달라(QuotaExceededError /
+       NS_ERROR_DOM_QUOTA_REACHED / code 22·1014) 이름 대신 넓게 잡는다. */
+    const full = e && (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED"
+      || e.code === 22 || e.code === 1014);
+    try { __onSaveError && __onSaveError({ key:k, full:!!full, error:e }); } catch (_) {}
+  }
 };
 export const load = async (k) => {
   try {
