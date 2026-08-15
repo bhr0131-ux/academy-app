@@ -619,12 +619,13 @@ export default function App() {
       /* 일별 데이터는 달별로 쪼개 저장한다 (utils/dailyStore.js).
          쪼갠 게 없으면 예전 키 v6_daily 에서 읽어 한 번 옮기고, 옮긴 걸 다시 읽어
          원본과 같은지 확인한 뒤에만 예전 키를 정리한다. */
-      const _daily=await loadOrMigrateDaily();
+      const _daily=await loadOrMigrateDaily(TODAY);
       setDailyData(_daily.dailyData);
       /* 방금 저장한(또는 이미 저장돼 있던) 상태를 기준선으로 잡아 둔다 —
          이러면 앱을 켤 때 전체를 다시 쓰지 않고, 이후 바뀐 달만 저장한다. */
       lastSavedDailyRef.current=_daily.dailyData;
       if(_daily.migrated&&!_daily.verified) console.warn("[일별 저장] 월별 분할 검증 실패 — 예전 키를 그대로 씁니다");
+      if(_daily.removed?.length) console.info("[일별 저장] 보관 기간(1년)이 지난 "+_daily.removed.length+"개월 정리:",_daily.removed.join(", "));
       const payI=await load("v6_fee_pay_info"); if(payI) setPayInfo(payI);
       if(bsk) setBaseSeededKeys(bsk);
       if(petD) setPetData(petD);

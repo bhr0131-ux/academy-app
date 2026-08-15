@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { C } from "../data/tokens.js";
 import { storageInfo } from "../utils/dates.js";
+import { DAILY_KEEP_MONTHS, DAILY_INDEX_KEY } from "../utils/dailyStore.js";
+import { load } from "../utils/dates.js";
 import { ADV_CHAR_STAGE_OF } from "../data/characters.js";
 import { DISCOVERIES, getCollectedCount } from "../data/discoveries.js";
 
@@ -21,7 +23,13 @@ import { DISCOVERIES, getCollectedCount } from "../data/discoveries.js";
      메모리                            → 저장이 아예 안 된다(앱을 끄면 사라짐).       */
 function StorageCard({ CT }) {
   const [info, setInfo] = useState(null);
-  useEffect(() => { let alive = true; storageInfo().then((r) => alive && setInfo(r)); return () => { alive = false; }; }, []);
+  const [keptMonths, setKeptMonths] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    storageInfo().then((r) => alive && setInfo(r));
+    load(DAILY_INDEX_KEY).then((m) => alive && setKeptMonths(Array.isArray(m) ? m.length : null));
+    return () => { alive = false; };
+  }, []);
   const box = { background: CT.faint, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 };
   if (!info) return <div style={box}><p style={{ margin: 0, fontSize: 12.5, fontWeight: 800, color: C.sub }}>저장소 확인 중…</p></div>;
   const ok = info.kind === "capacitor";
@@ -46,6 +54,11 @@ function StorageCard({ CT }) {
           <code>npm i @capacitor/preferences</code> → <code>npx cap sync</code> 하면 여유가 생깁니다.
         </p>
       )}
+      {/* 미션 데이터 보관 기간 — 실제로 걸려 있는지 여기서 확인한다 */}
+      <p style={{ fontSize: 11.5, fontWeight: 800, margin: "6px 0 0", color: C.sub }}>
+        미션 기록 보관: {DAILY_KEEP_MONTHS ? `최근 ${DAILY_KEEP_MONTHS}개월` : "제한 없음"}
+        {keptMonths != null && ` · 지금 ${keptMonths}개월치 보관 중`}
+      </p>
       {info.top?.length > 0 && (
         <p style={{ fontSize: 11, fontWeight: 700, margin: "7px 0 0", color: C.sub, lineHeight: 1.6, wordBreak: "break-all" }}>
           큰 항목: {info.top.map(([k, n]) => `${k} ${size(n)}`).join(" · ")}

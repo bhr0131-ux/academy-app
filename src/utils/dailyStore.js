@@ -97,16 +97,59 @@ export const sameDaily = (a, b) => {
   return true;
 };
 
+/* ── 보관 기간 (사용자 확정 2026-08-15) ────────────────────────────────────
+   미션(일별) 데이터는 최근 1년치만 남긴다. 달 단위로 쪼개 저장하므로 달로 자른다.
+   '오늘이 든 달'을 포함해 12개월 전 달까지 남기므로, 어느 날에 보든
+   '1년 전 오늘'은 항상 들어 있다(실제로는 12~13개월치가 남는다).
+
+   [지워지는 것] 그 기간보다 오래된 날의 숙제·할일·준비물 기록.
+   [남는 것] 코인·XP·점수 이력(v6_score), 상장, 보물상자 누적 개수,
+            최고 연속 기록(v6_best_streak), 오늘의 발견 도감, 학원비·결석 —
+            전부 다른 키라 이 정리에 영향받지 않는다.
+   [영향] 연속 달성(현재 진행)은 보관 기간 경계에서 멈춘다. 1년 넘게 이어 온
+          연속은 1년으로 보이게 되지만, 최고 기록은 따로 저장돼 있어 안 깎인다.
+   보관 기간을 바꾸거나 끄려면 이 숫자 하나만 고치면 된다(0이면 정리 안 함). */
+export const DAILY_KEEP_MONTHS = 12;
+
+/** 남겨 둘 가장 오래된 달(YYYY-MM). 이보다 이전 달은 지운다. */
+export const oldestKeepMonth = (today) => {
+  const [y, m] = String(today).split("-").map(Number);
+  const d = new Date(y, m - 1 - DAILY_KEEP_MONTHS, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+};
+
+/* 보관 기간이 지난 달을 지운다. → { data, removed }
+   [순서 주의] 지울 때는 저장할 때와 반대로 ① 목록 → ② 칸 순서다.
+   목록에서 먼저 빼야, 중간에 앱이 꺼져도 '목록엔 있는데 칸이 없는' 달이 안 생긴다.
+   (남는 최악은 '목록에 없는 칸' 하나뿐이고, 그건 읽히지도 않는다) */
+export const pruneOldMonths = async (dailyData, today) => {
+  if (!DAILY_KEEP_MONTHS || !today) return { data: dailyData, removed: [] };
+  const cut = oldestKeepMonth(today);
+  const grouped = groupByMonth(dailyData);
+  /* "etc"(날짜를 못 읽는 키)는 언제 것인지 알 수 없으므로 절대 안 지운다 */
+  const removed = Object.keys(grouped).filter((m) => m !== "etc" && m < cut).sort();
+  if (!removed.length) return { data: dailyData, removed };
+
+  const keep = Object.keys(grouped).filter((m) => !removed.includes(m)).sort();
+  await save(DAILY_INDEX_KEY, keep);                                  // ①
+  for (const m of removed) await removeStored(dailyShardKey(m));      // ②
+
+  const data = {};
+  for (const m of keep) Object.assign(data, grouped[m]);
+  return { data, removed };
+};
+
 /* 앱 시작 때 한 번 — 쪼갠 게 있으면 그걸 읽고, 없으면 예전 키에서 읽어
-   쪼개 저장한 뒤 검증하고 예전 키를 정리한다.
-   돌려주는 값: { dailyData, migrated, verified } */
-export const loadOrMigrateDaily = async () => {
+   쪼개 저장한 뒤 검증하고 예전 키를 정리한다. 마지막으로 보관 기간을 적용한다.
+   돌려주는 값: { dailyData, migrated, verified, removed } */
+export const loadOrMigrateDaily = async (today) => {
   const sharded = await loadDailyShards();
   /* 칸이 하나도 안 읽히면(목록만 있고 내용이 통째로 비었다면) 옮기다 만 상태일 수
      있다. 그럴 때만 예전 키를 다시 본다 — 정상이면 이 분기에 들어오지 않는다. */
   const brokenShards = !!sharded && sharded.months > 0 && sharded.missing === sharded.months;
   if (sharded && !brokenShards) {
-    return { dailyData: sharded.data, migrated: false, verified: true };
+    const p = await pruneOldMonths(sharded.data, today);
+    return { dailyData: p.data, migrated: false, verified: true, removed: p.removed };
   }
 
   const legacy = await load(DAILY_LEGACY_KEY);
@@ -114,15 +157,17 @@ export const loadOrMigrateDaily = async () => {
   if (!Object.keys(dailyData).length) {
     // 옮길 게 없다 — 목록만 만들어 두면 다음부터는 쪼갠 쪽으로 간다
     if (!sharded) await save(DAILY_INDEX_KEY, []);
-    return { dailyData: sharded ? sharded.data : dailyData, migrated: false, verified: true };
+    return { dailyData: sharded ? sharded.data : dailyData, migrated: false, verified: true, removed: [] };
   }
 
   await saveDailyShards(dailyData, null);
   const back = await loadDailyShards();
   const verified = !!back && sameDaily(dailyData, back.data);
   /* 검증을 통과했을 때만 예전 키를 지운다. 실패하면 예전 키를 그대로 두고
-     목록을 지워, 다음 실행에서도 예전 키로 정상 동작하게 되돌린다. */
-  if (verified) await removeStored(DAILY_LEGACY_KEY);
-  else await removeStored(DAILY_INDEX_KEY);
-  return { dailyData, migrated: true, verified };
+     목록을 지워, 다음 실행에서도 예전 키로 정상 동작하게 되돌린다.
+     검증에 실패했으면 보관 기간도 적용하지 않는다 — 옮기지도 못한 걸 지우면 안 된다. */
+  if (!verified) { await removeStored(DAILY_INDEX_KEY); return { dailyData, migrated: true, verified, removed: [] }; }
+  await removeStored(DAILY_LEGACY_KEY);
+  const p = await pruneOldMonths(dailyData, today);
+  return { dailyData: p.data, migrated: true, verified: true, removed: p.removed };
 };
