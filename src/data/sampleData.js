@@ -154,15 +154,20 @@ export const getDayPlan = (academies = [], absences = [], date, day, isVacation 
       return { ac, ab, t };
     })
     .filter(Boolean);
-  makeups.filter(m => m.t).forEach(m => {
-    timed.push({ ...m.ac, _key: `${m.ac.id}-mk`, _time: m.t, _duration: 40, _makeup: true, _absent: false, _label: `보충 ${m.t}` });
+  /* [버그 수정 2026-08-15] _key 가 `학원id-mk` 라, 같은 학원 보충이 하루에 두 개면
+     (결석 두 번을 같은 날 몰아 보충) 키가 겹쳤다. _key 는 화면 목록의 React key 이자
+     탐험일지에서 '어느 학원을 보고 있나'를 가리는 값이라, 겹치면 목록이 잘못 그려지고
+     일지도 엉뚱한 학원을 집는다. 결석 기록 id 를 붙여 항상 다르게 만든다
+     (예전 데이터에 id 가 없을 수 있어 순번으로 폴백). */
+  makeups.filter(m => m.t).forEach((m, i) => {
+    timed.push({ ...m.ac, _key: `${m.ac.id}-mk-${m.ab?.id ?? `t${i}`}`, _time: m.t, _duration: 40, _makeup: true, _absent: false, _label: `보충 ${m.t}` });
   });
   timed.sort((x, y) => _min(x._time) - _min(y._time));
   // 시간 없는 보충은 맨 뒤 — 앞 수업이 끝나고 30분 뒤에 끝난 것으로 친다
-  makeups.filter(m => !m.t).forEach(m => {
+  makeups.filter(m => !m.t).forEach((m, i) => {
     const prev = timed[timed.length-1];
     const start = prev ? _min(prev._time) + Number(prev._duration||0) : _min(m.ac.time||"15:00");
-    timed.push({ ...m.ac, _key: `${m.ac.id}-mk`, _time: _hhmm(start), _duration: 30, _makeup: true, _absent: false, _label: "보충" });
+    timed.push({ ...m.ac, _key: `${m.ac.id}-mk-${m.ab?.id ?? `n${i}`}`, _time: _hhmm(start), _duration: 30, _makeup: true, _absent: false, _label: "보충" });
   });
   return timed;
 };

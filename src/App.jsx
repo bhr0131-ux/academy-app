@@ -824,9 +824,15 @@ export default function App() {
   const handleSparkPass=(d)=>{
     if(!loaded||!childId) return;
     if(!canDiscoverOn(childId,d)) return;
-    if(getDiscoveryOn(discoveryData,childId,d)) return;
-    const {isNew,next}=recordDiscovery(discoveryData,childId,d);
-    if(isNew) setDiscoveryData(next);
+    /* [정리 2026-08-15] 예전엔 렌더 시점의 discoveryData 로 '이미 있나'를 보고
+       그 값에서 만든 결과를 통째로 덮어썼다. 한 틱에 두 번 불리면 뒤엣것이
+       앞엣것을 지울 수 있는 모양이라, prev 기준으로 판단하고 바꾼다
+       (giveTreasureForQuestOnce 와 같은 방식). 안 바뀌면 prev 를 그대로 돌려
+       리렌더도 일어나지 않는다. */
+    setDiscoveryData(prev=>{
+      const {isNew,next}=recordDiscovery(prev,childId,d);
+      return isNew?next:prev;
+    });
     /* 펫 연결 발견의 "먹이 +1" 연출은 지도 발견 지점 위에서 나온다 (사용자 확정 —
        펫이 화면에 안 보일 때가 많아서. AdventureMap의 spark.gain). 펫 말풍선 ❤️는 유지. */
   };
