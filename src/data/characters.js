@@ -502,10 +502,33 @@ export const DECOR_GROUPS = [
    적립 규칙(누적 10/30/50의 배수에서 상자 지급)을 한곳에 못박아, 화면 어디서
    호출하든 동일하게 동작하고 단독 테스트가 가능하다. */
 export const TREASURE_MILESTONE = { normal:8, rare:20, legend:32 };
-export const computeQuestTreasure = (cur, questKey) => {
+
+/* ── rewardedQuestKeys 정리 (사용자 확정 2026-08-15) ──────────────────────
+   이 배열은 '이미 상자를 준 미션'을 기억해 중복 지급을 막는다. 그런데 미션을
+   하나 끝낼 때마다 문자열이 하나씩 영구히 쌓여, 저장 용량의 16%를 차지하며
+   무한히 커졌다(아이2·학원3 기준 1년에 26만 글자).
+
+   대신 '이 날짜 이전은 전부 처리 끝'이라는 경계선 하나(rewardedBefore)를 두고,
+   경계선보다 오래된 키는 버린다. 판정은
+     이미 목록에 있거나  또는  키의 날짜가 경계선보다 이전  → 이미 준 것
+   이라 오래된 미션을 다시 체크해도 상자가 또 나오지 않는다(정확히 같은 동작).
+
+   경계선이 없는 기존 사용자는 다음 미션을 끝내는 순간 자동으로 정리된다
+   (별도 마이그레이션 없음, 저장 키도 그대로 v6_treasure).                  */
+export const TREASURE_KEY_KEEP_DAYS = 120;
+const _questKeyDate = (k) => { const m = /(\d{4}-\d{2}-\d{2})/.exec(k || ""); return m ? m[1] : null; };
+const _shiftDays = (ymd, n) => {
+  const [y,m,d] = String(ymd).split("-").map(Number);
+  const dt = new Date(y, m-1, d + n);
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`;
+};
+
+export const computeQuestTreasure = (cur, questKey, today) => {
   const base = cur || { completedQuestCount:0, normalBox:0, rareBox:0, legendBox:0, rewardedQuestKeys:[] };
   const keys = base.rewardedQuestKeys || [];
-  if (!questKey || keys.includes(questKey)) {
+  const qDate = _questKeyDate(questKey);
+  const alreadyOld = !!(base.rewardedBefore && qDate && qDate < base.rewardedBefore);
+  if (!questKey || keys.includes(questKey) || alreadyOld) {
     return { changed:false, next:base, earned:null, nextCount:Number(base.completedQuestCount||0) };
   }
   const nextCount = Number(base.completedQuestCount||0) + 1;
@@ -513,13 +536,25 @@ export const computeQuestTreasure = (cur, questKey) => {
   if (nextCount % TREASURE_MILESTONE.legend === 0) earned = "legend";
   else if (nextCount % TREASURE_MILESTONE.rare === 0) earned = "rare";
   else if (nextCount % TREASURE_MILESTONE.normal === 0) earned = "normal";
+  /* 경계선을 오늘에서 KEEP_DAYS 만큼 뒤로 잡고, 그보다 오래된 키는 버린다.
+     today 를 안 넘기면(예전 호출부·테스트) 정리하지 않고 예전처럼 쌓기만 한다. */
+  const cutoff = today ? _shiftDays(today, -TREASURE_KEY_KEEP_DAYS) : null;
+  const merged = [...keys, questKey];
+  const kept = cutoff
+    ? merged.filter((k) => { const d = _questKeyDate(k); return !d || d >= cutoff; })
+    : merged;
+  const nextBefore = cutoff
+    ? (base.rewardedBefore && base.rewardedBefore > cutoff ? base.rewardedBefore : cutoff)
+    : base.rewardedBefore;
+
   const next = {
     ...base,
     completedQuestCount: nextCount,
     normalBox: Number(base.normalBox||0) + (earned==="normal"?1:0),
     rareBox:   Number(base.rareBox||0)   + (earned==="rare"?1:0),
     legendBox: Number(base.legendBox||0) + (earned==="legend"?1:0),
-    rewardedQuestKeys: [...keys, questKey],
+    rewardedQuestKeys: kept,
+    ...(nextBefore ? { rewardedBefore: nextBefore } : {}),
   };
   return { changed:true, next, earned, nextCount };
 };

@@ -2638,12 +2638,12 @@ export default function App() {
     if(!questKey) return;
     // 적립 "규칙"은 순수 함수가 계산. 여기선 상태 반영과 팝업 알림만.
     const cur=treasureData[cid];
-    const { changed, earned, nextCount } = computeQuestTreasure(cur, questKey);
+    const { changed, earned, nextCount } = computeQuestTreasure(cur, questKey, TODAY);
     if(!changed) return; // 이미 이 미션으로 보상 처리됨
 
     setTreasureData(prev=>{
       // 최신 prev 기준으로 다시 계산(동시 갱신 안전)
-      const r=computeQuestTreasure(prev[cid], questKey);
+      const r=computeQuestTreasure(prev[cid], questKey, TODAY);
       if(!r.changed) return prev;
       return {...prev,[cid]:r.next};
     });
