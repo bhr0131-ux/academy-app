@@ -78,8 +78,10 @@ export default function RegisteredAcademyList({
 }) {
   if (curAc.length === 0) {
     return (
+      /* [사용자 확정 2026-08-16] 배경을 학원 카드와 같은 흰색으로 — 빈 칸만 색이 달라 튀었다.
+         '아직 없다'는 신호인 점선 테두리는 그대로 둔다. */
       <div style={{ textAlign: "center", padding: "26px 20px", color: C.sub,
-        background: mixWhite(th.main, 0.93), borderRadius: 18, border: `1.5px dashed ${th.main}40` }}>
+        background: "#fff", borderRadius: 18, border: `1.5px dashed ${th.main}40` }}>
         <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 52, height: 52,
           borderRadius: "50%", background: mixWhite(th.main, 0.82), color: th.main }}>
           <CareIcon name="school" size={26} />
