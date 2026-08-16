@@ -254,6 +254,10 @@ export default function App() {
   const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elemLow|elemHigh|teen|custom)
   const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
   const [pendingReject,    setPendingReject]    = useState(null); // 보상 구매 거절 확인 모달용 (요청 객체)
+  /* [사용자 확정 2026-08-16] 홈의 '오늘 챙길 일' 보상승인 칩을 누르면 보상 탭으로 보내지 않고
+     이 팝업으로 그 자리에서 승인한다 — 승인 하나 하려고 비밀번호를 넣는 게 번거로웠다.
+     보상 탭의 '구매 승인 대기' 칸은 그대로 둔다(둘이 같은 RewardApprovals 를 쓴다). */
+  const [showRewardApprove, setShowRewardApprove] = useState(false);
   const [pendingRestore, setPendingRestore] = useState(null); // 백업 복원 확인 모달용 (파싱된 데이터)
   const [lastBackupDate, setLastBackupDate] = useState(null); // 마지막 백업 날짜 (YYYY-MM-DD), 없으면 null
   const [lastNudgeDate, setLastNudgeDate] = useState(null); // 마지막으로 백업 권유를 띄운 날짜 (YYYY-MM-DD), 없으면 null
@@ -5225,6 +5229,44 @@ export default function App() {
 
       {/* 보상 구매 거절 확인 모달 — 거절하면 코인을 돌려주고 요청이 사라진다.
           되돌릴 수 없는 일이라 한 번 물어본다 (사용자 확정 2026-08-11) */}
+      {/* ── 홈에서 바로 여는 '구매 승인 대기' 팝업 (비밀번호 없이) ──
+             보상 탭과 같은 RewardApprovals 를 쓴다 — 한쪽만 고쳐져 어긋나는 일이 없다.
+             승인·거절 처리도 보상 탭과 똑같이 App 이 맡는다.
+             거절 확인 모달(z1000)보다 앞에 둬서 그쪽이 위에 덮이게 한다. */}
+      {showRewardApprove&&(()=>{
+        const pend=getChildRewardRequests(childId).filter(r=>r.status==="pending");
+        return (
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:1000}}
+          onClick={()=>setShowRewardApprove(false)}>
+          <div onClick={e=>e.stopPropagation()}
+            style={{background:CT.faint,borderRadius:"22px 22px 0 0",padding:"14px 16px 40px",width:"100%",maxWidth:430,boxSizing:"border-box",maxHeight:"84vh",overflowY:"auto"}}>
+            {/* 제목은 안쪽 RewardApprovals 카드가 이미 '구매 승인 대기 N건'으로 달고 있다 →
+                여기서 또 붙이면 같은 말이 두 번 나온다. 닫기만 둔다. */}
+            <div style={{display:"flex",justifyContent:"flex-end",marginBottom:8}}>
+              <button onClick={()=>setShowRewardApprove(false)} aria-label="닫기"
+                style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:10,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15,fontFamily:"inherit"}}>✕</button>
+            </div>
+            {pend.length===0?(
+              <div style={{textAlign:"center",padding:"26px 10px",background:"#fff",borderRadius:18,border:`1px solid ${C.border}`}}>
+                <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:46,height:46,borderRadius:"50%",background:CT.faint,color:C.green}}>
+                  <CareIcon name="check" size={23}/>
+                </span>
+                <p style={{fontSize:13.5,fontWeight:800,margin:"8px 0 0",color:C.sub}}>모두 처리했어요</p>
+              </div>
+            ):(
+              <RewardApprovals
+                requests={pend}
+                childName={curChild?.name||""} showWho={children.length>1}
+                coinLabel={TM.coin} th={th} CT={CT}
+                onApprove={approveRewardRequest}
+                /* 거절은 코인을 돌려주고 되돌릴 수 없다 → 보상 탭과 같이 한 번 물어본다 */
+                onReject={(req)=>setPendingReject(req)} />
+            )}
+          </div>
+        </div>
+        );
+      })()}
+
       {pendingReject&&(
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>setPendingReject(null)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:340,boxSizing:"border-box"}}>
@@ -5388,6 +5430,7 @@ export default function App() {
             acKindLabel={acKindLabel} getAcademyTheme={getAcademyTheme}
             onGoTab={(k)=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab(k); }}
             onGoReward={goRewardTab}
+            onOpenRewardApprove={()=>setShowRewardApprove(true)}
             onOpenSupplyCheck={()=>setShowSupplyCheck(homeDate)}
             onOpenMissionCheck={()=>setShowMissionCheck(homeDate)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
