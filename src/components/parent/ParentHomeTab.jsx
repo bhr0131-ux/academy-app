@@ -145,7 +145,9 @@ export default function ParentHomeTab({
             </button>
           );
           if(alerts.length===0) return (
-            <div style={{background:mixWhite(th.main,0.85),border:`1px solid ${th.main}40`,borderRadius:14,
+            /* [사용자 확정 2026-08-16] 챙길 일이 없는 날만 배경이 진해 화면에서 혼자 튀었다 →
+               챙길 일이 있을 때 카드와 같은 흰 바탕·같은 테두리로 맞춘다. 글자색은 그대로 둔다. */
+            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:14,
               padding:"9px 13px",display:"flex",alignItems:"center",gap:9,boxShadow:SHADOW.sm}}>
               <span style={{flexShrink:0,color:mixBlack(th.main,0.45),display:"flex"}}><CareIcon name="check" size={15}/></span>
               <span style={{fontSize:13.5,fontWeight:800,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
@@ -288,8 +290,8 @@ export default function ParentHomeTab({
           {/* [사용자 확정 2026-08-16] 크기는 학원 탭의 '＋ 학원 추가'와 같은 치수로 맞춘다
               (12.5 / 7px 12px / radius 10). 화면 폭을 꽉 채우던 큰 버튼은 목록보다 세 보였다.
               복사는 지금 생김새(흰 바탕·회색 테두리)를 그대로 두고 치수만 맞춘다.
-              자리는 학원 카드 왼쪽 끝에 맞춰 아래로 — 가운데에 두니 카드 줄과 어긋나 보였다. */}
-          <div style={{display:"flex",alignItems:"center",justifyContent:"flex-start",gap:8,marginTop:2}}>
+              자리는 학원 카드 오른쪽 끝에 맞춰 아래로, 위에 여백을 조금 준다 (사용자 확정). */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:8,marginTop:12}}>
             <button onClick={onAddAcademy} className="jelly-tap"
               style={{flexShrink:0,fontSize:12.5,padding:"7px 12px",borderRadius:10,border:"none",
                 background:th.grad,color:"#fff",fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
@@ -323,7 +325,7 @@ export default function ParentHomeTab({
              '등록 학원'으로 넘어가야 한다는 걸 알려 준다. */}
       {acView==="today"&&homeAc.length===0&&(
         <div style={{textAlign:"center",padding:"18px 20px 20px",marginBottom:14,
-          background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
+          background:"#fff",borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
           <img src={ADV_SIT_IMG[childGender]||ADV_SIT_IMG.boy} alt="" draggable={false}
             style={{display:"block",height:88,width:"auto",maxWidth:"none",margin:"0 auto"}}/>
           <p style={{color:C.sub,fontSize:14.5,fontWeight:700,margin:"6px 0 0"}}>
