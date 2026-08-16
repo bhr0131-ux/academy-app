@@ -282,8 +282,9 @@ export default function ParentHomeTab({
               끝까지 본 다음에 누르는 순서가 자연스럽다. */}
           {/* [사용자 확정 2026-08-16] 크기는 학원 탭의 '＋ 학원 추가'와 같은 치수로 맞춘다
               (12.5 / 7px 12px / radius 10). 화면 폭을 꽉 채우던 큰 버튼은 목록보다 세 보였다.
-              복사는 지금 생김새(흰 바탕·회색 테두리)를 그대로 두고 치수만 맞춘다. */}
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginTop:2}}>
+              복사는 지금 생김새(흰 바탕·회색 테두리)를 그대로 두고 치수만 맞춘다.
+              자리는 학원 카드 왼쪽 끝에 맞춰 아래로 — 가운데에 두니 카드 줄과 어긋나 보였다. */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"flex-start",gap:8,marginTop:2}}>
             <button onClick={onAddAcademy} className="jelly-tap"
               style={{flexShrink:0,fontSize:12.5,padding:"7px 12px",borderRadius:10,border:"none",
                 background:th.grad,color:"#fff",fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
