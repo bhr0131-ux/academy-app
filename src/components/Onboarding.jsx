@@ -57,6 +57,7 @@ export function ModeSelect({ onPick }){
 export function CoachmarkOverlay({ th, onFinish }){
   const TH=th||{ main:"#3B7ECD", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" };
   /* [2026-08-09] 하단 고정 메뉴 5칸으로 개편 — 안내도 같은 순서·같은 이름으로 맞췄다.
+     [2026-08-16] 학원 칸이 빠져 하단은 네 칸, 안내는 여섯 장이 됐다.
      [사용자 확정 2026-08-11] 일곱 장은 그대로 두고 설명만 한 줄로 줄였다 —
      두 줄씩 읽어야 해서 일곱 번 넘기기 전에 지친다. 문구는 사용자가 정한 그대로 쓴다.
      (잠금만 두 줄 — 비밀번호를 왜 묻는지까지 말해야 뜻이 통한다) */
@@ -64,9 +65,10 @@ export function CoachmarkOverlay({ th, onFinish }){
      달라지고, 정작 아이 어머니가 화면에서 보게 될 그림과도 달랐다 →
      탭 다섯은 하단 메뉴에 실제로 그려지는 아이콘(NAV_ICONS)을 그대로 쓴다.
      '이 그림을 찾으면 된다'가 바로 통한다. 잠금·아이용은 같은 결의 선 아이콘. */
+  /* [2026-08-16] '학원' 칸을 빼서 여섯 장이 됐다 — 학원 탭이 홈의 '등록 학원'
+     토글로 합쳐지면서 하단 메뉴에서 사라졌다(사용자 확정). 없는 탭을 안내하던 장이다. */
   const items=[
     { icon:NAV_ICONS.home,     name:"홈", desc:"오늘 챙길 일과 오늘 가는 학원을 한눈에 봐요." },
-    { icon:NAV_ICONS.academy,  name:"학원", desc:"학원을 등록하고 수정해요." },
     { icon:NAV_ICONS.mission,  name:"미션", desc:"날짜별 미션과 점수를 관리해요." },
     { icon:NAV_ICONS.reward,   name:"보상", desc:"코인으로 바꿀 보상을 정하고, 아이가 신청하면 승인해요." },
     { icon:NAV_ICONS.more,     name:"더보기", desc:"달력 · 학원비 · 결석·보충 · 기타가 여기 있어요." },
@@ -374,7 +376,7 @@ export function OnboardingFlow({ onFinish }){
 }
 
 export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
-  const isReward=type==="reward";
+  /* [2026-08-16] type="reward"(보상 탭 안내)는 삭제됐다 — 남은 갈래는 welcome 과 기본뿐. */
   const isWelcome=type==="welcome";
   const isCute=skin==="cute";
   const xpW=isCute?"경험치":"XP";
@@ -388,12 +390,6 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
         { ic:"unlock",  t:"미션은 아이도 넣을 수 있어요", d:"아이용 화면에서 숙제·할 일을 스스로 추가" },
         { ic:"lock",    t:`미션 삭제·${xpW} 점수 수정은 엄마만`, d:"미션·보상 탭은 비밀번호를 한 번 물어봐요" },
         { ic:"reward",  t:"보상은 엄마가 승인", d:"아이가 신청하면 보상 탭에서 확인하고 승인" },
-      ]
-    : isReward
-    ? [
-        { ic:"reward",  t:"보상 목록 정하기", d:`${coinW}으로 바꿀 보상을 추가·수정` },
-        { ic:"check",   t:"구매 요청 승인", d:"아이가 신청한 보상을 확인하고 승인" },
-        { ic:"mission", t:"미션은 옆 '미션' 칸에서", d:"미션 추가·수정과 점수는 그쪽에서" },
       ]
     : [
         { ic:"teacher", t:"아이 등록", d:"" },
@@ -435,18 +431,18 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
           color:"#fff",
           textAlign:"center"
         }}>
-          <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>{isWelcome?"GUIDE":isReward?"REWARD":"미션팡"}</p>
-          <h2 style={{fontSize:isReward||isWelcome?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isWelcome?"여기는 엄마 권한이에요":isReward?"보상탭은 엄마 공간이에요":"오늘의 미션"}</h2>
+          <p style={{fontSize:11,fontWeight:800,letterSpacing:3,margin:"0 0 6px",opacity:0.85}}>{isWelcome?"GUIDE":"미션팡"}</p>
+          <h2 style={{fontSize:isWelcome?23:27,fontWeight:900,margin:0,letterSpacing:-0.5,textShadow:"0 2px 8px rgba(0,0,0,0.12)"}}>{isWelcome?"여기는 엄마 권한이에요":"오늘의 미션"}</h2>
           <div style={{width:38,height:3,borderRadius:99,background:"rgba(255,255,255,0.6)",margin:"12px auto 14px"}}/>
           <p style={{fontSize:14.5,fontWeight:800,lineHeight:1.6,margin:0}}>
-            {isWelcome?<>점수와 보상은 엄마가 관리,<br/>아이는 미션에만 집중!</>:isReward?<>보상은 여기서, 미션은 '미션' 탭에서<br/>따로 관리해요</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요</>}
+            {isWelcome?<>점수와 보상은 엄마가 관리,<br/>아이는 미션에만 집중!</>:<>매일의 작은 미션이 쌓여<br/>아이의 큰 성장을 만들어요</>}
           </p>
         </div>
 
         {/* 사용 방법 */}
         <div style={{padding:"22px 24px 24px"}}>
           <p style={{fontSize:13,fontWeight:900,letterSpacing:0.5,color:th.main,margin:"0 0 14px"}}>
-            {isWelcome?"이렇게 설계됐어요":isReward?"엄마가 할 수 있는 것":"이렇게 시작해요"}
+            {isWelcome?"이렇게 설계됐어요":"이렇게 시작해요"}
           </p>
 
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -470,7 +466,7 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
             ))}
           </div>
 
-          {!isReward&&!isWelcome&&(
+          {!isWelcome&&(
           <div style={{
             background:`${th.main}0E`,
             borderRadius:12,
@@ -498,7 +494,7 @@ export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
               boxShadow:`0 6px 18px ${th.main}40`
             }}
           >
-            {isWelcome?"알겠어요":isReward?"보상 탭으로 가기":"닫기"}
+            {isWelcome?"알겠어요":"닫기"}
           </button>
         </div>
       </div>
