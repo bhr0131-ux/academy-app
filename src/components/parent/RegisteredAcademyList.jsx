@@ -139,7 +139,9 @@ export default function RegisteredAcademyList({
 
               {isOpen && (
                 <div style={{ padding: "14px 16px 10px" }}>
-                  {/* ① 학원 이름 · 수업 길이 + 전화·문자 — '오늘의 학원'과 같은 줄 */}
+                  {/* ① 학원 이름 · 수업 길이 — 전화·문자는 아래 '학원 수정'과 같은 줄로 옮겼다
+                      (사용자 확정 2026-08-16). 이름 줄에 있으니 긴 학원 이름과 자리를 다퉜고,
+                      누르는 것끼리 한 줄에 모이는 편이 찾기 쉽다. */}
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                     <p style={{ flex: 1, minWidth: 0, margin: 0, display: "flex", alignItems: "baseline", gap: 5 }}>
                       <span style={{ minWidth: 0, fontSize: 14.5, fontWeight: 900, color: C.text,
@@ -151,22 +153,6 @@ export default function RegisteredAcademyList({
                           · {ac.duration}분 수업</span>
                       )}
                     </p>
-                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                      {ac.phone && (
-                        <a href={`tel:${ac.phone}`} aria-label={`${ac.name} 전화`} title="전화"
-                          style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${C.border}`,
-                            color: SUBD, display: "flex", alignItems: "center", justifyContent: "center",
-                            textDecoration: "none", background: "#fff" }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></a>
-                      )}
-                      {ac.phone && (
-                        <button onClick={() => onSms(ac)} className="jelly-tap" aria-label={`${ac.name} 문자`} title="문자"
-                          style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${C.border}`,
-                            color: SUBD, display: "flex", alignItems: "center", justifyContent: "center",
-                            cursor: "pointer", background: "#fff", fontFamily: "inherit", padding: 0 }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></button>
-                      )}
-                    </div>
                   </div>
 
                   {/* ①-2 요일마다 시간이 다른 학원만 — 접힌 줄에 못 담은 시간표를 여기서 편다 */}
@@ -249,8 +235,24 @@ export default function RegisteredAcademyList({
                     </>)}
                   </div>
 
-                  {/* ⑥ 수정 — '오늘의 학원'과 같이 오른쪽 아래에 작게 */}
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  {/* ⑥ 맨 아랫줄 — 왼쪽 끝에 전화·문자, 오른쪽 끝에 수정 ('오늘의 학원'과 같은 배치) */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                      {ac.phone && (
+                        <a href={`tel:${ac.phone}`} aria-label={`${ac.name} 전화`} title="전화"
+                          style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${C.border}`,
+                            color: SUBD, display: "flex", alignItems: "center", justifyContent: "center",
+                            textDecoration: "none", background: "#fff" }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></a>
+                      )}
+                      {ac.phone && (
+                        <button onClick={() => onSms(ac)} className="jelly-tap" aria-label={`${ac.name} 문자`} title="문자"
+                          style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${C.border}`,
+                            color: SUBD, display: "flex", alignItems: "center", justifyContent: "center",
+                            cursor: "pointer", background: "#fff", fontFamily: "inherit", padding: 0 }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></button>
+                      )}
+                    </div>
                     <button onClick={() => onEdit(ac)} className="jelly-tap" aria-label={`${ac.name} 수정`}
                       style={{ border: "none", background: "none", color: SUBD, fontSize: 12, fontWeight: 800,
                         cursor: "pointer", fontFamily: "inherit", padding: "6px 0 6px 12px",
