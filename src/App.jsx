@@ -3165,13 +3165,19 @@ export default function App() {
   },[scoreData,dailyData,rewardRequests,selectedTitles,specialTitles,childId,loaded,appMode]);
 
   // 이벤트 큐 처리 - 하나씩 순서대로 표시
+  /* [버그 수정 2026-08-16] 보물상자를 열면 코인 팝업(결과 모달)이 뜨는데, 그때 진화 팝업이
+     같이 만들어져 코인 팝업 뒤에 숨어 있었다(코인 팝업 z9999 / 진화 팝업 z3000).
+     사용자에겐 진화 팝업이 아예 안 나온 것처럼 보인다.
+     → 상자 연출·결과가 떠 있는 동안은 큐를 잡아 둔다. 코인 팝업에서 '확인'을 눌러
+       결과 모달이 닫히면 이 effect 가 다시 돌아 진화 팝업이 이어서 뜬다. */
   useEffect(()=>{
     if(eventModal) return;
+    if(openingTreasure||treasureModal) return;
     if(eventQueue.length===0) return;
     const nextEvent=eventQueue[0];
     setEventModal(nextEvent);
     setEventQueue(prev=>prev.slice(1));
-  },[eventQueue,eventModal]);
+  },[eventQueue,eventModal,openingTreasure,treasureModal]);
 
   // 첫 미션 안내창은 제거됨 (사탕 구매 유도 팝업 미사용)
   useEffect(()=>{
@@ -5023,7 +5029,10 @@ export default function App() {
 
       {/* ── 통합 게임 이벤트 모달 ── */}
       {eventModal&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.72)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3000,padding:20}}>
+        /* [버그 수정 2026-08-16] z3000 이라 보물창고 시트(4000)·상자 결과 모달(9999) 뒤로
+           숨었다. 큐가 상자 연출 중에는 팝업을 안 띄우므로(위 effect) 이제 겹칠 일이 없고,
+           시트 위에도 제대로 뜬다. 토스트(99999)보다는 아래. */
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.72)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:10000,padding:20}}>
           {/* 반짝이 이펙트 */}
           <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
             {(kidSkin==="cute"?["🧁","🍪","🎀","🌸","🧁"]:["✨","⭐","✨","💫","⭐"]).map((s,i)=>(
