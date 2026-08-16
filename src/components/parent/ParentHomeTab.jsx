@@ -365,10 +365,19 @@ export default function ParentHomeTab({
                 요약은 "뭘 하러 몇 시에 가나"(피아노 · 08:45–09:25)만 답하면 되고,
                 "어느 학원인가"(노아피아노)는 전화·셔틀을 볼 때 필요하므로 상세로 내렸다.
                 시각 하나만 있으면 수업 시작인지 차량 도착인지 헷갈려서 범위로 쓴다. */}
+            {/* [사용자 제보 2026-08-16] 오른쪽 끝 화살표를 누르면 눌림 효과만 나고 안 열렸다.
+                줄 전체가 버튼 하나라 화살표만 죽을 구조가 아닌데도 그랬다 — 카드 오른쪽 끝이
+                화면 가장자리와 가까워, 안드로이드의 '가장자리 뒤로가기 제스처' 구역에 걸리면
+                누름 표시만 나고 클릭이 취소된다. 화살표를 안쪽으로 들이고(오른쪽 여백 12→16,
+                화살표에 자체 여백) 누르는 자리를 키워 가장자리에서 떼어 놓는다.
+                touchAction:manipulation 은 두 번 눌러 확대 판정을 기다리느라 클릭이 늦거나
+                삼켜지는 것도 같이 막는다. userSelect:none 은 글자 위를 눌렀을 때 선택
+                제스처로 빠지면서 클릭이 취소되는 걸 막는다. */}
             <button onClick={()=>setHomeAcOpen(p=>({...p,[ac.id]:!p[ac.id]}))} className="jelly-tap"
               aria-expanded={!!homeAcOpen[ac.id]} aria-label={`${ac.name} 자세히`}
-              style={{width:"100%",border:"none",background:"transparent",padding:"10px 12px",
-                display:"flex",alignItems:"center",gap:9,cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
+              style={{width:"100%",border:"none",background:"transparent",padding:"10px 16px 10px 12px",
+                display:"flex",alignItems:"center",gap:9,cursor:"pointer",textAlign:"left",fontFamily:"inherit",
+                touchAction:"manipulation",userSelect:"none",WebkitUserSelect:"none"}}>
               <span style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:7,
                 overflow:"hidden",whiteSpace:"nowrap"}}>
                 <span style={{fontSize:15,fontWeight:900,color:ac.color,minWidth:0,
@@ -385,7 +394,8 @@ export default function ParentHomeTab({
                   {allDone?"완료 ✓":`미션 ${doneCnt}/${totalTodoCnt}`}
                 </span>
               )}
-              <span style={{flexShrink:0,fontSize:12,color:"#B9B3AD",fontWeight:900,
+              <span aria-hidden style={{flexShrink:0,width:24,height:24,display:"flex",
+                alignItems:"center",justifyContent:"center",fontSize:12,color:"#B9B3AD",fontWeight:900,
                 transition:"transform .2s",transform:homeAcOpen[ac.id]?"rotate(180deg)":"none"}}>⌄</span>
             </button>
             {homeAcOpen[ac.id]&&(

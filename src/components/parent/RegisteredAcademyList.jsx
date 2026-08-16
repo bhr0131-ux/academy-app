@@ -95,15 +95,19 @@ export default function RegisteredAcademyList({
               {/* 접힌 줄 — '오늘의 학원'과 같은 자리·같은 크기. 시간 앞에 요일만 더 붙는다. */}
               <button onClick={() => setOpen(p => (p[ac.id] ? {} : { [ac.id]: true }))} className="jelly-tap"
                 aria-expanded={isOpen} aria-label={`${ac.name} 상세보기`}
-                style={{ width: "100%", border: "none", background: "transparent", padding: "10px 12px",
-                  display: "flex", alignItems: "center", gap: 9, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
+                style={{ width: "100%", border: "none", background: "transparent", padding: "10px 16px 10px 12px",
+                  display: "flex", alignItems: "center", gap: 9, cursor: "pointer", textAlign: "left", fontFamily: "inherit",
+                  touchAction: "manipulation", userSelect: "none", WebkitUserSelect: "none" }}>
                 <span style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 7,
                   overflow: "hidden", whiteSpace: "nowrap" }}>
                   <span style={{ fontSize: 15, fontWeight: 900, color: ac.color, minWidth: 0,
                     overflow: "hidden", textOverflow: "ellipsis" }}>{acKindLabel(ac)}</span>
                   <span style={{ fontSize: 14, fontWeight: 700, flexShrink: 0, color: SUBD }}>{whenLabel(ac)}</span>
                 </span>
-                <span style={{ flexShrink: 0, fontSize: 12, color: "#B9B3AD", fontWeight: 900,
+                {/* 화살표는 카드 오른쪽 끝에서 안쪽으로 들여 놓는다 — 가장자리 제스처 구역과
+                    겹치면 눌림 표시만 나고 클릭이 취소된다 (ParentHomeTab 의 같은 줄 참고). */}
+                <span aria-hidden style={{ flexShrink: 0, width: 24, height: 24, display: "flex",
+                  alignItems: "center", justifyContent: "center", fontSize: 12, color: "#B9B3AD", fontWeight: 900,
                   transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "none" }}>⌄</span>
               </button>
 
