@@ -5392,6 +5392,19 @@ export default function App() {
             onOpenSupplyCheck={()=>setShowSupplyCheck(homeDate)}
             onOpenMissionCheck={()=>setShowMissionCheck(homeDate)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
+            /* [사용자 확정 2026-08-16] 홈의 '오늘의 학원' 자리에서 '등록 학원'으로 토글해
+               학원 탭 내용을 그대로 본다. 학원 탭에 넘기던 것과 같은 콜백을 그대로 넘긴다 —
+               두 화면이 같은 동작을 쓰므로 한쪽만 고쳐져 어긋나는 일이 없다. */
+            childrenList={children}
+            showSample={hoursSinceInstall!==null && hoursSinceInstall<24}
+            onAddAcademy={openAdd} onEditAcademy={openEdit}
+            onCopyAcademy={()=>{ setCopySourceChildId(children.find(c=>c.id!==childId)?.id||""); setCopySelectedAcademyIds([]); setShowAcademyCopyModal(true); }}
+            onCopyAccount={(txt)=>{
+              try { navigator.clipboard?.writeText(txt); showToast("계좌번호를 복사했어요"); }
+              catch(e){ showToast("복사할 수 없어요"); }
+            }}
+            onOpenMap={(addr)=>window.open(`https://map.naver.com/p/search/${encodeURIComponent(addr)}`,"_blank","noopener,noreferrer")}
+            onSeedSample={addStarterAcademy}
             onEditDaily={(ac,date)=>{
               /* [사용자 확정 2026-08-11] 미션 편집은 권한을 일부러 두 단계로 둔다 —
                  여기(홈의 '수정')는 비밀번호 없이 여는 자리라 '오늘 할 일을 넣는' 것까지만.

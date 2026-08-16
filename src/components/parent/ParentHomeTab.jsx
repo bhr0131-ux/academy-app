@@ -26,11 +26,13 @@
      onHolidayRest(name)   : 공휴일에만 나오는 '공휴일엔 쉬어요' 시트 열기
    ════════════════════════════════════════════════════════════════════════ */
 
+import { useState } from "react";
 import { C, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan } from "../../data/sampleData.js";
 import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
+import RegisteredAcademyList from "./RegisteredAcademyList.jsx";
 
 /* [사용자 확정 2026-08-10] 카드 안 보조 글자가 너무 연해 잘 안 읽혔다 →
    C.sub(#8890B0)보다 한 단계 진한 청회색. 칩은 펼친 카드에서 한 모양으로 쓴다. */
@@ -44,7 +46,16 @@ export default function ParentHomeTab({
   acKindLabel, getAcademyTheme,
   onGoTab, onGoReward, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
   onHolidayRest,
+  /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
+  childrenList = [], showSample = false,
+  onAddAcademy, onEditAcademy, onCopyAcademy, onCopyAccount, onOpenMap, onSeedSample,
 }) {
+  /* 학원 칸에 무엇을 보여 줄지 — "today"(그날 일정) | "all"(등록 목록).
+     탭을 옮기면 이 화면이 통째로 사라졌다 다시 그려지므로 늘 '오늘의 학원'으로 돌아온다.
+     매일 여는 홈의 기본은 오늘 일정이어야 한다는 뜻이라 이 초기화가 맞다. */
+  const [acView, setAcView] = useState("today");
+  const [regAcOpen, setRegAcOpen] = useState({});   // 등록 학원에서 펼친 카드 (아코디언)
+  const canCopy = childrenList.filter(c => c.id !== childId).length > 0;
   const hd=new Date(homeDate.replace(/-/g,"/"));
   const hDN=["일","월","화","수","목","금","토"][hd.getDay()];
   const isToday=homeDate===TODAY;
@@ -175,17 +186,9 @@ export default function ParentHomeTab({
         </div>
       )}
 
-      {/* 학원 없는 날 */}
-      {/* 일정이 아무것도 없는 날 — [사용자 확정 2026-08-09] 이모지(😴) 대신 앱 캐릭터로.
-          기기마다 모양이 달라지지 않고 앱의 수채화 톤과도 이어진다.
-          빈 영역이 너무 넓어 보이지 않게 여백도 줄였다. */}
-      {homeAc.length===0&&absOnHome.length===0&&makeupOnHome.length===0&&(
-        <div style={{textAlign:"center",padding:"18px 20px 20px",background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`,marginBottom:14}}>
-          <img src={ADV_SIT_IMG[childGender]||ADV_SIT_IMG.boy} alt="" draggable={false}
-            style={{display:"block",height:88,width:"auto",maxWidth:"none",margin:"0 auto"}}/>
-          <p style={{color:C.sub,fontSize:14.5,fontWeight:700,margin:"6px 0 0"}}>{dayTag||fullLabel}은 학원 일정이 없어요</p>
-        </div>
-      )}
+      {/* (이동됨) '학원 일정이 없어요' 빈 칸 — 예전엔 학원 칸 '위'에 따로 있었다.
+          [사용자 확정 2026-08-16] 오늘의 학원/등록 학원 토글이 생기면서, 빈 칸도
+          그 토글 아래 '학원 카드 자리'로 내려갔다. 아래 학원 칸에서 그린다. */}
 
       {/* 결석 표시 */}
       {absOnHome.length>0&&(
@@ -238,16 +241,94 @@ export default function ParentHomeTab({
         </div>
       )}
 
-      {/* 학원 카드 */}
-      {homeAc.length>0&&(
-        <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 15px"}}>
-          <span style={{fontSize:15,fontWeight:900,color:C.text,letterSpacing:0.3,display:"inline-flex",alignItems:"center",gap:6}}>
-            <span style={{color:th.main,display:"flex"}}><CareIcon name="school" size={15}/></span>오늘의 학원
-          </span>
-          <div style={{flex:1,height:1,background:C.border}}/>
+      {/* ── 학원 칸 머리 — '오늘의 학원 / 등록 학원' 토글 (사용자 확정 2026-08-16) ──
+             학원 탭을 따로 두지 않고 이 자리에서 바꿔 본다. 위(날짜·오늘 챙길 일)와
+             아래(결석·보충)는 그대로 두고 '이 칸의 내용만' 갈아 끼운다.
+             [중요] 학원이 없는 날에도 머리는 늘 나온다 — 예전엔 homeAc.length>0 일 때만
+             제목이 나와서, 학원이 없는 날엔 등록하러 들어갈 길이 아예 없었다. */}
+      <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 15px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
+          {[{k:"today",l:"오늘의 학원"},{k:"all",l:"등록 학원"}].map(t=>{
+            const on=acView===t.k;
+            return (
+              <button key={t.k} onClick={()=>setAcView(t.k)} className="jelly-tap"
+                aria-pressed={on}
+                style={{border:"none",cursor:"pointer",fontFamily:"inherit",
+                  padding:"5px 10px",borderRadius:9,
+                  fontSize:14,fontWeight:900,letterSpacing:0.2,
+                  background:on?mixWhite(th.main,0.88):"transparent",
+                  color:on?mixBlack(th.main,0.35):"#A8AEC0",
+                  display:"inline-flex",alignItems:"center",gap:5}}>
+                {on&&<span style={{color:th.main,display:"flex"}}><CareIcon name="school" size={14}/></span>}
+                {t.l}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{flex:1,height:1,background:C.border}}/>
+        {/* 추가·복사는 '등록 학원'을 보고 있을 때만 — 오늘 일정을 볼 때는 방해가 된다 */}
+        {acView==="all"&&(
+          <>
+            {canCopy&&(
+              <button onClick={()=>onCopyAcademy&&onCopyAcademy()} className="jelly-tap"
+                style={{flexShrink:0,fontSize:12,padding:"6px 2px",border:"none",background:"none",
+                  color:C.sub,fontWeight:800,cursor:"pointer",fontFamily:"inherit",
+                  textDecoration:"underline",textUnderlineOffset:3}}>
+                복사
+              </button>
+            )}
+            <button onClick={onAddAcademy} className="jelly-tap"
+              style={{flexShrink:0,fontSize:12.5,padding:"7px 12px",borderRadius:10,border:"none",
+                background:th.grad,color:"#fff",fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+              ＋ 추가
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* ── '등록 학원' — 날짜와 무관한 목록. 아래 결석·보충 칸은 그대로 둔다 ── */}
+      {acView==="all"&&(
+        <div style={{marginBottom:26}}>
+          <RegisteredAcademyList
+            th={th} CT={CT} curAc={curAc} acKindLabel={acKindLabel}
+            open={regAcOpen} setOpen={setRegAcOpen}
+            onEdit={onEditAcademy} onSms={onSms}
+            onCopyAccount={onCopyAccount} onOpenMap={onOpenMap}/>
+          {showSample&&(
+            <button onClick={onSeedSample}
+              style={{width:"100%",marginTop:14,padding:"12px",borderRadius:14,border:`1.5px dashed ${th.main}55`,
+                background:mixWhite(th.main,0.9),color:th.main,fontSize:13.5,fontWeight:800,cursor:"pointer",
+                lineHeight:1.5,fontFamily:"inherit"}}>
+              <span style={{display:"inline-flex",alignItems:"center",gap:6}}><CareIcon name="school" size={14}/>샘플 학원 추가해보기</span>
+              <span style={{display:"block",fontSize:11.5,fontWeight:600,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
+            </button>
+          )}
         </div>
       )}
-      {homeAc.map((ac,hi)=>{
+
+      {/* ── '오늘의 학원' — 그 날 일정이 없으면 빈 칸을 대신 보여 준다.
+             [사용자 확정 2026-08-09] 이모지(😴) 대신 앱 캐릭터로 — 기기마다 모양이
+             달라지지 않고 앱의 수채화 톤과도 이어진다. 그림은 그대로 쓰고 자리만
+             학원 칸 안으로 옮겼다. 학원을 하나도 등록 안 했으면 문구를 바꿔
+             '등록 학원'으로 넘어가야 한다는 걸 알려 준다. */}
+      {acView==="today"&&homeAc.length===0&&(
+        <div style={{textAlign:"center",padding:"18px 20px 20px",marginBottom:14,
+          background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
+          <img src={ADV_SIT_IMG[childGender]||ADV_SIT_IMG.boy} alt="" draggable={false}
+            style={{display:"block",height:88,width:"auto",maxWidth:"none",margin:"0 auto"}}/>
+          <p style={{color:C.sub,fontSize:14.5,fontWeight:700,margin:"6px 0 0"}}>
+            {curAc.length===0?"등록된 학원이 없어요":`${dayTag||fullLabel}은 학원 일정이 없어요`}
+          </p>
+          {curAc.length===0&&(
+            <button onClick={()=>setAcView("all")} className="jelly-tap"
+              style={{marginTop:10,padding:"7px 14px",borderRadius:10,border:"none",background:th.grad,
+                color:"#fff",fontSize:12.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+              학원 등록하기
+            </button>
+          )}
+        </div>
+      )}
+      {acView==="today"&&homeAc.map((ac,hi)=>{
         const sc=getScheduleForDay(ac,hDN);
         const [h,m]=(ac._time||"00:00").split(":").map(Number);
         const tm=h*60+m+Number(ac._duration||0);

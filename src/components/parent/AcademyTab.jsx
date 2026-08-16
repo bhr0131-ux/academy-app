@@ -89,7 +89,7 @@ export function scheduleLabel(ac = {}) {
    라벨 폭을 고정해 값이 시작하는 자리를 맞추고, 긴 값은 두 줄까지 보여 준 뒤 말줄임.
    [2026-08-11 2차] 펼친 카드가 세로로 너무 길다 → 행 위아래 여백을 5 → 3 으로.
    soft=true 인 줄(연락처)은 값을 한 톤 낮춘다 — 아래 '전화' 버튼과 겹쳐 보이던 줄이다. */
-function Row({ icon, label, value, action, soft }) {
+export function Row({ icon, label, value, action, soft }) {
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "3px 0" }}>
       <span style={{ color: C.sub, display: "flex", flexShrink: 0, marginTop: 2 }}><CareIcon name={icon} size={12} /></span>
@@ -102,7 +102,7 @@ function Row({ icon, label, value, action, soft }) {
 }
 
 /* 값 오른쪽의 작은 동작 단추 (계좌 복사·지도 열기) */
-function RowAct({ label, onPress, color }) {
+export function RowAct({ label, onPress, color }) {
   return (
     <button onClick={onPress} className="jelly-tap" aria-label={label}
       style={{ flexShrink: 0, marginTop: 1, padding: "1px 7px", borderRadius: 7, border: `1px solid ${color}33`,
