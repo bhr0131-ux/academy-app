@@ -3595,8 +3595,11 @@ export default function App() {
   // 공통 스타일
   /* [2026-08-10] minWidth:0 — input 은 기본 최소폭이 내용 기준이라 flex 안에서 안 줄어든다.
      이게 없으면 좁은 기기(360px 이하)에서 입력 줄이 화면 밖으로 밀려 나간다. */
-  const inp={ width:"100%",boxSizing:"border-box",minWidth:0,background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"12px 14px",color:C.text,fontSize:17,outline:"none",fontFamily:"inherit" };
-  const lbl={ fontSize:17,color:C.sub,display:"block",marginBottom:7,fontWeight:700 };
+  /* [사용자 확정 2026-08-16] 폼 라벨·입력칸이 17 이라 '학원 수정' 같은 화면에서 글씨가 너무 컸다.
+     이 둘은 12개 모달 96곳이 함께 쓰는 공용 스타일이라, 여기만 내리면 폼 화면이 한꺼번에 정돈된다.
+     라벨(13)을 값(14)보다 한 단 낮춰 '무엇을 적는 칸인지 → 적힌 값' 순으로 읽히게 한다. */
+  const inp={ width:"100%",boxSizing:"border-box",minWidth:0,background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:RAD.sm,padding:"12px 14px",color:C.text,fontSize:FS.cardTitle,outline:"none",fontFamily:"inherit" };
+  const lbl={ fontSize:FS.body,color:C.sub,display:"block",marginBottom:7,fontWeight:FW.normal };
   /* (이동됨) devBtn·devMiniBtn·devGroup·devGroupTitle — DevToolsPanel.jsx 로 분리 */
   const openCloseLabel=(open)=>open?"닫기 ▲":"열기 ▼";
   const openClosePill=(open)=>({fontSize:12,fontWeight:900,color:th.main,background:th.light,padding:"6px 9px",borderRadius:14,whiteSpace:"nowrap",flexShrink:0});
