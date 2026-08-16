@@ -128,7 +128,8 @@ export default function RegisteredAcademyList({
                   <span style={{ fontSize: 14, fontWeight: 700, flexShrink: 0, color: SUBD }}>{whenLabel(ac)}</span>
                 </span>
                 {/* 화살표는 카드 오른쪽 끝에서 안쪽으로 들여 놓는다 — 가장자리 제스처 구역과
-                    겹치면 눌림 표시만 나고 클릭이 취소된다 (ParentHomeTab 의 같은 줄 참고). */}
+                    겹치면 눌림 표시만 나고 클릭이 취소된다 (실기기에서 재현·해결 확인).
+                    오른쪽 여백을 줄이면 증상이 돌아온다. 자세한 내력은 ParentHomeTab 의 같은 줄. */}
                 <span aria-hidden style={{ flexShrink: 0, width: 24, height: 24, display: "flex",
                   alignItems: "center", justifyContent: "center", fontSize: 12, color: "#B9B3AD", fontWeight: 900,
                   transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "none" }}>⌄</span>
