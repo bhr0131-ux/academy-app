@@ -2,6 +2,7 @@ import { C } from "../../data/tokens.js";
 import { REWARD_SETS_BY_AGE } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 import RewardApprovals from "./RewardApprovals.jsx";
+import SectionHead from "./SectionHead.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
    RewardTab — 엄마용 '보상' 탭 (구매 승인 · 보상 관리 · 수동 점수 조정)
@@ -37,11 +38,11 @@ export default function RewardTab({ D }) {
           [사용자 확정 2026-08-16] 더는 접히지 않는다 — 이 탭에서 늘 펼쳐 두는 자리라
           접는 기능과 화살표를 뺐다. 제목은 이제 버튼이 아니라 그냥 글이다. */}
       <div style={rewardSecOpen}>
-        <div style={{textAlign:"left",minWidth:0}}>
-          <p style={rewardSecTitle}>보상 관리</p>
-          {/* '어린이용' 뒤에 '용'을 또 붙여 '어린이용용'이 됐다 — 이모지를 떼면서 드러났다 */}
-          <p style={rewardSecSub}>{rewardAgeGroup==="custom"?"나만의 목록":(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label} · 보상승인 · 추가/삭제</p>
-        </div>
+        {/* [사용자 확정 2026-08-16] 홈의 '오늘의 학원'과 같은 구역 머리로 바꿨다.
+            아랫줄로 길게 적던 설명은 자리가 없어져, 그중 실제 정보인 연령대만
+            이름 뒤 옅은 글씨로 옮긴다 ('3곳'이 붙던 자리). */}
+        <SectionHead icon="reward" label="보상 관리" th={th}
+          note={rewardAgeGroup==="custom"?"나만의 목록":(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label}/>
         {(()=>{
         /* [사용자 확정 2026-08-16] 보상 탭 자체는 열려 있고(승인만 하러 들르는 일이 많다),
            목록을 고치는 것만 비밀번호로 막는다. 잠겨 있으면 '＋ 보상 추가'와 항목별
