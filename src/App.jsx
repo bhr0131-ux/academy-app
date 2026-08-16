@@ -5808,9 +5808,9 @@ export default function App() {
                               </button>
                             )}
                           </div>
-                          <p style={{fontSize:12,color:C.sub,margin:"5px 0 0",fontWeight:600}}>
-                            {rewardTodayTodos.length===0?"등록된 미션 없음":`오늘 미션 ${rewardTodayTodos.length}개 · ${doneCnt}개 완료`}
-                          </p>
+                          {/* [사용자 확정 2026-08-16] 날짜 아래 있던 '오늘 미션 N개 · N개 완료' 줄을 뺐다 —
+                              바로 아래 '오늘의 미션' 머리와 같은 말을 두 번 하고 있었다.
+                              개수·완료 수는 그 머리 옆으로 옮긴다. */}
                         </div>
                         <button onClick={()=>setRewardDate(addDays(rewardDate,1))} className="jelly-tap" aria-label="다음 날"
                           style={{width:44,height:44,borderRadius:12,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,fontFamily:"inherit"}}>›</button>
@@ -5819,7 +5819,7 @@ export default function App() {
                           미션 목록 위에도 둔다 — 목록이 무엇인지 이름이 붙는다.
                           학원 쪽과 마찬가지로 미션이 없는 날에도 머리는 늘 나온다. */}
                       <SectionHead icon="mission" label="오늘의 미션" th={th}
-                        note={rewardTodayTodos.length>0?`${rewardTodayTodos.length}개`:null}/>
+                        note={rewardTodayTodos.length>0?`${rewardTodayTodos.length}개 중 ${doneCnt}개 완료`:null}/>
                       {rewardTodayTodos.length===0?(
                         <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
                           <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:44,height:44,borderRadius:"50%",background:CT.faint,color:C.sub}}>

@@ -21,10 +21,12 @@ export default function SectionHead({ icon, label, note, th, style }) {
     <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 15px", ...style }}>
       <span style={{
         flexShrink: 0, padding: "5px 0",
-        fontSize: 14, fontWeight: 900, letterSpacing: 0.2, color: C.text,
+        /* [사용자 확정 2026-08-16] '구매 승인 대기' 제목(15/900)과 같은 크기로 맞춘다 —
+           같은 층의 구역 제목인데 하나만 작아 단이 어긋나 보였다. */
+        fontSize: 15, fontWeight: 900, letterSpacing: 0.2, color: C.text,
         display: "inline-flex", alignItems: "center", gap: 5,
       }}>
-        <span style={{ color: th.main, display: "flex" }}><CareIcon name={icon} size={14} /></span>
+        <span style={{ color: th.main, display: "flex" }}><CareIcon name={icon} size={15} /></span>
         {label}
         {note ? <span style={{ fontSize: 12.5, fontWeight: 700, color: C.sub }}>{note}</span> : null}
       </span>
