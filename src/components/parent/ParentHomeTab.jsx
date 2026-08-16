@@ -280,15 +280,18 @@ export default function ParentHomeTab({
           {/* [사용자 확정 2026-08-16] 추가·복사는 목록 '아래'에 둔다 — 제목 줄에 붙여 두니
               토글과 나란히 놓여 무엇을 누르는 자리인지 헷갈렸고, 학원이 많아도 목록을
               끝까지 본 다음에 누르는 순서가 자연스럽다. */}
-          <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
+          {/* [사용자 확정 2026-08-16] 크기는 학원 탭의 '＋ 학원 추가'와 같은 치수로 맞춘다
+              (12.5 / 7px 12px / radius 10). 화면 폭을 꽉 채우던 큰 버튼은 목록보다 세 보였다.
+              복사는 지금 생김새(흰 바탕·회색 테두리)를 그대로 두고 치수만 맞춘다. */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginTop:2}}>
             <button onClick={onAddAcademy} className="jelly-tap"
-              style={{flex:1,fontSize:13.5,padding:"12px",borderRadius:14,border:"none",
+              style={{flexShrink:0,fontSize:12.5,padding:"7px 12px",borderRadius:10,border:"none",
                 background:th.grad,color:"#fff",fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
               ＋ 학원 추가
             </button>
             {canCopy&&(
               <button onClick={()=>onCopyAcademy&&onCopyAcademy()} className="jelly-tap"
-                style={{flexShrink:0,fontSize:13,padding:"12px 14px",borderRadius:14,
+                style={{flexShrink:0,fontSize:12.5,padding:"7px 12px",borderRadius:10,
                   border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontWeight:800,
                   cursor:"pointer",fontFamily:"inherit"}}>
                 학원 복사
@@ -476,7 +479,9 @@ export default function ParentHomeTab({
               <div style={{display:"flex",justifyContent:"flex-end"}}>
                 <button onClick={()=>onEditDaily(ac,homeDate)}
                   style={{border:"none",background:"none",color:SUBD,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px",display:"inline-flex",alignItems:"center",gap:5}}>
-                  <CareIcon name="pencil" size={13}/>수정
+                  {/* [사용자 확정 2026-08-16] 그냥 '수정'이면 학원 정보를 고치는 것으로 읽힌다.
+                      여기서 고치는 건 그날의 미션·준비물이다 (학원 정보는 등록 학원 쪽에서). */}
+                  <CareIcon name="pencil" size={13}/>미션·준비물 수정
                 </button>
               </div>
             </div>
@@ -491,7 +496,9 @@ export default function ParentHomeTab({
           공휴일에만 이 줄을 띄워, 쉬는 학원만 골라 휴원 처리하게 한다.
           고른 결과는 기존 방학·휴원(v6_vac)에 하루짜리로 들어가므로
           홈·달력·학원 화면이 이미 아는 방식대로 '휴원'으로 보인다. */}
-      {holidayName&&(homeAc.length>0||vacAcToday.length>0)&&(
+      {/* [사용자 확정 2026-08-16] 이 줄은 '그날' 쉬는 학원을 고르는 것이라
+          날짜와 무관한 '등록 학원'을 볼 때는 뜻이 맞지 않는다 → 오늘의 학원일 때만. */}
+      {acView==="today"&&holidayName&&(homeAc.length>0||vacAcToday.length>0)&&(
         <button onClick={()=>onHolidayRest&&onHolidayRest(holidayName)} className="jelly-tap"
           style={{width:"100%",marginTop:homeAc.length>0?2:0,marginBottom:4,padding:"11px 12px",borderRadius:13,
             border:`1px dashed ${C.red}45`,background:`${C.red}08`,cursor:"pointer",fontFamily:"inherit",
