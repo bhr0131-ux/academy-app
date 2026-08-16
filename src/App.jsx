@@ -4897,7 +4897,7 @@ export default function App() {
                 style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
               {parentPin==="1234"&&!pinHintSeen&&(
                 <p style={{fontSize:13,fontWeight:700,color:th.main,background:`${th.main}12`,borderRadius:10,padding:"9px 12px",margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
-                  💡 처음 비밀번호는 <b>1234</b> 예요.<br/>설정 &gt; 비밀번호 변경에서 바꿀 수 있어요.
+                  💡 처음 비밀번호는 <b>1234</b> 예요.<br/>더보기 &gt; 기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
                 </p>
               )}
               <button onClick={submitGatePin}
@@ -5200,7 +5200,7 @@ export default function App() {
               style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
             {parentPin==="1234"&&!pinHintSeen&&(
               <p style={{fontSize:13,fontWeight:700,color:th.main,background:`${th.main}12`,borderRadius:10,padding:"9px 12px",margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
-                💡 처음 비밀번호는 <b>1234</b> 예요.<br/>설정 &gt; 비밀번호 변경에서 바꿀 수 있어요.
+                💡 처음 비밀번호는 <b>1234</b> 예요.<br/>더보기 &gt; 기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
               </p>
             )}
             <button onClick={submitGatePin}
