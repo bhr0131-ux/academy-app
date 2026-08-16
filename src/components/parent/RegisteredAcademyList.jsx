@@ -229,8 +229,13 @@ export default function RegisteredAcademyList({
 
                   {/* ⑤ 매일 확인하지 않는 값들 — 학원 탭과 같은 표(Row)를 그대로 쓴다.
                          '오늘의 학원'에는 없는 줄이지만, 등록 정보를 빠짐없이 담아야 해서 넣는다. */}
-                  {hasDetail && (
-                    <div style={{ paddingTop: 4, paddingBottom: 8, borderTop: `1px solid ${C.border}` }}>
+                  <div style={{ paddingTop: 4, paddingBottom: 8, borderTop: `1px solid ${C.border}` }}>
+                    {!hasDetail && (
+                      <p style={{ margin: "4px 0 2px", fontSize: 12.5, fontWeight: 600, color: C.sub, opacity: 0.75 }}>
+                        더 등록된 정보가 없어요
+                      </p>
+                    )}
+                    {hasDetail && (<>
                       {Number(ac.fee || 0) > 0 && <Row icon="fee" label="월 학원비" value={`${Number(ac.fee).toLocaleString()}원`} />}
                       {Number(ac.fee || 0) > 0 && <Row icon="calendar" label="납부일" value={`매월 ${ac.payDay}일`} />}
                       {(ac.account || "").trim() && <Row icon="bank" label="입금 계좌" value={ac.account}
@@ -239,8 +244,8 @@ export default function RegisteredAcademyList({
                       {ac.address && <Row icon="pin" label="주소" value={ac.address}
                         action={onOpenMap && <RowAct label="지도" color={ac.color} onPress={() => onOpenMap(ac.address)} />} />}
                       {ac.phone && <Row icon="phone" label="연락처" value={ac.phone} soft />}
-                    </div>
-                  )}
+                    </>)}
+                  </div>
 
                   {/* ⑥ 수정 — '오늘의 학원'과 같이 오른쪽 아래에 작게 */}
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>

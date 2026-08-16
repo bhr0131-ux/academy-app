@@ -261,6 +261,10 @@ export default function ParentHomeTab({
                   display:"inline-flex",alignItems:"center",gap:5}}>
                 {on&&<span style={{color:th.main,display:"flex"}}><CareIcon name="school" size={14}/></span>}
                 {t.l}
+                {/* 학원 탭 머리에 있던 'N곳'을 여기로 — 고른 쪽에만 붙여 접힌 알약이 길어지지 않게 한다 */}
+                {on&&t.k==="all"&&curAc.length>0&&(
+                  <span style={{fontSize:12.5,fontWeight:700,color:C.sub}}>{curAc.length}곳</span>
+                )}
               </button>
             );
           })}
