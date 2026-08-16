@@ -33,9 +33,11 @@ export default function RewardApprovals({
   th, CT, onApprove, onReject,
 }) {
   if (!requests.length) return null;
+  /* [사용자 확정 2026-08-16] 바깥 큰 테두리 카드를 벗겼다 — '보상 관리'와 같은 이유로,
+     카드 안에 카드가 들어앉아 답답했다. 요청 하나하나는 이미 흰 카드라
+     배경 위에 바로 놓아도 구분된다. 여백만 남긴다. */
   return (
-    <div style={{ background: mixWhite(th.main, 0.93), border: `1.5px solid ${th.main}45`,
-      borderRadius: 20, padding: "14px", marginBottom: 12, boxShadow: SHADOW.sm, fontFamily: F }}>
+    <div style={{ marginBottom: 12, padding: "3px 2px", fontFamily: F }}>
 
       {/* 제목 — 할 일 그대로 쓰고, 건수는 주황 배지 하나로 */}
       <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 2 }}>
