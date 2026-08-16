@@ -157,11 +157,14 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M8.6 10.6V7.9a3.4 3.4 0 0 1 6.8 0v2.7" {...P} />
         </svg>
       );
-    case "unlock":   // 잠금 풀림 (아이도 할 수 있는 일)
+    case "unlock":   // 잠금 풀림
+      /* [사용자 지적 2026-08-16] 예전 모양은 lock 에서 오른쪽 다리만 뺀 것이라
+         14px 에서는 닫힌 자물쇠와 구별이 안 됐다 → 고리를 오른쪽으로 젖혀
+         몸통에서 벗어나 보이게 한다. 한눈에 '열렸다'가 읽힌다. */
       return (
         <svg {...common}>
           <rect x="4.8" y="10.6" width="14.4" height="9.6" rx="2.4" {...P} />
-          <path d="M8.6 10.6V7.9a3.4 3.4 0 0 1 6.8 0" {...P} />
+          <path d="M12.4 10.6V7.9a3.4 3.4 0 0 1 6.8 0v1.5" {...P} />
         </svg>
       );
     case "trash":    // 지우기

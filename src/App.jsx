@@ -5851,12 +5851,18 @@ export default function App() {
                             미션이 없으면 '오늘 미션 추가', 있으면 '미션 추가·관리'.
                             [사용자 확정 2026-08-16] 누르면 팝업 대신 학원 목록이 이 버튼 아래로
                             펼쳐진다. 학원을 고르면 그때 미션 수정 팝업이 열린다. */}
-                        <button onClick={()=>setMissionPickOpen(v=>!v)} className="jelly-tap"
-                          aria-expanded={missionPickOpen}
-                          style={{width:"100%",padding:"13px 10px",borderRadius:12,border:"none",background:th.grad,color:"#fff",fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 12px ${th.main}33`,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
-                          {rewardTodayTodos.length===0?"오늘 미션 추가":"미션 추가·관리"}
-                          <span aria-hidden style={{fontSize:12,transition:"transform .2s",transform:missionPickOpen?"rotate(180deg)":"none"}}>⌄</span>
-                        </button>
+                        {/* [사용자 확정 2026-08-16] 버튼과 펼친 내용을 한 칸으로 묶는다 —
+                            버튼 아래에 따로 떨어져 나오면 '갑자기 메뉴가 나타난' 느낌이었다.
+                            상자 하나를 아래로 늘리는 모양이라 같은 컴포넌트로 읽힌다. */}
+                        <div style={{borderRadius:12,overflow:"hidden",
+                          boxShadow:missionPickOpen?"0 2px 10px rgba(20,24,60,0.06)":`0 4px 12px ${th.main}33`,
+                          border:missionPickOpen?`1px solid ${C.border}`:"none",background:"#fff"}}>
+                          <button onClick={()=>setMissionPickOpen(v=>!v)} className="jelly-tap"
+                            aria-expanded={missionPickOpen}
+                            style={{width:"100%",padding:"13px 10px",border:"none",background:th.grad,color:"#fff",fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+                            {rewardTodayTodos.length===0?"오늘 미션 추가":"미션 추가·관리"}
+                            <span aria-hidden style={{fontSize:12,transition:"transform .2s",transform:missionPickOpen?"rotate(180deg)":"none"}}>⌄</span>
+                          </button>
 
                         {/* 학원 목록 — 버튼 아래로 펼친다 */}
                         {missionPickOpen&&(()=>{
@@ -5880,17 +5886,17 @@ export default function App() {
                             setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
                           };
                           return (
-                          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:2}}>
-                            <p style={{fontSize:12.5,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>
+                          <div style={{padding:"10px 12px 12px"}}>
+                            <p style={{fontSize:12.5,color:C.sub,fontWeight:700,margin:"0 0 8px"}}>
                               어디에 미션을 추가할까요?
                             </p>
 
                             {curAc.length>0&&(
-                              <div style={{background:"#fff",borderRadius:14,border:`1px solid ${C.border}`,overflow:"hidden"}}>
+                              <div>
                                 {curAc.map((ac,i)=>(
                                   <button key={ac.id} onClick={()=>openEdit(ac.id,ac.name,ac.color,ac.baseSupplies)}
                                     className="jelly-tap"
-                                    style={{display:"flex",alignItems:"center",gap:10,padding:"11px 13px",width:"100%",
+                                    style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
                                       border:"none",borderTop:i?`1px solid ${C.border}`:"none",background:"transparent",
                                       cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
                                     <span style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
@@ -5915,7 +5921,7 @@ export default function App() {
                                 '일반 미션'이라는 독립 이름을 쓴다 (사용자 확정). */}
                             <button onClick={()=>openEdit(EXTRA_QUEST_ID,"일반 미션",th.main,[])}
                               className="jelly-tap"
-                              style={{display:"flex",alignItems:"center",gap:10,padding:"10px 13px",width:"100%",
+                              style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",width:"100%",marginTop:10,
                                 borderRadius:12,border:`1px dashed ${th.main}40`,background:"transparent",
                                 cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
                               <span style={{flex:1,minWidth:0}}>
@@ -5927,6 +5933,7 @@ export default function App() {
                           </div>
                           );
                         })()}
+                        </div>
 
                         {/* ── 엄마 권한 ─────────────────────────────────────────────
                             [사용자 확정 2026-08-16] 탭 자체는 잠그지 않고, 여기서만 비밀번호를
@@ -5952,14 +5959,18 @@ export default function App() {
                             <div style={{marginTop:4,padding:"9px 12px",borderRadius:12,background:`${C.green}0E`,border:`1px solid ${C.green}33`,display:"flex",alignItems:"center",gap:7}}>
                               <span style={{color:C.green,display:"flex",flexShrink:0}}><CareIcon name="unlock" size={14}/></span>
                               <span style={{fontSize:12.5,fontWeight:800,color:mixBlack(C.green,0.25)}}>엄마 권한이 열렸어요</span>
-                              <span style={{marginLeft:"auto",fontSize:11.5,fontWeight:700,color:C.sub}}>삭제 · 점수 수정</span>
+                              <span style={{marginLeft:"auto",fontSize:11.5,fontWeight:700,color:C.sub}}>미션 삭제 점수 수정 가능</span>
                             </div>
                             {isRewToday&&(()=>{
                               const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
                               return (
                                 <button onClick={()=>setShowPastMissionModal(rewardDate)} className="jelly-tap"
                                   style={{width:"100%",padding:"9px 10px",borderRadius:12,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-                                  <span style={{display:"flex",alignItems:"center",gap:5}}><CareIcon name="clock" size={14}/> 지난 미션 보기</span>
+                                  {/* [사용자 확정 2026-08-16] 위 '엄마 권한이 열렸어요'와 같은
+                                      열린 자물쇠를 붙여 둘이 한 묶음으로 읽히게 한다. */}
+                                  <span style={{display:"flex",alignItems:"center",gap:5}}>
+                                    <span style={{color:C.green,display:"flex"}}><CareIcon name="unlock" size={14}/></span> 지난 미션 보기
+                                  </span>
                                   {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
                                 </button>
                               );
