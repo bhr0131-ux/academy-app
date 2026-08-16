@@ -27,7 +27,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
-import { C, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
+import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan } from "../../data/sampleData.js";
 import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
@@ -38,7 +38,7 @@ import { RowAct } from "./AcademyTab.jsx";
 /* [사용자 확정 2026-08-10] 카드 안 보조 글자가 너무 연해 잘 안 읽혔다 →
    C.sub(#8890B0)보다 한 단계 진한 청회색. 칩은 펼친 카드에서 한 모양으로 쓴다. */
 const SUBD="#5F678C";
-const chip={fontSize:12.5,fontWeight:700,padding:"3px 9px",borderRadius:20,lineHeight:1.5};
+const chip={fontSize:FS.sub,fontWeight:FW.normal,padding:"3px 9px",borderRadius:RAD.lg,lineHeight:1.5};
 
 export default function ParentHomeTab({
   th, CT, TM, childId, childGender, kidSkin, curAc = [], curAbs = [],
@@ -89,19 +89,19 @@ export default function ParentHomeTab({
           누르는 자리는 34px 그대로 두되 배경·테두리를 빼서 무게를 덜었다. */}
       <div style={{display:"flex",alignItems:"center",gap:2,marginBottom:24}}>
         <button onClick={()=>setHomeDate(addDays(homeDate,-1))} className="jelly-tap" aria-label="이전 날"
-          style={{width:34,height:34,borderRadius:10,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,flexShrink:0,fontFamily:"inherit"}}>‹</button>
+          style={{width:34,height:34,borderRadius:RAD.sm,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>‹</button>
         <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:5,minWidth:0}}>
-          <span style={{fontSize:15,fontWeight:900,color:C.text,whiteSpace:"nowrap"}}>{fullLabel}</span>
-          {dayTag&&<span style={{fontSize:11,background:th.main,color:"#fff",borderRadius:8,padding:"2px 7px",fontWeight:800,flexShrink:0}}>{dayTag}</span>}
+          <span style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,whiteSpace:"nowrap"}}>{fullLabel}</span>
+          {dayTag&&<span style={{fontSize:FS.tag,background:th.main,color:"#fff",borderRadius:RAD.sm,padding:"2px 7px",fontWeight:FW.semi,flexShrink:0}}>{dayTag}</span>}
           {!isToday&&(
             <button onClick={()=>setHomeDate(TODAY)}
-              style={{background:"none",border:"none",color:th.main,fontSize:11.5,cursor:"pointer",padding:"2px 4px",fontWeight:800,flexShrink:0,fontFamily:"inherit"}}>
+              style={{background:"none",border:"none",color:th.main,fontSize:FS.tag,cursor:"pointer",padding:"2px 4px",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>
               ↩ 오늘로
             </button>
           )}
         </div>
         <button onClick={()=>setHomeDate(addDays(homeDate,1))} className="jelly-tap" aria-label="다음 날"
-          style={{width:34,height:34,borderRadius:10,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,flexShrink:0,fontFamily:"inherit"}}>›</button>
+          style={{width:34,height:34,borderRadius:RAD.sm,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>›</button>
       </div>
 
       {/* [사용자 확정 2026-08-10] '오늘 할 일' 3칸 요약으로 바꿨다가 원래의
@@ -141,8 +141,8 @@ export default function ParentHomeTab({
           const chip=(a,i)=>(
             <button key={i} onClick={a.go} className="jelly-tap" aria-label={`${a.label} 확인`}
               style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",
-                fontSize:13,fontWeight:900,color:mixBlack(a.color,0.5),background:mixWhite(a.color,0.88),
-                border:`1px solid ${a.color}33`,borderRadius:10,padding:"5px 10px",whiteSpace:"nowrap",
+                fontSize:FS.body,fontWeight:FW.bold,color:mixBlack(a.color,0.5),background:mixWhite(a.color,0.88),
+                border:`1px solid ${a.color}33`,borderRadius:RAD.sm,padding:"5px 10px",whiteSpace:"nowrap",
                 cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
               <CareIcon name={a.icon} size={13}/>{a.label}<span style={{fontSize:10,opacity:0.65}}>›</span>
             </button>
@@ -150,22 +150,22 @@ export default function ParentHomeTab({
           if(alerts.length===0) return (
             /* [사용자 확정 2026-08-16] 챙길 일이 없는 날만 배경이 진해 화면에서 혼자 튀었다 →
                챙길 일이 있을 때 카드와 같은 흰 바탕·같은 테두리로 맞춘다. 글자색은 그대로 둔다. */
-            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:14,
+            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,
               padding:"9px 13px",display:"flex",alignItems:"center",gap:9,boxShadow:SHADOW.sm}}>
               <span style={{flexShrink:0,color:mixBlack(th.main,0.45),display:"flex"}}><CareIcon name="check" size={15}/></span>
-              <span style={{fontSize:13.5,fontWeight:800,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
+              <span style={{fontSize:FS.body,fontWeight:FW.semi,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
             </div>
           );
           if(alerts.length===1) return (
-            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:14,
+            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,
               padding:"9px 13px",display:"flex",alignItems:"center",gap:10,boxShadow:SHADOW.sm}}>
-              <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>{label}</span>
+              <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>{label}</span>
               <span style={{marginLeft:"auto"}}>{chip(alerts[0],0)}</span>
             </div>
           );
           return (
-            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:14,padding:"11px 13px",boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:12.5,fontWeight:800,margin:"0 0 7px",color:C.sub}}>{label}</p>
+            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,padding:"11px 13px",boxShadow:SHADOW.sm}}>
+              <p style={{fontSize:FS.sub,fontWeight:FW.semi,margin:"0 0 7px",color:C.sub}}>{label}</p>
               <div style={{display:"flex",flexWrap:"wrap",gap:6}}>{alerts.map(chip)}</div>
             </div>
           );
@@ -180,13 +180,13 @@ export default function ParentHomeTab({
            제목 12.5/900 + 본문 13/700, 이모지는 선 아이콘. */
         /* [사용자 확정 2026-08-10] 알림 세 종류(휴원·결석·보충)는 학원 카드와 헷갈리지 않게
            얇은 배너로 통일한다 — 테두리 상자 대신 왼쪽 세로선 하나, 배경은 아주 옅게. */
-        <div style={{display:"flex",gap:10,background:"#FFF9EC",borderRadius:10,marginBottom:18,overflow:"hidden"}}>
+        <div style={{display:"flex",gap:10,background:"#FFF9EC",borderRadius:RAD.sm,marginBottom:18,overflow:"hidden"}}>
           <div style={{width:3,background:"#F0A500",flexShrink:0}}/>
           <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>
             <div style={{display:"flex",alignItems:"center",gap:6,color:"#E65100"}}>
-              <CareIcon name="vacation" size={13}/><span style={{fontSize:11.5,fontWeight:900}}>휴원 (방학)</span>
+              <CareIcon name="vacation" size={13}/><span style={{fontSize:FS.tag,fontWeight:FW.bold}}>휴원 (방학)</span>
             </div>
-            <p style={{margin:"2px 0 0",fontSize:13,fontWeight:800,color:C.text}}>{vacAcToday.map(a=>a.name).join(" · ")}</p>
+            <p style={{margin:"2px 0 0",fontSize:FS.body,fontWeight:FW.semi,color:C.text}}>{vacAcToday.map(a=>a.name).join(" · ")}</p>
           </div>
         </div>
       )}
@@ -197,17 +197,17 @@ export default function ParentHomeTab({
 
       {/* 결석 표시 */}
       {absOnHome.length>0&&(
-        <div style={{display:"flex",gap:10,background:`${C.red}08`,borderRadius:10,marginBottom:18,overflow:"hidden"}}>
+        <div style={{display:"flex",gap:10,background:`${C.red}08`,borderRadius:RAD.sm,marginBottom:18,overflow:"hidden"}}>
           <div style={{width:3,background:C.red,flexShrink:0}}/>
           <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>
             <div style={{display:"flex",alignItems:"center",gap:6,color:C.red}}>
-              <CareIcon name="absent" size={13}/><span style={{fontSize:11.5,fontWeight:900}}>결석</span>
+              <CareIcon name="absent" size={13}/><span style={{fontSize:FS.tag,fontWeight:FW.bold}}>결석</span>
             </div>
             {absOnHome.map(ab=>{
               const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
               return (
-                <p key={ab.id} style={{fontSize:13,fontWeight:800,color:C.text,margin:"2px 0 0"}}>
-                  {ac.name}{ab.reason&&<span style={{fontSize:11.5,fontWeight:600,color:C.sub}}> · {ab.reason}</span>}
+                <p key={ab.id} style={{fontSize:FS.body,fontWeight:FW.semi,color:C.text,margin:"2px 0 0"}}>
+                  {ac.name}{ab.reason&&<span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub}}> · {ab.reason}</span>}
                 </p>
               );
             })}
@@ -219,7 +219,7 @@ export default function ParentHomeTab({
       {makeupOnHome.length>0&&(
         /* [사용자 확정 2026-08-10] 보충수업 카드가 학원 카드만큼 커서 정규 일정으로 착각하기 쉬웠다.
            왼쪽 주황 세로선 + 두 줄짜리 얇은 배너로 줄이고, 결석일도 '8월 8일 결석분'으로 자연스럽게. */
-        <div style={{display:"flex",gap:10,background:`${C.orange}0A`,borderRadius:10,marginBottom:18,overflow:"hidden"}}>
+        <div style={{display:"flex",gap:10,background:`${C.orange}0A`,borderRadius:RAD.sm,marginBottom:18,overflow:"hidden"}}>
           <div style={{width:3,background:C.orange,flexShrink:0}}/>
           <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>
           {makeupOnHome.map((ab,mi)=>{
@@ -230,14 +230,14 @@ export default function ParentHomeTab({
               <div key={ab.id} style={{marginTop:mi?7:0}}>
                 <div style={{display:"flex",alignItems:"center",gap:6,color:C.orange}}>
                   <CareIcon name="makeup" size={13}/>
-                  <span style={{fontSize:11.5,fontWeight:900}}>보충수업</span>
-                  <span style={{fontSize:11.5,fontWeight:800,color:C.sub,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>· {ac.name}</span>
-                  {ab.makeupStatus==="absent"&&<span style={{marginLeft:"auto",flexShrink:0,fontSize:11,fontWeight:800,color:C.red}}>불참</span>}
-                  {ab.makeupStatus==="done"&&<span style={{marginLeft:"auto",flexShrink:0,fontSize:11,fontWeight:800,color:C.green}}>완료</span>}
+                  <span style={{fontSize:FS.tag,fontWeight:FW.bold}}>보충수업</span>
+                  <span style={{fontSize:FS.tag,fontWeight:FW.semi,color:C.sub,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>· {ac.name}</span>
+                  {ab.makeupStatus==="absent"&&<span style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,color:C.red}}>불참</span>}
+                  {ab.makeupStatus==="done"&&<span style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,color:C.green}}>완료</span>}
                 </div>
-                <p style={{fontSize:13,fontWeight:800,color:C.text,margin:"2px 0 0"}}>
+                <p style={{fontSize:FS.body,fontWeight:FW.semi,color:C.text,margin:"2px 0 0"}}>
                   {dayTag||`${hd.getMonth()+1}월 ${hd.getDate()}일`}{mt&&` ${mt}`}
-                  <span style={{fontSize:11.5,fontWeight:600,color:C.sub,marginLeft:7}}>{am}월 {ad}일 결석분</span>
+                  <span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginLeft:7}}>{am}월 {ad}일 결석분</span>
                 </p>
               </div>
             );
@@ -259,8 +259,8 @@ export default function ParentHomeTab({
               <button key={t.k} onClick={()=>setAcView(t.k)} className="jelly-tap"
                 aria-pressed={on}
                 style={{border:"none",cursor:"pointer",fontFamily:"inherit",
-                  padding:"5px 10px",borderRadius:9,
-                  fontSize:14,fontWeight:900,letterSpacing:0.2,
+                  padding:"5px 10px",borderRadius:RAD.sm,
+                  fontSize:FS.cardTitle,fontWeight:FW.bold,letterSpacing:0.2,
                   background:on?mixWhite(th.main,0.88):"transparent",
                   color:on?mixBlack(th.main,0.35):"#A8AEC0",
                   display:"inline-flex",alignItems:"center",gap:5}}>
@@ -269,7 +269,7 @@ export default function ParentHomeTab({
                 {/* 학원 탭 머리에 있던 'N곳'을 여기로 — 고른 쪽에만 붙여 접힌 알약이 길어지지 않게 한다.
                     오늘의 학원은 '그날 가는 곳', 등록 학원은 '등록한 곳' 수를 센다. */}
                 {on&&t.n>0&&(
-                  <span style={{fontSize:12.5,fontWeight:700,color:C.sub}}>{t.n}곳</span>
+                  <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub}}>{t.n}곳</span>
                 )}
               </button>
             );
@@ -296,14 +296,14 @@ export default function ParentHomeTab({
               자리는 학원 카드 오른쪽 끝에 맞춰 아래로, 위에 여백을 조금 준다 (사용자 확정). */}
           <div style={{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:8,marginTop:12}}>
             <button onClick={onAddAcademy} className="jelly-tap"
-              style={{flexShrink:0,fontSize:12.5,padding:"7px 12px",borderRadius:10,border:"none",
-                background:th.grad,color:"#fff",fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+              style={{flexShrink:0,fontSize:FS.sub,padding:"7px 12px",borderRadius:RAD.sm,border:"none",
+                background:th.grad,color:"#fff",fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>
               ＋ 학원 추가
             </button>
             {canCopy&&(
               <button onClick={()=>onCopyAcademy&&onCopyAcademy()} className="jelly-tap"
-                style={{flexShrink:0,fontSize:12.5,padding:"7px 12px",borderRadius:10,
-                  border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontWeight:800,
+                style={{flexShrink:0,fontSize:FS.sub,padding:"7px 12px",borderRadius:RAD.sm,
+                  border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontWeight:FW.semi,
                   cursor:"pointer",fontFamily:"inherit"}}>
                 학원 복사
               </button>
@@ -311,11 +311,11 @@ export default function ParentHomeTab({
           </div>
           {showSample&&(
             <button onClick={onSeedSample}
-              style={{width:"100%",marginTop:14,padding:"12px",borderRadius:14,border:`1.5px dashed ${th.main}55`,
-                background:mixWhite(th.main,0.9),color:th.main,fontSize:13.5,fontWeight:800,cursor:"pointer",
+              style={{width:"100%",marginTop:14,padding:"12px",borderRadius:RAD.md,border:`1.5px dashed ${th.main}55`,
+                background:mixWhite(th.main,0.9),color:th.main,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",
                 lineHeight:1.5,fontFamily:"inherit"}}>
               <span style={{display:"inline-flex",alignItems:"center",gap:6}}><CareIcon name="school" size={14}/>샘플 학원 추가해보기</span>
-              <span style={{display:"block",fontSize:11.5,fontWeight:600,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
+              <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
             </button>
           )}
         </div>
@@ -328,16 +328,16 @@ export default function ParentHomeTab({
              '등록 학원'으로 넘어가야 한다는 걸 알려 준다. */}
       {acView==="today"&&homeAc.length===0&&(
         <div style={{textAlign:"center",padding:"18px 20px 20px",marginBottom:14,
-          background:"#fff",borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
+          background:"#fff",borderRadius:RAD.lg,border:`1.5px dashed ${th.main}40`}}>
           <img src={ADV_SIT_IMG[childGender]||ADV_SIT_IMG.boy} alt="" draggable={false}
             style={{display:"block",height:88,width:"auto",maxWidth:"none",margin:"0 auto"}}/>
-          <p style={{color:C.sub,fontSize:14.5,fontWeight:700,margin:"6px 0 0"}}>
+          <p style={{color:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,margin:"6px 0 0"}}>
             {curAc.length===0?"등록된 학원이 없어요":`${dayTag||fullLabel}은 학원 일정이 없어요`}
           </p>
           {curAc.length===0&&(
             <button onClick={()=>setAcView("all")} className="jelly-tap"
-              style={{marginTop:10,padding:"7px 14px",borderRadius:10,border:"none",background:th.grad,
-                color:"#fff",fontSize:12.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+              style={{marginTop:10,padding:"7px 14px",borderRadius:RAD.sm,border:"none",background:th.grad,
+                color:"#fff",fontSize:FS.sub,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>
               학원 등록하기
             </button>
           )}
@@ -370,7 +370,7 @@ export default function ParentHomeTab({
              그림자는 약하게, 카드 간격은 14로 통일. 왼쪽 세로선만 원래 색을 유지해 구분을 준다. */
           /* [사용자 확정 2026-08-10] 학원마다 카드를 통째로 칠하면 학원이 늘수록 화면이 요란해진다.
              카드 배경은 흰색으로 통일하고, 학원 고유색은 왼쪽 세로선과 종류 글자에만 쓴다. */
-          <div key={ac._key||ac.id} style={{background:"#fff",borderRadius:14,marginBottom:14,border:`1px solid ${C.border}`,boxShadow:"0 2px 8px rgba(90,70,60,0.05)",overflow:"hidden",display:"flex"}}>
+          <div key={ac._key||ac.id} style={{background:"#fff",borderRadius:RAD.md,marginBottom:14,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,overflow:"hidden",display:"flex"}}>
             <div style={{width:4,background:ac.color,flexShrink:0}}/>
             <div style={{flex:1,minWidth:0}}>
             {/* [사용자 확정 2026-08-09] 접었을 땐 '종류 · 시간 범위'만.
@@ -398,22 +398,22 @@ export default function ParentHomeTab({
                 touchAction:"manipulation",userSelect:"none",WebkitUserSelect:"none"}}>
               <span style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:7,
                 overflow:"hidden",whiteSpace:"nowrap"}}>
-                <span style={{fontSize:15,fontWeight:900,color:ac.color,minWidth:0,
+                <span style={{fontSize:FS.title,fontWeight:FW.bold,color:ac.color,minWidth:0,
                   overflow:"hidden",textOverflow:"ellipsis"}}>{acKindLabel(ac)}</span>
                 {/* 시간은 한 단계 진하게 — 접힌 줄에서 가장 자주 읽는 값이다 (사용자 확정) */}
-                <span style={{fontSize:14,fontWeight:700,flexShrink:0,
+                <span style={{fontSize:FS.cardTitle,fontWeight:FW.normal,flexShrink:0,
                   color:ac._absent?C.red:ac._makeup?C.orange:SUBD}}>{timeText}</span>
               </span>
               {/* [사용자 확정 2026-08-10] '✓'와 '0/1'이 섞여 기준이 달라 보였다.
                   무엇의 상태인지까지 적어 한 벌로 맞춘다. 미션이 없으면 배지 자체를 안 그린다. */}
               {totalTodoCnt>0&&(
-                <span style={{flexShrink:0,fontSize:11,fontWeight:800,padding:"3px 8px",borderRadius:8,
+                <span style={{flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",borderRadius:RAD.sm,
                   background:allDone?`${C.green}14`:`${C.orange}14`,color:allDone?C.green:C.orange}}>
                   {allDone?"완료 ✓":`미션 ${doneCnt}/${totalTodoCnt}`}
                 </span>
               )}
               <span aria-hidden style={{flexShrink:0,width:24,height:24,display:"flex",
-                alignItems:"center",justifyContent:"center",fontSize:12,color:"#B9B3AD",fontWeight:900,
+                alignItems:"center",justifyContent:"center",fontSize:12,color:"#B9B3AD",fontWeight:FW.bold,
                 transition:"transform .2s",transform:homeAcOpen[ac.id]?"rotate(180deg)":"none"}}>⌄</span>
             </button>
             {homeAcOpen[ac.id]&&(
@@ -431,11 +431,11 @@ export default function ParentHomeTab({
                 {/* 이름과 '· 40분 수업'을 한 덩어리 글로 두면 320px에서 '40분 …'처럼
                     꼬리부터 잘렸다 → 이름만 줄어들게 하고 수업 길이는 통째로 지킨다. */}
                 <p style={{flex:1,minWidth:0,margin:0,display:"flex",alignItems:"baseline",gap:5}}>
-                  <span style={{minWidth:0,fontSize:14.5,fontWeight:900,color:C.text,
+                  <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
                     overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                     {getAcademyTheme(ac.name,kidSkin,ac.kind).icon} {ac.name}
                   </span>
-                  {sc?.duration&&<span style={{flexShrink:0,fontSize:12.5,fontWeight:600,color:SUBD,whiteSpace:"nowrap"}}>
+                  {sc?.duration&&<span style={{flexShrink:0,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,whiteSpace:"nowrap"}}>
                     · {sc.duration}분 수업</span>}
                 </p>
                 {/* (이동됨) 전화·문자 원형 버튼 — 아래 '준비물·미션 수정'과 같은 줄 왼쪽 끝으로
@@ -448,10 +448,10 @@ export default function ParentHomeTab({
                 if(!shuttleText) return null;
                 const m=shuttleText.match(/^(\d{1,2}:\d{2})\s+([\s\S]+)$/);
                 return (
-                  <p style={{margin:"0 0 16px",display:"flex",alignItems:"flex-start",gap:5,fontSize:12.5,fontWeight:600,color:SUBD,lineHeight:1.35}}>
+                  <p style={{margin:"0 0 16px",display:"flex",alignItems:"flex-start",gap:5,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,lineHeight:1.35}}>
                     <span style={{marginTop:1,flexShrink:0}}><CareIcon name="shuttle" size={13}/></span>
                     <span style={{minWidth:0,whiteSpace:"pre-wrap"}}>
-                      {m?<><span style={{fontWeight:900,color:C.text}}>{m[1]}</span>{"  "}{m[2]}</>:shuttleText}
+                      {m?<><span style={{fontWeight:FW.bold,color:C.text}}>{m[1]}</span>{"  "}{m[2]}</>:shuttleText}
                     </span>
                   </p>
                 );
@@ -462,7 +462,7 @@ export default function ParentHomeTab({
                 <div style={{flex:"1 1 auto",minWidth:"max-content",maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
                   <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
                     <CareIcon name="bag" size={14}/>
-                    <span style={{fontSize:12.5,fontWeight:700}}>준비물</span>
+                    <span style={{fontSize:FS.sub,fontWeight:FW.normal}}>준비물</span>
                   </span>
                   {baseSup.map((x,i)=><span key={`b${i}`} style={{...chip,background:`${ac.color}18`,color:ac.color}}>{x}</span>)}
                   {sup.map((x,i)=><span key={`d${i}`} style={{...chip,background:`${C.orange}15`,color:C.orange}}>+{x}</span>)}
@@ -471,7 +471,7 @@ export default function ParentHomeTab({
                 <div style={{flex:"1 1 auto",minWidth:"max-content",maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
                   <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
                     <CareIcon name="mission" size={14}/>
-                    <span style={{fontSize:12.5,fontWeight:700}}>오늘 미션</span>
+                    <span style={{fontSize:FS.sub,fontWeight:FW.normal}}>오늘 미션</span>
                   </span>
                   {totalTodoCnt===0
                     ? <span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>
@@ -496,7 +496,7 @@ export default function ParentHomeTab({
                     onPress={()=>onSms(ac)} title={`${ac.name} 문자`}/>}
                 </div>
                 <button onClick={()=>onEditDaily(ac,homeDate)}
-                  style={{border:"none",background:"none",color:SUBD,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px",display:"inline-flex",alignItems:"center",gap:5}}>
+                  style={{border:"none",background:"none",color:SUBD,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px",display:"inline-flex",alignItems:"center",gap:5}}>
                   {/* [사용자 확정 2026-08-16] 그냥 '수정'이면 학원 정보를 고치는 것으로 읽힌다.
                       여기서 고치는 건 그날의 미션·준비물이다 (학원 정보는 등록 학원 쪽에서). */}
                   <CareIcon name="pencil" size={13}/>준비물·미션 수정
@@ -518,15 +518,15 @@ export default function ParentHomeTab({
           날짜와 무관한 '등록 학원'을 볼 때는 뜻이 맞지 않는다 → 오늘의 학원일 때만. */}
       {acView==="today"&&holidayName&&(homeAc.length>0||vacAcToday.length>0)&&(
         <button onClick={()=>onHolidayRest&&onHolidayRest(holidayName)} className="jelly-tap"
-          style={{width:"100%",marginTop:homeAc.length>0?2:0,marginBottom:4,padding:"11px 12px",borderRadius:13,
+          style={{width:"100%",marginTop:homeAc.length>0?2:0,marginBottom:4,padding:"11px 12px",borderRadius:RAD.md,
             border:`1px dashed ${C.red}45`,background:`${C.red}08`,cursor:"pointer",fontFamily:"inherit",
             display:"flex",alignItems:"center",gap:8,textAlign:"left"}}>
-          <span style={{fontSize:13,fontWeight:900,color:C.red,flexShrink:0}}>{holidayName}</span>
-          <span style={{flex:1,minWidth:0,fontSize:12.5,fontWeight:700,color:SUBD,
+          <span style={{fontSize:FS.body,fontWeight:FW.bold,color:C.red,flexShrink:0}}>{holidayName}</span>
+          <span style={{flex:1,minWidth:0,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,
             overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
             {vacAcToday.length>0?`${vacAcToday.length}곳 휴원 · 바꾸기`:"쉬는 학원 고르기"}
           </span>
-          <span style={{flexShrink:0,fontSize:12,fontWeight:900,color:C.red}}>›</span>
+          <span style={{flexShrink:0,fontSize:12,fontWeight:FW.bold,color:C.red}}>›</span>
         </button>
       )}
 
