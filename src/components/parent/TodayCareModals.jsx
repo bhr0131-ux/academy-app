@@ -28,6 +28,7 @@
                  (기본 준비물은 이름 그대로, 그날 추가분은 앞에 '+')
    ════════════════════════════════════════════════════════════════════════ */
 
+import { mixWhite } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
@@ -75,13 +76,13 @@ function Sheet({ title, icon, desc, tone, onClose, children }) {
    (사용자 지적: 1개 / 숙제 가 서로 다른 기준선에 걸려 보였다 — TAIL_W 로 맞춘다) */
 const TAIL_W = 30;
 
-function AcHead({ icon, name, color, right, tone }) {
+function AcHead({ icon, name, color, right, tone, nameColor }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
       <span style={{ fontSize: 15, flexShrink: 0, display: "flex", alignItems: "center", color: tone.sub }}>
         {icon || <CareIcon name="school" size={15} />}
       </span>
-      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 900, color: tone.text, minWidth: 0, flex: 1,
+      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 900, color: nameColor || tone.text, minWidth: 0, flex: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</p>
       {right && <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11.5,
         fontWeight: 900, color: color || tone.sub }}>{right}</span>}
@@ -173,11 +174,13 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
         /* [사용자 확정 2026-08-10] 흐린 글자 + 취소선이 겹쳐 읽기 어려웠다.
            앞의 체크 표시가 이미 완료를 뜻하므로 취소선은 뺀다 (실패만 남긴다). */
         textDecoration: it.failed ? "line-through" : "none" }}>{it.label}</p>
-      {/* 종류 꼬리표 — 위 학원 머리의 '개수'와 같은 오른쪽 칸(TAIL_W)에 맞춰 세로로 줄 세운다 */}
-      <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11,
-        fontWeight: 700, color: tone.sub, opacity: 0.8 }}>
-        {it.failed ? "실패" : it.kind === "homework" ? "숙제" : "미션"}
-      </span>
+      {/* [사용자 확정 2026-08-16] 끝에 붙던 '숙제/미션' 꼬리표를 뺐다 — 줄마다 같은 말이
+          반복돼 정작 미션 이름을 읽는 데 방해가 됐다. 앞의 아이콘이 이미 종류를 말해 준다.
+          '실패'만 남긴다 — 이건 줄마다 다른, 꼭 봐야 하는 상태다. */}
+      {it.failed && (
+        <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11,
+          fontWeight: 700, color: tone.red, opacity: 0.9 }}>실패</span>
+      )}
     </div>
   );
 
@@ -187,9 +190,12 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
         <div key={g.acId} style={{ padding: "9px 12px 8px", borderRadius: 14,
           border: `1px solid ${tone.border}`, background: faded ? "#fff" : tone.faint,
           opacity: faded ? 0.95 : 1 }}>
+          {/* [사용자 확정 2026-08-16] 학원 이름은 한 톤 낮춘 진회색으로 —
+              미션 이름과 같은 검정이라 어느 쪽이 묶음 제목인지 한눈에 안 잡혔다. */}
           <AcHead icon={g.icon} name={g.name} tone={tone} color={g.color}
-            right={`${g.items.length}개`} />
-          <div style={{ borderTop: `1px solid ${tone.border}`, paddingTop: 1 }}>
+            nameColor={mixWhite(tone.text, 0.34)} right={`${g.items.length}개`} />
+          {/* 아래 미션들은 들여써서 학원에 딸린 것으로 읽히게 한다 (사용자 확정 2026-08-16) */}
+          <div style={{ borderTop: `1px solid ${tone.border}`, paddingTop: 1, paddingLeft: 14 }}>
             {g.items.map(it => <Row key={it.key} it={it} faded={faded} />)}
           </div>
         </div>
@@ -215,20 +221,9 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
           </p>
           {nRemain > 0 && <Section list={groups.remain} faded={false} />}
 
-          {/* 가운데 구분선 (사용자 확정: 남은 것과 끝낸 것을 줄로 나눈다)
-              끝낸 것이 0개면 나눌 게 없으므로 구분선째 감춘다 — 빈 줄만 남아 시트가 길어진다. */}
-          {nDone > 0 && (
-            <>
-              <div style={{ display: "flex", alignItems: "center", gap: 9, margin: "16px 0 11px" }}>
-                <span style={{ flex: 1, height: 1, background: tone.border }} />
-                <span style={{ fontSize: 11.5, fontWeight: 800, color: tone.sub, whiteSpace: "nowrap" }}>
-                  끝낸 미션 {nDone}개
-                </span>
-                <span style={{ flex: 1, height: 1, background: tone.border }} />
-              </div>
-              <Section list={groups.done} faded />
-            </>
-          )}
+          {/* [삭제 2026-08-16] 아래에 붙던 '끝낸 미션 N개' 구역을 뺐다 (사용자 확정) —
+              이 팝업은 '아직 남은 것'을 확인하러 여는 자리다. 끝낸 것은 미션 탭에서 본다.
+              nDone 은 위의 '다 끝냈어요' 문구를 가르는 데 계속 쓴다. */}
         </>
       )}
     </Sheet>
