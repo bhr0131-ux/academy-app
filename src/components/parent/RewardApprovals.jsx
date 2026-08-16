@@ -24,7 +24,7 @@
      onApprove(id) / onReject(req)
    ════════════════════════════════════════════════════════════════════════ */
 
-import { C, mixWhite, mixBlack, SHADOW } from "../../data/tokens.js";
+import { C, RAD, FW, FS, mixWhite, mixBlack, SHADOW } from "../../data/tokens.js";
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
@@ -41,44 +41,44 @@ export default function RewardApprovals({
 
       {/* 제목 — 할 일 그대로 쓰고, 건수는 주황 배지 하나로 */}
       <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 2 }}>
-        <p style={{ fontSize: 15, fontWeight: 900, margin: 0, color: C.text }}>구매 승인 대기</p>
-        <span style={{ fontSize: 11.5, fontWeight: 900, color: "#fff", background: C.orange,
-          borderRadius: 999, padding: "2px 9px", flexShrink: 0 }}>{requests.length}건</span>
+        <p style={{ fontSize: FS.title, fontWeight: FW.bold, margin: 0, color: C.text }}>구매 승인 대기</p>
+        <span style={{ fontSize: FS.tag, fontWeight: FW.bold, color: "#fff", background: C.orange,
+          borderRadius: RAD.pill, padding: "2px 9px", flexShrink: 0 }}>{requests.length}건</span>
       </div>
-      <p style={{ fontSize: 12, fontWeight: 600, color: C.sub, margin: "0 0 11px" }}>
+      <p style={{ fontSize: FS.sub, fontWeight: FW.normal, color: C.sub, margin: "0 0 11px" }}>
         {/* '이(가)' 는 이름 받침에 따라 달라져 어색하다 → '의' 로 두면 어떤 이름에도 맞는다 */}
         {childName ? `${childName}의 보상 구매 요청이에요.` : "보상 구매 요청이에요."}
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {requests.map(req => (
-          <div key={req.id} style={{ background: "#fff", borderRadius: 16, padding: "11px 12px",
+          <div key={req.id} style={{ background: "#fff", borderRadius: RAD.lg, padding: "11px 12px",
             border: `1px solid ${C.border}`, boxShadow: SHADOW.sm }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9 }}>
               <span style={{ fontSize: 24, flexShrink: 0 }}>{req.emoji}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 15, fontWeight: 900, margin: 0, color: C.text,
+                <p style={{ fontSize: FS.title, fontWeight: FW.bold, margin: 0, color: C.text,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{req.title}</p>
-                <p style={{ fontSize: 12, color: C.sub, fontWeight: 600, margin: "2px 0 0" }}>
+                <p style={{ fontSize: FS.sub, color: C.sub, fontWeight: FW.normal, margin: "2px 0 0" }}>
                   {req.point} {coinLabel} 사용
                 </p>
               </div>
               {showWho && childName && (
-                <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, color: mixBlack(th.main, 0.35),
-                  background: mixWhite(th.main, 0.88), borderRadius: 999, padding: "3px 9px" }}>
+                <span style={{ flexShrink: 0, fontSize: FS.tag, fontWeight: FW.semi, color: mixBlack(th.main, 0.35),
+                  background: mixWhite(th.main, 0.88), borderRadius: RAD.pill, padding: "3px 9px" }}>
                   {childName}
                 </span>
               )}
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => onApprove && onApprove(req.id)} className="jelly-tap"
-                style={{ flex: 2, border: "none", background: C.green, color: "#fff", borderRadius: 10,
-                  padding: "10px", fontSize: 13.5, fontWeight: 900, cursor: "pointer", fontFamily: F }}>
+                style={{ flex: 2, border: "none", background: C.green, color: "#fff", borderRadius: RAD.sm,
+                  padding: "10px", fontSize: FS.body, fontWeight: FW.bold, cursor: "pointer", fontFamily: F }}>
                 승인
               </button>
               <button onClick={() => onReject && onReject(req)} className="jelly-tap"
                 style={{ flex: 1, border: `1px solid ${C.border}`, background: "#fff", color: C.sub,
-                  borderRadius: 10, padding: "10px", fontSize: 12.5, fontWeight: 800, cursor: "pointer", fontFamily: F }}>
+                  borderRadius: RAD.sm, padding: "10px", fontSize: FS.sub, fontWeight: FW.semi, cursor: "pointer", fontFamily: F }}>
                 거절
               </button>
             </div>
