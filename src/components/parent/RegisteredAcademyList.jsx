@@ -2,38 +2,59 @@
    RegisteredAcademyList — 엄마용 홈 '등록 학원' 목록
    ────────────────────────────────────────────────────────────────────────
    [사용자 확정 2026-08-16] 홈의 '오늘의 학원' 자리에서 토글로 바꿔 보는 목록.
-   학원 탭(AcademyTab)과 같은 내용을 담되, 카드 생김새를 홈의 '오늘의 학원'에
-   맞춘다 — 접었을 때 한 줄, 나머지는 전부 '상세보기' 안으로.
+   생김새를 '오늘의 학원'과 최대한 같게 맞춘다 — 접힌 줄도, 펼친 속도.
 
-   접힌 줄 : [종류(학원색)] [학원 이름]              [요일]  ⌄
-   펼친 줄 : 일정 → 준비물·반복 숙제 → 메모 → 학원비·계좌·선생님·주소·연락처·셔틀
-             → 전화·문자 → 수정
+   접힌 줄  [종류(학원색)] [요일 시간범위]                      ⌄
+            '오늘의 학원'은 [종류][시간범위]인데, 여기는 날짜에 매이지 않으므로
+            시간 앞에 요일을 붙인다 (매일 / 평일 / 주말 / 월·수·금).
 
-   AcademyTab 과 달리 날짜에 매이지 않는다 — 홈의 날짜 이동과 무관하게 늘 같은
-   목록을 보여 준다. 상세 표(Row)와 일정 문구(scheduleLabel)는 AcademyTab 것을
-   그대로 가져다 쓴다 (두 화면이 어긋나지 않게).
+   펼친 속  '오늘의 학원'과 같은 3단 + 나머지 등록 정보
+            ① 🎹 학원 이름 · 40분 수업            ☎ 💬
+            ② 🚌 08:30  아파트 정문
+            ③ 준비물 [악보]      반복 숙제 [연습 20분]
+            ④ 메모 / 월 학원비 · 납부일 · 계좌 · 선생님 · 주소 · 연락처
+                                                    ✎ 수정
 
-   그리기만 하고 저장은 하지 않는다 — 추가·수정·복사는 전부 위로 알린다.
+   ④의 표(Row)와 요일·일정 문구는 AcademyTab 것을 그대로 가져다 쓴다 —
+   학원 탭과 홈이 다른 말을 쓰면 안 되기 때문이다.
 
-   props
-     th, CT            : 아이 테마색 / 그 테마에 맞춘 박스색 세트
-     curAc             : 등록 학원 목록
-     acKindLabel(ac)   : 학원 종류 이름 (App이 들고 있는 함수)
-     open, setOpen     : 펼친 카드 {학원id:true} — 아코디언(한 번에 하나)
-     onEdit / onSms / onCopyAccount / onOpenMap : 카드 안 동작
+   그리기만 하고 저장은 하지 않는다 — 추가·수정은 전부 위로 알린다.
    ════════════════════════════════════════════════════════════════════════ */
 
 import { C, mixWhite } from "../../data/tokens.js";
+import { getShuttleText } from "../../data/sampleData.js";
 import CareIcon from "./CareIcons.jsx";
-import { scheduleLabel, Row, RowAct } from "./AcademyTab.jsx";
+import { dayGroupLabel, Row, RowAct } from "./AcademyTab.jsx";
 
 /* 홈 탭과 같은 중간 톤 — 보조 글자보다 진하고 본문보다 연하다 */
 const SUBD = "#5F678C";
 const chip = { fontSize: 12.5, fontWeight: 700, padding: "3px 9px", borderRadius: 20, lineHeight: 1.5 };
 
+/* 시작~끝 시각 — '오늘의 학원'이 쓰는 계산과 같다 (시작 + 수업 길이) */
+function timeRange(time, duration) {
+  if (!time) return "";
+  const [h, m] = String(time).split(":").map(Number);
+  if (Number.isNaN(h)) return time;
+  const t = h * 60 + m + Number(duration || 0);
+  const end = `${String(Math.floor(t / 60) % 24).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
+  return `${time}–${end}`;
+}
+
+/* 접힌 줄에 쓸 '요일 + 시간'.
+   요일마다 시간이 다른 학원은 한 줄에 다 못 담으므로 요일만 쓰고 시간은 펼쳐서 본다. */
+function whenLabel(ac) {
+  const day = dayGroupLabel(ac);
+  if (ac.useCustomSchedule) {
+    const list = ac.schedules || [];
+    return list.length ? `${day} · 요일마다 다름` : day;
+  }
+  const t = timeRange(ac.time, ac.duration);
+  return [day, t].filter(Boolean).join(" ");
+}
+
 export default function RegisteredAcademyList({
-  th, CT, curAc = [], acKindLabel, open = {}, setOpen,
-  onEdit, onSms, onCopyAccount, onOpenMap,
+  th, CT, curAc = [], acKindLabel, getAcademyTheme, kidSkin,
+  open = {}, setOpen, onEdit, onSms, onCopyAccount, onOpenMap,
 }) {
   if (curAc.length === 0) {
     return (
@@ -43,7 +64,7 @@ export default function RegisteredAcademyList({
           borderRadius: "50%", background: mixWhite(th.main, 0.82), color: th.main }}>
           <CareIcon name="school" size={26} />
         </span>
-        <p style={{ fontSize: 14, fontWeight: 700, margin: "8px 0 0" }}>위 버튼으로 학원을 등록하세요</p>
+        <p style={{ fontSize: 14, fontWeight: 700, margin: "8px 0 0" }}>아래 버튼으로 학원을 등록하세요</p>
       </div>
     );
   }
@@ -54,11 +75,14 @@ export default function RegisteredAcademyList({
         const isOpen = !!open[ac.id];
         const supplies = ac.baseSupplies || [];
         const homeworks = ac.baseHomeworks || [];
-        const days = ac.useCustomSchedule
-          ? [...new Set((ac.schedules || []).map(s => s.day))]
-          : (ac.days || []);
+        const themeIcon = getAcademyTheme ? getAcademyTheme(ac.name, kidSkin, ac.kind).icon : "";
+        /* 셔틀 — 요일마다 다른 학원은 요일별로 한 줄씩, 아니면 한 줄만 */
+        const shuttleRows = ac.useCustomShuttle
+          ? [...new Set((ac.shuttleSchedules || []).map(s => s.day))]
+              .map(d => ({ d, text: getShuttleText(ac, d) })).filter(x => x.text)
+          : (ac.shuttleInfo ? [{ d: "", text: ac.shuttleInfo }] : []);
         const hasDetail = Number(ac.fee || 0) > 0 || ac.teacher || ac.address
-          || ac.shuttleInfo || ac.phone || (ac.account || "").trim();
+          || ac.phone || (ac.account || "").trim();
 
         return (
           /* 카드 껍데기는 '오늘의 학원'과 같은 값 — 흰 바탕, 왼쪽 세로선만 학원색 */
@@ -68,58 +92,103 @@ export default function RegisteredAcademyList({
             <div style={{ width: 4, background: ac.color, flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
 
-              {/* 접힌 줄 — 종류·이름만. '오늘의 학원'의 [종류][시간] 자리에 [종류][이름]을 둔다.
-                  등록 목록에서는 "언제 가나"보다 "어느 학원인가"를 먼저 찾기 때문이다.
-                  요일은 오른쪽 끝에 작게 — 시간·수업길이는 펼쳐야 나온다. */}
+              {/* 접힌 줄 — '오늘의 학원'과 같은 자리·같은 크기. 시간 앞에 요일만 더 붙는다. */}
               <button onClick={() => setOpen(p => (p[ac.id] ? {} : { [ac.id]: true }))} className="jelly-tap"
                 aria-expanded={isOpen} aria-label={`${ac.name} 상세보기`}
                 style={{ width: "100%", border: "none", background: "transparent", padding: "10px 12px",
                   display: "flex", alignItems: "center", gap: 9, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
                 <span style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 7,
                   overflow: "hidden", whiteSpace: "nowrap" }}>
-                  <span style={{ fontSize: 15, fontWeight: 900, color: ac.color, flexShrink: 0 }}>{acKindLabel(ac)}</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: SUBD, minWidth: 0,
-                    overflow: "hidden", textOverflow: "ellipsis" }}>{ac.name}</span>
+                  <span style={{ fontSize: 15, fontWeight: 900, color: ac.color, minWidth: 0,
+                    overflow: "hidden", textOverflow: "ellipsis" }}>{acKindLabel(ac)}</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, flexShrink: 0, color: SUBD }}>{whenLabel(ac)}</span>
                 </span>
-                {days.length > 0 && (
-                  <span style={{ flexShrink: 0, fontSize: 11.5, fontWeight: 800, padding: "3px 8px",
-                    borderRadius: 8, background: `${ac.color}14`, color: ac.color }}>
-                    {days.length === 7 ? "매일" : days.join("")}
-                  </span>
-                )}
                 <span style={{ flexShrink: 0, fontSize: 12, color: "#B9B3AD", fontWeight: 900,
                   transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "none" }}>⌄</span>
               </button>
 
               {isOpen && (
-                <div style={{ padding: "0 14px 10px" }}>
-                  {/* ① 수업 일정 — 접힌 줄의 요일 배지를 풀어 쓴 것 */}
-                  <p style={{ margin: "0 0 12px", display: "flex", alignItems: "flex-start", gap: 5,
-                    fontSize: 12.5, fontWeight: 700, color: SUBD, lineHeight: 1.35 }}>
-                    <span style={{ marginTop: 1, flexShrink: 0 }}><CareIcon name="calendar" size={13} /></span>
-                    <span style={{ minWidth: 0 }}>{scheduleLabel(ac)}</span>
-                  </p>
-
-                  {/* ② 준비물·반복 숙제 — '오늘의 학원'의 칩과 같은 모양 */}
-                  {[{ k: "bag", label: "준비물", items: supplies },
-                    { k: "mission", label: "반복 숙제", items: homeworks }].map((row) => (
-                    <div key={row.k} style={{ display: "flex", alignItems: "center", flexWrap: "wrap",
-                      gap: 6, marginBottom: 8 }}>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 5, flexShrink: 0, color: SUBD }}>
-                        <CareIcon name={row.k} size={14} />
-                        <span style={{ fontSize: 12.5, fontWeight: 700 }}>{row.label}</span>
+                <div style={{ padding: "14px 16px 10px" }}>
+                  {/* ① 학원 이름 · 수업 길이 + 전화·문자 — '오늘의 학원'과 같은 줄 */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    <p style={{ flex: 1, minWidth: 0, margin: 0, display: "flex", alignItems: "baseline", gap: 5 }}>
+                      <span style={{ minWidth: 0, fontSize: 14.5, fontWeight: 900, color: C.text,
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {themeIcon} {ac.name}
                       </span>
-                      {row.items.length
-                        ? row.items.map((s, i) => (
-                            <span key={i} style={{ ...chip, background: `${ac.color}18`, color: ac.color }}>{s}</span>
-                          ))
-                        : <span style={{ ...chip, background: CT.faint, color: SUBD }}>없음</span>}
+                      {!ac.useCustomSchedule && ac.duration && (
+                        <span style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 600, color: SUBD, whiteSpace: "nowrap" }}>
+                          · {ac.duration}분 수업</span>
+                      )}
+                    </p>
+                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                      {ac.phone && (
+                        <a href={`tel:${ac.phone}`} aria-label={`${ac.name} 전화`} title="전화"
+                          style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${C.border}`,
+                            color: SUBD, display: "flex", alignItems: "center", justifyContent: "center",
+                            textDecoration: "none", background: "#fff" }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></a>
+                      )}
+                      {ac.phone && (
+                        <button onClick={() => onSms(ac)} className="jelly-tap" aria-label={`${ac.name} 문자`} title="문자"
+                          style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${C.border}`,
+                            color: SUBD, display: "flex", alignItems: "center", justifyContent: "center",
+                            cursor: "pointer", background: "#fff", fontFamily: "inherit", padding: 0 }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></button>
+                      )}
                     </div>
-                  ))}
+                  </div>
 
-                  {/* ③ 메모 */}
+                  {/* ①-2 요일마다 시간이 다른 학원만 — 접힌 줄에 못 담은 시간표를 여기서 편다 */}
+                  {ac.useCustomSchedule && (ac.schedules || []).length > 0 && (
+                    <p style={{ margin: "0 0 10px", display: "flex", alignItems: "flex-start", gap: 5,
+                      fontSize: 12.5, fontWeight: 600, color: SUBD, lineHeight: 1.4 }}>
+                      <span style={{ marginTop: 1, flexShrink: 0 }}><CareIcon name="calendar" size={13} /></span>
+                      <span style={{ minWidth: 0 }}>
+                        {(ac.schedules || []).map(s => `${s.day} ${timeRange(s.time, s.duration ?? ac.duration)}`).join("  ·  ")}
+                      </span>
+                    </p>
+                  )}
+
+                  {/* ② 셔틀 — 시각은 진하게, 장소는 보통 굵기 ('오늘의 학원'과 같은 규칙) */}
+                  {shuttleRows.map((row, i) => {
+                    const m = row.text.match(/^(\d{1,2}:\d{2})\s+([\s\S]+)$/);
+                    return (
+                      <p key={i} style={{ margin: i === shuttleRows.length - 1 ? "0 0 16px" : "0 0 6px",
+                        display: "flex", alignItems: "flex-start", gap: 5, fontSize: 12.5,
+                        fontWeight: 600, color: SUBD, lineHeight: 1.35 }}>
+                        <span style={{ marginTop: 1, flexShrink: 0 }}><CareIcon name="shuttle" size={13} /></span>
+                        <span style={{ minWidth: 0, whiteSpace: "pre-wrap" }}>
+                          {row.d && <span style={{ fontWeight: 800 }}>{row.d}  </span>}
+                          {m ? <><span style={{ fontWeight: 900, color: C.text }}>{m[1]}</span>{"  "}{m[2]}</> : row.text}
+                        </span>
+                      </p>
+                    );
+                  })}
+
+                  {/* ③ 준비물과 반복 숙제를 한 줄에 나란히 — '오늘의 학원'의 준비물/오늘 미션 자리 */}
+                  <div style={{ display: "flex", alignItems: "flex-start", flexWrap: "wrap",
+                    gap: "10px 14px", marginBottom: 14 }}>
+                    {[{ k: "bag", label: "준비물", items: supplies },
+                      { k: "mission", label: "반복 숙제", items: homeworks }].map((row) => (
+                      <div key={row.k} style={{ flex: "1 1 auto", minWidth: "max-content", maxWidth: "100%",
+                        display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, flexShrink: 0, color: SUBD }}>
+                          <CareIcon name={row.k} size={14} />
+                          <span style={{ fontSize: 12.5, fontWeight: 700 }}>{row.label}</span>
+                        </span>
+                        {row.items.length
+                          ? row.items.map((s, i) => (
+                              <span key={i} style={{ ...chip, background: `${ac.color}18`, color: ac.color }}>{s}</span>
+                            ))
+                          : <span style={{ ...chip, background: CT.faint, color: SUBD }}>없음</span>}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ④ 메모 */}
                   {ac.memo && (
-                    <div style={{ marginTop: 2, marginBottom: 8, background: `${C.orange}0D`, borderRadius: 11,
+                    <div style={{ marginBottom: 12, background: `${C.orange}0D`, borderRadius: 11,
                       padding: "7px 10px", display: "flex", gap: 6, alignItems: "flex-start" }}>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexShrink: 0,
                         color: C.orange, marginTop: 1 }}>
@@ -130,50 +199,28 @@ export default function RegisteredAcademyList({
                     </div>
                   )}
 
-                  {/* ④ 매일 확인하지 않는 값들 — 학원 탭과 같은 표(Row)를 그대로 쓴다 */}
-                  <div style={{ marginTop: 8, paddingTop: 4, paddingBottom: 10, borderTop: `1px solid ${C.border}` }}>
-                    {Number(ac.fee || 0) > 0 && <Row icon="fee" label="월 학원비" value={`${Number(ac.fee).toLocaleString()}원`} />}
-                    {Number(ac.fee || 0) > 0 && <Row icon="calendar" label="납부일" value={`매월 ${ac.payDay}일`} />}
-                    {(ac.account || "").trim() && <Row icon="bank" label="입금 계좌" value={ac.account}
-                      action={onCopyAccount && <RowAct label="복사" color={ac.color} onPress={() => onCopyAccount(ac.account)} />} />}
-                    {ac.teacher && <Row icon="teacher" label="선생님" value={ac.teacher} />}
-                    {ac.address && <Row icon="pin" label="주소" value={ac.address}
-                      action={onOpenMap && <RowAct label="지도" color={ac.color} onPress={() => onOpenMap(ac.address)} />} />}
-                    {ac.phone && <Row icon="phone" label="연락처" value={ac.phone} soft />}
-                    {ac.shuttleInfo && <Row icon="shuttle" label="셔틀" value={ac.shuttleInfo} />}
-                    {!hasDetail && (
-                      <p style={{ margin: "8px 0 2px", fontSize: 12.5, fontWeight: 600, color: C.sub, opacity: 0.75 }}>
-                        더 등록된 정보가 없어요
-                      </p>
-                    )}
-                  </div>
+                  {/* ⑤ 매일 확인하지 않는 값들 — 학원 탭과 같은 표(Row)를 그대로 쓴다.
+                         '오늘의 학원'에는 없는 줄이지만, 등록 정보를 빠짐없이 담아야 해서 넣는다. */}
+                  {hasDetail && (
+                    <div style={{ paddingTop: 4, paddingBottom: 8, borderTop: `1px solid ${C.border}` }}>
+                      {Number(ac.fee || 0) > 0 && <Row icon="fee" label="월 학원비" value={`${Number(ac.fee).toLocaleString()}원`} />}
+                      {Number(ac.fee || 0) > 0 && <Row icon="calendar" label="납부일" value={`매월 ${ac.payDay}일`} />}
+                      {(ac.account || "").trim() && <Row icon="bank" label="입금 계좌" value={ac.account}
+                        action={onCopyAccount && <RowAct label="복사" color={ac.color} onPress={() => onCopyAccount(ac.account)} />} />}
+                      {ac.teacher && <Row icon="teacher" label="선생님" value={ac.teacher} />}
+                      {ac.address && <Row icon="pin" label="주소" value={ac.address}
+                        action={onOpenMap && <RowAct label="지도" color={ac.color} onPress={() => onOpenMap(ac.address)} />} />}
+                      {ac.phone && <Row icon="phone" label="연락처" value={ac.phone} soft />}
+                    </div>
+                  )}
 
-                  {/* ⑤ 전화·문자·수정 — 학원 탭과 같은 모양, 수정만 여기로 내렸다
-                         (접힌 줄을 한 줄로 유지하려면 머리에 버튼을 못 둔다) */}
-                  <div style={{ display: "flex", gap: 7 }}>
-                    {ac.phone && (
-                      <a href={`tel:${ac.phone}`} className="jelly-tap" aria-label={`${ac.name} 전화`}
-                        style={{ flex: 1, minWidth: 0, padding: "8px", borderRadius: 11, background: "#fff",
-                          border: `1px solid ${C.border}`, color: SUBD, fontSize: 12.5, fontWeight: 800,
-                          textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                        <CareIcon name="phone" size={13} /> 전화
-                      </a>
-                    )}
-                    {ac.phone && (
-                      <button onClick={() => onSms(ac)} className="jelly-tap"
-                        style={{ flex: 1, minWidth: 0, padding: "8px", borderRadius: 11, background: "#fff",
-                          border: `1px solid ${C.border}`, color: SUBD, fontSize: 12.5, fontWeight: 800,
-                          cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center",
-                          justifyContent: "center", gap: 6 }}>
-                        <CareIcon name="sms" size={13} /> 문자
-                      </button>
-                    )}
+                  {/* ⑥ 수정 — '오늘의 학원'과 같이 오른쪽 아래에 작게 */}
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <button onClick={() => onEdit(ac)} className="jelly-tap" aria-label={`${ac.name} 수정`}
-                      style={{ flex: 1, minWidth: 0, padding: "8px", borderRadius: 11, background: "#fff",
-                        border: `1px solid ${C.border}`, color: SUBD, fontSize: 12.5, fontWeight: 800,
-                        cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center",
-                        justifyContent: "center", gap: 6 }}>
-                      <CareIcon name="pencil" size={13} /> 수정
+                      style={{ border: "none", background: "none", color: SUBD, fontSize: 12, fontWeight: 800,
+                        cursor: "pointer", fontFamily: "inherit", padding: "6px 0 6px 12px",
+                        display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      <CareIcon name="pencil" size={13} />수정
                     </button>
                   </div>
                 </div>
