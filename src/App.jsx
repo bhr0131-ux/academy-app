@@ -5721,7 +5721,9 @@ export default function App() {
               return (
                 /* [사용자 확정 2026-08-11] 카드·항목·버튼이 다 연분홍이라 무엇이 중요한지 구분이 안 됐다
                    → 카드는 흰색, 테두리만 아주 연한 테마색. 진한 색은 '미션 추가' 하나에만 쓴다. */
-                <div style={{background:"#fff",borderRadius:20,padding:"16px",marginBottom:14,border:`1px solid ${allDone&&isRewToday?C.green+"33":th.main+"22"}`,boxShadow:SHADOW.sm}}>
+                /* [사용자 확정 2026-08-16] 화면 전체를 감싸던 흰 카드를 없앴다 — 홈 탭처럼
+                   네모 칸 없이 바로 날짜 줄이 온다. 카드 안에 카드가 겹쳐 보이던 것도 사라진다. */
+                <div style={{marginBottom:14}}>
                   {/* [사용자 확정 2026-08-12] 제목 줄('미션 관리 / 날짜별 미션 추가·수정 · 점수 관리')을 뺐다.
                       탭 이름이 이미 '미션'이라 같은 말을 두 번 하는 자리였고, 매일 쓰는 날짜 이동이
                       한 화면 아래로 밀려 있었다. 카드를 열면 바로 날짜 줄이 온다. */}
@@ -7330,20 +7332,24 @@ export default function App() {
                   <div style={{marginBottom:20,background:CT.faint,borderRadius:14,padding:"12px 12px 13px"}}>
                     {/* [사용자 확정 2026-08-11] 흰 캡슐 위에 다시 색 버튼이 얹힌 구조가 복잡해 보였다 →
                         라벨을 위로 올리고 버튼 둘을 같은 너비로 나란히. 고른 쪽만 색으로 채운다. */}
-                    {!isExtra&&(<>
-                      <p style={{fontSize:12.5,fontWeight:800,color:C.sub,margin:"0 0 6px"}}>미션 종류</p>
-                      <div style={{display:"flex",gap:7,marginBottom:10}}>
+                    {/* [사용자 확정 2026-08-16] '미션 종류' 라벨을 없애고, 숙제·할 일 두 버튼을
+                        미션 내용 입력칸 '앞'에 작게 위아래로 세운다. 라벨 한 줄과 버튼 한 줄이
+                        내용 입력보다 위에 쌓여 있어 정작 무엇을 쓰는 칸인지 늦게 보였다. */}
+                    <div style={{display:"flex",alignItems:"stretch",gap:8,marginBottom:8}}>
+                    {!isExtra&&(
+                      <div style={{flexShrink:0,width:62,display:"flex",flexDirection:"column",gap:5}}>
                         {[{k:"hw",l:"숙제"},{k:"todo",l:"할 일"}].map(o=>(
                           <button key={o.k} onClick={()=>setDailyKind(o.k)} className="jelly-tap" aria-pressed={kind===o.k}
-                            style={{flex:1,minWidth:0,cursor:"pointer",borderRadius:11,padding:"10px 0",fontFamily:"inherit",fontSize:13.5,
-                              border:`1.5px solid ${kind===o.k?acColor:CT.faintB}`,
-                              fontWeight:kind===o.k?900:700,background:kind===o.k?acColor:"#fff",color:kind===o.k?"#fff":C.sub}}>{o.l}</button>
+                            style={{width:"100%",cursor:"pointer",borderRadius:9,padding:"7px 0",fontFamily:"inherit",fontSize:12.5,
+                              border:`1.5px solid ${kind===o.k?th.main:CT.faintB}`,
+                              fontWeight:kind===o.k?900:700,background:kind===o.k?th.main:"#fff",color:kind===o.k?"#fff":C.sub}}>{o.l}</button>
                         ))}
                       </div>
-                    </>)}
+                    )}
                     <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&add()}
                       placeholder="미션 내용 입력" aria-label="미션 내용"
-                      style={{...inp,width:"100%",fontSize:14,padding:"10px 12px",marginBottom:8,background:"#fff"}}/>
+                      style={{...inp,flex:1,minWidth:0,fontSize:14,padding:"10px 12px",marginBottom:0,background:"#fff"}}/>
+                    </div>
                     <div style={{display:"flex",alignItems:"center",gap:7}}>
                       <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>보상</span>
                       <input type="number" value={isParentEdit?pt:DEFAULT_HOMEWORK_SCORE} onChange={e=>setPt(e.target.value)}
@@ -7352,7 +7358,7 @@ export default function App() {
                           background:isParentEdit?"#fff":CT.faint,color:isParentEdit?C.text:C.sub,cursor:isParentEdit?"text":"not-allowed"}}/>
                       <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>{TM.xp}</span>
                       <button onClick={add} className="jelly-tap"
-                        style={{marginLeft:"auto",flexShrink:0,padding:"9px 16px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:900,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>
+                        style={{marginLeft:"auto",flexShrink:0,padding:"9px 16px",borderRadius:10,border:"none",background:th.main,color:"#fff",fontWeight:900,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>
                         오늘 미션에 추가
                       </button>
                     </div>
@@ -7442,14 +7448,14 @@ export default function App() {
               <div style={{display:"flex",gap:8,marginBottom:22}}>
                 {/* 위 '미션 내용 입력'은 14인데 여기만 15라 같은 창 안에서 크기가 어긋났다 → 14로 통일 */}
                 <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="준비물 입력" style={{...inp,flex:1,width:"auto",fontSize:14,padding:"10px 14px"}}/>
-                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:acColor,color:"#fff",fontWeight:700,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
+                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:th.main,color:"#fff",fontWeight:700,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
               </div>
               </>);
               })()}
               {/* [사용자 확정 2026-08-11] '＋ 추가'와 '저장하기'가 둘 다 저장처럼 읽혀서
                   버튼 이름을 사실대로 '닫기'로 바꿨다. 그때 같이 붙였던
                   '넣거나 지우면 바로 저장돼요' 안내 줄은 사용자 요청으로 뺀다. */}
-              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:14,border:"none",background:acColor,color:"#fff",fontSize:14.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
+              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.main,color:"#fff",fontSize:14.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
             </div>
           </div>
         );
