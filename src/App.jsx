@@ -7612,8 +7612,11 @@ export default function App() {
                     {/* [사용자 확정 2026-08-11] 위 '오늘의 미션'과 같은 글이 아래에도 보여
                         같은 미션이 두 번 등록된 줄 알았다는 지적 → 무엇인지 한 줄로 밝힌다.
                         ※ '자동으로 추가된다'고 쓰지 않는다 — 실제로는 여기서 눌러야 들어간다. */}
-                    <p style={{fontSize:FS.body,fontWeight:FW.semi,color:acColor,margin:"0 0 3px",display:"flex",alignItems:"center",gap:5}}>
-                      <CareIcon name="repeat" size={14}/>반복 숙제
+                    {/* [사용자 확정 2026-08-16] 위 '오늘의 준비물'·'오늘의 미션'과 같은 층의
+                        구역 제목인데 혼자 작아 어긋나 보였다 → 크기 쪽(글자·굵기·아이콘·간격)만
+                        같게 맞춘다. 색은 지금의 학원색 그대로 둔다 (사용자 확정). */}
+                    <p style={{fontSize:FS.title,fontWeight:FW.bold,color:acColor,margin:"0 0 3px",display:"flex",alignItems:"center",gap:7}}>
+                      <CareIcon name="repeat" size={15}/>반복 숙제
                     </p>
                     <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
                       학원에 등록한 숙제를 빠르게 불러올 수 있어요.
