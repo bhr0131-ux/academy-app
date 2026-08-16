@@ -5927,7 +5927,10 @@ export default function App() {
                               style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
                                 border:"none",borderTop:curAc.length>0?`1px solid ${C.border}`:"none",background:"transparent",
                                 cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
-                              <span style={{width:9,height:9,borderRadius:"50%",background:th.main,flexShrink:0}}/>
+                              {/* [사용자 확정 2026-08-16] 학원 줄과 자리·크기는 같게 두되 표식만
+                                  점 대신 ＋ 로 — 학원을 고르는 줄이 아니라 새로 만드는 줄이다.
+                                  9px 자리를 그대로 써서 제목 시작 위치는 학원 줄과 어긋나지 않는다. */}
+                              <span aria-hidden="true" style={{width:9,height:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",color:th.main,fontSize:15,fontWeight:900,lineHeight:1}}>+</span>
                               <span style={{flex:1,minWidth:0}}>
                                 <span style={{display:"block",fontSize:14.5,fontWeight:900,color:C.text,
                                   overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>일반 미션 추가</span>
@@ -5956,8 +5959,12 @@ export default function App() {
                             {/* [사용자 확정 2026-08-16] '엄마 권한 열기'는 위의 미션 추가·관리도
                                 엄마 기능이라 헷갈렸다("그럼 저건 뭐지?") → 눌렀을 때 무엇이
                                 열리는지를 버튼 이름으로 쓴다. */}
-                            <span style={{display:"inline-flex",alignItems:"center",gap:6,color:th.main,fontSize:12.5,fontWeight:900}}>
-                              <CareIcon name="lock" size={14}/> 지난 미션 · 삭제 · 점수 수정
+                            {/* [사용자 확정 2026-08-16] 무엇이 열리는지 셋을 다 적는다.
+                                한 줄에 안 들어가면 ' · ' 에서 접히도록 keep-all 을 준다 —
+                                낱말 중간에서 잘리면 읽다가 걸린다. */}
+                            <span style={{display:"block",textAlign:"center",color:th.main,fontSize:12.5,fontWeight:900,lineHeight:1.5,wordBreak:"keep-all"}}>
+                              <span style={{display:"inline-flex",verticalAlign:-2,marginRight:5}}><CareIcon name="lock" size={14}/></span>
+                              지난 미션 관리 · 미션 삭제 · 미션 점수 수정
                             </span>
                             <span style={{fontSize:11.5,fontWeight:700,color:C.sub}}>
                               비밀번호를 한 번 물어봐요
@@ -5965,10 +5972,15 @@ export default function App() {
                           </button>
                         ):(
                           <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                            <div style={{padding:"9px 12px",borderRadius:12,background:`${C.green}0E`,border:`1px solid ${C.green}33`,display:"flex",alignItems:"center",gap:7}}>
-                              <span style={{color:C.green,display:"flex",flexShrink:0}}><CareIcon name="unlock" size={14}/></span>
-                              <span style={{fontSize:12.5,fontWeight:800,color:mixBlack(C.green,0.25)}}>엄마 권한이 열렸어요</span>
-                              <span style={{marginLeft:"auto",fontSize:11.5,fontWeight:700,color:C.sub}}>미션 삭제 · {TM.xp} 수정 가능</span>
+                            {/* [사용자 확정 2026-08-16] 좌우로 벌려 놓으니 폭이 좁은 기기에서
+                                양쪽이 제각각 두 줄로 접혀 읽기 어려웠다 →
+                                윗줄은 자물쇠와 '열렸어요', 아랫줄은 무엇이 열렸는지. */}
+                            <div style={{padding:"9px 12px",borderRadius:12,background:`${C.green}0E`,border:`1px solid ${C.green}33`,display:"flex",alignItems:"flex-start",gap:7}}>
+                              <span style={{color:C.green,display:"flex",flexShrink:0,marginTop:1}}><CareIcon name="unlock" size={14}/></span>
+                              <span style={{minWidth:0}}>
+                                <span style={{display:"block",fontSize:12.5,fontWeight:800,color:mixBlack(C.green,0.25)}}>엄마 권한이 열렸어요</span>
+                                <span style={{display:"block",fontSize:11.5,fontWeight:700,color:C.sub,marginTop:2}}>미션 삭제 · 점수 수정 가능</span>
+                              </span>
                             </div>
                             {isRewToday&&(()=>{
                               const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
