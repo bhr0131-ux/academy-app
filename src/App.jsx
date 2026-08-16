@@ -21,7 +21,6 @@ import CareIcon from "./components/parent/CareIcons.jsx";
 import { CalendarLegendSheet } from "./components/parent/CalendarMarks.jsx";
 import CalendarTab from "./components/parent/CalendarTab.jsx";
 import ParentHomeTab from "./components/parent/ParentHomeTab.jsx";
-import AcademyTab from "./components/parent/AcademyTab.jsx";
 import FeeTab from "./components/parent/FeeTab.jsx";
 import RewardApprovals from "./components/parent/RewardApprovals.jsx";
 import AdventureMap from "./components/AdventureMap.jsx";
@@ -728,7 +727,9 @@ export default function App() {
         const gap=Date.now()-Number(lastUi.at||0);
         if(lastUi.mode==="parent"&&gap>=0&&gap<PARENT_RESUME_MS){
           setAppMode("parent");
-          if(typeof lastUi.ptab==="string") setTab(lastUi.ptab);
+          /* [2026-08-16] '학원' 탭을 없앴다. 마지막 화면으로 저장돼 있으면 그대로
+             복원했을 때 아무것도 안 그려지고 하단에도 그 칸이 없어 갇힌다 → 홈으로 보낸다. */
+          if(typeof lastUi.ptab==="string") setTab(lastUi.ptab==="academy"?"home":lastUi.ptab);
         }
       }
       setLoaded(true);
@@ -5428,20 +5429,10 @@ export default function App() {
         {/* ════ 학원 탭 ════
              [사용자 확정 2026-08-09] 홈에 접혀 있던 '등록 학원'을 하단 메뉴의 한 칸으로 꺼냈다.
              [2026-08-09] 화면 본문은 components/parent/AcademyTab.jsx 로 옮겼다. */}
-        {tab==="academy"&&(
-          <AcademyTab
-            th={th} CT={CT} curAc={curAc} childId={childId} children={children}
-            showSample={hoursSinceInstall!==null && hoursSinceInstall<24}
-            onAdd={openAdd} onEdit={openEdit}
-            onCopy={(fromId)=>{ setCopySourceChildId(fromId); setCopySelectedAcademyIds([]); setShowAcademyCopyModal(true); }}
-            onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
-            onCopyAccount={(txt)=>{
-              try { navigator.clipboard?.writeText(txt); showToast("계좌번호를 복사했어요"); }
-              catch(e){ showToast("복사할 수 없어요"); }
-            }}
-            onOpenMap={(addr)=>window.open(`https://map.naver.com/p/search/${encodeURIComponent(addr)}`,"_blank","noopener,noreferrer")}
-            onSeedSample={addStarterAcademy} />
-        )}
+        {/* (삭제됨) 학원 탭 — 홈의 '등록 학원' 토글로 옮겼다 (사용자 확정 2026-08-16).
+             components/parent/AcademyTab.jsx 파일은 남겨 둔다: 홈의 등록 학원 목록이
+             그 안의 scheduleLabel·dayGroupLabel·Row·RowAct 를 그대로 가져다 쓴다.
+             (화면 본문 부분은 지금 쓰이지 않지만, 되돌릴 일에 대비해 지우지 않았다) */}
 
         {/* ════ 달력 탭 ════ */}
         {/* [2026-08-09] 화면 본문을 components/parent/CalendarTab.jsx 로 옮겼다
@@ -6117,7 +6108,9 @@ export default function App() {
             }}
             items={[
               { key:"home",     label:"홈",     icon:"home",     active:tab==="home",     onPress:go("home") },
-              { key:"academy",  label:"학원",   icon:"academy",  active:tab==="academy",  onPress:go("academy") },
+              /* [사용자 확정 2026-08-16] '학원' 칸을 뺐다 — 홈의 '오늘의 학원 / 등록 학원'
+                 토글에서 같은 일을 다 할 수 있다(학원 탭이 쓰던 값·동작을 전부 옮겼음을
+                 필드 단위로 대조해 확인). 매일 보는 화면이 아닌데 홈 옆자리를 차지했다. */
               // [사용자 확정 2026-08-10] 보상 안에 접혀 있던 미션 관리를 이 자리로 꺼냈다.
               // 미션은 매일 보는 화면이라 보상보다 앞에 둔다. 달력은 '더보기'로 내려갔다.
               { key:"mission",  label:"미션",   icon:"mission",  active:tab==="mission",
