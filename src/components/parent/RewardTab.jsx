@@ -18,7 +18,7 @@ export default function RewardTab({ D }) {
     getChildRewardRequests, getChildRewards, openEditReward,
     rewardAgeGroup, rewardSecArrow, rewardSecCard,
     rewardSecSub, rewardSecTitle, setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
-    setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign, showParentRewardManage,
+    setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign,
     showParentXpAdjust, showToast, th, toggleRewardSec, xpAdjustInput, xpAdjustLabel,
     xpAdjustSign, parentLocked, unlockRewardManage, rewardSecOpen,
   } = D;
@@ -33,18 +33,16 @@ export default function RewardTab({ D }) {
         /* 거절은 코인을 돌려주고 되돌릴 수 없다 → 한 번 물어본다 (사용자 확정 2026-08-11) */
         onReject={(req)=>setPendingReject(req)} />
 
-      {/* 보상 관리 — 바깥 카드 없이 배경 위에 바로 (사용자 확정 2026-08-16) */}
+      {/* 보상 관리 — 바깥 카드 없이 배경 위에 바로 (사용자 확정 2026-08-16)
+          [사용자 확정 2026-08-16] 더는 접히지 않는다 — 이 탭에서 늘 펼쳐 두는 자리라
+          접는 기능과 화살표를 뺐다. 제목은 이제 버튼이 아니라 그냥 글이다. */}
       <div style={rewardSecOpen}>
-        <button onClick={e=>toggleRewardSec("reward",e)}
-          style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
-          <div style={{textAlign:"left",minWidth:0}}>
-            <p style={rewardSecTitle}>보상 관리</p>
-            {/* '어린이용' 뒤에 '용'을 또 붙여 '어린이용용'이 됐다 — 이모지를 떼면서 드러났다 */}
-            <p style={rewardSecSub}>{rewardAgeGroup==="custom"?"나만의 목록":(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label} · 보상승인 · 추가/삭제</p>
-          </div>
-          <span aria-hidden="true" style={rewardSecArrow(showParentRewardManage)}>⌄</span>
-        </button>
-        {showParentRewardManage&&(()=>{
+        <div style={{textAlign:"left",minWidth:0}}>
+          <p style={rewardSecTitle}>보상 관리</p>
+          {/* '어린이용' 뒤에 '용'을 또 붙여 '어린이용용'이 됐다 — 이모지를 떼면서 드러났다 */}
+          <p style={rewardSecSub}>{rewardAgeGroup==="custom"?"나만의 목록":(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label} · 보상승인 · 추가/삭제</p>
+        </div>
+        {(()=>{
         /* [사용자 확정 2026-08-16] 보상 탭 자체는 열려 있고(승인만 하러 들르는 일이 많다),
            목록을 고치는 것만 비밀번호로 막는다. 잠겨 있으면 '＋ 보상 추가'와 항목별
            수정·삭제를 감추고 자물쇠 버튼 하나만 둔다 — 열면 예전 화면 그대로 돌아온다. */
