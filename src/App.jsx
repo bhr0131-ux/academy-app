@@ -7350,8 +7350,8 @@ export default function App() {
                         {[{k:"hw",l:"숙제"},{k:"todo",l:"할 일"}].map(o=>(
                           <button key={o.k} onClick={()=>setDailyKind(o.k)} className="jelly-tap" aria-pressed={kind===o.k}
                             style={{width:"100%",cursor:"pointer",borderRadius:9,padding:"7px 0",fontFamily:"inherit",fontSize:12.5,
-                              border:`1.5px solid ${kind===o.k?th.main:CT.faintB}`,
-                              fontWeight:kind===o.k?900:700,background:kind===o.k?th.main:"#fff",color:kind===o.k?"#fff":C.sub}}>{o.l}</button>
+                              border:`1.5px solid ${kind===o.k?mixWhite(th.main,0.35):CT.faintB}`,
+                              fontWeight:kind===o.k?900:700,background:kind===o.k?th.grad:"#fff",color:kind===o.k?"#fff":C.sub}}>{o.l}</button>
                         ))}
                       </div>
                     )}
@@ -7359,15 +7359,20 @@ export default function App() {
                       placeholder="미션 내용 입력" aria-label="미션 내용"
                       style={{...inp,flex:1,minWidth:0,fontSize:14,padding:"10px 12px",marginBottom:0,background:"#fff"}}/>
                     </div>
-                    <div style={{display:"flex",alignItems:"center",gap:7}}>
-                      <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>보상</span>
+                    {/* [사용자 확정 2026-08-16] '보상 10 XP' 줄이 왼쪽 끝에서 시작해 위의
+                        미션 내용 입력칸과 어긋나 보였다 → 숙제/할 일 칸과 같은 폭(62+8)을
+                        '보상' 라벨에 줘서 점수 칸이 입력칸과 같은 자리에서 시작하게 한다.
+                        학원 없는 할 일(isExtra)은 왼쪽 칸 자체가 없으므로 예전 그대로 둔다. */}
+                    <div style={{display:"flex",alignItems:"center",gap:isExtra?7:8}}>
+                      <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0,
+                        ...(isExtra?{}:{width:62})}}>보상</span>
                       <input type="number" value={isParentEdit?pt:DEFAULT_HOMEWORK_SCORE} onChange={e=>setPt(e.target.value)}
                         disabled={!isParentEdit} aria-label={`보상 ${TM.xp}`} title={isParentEdit?"":"점수는 엄마용에서 바꿀 수 있어요"} min="1"
                         style={{...inp,width:56,fontSize:13.5,padding:"8px 6px",textAlign:"center",marginBottom:0,
                           background:isParentEdit?"#fff":CT.faint,color:isParentEdit?C.text:C.sub,cursor:isParentEdit?"text":"not-allowed"}}/>
                       <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>{TM.xp}</span>
                       <button onClick={add} className="jelly-tap"
-                        style={{marginLeft:"auto",flexShrink:0,padding:"9px 16px",borderRadius:10,border:"none",background:th.main,color:"#fff",fontWeight:900,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>
+                        style={{marginLeft:"auto",flexShrink:0,padding:"9px 16px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:900,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>
                         오늘 미션에 추가
                       </button>
                     </div>
@@ -7457,14 +7462,14 @@ export default function App() {
               <div style={{display:"flex",gap:8,marginBottom:22}}>
                 {/* 위 '미션 내용 입력'은 14인데 여기만 15라 같은 창 안에서 크기가 어긋났다 → 14로 통일 */}
                 <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="준비물 입력" style={{...inp,flex:1,width:"auto",fontSize:14,padding:"10px 14px"}}/>
-                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:th.main,color:"#fff",fontWeight:700,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
+                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:700,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
               </div>
               </>);
               })()}
               {/* [사용자 확정 2026-08-11] '＋ 추가'와 '저장하기'가 둘 다 저장처럼 읽혀서
                   버튼 이름을 사실대로 '닫기'로 바꿨다. 그때 같이 붙였던
                   '넣거나 지우면 바로 저장돼요' 안내 줄은 사용자 요청으로 뺀다. */}
-              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.main,color:"#fff",fontSize:14.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
+              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:14.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
             </div>
           </div>
         );
