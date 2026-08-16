@@ -490,9 +490,9 @@ export default function ParentHomeTab({
                 {/* 전화·문자 — 등록 학원의 계좌 '복사' · 주소 '지도' 와 같은 생김새(RowAct)로
                     통일한다 (사용자 확정 2026-08-16). */}
                 <div style={{display:"flex",gap:6,flexShrink:0}}>
-                  {ac.phone&&<RowAct label="전화" color={ac.color} big
+                  {ac.phone&&<RowAct label="전화" color={ac.color} big icon={<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg>}
                     href={`tel:${ac.phone}`} title={`${ac.name} 전화`}/>}
-                  {ac.phone&&<RowAct label="문자" color={ac.color} big
+                  {ac.phone&&<RowAct label="문자" color={ac.color} big icon={<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg>}
                     onPress={()=>onSms(ac)} title={`${ac.name} 문자`}/>}
                 </div>
                 <button onClick={()=>onEditDaily(ac,homeDate)}
