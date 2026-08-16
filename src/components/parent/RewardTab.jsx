@@ -20,7 +20,7 @@ export default function RewardTab({ D }) {
     rewardSecSub, rewardSecTitle, setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
     setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign, showParentRewardManage,
     showParentXpAdjust, showToast, th, toggleRewardSec, xpAdjustInput, xpAdjustLabel,
-    xpAdjustSign, parentLocked, unlockRewardManage,
+    xpAdjustSign, parentLocked, unlockRewardManage, rewardSecOpen,
   } = D;
   return (
     <div>
@@ -33,8 +33,8 @@ export default function RewardTab({ D }) {
         /* 거절은 코인을 돌려주고 되돌릴 수 없다 → 한 번 물어본다 (사용자 확정 2026-08-11) */
         onReject={(req)=>setPendingReject(req)} />
 
-      {/* 보상 관리 */}
-      <div style={rewardSecCard}>
+      {/* 보상 관리 — 바깥 카드 없이 배경 위에 바로 (사용자 확정 2026-08-16) */}
+      <div style={rewardSecOpen}>
         <button onClick={e=>toggleRewardSec("reward",e)}
           style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
           <div style={{textAlign:"left",minWidth:0}}>
@@ -62,9 +62,12 @@ export default function RewardTab({ D }) {
               <CareIcon name="lock" size={14}/> 보상 추가·수정·삭제
             </button>
             )}
+            {/* [2026-08-16] 바깥 흰 카드를 벗기면서 줄 배경도 뒤집었다 —
+                옅은 회색(CT.faint)은 흰 카드 위에 있을 때만 구분됐고, 배경 위로 나오니
+                바탕과 거의 같은 색이 됐다(대비 1.04). 미션 카드와 같은 규칙으로 흰 줄. */}
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {getChildRewards().slice().sort((a,b)=>a.point-b.point).map(reward=>(
-                <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:14,background:CT.faint,border:`1px solid ${C.border}`}}>
+                <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:14,background:"#fff",border:`1px solid ${C.border}`}}>
                   <span style={{fontSize:24}}>{reward.emoji}</span>
                   <div style={{flex:1}}>
                     <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>

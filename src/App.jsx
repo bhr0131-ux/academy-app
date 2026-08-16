@@ -3610,6 +3610,10 @@ export default function App() {
      화면이 뿌옇게 보였다 → 바깥은 흰색 / 구역은 아주 옅은 회색 / 세부는 흰색 3단으로.
      테두리도 대부분 연회색으로 내리고, 분홍은 강조가 필요한 곳(승인 카드·버튼)에만. */
   const rewardSecCard={background:"#fff",borderRadius:18,padding:"13px 14px",marginBottom:11,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm};
+  /* [사용자 확정 2026-08-16] '보상 관리'는 바깥 흰 카드를 벗긴다 — 목록이 길어서
+     카드 안에 카드가 스무 개씩 쌓이니 답답했다. 제목·목록이 배경 위에 바로 놓인다.
+     (수동 점수 조정처럼 짧은 칸은 카드를 그대로 둔다 — 접힌 줄 하나는 카드가 있어야 잡힌다) */
+  const rewardSecOpen={background:"transparent",borderRadius:0,padding:"3px 2px",marginBottom:11,border:"none",boxShadow:"none"};
   const rewardSecInner={background:"#F8F6F8",border:`1px solid ${C.border}`,borderRadius:14,padding:"12px"};
   const rewardSecTitle={fontSize:15,fontWeight:900,margin:"0 0 2px",color:C.text};
   const rewardSecSub={fontSize:12,color:C.sub,margin:0,fontWeight:600};
@@ -6060,7 +6064,7 @@ export default function App() {
             rewardSecSub, rewardSecTitle, setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
             setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign, showParentRewardManage,
             showParentXpAdjust, showToast, th, toggleRewardSec, xpAdjustInput, xpAdjustLabel,
-            xpAdjustSign, parentLocked, unlockRewardManage,
+            xpAdjustSign, parentLocked, unlockRewardManage, rewardSecOpen,
           }}/>
         )}
 
