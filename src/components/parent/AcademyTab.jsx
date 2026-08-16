@@ -31,7 +31,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
-import { C, DAYS, mixWhite, mixBlack } from "../../data/tokens.js";
+import { C, RAD, FW, FS, DAYS, mixWhite, mixBlack } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
@@ -103,8 +103,8 @@ export function Row({ icon, label, value, action, soft }) {
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "3px 0" }}>
       <span style={{ color: C.sub, display: "flex", flexShrink: 0, marginTop: 2 }}><CareIcon name={icon} size={12} /></span>
-      <span style={{ fontSize: 12, color: C.sub, fontWeight: 700, flexShrink: 0, width: 58, marginTop: 1 }}>{label}</span>
-      <span style={{ flex: 1, minWidth: 0, fontSize: 13, color: soft ? C.sub : C.text, fontWeight: 800, textAlign: "right", lineHeight: 1.45,
+      <span style={{ fontSize: FS.sub, color: C.sub, fontWeight: FW.normal, flexShrink: 0, width: 58, marginTop: 1 }}>{label}</span>
+      <span style={{ flex: 1, minWidth: 0, fontSize: FS.body, color: soft ? C.sub : C.text, fontWeight: FW.semi, textAlign: "right", lineHeight: 1.45,
         display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2, overflow: "hidden", overflowWrap: "anywhere" }}>{value}</span>
       {action}
     </div>
@@ -122,7 +122,7 @@ export function RowAct({ label, onPress, color, href, title, big, icon }) {
     flexShrink: 0, marginTop: big ? 0 : 1,
     padding: big ? (icon ? "6px 11px" : "6px 12px") : "1px 7px",
     borderRadius: big ? 9 : 7, border: `1px solid ${color}33`,
-    background: "#fff", color, fontSize: big ? 12 : 10.5, fontWeight: 800,
+    background: "#fff", color, fontSize: big ? 12 : 10.5, fontWeight: FW.semi,
     cursor: "pointer", fontFamily: F, whiteSpace: "nowrap",
     display: "inline-flex", alignItems: "center", justifyContent: "center",
   };
@@ -154,30 +154,30 @@ export default function AcademyTab({
         주요 행동처럼 보였다. 복사는 아이가 둘 이상일 때 처음 한 번 쓰는 기능이다 →
         복사는 테두리를 빼고 밑줄 글자로 낮춘다. 가운데 회색 줄은 칸만 갈라 놓아 뺀다. */}
     <div style={{display:"flex",alignItems:"center",gap:10,margin:"0 0 14px"}}>
-      <span style={{fontSize:14.5,fontWeight:900,color:C.text,letterSpacing:0.3,flexShrink:0,marginRight:"auto"}}>
-        등록 학원{curAc.length>0&&<span style={{fontSize:12.5,color:C.sub,fontWeight:700}}> {curAc.length}곳</span>}
+      <span style={{fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,letterSpacing:0.3,flexShrink:0,marginRight:"auto"}}>
+        등록 학원{curAc.length>0&&<span style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal}}> {curAc.length}곳</span>}
       </span>
       {canCopy&&(
         <button onClick={()=>onCopy(children.find(c=>c.id!==childId)?.id||"")} className="jelly-tap"
-          style={{flexShrink:0,fontSize:12,padding:"6px 2px",border:"none",background:"none",color:C.sub,fontWeight:800,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>
+          style={{flexShrink:0,fontSize:FS.sub,padding:"6px 2px",border:"none",background:"none",color:C.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>
           학원 복사
         </button>
       )}
       <button onClick={onAdd} className="jelly-tap"
-        style={{flexShrink:0,fontSize:12.5,padding:"7px 12px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+        style={{flexShrink:0,fontSize:FS.sub,padding:"7px 12px",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>
         ＋ 학원 추가
       </button>
     </div>
 
     {curAc.length===0?(
-      <div style={{textAlign:"center",padding:"26px 20px",color:C.sub,background:mixWhite(th.main,0.93),borderRadius:18,border:`1.5px dashed ${th.main}40`}}>
+      <div style={{textAlign:"center",padding:"26px 20px",color:C.sub,background:mixWhite(th.main,0.93),borderRadius:RAD.lg,border:`1.5px dashed ${th.main}40`}}>
         {/* 빈 상태는 앱의 다른 화면(미션 탭·오늘 챙길 일)과 같은 모양 —
             연한 동그라미 안 선 아이콘 (사용자 확정 2026-08-11) */}
         <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:52,height:52,
           borderRadius:"50%",background:mixWhite(th.main,0.82),color:th.main}}>
           <CareIcon name="school" size={26}/>
         </span>
-        <p style={{fontSize:14,fontWeight:700,margin:"8px 0 0"}}>위 버튼으로 학원을 등록하세요</p>
+        <p style={{fontSize:FS.cardTitle,fontWeight:FW.normal,margin:"8px 0 0"}}>위 버튼으로 학원을 등록하세요</p>
       </div>
     ):(
       <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -190,7 +190,7 @@ export default function AcademyTab({
             /* [사용자 확정 2026-08-11] 왼쪽 굵은 색 선 + 연한 색 머리 배경 + 색 테두리까지
                같은 색이 세 번 들어가 강조가 겹쳤다 → 색은 '왼쪽 선'과 '태그'에만.
                테두리는 아주 연한 회색으로 통일하고 머리 배경은 뺀다. */
-            <div key={ac.id} style={{background:"#fff",borderRadius:16,border:`1px solid ${C.border}`,overflow:"hidden",boxShadow:"0 2px 8px rgba(90,70,60,0.05)",display:"flex"}}>
+            <div key={ac.id} style={{background:"#fff",borderRadius:RAD.lg,border:`1px solid ${C.border}`,overflow:"hidden",boxShadow:"0 2px 8px rgba(90,70,60,0.05)",display:"flex"}}>
               <div style={{width:4,background:ac.color,flexShrink:0}}/>
               <div style={{flex:1,minWidth:0}}>
                 {/* 머리 — 학원 이름 + 요일·시간 두 줄, 오른쪽에 수정 */}
@@ -200,11 +200,11 @@ export default function AcademyTab({
                     수정은 테두리를 회색으로 낮춰 카드 안에서 제일 조용하게. */}
                 <div style={{padding:"8px 12px 0",display:"flex",alignItems:"center",gap:9}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <p style={{fontSize:15.5,fontWeight:900,margin:0,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
-                    <p style={{fontSize:12,color:C.sub,margin:"2px 0 0",fontWeight:600}}>{timeLine}</p>
+                    <p style={{fontSize:FS.title,fontWeight:FW.bold,margin:0,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
+                    <p style={{fontSize:FS.sub,color:C.sub,margin:"2px 0 0",fontWeight:FW.normal}}>{timeLine}</p>
                   </div>
                   <button onClick={()=>onEdit(ac)} className="jelly-tap" aria-label={`${ac.name} 수정`}
-                    style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:4,padding:"4px 9px",borderRadius:9,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:11.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+                    style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:4,padding:"4px 9px",borderRadius:RAD.sm,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:FS.tag,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
                     <CareIcon name="pencil" size={11}/> 수정
                   </button>
                 </div>
@@ -227,24 +227,24 @@ export default function AcademyTab({
                     return (
                     <div key={row.k} style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:6,marginTop:ri?6:0}}>
                       <span style={{display:"inline-flex",alignItems:"center",gap:4,flexShrink:0,color:C.sub,opacity:0.9}}>
-                        <CareIcon name={row.k} size={12}/><span style={{fontSize:11.5,fontWeight:600}}>{row.label}</span>
+                        <CareIcon name={row.k} size={12}/><span style={{fontSize:FS.tag,fontWeight:FW.normal}}>{row.label}</span>
                       </span>
                       {shown.length
-                        ? shown.map((s,i)=><span key={i} style={{fontSize:13,padding:"3px 10px",borderRadius:20,background:`${ac.color}16`,color:mixBlack(ac.color,0.18),fontWeight:800}}>{s}</span>)
-                        : <span style={{fontSize:12,fontWeight:600,color:C.sub,opacity:0.7}}>없음</span>}
-                      {rest>0&&<span style={{fontSize:12,fontWeight:700,color:C.sub,opacity:0.8}}>외 {rest}개</span>}
+                        ? shown.map((s,i)=><span key={i} style={{fontSize:FS.body,padding:"3px 10px",borderRadius:RAD.lg,background:`${ac.color}16`,color:mixBlack(ac.color,0.18),fontWeight:FW.semi}}>{s}</span>)
+                        : <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,opacity:0.7}}>없음</span>}
+                      {rest>0&&<span style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,opacity:0.8}}>외 {rest}개</span>}
                     </div>
                     );
                   })}
                   {/* [사용자 확정 2026-08-11] 아이콘만 있어서 이 줄이 메모인지 일정인지
                       구분이 안 됐다 → 위 두 줄과 같은 자리에 '메모' 라벨을 붙인다. */}
                   {ac.memo&&(
-                    <div style={{marginTop:7,background:`${C.orange}0D`,borderRadius:11,padding:"7px 10px",display:"flex",gap:6,alignItems:"flex-start"}}>
+                    <div style={{marginTop:7,background:`${C.orange}0D`,borderRadius:RAD.md,padding:"7px 10px",display:"flex",gap:6,alignItems:"flex-start"}}>
                       <span style={{display:"inline-flex",alignItems:"center",gap:4,flexShrink:0,color:C.orange,marginTop:1}}>
-                        <CareIcon name="memo" size={12}/><span style={{fontSize:11.5,fontWeight:600}}>메모</span>
+                        <CareIcon name="memo" size={12}/><span style={{fontSize:FS.tag,fontWeight:FW.normal}}>메모</span>
                       </span>
                       {/* 메모가 길면 카드가 다시 길어진다 → 두 줄까지만 (사용자 확정) */}
-                      <p style={{fontSize:12.5,fontWeight:700,color:C.text,margin:0,lineHeight:1.45,whiteSpace:"pre-wrap",minWidth:0,flex:1,
+                      <p style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.text,margin:0,lineHeight:1.45,whiteSpace:"pre-wrap",minWidth:0,flex:1,
                         display:"-webkit-box",WebkitBoxOrient:"vertical",WebkitLineClamp:2,overflow:"hidden"}}>{ac.memo}</p>
                     </div>
                   )}
@@ -267,7 +267,7 @@ export default function AcademyTab({
                       {ac.phone&&<Row icon="phone" label="연락처" value={ac.phone} soft/>}
                       {ac.shuttleInfo&&<Row icon="shuttle" label="셔틀" value={ac.shuttleInfo}/>}
                       {!(Number(ac.fee||0)>0||ac.teacher||ac.address||ac.shuttleInfo||ac.phone||(ac.account||"").trim())&&(
-                        <p style={{margin:"8px 0 2px",fontSize:12.5,fontWeight:600,color:C.sub,opacity:0.75}}>더 등록된 정보가 없어요</p>
+                        <p style={{margin:"8px 0 2px",fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,opacity:0.75}}>더 등록된 정보가 없어요</p>
                       )}
                     </div>
                   )}
@@ -281,12 +281,12 @@ export default function AcademyTab({
                   <div style={{display:"flex",gap:7,marginTop:9}}>
                     {ac.phone&&(
                       <a href={`tel:${ac.phone}`} className="jelly-tap" aria-label={`${ac.name} 전화`}
-                        style={{flex:1,minWidth:0,padding:"8px 8px",borderRadius:11,background:"#fff",border:`1px solid ${C.border}`,color:SUBD,fontSize:12.5,fontWeight:800,textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                        style={{flex:1,minWidth:0,padding:"8px 8px",borderRadius:RAD.md,background:"#fff",border:`1px solid ${C.border}`,color:SUBD,fontSize:FS.sub,fontWeight:FW.semi,textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
                         <CareIcon name="phone" size={13}/> 전화
                       </a>
                     )}
                     <button onClick={()=>onSms(ac)} className="jelly-tap"
-                      style={{flex:1,minWidth:0,padding:"8px 8px",borderRadius:11,background:"#fff",border:`1px solid ${C.border}`,color:SUBD,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                      style={{flex:1,minWidth:0,padding:"8px 8px",borderRadius:RAD.md,background:"#fff",border:`1px solid ${C.border}`,color:SUBD,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
                       <CareIcon name="sms" size={13}/> 문자
                     </button>
                   </div>
@@ -295,7 +295,7 @@ export default function AcademyTab({
                       하나를 펼치면 나머지는 접힌다(아코디언). */}
                   <button onClick={()=>setOpen(p=>p[ac.id]?{}:{[ac.id]:true})} className="jelly-tap"
                     aria-expanded={isOpen} aria-label={`${ac.name} 상세보기`}
-                    style={{width:"100%",height:28,marginTop:0,padding:0,border:"none",background:"none",color:C.sub,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                    style={{width:"100%",height:28,marginTop:0,padding:0,border:"none",background:"none",color:C.sub,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
                     {isOpen?"접기":"상세보기"}
                     <span style={{fontSize:11,transition:"transform .2s",transform:isOpen?"rotate(180deg)":"none"}}>⌄</span>
                   </button>
@@ -309,9 +309,9 @@ export default function AcademyTab({
     {/* 신규 사용자용: 설치 후 24시간 이내에만 노출되는 샘플 학원 추가 버튼 */}
     {showSample && (
       <button onClick={onSeedSample}
-        style={{width:"100%",marginTop:14,padding:"12px",borderRadius:14,border:`1.5px dashed ${th.main}55`,background:mixWhite(th.main,0.9),color:th.main,fontSize:13.5,fontWeight:800,cursor:"pointer",lineHeight:1.5,fontFamily:"inherit"}}>
+        style={{width:"100%",marginTop:14,padding:"12px",borderRadius:RAD.md,border:`1.5px dashed ${th.main}55`,background:mixWhite(th.main,0.9),color:th.main,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",lineHeight:1.5,fontFamily:"inherit"}}>
         <span style={{display:"inline-flex",alignItems:"center",gap:6}}><CareIcon name="school" size={14}/>샘플 학원 추가해보기</span>
-        <span style={{display:"block",fontSize:11.5,fontWeight:600,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
+        <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
       </button>
     )}
   </div>

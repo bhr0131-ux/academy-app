@@ -28,7 +28,7 @@
                  (기본 준비물은 이름 그대로, 그날 추가분은 앞에 '+')
    ════════════════════════════════════════════════════════════════════════ */
 
-import { mixWhite } from "../../data/tokens.js";
+import { mixWhite, RAD, FW, FS } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
@@ -52,19 +52,19 @@ function Sheet({ title, icon, desc, tone, onClose, children }) {
         padding: "10px 18px calc(26px + env(safe-area-inset-bottom))", width: "100%", maxWidth: 430,
         boxSizing: "border-box", maxHeight: "74vh", overflowY: "auto", fontFamily: F }}>
         {/* 드래그 손잡이 (장식) */}
-        <div aria-hidden="true" style={{ width: 38, height: 4, borderRadius: 999,
+        <div aria-hidden="true" style={{ width: 38, height: 4, borderRadius: RAD.pill,
           background: tone.border, margin: "0 auto 12px" }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: tone.text,
+          <h3 style={{ margin: 0, fontSize: FS.modalTitle, fontWeight: FW.bold, color: tone.text,
             display: "flex", alignItems: "center", gap: 7 }}>
             {icon && <span style={{ color: tone.main, display: "flex" }}><CareIcon name={icon} size={17} /></span>}
             {title}
           </h3>
           <button onClick={onClose} aria-label="닫기" className="jelly-tap"
-            style={{ background: tone.faint + "88", border: "none", borderRadius: 10, width: 28, height: 28,
+            style={{ background: tone.faint + "88", border: "none", borderRadius: RAD.sm, width: 28, height: 28,
               cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
         </div>
-        {desc && <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 13px", lineHeight: 1.45 }}>{desc}</p>}
+        {desc && <p style={{ fontSize: FS.sub, color: tone.sub, fontWeight: FW.normal, margin: "0 0 13px", lineHeight: 1.45 }}>{desc}</p>}
         {children}
       </div>
     </div>
@@ -79,13 +79,13 @@ const TAIL_W = 30;
 function AcHead({ icon, name, color, right, tone, nameColor }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
-      <span style={{ fontSize: 15, flexShrink: 0, display: "flex", alignItems: "center", color: tone.sub }}>
+      <span style={{ fontSize: FS.title, flexShrink: 0, display: "flex", alignItems: "center", color: tone.sub }}>
         {icon || <CareIcon name="school" size={15} />}
       </span>
-      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 900, color: nameColor || tone.text, minWidth: 0, flex: 1,
+      <p style={{ margin: 0, fontSize: FS.body, fontWeight: FW.bold, color: nameColor || tone.text, minWidth: 0, flex: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</p>
-      {right && <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11.5,
-        fontWeight: 900, color: color || tone.sub }}>{right}</span>}
+      {right && <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: FS.tag,
+        fontWeight: FW.bold, color: color || tone.sub }}>{right}</span>}
     </div>
   );
 }
@@ -99,8 +99,8 @@ function Empty({ icon, title, sub, tone }) {
         width: 52, height: 52, borderRadius: "50%", background: tone.faint, color: tone.sub }}>
         <CareIcon name={icon} size={26} />
       </span>
-      <p style={{ fontSize: 14, fontWeight: 800, margin: "8px 0 0", color: tone.text }}>{title}</p>
-      {sub && <p style={{ fontSize: 12, margin: "4px 0 0" }}>{sub}</p>}
+      <p style={{ fontSize: FS.cardTitle, fontWeight: FW.semi, margin: "8px 0 0", color: tone.text }}>{title}</p>
+      {sub && <p style={{ fontSize: FS.sub, margin: "4px 0 0" }}>{sub}</p>}
     </div>
   );
 }
@@ -124,7 +124,7 @@ export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onCl
             const gGot = g.items.filter(i => i.checked).length;
             const done = gGot === g.items.length;
             return (
-              <div key={g.acId} style={{ padding: "10px 12px", borderRadius: 14,
+              <div key={g.acId} style={{ padding: "10px 12px", borderRadius: RAD.md,
                 border: `1.5px solid ${done ? tone.green + "55" : tone.border}`,
                 background: done ? tone.green + "0C" : tone.faint }}>
                 <AcHead icon={g.icon} name={g.name} tone={tone}
@@ -134,7 +134,7 @@ export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onCl
                     <button key={it.key} onClick={() => onToggle && onToggle(g.acId, it.toggleKey)}
                       className="jelly-tap"
                       aria-label={`${it.label} ${it.checked ? "체크 해제" : "체크"}`}
-                      style={{ fontFamily: F, fontSize: 12.5, fontWeight: 800, padding: "6px 11px", borderRadius: 999,
+                      style={{ fontFamily: F, fontSize: FS.sub, fontWeight: FW.semi, padding: "6px 11px", borderRadius: RAD.pill,
                         whiteSpace: "nowrap", cursor: onToggle ? "pointer" : "default",
                         background: it.checked ? tone.green + "1F" : "#fff",
                         border: `1px solid ${it.checked ? tone.green + "88" : tone.border}`,
@@ -168,7 +168,7 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
         color: it.failed ? tone.red : faded ? tone.green : tone.sub }}>
         <CareIcon name={it.failed ? "absent" : faded ? "check" : it.kind === "homework" ? "memo" : "mission"} size={14} />
       </span>
-      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 800, minWidth: 0, flex: 1,
+      <p style={{ margin: 0, fontSize: FS.body, fontWeight: FW.semi, minWidth: 0, flex: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         color: it.failed ? tone.red : faded ? tone.sub : tone.text,
         /* [사용자 확정 2026-08-10] 흐린 글자 + 취소선이 겹쳐 읽기 어려웠다.
@@ -178,8 +178,8 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
           반복돼 정작 미션 이름을 읽는 데 방해가 됐다. 앞의 아이콘이 이미 종류를 말해 준다.
           '실패'만 남긴다 — 이건 줄마다 다른, 꼭 봐야 하는 상태다. */}
       {it.failed && (
-        <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: 11,
-          fontWeight: 700, color: tone.red, opacity: 0.9 }}>실패</span>
+        <span style={{ flexShrink: 0, minWidth: TAIL_W, textAlign: "right", fontSize: FS.tag,
+          fontWeight: FW.normal, color: tone.red, opacity: 0.9 }}>실패</span>
       )}
     </div>
   );
@@ -187,7 +187,7 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
   const Section = ({ list, faded }) => (
     <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
       {list.map(g => (
-        <div key={g.acId} style={{ padding: "9px 12px 8px", borderRadius: 14,
+        <div key={g.acId} style={{ padding: "9px 12px 8px", borderRadius: RAD.md,
           border: `1px solid ${tone.border}`, background: faded ? "#fff" : tone.faint,
           opacity: faded ? 0.95 : 1 }}>
           {/* [사용자 확정 2026-08-16] 학원 이름은 한 톤 낮춘 진회색으로 —
@@ -213,10 +213,10 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
           {/* 위 — 남은 것.
               [사용자 확정 2026-08-09] 줄 전체를 주황으로 칠하면 경고처럼 보인다 —
               글은 본문 색으로 두고 숫자만 강조한다. */}
-          <p style={{ margin: "0 0 8px", fontSize: 12.5, fontWeight: 800,
+          <p style={{ margin: "0 0 8px", fontSize: FS.sub, fontWeight: FW.semi,
             color: nRemain ? tone.text : tone.green }}>
             {nRemain
-              ? <>아직 남은 미션 <b style={{ fontWeight: 900, color: tone.orange }}>{nRemain}개</b></>
+              ? <>아직 남은 미션 <b style={{ fontWeight: FW.bold, color: tone.orange }}>{nRemain}개</b></>
               : "남은 미션 없음 — 다 끝냈어요!"}
           </p>
           {nRemain > 0 && <Section list={groups.remain} faded={false} />}

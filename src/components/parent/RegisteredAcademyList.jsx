@@ -21,14 +21,14 @@
    그리기만 하고 저장은 하지 않는다 — 추가·수정은 전부 위로 알린다.
    ════════════════════════════════════════════════════════════════════════ */
 
-import { C, mixWhite } from "../../data/tokens.js";
+import { C, RAD, FW, FS, mixWhite } from "../../data/tokens.js";
 import { getShuttleText } from "../../data/sampleData.js";
 import CareIcon from "./CareIcons.jsx";
 import { dayGroupLabel, Row, RowAct } from "./AcademyTab.jsx";
 
 /* 홈 탭과 같은 중간 톤 — 보조 글자보다 진하고 본문보다 연하다 */
 const SUBD = "#5F678C";
-const chip = { fontSize: 12.5, fontWeight: 700, padding: "3px 9px", borderRadius: 20, lineHeight: 1.5 };
+const chip = { fontSize: FS.sub, fontWeight: FW.normal, padding: "3px 9px", borderRadius: RAD.lg, lineHeight: 1.5 };
 
 /* 시작~끝 시각 — '오늘의 학원'이 쓰는 계산과 같다 (시작 + 수업 길이) */
 function timeRange(time, duration) {
@@ -81,12 +81,12 @@ export default function RegisteredAcademyList({
       /* [사용자 확정 2026-08-16] 배경을 학원 카드와 같은 흰색으로 — 빈 칸만 색이 달라 튀었다.
          '아직 없다'는 신호인 점선 테두리는 그대로 둔다. */
       <div style={{ textAlign: "center", padding: "26px 20px", color: C.sub,
-        background: "#fff", borderRadius: 18, border: `1.5px dashed ${th.main}40` }}>
+        background: "#fff", borderRadius: RAD.lg, border: `1.5px dashed ${th.main}40` }}>
         <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 52, height: 52,
           borderRadius: "50%", background: mixWhite(th.main, 0.82), color: th.main }}>
           <CareIcon name="school" size={26} />
         </span>
-        <p style={{ fontSize: 14, fontWeight: 700, margin: "8px 0 0" }}>아래 버튼으로 학원을 등록하세요</p>
+        <p style={{ fontSize: FS.cardTitle, fontWeight: FW.normal, margin: "8px 0 0" }}>아래 버튼으로 학원을 등록하세요</p>
       </div>
     );
   }
@@ -111,7 +111,7 @@ export default function RegisteredAcademyList({
 
         return (
           /* 카드 껍데기는 '오늘의 학원'과 같은 값 — 흰 바탕, 왼쪽 세로선만 학원색 */
-          <div key={ac.id} style={{ background: "#fff", borderRadius: 14, marginBottom: 14,
+          <div key={ac.id} style={{ background: "#fff", borderRadius: RAD.md, marginBottom: 14,
             border: `1px solid ${C.border}`, boxShadow: "0 2px 8px rgba(90,70,60,0.05)",
             overflow: "hidden", display: "flex" }}>
             <div style={{ width: 4, background: ac.color, flexShrink: 0 }} />
@@ -125,15 +125,15 @@ export default function RegisteredAcademyList({
                   touchAction: "manipulation", userSelect: "none", WebkitUserSelect: "none" }}>
                 <span style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 7,
                   overflow: "hidden", whiteSpace: "nowrap" }}>
-                  <span style={{ fontSize: 15, fontWeight: 900, color: ac.color, minWidth: 0,
+                  <span style={{ fontSize: FS.title, fontWeight: FW.bold, color: ac.color, minWidth: 0,
                     overflow: "hidden", textOverflow: "ellipsis" }}>{acKindLabel(ac)}</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, flexShrink: 0, color: SUBD }}>{whenLabel(ac)}</span>
+                  <span style={{ fontSize: FS.cardTitle, fontWeight: FW.normal, flexShrink: 0, color: SUBD }}>{whenLabel(ac)}</span>
                 </span>
                 {/* 화살표는 카드 오른쪽 끝에서 안쪽으로 들여 놓는다 — 가장자리 제스처 구역과
                     겹치면 눌림 표시만 나고 클릭이 취소된다 (실기기에서 재현·해결 확인).
                     오른쪽 여백을 줄이면 증상이 돌아온다. 자세한 내력은 ParentHomeTab 의 같은 줄. */}
                 <span aria-hidden style={{ flexShrink: 0, width: 24, height: 24, display: "flex",
-                  alignItems: "center", justifyContent: "center", fontSize: 12, color: "#B9B3AD", fontWeight: 900,
+                  alignItems: "center", justifyContent: "center", fontSize: 12, color: "#B9B3AD", fontWeight: FW.bold,
                   transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "none" }}>⌄</span>
               </button>
 
@@ -144,12 +144,12 @@ export default function RegisteredAcademyList({
                       누르는 것끼리 한 줄에 모이는 편이 찾기 쉽다. */}
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                     <p style={{ flex: 1, minWidth: 0, margin: 0, display: "flex", alignItems: "baseline", gap: 5 }}>
-                      <span style={{ minWidth: 0, fontSize: 14.5, fontWeight: 900, color: C.text,
+                      <span style={{ minWidth: 0, fontSize: FS.cardTitle, fontWeight: FW.bold, color: C.text,
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {themeIcon} {ac.name}
                       </span>
                       {!ac.useCustomSchedule && ac.duration && (
-                        <span style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 600, color: SUBD, whiteSpace: "nowrap" }}>
+                        <span style={{ flexShrink: 0, fontSize: FS.sub, fontWeight: FW.normal, color: SUBD, whiteSpace: "nowrap" }}>
                           · {ac.duration}분 수업</span>
                       )}
                     </p>
@@ -158,7 +158,7 @@ export default function RegisteredAcademyList({
                   {/* ①-2 요일마다 시간이 다른 학원만 — 접힌 줄에 못 담은 시간표를 여기서 편다 */}
                   {ac.useCustomSchedule && (ac.schedules || []).length > 0 && (
                     <p style={{ margin: "0 0 10px", display: "flex", alignItems: "flex-start", gap: 5,
-                      fontSize: 12.5, fontWeight: 600, color: SUBD, lineHeight: 1.4 }}>
+                      fontSize: FS.sub, fontWeight: FW.normal, color: SUBD, lineHeight: 1.4 }}>
                       <span style={{ marginTop: 1, flexShrink: 0 }}><CareIcon name="calendar" size={13} /></span>
                       <span style={{ minWidth: 0 }}>
                         {(ac.schedules || []).map(s => `${s.day} ${timeRange(s.time, s.duration ?? ac.duration)}`).join("  ·  ")}
@@ -171,12 +171,12 @@ export default function RegisteredAcademyList({
                     const m = row.text.match(/^(\d{1,2}:\d{2})\s+([\s\S]+)$/);
                     return (
                       <p key={i} style={{ margin: i === shuttleRows.length - 1 ? "0 0 16px" : "0 0 6px",
-                        display: "flex", alignItems: "flex-start", gap: 5, fontSize: 12.5,
-                        fontWeight: 600, color: SUBD, lineHeight: 1.35 }}>
+                        display: "flex", alignItems: "flex-start", gap: 5, fontSize: FS.sub,
+                        fontWeight: FW.normal, color: SUBD, lineHeight: 1.35 }}>
                         <span style={{ marginTop: 1, flexShrink: 0 }}><CareIcon name="shuttle" size={13} /></span>
                         <span style={{ minWidth: 0, whiteSpace: "pre-wrap" }}>
-                          {row.d && <span style={{ fontWeight: 800 }}>{row.d}  </span>}
-                          {m ? <><span style={{ fontWeight: 900, color: C.text }}>{m[1]}</span>{"  "}{m[2]}</> : row.text}
+                          {row.d && <span style={{ fontWeight: FW.semi }}>{row.d}  </span>}
+                          {m ? <><span style={{ fontWeight: FW.bold, color: C.text }}>{m[1]}</span>{"  "}{m[2]}</> : row.text}
                         </span>
                       </p>
                     );
@@ -191,7 +191,7 @@ export default function RegisteredAcademyList({
                         display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 5, flexShrink: 0, color: SUBD }}>
                           <CareIcon name={row.k} size={14} />
-                          <span style={{ fontSize: 12.5, fontWeight: 700 }}>{row.label}</span>
+                          <span style={{ fontSize: FS.sub, fontWeight: FW.normal }}>{row.label}</span>
                         </span>
                         {row.items.length
                           ? row.items.map((s, i) => (
@@ -204,13 +204,13 @@ export default function RegisteredAcademyList({
 
                   {/* ④ 메모 */}
                   {ac.memo && (
-                    <div style={{ marginBottom: 12, background: `${C.orange}0D`, borderRadius: 11,
+                    <div style={{ marginBottom: 12, background: `${C.orange}0D`, borderRadius: RAD.md,
                       padding: "7px 10px", display: "flex", gap: 6, alignItems: "flex-start" }}>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexShrink: 0,
                         color: C.orange, marginTop: 1 }}>
-                        <CareIcon name="memo" size={12} /><span style={{ fontSize: 11.5, fontWeight: 600 }}>메모</span>
+                        <CareIcon name="memo" size={12} /><span style={{ fontSize: FS.tag, fontWeight: FW.normal }}>메모</span>
                       </span>
-                      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.text, margin: 0, lineHeight: 1.45,
+                      <p style={{ fontSize: FS.sub, fontWeight: FW.normal, color: C.text, margin: 0, lineHeight: 1.45,
                         whiteSpace: "pre-wrap", minWidth: 0, flex: 1 }}>{ac.memo}</p>
                     </div>
                   )}
@@ -219,7 +219,7 @@ export default function RegisteredAcademyList({
                          '오늘의 학원'에는 없는 줄이지만, 등록 정보를 빠짐없이 담아야 해서 넣는다. */}
                   <div style={{ paddingTop: 4, paddingBottom: 8, borderTop: `1px solid ${C.border}` }}>
                     {!hasDetail && (
-                      <p style={{ margin: "4px 0 2px", fontSize: 12.5, fontWeight: 600, color: C.sub, opacity: 0.75 }}>
+                      <p style={{ margin: "4px 0 2px", fontSize: FS.sub, fontWeight: FW.normal, color: C.sub, opacity: 0.75 }}>
                         더 등록된 정보가 없어요
                       </p>
                     )}
@@ -247,7 +247,7 @@ export default function RegisteredAcademyList({
                         onPress={() => onSms(ac)} title={`${ac.name} 문자`} />}
                     </div>
                     <button onClick={() => onEdit(ac)} className="jelly-tap" aria-label={`${ac.name} 수정`}
-                      style={{ border: "none", background: "none", color: SUBD, fontSize: 12, fontWeight: 800,
+                      style={{ border: "none", background: "none", color: SUBD, fontSize: FS.sub, fontWeight: FW.semi,
                         cursor: "pointer", fontFamily: "inherit", padding: "6px 0 6px 12px",
                         display: "inline-flex", alignItems: "center", gap: 5 }}>
                       {/* [사용자 확정 2026-08-16] '오늘의 학원'의 수정은 그날 미션·준비물을
