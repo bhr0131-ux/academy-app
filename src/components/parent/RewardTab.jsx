@@ -56,9 +56,16 @@ export default function RewardTab({ D }) {
               + 보상 추가
             </button>
             ):(
+            /* [사용자 확정 2026-08-16] 미션 탭의 잠금 버튼과 같이 두 줄로 —
+               아랫줄에 무엇이 일어나는지(비밀번호를 묻는다) 적어 둔다. */
             <button onClick={unlockRewardManage} className="jelly-tap"
-              style={{width:"100%",border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:th.main,borderRadius:10,padding:"10px 12px",fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10,fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-              <CareIcon name="lock" size={14}/> 보상 추가·수정·삭제
+              style={{width:"100%",border:`1px solid ${th.main}33`,background:`${th.main}0E`,borderRadius:10,padding:"10px 12px",cursor:"pointer",marginBottom:10,fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+              <span style={{display:"inline-flex",alignItems:"center",gap:6,color:th.main,fontSize:12.5,fontWeight:900}}>
+                <CareIcon name="lock" size={14}/> 보상 추가·수정·삭제
+              </span>
+              <span style={{fontSize:11.5,fontWeight:700,color:C.sub}}>
+                비밀번호를 한 번 물어봐요
+              </span>
             </button>
             )}
             {/* [2026-08-16] 바깥 흰 카드를 벗기면서 줄 배경도 뒤집었다 —
