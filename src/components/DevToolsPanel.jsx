@@ -142,7 +142,7 @@ export default function DevToolsPanel({ D }) {
                     const _st=ADV_CHAR_STAGE_OF(_lv.level);
                     return (
                       <p style={{fontSize:12,fontWeight:800,color:C.text,background:CT.faint,borderRadius:8,padding:"7px 10px",margin:"0 0 8px",textAlign:"center"}}>
-                        현재 Lv.{_lv.level} {_lv.name} · XP {getChildXP(childId)}
+                        현재 Lv.{_lv.level} {_lv.name} · {getChildXP(childId)}점
                         {kidSkin!=="cute"&&<span style={{color:C.sub}}> · 진화 {_st}단계</span>}
                       </p>
                     );

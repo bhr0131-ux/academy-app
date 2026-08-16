@@ -234,7 +234,7 @@ export const UI_TEXT = {
     itemShop:"🛒 아이템 상점",
     titleBook:"👑 상장",
     treasureStorage:"🎁 보물창고",
-    xpHistory:"⭐ XP 통장",
+    xpHistory:"⭐ 점수 통장",
   },
   status:{
     ready:"READY",
@@ -242,7 +242,7 @@ export const UI_TEXT = {
     failed:"FAILED",
   },
   label:{
-    totalXp:"누적 XP",
+    totalXp:"누적 점수",
     coin:"보유 코인",
     streak:"연속 달성",
     badge:"업적",
@@ -285,25 +285,25 @@ export const DEFAULT_TITLES = [
   { id:"rookie", name:"꼬마 탐험가", emoji:"🎗️", condition:"기본 상장", award:"드디어 탐험의 첫걸음을 내디딘 꼬마 탐험가에게 이 상장을 드립니다 🎗️", rarity:"common" },
   { id:"first_quest", name:"첫걸음 탐험가", emoji:"👣", condition:"첫 미션 완료", award:"첫 번째 임무를 용감하게 해낸 탐험가에게 이 상장을 드립니다 👣", rarity:"common" },
   { id:"quest_10_title", name:"미션 입문자", emoji:"🎯", condition:"미션 10개 완료", award:"임무를 10개나 완수한 멋진 탐험가에게 이 상장을 드립니다 🎯", rarity:"common" },
-  { id:"xp_100_title", name:"반짝 새싹", emoji:"🌱", condition:"100 XP 달성", award:"경험치 100을 모으며 쑥쑥 자라난 탐험가에게 이 상장을 드립니다 🌱", rarity:"common" },
+  { id:"xp_100_title", name:"반짝 새싹", emoji:"🌱", condition:"100점 달성", award:"점수 100을 모으며 쑥쑥 자라난 탐험가에게 이 상장을 드립니다 🌱", rarity:"common" },
   { id:"reward_1_title", name:"첫 쇼핑러", emoji:"🛒", condition:"첫 보상 구매", award:"열심히 모은 코인으로 첫 보상을 받은 탐험가에게 이 상장을 드립니다 🛒", rarity:"common" },
 
   { id:"quest_hunter", name:"미션 탐험가", emoji:"🎯", condition:"미션 50개 완료", award:"임무를 50개나 끝까지 해낸 멋진 탐험가에게 이 상장을 드립니다 🎯", rarity:"rare" },
   { id:"homework_master", name:"숙제왕", emoji:"📚", condition:"숙제 30개 완료", award:"숙제를 30개나 완수한 성실한 탐험가에게 이 상장을 드립니다 📚", rarity:"rare" },
   { id:"streak_3_title", name:"꾸준한 아이", emoji:"🔥", condition:"5일 연속 달성", award:"5일 연속 하루도 빠지지 않은 꾸준한 탐험가에게 이 상장을 드립니다 🔥", rarity:"rare" },
-  { id:"xp_500_title", name:"성실 수련생", emoji:"📘", condition:"500 XP 달성", award:"경험치 500을 모으며 꾸준히 성장한 탐험가에게 이 상장을 드립니다 📘", rarity:"rare" },
+  { id:"xp_500_title", name:"성실 수련생", emoji:"📘", condition:"500점 달성", award:"점수 500을 모으며 꾸준히 성장한 탐험가에게 이 상장을 드립니다 📘", rarity:"rare" },
   { id:"reward_3_title", name:"알뜰 쇼핑러", emoji:"🏷️", condition:"보상 5번 구매", award:"코인을 알뜰하게 모아 보상을 5번 받은 탐험가에게 이 상장을 드립니다 🏷️", rarity:"rare" },
 
   { id:"streak_master", name:"불꽃 루틴러", emoji:"⚡", condition:"10일 연속 달성", award:"10일 연속 임무를 해낸 불꽃 같은 탐험가에게 이 상장을 드립니다 ⚡", rarity:"epic" },
   { id:"quest_100_title", name:"집중의 신", emoji:"🧠", condition:"미션 100개 완료", award:"임무를 100개나 완수한 집중력 뛰어난 탐험가에게 이 상장을 드립니다 🧠", rarity:"epic" },
   { id:"champion", name:"탐험 대장", emoji:"🏅", condition:"Lv.10 달성", award:"마침내 10레벨에 도달한 자랑스러운 탐험 대장에게 이 상장을 드립니다 🏅", rarity:"epic" },
-  { id:"xp_3000_title", name:"빛나는 성장러", emoji:"🌟", condition:"3000 XP 달성", award:"경험치 3000을 모으며 눈부시게 성장한 탐험가에게 이 상장을 드립니다 🌟", rarity:"epic" },
+  { id:"xp_3000_title", name:"빛나는 성장러", emoji:"🌟", condition:"3000점 달성", award:"점수 3000을 모으며 눈부시게 성장한 탐험가에게 이 상장을 드립니다 🌟", rarity:"epic" },
   { id:"reward_30_title", name:"쇼핑 마스터", emoji:"💳", condition:"보상 30번 구매", award:"보상을 30번이나 받은 진정한 쇼핑 마스터에게 이 상장을 드립니다 💳", rarity:"epic" },
 
   { id:"legend", name:"전설의 탐험가", emoji:"👑", condition:"Lv.20 달성", award:"마침내 20레벨에 도달하여 모두의 모범이 된 전설의 탐험가에게 이 상장을 드립니다 👑", rarity:"legendary" },
   { id:"streak_30_title", name:"30일 전설", emoji:"☄️", condition:"30일 연속 달성", award:"30일 연속이라는 전설적인 기록을 세운 탐험가에게 이 상장을 드립니다 ☄️", rarity:"legendary" },
   { id:"treasure_master", name:"보물 사냥꾼", emoji:"💰", condition:"보물상자 50개 오픈", award:"보물상자를 50개나 열어젖힌 최고의 보물 사냥꾼에게 이 상장을 드립니다 💰", rarity:"legendary" },
-  { id:"world_class", name:"월드클래스", emoji:"🌍", condition:"12000 XP 달성", award:"경험치 12000을 모은 세계 최고 수준의 탐험가에게 이 상장을 드립니다 🌍", rarity:"legendary" },
+  { id:"world_class", name:"월드클래스", emoji:"🌍", condition:"12000점 달성", award:"점수 12000을 모은 세계 최고 수준의 탐험가에게 이 상장을 드립니다 🌍", rarity:"legendary" },
   { id:"quest_700_title", name:"미션의 신화", emoji:"🌌", condition:"미션 700개 완료", award:"임무를 700개나 완수하여 신화를 써낸 탐험가에게 이 상장을 드립니다 🌌", rarity:"legendary" },
 ];
 
@@ -314,25 +314,25 @@ export const BAKERY_TITLE_MAP = {
   rookie:           { name:"반죽 도우미",     emoji:"🥄", condition:"기본 상장", award:"드디어 베이커리의 첫걸음을 내디딘 반죽 도우미에게 이 상장을 드립니다 🥄" },
   first_quest:      { name:"쿠키 굽기 초보",  emoji:"🍪", condition:"첫 미션 완료", award:"첫 번째 미션을 맛있게 해낸 꼬마 제빵사에게 이 상장을 드립니다 🍪" },
   quest_10_title:   { name:"첫 오븐 졸업",    emoji:"🧁", condition:"미션 10개 완료", award:"미션을 10개나 완성하며 첫 오븐을 멋지게 졸업한 제빵사에게 이 상장을 드립니다 🧁" },
-  xp_100_title:     { name:"첫 반죽 친구",    emoji:"🌱", condition:"경험치 100 달성", award:"경험치 100을 모으며 쑥쑥 자라난 제빵사에게 이 상장을 드립니다 🌱" },
+  xp_100_title:     { name:"첫 반죽 친구",    emoji:"🌱", condition:"100점 달성", award:"점수 100을 모으며 쑥쑥 자라난 제빵사에게 이 상장을 드립니다 🌱" },
   reward_1_title:   { name:"첫 쿠키 손님",    emoji:"🛒", condition:"첫 보상 구매", award:"열심히 모은 코인으로 첫 보상을 받은 제빵사에게 이 상장을 드립니다 🛒" },
   // rare
   quest_hunter:     { name:"미션 사냥꾼",     emoji:"🍳", condition:"미션 50개 완료", award:"미션을 50개나 완성한 솜씨 좋은 미션 사냥꾼에게 이 상장을 드립니다 🍳" },
   homework_master:  { name:"디저트 장인",     emoji:"🎀", condition:"숙제 30개 완료", award:"숙제를 30개나 완수한 성실한 디저트 장인에게 이 상장을 드립니다 🎀" },
   streak_3_title:   { name:"개근 제빵사",     emoji:"🔥", condition:"5일 연속 달성", award:"5일 연속 하루도 빠지지 않은 개근 제빵사에게 이 상장을 드립니다 🔥" },
-  xp_500_title:     { name:"성실한 제빵사",   emoji:"📖", condition:"경험치 500 달성", award:"경험치 500을 모으며 꾸준히 성장한 제빵사에게 이 상장을 드립니다 📖" },
+  xp_500_title:     { name:"성실한 제빵사",   emoji:"📖", condition:"500점 달성", award:"점수 500을 모으며 꾸준히 성장한 제빵사에게 이 상장을 드립니다 📖" },
   reward_3_title:   { name:"알뜰 단골손님",   emoji:"🏷️", condition:"보상 5번 구매", award:"코인을 알뜰하게 모아 보상을 5번 받은 단골손님에게 이 상장을 드립니다 🏷️" },
   // epic
   streak_master:    { name:"꾸준한 제빵사",   emoji:"🥐", condition:"10일 연속 달성", award:"10일 연속 미션을 해낸 따끈따끈한 제빵사에게 이 상장을 드립니다 🥐" },
   quest_100_title:  { name:"케이크 마스터",   emoji:"🎂", condition:"미션 100개 완료", award:"미션을 100개나 완성한 솜씨 뛰어난 케이크 마스터에게 이 상장을 드립니다 🎂" },
   champion:         { name:"10레벨 챔피언",   emoji:"🎖️", condition:"Lv.10 달성", award:"마침내 10레벨에 도달한 자랑스러운 10레벨 챔피언에게 이 상장을 드립니다 🎖️" },
-  xp_3000_title:    { name:"무지개 제빵사",   emoji:"🌈", condition:"경험치 3000 달성", award:"경험치 3000을 모으며 눈부시게 성장한 제빵사에게 이 상장을 드립니다 🌈" },
+  xp_3000_title:    { name:"무지개 제빵사",   emoji:"🌈", condition:"3000점 달성", award:"점수 3000을 모으며 눈부시게 성장한 제빵사에게 이 상장을 드립니다 🌈" },
   reward_30_title:  { name:"쿠키 수집가",     emoji:"🛍️", condition:"보상 30번 구매", award:"보상을 30번이나 받은 진정한 쿠키 수집가에게 이 상장을 드립니다 🛍️" },
   // legendary (default)
   legend:           { name:"디저트 왕국의 주인", emoji:"👑", condition:"Lv.20 달성", award:"마침내 20레벨에 도달하여 모두가 사랑하는 디저트 왕국의 주인에게 이 상장을 드립니다 👑" },
   streak_30_title:  { name:"한 달 개근왕",   emoji:"🌹", condition:"30일 연속 달성", award:"30일 연속이라는 전설적인 기록을 세운 한 달 개근왕에게 이 상장을 드립니다 🌹" },
   treasure_master:  { name:"베이커리 사장님", emoji:"💰", condition:"디저트상자 50개 오픈", award:"디저트상자를 50개나 열어본 어엿한 베이커리 사장님에게 이 상장을 드립니다 💰" },
-  world_class:      { name:"월드클래스 셰프", emoji:"✨", condition:"경험치 12000 달성", award:"경험치 12000을 모은 세계 최고의 월드클래스 셰프에게 이 상장을 드립니다 ✨" },
+  world_class:      { name:"월드클래스 셰프", emoji:"✨", condition:"12000점 달성", award:"점수 12000을 모은 세계 최고의 월드클래스 셰프에게 이 상장을 드립니다 ✨" },
   quest_700_title:  { name:"신화의 레시피",   emoji:"📜", condition:"미션 700개 완료", award:"미션을 700개나 완성하여 신화를 써낸 제빵사에게 이 상장을 드립니다 📜" },
   // legendary (보물상자 전용)
   gold_hunter:      { name:"황금 크루아상",   emoji:"🥨", condition:"스페셜 상자에서 획득", award:"스페셜 상자에서 황금 크루아상을 찾아낸 행운의 제빵사에게 이 상장을 드립니다 🥨", description:"스페셜 상자에서만 획득 가능" },
@@ -598,17 +598,22 @@ export const decorView = (d, skin) => {
 };
 
 // ── 모드별 용어(재화·아이콘) ─────────────────────────────
-// 탐험: ⭐ XP / 💎 코인 / 🎁 보물상자
-// 베이커리: ⭐ 경험치 / 🍪 쿠키 / 🎀 디저트상자 / 🎁 디저트 보관함
+// 탐험: ⭐ 점수 / 💎 코인 / 🎁 보물상자
+// 베이커리: ⭐ 점수 / 🍪 쿠키 / 🎀 디저트상자 / 🎁 디저트 보관함
+/* [사용자 확정 2026-08-16] 'XP'(탐험) · '경험치'(베이커리) 를 '점수' 로 통일했다 —
+   영어 약자는 아이 어머니에게 바로 읽히지 않는다.
+   xp     : 이름으로 쓸 때   → "누적 점수", "점수 통장", "수동 점수 조정"
+   xpUnit : 숫자 뒤 단위     → "+10점", "50점 남음"   (숫자와 붙여 쓴다)
+   둘을 나눈 이유: 하나로 두면 "+10 점수" 나 "누적 점" 중 하나가 반드시 어색해진다. */
 export const TERMS = {
   dungeon: {
-    xp:"XP", xpEmoji:"⭐",
+    xp:"점수", xpUnit:"점", xpEmoji:"⭐",
     coin:"코인", coinEmoji:"💎",
     box:"보물상자", boxEmoji:"🎁",
     book:"보물창고", bookEmoji:"🎁",
   },
   cute: {
-    xp:"경험치", xpEmoji:"⭐",
+    xp:"점수", xpUnit:"점", xpEmoji:"⭐",
     coin:"쿠키", coinEmoji:"🍪",
     box:"디저트상자", boxEmoji:"🎀",
     book:"디저트 보관함", bookEmoji:"🧁",

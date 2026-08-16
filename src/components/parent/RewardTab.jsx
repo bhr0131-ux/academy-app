@@ -153,7 +153,7 @@ export default function RewardTab({ D }) {
                                   오른쪽 목표치는 '지금 총 XP + 남은 XP' 로 잡아야 왼쪽 숫자와 짝이 맞는다 */}
                               <span style={{fontSize:16,fontWeight:900,color:C.text}}>{getChildXP(childId).toLocaleString()}</span>
                               <span style={{fontSize:11.5,fontWeight:700,color:C.sub}}>
-                                {hasNext?`/ ${(getChildXP(childId)+pg.remainXp).toLocaleString()} ${TM.xp}`:TM.xp}
+                                {hasNext?`/ ${(getChildXP(childId)+pg.remainXp).toLocaleString()}${TM.xpUnit}`:TM.xp}
                               </span>
                             </div>
                             {hasNext&&(
@@ -167,7 +167,7 @@ export default function RewardTab({ D }) {
                                 두 줄로 나눠 각각 한 줄씩 갖는다. */}
                             <div style={{margin:"5px 0 0",display:"flex",flexDirection:"column",gap:2}}>
                               {hasNext&&<span style={{fontSize:11,fontWeight:700,color:C.sub}}>
-                                다음 레벨까지 {pg.remainXp} {TM.xp}
+                                다음 레벨까지 {pg.remainXp}{TM.xpUnit}
                               </span>}
                               <span style={{fontSize:11,fontWeight:700,color:C.sub}}>
                                 {TM.coin} {getChildCoin(childId).toLocaleString()}
@@ -534,7 +534,7 @@ export default function RewardTab({ D }) {
                   const point=xpAdjustSign==="+"?v:-v;
                   addChildScore(childId,point,xpAdjustLabel||"수동 조정","manual");
                   setXpAdjustInput(""); setXpAdjustLabel("");
-                  showToast(xpAdjustSign==="+"?`+${v} ${TM.xp} 지급 완료`:`-${v} ${TM.xp} 차감 완료`);
+                  showToast(xpAdjustSign==="+"?`+${v}${TM.xpUnit} 지급 완료`:`-${v}${TM.xpUnit} 차감 완료`);
                 }} style={{padding:"9px 14px",borderRadius:10,border:"none",background:xpAdjustSign==="+"?C.green:C.red,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",flexShrink:0}}>
                   {xpAdjustSign==="+"?"지급":"차감"}
                 </button>

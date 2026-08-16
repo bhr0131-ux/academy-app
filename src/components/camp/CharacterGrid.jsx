@@ -44,7 +44,7 @@ export default function CharacterGrid({
   level = { emoji: "🌱", level: 1, name: "새싹 탐험가" }, nextLevel = null,
   progress = { percent: 0, currentXp: 0, needXp: 0, remainXp: 0 },
   coin = 0, xp = 0,
-  labels = { coin: "코인", xp: "XP", coinEmoji: "💎", xpEmoji: "⭐" },
+  labels = { coin: "코인", xp: "점수", xpUnit: "점", coinEmoji: "💎", xpEmoji: "⭐" },
   onOpenLevel, event = null,
 }) {
   const wrapRef = useRef(null);

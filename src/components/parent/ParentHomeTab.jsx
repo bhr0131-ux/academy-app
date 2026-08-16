@@ -11,7 +11,7 @@
 
    props
      th, CT                : 아이 테마색 / 그 테마에 맞춘 박스색 세트
-     TM                    : 아이모드 용어 세트 (탐험/베이커리에 따라 'XP' 이름이 다르다)
+     TM                    : 아이모드 용어 세트 (코인/쿠키 등 모드별 이름. 점수는 두 모드 공통)
      childId, childGender, kidSkin, curAc, curAbs
      homeDate, setHomeDate : 보고 있는 날짜
      homeAcOpen, setHomeAcOpen : 펼친 학원 카드 {학원id:true}
