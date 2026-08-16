@@ -5917,7 +5917,7 @@ export default function App() {
                             return (e.homeworks||[]).length+(e.todos||[]).length;
                           };
                           const openEdit=(acId,acName,acColor,baseSupplies)=>{
-                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[]});
+                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[],fromMission:true});
                             setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
                             setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
                           };
@@ -7373,8 +7373,12 @@ export default function App() {
 
       {/* ── 날짜별 숙제/준비물 모달 ── */}
       {showDailyModal&&(()=>{
-        const {academyId,date,acName,acColor,baseSupplies}=showDailyModal;
+        const {academyId,date,acName,acColor,baseSupplies,fromMission}=showDailyModal;
         const isExtra=String(academyId)===String(EXTRA_QUEST_ID); // 기타 미션: 숙제·준비물 없이 미션만
+        /* [사용자 확정 2026-08-16] 미션 탭에서 연 팝업에는 '오늘의 준비물'을 빼고 미션만 다룬다 —
+           준비물은 홈탭 '준비물·미션 수정'에서 챙긴다. 같은 팝업을 두 곳에서 쓰므로
+           연 자리를 fromMission 으로 구분한다. */
+        const showSupplies=!isExtra&&!fromMission;
         const entry=getDailyEntry(childId,academyId,date);
         const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
         const upd=(ne)=>setDailyEntry(childId,academyId,date,ne);
@@ -7409,7 +7413,7 @@ export default function App() {
               {/* [사용자 확정 2026-08-16] 준비물을 미션보다 위로 올렸다 —
                   학원 갈 때 먼저 챙기는 것이 준비물이라 읽는 순서를 그대로 따른다.
                   (버튼 이름도 '준비물·미션 수정'으로 같이 맞췄다) */}
-              {!isExtra&&(()=>{
+              {showSupplies&&(()=>{
               const hiddenBase=entry.hiddenBase||[];
               const visibleBase=(baseSupplies||[]).filter(s=>!hiddenBase.includes(s));
               const hideBase=(s)=>upd({...entry,hiddenBase:[...hiddenBase,s]});
