@@ -40,6 +40,26 @@ function timeRange(time, duration) {
   return `${time}–${end}`;
 }
 
+/* 정렬 — 월요일부터. 같은 요일에 시작하면 이른 시간이 먼저.
+   [사용자 확정 2026-08-16] '오늘의 학원'은 그날 시간순인데(getDayPlan 이 정렬한다),
+   등록 학원은 날짜가 없으므로 '언제 가는 학원인가'를 주 초부터 늘어놓는다.
+   요일마다 시간이 다른 학원은 그중 가장 이른 요일·시간을 기준으로 잡는다. */
+const DAY_ORDER = ["월", "화", "수", "목", "금", "토", "일"];
+function sortKey(ac) {
+  const slots = ac.useCustomSchedule
+    ? (ac.schedules || []).map(s => ({ day: s.day, time: s.time || ac.time }))
+    : (ac.days || []).map(d => ({ day: d, time: ac.time }));
+  const ranked = slots
+    .map(s => ({ d: DAY_ORDER.indexOf(s.day), m: minutesOf(s.time) }))
+    .filter(x => x.d >= 0)
+    .sort((a, b) => a.d - b.d || a.m - b.m);
+  return ranked[0] || { d: 99, m: 0 };   // 요일이 하나도 없는 학원은 맨 뒤
+}
+function minutesOf(t) {
+  const [h, m] = String(t || "").split(":").map(Number);
+  return Number.isNaN(h) ? 0 : h * 60 + (m || 0);
+}
+
 /* 접힌 줄에 쓸 '요일 + 시간'.
    요일마다 시간이 다른 학원은 한 줄에 다 못 담으므로 요일만 쓰고 시간은 펼쳐서 본다. */
 function whenLabel(ac) {
@@ -71,7 +91,10 @@ export default function RegisteredAcademyList({
 
   return (
     <div>
-      {curAc.map((ac) => {
+      {[...curAc].sort((a, b) => {
+        const ka = sortKey(a), kb = sortKey(b);
+        return ka.d - kb.d || ka.m - kb.m;
+      }).map((ac) => {
         const isOpen = !!open[ac.id];
         const supplies = ac.baseSupplies || [];
         const homeworks = ac.baseHomeworks || [];
@@ -224,7 +247,9 @@ export default function RegisteredAcademyList({
                       style={{ border: "none", background: "none", color: SUBD, fontSize: 12, fontWeight: 800,
                         cursor: "pointer", fontFamily: "inherit", padding: "6px 0 6px 12px",
                         display: "inline-flex", alignItems: "center", gap: 5 }}>
-                      <CareIcon name="pencil" size={13} />수정
+                      {/* [사용자 확정 2026-08-16] '오늘의 학원'의 수정은 그날 미션·준비물을
+                          고치는 것이고, 여기는 학원 정보 자체를 고친다 → 이름으로 구분한다. */}
+                      <CareIcon name="pencil" size={13} />학원 수정
                     </button>
                   </div>
                 </div>
