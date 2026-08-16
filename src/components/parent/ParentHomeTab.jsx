@@ -266,24 +266,6 @@ export default function ParentHomeTab({
           })}
         </div>
         <div style={{flex:1,height:1,background:C.border}}/>
-        {/* 추가·복사는 '등록 학원'을 보고 있을 때만 — 오늘 일정을 볼 때는 방해가 된다 */}
-        {acView==="all"&&(
-          <>
-            {canCopy&&(
-              <button onClick={()=>onCopyAcademy&&onCopyAcademy()} className="jelly-tap"
-                style={{flexShrink:0,fontSize:12,padding:"6px 2px",border:"none",background:"none",
-                  color:C.sub,fontWeight:800,cursor:"pointer",fontFamily:"inherit",
-                  textDecoration:"underline",textUnderlineOffset:3}}>
-                복사
-              </button>
-            )}
-            <button onClick={onAddAcademy} className="jelly-tap"
-              style={{flexShrink:0,fontSize:12.5,padding:"7px 12px",borderRadius:10,border:"none",
-                background:th.grad,color:"#fff",fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
-              ＋ 추가
-            </button>
-          </>
-        )}
       </div>
 
       {/* ── '등록 학원' — 날짜와 무관한 목록. 아래 결석·보충 칸은 그대로 둔다 ── */}
@@ -291,9 +273,28 @@ export default function ParentHomeTab({
         <div style={{marginBottom:26}}>
           <RegisteredAcademyList
             th={th} CT={CT} curAc={curAc} acKindLabel={acKindLabel}
+            getAcademyTheme={getAcademyTheme} kidSkin={kidSkin}
             open={regAcOpen} setOpen={setRegAcOpen}
             onEdit={onEditAcademy} onSms={onSms}
             onCopyAccount={onCopyAccount} onOpenMap={onOpenMap}/>
+          {/* [사용자 확정 2026-08-16] 추가·복사는 목록 '아래'에 둔다 — 제목 줄에 붙여 두니
+              토글과 나란히 놓여 무엇을 누르는 자리인지 헷갈렸고, 학원이 많아도 목록을
+              끝까지 본 다음에 누르는 순서가 자연스럽다. */}
+          <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
+            <button onClick={onAddAcademy} className="jelly-tap"
+              style={{flex:1,fontSize:13.5,padding:"12px",borderRadius:14,border:"none",
+                background:th.grad,color:"#fff",fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+              ＋ 학원 추가
+            </button>
+            {canCopy&&(
+              <button onClick={()=>onCopyAcademy&&onCopyAcademy()} className="jelly-tap"
+                style={{flexShrink:0,fontSize:13,padding:"12px 14px",borderRadius:14,
+                  border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontWeight:800,
+                  cursor:"pointer",fontFamily:"inherit"}}>
+                학원 복사
+              </button>
+            )}
+          </div>
           {showSample&&(
             <button onClick={onSeedSample}
               style={{width:"100%",marginTop:14,padding:"12px",borderRadius:14,border:`1.5px dashed ${th.main}55`,

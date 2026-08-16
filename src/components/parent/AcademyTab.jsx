@@ -69,19 +69,29 @@ function ampm(t = "") {
    요일마다 시간이 다른 학원은 '월 오후 4:00 · 수 오후 5:00' 처럼 요일별로. */
 const WEEKDAYS = ["월", "화", "수", "목", "금"];
 const WEEKEND = ["토", "일"];
+
+/* 요일 묶음만 말로 — 매일 / 평일 / 주말 / 월·수·금.
+   [사용자 확정 2026-08-16] 홈의 '등록 학원' 접힌 줄에서도 같은 말을 써야 해서
+   scheduleLabel 안에 있던 판단을 따로 뺐다 (두 화면이 다른 말을 쓰면 안 된다). */
+export function dayGroupLabel(ac = {}) {
+  const d = ac.useCustomSchedule
+    ? [...new Set((ac.schedules || []).map(s => s.day))]
+    : (ac.days || []);
+  if (d.length === 0) return "";
+  const has = (arr) => arr.every(x => d.includes(x));
+  if (d.length === 7) return "매일";
+  if (d.length === 5 && has(WEEKDAYS)) return "평일";
+  if (d.length === 2 && has(WEEKEND)) return "주말";
+  return daysLabel(d);
+}
+
 export function scheduleLabel(ac = {}) {
   if (ac.useCustomSchedule) {
     const list = ac.schedules || [];
     if (!list.length) return "";
     return list.map(s => `${s.day} ${ampm(s.time)}`).join(" · ");
   }
-  const d = ac.days || [];
-  const has = (arr) => arr.every(x => d.includes(x));
-  const dayTxt = d.length === 7 ? "매일"
-    : d.length === 5 && has(WEEKDAYS) ? "평일"
-    : d.length === 2 && has(WEEKEND) ? "주말"
-    : daysLabel(d);
-  return `${dayTxt} · ${ampm(ac.time)} · ${ac.duration}분`;
+  return `${dayGroupLabel(ac)} · ${ampm(ac.time)} · ${ac.duration}분`;
 }
 
 /* 상세 한 줄 — [아이콘][라벨(고정 폭)][값(오른쪽 정렬)][동작]
