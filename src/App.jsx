@@ -1,4 +1,4 @@
-import { DAYS, FS, FW, RAD, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
+import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
@@ -7585,11 +7585,11 @@ export default function App() {
                         ...(isExtra?{}:{width:62,textAlign:"right"})}}>보상</span>
                       <input type="number" value={isParentEdit?pt:DEFAULT_HOMEWORK_SCORE} onChange={e=>setPt(e.target.value)}
                         disabled={!isParentEdit} aria-label={`보상 ${TM.xp}`} title={isParentEdit?"":"점수는 엄마용에서 바꿀 수 있어요"} min="1"
-                        style={{...inp,width:56,fontSize:FS.body,padding:"8px 6px",textAlign:"center",marginBottom:0,
+                        style={{...inp,width:56,fontSize:FS.body,padding:"8px 6px",minHeight:CTRL_H,boxSizing:"border-box",textAlign:"center",marginBottom:0,
                           background:isParentEdit?"#fff":CT.faint,color:isParentEdit?C.text:C.sub,cursor:isParentEdit?"text":"not-allowed"}}/>
                       <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
                       <button onClick={add} className="jelly-tap"
-                        style={{marginLeft:"auto",flexShrink:0,padding:"9px 16px",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontWeight:FW.bold,fontSize:FS.body,cursor:"pointer",fontFamily:"inherit"}}>
+                        style={{marginLeft:"auto",flexShrink:0,padding:"0 16px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontWeight:FW.bold,fontSize:FS.body,cursor:"pointer",fontFamily:"inherit"}}>
                         오늘 미션에 추가
                       </button>
                     </div>
@@ -7626,10 +7626,10 @@ export default function App() {
                         const added=existing.includes(s);
                         return (
                           <div key={i} style={{display:"flex",gap:6,alignItems:"center"}}>
-                            <div style={{...inp,flex:3,width:"auto",fontSize:FS.cardTitle,padding:"9px 10px",display:"flex",alignItems:"center",color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
+                            <div style={{...inp,flex:3,width:"auto",fontSize:FS.cardTitle,padding:"9px 10px",minHeight:CTRL_H,boxSizing:"border-box",display:"flex",alignItems:"center",color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
                               {added&&<span style={{color:C.green,marginRight:5,fontWeight:FW.bold}}>✓</span>}{s}
                             </div>
-                            <button onClick={()=>addOne(s)} disabled={added} style={{padding:"9px 11px",borderRadius:RAD.sm,border:"none",background:added?`${C.green}18`:acColor,color:added?mixBlack(C.green,0.3):"#fff",fontWeight:FW.semi,fontSize:FS.body,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
+                            <button onClick={()=>addOne(s)} disabled={added} style={{padding:"0 13px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:added?`${C.green}18`:acColor,color:added?mixBlack(C.green,0.3):"#fff",fontWeight:FW.semi,fontSize:FS.body,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
                               {added?"추가됨 ✓":"추가"}
                             </button>
                           </div>
