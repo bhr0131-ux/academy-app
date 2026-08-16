@@ -248,7 +248,7 @@ export default function ParentHomeTab({
              제목이 나와서, 학원이 없는 날엔 등록하러 들어갈 길이 아예 없었다. */}
       <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 15px"}}>
         <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
-          {[{k:"today",l:"오늘의 학원"},{k:"all",l:"등록 학원"}].map(t=>{
+          {[{k:"today",l:"오늘의 학원",n:homeAc.length},{k:"all",l:"등록 학원",n:curAc.length}].map(t=>{
             const on=acView===t.k;
             return (
               <button key={t.k} onClick={()=>setAcView(t.k)} className="jelly-tap"
@@ -261,9 +261,10 @@ export default function ParentHomeTab({
                   display:"inline-flex",alignItems:"center",gap:5}}>
                 {on&&<span style={{color:th.main,display:"flex"}}><CareIcon name="school" size={14}/></span>}
                 {t.l}
-                {/* 학원 탭 머리에 있던 'N곳'을 여기로 — 고른 쪽에만 붙여 접힌 알약이 길어지지 않게 한다 */}
-                {on&&t.k==="all"&&curAc.length>0&&(
-                  <span style={{fontSize:12.5,fontWeight:700,color:C.sub}}>{curAc.length}곳</span>
+                {/* 학원 탭 머리에 있던 'N곳'을 여기로 — 고른 쪽에만 붙여 접힌 알약이 길어지지 않게 한다.
+                    오늘의 학원은 '그날 가는 곳', 등록 학원은 '등록한 곳' 수를 센다. */}
+                {on&&t.n>0&&(
+                  <span style={{fontSize:12.5,fontWeight:700,color:C.sub}}>{t.n}곳</span>
                 )}
               </button>
             );
