@@ -132,7 +132,7 @@ const initAuth = {
 const initOnboarding = {
   showOnboarding: false, showCoachmark: false, showKidCoachmark: false, showModeSelect: false,
   firstTipPending: false, firstTipSeen: false,
-  pinHintSeen: false, showParentRewardGuide: false, parentRewardGuideSeen: false, showParentWelcome: false, parentWelcomeSeen: false,
+  pinHintSeen: false, showParentWelcome: false, parentWelcomeSeen: false,
 };
 /* '더보기' 안에 묶인 세 화면 (사용자 확정 2026-08-09: 하단 메뉴 5칸으로 줄이면서 통합) */
 /* [사용자 확정 2026-08-10] 하단 5칸을 홈·학원·미션·보상·더보기로 바꾸면서
@@ -332,8 +332,6 @@ export default function App() {
   const [firstTipSeen,          setFirstTipSeen]          = useState(initOnboarding.firstTipSeen);
   // 온보딩 직후 첫 홈 화면에서 '학원 추가' → '미션·준비물 편집' 순서로 1회성 버튼 깜빡임 안내
   const [pinHintSeen,           setPinHintSeen]           = useState(initOnboarding.pinHintSeen);
-  const [showParentRewardGuide, setShowParentRewardGuide] = useState(initOnboarding.showParentRewardGuide);
-  const [parentRewardGuideSeen, setParentRewardGuideSeen] = useState(initOnboarding.parentRewardGuideSeen);
   const [showParentWelcome,    setShowParentWelcome]    = useState(initOnboarding.showParentWelcome);
   const [parentWelcomeSeen,    setParentWelcomeSeen]    = useState(initOnboarding.parentWelcomeSeen);
 
@@ -709,8 +707,6 @@ export default function App() {
       if(tipSeen) setFirstTipSeen(true);
       const pinHint=await load("v6_pin_hint_seen");
       if(pinHint) setPinHintSeen(true);
-      const prGuideSeen=await load("v6_parent_reward_guide_seen");
-      if(prGuideSeen) setParentRewardGuideSeen(true);
       const pWelcomeSeen=await load("v6_parent_welcome_seen");
       if(pWelcomeSeen) setParentWelcomeSeen(true);
       const rAge=await load("v6_reward_age_group");
@@ -1080,16 +1076,12 @@ export default function App() {
     if(!parentLocked()){ setTab("reward"); return; }
     askPin(()=>{
       setRewardUnlocked(true); setTab("reward");
-      // 권한 구조 안내는 미션·보상 중 먼저 들어간 곳에서 1회 (showParentWelcomeOnce)
-      if(!showParentWelcomeOnce() && !parentRewardGuideSeen){
-        // (별개) 첫 구매요청이 있는데 아직 안내 안 봤으면 1회 안내
-        const anyPending=Object.values(rewardRequests).some(list=>(list||[]).some(r=>r.status==="pending"));
-        if(anyPending){
-          setParentRewardGuideSeen(true);
-          save("v6_parent_reward_guide_seen","1");
-          setTimeout(()=>setShowParentRewardGuide(true),450);
-        }
-      }
+      /* 권한 구조 안내는 미션·보상 중 먼저 들어간 곳에서 1회 (showParentWelcomeOnce).
+         [삭제 2026-08-16] 그 뒤에 따로 띄우던 '보상 탭 안내'는 뺐다(사용자 확정).
+         이 호출은 남겨야 한다 — 지우면 보상 탭으로 먼저 들어간 엄마가 왜 비밀번호를
+         묻는지 못 듣고 지나간다. 저장 키 v6_parent_reward_guide_seen 는 건드리지
+         않는다(읽지도 쓰지도 않을 뿐, 기존 기기의 값은 그대로 둔다). */
+      showParentWelcomeOnce();
     }, "보상 관리");
   };
   const submitGatePin=()=>{
@@ -5227,9 +5219,6 @@ export default function App() {
         }} />
       )}
 
-      {showParentRewardGuide&&(
-        <GuideModal type="reward" th={th} skin={kidSkin} onClose={()=>{ setShowParentRewardGuide(false); setTab("reward"); }} />
-      )}
       {showParentWelcome&&(
         <GuideModal type="welcome" th={th} skin={kidSkin} onClose={()=>setShowParentWelcome(false)} />
       )}
