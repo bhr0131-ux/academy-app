@@ -7406,6 +7406,56 @@ export default function App() {
                 </div>
                 <button onClick={()=>setShowDailyModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
               </div>
+              {/* [사용자 확정 2026-08-16] 준비물을 미션보다 위로 올렸다 —
+                  학원 갈 때 먼저 챙기는 것이 준비물이라 읽는 순서를 그대로 따른다.
+                  (버튼 이름도 '준비물·미션 수정'으로 같이 맞췄다) */}
+              {!isExtra&&(()=>{
+              const hiddenBase=entry.hiddenBase||[];
+              const visibleBase=(baseSupplies||[]).filter(s=>!hiddenBase.includes(s));
+              const hideBase=(s)=>upd({...entry,hiddenBase:[...hiddenBase,s]});
+              const restoreBase=(s)=>upd({...entry,hiddenBase:hiddenBase.filter(x=>x!==s)});
+              return (<>
+              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
+                <span style={{color:acColor,display:"flex"}}><CareIcon name="bag" size={15}/></span>오늘의 준비물
+              </p>
+              {visibleBase.length===0&&sup.length===0&&<p style={{fontSize:13.5,fontWeight:600,color:C.sub,marginBottom:10}}>등록된 준비물이 없어요. 아래에서 추가할 수 있어요.</p>}
+              <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:hiddenBase.length>0?8:10}}>
+                {visibleBase.map((s,i)=>(
+                  /* [사용자 확정 2026-08-11] 꽉 찬 학원색이라 정작 중요한 미션보다 먼저 보였다 →
+                     연한 배경 + 진한 글씨로 낮춘다. 그날 추가분과는 앞의 📌 로 구분된다. */
+                  /* [사용자 확정 2026-08-11] 긴 이름이 들어오면 줄이 무너졌다 → 최대 폭 + 말줄임.
+                     ✕ 는 누르기 쉽게 32px 자리를 준다. 📌 는 태그마다 반복하지 않고 제목에만. */
+                  <span key={`base${i}`} style={{maxWidth:"100%",fontSize:13.5,padding:"5px 4px 5px 12px",borderRadius:20,background:mixWhite(acColor,0.86),color:mixBlack(acColor,0.32),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
+                    <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s}</span>
+                    <button onClick={()=>hideBase(s)} aria-label={`${s} 오늘 제외`} className="jelly-tap" style={{flexShrink:0,width:32,height:26,background:"none",border:"none",color:mixBlack(acColor,0.32),opacity:0.65,cursor:"pointer",fontSize:13,padding:0,lineHeight:1,fontFamily:"inherit"}}>✕</button>
+                  </span>
+                ))}
+                {sup.map((s,i)=>(
+                  <span key={`day${i}`} style={{maxWidth:"100%",fontSize:13.5,padding:"5px 4px 5px 12px",borderRadius:20,background:`${acColor}15`,color:mixBlack(acColor,0.2),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
+                    <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s}</span>
+                    <button onClick={()=>upd({...entry,supplies:sup.filter((_,j)=>j!==i)})} aria-label={`${s} 지우기`} className="jelly-tap" style={{flexShrink:0,width:32,height:26,background:"none",border:"none",color:mixBlack(acColor,0.2),opacity:0.65,cursor:"pointer",fontSize:13,padding:0,lineHeight:1,fontFamily:"inherit"}}>✕</button>
+                  </span>
+                ))}
+              </div>
+              {hiddenBase.length>0&&(
+                <div style={{marginBottom:10}}>
+                  <p style={{fontSize:13,color:C.sub,margin:"0 0 5px"}}>오늘 제외한 준비물 (눌러서 되돌리기)</p>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                    {hiddenBase.map((s,i)=>(
+                      <button key={`hb${i}`} onClick={()=>restoreBase(s)} style={{fontSize:13,padding:"4px 11px",borderRadius:20,background:CT.faint,color:C.sub,border:`1px dashed ${CT.faintB}`,cursor:"pointer",textDecoration:"line-through",fontWeight:600}}>
+                        {s} ↩
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div style={{display:"flex",gap:8,marginBottom:22}}>
+                {/* 위 '미션 내용 입력'은 14인데 여기만 15라 같은 창 안에서 크기가 어긋났다 → 14로 통일 */}
+                <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="준비물 입력" style={{...inp,flex:1,width:"auto",fontSize:14,padding:"10px 14px"}}/>
+                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:700,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
+              </div>
+              </>);
+              })()}
               {/* [사용자 확정 2026-08-11] 팝업 안 구역 제목이 창 제목과 같은 17이었다 →
                   다른 화면의 구역 제목(홈 15 · 결석 15.5)에 맞춰 15. */}
               <p style={{fontSize:15,fontWeight:900,color:C.text,margin:isParent&&!isParentEdit&&(hw.length>0||todos.length>0)?"0 0 3px":"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
@@ -7417,7 +7467,7 @@ export default function App() {
                   삭제·점수 수정을 여는 건 그 안의 '엄마 권한'이므로 안내도 그렇게 바꾼다. */}
               {isParent&&!isParentEdit&&(hw.length>0||todos.length>0)&&(
                 <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"0 0 10px"}}>
-                  미션 삭제 · {TM.xp} 수정은 엄마 권한(비밀번호)에서 가능해요.
+                  미션 삭제 · {TM.xp} 수정은 엄마권한(비밀번호)을 열면 가능해요
                 </p>
               )}
               {hw.length===0&&todos.length===0&&(
@@ -7493,8 +7543,10 @@ export default function App() {
                     {!isExtra&&(
                       <div style={{flexShrink:0,width:62,display:"flex",flexDirection:"column",gap:5}}>
                         {[{k:"hw",l:"숙제"},{k:"todo",l:"할 일"}].map(o=>(
+                          /* [사용자 확정 2026-08-16] 두 버튼이 위아래로 두툼해 옆 입력칸보다
+                             먼저 눈에 들어왔다 → 높이만 한 단계 낮춘다 (7 → 4). */
                           <button key={o.k} onClick={()=>setDailyKind(o.k)} className="jelly-tap" aria-pressed={kind===o.k}
-                            style={{width:"100%",cursor:"pointer",borderRadius:9,padding:"7px 0",fontFamily:"inherit",fontSize:12.5,
+                            style={{width:"100%",cursor:"pointer",borderRadius:9,padding:"4px 0",fontFamily:"inherit",fontSize:12.5,
                               border:`1.5px solid ${kind===o.k?mixWhite(th.main,0.35):CT.faintB}`,
                               fontWeight:kind===o.k?900:700,background:kind===o.k?th.grad:"#fff",color:kind===o.k?"#fff":C.sub}}>{o.l}</button>
                         ))}
@@ -7504,13 +7556,16 @@ export default function App() {
                       placeholder="미션 내용 입력" aria-label="미션 내용"
                       style={{...inp,flex:1,minWidth:0,fontSize:14,padding:"10px 12px",marginBottom:0,background:"#fff"}}/>
                     </div>
-                    {/* [사용자 확정 2026-08-16] '보상 10 XP' 줄이 왼쪽 끝에서 시작해 위의
+                    {/* [사용자 확정 2026-08-16] '보상 10 점' 줄이 왼쪽 끝에서 시작해 위의
                         미션 내용 입력칸과 어긋나 보였다 → 숙제/할 일 칸과 같은 폭(62+8)을
                         '보상' 라벨에 줘서 점수 칸이 입력칸과 같은 자리에서 시작하게 한다.
-                        학원 없는 할 일(isExtra)은 왼쪽 칸 자체가 없으므로 예전 그대로 둔다. */}
+                        학원 없는 할 일(isExtra)은 왼쪽 칸 자체가 없으므로 예전 그대로 둔다.
+                        [사용자 확정 2026-08-16] 다만 '보상' 글씨는 그 칸의 오른쪽 끝에 붙인다 —
+                        왼쪽에 두면 점수 칸과 멀어져 어느 칸의 이름인지 흐려졌다.
+                        칸 폭은 그대로라 점수 칸의 시작 위치는 위 입력칸과 계속 맞는다. */}
                     <div style={{display:"flex",alignItems:"center",gap:isExtra?7:8}}>
                       <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0,
-                        ...(isExtra?{}:{width:62})}}>보상</span>
+                        ...(isExtra?{}:{width:62,textAlign:"right"})}}>보상</span>
                       <input type="number" value={isParentEdit?pt:DEFAULT_HOMEWORK_SCORE} onChange={e=>setPt(e.target.value)}
                         disabled={!isParentEdit} aria-label={`보상 ${TM.xp}`} title={isParentEdit?"":"점수는 엄마용에서 바꿀 수 있어요"} min="1"
                         style={{...inp,width:56,fontSize:13.5,padding:"8px 6px",textAlign:"center",marginBottom:0,
@@ -7563,53 +7618,6 @@ export default function App() {
                     </div>
                   </div>
                 );
-              })()}
-              {!isExtra&&(()=>{
-              const hiddenBase=entry.hiddenBase||[];
-              const visibleBase=(baseSupplies||[]).filter(s=>!hiddenBase.includes(s));
-              const hideBase=(s)=>upd({...entry,hiddenBase:[...hiddenBase,s]});
-              const restoreBase=(s)=>upd({...entry,hiddenBase:hiddenBase.filter(x=>x!==s)});
-              return (<>
-              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
-                <span style={{color:acColor,display:"flex"}}><CareIcon name="bag" size={15}/></span>오늘의 준비물
-              </p>
-              {visibleBase.length===0&&sup.length===0&&<p style={{fontSize:13.5,fontWeight:600,color:C.sub,marginBottom:10}}>등록된 준비물이 없어요. 아래에서 추가할 수 있어요.</p>}
-              <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:hiddenBase.length>0?8:10}}>
-                {visibleBase.map((s,i)=>(
-                  /* [사용자 확정 2026-08-11] 꽉 찬 학원색이라 정작 중요한 미션보다 먼저 보였다 →
-                     연한 배경 + 진한 글씨로 낮춘다. 그날 추가분과는 앞의 📌 로 구분된다. */
-                  /* [사용자 확정 2026-08-11] 긴 이름이 들어오면 줄이 무너졌다 → 최대 폭 + 말줄임.
-                     ✕ 는 누르기 쉽게 32px 자리를 준다. 📌 는 태그마다 반복하지 않고 제목에만. */
-                  <span key={`base${i}`} style={{maxWidth:"100%",fontSize:13.5,padding:"5px 4px 5px 12px",borderRadius:20,background:mixWhite(acColor,0.86),color:mixBlack(acColor,0.32),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
-                    <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s}</span>
-                    <button onClick={()=>hideBase(s)} aria-label={`${s} 오늘 제외`} className="jelly-tap" style={{flexShrink:0,width:32,height:26,background:"none",border:"none",color:mixBlack(acColor,0.32),opacity:0.65,cursor:"pointer",fontSize:13,padding:0,lineHeight:1,fontFamily:"inherit"}}>✕</button>
-                  </span>
-                ))}
-                {sup.map((s,i)=>(
-                  <span key={`day${i}`} style={{maxWidth:"100%",fontSize:13.5,padding:"5px 4px 5px 12px",borderRadius:20,background:`${acColor}15`,color:mixBlack(acColor,0.2),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
-                    <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s}</span>
-                    <button onClick={()=>upd({...entry,supplies:sup.filter((_,j)=>j!==i)})} aria-label={`${s} 지우기`} className="jelly-tap" style={{flexShrink:0,width:32,height:26,background:"none",border:"none",color:mixBlack(acColor,0.2),opacity:0.65,cursor:"pointer",fontSize:13,padding:0,lineHeight:1,fontFamily:"inherit"}}>✕</button>
-                  </span>
-                ))}
-              </div>
-              {hiddenBase.length>0&&(
-                <div style={{marginBottom:10}}>
-                  <p style={{fontSize:13,color:C.sub,margin:"0 0 5px"}}>오늘 제외한 준비물 (눌러서 되돌리기)</p>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                    {hiddenBase.map((s,i)=>(
-                      <button key={`hb${i}`} onClick={()=>restoreBase(s)} style={{fontSize:13,padding:"4px 11px",borderRadius:20,background:CT.faint,color:C.sub,border:`1px dashed ${CT.faintB}`,cursor:"pointer",textDecoration:"line-through",fontWeight:600}}>
-                        {s} ↩
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div style={{display:"flex",gap:8,marginBottom:22}}>
-                {/* 위 '미션 내용 입력'은 14인데 여기만 15라 같은 창 안에서 크기가 어긋났다 → 14로 통일 */}
-                <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="준비물 입력" style={{...inp,flex:1,width:"auto",fontSize:14,padding:"10px 14px"}}/>
-                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:700,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
-              </div>
-              </>);
               })()}
               {/* [사용자 확정 2026-08-11] '＋ 추가'와 '저장하기'가 둘 다 저장처럼 읽혀서
                   버튼 이름을 사실대로 '닫기'로 바꿨다. 그때 같이 붙였던
