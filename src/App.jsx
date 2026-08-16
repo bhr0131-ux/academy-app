@@ -7661,8 +7661,10 @@ export default function App() {
             <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:16}}>
               {templates.map(t=><button key={t.id} onClick={()=>applyTmpl(t,showSmsModal)} style={{padding:"7px 14px",borderRadius:RAD.sm,border:`1px solid ${C.purple}40`,background:C.purpleL,color:C.purple,fontSize:FS.sub,fontWeight:FW.normal,cursor:"pointer"}}>{t.title}</button>)}
             </div>
-            <label style={lbl}>✏️ 문자 내용</label>
-            <textarea value={smsDraft} onChange={e=>setSmsDraft(e.target.value)} placeholder={"템플릿을 선택하거나\n직접 입력하세요"} style={{...inp,height:140,resize:"none",marginBottom:16,whiteSpace:"pre-wrap"}}/>
+            {/* [사용자 확정 2026-08-16] 라벨과 입력칸 글씨를 위의 '템플릿 선택'과 같은 크기로.
+                lbl·inp 는 학원 추가 등 다른 폼도 함께 쓰는 공용 스타일이라, 여기서만 덮어쓴다. */}
+            <label style={{...lbl,fontSize:FS.title}}>✏️ 문자 내용</label>
+            <textarea value={smsDraft} onChange={e=>setSmsDraft(e.target.value)} placeholder={"템플릿을 선택하거나\n직접 입력하세요"} style={{...inp,fontSize:FS.title,height:140,resize:"none",marginBottom:16,whiteSpace:"pre-wrap"}}/>
             <div style={{display:"flex",gap:10}}>
               {showSmsModal.phone?(
                 <>
