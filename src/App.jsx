@@ -341,6 +341,12 @@ export default function App() {
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
+  /* [사용자 확정 2026-08-16] 아이용 '미션 추가하기'는 화면 아래에 늘 떠 있어서
+     캐릭터 무대(미션 배경)를 보고 있을 때도 그림 위에 걸쳐 있었다 →
+     무대가 화면 밖으로 지나간 뒤부터 나타나 아래에 고정된다.
+     kidStageRef 는 그 무대 높이를 재는 기준점. */
+  const kidStageRef = useRef(null);
+  const [kidAddDocked, setKidAddDocked] = useState(false);
   const [journalAcId,            setJournalAcId]            = useState(null); // 탐험일지 표시 학원 (null=시간 기준 자동)
   /* 오늘의 발견 — 지도 발견 지점을 지나간 날 하루 1개 (미션과 무관). 저장은 새 키(v6_discoveries)로만. */
   const [discoveryData,         setDiscoveryData]          = useState({});
@@ -769,6 +775,27 @@ export default function App() {
   const uiNowRef=useRef({mode:appMode,tab:childTab,ptab:tab});
   uiNowRef.current={mode:appMode,tab:childTab,ptab:tab};
   useEffect(()=>{ if(loaded) save("v6_ui_last",{...uiNowRef.current,at:Date.now()}); },[appMode,childTab,tab,loaded]);
+
+  /* [사용자 확정 2026-08-16] '미션 추가하기'는 캐릭터 무대(미션 배경)가 화면 밖으로
+     지나간 뒤부터 나타나 아래에 고정된다 — 무대 그림 위에 버튼이 걸치지 않게.
+     마지막까지 내려온 경우에도 켜 준다: 화면이 크고 미션이 적어 무대가 다 지나가지
+     못하는 기기에서 버튼이 영영 안 나오면 미션을 못 넣는다. */
+  useEffect(()=>{
+    if(appMode!=="child"||childTab!=="today"){ setKidAddDocked(false); return; }
+    const calc=()=>{
+      const el=kidStageRef.current;
+      if(!el){ setKidAddDocked(true); return; }   // 무대를 못 찾으면 예전처럼 늘 보인다
+      const passed=el.getBoundingClientRect().bottom<=0;
+      const atEnd=window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-4;
+      setKidAddDocked(passed||atEnd);
+    };
+    calc();
+    window.addEventListener("scroll",calc,{passive:true});
+    window.addEventListener("resize",calc);
+    const t=setTimeout(calc,400);                 // 탭 전환 애니메이션이 끝난 뒤 한 번 더
+    return ()=>{ clearTimeout(t);
+      window.removeEventListener("scroll",calc); window.removeEventListener("resize",calc); };
+  },[appMode,childTab,childDate]);
   useEffect(()=>{
     if(!loaded) return;
     const stamp=()=>save("v6_ui_last",{...uiNowRef.current,at:Date.now()});
@@ -4152,7 +4179,11 @@ export default function App() {
 
         {/* ── 대형 캐릭터 영웅 무대 (메인 주인공) ── */}
         {/* 무대 — src/components/HeroStage.jsx 로 분리 (CLAUDE.md 3). 값·함수는 D 하나로 전달 */}
-        <HeroStage D={{ GP, th, kidSkin, childId, childDate, children, discoveryData, dungeonShinyBg, DungeonScenery, BakeryScenery, AdventureBgScenery, getAvatarBaseCharImg, getAvatarEquipped, getCharMode, getChildLevel, getEquipped, getPet, getProgressMessage, getSelectedTitle, getTodayQuestProgress, setChildTab, toggleCharDisplayMode }} />
+        {/* [사용자 확정 2026-08-16] 이 무대가 '미션 배경'이다. 여기를 감싼 div 의 높이를 재서
+            '미션 추가하기' 버튼을 언제 띄울지 정한다 (위 kidAddDocked 참고). */}
+        <div ref={kidStageRef}>
+          <HeroStage D={{ GP, th, kidSkin, childId, childDate, children, discoveryData, dungeonShinyBg, DungeonScenery, BakeryScenery, AdventureBgScenery, getAvatarBaseCharImg, getAvatarEquipped, getCharMode, getChildLevel, getEquipped, getPet, getProgressMessage, getSelectedTitle, getTodayQuestProgress, setChildTab, toggleCharDisplayMode }} />
+        </div>
 
         {/* 아이용 탭 */}
         {(()=>{
@@ -4767,9 +4798,14 @@ export default function App() {
               {(childDate||TODAY)>=TODAY&&(<>
                 {/* 고정 버튼에 가려지는 만큼 아래를 비워 둔다 */}
                 <div aria-hidden="true" style={{height:64}}/>
-                <div style={{position:"fixed",left:0,right:0,bottom:0,zIndex:30,pointerEvents:"none",
-                  padding:"0 16px calc(10px + env(safe-area-inset-bottom))"}}>
-                  <div style={{maxWidth:430,margin:"0 auto",pointerEvents:"auto"}}>
+                {/* [사용자 확정 2026-08-16] 캐릭터 무대(미션 배경)가 지나간 뒤부터 나타난다 —
+                    무대 그림 위에 버튼이 걸쳐 있는 게 보기 싫었다. */}
+                <div aria-hidden={!kidAddDocked}
+                  style={{position:"fixed",left:0,right:0,bottom:0,zIndex:30,pointerEvents:"none",
+                  padding:"0 16px calc(10px + env(safe-area-inset-bottom))",
+                  opacity:kidAddDocked?1:0,transform:kidAddDocked?"none":"translateY(10px)",
+                  transition:"opacity .18s ease, transform .18s ease"}}>
+                  <div style={{maxWidth:430,margin:"0 auto",pointerEvents:kidAddDocked?"auto":"none"}}>
                     <button onClick={()=>{ setKidAddAcId(""); setKidAddText(""); setShowKidAddModal(true); }}
                       style={{width:"100%",...jellyBox({background:kidSkin==="cute"?GP.boxBg:"#6E9CB8",border:kidSkin==="cute"?`1px solid ${GP.boxBorder}`:"1px solid #83B4D4",borderRadius:16,boxShadow:kidSkin==="cute"?`0 3px 9px ${GP.boxShadowCol}`:"0 3px 9px rgba(40,73,92,0.30)"},{radius:18}),
                         padding:"10px 12px",cursor:"pointer",fontFamily:"inherit",
