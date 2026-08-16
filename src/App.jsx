@@ -5898,17 +5898,17 @@ export default function App() {
                             받는다. 잠겨 있을 땐 홈에서 미션을 고칠 때와 같은 권한(미션·준비물
                             추가까지)이고, 열면 삭제·점수 수정·지난 미션 보기가 함께 열린다. */}
                         {parentLocked()?(
-                          <>
-                            <button onClick={unlockParentPower} className="jelly-tap"
-                              style={{width:"100%",marginTop:4,padding:"11px 10px",borderRadius:12,border:`1px solid ${th.main}33`,background:"#fff",color:th.main,fontSize:12.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                          /* [사용자 확정 2026-08-16] 버튼 칸 안에서 두 줄로 —
+                             윗줄은 무엇을 하는 버튼인지, 아랫줄은 무엇이 열리는지. */
+                          <button onClick={unlockParentPower} className="jelly-tap"
+                            style={{width:"100%",marginTop:4,padding:"10px",borderRadius:12,border:`1px solid ${th.main}33`,background:"#fff",cursor:"pointer",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+                            <span style={{display:"inline-flex",alignItems:"center",gap:6,color:th.main,fontSize:12.5,fontWeight:900}}>
                               <CareIcon name="lock" size={14}/> 엄마 권한 열기
-                            </button>
-                            {/* [사용자 확정 2026-08-16] 무엇이 열리는지 버튼 안에 붙여 두니
-                                버튼 글자가 두 덩어리로 읽혔다 → 아래 한 줄로 뺀다. */}
-                            <p style={{margin:"-2px 0 0",textAlign:"center",fontSize:11.5,fontWeight:700,color:C.sub}}>
+                            </span>
+                            <span style={{fontSize:11.5,fontWeight:700,color:C.sub}}>
                               지난미션 관리, 미션삭제, 점수수정
-                            </p>
-                          </>
+                            </span>
+                          </button>
                         ):(
                           <>
                             <div style={{marginTop:4,padding:"9px 12px",borderRadius:12,background:`${C.green}0E`,border:`1px solid ${C.green}33`,display:"flex",alignItems:"center",gap:7}}>
