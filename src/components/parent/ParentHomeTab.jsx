@@ -44,7 +44,7 @@ export default function ParentHomeTab({
   homeDate, setHomeDate, homeAcOpen = {}, setHomeAcOpen, navH = 58,
   isVacationDay, getDailyEntry, getQuestItemsForDate, getChildRewardRequests,
   acKindLabel, getAcademyTheme,
-  onGoTab, onGoReward, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
+  onGoTab, onGoReward, onOpenRewardApprove, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
   onHolidayRest,
   /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
   childrenList = [], showSample = false,
@@ -123,8 +123,10 @@ export default function ParentHomeTab({
             go:onOpenSupplyCheck});
           if(homePendingQuest>0) alerts.push({icon:"mission",label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
             go:onOpenMissionCheck});
+          /* [사용자 확정 2026-08-16] 보상승인은 보상 탭으로 보내지 않고 팝업으로 그 자리에서
+             처리한다 — 승인 하나 하려고 비밀번호를 넣는 게 번거로웠다. */
           if(pendingRewardCnt>0) alerts.push({icon:"reward",label:`보상승인 ${pendingRewardCnt}개`,color:C.green,
-            go:onGoReward});
+            go:onOpenRewardApprove||onGoReward});
           if(absOnHome.length>0) alerts.push({icon:"absent",label:`결석 ${absOnHome.length}개`,color:C.red,
             go:()=>onGoTab("absence")});
           if(makeupOnHome.length>0) alerts.push({icon:"makeup",label:`보충수업 ${makeupOnHome.length}개`,color:C.orange,
