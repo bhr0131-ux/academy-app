@@ -389,6 +389,14 @@ export default function App() {
   const [memoEdit,               setMemoEdit]               = useState(null);             // 메모 쓰는 중인 날짜 키
   const [memoDraft,              setMemoDraft]              = useState("");
   const childStripRef = useRef(null);                                                       // 엄마용 아이 선택 줄 (가운데 맞추기용)
+  /* [버그 수정 2026-08-16] 아이 모드 오른쪽 위 '아이 전환' 목록.
+     예전에는 뱃지 그림 위에 투명 <select>를 겹쳐 브라우저 기본 목록을 띄웠는데,
+     PC에서는 그 목록이 뱃지(폭 52px) 왼쪽 끝에 붙어 오른쪽으로 펼쳐지는 바람에
+     430px 앱 화면 밖 — 화면 끄트머리 — 에 걸쳐 떠 버렸다(사용자 제보).
+     이제 앱이 직접 그리는 목록을 뱃지 오른쪽에 맞춰 아래로 편다. 앱 안이라 절대 안 삐져나온다. */
+  const [childPickOpen,          setChildPickOpen]          = useState(false);            // 아이 전환 목록 열림
+  // 엄마용으로 나갔다 돌아왔을 때 목록이 열린 채로 남지 않게 한다
+  useEffect(()=>{ if(appMode!=="child") setChildPickOpen(false); },[appMode]);
   const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
@@ -4094,22 +4102,48 @@ export default function App() {
                   ))}
                 </select>
               ):(
-                /* 아이 전환 뱃지: 그림 위에 투명 select를 겹쳐 네이티브 아이 선택 메뉴 유지 */
-                <div className="jelly-tap" style={{position:"relative",lineHeight:0}}>
-                  <img src="assets/btn-child-switch.webp" alt="아이 전환"
-                    style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
-                  <select value={childId} onChange={e=>{
-                    setChildId(e.target.value);
-                    setChildDate(TODAY);
-                    setChildTab("area");
-                    setShowChildRewards(false);
-                    setShowChildXP(false);
-                    setOpenRewardId(null);
-                  }} style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer"}}>
-                    {children.map(c=>(
-                      <option key={c.id} value={c.id} style={{color:C.text}}>{getGenderEmoji(c)} {c.name}</option>
-                    ))}
-                  </select>
+                /* 아이 전환 뱃지 — 앱이 직접 그리는 목록을 뱃지 오른쪽 끝에 맞춰 아래로 편다.
+                   [버그 수정 2026-08-16] 예전엔 그림 위에 투명 <select>를 겹쳐 브라우저 기본 목록을
+                   띄웠는데, PC에서는 그 목록이 52px짜리 뱃지 왼쪽 끝에 붙어 오른쪽으로 펼쳐져
+                   430px 앱 화면 밖 — 화면 끄트머리 — 에 걸쳐 떠 버렸다(사용자 제보).
+                   right:0 로 붙이면 목록이 앱 안쪽으로만 자라므로 어떤 화면 폭에서도 안 삐져나온다. */
+                <div style={{position:"relative",lineHeight:0,zIndex:40}}>
+                  <button className="jelly-tap" onClick={()=>setChildPickOpen(v=>!v)}
+                    aria-haspopup="listbox" aria-expanded={childPickOpen} aria-label="아이 전환"
+                    style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0,display:"block"}}>
+                    <img src="assets/btn-child-switch.webp" alt="아이 전환"
+                      style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
+                  </button>
+                  {childPickOpen&&(<>
+                    {/* 바깥 아무 데나 누르면 닫힌다 */}
+                    <div onClick={()=>setChildPickOpen(false)} style={{position:"fixed",inset:0,zIndex:0}}/>
+                    <div role="listbox" aria-label="아이 선택"
+                      style={{position:"absolute",top:"100%",right:0,marginTop:6,zIndex:1,minWidth:134,maxWidth:230,
+                        background:GP.boxSolid,border:`1px solid ${GP.boxBorder}`,borderRadius:14,padding:5,
+                        boxShadow:"0 12px 28px rgba(0,0,0,0.38)",lineHeight:1.2,animation:"popInUp .18s ease both"}}>
+                      {children.map(c=>{
+                        const on=c.id===childId;
+                        return (
+                          <button key={c.id} role="option" aria-selected={on}
+                            onClick={()=>{
+                              setChildPickOpen(false);
+                              setChildId(c.id);
+                              setChildDate(TODAY);
+                              setChildTab("area");
+                              setShowChildRewards(false);
+                              setShowChildXP(false);
+                              setOpenRewardId(null);
+                            }}
+                            style={{display:"block",width:"100%",textAlign:"left",border:"none",fontFamily:"inherit",
+                              background:on?`${GP.themePoint||th.main}55`:"transparent",color:GP.boxText,
+                              borderRadius:10,padding:"10px 12px",fontSize:13.5,fontWeight:900,cursor:"pointer",
+                              whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                            {getGenderEmoji(c)} {c.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>)}
                 </div>
               ))}
               {/* 아바타 표시 전환 뱃지 — 우측 상단 세로 3번째 (엄마용-아이전환-아바타, 사용자 확정 순서)
