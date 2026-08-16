@@ -5918,32 +5918,41 @@ export default function App() {
 
                             {/* 일반 미션 — 학원 목록과 성격이 다르다. '학원과 관계없는'이라는
                                 부정형 분류는 앞으로 집안일·생활습관까지 넓어지면 애매해져서
-                                '일반 미션'이라는 독립 이름을 쓴다 (사용자 확정). */}
+                                '일반 미션'이라는 독립 이름을 쓴다 (사용자 확정).
+                                [사용자 확정 2026-08-16] 점선 상자로 따로 떼어 놓으니 줄이 어긋나
+                                보였다 → 학원 줄과 같은 색·같은 크기·같은 위치로 맞춘다.
+                                고르는 자리는 하나로 읽혀야 한다. */}
                             <button onClick={()=>openEdit(EXTRA_QUEST_ID,"일반 미션",th.main,[])}
                               className="jelly-tap"
-                              style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",width:"100%",marginTop:10,
-                                borderRadius:12,border:`1px dashed ${th.main}40`,background:"transparent",
+                              style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
+                                border:"none",borderTop:curAc.length>0?`1px solid ${C.border}`:"none",background:"transparent",
                                 cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
+                              <span style={{width:9,height:9,borderRadius:"50%",background:th.main,flexShrink:0}}/>
                               <span style={{flex:1,minWidth:0}}>
-                                <span style={{display:"block",fontSize:13.5,fontWeight:900,color:th.main}}>＋ 일반 미션 추가</span>
+                                <span style={{display:"block",fontSize:14.5,fontWeight:900,color:C.text,
+                                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>일반 미션 추가</span>
                                 <span style={{display:"block",fontSize:11.5,fontWeight:700,color:C.sub,marginTop:1}}>집안일 · 준비물 · 생활 미션</span>
                               </span>
-                              <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:`${th.main}B0`,fontWeight:900,lineHeight:1}}>›</span>
+                              <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
                             </button>
                           </div>
                           );
                         })()}
-                        </div>
 
                         {/* ── 엄마 권한 ─────────────────────────────────────────────
                             [사용자 확정 2026-08-16] 탭 자체는 잠그지 않고, 여기서만 비밀번호를
                             받는다. 잠겨 있을 땐 홈에서 미션을 고칠 때와 같은 권한(미션·준비물
-                            추가까지)이고, 열면 삭제·점수 수정·지난 미션 보기가 함께 열린다. */}
+                            추가까지)이고, 열면 삭제·점수 수정·지난 미션 보기가 함께 열린다.
+                            [사용자 확정 2026-08-16] 이 칸도 '미션 추가·관리' 상자 안으로 넣는다 —
+                            상자 밖에 홀로 떠 있으면 관리 기능이 두 군데로 흩어져 보였다.
+                            상자를 접으면 같이 접힌다. */}
+                        {missionPickOpen&&(
+                        <div style={{padding:"0 12px 12px"}}>
                         {parentLocked()?(
                           /* [사용자 확정 2026-08-16] 버튼 칸 안에서 두 줄로 —
                              윗줄은 무엇을 하는 버튼인지, 아랫줄은 무엇이 열리는지. */
                           <button onClick={unlockParentPower} className="jelly-tap"
-                            style={{width:"100%",marginTop:4,padding:"10px",borderRadius:12,border:`1px solid ${th.main}33`,background:"#fff",cursor:"pointer",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+                            style={{width:"100%",padding:"10px",borderRadius:12,border:`1px solid ${th.main}33`,background:`${th.main}0E`,cursor:"pointer",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
                             {/* [사용자 확정 2026-08-16] '엄마 권한 열기'는 위의 미션 추가·관리도
                                 엄마 기능이라 헷갈렸다("그럼 저건 뭐지?") → 눌렀을 때 무엇이
                                 열리는지를 버튼 이름으로 쓴다. */}
@@ -5955,17 +5964,17 @@ export default function App() {
                             </span>
                           </button>
                         ):(
-                          <>
-                            <div style={{marginTop:4,padding:"9px 12px",borderRadius:12,background:`${C.green}0E`,border:`1px solid ${C.green}33`,display:"flex",alignItems:"center",gap:7}}>
+                          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                            <div style={{padding:"9px 12px",borderRadius:12,background:`${C.green}0E`,border:`1px solid ${C.green}33`,display:"flex",alignItems:"center",gap:7}}>
                               <span style={{color:C.green,display:"flex",flexShrink:0}}><CareIcon name="unlock" size={14}/></span>
                               <span style={{fontSize:12.5,fontWeight:800,color:mixBlack(C.green,0.25)}}>엄마 권한이 열렸어요</span>
-                              <span style={{marginLeft:"auto",fontSize:11.5,fontWeight:700,color:C.sub}}>미션 삭제 점수 수정 가능</span>
+                              <span style={{marginLeft:"auto",fontSize:11.5,fontWeight:700,color:C.sub}}>미션 삭제 · {TM.xp} 수정 가능</span>
                             </div>
                             {isRewToday&&(()=>{
                               const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
                               return (
                                 <button onClick={()=>setShowPastMissionModal(rewardDate)} className="jelly-tap"
-                                  style={{width:"100%",padding:"9px 10px",borderRadius:12,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                                  style={{width:"100%",padding:"9px 10px",borderRadius:12,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
                                   {/* [사용자 확정 2026-08-16] 위 '엄마 권한이 열렸어요'와 같은
                                       열린 자물쇠를 붙여 둘이 한 묶음으로 읽히게 한다. */}
                                   <span style={{display:"flex",alignItems:"center",gap:5}}>
@@ -5975,8 +5984,11 @@ export default function App() {
                                 </button>
                               );
                             })()}
-                          </>
+                          </div>
                         )}
+                        </div>
+                        )}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -7353,10 +7365,11 @@ export default function App() {
               </p>
               {/* [사용자 확정 2026-08-11] 홈에서 연 팝업과 미션 탭에서 연 팝업이 똑같이 생겨서
                   '왜 여기선 점수가 안 바뀌지'가 됐다 → 잠긴 쪽에만 어디로 가면 되는지 한 줄 적는다.
-                  (미션 탭은 PIN 을 통과한 자리라 이 줄이 안 나온다) */}
+                  [사용자 확정 2026-08-16] 미션 탭 자체는 더 이상 잠겨 있지 않다 —
+                  삭제·점수 수정을 여는 건 그 안의 '엄마 권한'이므로 안내도 그렇게 바꾼다. */}
               {isParent&&!isParentEdit&&(hw.length>0||todos.length>0)&&(
                 <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"0 0 10px"}}>
-                  미션 삭제 · {TM.xp} 수정은 미션 탭에서 가능해요
+                  미션 삭제 · {TM.xp} 수정은 엄마 권한(비밀번호)에서 가능해요.
                 </p>
               )}
               {hw.length===0&&todos.length===0&&(
