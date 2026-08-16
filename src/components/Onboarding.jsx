@@ -57,6 +57,7 @@ export function ModeSelect({ onPick }){
 export function CoachmarkOverlay({ th, onFinish }){
   const TH=th||{ main:"#3B7ECD", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" };
   /* [2026-08-09] 하단 고정 메뉴 5칸으로 개편 — 안내도 같은 순서·같은 이름으로 맞췄다.
+     [2026-08-16] 학원 칸이 빠져 하단은 네 칸, 안내는 여섯 장이 됐다.
      [사용자 확정 2026-08-11] 일곱 장은 그대로 두고 설명만 한 줄로 줄였다 —
      두 줄씩 읽어야 해서 일곱 번 넘기기 전에 지친다. 문구는 사용자가 정한 그대로 쓴다.
      (잠금만 두 줄 — 비밀번호를 왜 묻는지까지 말해야 뜻이 통한다) */
@@ -64,9 +65,10 @@ export function CoachmarkOverlay({ th, onFinish }){
      달라지고, 정작 아이 어머니가 화면에서 보게 될 그림과도 달랐다 →
      탭 다섯은 하단 메뉴에 실제로 그려지는 아이콘(NAV_ICONS)을 그대로 쓴다.
      '이 그림을 찾으면 된다'가 바로 통한다. 잠금·아이용은 같은 결의 선 아이콘. */
+  /* [2026-08-16] '학원' 칸을 빼서 여섯 장이 됐다 — 학원 탭이 홈의 '등록 학원'
+     토글로 합쳐지면서 하단 메뉴에서 사라졌다(사용자 확정). 없는 탭을 안내하던 장이다. */
   const items=[
     { icon:NAV_ICONS.home,     name:"홈", desc:"오늘 챙길 일과 오늘 가는 학원을 한눈에 봐요." },
-    { icon:NAV_ICONS.academy,  name:"학원", desc:"학원을 등록하고 수정해요." },
     { icon:NAV_ICONS.mission,  name:"미션", desc:"날짜별 미션과 점수를 관리해요." },
     { icon:NAV_ICONS.reward,   name:"보상", desc:"코인으로 바꿀 보상을 정하고, 아이가 신청하면 승인해요." },
     { icon:NAV_ICONS.more,     name:"더보기", desc:"달력 · 학원비 · 결석·보충 · 기타가 여기 있어요." },
