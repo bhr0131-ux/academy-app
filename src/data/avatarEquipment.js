@@ -147,15 +147,12 @@ export const AVATAR_CATALOG = [
   { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp?v=2",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_blossom.webp" },
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp", artPending: true },
   { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp", artPending: true },
-  /* ── 기본 지급 옷 2종 (사용자 원화 2026-08-15, 탑재 2026-08-16) ──────────
-     베이스 몸통이 '민소매+속옷+맨발' 한 장이라 아무것도 안 입히면 속옷 차림으로 보인다.
-     상의·하의 슬롯에 starter 로 넣어 빈 슬롯을 자동으로 채운다
-     (normalizeOwned/normalizeEquipped 가 처리 — 저장 스키마는 그대로다).
-     [임시] 지금 탑재값은 '베이스 v6 몸'에 맞춘 것이다. 원화는 v7 치비 비율로
-     그려져 있어 v6(슬림·긴 상체)에는 그대로 안 맞아 따로 맞췄다.
-     v7 로 갈아탈 때 art-src/README 의 v7 확정값으로 두 그림만 다시 렌더하면 된다. */
-  { id: "top_starter_tee",     slot: "top",    label: "기본 반팔티", emoji: "👕", price: 0, rarity: "common", theme: "common", starter: true, img: "assets/avatar/top/starter-tee.webp",       thumb: "assets/avatar/thumb/top_starter_tee.webp" },
-  { id: "bottom_starter_shorts", slot: "bottom", label: "기본 반바지", emoji: "🩳", price: 0, rarity: "common", theme: "common", starter: true, img: "assets/avatar/bottom/starter-shorts.webp", thumb: "assets/avatar/thumb/bottom_starter_shorts.webp" },
+  /* [2026-08-16] 기본 반팔티·반바지는 '슬롯 아이템'이 아니라 베이스 몸통 그림 자체에
+     그려 넣었다(사용자 확정 — 원화를 옷 입은 몸 한 장으로 받았다). 그래서 여기에
+     starter 아이템이 없다. 몸통이 흰 반팔·초록 반바지·흰 양말을 이미 입고 있다.
+     [주의] 하의 슬롯 아이템(카키·크림·데님)을 장착하면 몸통에 그려진 초록 반바지
+     위에 덧그려진다. 그 3종은 어차피 베이스 v5→v6 전환 때부터 자리가 어긋나 있어
+     v7 전환 때 함께 다시 맞춰야 한다. */
   /* 하의 3종 — [주의] 베이스 v5(2026-08-14)로 몸이 바뀌면서 자리가 어긋나 있다.
      예전 몸(초록 반바지)에 맞춰 놓은 값이라 새 몸에 다시 맞춰야 한다.
      새 몸 기준값: 허리 y? · 다리 ? — 재측정 후 이 주석을 갱신할 것.
