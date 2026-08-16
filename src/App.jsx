@@ -18,6 +18,7 @@ import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
 import FeePaySheet, { payMethodLabel } from "./components/parent/FeePaySheet.jsx";
 import ChildFace from "./components/parent/ChildFace.jsx";
 import CareIcon from "./components/parent/CareIcons.jsx";
+import SectionHead from "./components/parent/SectionHead.jsx";
 import { CalendarLegendSheet } from "./components/parent/CalendarMarks.jsx";
 import CalendarTab from "./components/parent/CalendarTab.jsx";
 import ParentHomeTab from "./components/parent/ParentHomeTab.jsx";
@@ -5814,6 +5815,11 @@ export default function App() {
                         <button onClick={()=>setRewardDate(addDays(rewardDate,1))} className="jelly-tap" aria-label="다음 날"
                           style={{width:44,height:44,borderRadius:12,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,fontFamily:"inherit"}}>›</button>
                       </div>
+                      {/* [사용자 확정 2026-08-16] 홈의 '오늘의 학원'과 같은 구역 머리를
+                          미션 목록 위에도 둔다 — 목록이 무엇인지 이름이 붙는다.
+                          학원 쪽과 마찬가지로 미션이 없는 날에도 머리는 늘 나온다. */}
+                      <SectionHead icon="mission" label="오늘의 미션" th={th}
+                        note={rewardTodayTodos.length>0?`${rewardTodayTodos.length}개`:null}/>
                       {rewardTodayTodos.length===0?(
                         <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
                           <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:44,height:44,borderRadius:"50%",background:CT.faint,color:C.sub}}>
