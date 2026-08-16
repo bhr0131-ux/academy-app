@@ -1,11 +1,11 @@
-import { C, mixWhite, mixBlack } from "../../data/tokens.js";
+import { C } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
-   SectionHead — 엄마용 구역 머리 (알약 하나 + 오른쪽으로 뻗는 가는 선)
+   SectionHead — 엄마용 구역 머리 (아이콘 + 이름 + 오른쪽으로 뻗는 가는 선)
    ────────────────────────────────────────────────────────────────────────
-   [사용자 확정 2026-08-16] 홈의 '오늘의 학원 / 등록 학원' 토글과 같은 모양을
-   미션 탭·보상 탭에서도 쓴다. 그쪽은 고를 것이 없어 알약이 하나뿐이므로,
+   [사용자 확정 2026-08-16] 홈의 '오늘의 학원 / 등록 학원' 토글 자리에 맞춰
+   미션 탭·보상 탭에도 같은 머리를 둔다. 그쪽은 고를 것이 없어 하나뿐이므로,
    토글이 아닌 이 컴포넌트로 뺐다 (ParentHomeTab 의 토글은 그대로 둔다 —
    두 개를 오가는 버튼이라 생김새만 같을 뿐 하는 일이 다르다).
 
@@ -13,13 +13,15 @@ import CareIcon from "./CareIcons.jsx";
    label : 구역 이름
    note  : 이름 뒤에 옅게 붙는 짧은 말 ('3곳', '고학년 이상' 처럼). 없으면 생략.
    ════════════════════════════════════════════════════════════════════════ */
+/* [사용자 확정 2026-08-16] 알약(연한 테마색 배경)을 벗기고 글씨는 검정으로.
+   목록 위 제목이 버튼처럼 보여 눌러 보게 됐다 — 여기는 누를 데가 아니다.
+   이름 뒤의 옅은 말(개수·연령대)과 오른쪽 가는 선은 그대로 둔다. */
 export default function SectionHead({ icon, label, note, th, style }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 15px", ...style }}>
       <span style={{
-        flexShrink: 0, padding: "5px 10px", borderRadius: 9,
-        fontSize: 14, fontWeight: 900, letterSpacing: 0.2,
-        background: mixWhite(th.main, 0.88), color: mixBlack(th.main, 0.35),
+        flexShrink: 0, padding: "5px 0",
+        fontSize: 14, fontWeight: 900, letterSpacing: 0.2, color: C.text,
         display: "inline-flex", alignItems: "center", gap: 5,
       }}>
         <span style={{ color: th.main, display: "flex" }}><CareIcon name={icon} size={14} /></span>
