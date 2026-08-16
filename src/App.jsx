@@ -1087,6 +1087,13 @@ export default function App() {
     if(!parentLocked()) return;
     askPin(()=>{ setRewardUnlocked(true); }, "미션 관리");
   };
+  /* 보상 탭 '보상 추가·수정·삭제' — 미션 탭의 엄마 권한과 같은 스위치를 쓴다.
+     탭에 들어오는 것 자체는 막지 않고, 목록을 고치려 할 때만 비밀번호를 받는다
+     (사용자 확정 2026-08-16). */
+  const unlockRewardManage=()=>{
+    if(!parentLocked()) return;
+    askPin(()=>{ setRewardUnlocked(true); }, "보상 관리");
+  };
 
   /* 보상탭 이동 — 탭 바와 엄마용 홈 '오늘 챙길 일'의 보상승인 칩이 같이 쓴다.
      [사용자 확정 2026-08-16] 들어올 때 받던 PIN 을 뺐다. 엄마용으로 넘어올 때 이미
@@ -6053,7 +6060,7 @@ export default function App() {
             rewardSecSub, rewardSecTitle, setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
             setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign, showParentRewardManage,
             showParentXpAdjust, showToast, th, toggleRewardSec, xpAdjustInput, xpAdjustLabel,
-            xpAdjustSign,
+            xpAdjustSign, parentLocked, unlockRewardManage,
           }}/>
         )}
 

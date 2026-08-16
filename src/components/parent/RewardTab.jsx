@@ -1,5 +1,6 @@
 import { C } from "../../data/tokens.js";
 import { REWARD_SETS_BY_AGE } from "../../data/characters.js";
+import CareIcon from "./CareIcons.jsx";
 import RewardApprovals from "./RewardApprovals.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -19,7 +20,7 @@ export default function RewardTab({ D }) {
     rewardSecSub, rewardSecTitle, setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
     setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign, showParentRewardManage,
     showParentXpAdjust, showToast, th, toggleRewardSec, xpAdjustInput, xpAdjustLabel,
-    xpAdjustSign,
+    xpAdjustSign, parentLocked, unlockRewardManage,
   } = D;
   return (
     <div>
@@ -43,12 +44,24 @@ export default function RewardTab({ D }) {
           </div>
           <span aria-hidden="true" style={rewardSecArrow(showParentRewardManage)}>⌄</span>
         </button>
-        {showParentRewardManage&&(
+        {showParentRewardManage&&(()=>{
+        /* [사용자 확정 2026-08-16] 보상 탭 자체는 열려 있고(승인만 하러 들르는 일이 많다),
+           목록을 고치는 것만 비밀번호로 막는다. 잠겨 있으면 '＋ 보상 추가'와 항목별
+           수정·삭제를 감추고 자물쇠 버튼 하나만 둔다 — 열면 예전 화면 그대로 돌아온다. */
+        const canEdit=!parentLocked();
+        return (
           <div style={{marginTop:14}}>
+            {canEdit?(
             <button onClick={()=>{ setEditingRewardId(null); setRewardForm({title:"",point:300,emoji:"🎁",grade:"common"}); setShowRewardModal(true); }}
               style={{width:"100%",border:"none",background:th.grad,color:"#fff",borderRadius:10,padding:"10px 12px",fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10}}>
               + 보상 추가
             </button>
+            ):(
+            <button onClick={unlockRewardManage} className="jelly-tap"
+              style={{width:"100%",border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:th.main,borderRadius:10,padding:"10px 12px",fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10,fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+              <CareIcon name="lock" size={14}/> 보상 추가·수정·삭제
+            </button>
+            )}
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {getChildRewards().slice().sort((a,b)=>a.point-b.point).map(reward=>(
                 <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:14,background:CT.faint,border:`1px solid ${C.border}`}}>
@@ -57,6 +70,7 @@ export default function RewardTab({ D }) {
                     <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
                     <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point} {TM.coinEmoji} {TM.coin} 필요</p>
                   </div>
+                  {canEdit&&(
                   <div style={{display:"flex",flexDirection:"column",gap:5}}>
                     <button onClick={()=>openEditReward(reward)}
                       style={{border:`1px solid ${th.main}30`,background:th.light,color:th.main,borderRadius:10,padding:"5px 9px",fontSize:13,fontWeight:800,cursor:"pointer"}}>
@@ -67,11 +81,13 @@ export default function RewardTab({ D }) {
                       삭제
                     </button>
                   </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
-        )}
+        );
+        })()}
       </div>
 
       {/* 꾸미기 상점은 카탈로그 기본 가격으로 자동 운영 — 부모 가격 설정 UI 제거 */}
