@@ -98,7 +98,7 @@ const initDaily = {
   dailyData: {}, baseSeededKeys: {},
   dailyHwInput: "", dailySupInput: "", dailyTodoInput: "",
   dailyHwPoint: DEFAULT_HOMEWORK_SCORE, dailyTodoPoint: DEFAULT_HOMEWORK_SCORE,
-  showDailyModal: null, showTodoPickerModal: null, showPastMissionModal: null,
+  showDailyModal: null, showPastMissionModal: null,
 };
 const initReward = {
   scoreData: {}, rewardData: {}, rewardRequests: {},
@@ -242,7 +242,9 @@ export default function App() {
   const [dailyTodoPoint,      setDailyTodoPoint]      = useState(initDaily.dailyTodoPoint);
   const [showDailyModal,      setShowDailyModal]      = useState(initDaily.showDailyModal);
   const [dailyKind,          setDailyKind]           = useState("hw");   // 미션 편집 팝업에서 고른 종류 (숙제|할 일)
-  const [showTodoPickerModal, setShowTodoPickerModal] = useState(initDaily.showTodoPickerModal);
+  /* [사용자 확정 2026-08-16] 학원 고르기를 팝업 대신 '미션 추가·관리' 버튼 아래로 펼친다 —
+     팝업을 한 번 더 띄우지 않고 목록에서 바로 학원을 고른다. */
+  const [missionPickOpen, setMissionPickOpen] = useState(false);
   const [showPastMissionModal,setShowPastMissionModal]= useState(initDaily.showPastMissionModal);
   const [kidAddAcId,          setKidAddAcId]          = useState("");      // 아이용 미션추가: 선택 학원
   const [kidAddText,          setKidAddText]          = useState("");      // 아이용 미션추가: 입력 텍스트
@@ -1069,9 +1071,16 @@ export default function App() {
     setTimeout(()=>setShowParentWelcome(true),450);
     return true;
   };
-  const goMissionTab=()=>{
-    if(!parentLocked()){ setTab("mission"); return; }
-    askPin(()=>{ setRewardUnlocked(true); setTab("mission"); showParentWelcomeOnce(); }, "미션 관리");
+  /* [사용자 확정 2026-08-16] 미션 탭은 잠그지 않는다 — 매일 여는 화면인데 들어갈 때마다
+     비밀번호를 물어 번거로웠다. 대신 탭 안의 '엄마 권한' 버튼을 눌러야 삭제·점수 수정·
+     지난 미션 보기가 열린다(unlockParentPower). 잠금 없이 열면 홈에서 미션을 고칠 때와
+     같은 권한 — 미션·준비물 추가까지만 된다. */
+  const goMissionTab=()=>{ setTab("mission"); };
+  /* 미션 탭 안에서 엄마 권한 열기 — 통과하면 보상 탭과 같은 잠금(rewardUnlocked)을 쓴다.
+     권한 구조 안내는 여기서 1회 띄운다(예전엔 탭에 들어올 때 띄웠다). */
+  const unlockParentPower=()=>{
+    if(!parentLocked()) return;
+    askPin(()=>{ setRewardUnlocked(true); showParentWelcomeOnce(); }, "미션 관리");
   };
 
   // 보상탭 이동 — 누를 때마다 PIN을 받는다(이미 열려 있으면 그대로).
@@ -1836,7 +1845,7 @@ export default function App() {
      팝업 뒤에 남아 있으면 눌러도 화면이 안 바뀌어 고장난 것처럼 보인다.
      (아이 모드 팝업은 하단 메뉴가 없으므로 여기 넣지 않는다) */
   const anyModalOpen = !!(
-    showTodoPickerModal || showSupplyCheck || showMissionCheck || showPastMissionModal ||
+    showSupplyCheck || showMissionCheck || showPastMissionModal ||
     showRewardModal || showPinChangeModal || showRecoverySetupModal || showRecoveryModal ||
     showResetPinModal || showVacModal || showChildMgr || showAcademyCopyModal ||
     calLegend || paySheet || feeEdit || showAddAcModal || showDetailModal ||
@@ -5866,21 +5875,80 @@ export default function App() {
                       <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:8}}>
                         {/* [사용자 확정 2026-08-11] 연분홍 버튼이라 일반 영역과 구분이 안 됐다 →
                             핵심 행동이므로 진한 테마색으로 채운다. 문구도 상태에 따라 바꾼다 —
-                            미션이 없으면 '오늘 미션 추가', 있으면 '미션 추가·관리'. */}
-                        <button onClick={()=>setShowTodoPickerModal(rewardDate)} className="jelly-tap"
-                          style={{width:"100%",padding:"13px 10px",borderRadius:12,border:"none",background:th.grad,color:"#fff",fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 12px ${th.main}33`}}>
+                            미션이 없으면 '오늘 미션 추가', 있으면 '미션 추가·관리'.
+                            [사용자 확정 2026-08-16] 누르면 팝업 대신 학원 목록이 이 버튼 아래로
+                            펼쳐진다. 학원을 고르면 그때 미션 수정 팝업이 열린다. */}
+                        <button onClick={()=>setMissionPickOpen(v=>!v)} className="jelly-tap"
+                          aria-expanded={missionPickOpen}
+                          style={{width:"100%",padding:"13px 10px",borderRadius:12,border:"none",background:th.grad,color:"#fff",fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 12px ${th.main}33`,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
                           {rewardTodayTodos.length===0?"오늘 미션 추가":"미션 추가·관리"}
+                          <span aria-hidden style={{fontSize:12,transition:"transform .2s",transform:missionPickOpen?"rotate(180deg)":"none"}}>⌄</span>
                         </button>
-                        {isRewToday&&(()=>{
-                          const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
-                          return (
-                            <button onClick={()=>setShowPastMissionModal(rewardDate)} className="jelly-tap"
-                              style={{width:"100%",padding:"9px 10px",borderRadius:12,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-                              <span style={{display:"flex",alignItems:"center",gap:5}}><CareIcon name="clock" size={14}/> 지난 미션 보기</span>
-                              {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
+
+                        {/* 학원 목록 — 버튼 아래로 펼친다 */}
+                        {missionPickOpen&&(
+                          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:2}}>
+                            <p style={{fontSize:12.5,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>
+                              고칠 학원을 고르거나, 학원과 관계없는 할 일을 추가해요.
+                            </p>
+                            {curAc.map(ac=>(
+                              <button key={ac.id} onClick={()=>{
+                                setShowDailyModal({academyId:ac.id,date:rewardDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies});
+                                setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
+                                setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+                              }} className="jelly-tap"
+                                style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",borderRadius:14,border:`1.5px solid ${ac.color}30`,background:`${ac.color}06`,cursor:"pointer",textAlign:"left",fontFamily:"inherit",width:"100%"}}>
+                                <div style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
+                                <p style={{flex:1,minWidth:0,fontSize:15,fontWeight:900,margin:0,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
+                                <span aria-hidden="true" style={{flexShrink:0,fontSize:17,color:`${ac.color}B0`,fontWeight:900,lineHeight:1}}>›</span>
+                              </button>
+                            ))}
+                            {/* 점선은 '새로 추가'라는 뜻이라 이름도 그렇게 읽히게 (사용자 확정) */}
+                            <button onClick={()=>{
+                              setShowDailyModal({academyId:EXTRA_QUEST_ID,date:rewardDate,acName:"할 일 미션",acColor:th.main,baseSupplies:[]});
+                              setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
+                              setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+                            }} className="jelly-tap"
+                              style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",borderRadius:14,border:`1.5px dashed ${th.main}40`,background:`${th.main}06`,cursor:"pointer",textAlign:"left",fontFamily:"inherit",width:"100%"}}>
+                              <div style={{width:9,height:9,borderRadius:"50%",background:th.main,flexShrink:0}}/>
+                              <p style={{flex:1,minWidth:0,fontSize:14.5,fontWeight:900,margin:0,color:th.main,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                                ＋ 학원과 관계없는 할 일 추가
+                              </p>
+                              <span aria-hidden="true" style={{flexShrink:0,fontSize:17,color:`${th.main}B0`,fontWeight:900,lineHeight:1}}>›</span>
                             </button>
-                          );
-                        })()}
+                            {curAc.length===0&&<p style={{textAlign:"center",color:C.sub,fontSize:13,padding:"10px 0"}}>등록된 학원이 없어요</p>}
+                          </div>
+                        )}
+
+                        {/* ── 엄마 권한 ─────────────────────────────────────────────
+                            [사용자 확정 2026-08-16] 탭 자체는 잠그지 않고, 여기서만 비밀번호를
+                            받는다. 잠겨 있을 땐 홈에서 미션을 고칠 때와 같은 권한(미션·준비물
+                            추가까지)이고, 열면 삭제·점수 수정·지난 미션 보기가 함께 열린다. */}
+                        {parentLocked()?(
+                          <button onClick={unlockParentPower} className="jelly-tap"
+                            style={{width:"100%",marginTop:4,padding:"11px 10px",borderRadius:12,border:`1px solid ${th.main}33`,background:"#fff",color:th.main,fontSize:12.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                            <CareIcon name="lock" size={14}/> 엄마 권한 열기
+                            <span style={{fontSize:11,fontWeight:700,color:C.sub}}>삭제 · 점수 수정 · 지난 미션</span>
+                          </button>
+                        ):(
+                          <>
+                            <div style={{marginTop:4,padding:"9px 12px",borderRadius:12,background:`${C.green}0E`,border:`1px solid ${C.green}33`,display:"flex",alignItems:"center",gap:7}}>
+                              <span style={{color:C.green,display:"flex",flexShrink:0}}><CareIcon name="unlock" size={14}/></span>
+                              <span style={{fontSize:12.5,fontWeight:800,color:mixBlack(C.green,0.25)}}>엄마 권한이 열렸어요</span>
+                              <span style={{marginLeft:"auto",fontSize:11.5,fontWeight:700,color:C.sub}}>삭제 · 점수 수정</span>
+                            </div>
+                            {isRewToday&&(()=>{
+                              const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
+                              return (
+                                <button onClick={()=>setShowPastMissionModal(rewardDate)} className="jelly-tap"
+                                  style={{width:"100%",padding:"9px 10px",borderRadius:12,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                                  <span style={{display:"flex",alignItems:"center",gap:5}}><CareIcon name="clock" size={14}/> 지난 미션 보기</span>
+                                  {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
+                                </button>
+                              );
+                            })()}
+                          </>
+                        )}
                       </div>
                     </div>
                   )}
@@ -6233,53 +6301,9 @@ export default function App() {
         );
       })()}
 
-      {/* ── 미션 수정 학원 선택 피커 ── */}
-      {showTodoPickerModal&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowTodoPickerModal(null)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 18px 44px",width:"100%",maxWidth:430,boxSizing:"border-box",maxHeight:"80vh",overflowY:"auto"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text,display:"flex",alignItems:"center",gap:7}}>
-                <span style={{color:th.main,display:"flex"}}><CareIcon name="pencil" size={17}/></span>미션 추가·수정
-              </h3>
-              <button onClick={()=>setShowTodoPickerModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
-            </div>
-            <p style={{fontSize:13,color:C.sub,fontWeight:600,margin:"0 0 14px"}}>수정할 학원을 선택하거나, 새로운 할 일을 추가해 주세요.</p>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {curAc.map(ac=>(
-                <button key={ac.id} onClick={()=>{
-                  setShowDailyModal({academyId:ac.id,date:showTodoPickerModal,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies});
-                  setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
-                  setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
-                  setShowTodoPickerModal(null);
-                }} className="jelly-tap"
-                  /* [사용자 확정 2026-08-11] 줄마다 '선택 →' 글자가 반복돼 시끄러웠다 →
-                     카드 전체가 눌리는 건 그대로 두고 오른쪽엔 화살표만 남긴다. */
-                  style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",borderRadius:14,border:`1.5px solid ${ac.color}30`,background:`${ac.color}06`,cursor:"pointer",textAlign:"left",fontFamily:"inherit",width:"100%"}}>
-                  <div style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
-                  <p style={{flex:1,minWidth:0,fontSize:15,fontWeight:900,margin:0,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
-                  <span aria-hidden="true" style={{flexShrink:0,fontSize:17,color:`${ac.color}B0`,fontWeight:900,lineHeight:1}}>›</span>
-                </button>
-              ))}
-              {/* 할일 미션 */}
-              <button onClick={()=>{
-                setShowDailyModal({academyId:EXTRA_QUEST_ID,date:showTodoPickerModal,acName:"할 일 미션",acColor:th.main,baseSupplies:[]});
-                setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
-                setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
-                setShowTodoPickerModal(null);
-              }} className="jelly-tap"
-                /* 점선은 '새로 추가'라는 뜻이라 이름도 그렇게 읽히게 바꿨다 (사용자 확정) */
-                style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",borderRadius:14,border:`1.5px dashed ${th.main}40`,background:`${th.main}06`,cursor:"pointer",textAlign:"left",fontFamily:"inherit",width:"100%"}}>
-                <div style={{width:9,height:9,borderRadius:"50%",background:th.main,flexShrink:0}}/>
-                <p style={{flex:1,minWidth:0,fontSize:14.5,fontWeight:900,margin:0,color:th.main,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                  ＋ 학원과 관계없는 할 일 추가
-                </p>
-                <span aria-hidden="true" style={{flexShrink:0,fontSize:17,color:`${th.main}B0`,fontWeight:900,lineHeight:1}}>›</span>
-              </button>
-              {curAc.length===0&&<p style={{textAlign:"center",color:C.sub,fontSize:13,padding:"16px 0"}}>등록된 학원이 없어요</p>}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* (삭제됨) 미션 수정 '학원 선택 피커' 팝업 — 미션 탭에서 '미션 추가·관리' 버튼
+          아래로 목록을 펼치는 방식으로 바꿨다 (사용자 확정 2026-08-16).
+          팝업을 한 번 더 띄우지 않고 목록에서 바로 학원을 고른다. */}
 
       {/* ── 지난 미션 보기 모달 (엄마용: 못한 지난 미션 확인 + 체크/실패로 마감) ── */}
       {/* ── 오늘 챙길 일: 🎒 준비물 확인 ─────────────────────────────────
