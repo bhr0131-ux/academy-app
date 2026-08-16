@@ -149,9 +149,8 @@ const initUi = {
   showChildRewards: false,
   showChildXP: false,
   showParentTodayQuest: false,
-  /* [사용자 확정 2026-08-16] 보상 탭에 들어오면 '보상 관리'는 처음부터 펼쳐 둔다 —
-     들어와서 한 번 더 눌러야 목록이 나오는 게 번거로웠다. */
-  showParentRewardManage: true,
+  /* [사용자 확정 2026-08-16] '보상 관리'는 접히지 않는 자리가 됐다 —
+     늘 펼쳐 두므로 여닫는 상태값 자체가 없어졌다. */
   showParentXpAdjust: false,
   openTitle: false,
   openLevel: false,
@@ -368,7 +367,6 @@ export default function App() {
   const [showChildRewards,       setShowChildRewards]       = useState(initUi.showChildRewards);
   const [showChildXP,            setShowChildXP]            = useState(initUi.showChildXP);
   const [showParentTodayQuest,   setShowParentTodayQuest]   = useState(initUi.showParentTodayQuest);
-  const [showParentRewardManage, setShowParentRewardManage] = useState(initUi.showParentRewardManage);
   const [showParentXpAdjust,     setShowParentXpAdjust]     = useState(initUi.showParentXpAdjust);
   const [openTitle,              setOpenTitle]              = useState(initUi.openTitle);
   const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
@@ -3624,9 +3622,8 @@ export default function App() {
      누른 칸을 화면 맨 위로 데려온다 (접을 때는 그대로 둔다 — 제자리에 있으니 옮길 이유가 없다).
      레이아웃이 다시 잡힌 뒤에 재야 하므로 rAF 두 번 뒤에 옮긴다. */
   const toggleRewardSec=(key,ev)=>{
-    const cur={reward:showParentRewardManage,xp:showParentXpAdjust};
+    const cur={xp:showParentXpAdjust};
     const next=!cur[key];
-    setShowParentRewardManage(key==="reward"&&next);
     setShowParentXpAdjust(key==="xp"&&next);
     const el=next?ev?.currentTarget:null;
     if(el) requestAnimationFrame(()=>requestAnimationFrame(()=>{
@@ -6062,7 +6059,7 @@ export default function App() {
             getScoreHistory, getSelectedTitle, getTotalTreasureCount, getUnlockedTitles, kidSkin, openEditReward,
             parentInnerSub, parentInnerTitle, rewardAgeGroup, rewardSecArrow, rewardSecCard, rewardSecInner,
             rewardSecSub, rewardSecTitle, setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
-            setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign, showParentRewardManage,
+            setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign,
             showParentXpAdjust, showToast, th, toggleRewardSec, xpAdjustInput, xpAdjustLabel,
             xpAdjustSign, parentLocked, unlockRewardManage, rewardSecOpen,
           }}/>
