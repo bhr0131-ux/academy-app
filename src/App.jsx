@@ -1091,8 +1091,8 @@ export default function App() {
 
   const addDevXP=(amount)=>{
     if(!DEV_MODE) return;
-    addChildScore(childId,amount,`개발자 도구 XP ${amount>=0?"+":""}${amount}`,"dev_xp");
-    showToast(`⭐ XP ${amount>=0?"+":""}${amount}`);
+    addChildScore(childId,amount,`개발자 도구 점수 ${amount>=0?"+":""}${amount}`,"dev_xp");
+    showToast(`⭐ 점수 ${amount>=0?"+":""}${amount}`);
   };
 
   const addDevCoin=(amount)=>{
@@ -1120,7 +1120,7 @@ export default function App() {
     if(delta>0){
       // 팝업(레벨업·진화) 재현을 위해 정규 경로로 가산
       addChildScore(childId,delta,`개발자 도구 레벨 → Lv.${targetLevel}`,"dev_level");
-      showToast(`⬆️ Lv.${targetLevel} (XP ${lv.minScore})`);
+      showToast(`⬆️ Lv.${targetLevel} (${lv.minScore}점)`);
     }else{
       setScoreData(prev=>{
         const cur=prev[childId]||{xp:0,coin:0,history:[]};
@@ -1129,7 +1129,7 @@ export default function App() {
           history:[...(cur.history||[]),{id:newId(),point:delta,xp:delta,coin:0,date:TODAY,type:"dev_level",memo:`개발자 도구 레벨 → Lv.${targetLevel}`}]
         }};
       });
-      showToast(`⬇️ Lv.${targetLevel} (XP ${lv.minScore})`);
+      showToast(`⬇️ Lv.${targetLevel} (${lv.minScore}점)`);
     }
   };
 
@@ -1379,8 +1379,8 @@ export default function App() {
 
   const showDevEvent=(type)=>{
     if(!DEV_MODE) return;
-    if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 탐험 대장",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100 XP · 💎 +100 코인"}); return; }
-    if(type==="title"){ showGameEvent({type:"title",cert:true,emoji:"👑",title:"상장을 받았어요!",name:"황금 테스트러",desc:"임무를 50개나 끝까지 해낸 멋진 탐험가에게 이 상장을 드립니다",rarity:"epic",reward:"⭐ +100 XP · 💎 +100 코인"}); return; }
+    if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 탐험 대장",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100점 · 💎 +100 코인"}); return; }
+    if(type==="title"){ showGameEvent({type:"title",cert:true,emoji:"👑",title:"상장을 받았어요!",name:"황금 테스트러",desc:"임무를 50개나 끝까지 해낸 멋진 탐험가에게 이 상장을 드립니다",rarity:"epic",reward:"⭐ +100점 · 💎 +100 코인"}); return; }
     if(type==="box"){ showGameEvent({type:"box",emoji:"📦",title:"보물상자 획득!",name:"일반상자",desc:`미션 ${TREASURE_MILESTONE.normal}개 달성 보상이에요!`,reward:"🎁 보물창고에서 열어보세요"}); return; }
     if(type==="treasure"){ setTreasureModal({emoji:"👑",boxName:"전설상자",rewardCoin:777,titleReward:{id:"dev_title",name:"황금 테스트러",emoji:"👑",rarity:"legendary"},headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"}); return; }
   };
@@ -2440,7 +2440,7 @@ export default function App() {
 
   const getQuestRewardText=(item)=>{
     const point=item.point||DEFAULT_HOMEWORK_SCORE;
-    return `${TM.xpEmoji} +${point} ${TM.xp}  ·  ${TM.coinEmoji} +${point} ${TM.coin}`;
+    return `${TM.xpEmoji} +${point}${TM.xpUnit}  ·  ${TM.coinEmoji} +${point} ${TM.coin}`;
   };
 
   /* 기록 종류 → 선 아이콘 (엄마용 '탐험 기록' 목록 전용).
@@ -2460,7 +2460,7 @@ export default function App() {
         case "reward":   return {icon:"🛒",title:"아이템 구매"};
         case "level_bonus": return {icon:"✨",title:"레벨업 보너스"};
         case "badge_reward": return {icon:"🏆",title:"업적 보상"};
-        case "manual":   return {icon:"✍️",title:"엄마 XP 조정"};
+        case "manual":   return {icon:"✍️",title:"엄마 점수 조정"};
         default:         return {icon:"📜",title:"탐험 기록"};
       }
     }
@@ -2952,7 +2952,7 @@ export default function App() {
       const desc=LEVEL_DESCRIPTION[L.level]
         ? LEVEL_DESCRIPTION[L.level]
         : `${prevName}에서 ${LV.name}으로 성장했어요!`;
-      const baseReward=bonus>0?`🎁 레벨업 보너스\n${TM.xpEmoji} +${bonus} ${TM.xp} · ${TM.coinEmoji} +${bonus} ${TM.coin}`:"새로운 레벨 달성!";
+      const baseReward=bonus>0?`🎁 레벨업 보너스\n${TM.xpEmoji} +${bonus}${TM.xpUnit} · ${TM.coinEmoji} +${bonus} ${TM.coin}`:"새로운 레벨 달성!";
       showGameEvent({
         type:"level",
         emoji:LV.emoji||"🎉",
@@ -3142,7 +3142,7 @@ export default function App() {
         return {...prev,[childId]:[...cur,newlyUnlocked.id]};
       });
       const tReward=giveTitleReward(childId,newlyUnlocked);
-      showGameEvent({type:"title",cert:true,emoji:newlyUnlocked.emoji||"🏆",title:"상장을 받았어요!",name:newlyUnlocked.name,desc:newlyUnlocked.award||newlyUnlocked.condition||"새로운 상장을 받았어요!",rarity:newlyUnlocked.rarity||"common",reward:`${TM.xpEmoji} +${tReward.xp} ${TM.xp} · ${TM.coinEmoji} +${tReward.coin} ${TM.coin}`});
+      showGameEvent({type:"title",cert:true,emoji:newlyUnlocked.emoji||"🏆",title:"상장을 받았어요!",name:newlyUnlocked.name,desc:newlyUnlocked.award||newlyUnlocked.condition||"새로운 상장을 받았어요!",rarity:newlyUnlocked.rarity||"common",reward:`${TM.xpEmoji} +${tReward.xp}${TM.xpUnit} · ${TM.coinEmoji} +${tReward.coin} ${TM.coin}`});
     }
   },[scoreData,dailyData,rewardRequests,selectedTitles,specialTitles,childId,loaded,appMode]);
 
@@ -3344,9 +3344,9 @@ export default function App() {
          엄마 화면에는 아무 표시가 없었다 — 체크를 풀 때만 토스트가 떠서 '주는 건 안 보이고
          뺏는 것만 보이는' 상태였다. 엄마 화면에도 같은 모양의 토스트를 띄운다. */
       if(appMode==="child") cheerCharacter(point);
-      else showToast(`체크 완료 +${point} ${TM.xp} / +${point} ${TM.coin}`);
+      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${point} ${TM.coin}`);
     } else {
-      showToast(`체크 취소 -${point} ${TM.xp} / -${point} ${TM.coin}`);
+      showToast(`체크 취소 -${point}${TM.xpUnit} / -${point} ${TM.coin}`);
     }
   };
 
@@ -3372,9 +3372,9 @@ export default function App() {
          엄마 화면에는 아무 표시가 없었다 — 체크를 풀 때만 토스트가 떠서 '주는 건 안 보이고
          뺏는 것만 보이는' 상태였다. 엄마 화면에도 같은 모양의 토스트를 띄운다. */
       if(appMode==="child") cheerCharacter(point);
-      else showToast(`체크 완료 +${point} ${TM.xp} / +${point} ${TM.coin}`);
+      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${point} ${TM.coin}`);
     } else {
-      showToast(`체크 취소 -${point} ${TM.xp} / -${point} ${TM.coin}`);
+      showToast(`체크 취소 -${point}${TM.xpUnit} / -${point} ${TM.coin}`);
     }
   };
 
@@ -3694,7 +3694,7 @@ export default function App() {
                       <JellyBar percent={progress.percent} height={14} fallbackTrack="rgba(47,86,112,0.16)" fallbackBorder="1px solid rgba(143,201,237,0.7)" />
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginTop:6,fontSize:11.5,fontWeight:800,opacity:0.88}}>
                         <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nextLevel?<>다음 레벨 : {nextLevel.emoji} Lv.{nextLevel.level} {nextLevel.name}</>:"🏆 최고 레벨 달성!"}</span>
-                        <span style={{opacity:0.78,flexShrink:0}}>{nextLevel?(kidSkin==="cute"?`${progress.remainXp} ${TM.xp} 남음`:`${progress.currentXp}/${progress.needXp} · ${progress.remainXp} 남음`):""}</span>
+                        <span style={{opacity:0.78,flexShrink:0}}>{nextLevel?(kidSkin==="cute"?`${progress.remainXp}${TM.xpUnit} 남음`:`${progress.currentXp}/${progress.needXp} · ${progress.remainXp} 남음`):""}</span>
                       </div>
                     </div>
                   );
@@ -3882,7 +3882,7 @@ export default function App() {
                 style={{...inputStyle,marginBottom:12}}/>
               {/* [사용자 확정 2026-08-11] 보상이 늘 10/10 로 정해져 있는데 어디에도 안 적혀 있었다 */}
               <p style={{fontSize:12.5,fontWeight:800,margin:"0 0 14px",color:subColor,textAlign:"center"}}>
-                다 하면 {TM.xpEmoji} {DEFAULT_HOMEWORK_SCORE} {TM.xp} · {TM.coinEmoji} {DEFAULT_HOMEWORK_SCORE} {TM.coin}
+                다 하면 {TM.xpEmoji} {DEFAULT_HOMEWORK_SCORE}{TM.xpUnit} · {TM.coinEmoji} {DEFAULT_HOMEWORK_SCORE} {TM.coin}
               </p>
               {/* 등록 버튼 — 아무것도 안 넣었으면 못 누르게 (빈 상태인데 색이 진해 눌리는 줄 알았다) */}
               <button onClick={kidAddMission} disabled={!canAdd}
@@ -4735,7 +4735,7 @@ export default function App() {
                                     ? <p style={{fontSize:12.5,fontWeight:900,color:GP.gold,margin:0}}>{getQuestRewardText(item)}</p>
                                     : (()=>{const pt=item.point||DEFAULT_HOMEWORK_SCORE;return (
                                         <div style={{display:"flex",gap:10,fontWeight:900,fontSize:13.5,opacity:item.done?0.7:1}}>
-                                          <span style={{color:"#D89A26"}}>{TM.xpEmoji} +{pt} {TM.xp}</span>
+                                          <span style={{color:"#D89A26"}}>{TM.xpEmoji} +{pt}{TM.xpUnit}</span>
                                           <span style={{color:"#2E8FD6"}}>{TM.coinEmoji} +{pt} {TM.coin}</span>
                                         </div>
                                       );})()}
@@ -5835,7 +5835,7 @@ export default function App() {
                                   </span>
                                   <span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,
                                     background:item.failed?`${C.sub}14`:`${C.orange}14`,color:item.failed?C.sub:C.orange}}>
-                                    {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE} ${TM.xp}`}
+                                    {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${TM.xpUnit}`}
                                   </span>
                                 </div>
                               </div>
@@ -7399,14 +7399,14 @@ export default function App() {
                         <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:13,padding:"6px 9px"}}/>
                         {isParentEdit&&(<>
                           <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:13,padding:"6px 4px",textAlign:"center"}} min="1"/>
-                          <span style={{fontSize:12,color:C.sub,flexShrink:0}}>{TM.xp}</span>
+                          <span style={{fontSize:12,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
                         </>)}
                         <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:8,padding:"6px 11px",fontSize:12,fontWeight:800,cursor:"pointer",flexShrink:0}}>저장</button>
                       </>
                     ) : (
                       <>
                         <span style={{flex:1,fontSize:13,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
+                        <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
                         {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
@@ -7421,14 +7421,14 @@ export default function App() {
                         <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:13,padding:"6px 9px"}}/>
                         {isParentEdit&&(<>
                           <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:13,padding:"6px 4px",textAlign:"center"}} min="1"/>
-                          <span style={{fontSize:12,color:C.sub,flexShrink:0}}>{TM.xp}</span>
+                          <span style={{fontSize:12,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
                         </>)}
                         <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:8,padding:"6px 11px",fontSize:12,fontWeight:800,cursor:"pointer",flexShrink:0}}>저장</button>
                       </>
                     ) : (
                       <>
                         <span style={{flex:1,fontSize:13,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE} {TM.xp}</span>
+                        <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
                         {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
@@ -7479,7 +7479,7 @@ export default function App() {
                         disabled={!isParentEdit} aria-label={`보상 ${TM.xp}`} title={isParentEdit?"":"점수는 엄마용에서 바꿀 수 있어요"} min="1"
                         style={{...inp,width:56,fontSize:13.5,padding:"8px 6px",textAlign:"center",marginBottom:0,
                           background:isParentEdit?"#fff":CT.faint,color:isParentEdit?C.text:C.sub,cursor:isParentEdit?"text":"not-allowed"}}/>
-                      <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>{TM.xp}</span>
+                      <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
                       <button onClick={add} className="jelly-tap"
                         style={{marginLeft:"auto",flexShrink:0,padding:"9px 16px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:900,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>
                         오늘 미션에 추가
