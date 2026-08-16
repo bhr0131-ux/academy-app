@@ -438,7 +438,7 @@ export default function ParentHomeTab({
                   {sc?.duration&&<span style={{flexShrink:0,fontSize:12.5,fontWeight:600,color:SUBD,whiteSpace:"nowrap"}}>
                     · {sc.duration}분 수업</span>}
                 </p>
-                {/* (이동됨) 전화·문자 원형 버튼 — 아래 '미션·준비물 수정'과 같은 줄 왼쪽 끝으로
+                {/* (이동됨) 전화·문자 원형 버튼 — 아래 '준비물·미션 수정'과 같은 줄 왼쪽 끝으로
                     옮겼다 (사용자 확정 2026-08-16). 이름 줄에 있으니 긴 학원 이름과 자리를
                     다퉜고, 누르는 것끼리 한 줄에 모이는 편이 찾기 쉽다. */}
               </div>
@@ -499,7 +499,7 @@ export default function ParentHomeTab({
                   style={{border:"none",background:"none",color:SUBD,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px",display:"inline-flex",alignItems:"center",gap:5}}>
                   {/* [사용자 확정 2026-08-16] 그냥 '수정'이면 학원 정보를 고치는 것으로 읽힌다.
                       여기서 고치는 건 그날의 미션·준비물이다 (학원 정보는 등록 학원 쪽에서). */}
-                  <CareIcon name="pencil" size={13}/>미션·준비물 수정
+                  <CareIcon name="pencil" size={13}/>준비물·미션 수정
                 </button>
               </div>
             </div>
