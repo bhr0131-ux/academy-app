@@ -7626,10 +7626,10 @@ export default function App() {
                         const added=existing.includes(s);
                         return (
                           <div key={i} style={{display:"flex",gap:6,alignItems:"center"}}>
-                            <div style={{...inp,flex:3,width:"auto",fontSize:FS.body,padding:"9px 10px",display:"flex",alignItems:"center",color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
+                            <div style={{...inp,flex:3,width:"auto",fontSize:FS.cardTitle,padding:"9px 10px",display:"flex",alignItems:"center",color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
                               {added&&<span style={{color:C.green,marginRight:5,fontWeight:FW.bold}}>✓</span>}{s}
                             </div>
-                            <button onClick={()=>addOne(s)} disabled={added} style={{padding:"9px 11px",borderRadius:RAD.sm,border:"none",background:added?`${C.green}18`:acColor,color:added?mixBlack(C.green,0.3):"#fff",fontWeight:FW.semi,fontSize:FS.tag,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
+                            <button onClick={()=>addOne(s)} disabled={added} style={{padding:"9px 11px",borderRadius:RAD.sm,border:"none",background:added?`${C.green}18`:acColor,color:added?mixBlack(C.green,0.3):"#fff",fontWeight:FW.semi,fontSize:FS.body,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
                               {added?"추가됨 ✓":"추가"}
                             </button>
                           </div>
