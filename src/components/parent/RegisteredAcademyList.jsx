@@ -128,7 +128,8 @@ export default function RegisteredAcademyList({
                   <span style={{ fontSize: 14, fontWeight: 700, flexShrink: 0, color: SUBD }}>{whenLabel(ac)}</span>
                 </span>
                 {/* 화살표는 카드 오른쪽 끝에서 안쪽으로 들여 놓는다 — 가장자리 제스처 구역과
-                    겹치면 눌림 표시만 나고 클릭이 취소된다 (ParentHomeTab 의 같은 줄 참고). */}
+                    겹치면 눌림 표시만 나고 클릭이 취소된다 (실기기에서 재현·해결 확인).
+                    오른쪽 여백을 줄이면 증상이 돌아온다. 자세한 내력은 ParentHomeTab 의 같은 줄. */}
                 <span aria-hidden style={{ flexShrink: 0, width: 24, height: 24, display: "flex",
                   alignItems: "center", justifyContent: "center", fontSize: 12, color: "#B9B3AD", fontWeight: 900,
                   transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "none" }}>⌄</span>
@@ -228,8 +229,13 @@ export default function RegisteredAcademyList({
 
                   {/* ⑤ 매일 확인하지 않는 값들 — 학원 탭과 같은 표(Row)를 그대로 쓴다.
                          '오늘의 학원'에는 없는 줄이지만, 등록 정보를 빠짐없이 담아야 해서 넣는다. */}
-                  {hasDetail && (
-                    <div style={{ paddingTop: 4, paddingBottom: 8, borderTop: `1px solid ${C.border}` }}>
+                  <div style={{ paddingTop: 4, paddingBottom: 8, borderTop: `1px solid ${C.border}` }}>
+                    {!hasDetail && (
+                      <p style={{ margin: "4px 0 2px", fontSize: 12.5, fontWeight: 600, color: C.sub, opacity: 0.75 }}>
+                        더 등록된 정보가 없어요
+                      </p>
+                    )}
+                    {hasDetail && (<>
                       {Number(ac.fee || 0) > 0 && <Row icon="fee" label="월 학원비" value={`${Number(ac.fee).toLocaleString()}원`} />}
                       {Number(ac.fee || 0) > 0 && <Row icon="calendar" label="납부일" value={`매월 ${ac.payDay}일`} />}
                       {(ac.account || "").trim() && <Row icon="bank" label="입금 계좌" value={ac.account}
@@ -238,8 +244,8 @@ export default function RegisteredAcademyList({
                       {ac.address && <Row icon="pin" label="주소" value={ac.address}
                         action={onOpenMap && <RowAct label="지도" color={ac.color} onPress={() => onOpenMap(ac.address)} />} />}
                       {ac.phone && <Row icon="phone" label="연락처" value={ac.phone} soft />}
-                    </div>
-                  )}
+                    </>)}
+                  </div>
 
                   {/* ⑥ 수정 — '오늘의 학원'과 같이 오른쪽 아래에 작게 */}
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
