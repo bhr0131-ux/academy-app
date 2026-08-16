@@ -1,4 +1,4 @@
-import { DAYS, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
+import { DAYS, FS, FW, RAD, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
@@ -5280,19 +5280,19 @@ export default function App() {
 
       {pendingReject&&(
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>setPendingReject(null)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:340,boxSizing:"border-box"}}>
-            <h3 style={{fontSize:17,fontWeight:900,margin:"0 0 8px",textAlign:"center",color:C.text}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:RAD.lg,padding:24,width:"100%",maxWidth:340,boxSizing:"border-box"}}>
+            <h3 style={{fontSize:FS.modalTitle,fontWeight:FW.bold,margin:"0 0 8px",textAlign:"center",color:C.text}}>
               '{pendingReject.title}' 요청을 거절할까요?
             </h3>
-            <p style={{fontSize:13,fontWeight:600,color:C.sub,textAlign:"center",lineHeight:1.6,margin:"0 0 18px"}}>
+            <p style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub,textAlign:"center",lineHeight:1.6,margin:"0 0 18px"}}>
               {TM.coin} {pendingReject.point}개를 돌려주고<br/>요청은 사라져요.
             </p>
             <button onClick={()=>{ rejectRewardRequest(pendingReject.id); setPendingReject(null); }} className="jelly-tap"
-              style={{width:"100%",padding:13,borderRadius:14,border:"none",background:C.red,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer",marginBottom:8,fontFamily:"inherit"}}>
+              style={{width:"100%",padding:13,borderRadius:RAD.md,border:"none",background:C.red,color:"#fff",fontSize:FS.title,fontWeight:FW.bold,cursor:"pointer",marginBottom:8,fontFamily:"inherit"}}>
               네, 거절할게요
             </button>
             <button onClick={()=>setPendingReject(null)} className="jelly-tap"
-              style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+              style={{width:"100%",padding:12,borderRadius:RAD.md,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",fontFamily:"inherit"}}>
               그대로 둘게요
             </button>
           </div>
@@ -6353,22 +6353,22 @@ export default function App() {
         return (
         <div onClick={()=>setHolidayRest(null)} style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:1000}}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"10px 18px calc(26px + env(safe-area-inset-bottom))",width:"100%",maxWidth:430,boxSizing:"border-box",maxHeight:"84vh",overflowY:"auto"}}>
-            <div aria-hidden="true" style={{width:38,height:4,borderRadius:999,background:C.border,margin:"0 auto 12px"}}/>
+            <div aria-hidden="true" style={{width:38,height:4,borderRadius:RAD.pill,background:C.border,margin:"0 auto 12px"}}/>
             <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
-              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+              <h3 style={{margin:0,fontSize:FS.modalTitle,fontWeight:FW.bold,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                 {holidayRest.name}, 쉬는 학원
               </h3>
               <button onClick={()=>setHolidayRest(null)} aria-label="닫기" className="jelly-tap"
-                style={{marginLeft:"auto",flexShrink:0,background:`${CT.faint}`,border:"none",borderRadius:10,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15,fontFamily:"inherit"}}>✕</button>
+                style={{marginLeft:"auto",flexShrink:0,background:`${CT.faint}`,border:"none",borderRadius:RAD.sm,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15,fontFamily:"inherit"}}>✕</button>
             </div>
-            <p style={{fontSize:12,color:C.sub,fontWeight:600,margin:"0 0 12px",lineHeight:1.5}}>
+            <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"0 0 12px",lineHeight:1.5}}>
               {`${hd.getMonth()+1}월 ${hd.getDate()}일`}에 쉬는 학원을 골라 주세요. 고른 학원만 그날 휴원으로 표시돼요.
             </p>
             {list.length===0?(
-              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"18px 0 22px",textAlign:"center"}}>이 날 수업이 있는 학원이 없어요</p>
+              <p style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub,margin:"18px 0 22px",textAlign:"center"}}>이 날 수업이 있는 학원이 없어요</p>
             ):(<>
               <button onClick={()=>setHolidayRest(v=>({...v,ids:allOn?[]:list.map(a=>String(a.id))}))} className="jelly-tap"
-                style={{marginBottom:8,background:"none",border:"none",padding:"4px 0",color:th.main,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>
+                style={{marginBottom:8,background:"none",border:"none",padding:"4px 0",color:th.main,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>
                 {allOn?"모두 해제":"모두 쉬어요"}
               </button>
               <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:14}}>
@@ -6378,14 +6378,14 @@ export default function App() {
                   return (
                     <button key={a.id} onClick={()=>!locked&&toggle(a.id)} className={locked?"":"jelly-tap"}
                       aria-pressed={on} disabled={locked}
-                      style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"11px 12px",borderRadius:12,
+                      style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"11px 12px",borderRadius:RAD.md,
                         border:`1px solid ${on?th.main+"55":C.border}`,background:on?mixWhite(th.main,0.94):"#fff",
                         cursor:locked?"default":"pointer",fontFamily:"inherit",textAlign:"left",opacity:locked?0.7:1}}>
                       <span style={{width:20,height:20,borderRadius:6,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",
-                        border:`1.5px solid ${on?th.main:C.border}`,background:on?th.main:"#fff",color:"#fff",fontSize:12,fontWeight:900}}>{on?"✓":""}</span>
-                      <span style={{width:4,height:18,borderRadius:9,background:a.color,flexShrink:0}}/>
-                      <span style={{flex:1,minWidth:0,fontSize:14,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</span>
-                      {locked&&<span style={{flexShrink:0,fontSize:11,fontWeight:800,color:C.orange}}>방학 중</span>}
+                        border:`1.5px solid ${on?th.main:C.border}`,background:on?th.main:"#fff",color:"#fff",fontSize:FS.sub,fontWeight:FW.bold}}>{on?"✓":""}</span>
+                      <span style={{width:4,height:18,borderRadius:RAD.sm,background:a.color,flexShrink:0}}/>
+                      <span style={{flex:1,minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</span>
+                      {locked&&<span style={{flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,color:C.orange}}>방학 중</span>}
                     </button>
                   );
                 })}
@@ -6393,7 +6393,7 @@ export default function App() {
               <button onClick={()=>{ applyHolidayRest(homeDate,holidayRest.ids); setHolidayRest(null);
                   showToast(holidayRest.ids.length?`${holidayRest.ids.length}곳 휴원으로 표시했어요`:"휴원 표시를 지웠어요"); }}
                 className="jelly-tap"
-                style={{width:"100%",padding:13,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
+                style={{width:"100%",padding:13,borderRadius:RAD.md,border:"none",background:th.grad,color:"#fff",fontSize:FS.title,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>
                 완료
               </button>
             </>)}
@@ -6904,10 +6904,10 @@ export default function App() {
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 44px",width:"100%",maxWidth:430,maxHeight:"88vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
               <div>
-                <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>📚 아이별 학원 복사</h3>
-                <p style={{margin:"4px 0 0",fontSize:13,color:C.sub,fontWeight:700}}>다른 아이의 학원을 {curChild?.name}에게 복사해요</p>
+                <h3 style={{margin:0,fontSize:FS.modalTitle,fontWeight:FW.bold,color:C.text}}>📚 아이별 학원 복사</h3>
+                <p style={{margin:"4px 0 0",fontSize:FS.body,color:C.sub,fontWeight:FW.normal}}>다른 아이의 학원을 {curChild?.name}에게 복사해요</p>
               </div>
-              <button onClick={()=>setShowAcademyCopyModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button onClick={()=>setShowAcademyCopyModal(false)} style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
 
             <label style={lbl}>가져올 아이</label>
@@ -6921,23 +6921,23 @@ export default function App() {
             {copySourceChildId&&(
               <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
                 {getChildAcademies(copySourceChildId).length===0?(
-                  <div style={{textAlign:"center",padding:"24px 10px",borderRadius:14,background:CT.faint,color:C.sub,fontSize:13,fontWeight:700}}>복사할 학원이 없어요</div>
+                  <div style={{textAlign:"center",padding:"24px 10px",borderRadius:RAD.md,background:CT.faint,color:C.sub,fontSize:FS.body,fontWeight:FW.normal}}>복사할 학원이 없어요</div>
                 ):(
                   getChildAcademies(copySourceChildId).map(ac=>{
                     const selected=copySelectedAcademyIds.includes(ac.id);
                     return (
                       <button key={ac.id} onClick={()=>toggleCopyAcademy(ac.id)}
-                        style={{width:"100%",textAlign:"left",borderRadius:14,padding:"13px 14px",border:`1.7px solid ${selected?ac.color:C.border}`,background:selected?`${ac.color}10`:"#fff",cursor:"pointer"}}>
+                        style={{width:"100%",textAlign:"left",borderRadius:RAD.md,padding:"13px 14px",border:`1.7px solid ${selected?ac.color:C.border}`,background:selected?`${ac.color}10`:"#fff",cursor:"pointer"}}>
                         <div style={{display:"flex",alignItems:"center",gap:10}}>
-                          <div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${selected?ac.color:"#CCC"}`,background:selected?ac.color:"transparent",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:900,flexShrink:0}}>
+                          <div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${selected?ac.color:"#CCC"}`,background:selected?ac.color:"transparent",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:FS.body,fontWeight:FW.bold,flexShrink:0}}>
                             {selected?"✓":""}
                           </div>
                           <div style={{flex:1}}>
-                            <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{ac.name}</p>
-                            <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"3px 0 0"}}>
+                            <p style={{fontSize:FS.title,fontWeight:FW.bold,margin:0,color:C.text}}>{ac.name}</p>
+                            <p style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub,margin:"3px 0 0"}}>
                               {(ac.useCustomSchedule&&ac.schedules?.length)?ac.schedules.map(s=>`${s.day} ${s.time}`).join(" / "):`${(ac.days||[]).join("·")} ${ac.time||""}`}
                             </p>
-                            {(ac.teacher||ac.phone)&&<p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"2px 0 0"}}>{ac.teacher} {ac.phone}</p>}
+                            {(ac.teacher||ac.phone)&&<p style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub,margin:"2px 0 0"}}>{ac.teacher} {ac.phone}</p>}
                           </div>
                         </div>
                       </button>
@@ -6948,7 +6948,7 @@ export default function App() {
             )}
 
             <button onClick={copyAcademiesToCurrentChild}
-              style={{width:"100%",border:"none",borderRadius:14,padding:"14px",background:th.grad,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer"}}>
+              style={{width:"100%",border:"none",borderRadius:RAD.md,padding:"14px",background:th.grad,color:"#fff",fontSize:FS.title,fontWeight:FW.bold,cursor:"pointer"}}>
               선택한 학원 복사하기
             </button>
           </div>
@@ -7020,13 +7020,13 @@ export default function App() {
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",maxWidth:430,maxHeight:"93vh",boxSizing:"border-box",display:"flex",flexDirection:"column"}}>
             <div style={{padding:"22px 20px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,borderBottom:`1px solid ${C.border}`,flexShrink:0}}>
               <div style={{minWidth:0}}>
-                <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>{editTarget?"학원 수정":"학원 추가"}</h3>
-                <p style={{margin:"3px 0 0",fontSize:12,fontWeight:600,color:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                <h3 style={{margin:0,fontSize:FS.modalTitle,fontWeight:FW.bold,color:C.text}}>{editTarget?"학원 수정":"학원 추가"}</h3>
+                <p style={{margin:"3px 0 0",fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                   {curChild?.name}의 학원 정보를 {editTarget?"수정해요":"등록해요"}
                 </p>
               </div>
               <button onClick={()=>setShowAddAcModal(false)} aria-label="닫기" className="jelly-tap"
-                style={{flexShrink:0,background:CT.faint,border:"none",borderRadius:12,width:44,height:44,cursor:"pointer",color:C.sub,fontSize:16,fontFamily:"inherit"}}>✕</button>
+                style={{flexShrink:0,background:CT.faint,border:"none",borderRadius:RAD.md,width:44,height:44,cursor:"pointer",color:C.sub,fontSize:16,fontFamily:"inherit"}}>✕</button>
             </div>
             <div style={{flex:1,minHeight:0,overflowY:"auto",padding:"18px 20px 20px"}}>
             {/* 학원 종류 * — 눌러서 목록에서 고른다 (검색·직접 입력).
@@ -7051,7 +7051,7 @@ export default function App() {
             })()}
 
             {/* 학원 이름 — 선택. 비우면 종류 이름이 그대로 학원 이름이 된다 */}
-            <label style={lbl}>학원 이름 <span style={{fontSize:13,fontWeight:600,color:C.sub}}>(선택)</span></label>
+            <label style={lbl}>학원 이름 <span style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub}}>(선택)</span></label>
             <input value={newAc.name} onChange={e=>setNewAc(p=>({...p,name:e.target.value}))}
               placeholder={newAc.kindLabel?`비우면 '${newAc.kindLabel}'로 표시돼요`:"예: 000영어학원"}
               style={{...inp,marginBottom:16}}/>
@@ -7076,11 +7076,11 @@ export default function App() {
                   /* [사용자 확정 2026-08-10] 요일마다 다른 색을 쓰면 '어느 요일을 골랐나'보다
                      무지개가 먼저 보인다. 고른 요일만 테마색으로 채우고 나머지는 회색.
                      일요일은 안 고른 상태에서도 글자만 붉게 (달력과 같은 규칙). */
-                  }} style={{flex:1,minWidth:0,padding:"9px 0",borderRadius:10,fontFamily:"inherit",
+                  }} style={{flex:1,minWidth:0,padding:"9px 0",borderRadius:RAD.sm,fontFamily:"inherit",
                     border:`1.5px solid ${sel?"transparent":CT.faintB}`,
                     background:sel?th.main:CT.faint,
                     color:sel?"#fff":day==="일"?"#E74C3C":day==="토"?"#3498DB":C.sub,
-                    fontSize:15,fontWeight:sel?900:700,cursor:"pointer"}}>{day}</button>
+                    fontSize:FS.title,fontWeight:sel?900:700,cursor:"pointer"}}>{day}</button>
                 );
               })}
             </div>
@@ -7106,26 +7106,26 @@ export default function App() {
               } else {
                 setNewAc(p=>({...p,useCustomSchedule:false}));
               }
-            }} style={{width:"100%",padding:"10px",borderRadius:10,border:`1.5px solid ${newAc.useCustomSchedule?th.main:C.border}`,background:newAc.useCustomSchedule?`${th.main}10`:CT.faint,color:newAc.useCustomSchedule?th.main:C.sub,fontSize:13,fontWeight:700,cursor:"pointer",marginBottom:12}}>
+            }} style={{width:"100%",padding:"10px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomSchedule?th.main:C.border}`,background:newAc.useCustomSchedule?`${th.main}10`:CT.faint,color:newAc.useCustomSchedule?th.main:C.sub,fontSize:FS.body,fontWeight:FW.normal,cursor:"pointer",marginBottom:12}}>
               {newAc.useCustomSchedule?"✓ 요일별 수업시간 설정 중":"📅 요일별로 수업시간이 달라요"}
             </button>
 
             {/* 요일별 시간 개별 입력 */}
             {newAc.useCustomSchedule&&(
-              <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12,background:`${th.main}06`,borderRadius:14,padding:"12px"}}>
+              <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12,background:`${th.main}06`,borderRadius:RAD.md,padding:"12px"}}>
                 {(newAc.schedules||[]).map(sc=>(
-                  <div key={sc.day} style={{display:"flex",alignItems:"center",gap:8,background:"#fff",border:`1.5px solid ${DAY_COLORS[sc.day]}40`,borderRadius:10,padding:"8px 10px"}}>
-                    <span style={{width:28,fontSize:15,fontWeight:700,color:DAY_COLORS[sc.day],flexShrink:0}}>{sc.day}</span>
+                  <div key={sc.day} style={{display:"flex",alignItems:"center",gap:8,background:"#fff",border:`1.5px solid ${DAY_COLORS[sc.day]}40`,borderRadius:RAD.sm,padding:"8px 10px"}}>
+                    <span style={{width:28,fontSize:FS.title,fontWeight:FW.normal,color:DAY_COLORS[sc.day],flexShrink:0}}>{sc.day}</span>
                     <input type="time" value={sc.time}
                       onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,time:e.target.value}:s)}))}
-                      style={{...inp,flex:1,width:"auto",fontSize:13,padding:"7px 10px"}}/>
+                      style={{...inp,flex:1,width:"auto",fontSize:FS.body,padding:"7px 10px"}}/>
                     <input type="number" value={sc.duration}
                       onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,duration:Number(e.target.value)}:s)}))}
-                      style={{...inp,width:65,fontSize:13,padding:"7px 8px"}}/>
-                    <span style={{fontSize:13,color:C.sub,flexShrink:0}}>분</span>
+                      style={{...inp,width:65,fontSize:FS.body,padding:"7px 8px"}}/>
+                    <span style={{fontSize:FS.body,color:C.sub,flexShrink:0}}>분</span>
                   </div>
                 ))}
-                {(newAc.schedules||[]).length===0&&<p style={{fontSize:13,color:C.sub,margin:0,textAlign:"center"}}>위에서 요일을 먼저 선택해주세요</p>}
+                {(newAc.schedules||[]).length===0&&<p style={{fontSize:FS.body,color:C.sub,margin:0,textAlign:"center"}}>위에서 요일을 먼저 선택해주세요</p>}
               </div>
             )}
             {/* 색상 — 필수 화면 */}
@@ -7149,45 +7149,45 @@ export default function App() {
               })()}
             </div>
 
-            <p style={{fontSize:12,color:C.sub,fontWeight:600,margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
+            <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
               필수 정보 입력 완료<br/><span style={{opacity:0.85}}>나머지는 필요할 때 추가할 수 있어요</span>
             </p>
 
-            <button type="button" onClick={()=>setShowAcMore(v=>!v)} style={{width:"100%",padding:"13px",borderRadius:14,border:`1.5px dashed ${th.main}80`,background:mixWhite(th.main,0.80),color:th.main,fontSize:14,fontWeight:900,cursor:"pointer",marginBottom:16}}>
+            <button type="button" onClick={()=>setShowAcMore(v=>!v)} style={{width:"100%",padding:"13px",borderRadius:RAD.md,border:`1.5px dashed ${th.main}80`,background:mixWhite(th.main,0.80),color:th.main,fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",marginBottom:16}}>
               {showAcMore?"▲ 상세 정보 접기":"▼ 상세 정보 추가 (선택)"}
             </button>
             {showAcMore&&(<>
 
             {/* ① 준비물·숙제 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
-            <button type="button" onClick={()=>setAcSecSupply(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+            <button type="button" onClick={()=>setAcSecSupply(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:FS.cardTitle,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
               <span style={{display:"flex",alignItems:"center",gap:7}}><CareIcon name="bag" size={15}/>항상 챙길 준비물 · 반복 숙제</span><span style={{color:C.sub}}>{acSecSupply?"▲":"▼"}</span>
             </button>
             {acSecSupply&&(
             <div style={{padding:"0 2px 16px"}}>
-            <label style={{...lbl,fontSize:14,display:"flex",alignItems:"center",gap:6}}><CareIcon name="bag" size={14}/>항상 챙길 준비물</label>
+            <label style={{...lbl,fontSize:FS.cardTitle,display:"flex",alignItems:"center",gap:6}}><CareIcon name="bag" size={14}/>항상 챙길 준비물</label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseSupplies||[]).map((s,i)=>(
-                <span key={i} style={{fontSize:14,padding:"5px 11px",borderRadius:16,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
+                <span key={i} style={{fontSize:FS.cardTitle,padding:"5px 11px",borderRadius:RAD.lg,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:FW.normal}}>
                   {s}<button onClick={()=>setNewAc(p=>({...p,baseSupplies:p.baseSupplies.filter((_,j)=>j!==i)}))} style={{background:"none",border:"none",color:th.main,cursor:"pointer",fontSize:15,padding:0}}>✕</button>
                 </span>
               ))}
             </div>
             <div style={{display:"flex",gap:8,marginBottom:14}}>
-              <input value={supplyInput} onChange={e=>setSupplyInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseSupply()} placeholder="예: 교재, 필통" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"10px 12px",marginBottom:0}}/>
-              <button onClick={addBaseSupply} style={{padding:"0 16px",borderRadius:10,border:"none",background:th.main,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer"}}>추가</button>
+              <input value={supplyInput} onChange={e=>setSupplyInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseSupply()} placeholder="예: 교재, 필통" style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
+              <button onClick={addBaseSupply} style={{padding:"0 16px",borderRadius:RAD.sm,border:"none",background:th.main,color:"#fff",fontWeight:FW.normal,fontSize:FS.cardTitle,cursor:"pointer"}}>추가</button>
             </div>
-            <label style={{...lbl,fontSize:14}}>📚 반복 숙제 <span style={{fontSize:12,color:C.sub,fontWeight:400}}>(미션 화면에서 눌러 추가)</span></label>
+            <label style={{...lbl,fontSize:FS.cardTitle}}>📚 반복 숙제 <span style={{fontSize:FS.sub,color:C.sub,fontWeight:400}}>(미션 화면에서 눌러 추가)</span></label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseHomeworks||[]).map((s,i)=>(
-                <span key={i} style={{fontSize:14,padding:"5px 11px",borderRadius:16,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:600}}>
+                <span key={i} style={{fontSize:FS.cardTitle,padding:"5px 11px",borderRadius:RAD.lg,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:FW.normal}}>
                   {s}<button onClick={()=>removeBaseHomework(i)} style={{background:"none",border:"none",color:th.main,cursor:"pointer",fontSize:15,padding:0}}>✕</button>
                 </span>
               ))}
             </div>
             <div style={{display:"flex",gap:8}}>
-              <input value={baseHwInput} onChange={e=>setBaseHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseHomework()} placeholder="예: 문제집 2쪽, 단어 10개" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"10px 12px",marginBottom:0}}/>
-              <button onClick={addBaseHomework} style={{padding:"0 16px",borderRadius:10,border:"none",background:th.main,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer"}}>추가</button>
+              <input value={baseHwInput} onChange={e=>setBaseHwInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseHomework()} placeholder="예: 문제집 2쪽, 단어 10개" style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
+              <button onClick={addBaseHomework} style={{padding:"0 16px",borderRadius:RAD.sm,border:"none",background:th.main,color:"#fff",fontWeight:FW.normal,fontSize:FS.cardTitle,cursor:"pointer"}}>추가</button>
             </div>
             </div>
             )}
@@ -7195,7 +7195,7 @@ export default function App() {
 
             {/* ② 학원비·납부 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
-            <button type="button" onClick={()=>setAcSecFee(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+            <button type="button" onClick={()=>setAcSecFee(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:FS.cardTitle,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
               <span>💰 학원비 · 납부일 · 계좌</span><span style={{color:C.sub}}>{acSecFee?"▲":"▼"}</span>
             </button>
             {acSecFee&&(
@@ -7203,62 +7203,62 @@ export default function App() {
               <div style={{display:"flex",gap:10,marginBottom:12}}>
                 {/* [사용자 확정 2026-08-10] 150000 보다 150,000 이 읽기 쉽다 — 치는 동안에도 콤마를 찍는다.
                     숫자 키패드는 inputMode 로 그대로 뜬다. */}
-                <div style={{flex:1,minWidth:0}}><label style={{...lbl,fontSize:13.5}}>월 학원비(원)</label>
+                <div style={{flex:1,minWidth:0}}><label style={{...lbl,fontSize:FS.body}}>월 학원비(원)</label>
                   <input inputMode="numeric" value={Number(newAc.fee||0)>0?Number(newAc.fee).toLocaleString():""}
                     onChange={e=>{ const n=Number(String(e.target.value).replace(/[^0-9]/g,"")); setNewAc(p=>({...p,fee:Number.isNaN(n)?0:n})); }}
-                    placeholder="0" style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/></div>
-                <div style={{flex:1,minWidth:0}}><label style={{...lbl,fontSize:13.5}}>납부일</label>
+                    placeholder="0" style={{...inp,fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/></div>
+                <div style={{flex:1,minWidth:0}}><label style={{...lbl,fontSize:FS.body}}>납부일</label>
                   <div style={{position:"relative"}}>
                     <input inputMode="numeric" value={newAc.payDay===""?"":String(newAc.payDay)}
                       onFocus={e=>e.target.select&&e.target.select()}
                       onChange={e=>{ const v=String(e.target.value).replace(/[^0-9]/g,""); setNewAc(p=>({...p,payDay:v===""?"":Math.min(31,Number(v))})); }}
-                      style={{...inp,fontSize:15,padding:"10px 46px 10px 12px",marginBottom:0}}/>
-                    <span style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",fontSize:12.5,fontWeight:700,color:C.sub,pointerEvents:"none"}}>일</span>
+                      style={{...inp,fontSize:FS.title,padding:"10px 46px 10px 12px",marginBottom:0}}/>
+                    <span style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,pointerEvents:"none"}}>일</span>
                   </div>
-                  <p style={{margin:"4px 0 0",fontSize:11.5,fontWeight:600,color:C.sub,opacity:0.85}}>매월 {newAc.payDay||1}일</p>
+                  <p style={{margin:"4px 0 0",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,opacity:0.85}}>매월 {newAc.payDay||1}일</p>
                 </div>
               </div>
               {/* [사용자 확정 2026-08-10] 이체할 때마다 문자를 찾아 헤매지 않게 계좌를 여기 적어 둔다.
                   선택 입력이고, 적어 두면 학원 카드에서 눌러 복사할 수 있다. */}
-              <label style={{...lbl,fontSize:14}}>🏦 입금 계좌 <span style={{fontWeight:600,opacity:0.7}}>(선택)</span></label>
+              <label style={{...lbl,fontSize:FS.cardTitle}}>🏦 입금 계좌 <span style={{fontWeight:FW.normal,opacity:0.7}}>(선택)</span></label>
               <input value={newAc.account||""} onChange={e=>setNewAc(p=>({...p,account:e.target.value}))}
-                placeholder="예: 국민 123456-01-234567 (홍길동)" style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:0}}/>
+                placeholder="예: 국민 123456-01-234567 (홍길동)" style={{...inp,fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
             </div>
             )}
             </div>
 
             {/* ③ 학원정보 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
-            <button type="button" onClick={()=>setAcSecInfo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+            <button type="button" onClick={()=>setAcSecInfo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:FS.cardTitle,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
               <span>📋 학원 정보 (연락처·주소·셔틀)</span><span style={{color:C.sub}}>{acSecInfo?"▲":"▼"}</span>
             </button>
             {acSecInfo&&(
             <div style={{padding:"0 2px 16px"}}>
-              <label style={{...lbl,fontSize:14}}>👩‍🏫 담당 선생님</label>
-              <input value={newAc.teacher} onChange={e=>setNewAc(p=>({...p,teacher:e.target.value}))} placeholder="예: 김민준 선생님" style={{...inp,fontSize:15,padding:"10px 12px",marginBottom:12}}/>
-              <label style={{...lbl,fontSize:14}}>📞 연락처</label>
+              <label style={{...lbl,fontSize:FS.cardTitle}}>👩‍🏫 담당 선생님</label>
+              <input value={newAc.teacher} onChange={e=>setNewAc(p=>({...p,teacher:e.target.value}))} placeholder="예: 김민준 선생님" style={{...inp,fontSize:FS.title,padding:"10px 12px",marginBottom:12}}/>
+              <label style={{...lbl,fontSize:FS.cardTitle}}>📞 연락처</label>
               <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <input value={newAc.phone} onChange={e=>setNewAc(p=>({...p,phone:e.target.value}))}
-                  placeholder="예: 010-1234-5678" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"10px 12px",marginBottom:0}}/>
+                  placeholder="예: 010-1234-5678" style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
                 <button type="button" onClick={pickTeacherContact}
-                  style={{padding:"0 12px",borderRadius:10,border:`1px solid ${C.border}`,background:"#fff",color:C.text,fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
+                  style={{padding:"0 12px",borderRadius:RAD.sm,border:`1px solid ${C.border}`,background:"#fff",color:C.text,fontSize:FS.body,fontWeight:FW.bold,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
                   📒 주소록
                 </button>
               </div>
-              <label style={{...lbl,fontSize:14}}>📍 주소</label>
+              <label style={{...lbl,fontSize:FS.cardTitle}}>📍 주소</label>
               <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <input value={newAc.address} onChange={e=>setNewAc(p=>({...p,address:e.target.value}))}
-                  placeholder="예: 서울시 강남구" style={{...inp,flex:1,width:"auto",fontSize:15,padding:"10px 12px",marginBottom:0}}/>
+                  placeholder="예: 서울시 강남구" style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
                 <button type="button" onClick={openNaverMapSearch}
-                  style={{padding:"0 12px",borderRadius:10,border:`1px solid ${C.border}`,background:"#fff",color:C.text,fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
+                  style={{padding:"0 12px",borderRadius:RAD.sm,border:`1px solid ${C.border}`,background:"#fff",color:C.text,fontSize:FS.body,fontWeight:FW.bold,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
                   🗺️ 지도검색
                 </button>
               </div>
 
-              <label style={{...lbl,fontSize:14}}>🚌 셔틀버스 메모</label>
+              <label style={{...lbl,fontSize:FS.cardTitle}}>🚌 셔틀버스 메모</label>
               <textarea value={newAc.shuttleInfo||""} onChange={e=>setNewAc(p=>({...p,shuttleInfo:e.target.value}))}
                 placeholder="예: 월수금 하원 차량 / 3시10분 아파트 정문"
-                style={{...inp,fontSize:15,padding:"10px 12px",minHeight:60,resize:"none",marginBottom:10}}/>
+                style={{...inp,fontSize:FS.title,padding:"10px 12px",minHeight:60,resize:"none",marginBottom:10}}/>
 
               <button type="button" onClick={()=>{
                 setNewAc(p=>({...p,
@@ -7267,7 +7267,7 @@ export default function App() {
                     ? p.shuttleSchedules
                     : (p.days||[]).map(day=>({day,time:"",place:"",memo:""}))
                 }));
-              }} style={{width:"100%",padding:"10px",borderRadius:10,border:`1.5px solid ${newAc.useCustomShuttle?th.main:C.border}`,background:newAc.useCustomShuttle?`${th.main}10`:CT.faint,color:newAc.useCustomShuttle?th.main:C.sub,fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:10}}>
+              }} style={{width:"100%",padding:"10px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomShuttle?th.main:C.border}`,background:newAc.useCustomShuttle?`${th.main}10`:CT.faint,color:newAc.useCustomShuttle?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",marginBottom:10}}>
                 {newAc.useCustomShuttle?"✓ 요일별 셔틀 설정 중":"🚌 요일별 셔틀 정보가 달라요"}
               </button>
 
@@ -7276,19 +7276,19 @@ export default function App() {
                   {(newAc.days||[]).map(day=>{
                     const shuttle=(newAc.shuttleSchedules||[]).find(s=>s.day===day)||{};
                     return (
-                      <div key={day} style={{border:`1px solid ${C.border}`,borderRadius:14,padding:"12px",background:"#fff"}}>
-                        <div style={{fontWeight:800,marginBottom:8,color:DAY_COLORS[day],fontSize:14}}>{day}요일</div>
+                      <div key={day} style={{border:`1px solid ${C.border}`,borderRadius:RAD.md,padding:"12px",background:"#fff"}}>
+                        <div style={{fontWeight:FW.semi,marginBottom:8,color:DAY_COLORS[day],fontSize:FS.cardTitle}}>{day}요일</div>
                         <div style={{display:"flex",gap:8,marginBottom:8}}>
                           <input type="time" value={shuttle.time||""}
                             onChange={e=>setNewAc(p=>({...p,shuttleSchedules:(p.shuttleSchedules||[]).map(s=>s.day===day?{...s,time:e.target.value}:s)}))}
-                            style={{...inp,flex:1,width:"auto",fontSize:14,padding:"9px 11px"}}/>
+                            style={{...inp,flex:1,width:"auto",fontSize:FS.cardTitle,padding:"9px 11px"}}/>
                           <input value={shuttle.place||""} placeholder="위치"
                             onChange={e=>setNewAc(p=>({...p,shuttleSchedules:(p.shuttleSchedules||[]).map(s=>s.day===day?{...s,place:e.target.value}:s)}))}
-                            style={{...inp,flex:2,width:"auto",fontSize:14,padding:"9px 11px"}}/>
+                            style={{...inp,flex:2,width:"auto",fontSize:FS.cardTitle,padding:"9px 11px"}}/>
                         </div>
                         <input value={shuttle.memo||""} placeholder="메모"
                           onChange={e=>setNewAc(p=>({...p,shuttleSchedules:(p.shuttleSchedules||[]).map(s=>s.day===day?{...s,memo:e.target.value}:s)}))}
-                          style={{...inp,fontSize:14,padding:"9px 11px"}}/>
+                          style={{...inp,fontSize:FS.cardTitle,padding:"9px 11px"}}/>
                       </div>
                     );
                   })}
@@ -7300,18 +7300,18 @@ export default function App() {
 
             {/* ④ 메모 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
-            <button type="button" onClick={()=>setAcSecMemo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+            <button type="button" onClick={()=>setAcSecMemo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:FS.cardTitle,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
               <span>📝 메모</span><span style={{color:C.sub}}>{acSecMemo?"▲":"▼"}</span>
             </button>
             {acSecMemo&&(
             <div style={{padding:"0 2px 16px"}}>
-              <textarea value={newAc.memo} onChange={e=>setNewAc(p=>({...p,memo:e.target.value}))} placeholder="특이사항, 레벨, 기타 메모 등" style={{...inp,fontSize:15,padding:"10px 12px",minHeight:70,resize:"none",marginBottom:0}}/>
+              <textarea value={newAc.memo} onChange={e=>setNewAc(p=>({...p,memo:e.target.value}))} placeholder="특이사항, 레벨, 기타 메모 등" style={{...inp,fontSize:FS.title,padding:"10px 12px",minHeight:70,resize:"none",marginBottom:0}}/>
             </div>
             )}
             </div>
             </>)}
             {editTarget!==null&&(
-              <button onClick={()=>deleteAcademy(editTarget)} style={{width:"100%",marginTop:16,padding:12,borderRadius:14,border:`1px solid ${C.red}35`,background:"#fff",color:C.red,fontSize:13.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+              <button onClick={()=>deleteAcademy(editTarget)} style={{width:"100%",marginTop:16,padding:12,borderRadius:RAD.md,border:`1px solid ${C.red}35`,background:"#fff",color:C.red,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
                 🗑 이 학원 삭제
               </button>
             )}
@@ -7325,9 +7325,9 @@ export default function App() {
               return (
                 <div style={{flexShrink:0,display:"flex",gap:9,padding:"12px 20px calc(16px + env(safe-area-inset-bottom))",borderTop:`1px solid ${C.border}`,background:"#fff"}}>
                   <button onClick={()=>setShowAddAcModal(false)} className="jelly-tap"
-                    style={{flexShrink:0,padding:"14px 18px",borderRadius:14,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:14.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>취소</button>
+                    style={{flexShrink:0,padding:"14px 18px",borderRadius:RAD.md,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:FS.cardTitle,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>취소</button>
                   <button onClick={saveAcademy} className="jelly-tap"
-                    style={{flex:1,padding:14,borderRadius:14,border:"none",fontSize:15.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",
+                    style={{flex:1,padding:14,borderRadius:RAD.md,border:"none",fontSize:FS.title,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit",
                       background:ready?th.grad:CT.faint,color:ready?"#fff":C.sub,
                       boxShadow:ready?`0 4px 16px ${th.main}40`:"none"}}>
                     {editTarget?"수정 완료":"학원 저장"}
@@ -7416,12 +7416,12 @@ export default function App() {
               <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18}}>
                 <div style={{width:14,height:14,borderRadius:"50%",background:acColor}}/>
                 <div style={{flex:1}}>
-                  <p style={{fontWeight:800,fontSize:17,margin:0,color:C.text}}>{acName}</p>
+                  <p style={{fontWeight:FW.semi,fontSize:FS.modalTitle,margin:0,color:C.text}}>{acName}</p>
                   {/* [사용자 확정 2026-08-11] 날짜가 학원 이름과 같은 17이라 둘 다 제목처럼 읽혔다 →
                       보조 정보이므로 다른 화면의 보조 줄(12~12.5)에 맞춘다. */}
-                  <p style={{fontSize:12.5,color:C.sub,fontWeight:600,margin:"2px 0 0"}}>{fmt(date)} {date===TODAY?"(오늘)":""}</p>
+                  <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>{fmt(date)} {date===TODAY?"(오늘)":""}</p>
                 </div>
-                <button onClick={()=>setShowDailyModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
+                <button onClick={()=>setShowDailyModal(null)} style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
               </div>
               {/* [사용자 확정 2026-08-16] 준비물을 미션보다 위로 올렸다 —
                   학원 갈 때 먼저 챙기는 것이 준비물이라 읽는 순서를 그대로 따른다.
@@ -7432,23 +7432,23 @@ export default function App() {
               const hideBase=(s)=>upd({...entry,hiddenBase:[...hiddenBase,s]});
               const restoreBase=(s)=>upd({...entry,hiddenBase:hiddenBase.filter(x=>x!==s)});
               return (<>
-              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
+              <p style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,margin:"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
                 <span style={{color:acColor,display:"flex"}}><CareIcon name="bag" size={15}/></span>오늘의 준비물
               </p>
-              {visibleBase.length===0&&sup.length===0&&<p style={{fontSize:13.5,fontWeight:600,color:C.sub,marginBottom:10}}>등록된 준비물이 없어요. 아래에서 추가할 수 있어요.</p>}
+              {visibleBase.length===0&&sup.length===0&&<p style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub,marginBottom:10}}>등록된 준비물이 없어요. 아래에서 추가할 수 있어요.</p>}
               <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:hiddenBase.length>0?8:10}}>
                 {visibleBase.map((s,i)=>(
                   /* [사용자 확정 2026-08-11] 꽉 찬 학원색이라 정작 중요한 미션보다 먼저 보였다 →
                      연한 배경 + 진한 글씨로 낮춘다. 그날 추가분과는 앞의 📌 로 구분된다. */
                   /* [사용자 확정 2026-08-11] 긴 이름이 들어오면 줄이 무너졌다 → 최대 폭 + 말줄임.
                      ✕ 는 누르기 쉽게 32px 자리를 준다. 📌 는 태그마다 반복하지 않고 제목에만. */
-                  <span key={`base${i}`} style={{maxWidth:"100%",fontSize:13.5,padding:"5px 4px 5px 12px",borderRadius:20,background:mixWhite(acColor,0.86),color:mixBlack(acColor,0.32),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
+                  <span key={`base${i}`} style={{maxWidth:"100%",fontSize:FS.body,padding:"5px 4px 5px 12px",borderRadius:RAD.lg,background:mixWhite(acColor,0.86),color:mixBlack(acColor,0.32),display:"flex",alignItems:"center",gap:2,fontWeight:FW.normal,minWidth:0}}>
                     <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s}</span>
                     <button onClick={()=>hideBase(s)} aria-label={`${s} 오늘 제외`} className="jelly-tap" style={{flexShrink:0,width:32,height:26,background:"none",border:"none",color:mixBlack(acColor,0.32),opacity:0.65,cursor:"pointer",fontSize:13,padding:0,lineHeight:1,fontFamily:"inherit"}}>✕</button>
                   </span>
                 ))}
                 {sup.map((s,i)=>(
-                  <span key={`day${i}`} style={{maxWidth:"100%",fontSize:13.5,padding:"5px 4px 5px 12px",borderRadius:20,background:`${acColor}15`,color:mixBlack(acColor,0.2),display:"flex",alignItems:"center",gap:2,fontWeight:700,minWidth:0}}>
+                  <span key={`day${i}`} style={{maxWidth:"100%",fontSize:FS.body,padding:"5px 4px 5px 12px",borderRadius:RAD.lg,background:`${acColor}15`,color:mixBlack(acColor,0.2),display:"flex",alignItems:"center",gap:2,fontWeight:FW.normal,minWidth:0}}>
                     <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s}</span>
                     <button onClick={()=>upd({...entry,supplies:sup.filter((_,j)=>j!==i)})} aria-label={`${s} 지우기`} className="jelly-tap" style={{flexShrink:0,width:32,height:26,background:"none",border:"none",color:mixBlack(acColor,0.2),opacity:0.65,cursor:"pointer",fontSize:13,padding:0,lineHeight:1,fontFamily:"inherit"}}>✕</button>
                   </span>
@@ -7456,10 +7456,10 @@ export default function App() {
               </div>
               {hiddenBase.length>0&&(
                 <div style={{marginBottom:10}}>
-                  <p style={{fontSize:13,color:C.sub,margin:"0 0 5px"}}>오늘 제외한 준비물 (눌러서 되돌리기)</p>
+                  <p style={{fontSize:FS.body,color:C.sub,margin:"0 0 5px"}}>오늘 제외한 준비물 (눌러서 되돌리기)</p>
                   <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                     {hiddenBase.map((s,i)=>(
-                      <button key={`hb${i}`} onClick={()=>restoreBase(s)} style={{fontSize:13,padding:"4px 11px",borderRadius:20,background:CT.faint,color:C.sub,border:`1px dashed ${CT.faintB}`,cursor:"pointer",textDecoration:"line-through",fontWeight:600}}>
+                      <button key={`hb${i}`} onClick={()=>restoreBase(s)} style={{fontSize:FS.body,padding:"4px 11px",borderRadius:RAD.lg,background:CT.faint,color:C.sub,border:`1px dashed ${CT.faintB}`,cursor:"pointer",textDecoration:"line-through",fontWeight:FW.normal}}>
                         {s} ↩
                       </button>
                     ))}
@@ -7468,14 +7468,14 @@ export default function App() {
               )}
               <div style={{display:"flex",gap:8,marginBottom:22}}>
                 {/* 위 '미션 내용 입력'은 14인데 여기만 15라 같은 창 안에서 크기가 어긋났다 → 14로 통일 */}
-                <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="준비물 입력" style={{...inp,flex:1,width:"auto",fontSize:14,padding:"10px 14px"}}/>
-                <button onClick={addSup} style={{padding:"0 18px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:700,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
+                <input value={dailySupInput} onChange={e=>setDailySupInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addSup()} placeholder="준비물 입력" style={{...inp,flex:1,width:"auto",fontSize:FS.cardTitle,padding:"10px 14px"}}/>
+                <button onClick={addSup} style={{padding:"0 18px",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontWeight:FW.normal,fontSize:FS.body,cursor:"pointer",fontFamily:"inherit"}}>추가</button>
               </div>
               </>);
               })()}
               {/* [사용자 확정 2026-08-11] 팝업 안 구역 제목이 창 제목과 같은 17이었다 →
                   다른 화면의 구역 제목(홈 15 · 결석 15.5)에 맞춰 15. */}
-              <p style={{fontSize:15,fontWeight:900,color:C.text,margin:isParent&&!isParentEdit&&(hw.length>0||todos.length>0)?"0 0 3px":"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
+              <p style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,margin:isParent&&!isParentEdit&&(hw.length>0||todos.length>0)?"0 0 3px":"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
                 <span style={{color:acColor,display:"flex"}}><CareIcon name="mission" size={15}/></span>오늘의 미션
               </p>
               {/* [사용자 확정 2026-08-11] 홈에서 연 팝업과 미션 탭에서 연 팝업이 똑같이 생겨서
@@ -7483,33 +7483,33 @@ export default function App() {
                   [사용자 확정 2026-08-16] 미션 탭 자체는 더 이상 잠겨 있지 않다 —
                   삭제·점수 수정을 여는 건 그 안의 '엄마 권한'이므로 안내도 그렇게 바꾼다. */}
               {isParent&&!isParentEdit&&(hw.length>0||todos.length>0)&&(
-                <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"0 0 10px"}}>
+                <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 10px"}}>
                   미션 삭제 · {TM.xp} 수정은 엄마권한(비밀번호)을 열면 가능해요
                 </p>
               )}
               {hw.length===0&&todos.length===0&&(
-                <div style={{background:CT.faint,borderRadius:12,padding:"14px 14px",marginBottom:12,textAlign:"center"}}>
-                  <p style={{fontSize:14,fontWeight:800,color:C.text,margin:0}}>등록된 미션이 없어요</p>
-                  <p style={{fontSize:12.5,fontWeight:600,color:C.sub,margin:"3px 0 0"}}>아래에서 오늘 할 일을 추가할 수 있어요.</p>
+                <div style={{background:CT.faint,borderRadius:RAD.md,padding:"14px 14px",marginBottom:12,textAlign:"center"}}>
+                  <p style={{fontSize:FS.cardTitle,fontWeight:FW.semi,color:C.text,margin:0}}>등록된 미션이 없어요</p>
+                  <p style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,margin:"3px 0 0"}}>아래에서 오늘 할 일을 추가할 수 있어요.</p>
                 </div>
               )}
               <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:12}}>
                 {hw.map(h=>(
-                  <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:h.done?`${C.green}08`:CT.faint,border:`1.5px solid ${h.done?C.green+"30":CT.faintB}`}}>
-                    <button onClick={()=>{ if(canCheck) toggleHomeworkDone(childId,academyId,date,h.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700,opacity:!canCheck&&!h.done?0.5:1}}>{h.done?"✓":""}</button>
+                  <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:RAD.sm,background:h.done?`${C.green}08`:CT.faint,border:`1.5px solid ${h.done?C.green+"30":CT.faintB}`}}>
+                    <button onClick={()=>{ if(canCheck) toggleHomeworkDone(childId,academyId,date,h.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:FS.body,color:"#fff",fontWeight:FW.normal,opacity:!canCheck&&!h.done?0.5:1}}>{h.done?"✓":""}</button>
                     {editingDailyItem&&editingDailyItem.kind==="hw"&&editingDailyItem.id===h.id ? (
                       <>
-                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:13,padding:"6px 9px"}}/>
+                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:FS.body,padding:"6px 9px"}}/>
                         {isParentEdit&&(<>
-                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:13,padding:"6px 4px",textAlign:"center"}} min="1"/>
-                          <span style={{fontSize:12,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
+                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:FS.body,padding:"6px 4px",textAlign:"center"}} min="1"/>
+                          <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
                         </>)}
-                        <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:8,padding:"6px 11px",fontSize:12,fontWeight:800,cursor:"pointer",flexShrink:0}}>저장</button>
+                        <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:RAD.sm,padding:"6px 11px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",flexShrink:0}}>저장</button>
                       </>
                     ) : (
                       <>
-                        <span style={{flex:1,fontSize:13,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span>
+                        <span style={{flex:1,fontSize:FS.body,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>숙제: {h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
+                        <span style={{fontSize:FS.body,color:C.orange,fontWeight:FW.semi}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
                         {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
@@ -7517,21 +7517,21 @@ export default function App() {
                   </div>
                 ))}
                 {todos.map(t=>(
-                  <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,background:t.done?`${C.green}08`:CT.faint,border:`1.5px solid ${t.done?C.green+"30":CT.faintB}`}}>
-                    <button onClick={()=>{ if(canCheck) toggleTodoDone(childId,academyId,date,t.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff",fontWeight:700,opacity:!canCheck&&!t.done?0.5:1}}>{t.done?"✓":""}</button>
+                  <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:RAD.sm,background:t.done?`${C.green}08`:CT.faint,border:`1.5px solid ${t.done?C.green+"30":CT.faintB}`}}>
+                    <button onClick={()=>{ if(canCheck) toggleTodoDone(childId,academyId,date,t.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:FS.body,color:"#fff",fontWeight:FW.normal,opacity:!canCheck&&!t.done?0.5:1}}>{t.done?"✓":""}</button>
                     {editingDailyItem&&editingDailyItem.kind==="todo"&&editingDailyItem.id===t.id ? (
                       <>
-                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:13,padding:"6px 9px"}}/>
+                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:FS.body,padding:"6px 9px"}}/>
                         {isParentEdit&&(<>
-                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:13,padding:"6px 4px",textAlign:"center"}} min="1"/>
-                          <span style={{fontSize:12,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
+                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:FS.body,padding:"6px 4px",textAlign:"center"}} min="1"/>
+                          <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
                         </>)}
-                        <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:8,padding:"6px 11px",fontSize:12,fontWeight:800,cursor:"pointer",flexShrink:0}}>저장</button>
+                        <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:RAD.sm,padding:"6px 11px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",flexShrink:0}}>저장</button>
                       </>
                     ) : (
                       <>
-                        <span style={{flex:1,fontSize:13,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:13,color:C.orange,fontWeight:800}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span>
+                        <span style={{flex:1,fontSize:FS.body,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
+                        <span style={{fontSize:FS.body,color:C.orange,fontWeight:FW.semi}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id)})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
                         {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
@@ -7550,7 +7550,7 @@ export default function App() {
                 const setPt=kind==="hw"?setDailyHwPoint:setDailyTodoPoint;
                 const add =kind==="hw"?addHw:addTodo;
                 return (
-                  <div style={{marginBottom:20,background:CT.faint,borderRadius:14,padding:"12px 12px 13px"}}>
+                  <div style={{marginBottom:20,background:CT.faint,borderRadius:RAD.md,padding:"12px 12px 13px"}}>
                     {/* [사용자 확정 2026-08-11] 흰 캡슐 위에 다시 색 버튼이 얹힌 구조가 복잡해 보였다 →
                         라벨을 위로 올리고 버튼 둘을 같은 너비로 나란히. 고른 쪽만 색으로 채운다. */}
                     {/* [사용자 확정 2026-08-16] '미션 종류' 라벨을 없애고, 숙제·할 일 두 버튼을
@@ -7563,7 +7563,7 @@ export default function App() {
                           /* [사용자 확정 2026-08-16] 두 버튼이 위아래로 두툼해 옆 입력칸보다
                              먼저 눈에 들어왔다 → 높이만 한 단계 낮춘다 (7 → 4). */
                           <button key={o.k} onClick={()=>setDailyKind(o.k)} className="jelly-tap" aria-pressed={kind===o.k}
-                            style={{width:"100%",cursor:"pointer",borderRadius:9,padding:"4px 0",fontFamily:"inherit",fontSize:12.5,
+                            style={{width:"100%",cursor:"pointer",borderRadius:RAD.sm,padding:"4px 0",fontFamily:"inherit",fontSize:FS.sub,
                               border:`1.5px solid ${kind===o.k?mixWhite(th.main,0.35):CT.faintB}`,
                               fontWeight:kind===o.k?900:700,background:kind===o.k?th.grad:"#fff",color:kind===o.k?"#fff":C.sub}}>{o.l}</button>
                         ))}
@@ -7571,7 +7571,7 @@ export default function App() {
                     )}
                     <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&add()}
                       placeholder="미션 내용 입력" aria-label="미션 내용"
-                      style={{...inp,flex:1,minWidth:0,fontSize:14,padding:"10px 12px",marginBottom:0,background:"#fff"}}/>
+                      style={{...inp,flex:1,minWidth:0,fontSize:FS.cardTitle,padding:"10px 12px",marginBottom:0,background:"#fff"}}/>
                     </div>
                     {/* [사용자 확정 2026-08-16] '보상 10 점' 줄이 왼쪽 끝에서 시작해 위의
                         미션 내용 입력칸과 어긋나 보였다 → 숙제/할 일 칸과 같은 폭(62+8)을
@@ -7581,15 +7581,15 @@ export default function App() {
                         왼쪽에 두면 점수 칸과 멀어져 어느 칸의 이름인지 흐려졌다.
                         칸 폭은 그대로라 점수 칸의 시작 위치는 위 입력칸과 계속 맞는다. */}
                     <div style={{display:"flex",alignItems:"center",gap:isExtra?7:8}}>
-                      <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0,
+                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0,
                         ...(isExtra?{}:{width:62,textAlign:"right"})}}>보상</span>
                       <input type="number" value={isParentEdit?pt:DEFAULT_HOMEWORK_SCORE} onChange={e=>setPt(e.target.value)}
                         disabled={!isParentEdit} aria-label={`보상 ${TM.xp}`} title={isParentEdit?"":"점수는 엄마용에서 바꿀 수 있어요"} min="1"
-                        style={{...inp,width:56,fontSize:13.5,padding:"8px 6px",textAlign:"center",marginBottom:0,
+                        style={{...inp,width:56,fontSize:FS.body,padding:"8px 6px",textAlign:"center",marginBottom:0,
                           background:isParentEdit?"#fff":CT.faint,color:isParentEdit?C.text:C.sub,cursor:isParentEdit?"text":"not-allowed"}}/>
-                      <span style={{fontSize:12.5,fontWeight:800,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
+                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
                       <button onClick={add} className="jelly-tap"
-                        style={{marginLeft:"auto",flexShrink:0,padding:"9px 16px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontWeight:900,fontSize:13.5,cursor:"pointer",fontFamily:"inherit"}}>
+                        style={{marginLeft:"auto",flexShrink:0,padding:"9px 16px",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontWeight:FW.bold,fontSize:FS.body,cursor:"pointer",fontFamily:"inherit"}}>
                         오늘 미션에 추가
                       </button>
                     </div>
@@ -7612,10 +7612,10 @@ export default function App() {
                     {/* [사용자 확정 2026-08-11] 위 '오늘의 미션'과 같은 글이 아래에도 보여
                         같은 미션이 두 번 등록된 줄 알았다는 지적 → 무엇인지 한 줄로 밝힌다.
                         ※ '자동으로 추가된다'고 쓰지 않는다 — 실제로는 여기서 눌러야 들어간다. */}
-                    <p style={{fontSize:13,fontWeight:800,color:acColor,margin:"0 0 3px",display:"flex",alignItems:"center",gap:5}}>
+                    <p style={{fontSize:FS.body,fontWeight:FW.semi,color:acColor,margin:"0 0 3px",display:"flex",alignItems:"center",gap:5}}>
                       <CareIcon name="repeat" size={14}/>반복 숙제
                     </p>
-                    <p style={{fontSize:11.5,fontWeight:600,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
+                    <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
                       학원에 등록한 숙제를 빠르게 불러올 수 있어요.
                     </p>
                     <div style={{display:"flex",flexDirection:"column",gap:6}}>
@@ -7623,10 +7623,10 @@ export default function App() {
                         const added=existing.includes(s);
                         return (
                           <div key={i} style={{display:"flex",gap:6,alignItems:"center"}}>
-                            <div style={{...inp,flex:3,width:"auto",fontSize:13,padding:"9px 10px",display:"flex",alignItems:"center",color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
-                              {added&&<span style={{color:C.green,marginRight:5,fontWeight:900}}>✓</span>}{s}
+                            <div style={{...inp,flex:3,width:"auto",fontSize:FS.body,padding:"9px 10px",display:"flex",alignItems:"center",color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
+                              {added&&<span style={{color:C.green,marginRight:5,fontWeight:FW.bold}}>✓</span>}{s}
                             </div>
-                            <button onClick={()=>addOne(s)} disabled={added} style={{padding:"9px 11px",borderRadius:10,border:"none",background:added?`${C.green}18`:acColor,color:added?mixBlack(C.green,0.3):"#fff",fontWeight:800,fontSize:11.5,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
+                            <button onClick={()=>addOne(s)} disabled={added} style={{padding:"9px 11px",borderRadius:RAD.sm,border:"none",background:added?`${C.green}18`:acColor,color:added?mixBlack(C.green,0.3):"#fff",fontWeight:FW.semi,fontSize:FS.tag,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
                               {added?"추가됨 ✓":"추가"}
                             </button>
                           </div>
@@ -7639,7 +7639,7 @@ export default function App() {
               {/* [사용자 확정 2026-08-11] '＋ 추가'와 '저장하기'가 둘 다 저장처럼 읽혀서
                   버튼 이름을 사실대로 '닫기'로 바꿨다. 그때 같이 붙였던
                   '넣거나 지우면 바로 저장돼요' 안내 줄은 사용자 요청으로 뺀다. */}
-              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:14.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
+              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:RAD.md,border:"none",background:th.grad,color:"#fff",fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
             </div>
           </div>
         );
@@ -7652,24 +7652,24 @@ export default function App() {
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18}}>
               <div style={{width:12,height:12,borderRadius:"50%",background:showSmsModal.color}}/>
               <div style={{flex:1}}>
-                <p style={{fontWeight:800,fontSize:17,margin:0,color:C.text}}>{showSmsModal.name} 문자 보내기</p>
-                {showSmsModal.phone&&<p style={{fontSize:17,color:C.sub,margin:"2px 0 0"}}>📞 {showSmsModal.phone}</p>}
+                <p style={{fontWeight:FW.semi,fontSize:FS.modalTitle,margin:0,color:C.text}}>{showSmsModal.name} 문자 보내기</p>
+                {showSmsModal.phone&&<p style={{fontSize:FS.sub,color:C.sub,margin:"2px 0 0"}}>📞 {showSmsModal.phone}</p>}
               </div>
-              <button onClick={()=>setShowSmsModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
+              <button onClick={()=>setShowSmsModal(null)} style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
             </div>
-            <p style={{fontSize:17,color:C.sub,fontWeight:700,margin:"0 0 10px"}}>📋 템플릿 선택</p>
+            <p style={{fontSize:FS.title,color:C.sub,fontWeight:FW.normal,margin:"0 0 10px"}}>📋 템플릿 선택</p>
             <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:16}}>
-              {templates.map(t=><button key={t.id} onClick={()=>applyTmpl(t,showSmsModal)} style={{padding:"7px 14px",borderRadius:10,border:`1px solid ${C.purple}40`,background:C.purpleL,color:C.purple,fontSize:17,fontWeight:600,cursor:"pointer"}}>{t.title}</button>)}
+              {templates.map(t=><button key={t.id} onClick={()=>applyTmpl(t,showSmsModal)} style={{padding:"7px 14px",borderRadius:RAD.sm,border:`1px solid ${C.purple}40`,background:C.purpleL,color:C.purple,fontSize:FS.sub,fontWeight:FW.normal,cursor:"pointer"}}>{t.title}</button>)}
             </div>
             <label style={lbl}>✏️ 문자 내용</label>
             <textarea value={smsDraft} onChange={e=>setSmsDraft(e.target.value)} placeholder={"템플릿을 선택하거나\n직접 입력하세요"} style={{...inp,height:140,resize:"none",marginBottom:16,whiteSpace:"pre-wrap"}}/>
             <div style={{display:"flex",gap:10}}>
               {showSmsModal.phone?(
                 <>
-                  <a href={smsLink(showSmsModal.phone,smsDraft)} style={{flex:2,padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.purple},#9B7FFF)`,color:"#fff",fontSize:17,fontWeight:700,textAlign:"center",textDecoration:"none",display:"block",boxShadow:`0 4px 14px ${C.purple}40`}}>📲 문자 앱으로 발송</a>
-                  <a href={`tel:${showSmsModal.phone}`} style={{flex:1,padding:14,borderRadius:14,border:`1.5px solid ${C.green}40`,background:`${C.green}10`,color:C.green,fontSize:17,fontWeight:700,textAlign:"center",textDecoration:"none",display:"block"}}>📞 전화</a>
+                  <a href={smsLink(showSmsModal.phone,smsDraft)} style={{flex:2,padding:14,borderRadius:RAD.md,border:"none",background:`linear-gradient(135deg,${C.purple},#9B7FFF)`,color:"#fff",fontSize:FS.cardTitle,fontWeight:FW.normal,textAlign:"center",textDecoration:"none",display:"block",boxShadow:`0 4px 14px ${C.purple}40`}}>📲 문자 앱으로 발송</a>
+                  <a href={`tel:${showSmsModal.phone}`} style={{flex:1,padding:14,borderRadius:RAD.md,border:`1.5px solid ${C.green}40`,background:`${C.green}10`,color:C.green,fontSize:FS.cardTitle,fontWeight:FW.normal,textAlign:"center",textDecoration:"none",display:"block"}}>📞 전화</a>
                 </>
-              ):<p style={{fontSize:17,color:C.red,margin:0}}>⚠️ 연락처가 등록되지 않았어요</p>}
+              ):<p style={{fontSize:FS.body,color:C.red,margin:0}}>⚠️ 연락처가 등록되지 않았어요</p>}
             </div>
           </div>
         </div>
