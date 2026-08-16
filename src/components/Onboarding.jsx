@@ -375,6 +375,10 @@ export function OnboardingFlow({ onFinish }){
   );
 }
 
+/* [2026-08-16] 지금은 아무 데서도 안 쓴다 — 'reward'(보상 탭 안내)와 'welcome'(엄마 권한
+   안내)을 차례로 뺐고(사용자 확정), 기본 'guide' 갈래는 원래 부르는 곳이 없었다.
+   되돌릴 일에 대비해 남겨 둔다. 같은 파일의 ModeSelect·CoachmarkOverlay·OnboardingFlow 는
+   그대로 쓰이고 있다. */
 export function GuideModal({type="guide",th,onClose,skin="dungeon"}){
   /* [2026-08-16] type="reward"(보상 탭 안내)는 삭제됐다 — 남은 갈래는 welcome 과 기본뿐. */
   const isWelcome=type==="welcome";

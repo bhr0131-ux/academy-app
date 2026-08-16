@@ -6,7 +6,7 @@ import { useSyncState } from "./utils/useSyncState.js";
 import { loadOrMigrateDaily, saveDailyShards, dirtyMonths } from "./utils/dailyStore.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
-import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
+import { ModeSelect, CoachmarkOverlay, OnboardingFlow } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import RewardTab from "./components/parent/RewardTab.jsx";
@@ -132,7 +132,7 @@ const initAuth = {
 const initOnboarding = {
   showOnboarding: false, showCoachmark: false, showKidCoachmark: false, showModeSelect: false,
   firstTipPending: false, firstTipSeen: false,
-  pinHintSeen: false, showParentWelcome: false, parentWelcomeSeen: false,
+  pinHintSeen: false,
 };
 /* '더보기' 안에 묶인 세 화면 (사용자 확정 2026-08-09: 하단 메뉴 5칸으로 줄이면서 통합) */
 /* [사용자 확정 2026-08-10] 하단 5칸을 홈·학원·미션·보상·더보기로 바꾸면서
@@ -338,8 +338,6 @@ export default function App() {
   const [firstTipSeen,          setFirstTipSeen]          = useState(initOnboarding.firstTipSeen);
   // 온보딩 직후 첫 홈 화면에서 '학원 추가' → '미션·준비물 편집' 순서로 1회성 버튼 깜빡임 안내
   const [pinHintSeen,           setPinHintSeen]           = useState(initOnboarding.pinHintSeen);
-  const [showParentWelcome,    setShowParentWelcome]    = useState(initOnboarding.showParentWelcome);
-  const [parentWelcomeSeen,    setParentWelcomeSeen]    = useState(initOnboarding.parentWelcomeSeen);
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
@@ -713,8 +711,6 @@ export default function App() {
       if(tipSeen) setFirstTipSeen(true);
       const pinHint=await load("v6_pin_hint_seen");
       if(pinHint) setPinHintSeen(true);
-      const pWelcomeSeen=await load("v6_parent_welcome_seen");
-      if(pWelcomeSeen) setParentWelcomeSeen(true);
       const rAge=await load("v6_reward_age_group");
       if(rAge) setRewardAgeGroup(rAge);
       /* ── 마지막으로 보던 화면 되살리기 (사용자 요청 2026-08-09) ──
@@ -1059,28 +1055,12 @@ export default function App() {
      아이가 엄마용으로 넘어와 자기 점수를 올릴 수 있다.
      대신 잠금은 보상과 하나로 공유한다 — 한 번 풀면 미션↔보상 사이는 다시 안 묻는다. */
   const parentLocked=()=>!rewardUnlocked;
-  /* [사용자 확정 2026-08-11] 권한 안내(엄마 권한 팝업)는 미션·보상 중
-     '먼저 비밀번호로 들어간 곳'에서 딱 한 번만 뜬다. 예전엔 보상 탭에서만 띄워서,
-     미션 탭으로 먼저 들어간 엄마는 왜 비밀번호를 묻는지 못 듣고 지나갔다.
-     본 적이 있으면 false 를 돌려준다 — 보상 탭은 그 뒤에 따로 띄울 안내가 하나 더 있다.
-     저장 키(v6_parent_welcome_seen)는 그대로 쓴다. */
-  const showParentWelcomeOnce=()=>{
-    if(parentWelcomeSeen) return false;
-    setParentWelcomeSeen(true);
-    save("v6_parent_welcome_seen","1");
-    setTimeout(()=>setShowParentWelcome(true),450);
-    return true;
-  };
-  /* [사용자 확정 2026-08-16] 미션 탭은 잠그지 않는다 — 매일 여는 화면인데 들어갈 때마다
-     비밀번호를 물어 번거로웠다. 대신 탭 안의 '엄마 권한' 버튼을 눌러야 삭제·점수 수정·
-     지난 미션 보기가 열린다(unlockParentPower). 잠금 없이 열면 홈에서 미션을 고칠 때와
-     같은 권한 — 미션·준비물 추가까지만 된다. */
   const goMissionTab=()=>{ setTab("mission"); };
   /* 미션 탭 안에서 엄마 권한 열기 — 통과하면 보상 탭과 같은 잠금(rewardUnlocked)을 쓴다.
      권한 구조 안내는 여기서 1회 띄운다(예전엔 탭에 들어올 때 띄웠다). */
   const unlockParentPower=()=>{
     if(!parentLocked()) return;
-    askPin(()=>{ setRewardUnlocked(true); showParentWelcomeOnce(); }, "미션 관리");
+    askPin(()=>{ setRewardUnlocked(true); }, "미션 관리");
   };
 
   // 보상탭 이동 — 누를 때마다 PIN을 받는다(이미 열려 있으면 그대로).
@@ -1088,13 +1068,10 @@ export default function App() {
   const goRewardTab=()=>{
     if(!parentLocked()){ setTab("reward"); return; }
     askPin(()=>{
+      /* [삭제 2026-08-16] 여기서 1회 띄우던 '엄마 권한 안내'(GuideModal welcome)를 뺐다
+         (사용자 확정). 저장 키 v6_parent_welcome_seen 는 읽지도 쓰지도 않을 뿐,
+         기존 기기에 남아 있는 값은 건드리지 않는다 (CLAUDE.md 8번). */
       setRewardUnlocked(true); setTab("reward");
-      /* 권한 구조 안내는 미션·보상 중 먼저 들어간 곳에서 1회 (showParentWelcomeOnce).
-         [삭제 2026-08-16] 그 뒤에 따로 띄우던 '보상 탭 안내'는 뺐다(사용자 확정).
-         이 호출은 남겨야 한다 — 지우면 보상 탭으로 먼저 들어간 엄마가 왜 비밀번호를
-         묻는지 못 듣고 지나간다. 저장 키 v6_parent_reward_guide_seen 는 건드리지
-         않는다(읽지도 쓰지도 않을 뿐, 기존 기기의 값은 그대로 둔다). */
-      showParentWelcomeOnce();
     }, "보상 관리");
   };
   const submitGatePin=()=>{
@@ -5230,10 +5207,6 @@ export default function App() {
           setTab("home");
           // 버튼 깜빡임 안내 비활성화 (학원 추가/미션 깜빡임 미사용)
         }} />
-      )}
-
-      {showParentWelcome&&(
-        <GuideModal type="welcome" th={th} skin={kidSkin} onClose={()=>setShowParentWelcome(false)} />
       )}
 
       {/* 보상 구매 거절 확인 모달 — 거절하면 코인을 돌려주고 요청이 사라진다.
