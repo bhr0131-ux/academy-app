@@ -10,8 +10,8 @@
        — v5는 턱이 목을 8px 덮어 목이 4px밖에 안 보였다. 지금은 13px 보인다.
        몸통 원화의 목이 짧아(원화 32px = 캔버스 13px) 이게 열 수 있는 최대치다.
        더 긴 목을 원하면 몸통 원화를 고쳐야 한다.
-       몸통은 '민소매+속옷+맨발' 한 장이고, 기본 반팔티·바지는 상의·하의 슬롯의
-       기본 지급 아이템으로 입힌다.
+       [2026-08-16] 몸통 그림을 옷 입은 판으로 교체했다 — 흰 반팔·초록 반바지·흰 양말.
+       예전엔 '민소매+속옷+맨발'이라 아무것도 안 입히면 속옷 차림으로 보였다.
      · 장비 이미지도 "같은 1024 캔버스"에 제자리에 그려 저장한다.
        → 앱은 전 레이어를 100% 크기로 그대로 겹치기만 한다 (위치 보정 코드 없음)
 
@@ -40,16 +40,19 @@ export const DEFAULT_CHAR_DISPLAY_MODE = CHAR_DISPLAY_GROWTH;
    꾸미기 전용 캐릭터 1장. 모자·안경·손지물 없이 맨몸(기본옷)으로 제작된
    1024×1024 이미지. 모든 장비는 이 위에 덧씌워진다.
    아트가 아직 없으면 뷰어가 성장 3단계 캐릭터 → 이모지 순으로 폴백한다. */
-export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp";        // 남아(머리+몸통 합본 — 폴백용)
-export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp"; // 여아(합본 — 폴백용)
+export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=2";        // 남아(머리+몸통 합본 — 폴백용)
+export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=2"; // 여아(합본 — 폴백용)
 /* 베이스를 '몸통'과 '머리' 두 장으로 나눠 둔다 (사용자 확정).
    모자처럼 얼굴째 덮는 장비(hidesHead)를 쓰면 머리 장을 아예 안 그리고 그 자리에 장비 그림만 얹는다.
    → 예전처럼 베이스 머리 위에 덮어 씌우면 크기가 조금만 안 맞아도 턱선·귀선이 겹쳐 보였는데,
      아예 안 그리므로 그 문제가 원천적으로 사라진다.
-   두 장은 합본과 같은 1024×1024 좌표계라 그냥 겹쳐 그리면 정확히 맞는다. */
-export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp";
+   두 장은 합본과 같은 1024×1024 좌표계라 그냥 겹쳐 그리면 정확히 맞는다.
+   [2026-08-16] 몸통을 옷 입은 그림으로 덮어쓰면서 경로에 ?v=2 를 붙였다 — 파일명이
+   같아서 이미 받아 둔 기기는 예전 속옷 그림을 계속 보여준다(모자·하의가 쓰는 방식과 동일).
+   머리(head/head-girl)는 안 바뀌었으므로 그대로 둔다. */
+export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=2";
 export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp";
-export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp";
+export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=2";
 export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp";
 export const AVATAR_BASE_EMOJI = "🧒";
 
@@ -147,6 +150,12 @@ export const AVATAR_CATALOG = [
   { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp?v=2",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_blossom.webp" },
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp", artPending: true },
   { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp", artPending: true },
+  /* [2026-08-16] 기본 반팔티·반바지는 '슬롯 아이템'이 아니라 베이스 몸통 그림 자체에
+     그려 넣었다(사용자 확정 — 원화를 옷 입은 몸 한 장으로 받았다). 그래서 여기에
+     starter 아이템이 없다. 몸통이 흰 반팔·초록 반바지·흰 양말을 이미 입고 있다.
+     [주의] 하의 슬롯 아이템(카키·크림·데님)을 장착하면 몸통에 그려진 초록 반바지
+     위에 덧그려진다. 그 3종은 어차피 베이스 v5→v6 전환 때부터 자리가 어긋나 있어
+     v7 전환 때 함께 다시 맞춰야 한다. */
   /* 하의 3종 — [주의] 베이스 v5(2026-08-14)로 몸이 바뀌면서 자리가 어긋나 있다.
      예전 몸(초록 반바지)에 맞춰 놓은 값이라 새 몸에 다시 맞춰야 한다.
      새 몸 기준값: 허리 y? · 다리 ? — 재측정 후 이 주석을 갱신할 것.
