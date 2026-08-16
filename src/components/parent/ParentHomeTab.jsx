@@ -33,6 +33,7 @@ import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDa
 import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 import RegisteredAcademyList from "./RegisteredAcademyList.jsx";
+import { RowAct } from "./AcademyTab.jsx";
 
 /* [사용자 확정 2026-08-10] 카드 안 보조 글자가 너무 연해 잘 안 읽혔다 →
    C.sub(#8890B0)보다 한 단계 진한 청회색. 칩은 펼친 카드에서 한 모양으로 쓴다. */
@@ -486,14 +487,13 @@ export default function ParentHomeTab({
               {/* 맨 아랫줄 — 왼쪽 끝에 전화·문자, 오른쪽 끝에 수정 (사용자 확정 2026-08-16).
                   수정은 보조 기능이라 오른쪽 아래에 작게 두던 것 그대로다. */}
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
-                {/* [사용자 확정 2026-08-10] 원형 선 버튼을 한 단계 더 줄인다(30 → 26). */}
+                {/* 전화·문자 — 등록 학원의 계좌 '복사' · 주소 '지도' 와 같은 생김새(RowAct)로
+                    통일한다 (사용자 확정 2026-08-16). */}
                 <div style={{display:"flex",gap:6,flexShrink:0}}>
-                  {ac.phone&&<a href={`tel:${ac.phone}`} aria-label={`${ac.name} 전화`} title="전화"
-                    style={{width:26,height:26,borderRadius:"50%",border:`1px solid ${C.border}`,color:SUBD,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",background:"#fff"}}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></a>}
-                  {ac.phone&&<button onClick={()=>onSms(ac)} className="jelly-tap" aria-label={`${ac.name} 문자`} title="문자"
-                    style={{width:26,height:26,borderRadius:"50%",border:`1px solid ${C.border}`,color:SUBD,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",background:"#fff",fontFamily:"inherit",padding:0}}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg></button>}
+                  {ac.phone&&<RowAct label="전화" color={ac.color} big
+                    href={`tel:${ac.phone}`} title={`${ac.name} 전화`}/>}
+                  {ac.phone&&<RowAct label="문자" color={ac.color} big
+                    onPress={()=>onSms(ac)} title={`${ac.name} 문자`}/>}
                 </div>
                 <button onClick={()=>onEditDaily(ac,homeDate)}
                   style={{border:"none",background:"none",color:SUBD,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px",display:"inline-flex",alignItems:"center",gap:5}}>
