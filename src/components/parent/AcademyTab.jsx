@@ -111,12 +111,26 @@ export function Row({ icon, label, value, action, soft }) {
   );
 }
 
-/* 값 오른쪽의 작은 동작 단추 (계좌 복사·지도 열기) */
-export function RowAct({ label, onPress, color }) {
+/* 값 오른쪽의 작은 동작 단추 (계좌 복사·지도 열기)
+   [사용자 확정 2026-08-16] 학원 카드의 전화·문자도 이 생김새로 통일한다 → 두 가지를 더했다.
+     · href : 전화는 <a href="tel:"> 라야 해서 링크로도 그릴 수 있게 한다.
+     · big  : 표 안 값 옆이 아니라 '맨 아랫줄의 독립 버튼'으로 쓸 때. 색·테두리·모서리는
+              그대로 두고 누르는 자리만 키운다 — 표 옆 크기(높이 약 15px)를 그대로 쓰면
+              전화 걸기가 너무 작은 과녁이 된다(카드 화살표에서 겪은 문제와 같은 결). */
+export function RowAct({ label, onPress, color, href, title, big }) {
+  const st = {
+    flexShrink: 0, marginTop: big ? 0 : 1,
+    padding: big ? "6px 12px" : "1px 7px",
+    borderRadius: big ? 9 : 7, border: `1px solid ${color}33`,
+    background: "#fff", color, fontSize: big ? 12 : 10.5, fontWeight: 800,
+    cursor: "pointer", fontFamily: F, whiteSpace: "nowrap",
+  };
+  if (href) return (
+    <a href={href} className="jelly-tap" aria-label={label} title={title}
+      style={{ ...st, textDecoration: "none", display: "inline-flex", alignItems: "center" }}>{label}</a>
+  );
   return (
-    <button onClick={onPress} className="jelly-tap" aria-label={label}
-      style={{ flexShrink: 0, marginTop: 1, padding: "1px 7px", borderRadius: 7, border: `1px solid ${color}33`,
-        background: "#fff", color, fontSize: 10.5, fontWeight: 800, cursor: "pointer", fontFamily: F, whiteSpace: "nowrap" }}>
+    <button onClick={onPress} className="jelly-tap" aria-label={label} title={title} style={st}>
       {label}
     </button>
   );
