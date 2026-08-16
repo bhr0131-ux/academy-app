@@ -5,7 +5,7 @@ import RewardApprovals from "./RewardApprovals.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
-   RewardTab — 엄마용 '보상' 탭 (구매 승인 · 보상 관리 · 수동 점수 조정)
+   RewardTab — 엄마용 '보상' 탭 (구매 승인 · 보상 관리)
    ────────────────────────────────────────────────────────────────────────
    App.jsx에서 분리 (CLAUDE.md 3 — 기존 화면 점진 분리).
    [사용자 확정 2026-08-16] '성장 관리'·'기록 관리' 두 칸을 뺐다 (아래 주석 참고).
@@ -14,14 +14,12 @@ import SectionHead from "./SectionHead.jsx";
    ════════════════════════════════════════════════════════════════════════ */
 export default function RewardTab({ D }) {
   const {
-    CT, TM, addChildScore,
+    CT, TM,
     approveRewardRequest, childId, children, curChild, deleteReward,
     getChildRewardRequests, getChildRewards, openEditReward,
-    rewardAgeGroup, rewardSecArrow, rewardSecCard,
-    rewardSecSub, rewardSecTitle, setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
-    setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign,
-    showParentXpAdjust, showToast, th, toggleRewardSec, xpAdjustInput, xpAdjustLabel,
-    xpAdjustSign, parentLocked, unlockRewardManage, rewardSecOpen,
+    rewardAgeGroup,
+    setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
+    th, parentLocked, unlockRewardManage, rewardSecOpen,
   } = D;
   return (
     <div>
@@ -107,49 +105,10 @@ export default function RewardTab({ D }) {
           지우는 것은 보여 주는 칸뿐이라 저장된 기록·상장·연속 달성 값은 그대로 남는다. */}
 
 
-        {/* ── 수동 XP 조정 — 기록 관리 밖으로 빼서 그 아래 독립 칸으로 (사용자 확정 2026-08-09) ── */}
-        <div style={rewardSecCard}>
-          <button onClick={e=>toggleRewardSec("xp",e)}
-            style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",fontFamily:"inherit"}}>
-            <div style={{textAlign:"left",minWidth:0}}>
-              <p style={rewardSecTitle}>수동 {TM.xp} 조정</p>
-              <p style={rewardSecSub}>보너스 지급 / {TM.xp} 차감</p>
-            </div>
-            <span aria-hidden="true" style={rewardSecArrow(showParentXpAdjust)}>⌄</span>
-          </button>
-          {showParentXpAdjust&&(
-            <div style={{marginTop:12}}>
-              <div style={{display:"flex",gap:6,marginBottom:8}}>
-                <button onClick={()=>setXpAdjustSign("+")}
-                  style={{flex:1,padding:"8px 0",borderRadius:10,border:`1.5px solid ${xpAdjustSign==="+"?C.green:C.border}`,background:xpAdjustSign==="+"?`${C.green}15`:"#fff",color:xpAdjustSign==="+"?C.green:C.sub,fontSize:13,fontWeight:900,cursor:"pointer"}}>
-                  + 지급
-                </button>
-                <button onClick={()=>setXpAdjustSign("-")}
-                  style={{flex:1,padding:"8px 0",borderRadius:10,border:`1.5px solid ${xpAdjustSign==="-"?C.red:C.border}`,background:xpAdjustSign==="-"?`${C.red}10`:"#fff",color:xpAdjustSign==="-"?C.red:C.sub,fontSize:13,fontWeight:900,cursor:"pointer"}}>
-                  - 차감
-                </button>
-              </div>
-              <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                <input value={xpAdjustLabel} onChange={e=>setXpAdjustLabel(e.target.value)}
-                  placeholder="사유"
-                  style={{flex:1,padding:"9px 10px",borderRadius:10,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",minWidth:0}}/>
-                <input type="number" value={xpAdjustInput} onChange={e=>setXpAdjustInput(e.target.value)}
-                  placeholder={TM.xp}
-                  style={{width:58,padding:"9px 6px",borderRadius:10,border:`1px solid ${C.border}`,fontSize:13,outline:"none",background:"#fff",textAlign:"center",flexShrink:0}}/>
-                <button onClick={()=>{
-                  const v=Number(xpAdjustInput);
-                  if(!v||v<=0){ showToast(`${TM.xp} 값을 입력해줘`); return; }
-                  const point=xpAdjustSign==="+"?v:-v;
-                  addChildScore(childId,point,xpAdjustLabel||"수동 조정","manual");
-                  setXpAdjustInput(""); setXpAdjustLabel("");
-                  showToast(xpAdjustSign==="+"?`+${v}${TM.xpUnit} 지급 완료`:`-${v}${TM.xpUnit} 차감 완료`);
-                }} style={{padding:"9px 14px",borderRadius:10,border:"none",background:xpAdjustSign==="+"?C.green:C.red,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",flexShrink:0}}>
-                  {xpAdjustSign==="+"?"지급":"차감"}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* [사용자 확정 2026-08-16] '수동 점수 조정'은 '기타' 탭으로 옮겼다 —
+            점수를 직접 더하고 빼는 자리라 비밀번호로 잠가야 하는데, 보상 탭은
+            승인만 하러 들르는 열린 자리라 성격이 맞지 않았다.
+            화면은 components/parent/XpAdjustCard.jsx 로 뺐다. */}
     </div>
   );
 }

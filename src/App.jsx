@@ -19,6 +19,7 @@ import FeePaySheet, { payMethodLabel } from "./components/parent/FeePaySheet.jsx
 import ChildFace from "./components/parent/ChildFace.jsx";
 import CareIcon from "./components/parent/CareIcons.jsx";
 import SectionHead from "./components/parent/SectionHead.jsx";
+import XpAdjustCard from "./components/parent/XpAdjustCard.jsx";
 import { CalendarLegendSheet } from "./components/parent/CalendarMarks.jsx";
 import CalendarTab from "./components/parent/CalendarTab.jsx";
 import ParentHomeTab from "./components/parent/ParentHomeTab.jsx";
@@ -3622,16 +3623,8 @@ export default function App() {
      방금 누른 칸이 화면 위로 올라가 버리고, 화면은 아래에 그대로 남아 다시 스크롤해야 했다.
      누른 칸을 화면 맨 위로 데려온다 (접을 때는 그대로 둔다 — 제자리에 있으니 옮길 이유가 없다).
      레이아웃이 다시 잡힌 뒤에 재야 하므로 rAF 두 번 뒤에 옮긴다. */
-  const toggleRewardSec=(key,ev)=>{
-    const cur={xp:showParentXpAdjust};
-    const next=!cur[key];
-    setShowParentXpAdjust(key==="xp"&&next);
-    const el=next?ev?.currentTarget:null;
-    if(el) requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      const top=el.getBoundingClientRect().top+window.scrollY-12;
-      window.scrollTo({top:Math.max(0,top),behavior:"smooth"});
-    }));
-  };
+  /* [2026-08-16] 여닫는 칸이 '수동 점수 조정' 하나만 남아 아코디언(하나 열면 나머지 닫기)이
+     할 일이 없어졌다 → XpAdjustCard 가 제 상태만 직접 여닫는다. */
   const parentInnerTitle={fontSize:15,fontWeight:900,color:C.text,margin:"0 0 4px"};
   const parentInnerSub={fontSize:12,fontWeight:700,color:C.sub,margin:0,lineHeight:1.45};
 
@@ -6058,16 +6051,10 @@ export default function App() {
             (HeroStage 와 같은 방식). 넘기는 것 외에는 아무것도 바뀌지 않았다. */}
         {tab==="reward"&&(
           <RewardTab D={{
-            CT, GP, LOG_ICON, T, TM, addChildScore,
-            approveRewardRequest, childId, children, curChild, deleteReward, getAdventureLogInfo,
-            getAllTitles, getBestStreak, getCharacterEvolution, getChildCoin, getChildLevel, getChildRewardRequests,
-            getChildRewards, getChildTreasure, getChildXP, getLevelProgressInfo, getNextLevel, getQuestStreak,
-            getScoreHistory, getSelectedTitle, getTotalTreasureCount, getUnlockedTitles, kidSkin, openEditReward,
-            parentInnerSub, parentInnerTitle, rewardAgeGroup, rewardSecArrow, rewardSecCard, rewardSecInner,
-            rewardSecSub, rewardSecTitle, setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
-            setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign,
-            showParentXpAdjust, showToast, th, toggleRewardSec, xpAdjustInput, xpAdjustLabel,
-            xpAdjustSign, parentLocked, unlockRewardManage, rewardSecOpen,
+            CT, TM, approveRewardRequest, childId, children, curChild, deleteReward,
+            getChildRewardRequests, getChildRewards, openEditReward, rewardAgeGroup,
+            setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
+            th, parentLocked, unlockRewardManage, rewardSecOpen,
           }}/>
         )}
 
@@ -6087,16 +6074,24 @@ export default function App() {
               </button>
             </div>
 
-            {/* 학부모 카카오톡 오픈채팅 — 부모 설정에서 바로 입장 */}
+
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>💬 학부모 오픈채팅</p>
-              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>카카오톡 오픈채팅방에서 공지·문의를 함께 나눠요.</p>
-              <button
-                onClick={()=>window.open("https://open.kakao.com/o/g6H6WgFi","_blank","noopener,noreferrer")}
-                style={{width:"100%",padding:12,borderRadius:14,border:"none",background:"#FEE500",color:"#3C1E1E",fontSize:14,fontWeight:900,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
-                <span style={{fontSize:16}}>💬</span> 오픈채팅방 입장하기
-              </button>
+              <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 연령대</p>
+              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>연령대를 고르면 그에 맞는 보상 목록으로 바뀌어요.</p>
+              <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                {[["kid","🧸","어린이용"],["elemLow","🎒","초등\n저학년"],["elemHigh","🎽","초등\n고학년"],["teen","💸","고학년\n이상"],["custom","✏️","나만의\n목록"]].map(([k,em,lb])=>{
+                  const on=rewardAgeGroup===k;
+                  return (
+                    <button key={k} onClick={()=>changeRewardAge(k)}
+                      style={{flex:"1 1 18%",minWidth:54,padding:"9px 2px",borderRadius:10,border:`2px solid ${on?th.main:C.border}`,background:on?`${th.main}14`:"#fff",color:on?th.main:C.sub,fontSize:11,fontWeight:900,cursor:"pointer",lineHeight:1.3,whiteSpace:"pre-line"}}>
+                      <span style={{display:"block",fontSize:17}}>{em}</span>
+                      {lb}{on?" ✓":""}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+
 
             {/* 게임 디자인 선택 — 베이커리 미출시 동안 숨김 (BAKERY_ENABLED) */}
             {BAKERY_ENABLED && !skinByChild[childId] && (
@@ -6114,21 +6109,75 @@ export default function App() {
             </div>
             )}
 
+
+            {/* [사용자 확정 2026-08-16] 보상 탭에 있던 '수동 점수 조정'을 여기로 옮기고 잠갔다.
+                점수를 직접 더하고 빼는 자리라, 잠금이 없으면 아이가 🎒 버튼으로 엄마 관리에
+                넘어와 자기 점수를 올릴 수 있다 (엄마용 진입 자체에는 비밀번호가 없다).
+                잠금은 미션·보상과 같은 스위치를 쓴다 — 한 번 풀면 셋 다 열린다. */}
+            <XpAdjustCard D={{
+              TM, th, childId, addChildScore, showToast,
+              card:{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm},
+              secTitle:{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text},
+              secSub:{fontSize:13,fontWeight:700,color:C.sub,margin:0,lineHeight:1.5},
+              secArrow:rewardSecArrow,
+              open:showParentXpAdjust, setOpen:setShowParentXpAdjust,
+              locked:parentLocked(),
+              unlock:(after)=>askPin(()=>{ setRewardUnlocked(true); after&&after(); },"수동 점수 조정"),
+              sign:xpAdjustSign, setSign:setXpAdjustSign,
+              label:xpAdjustLabel, setLabel:setXpAdjustLabel,
+              input:xpAdjustInput, setInput:setXpAdjustInput,
+            }}/>
+
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 연령대</p>
-              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>연령대를 고르면 그에 맞는 보상 목록으로 바뀌어요.</p>
-              <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-                {[["kid","🧸","어린이용"],["elemLow","🎒","초등\n저학년"],["elemHigh","🎽","초등\n고학년"],["teen","💸","고학년\n이상"],["custom","✏️","나만의\n목록"]].map(([k,em,lb])=>{
-                  const on=rewardAgeGroup===k;
-                  return (
-                    <button key={k} onClick={()=>changeRewardAge(k)}
-                      style={{flex:"1 1 18%",minWidth:54,padding:"9px 2px",borderRadius:10,border:`2px solid ${on?th.main:C.border}`,background:on?`${th.main}14`:"#fff",color:on?th.main:C.sub,fontSize:11,fontWeight:900,cursor:"pointer",lineHeight:1.3,whiteSpace:"pre-line"}}>
-                      <span style={{display:"block",fontSize:17}}>{em}</span>
-                      {lb}{on?" ✓":""}
-                    </button>
-                  );
-                })}
+              <button
+                onClick={()=>setOpenSmsManage(v=>!v)}
+                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",textAlign:"left"}}
+              >
+                <div>
+                  <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>💬 문자관리</p>
+                  <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>결석 안내, 보충 문의 등 문자 템플릿을 관리해요</p>
+                </div>
+                <span style={openClosePill(openSmsManage)}>{openCloseLabel(openSmsManage)}</span>
+              </button>
+
+              {openSmsManage&&(
+                <div style={{marginTop:14}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+              <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:0}}>문자 템플릿 관리</p>
+              <button onClick={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }} style={{padding:"6px 12px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ 새 템플릿</button>
+            </div>
+            <div style={{background:`${C.purple}08`,border:`1px solid ${C.purple}25`,borderRadius:10,padding:"10px 13px",marginBottom:13}}>
+              <p style={{fontSize:13,color:C.purple,fontWeight:700,margin:"0 0 6px"}}>📌 사용 가능한 변수</p>
+              <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+                {["{아이이름}","{학원명}","{날짜}","{시간}"].map(v=><span key={v} style={{fontSize:13,padding:"3px 9px",borderRadius:10,background:C.purpleL,color:C.purple,fontWeight:600}}>{v}</span>)}
               </div>
+            </div>
+            {templates.map(tmpl=>(
+              <div key={tmpl.id} style={{background:CT.card,borderRadius:18,padding:"13px 15px",marginBottom:10,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                  <span style={{fontWeight:700,fontSize:13,color:C.text}}>💬 {tmpl.title}</span>
+                  <div style={{display:"flex",gap:6}}>
+                    <button onClick={()=>{ setShowTmplEdit(tmpl.id); setEditTmpl({title:tmpl.title,body:tmpl.body}); }} style={{padding:"4px 10px",borderRadius:10,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:13,cursor:"pointer"}}>수정</button>
+                    <button onClick={()=>{ setTemplates(p=>p.filter(t=>t.id!==tmpl.id)); showToast("삭제됨"); }} style={{padding:"4px 10px",borderRadius:10,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,fontSize:13,cursor:"pointer"}}>삭제</button>
+                  </div>
+                </div>
+                <p style={{fontSize:13,color:C.sub,margin:0,whiteSpace:"pre-wrap",background:CT.faint,borderRadius:10,padding:"9px 11px",lineHeight:1.5}}>{tmpl.body}</p>
+              </div>
+            ))}
+                </div>
+              )}
+            </div>
+
+            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
+              <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:C.text}}>🔐 보안</p>
+              <button onClick={()=>setShowPinChangeModal(true)}
+                style={{width:"100%",padding:12,borderRadius:14,border:`1.5px solid ${C.border}`,background:CT.faint,color:C.text,fontSize:13,fontWeight:900,cursor:"pointer"}}>
+                비밀번호 변경
+              </button>
+              <button onClick={()=>{ setSetupRecoveryQ(recoveryQuestion||""); setSetupRecoveryA(""); setShowRecoverySetupModal(true); }}
+                style={{width:"100%",padding:12,borderRadius:14,border:`1.5px solid ${C.border}`,background:CT.faint,color:C.text,fontSize:13,fontWeight:900,cursor:"pointer",marginTop:9}}>
+                {recoveryQuestion?"복구 질문 변경":"복구 질문 설정"}
+              </button>
             </div>
 
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
@@ -6178,58 +6227,17 @@ export default function App() {
               </p>
             </div>
 
+            {/* [사용자 확정 2026-08-16] '학부모 오픈채팅' → '버그 신고'.
+                 들어가는 곳은 같은 카카오톡 오픈채팅방이고, 무엇을 하러 가는 자리인지를 이름으로 쓴다. */}
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:C.text}}>🔐 보안</p>
-              <button onClick={()=>setShowPinChangeModal(true)}
-                style={{width:"100%",padding:12,borderRadius:14,border:`1.5px solid ${C.border}`,background:CT.faint,color:C.text,fontSize:13,fontWeight:900,cursor:"pointer"}}>
-                비밀번호 변경
-              </button>
-              <button onClick={()=>{ setSetupRecoveryQ(recoveryQuestion||""); setSetupRecoveryA(""); setShowRecoverySetupModal(true); }}
-                style={{width:"100%",padding:12,borderRadius:14,border:`1.5px solid ${C.border}`,background:CT.faint,color:C.text,fontSize:13,fontWeight:900,cursor:"pointer",marginTop:9}}>
-                {recoveryQuestion?"복구 질문 변경":"복구 질문 설정"}
-              </button>
-            </div>
-
-            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
+              <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🐞 버그 신고</p>
+              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>카카오톡 오픈채팅방에서 버그 신고·문의를 함께 나눠요.</p>
               <button
-                onClick={()=>setOpenSmsManage(v=>!v)}
-                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",textAlign:"left"}}
-              >
-                <div>
-                  <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>💬 문자관리</p>
-                  <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>결석 안내, 보충 문의 등 문자 템플릿을 관리해요</p>
-                </div>
-                <span style={openClosePill(openSmsManage)}>{openCloseLabel(openSmsManage)}</span>
+                onClick={()=>window.open("https://open.kakao.com/o/g6H6WgFi","_blank","noopener,noreferrer")}
+                style={{width:"100%",padding:12,borderRadius:14,border:"none",background:mixWhite("#FEE500",0.45),color:"#3C1E1E",fontSize:14,fontWeight:900,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+                <span style={{fontSize:16}}>💬</span> 오픈채팅방 입장하기
               </button>
-
-              {openSmsManage&&(
-                <div style={{marginTop:14}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-              <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:0}}>문자 템플릿 관리</p>
-              <button onClick={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }} style={{padding:"6px 12px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ 새 템플릿</button>
             </div>
-            <div style={{background:`${C.purple}08`,border:`1px solid ${C.purple}25`,borderRadius:10,padding:"10px 13px",marginBottom:13}}>
-              <p style={{fontSize:13,color:C.purple,fontWeight:700,margin:"0 0 6px"}}>📌 사용 가능한 변수</p>
-              <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                {["{아이이름}","{학원명}","{날짜}","{시간}"].map(v=><span key={v} style={{fontSize:13,padding:"3px 9px",borderRadius:10,background:C.purpleL,color:C.purple,fontWeight:600}}>{v}</span>)}
-              </div>
-            </div>
-            {templates.map(tmpl=>(
-              <div key={tmpl.id} style={{background:CT.card,borderRadius:18,padding:"13px 15px",marginBottom:10,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-                  <span style={{fontWeight:700,fontSize:13,color:C.text}}>💬 {tmpl.title}</span>
-                  <div style={{display:"flex",gap:6}}>
-                    <button onClick={()=>{ setShowTmplEdit(tmpl.id); setEditTmpl({title:tmpl.title,body:tmpl.body}); }} style={{padding:"4px 10px",borderRadius:10,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:13,cursor:"pointer"}}>수정</button>
-                    <button onClick={()=>{ setTemplates(p=>p.filter(t=>t.id!==tmpl.id)); showToast("삭제됨"); }} style={{padding:"4px 10px",borderRadius:10,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,fontSize:13,cursor:"pointer"}}>삭제</button>
-                  </div>
-                </div>
-                <p style={{fontSize:13,color:C.sub,margin:0,whiteSpace:"pre-wrap",background:CT.faint,borderRadius:10,padding:"9px 11px",lineHeight:1.5}}>{tmpl.body}</p>
-              </div>
-            ))}
-                </div>
-              )}
-            </div>
-
             <div style={{...gameCard,padding:"15px 16px",marginTop:12,border:"2px solid #ffb4b4",background:"#fff5f5"}}>
               <p style={{fontSize:15,fontWeight:900,color:"#dc2626",margin:"0 0 4px"}}>⚠️ 위험구역</p>
               <p style={{fontSize:11.5,fontWeight:700,color:"#b91c1c",margin:"0 0 12px",lineHeight:1.4}}>
