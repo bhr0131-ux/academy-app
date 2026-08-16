@@ -149,10 +149,10 @@ const initUi = {
   showChildRewards: false,
   showChildXP: false,
   showParentTodayQuest: false,
-  showParentRewardManage: false,
+  /* [사용자 확정 2026-08-16] 보상 탭에 들어오면 '보상 관리'는 처음부터 펼쳐 둔다 —
+     들어와서 한 번 더 눌러야 목록이 나오는 게 번거로웠다. */
+  showParentRewardManage: true,
   showParentXpAdjust: false,
-  showParentGrowthManage: false,
-  showParentRecordManage: false,
   openTitle: false,
   openLevel: false,
   openTreasure: false,
@@ -370,8 +370,6 @@ export default function App() {
   const [showParentTodayQuest,   setShowParentTodayQuest]   = useState(initUi.showParentTodayQuest);
   const [showParentRewardManage, setShowParentRewardManage] = useState(initUi.showParentRewardManage);
   const [showParentXpAdjust,     setShowParentXpAdjust]     = useState(initUi.showParentXpAdjust);
-  const [showParentGrowthManage, setShowParentGrowthManage] = useState(initUi.showParentGrowthManage);
-  const [showParentRecordManage, setShowParentRecordManage] = useState(initUi.showParentRecordManage);
   const [openTitle,              setOpenTitle]              = useState(initUi.openTitle);
   const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
   const [bagEvent,               setBagEvent]               = useState(null);             // 가방 카드에 1분간 띄우는 소식
@@ -1090,17 +1088,12 @@ export default function App() {
     askPin(()=>{ setRewardUnlocked(true); }, "미션 관리");
   };
 
-  // 보상탭 이동 — 누를 때마다 PIN을 받는다(이미 열려 있으면 그대로).
-  // 탭 바와 엄마용 홈 '오늘 챙길 일'의 보상승인 칩이 같이 쓴다.
-  const goRewardTab=()=>{
-    if(!parentLocked()){ setTab("reward"); return; }
-    askPin(()=>{
-      /* [삭제 2026-08-16] 여기서 1회 띄우던 '엄마 권한 안내'(GuideModal welcome)를 뺐다
-         (사용자 확정). 저장 키 v6_parent_welcome_seen 는 읽지도 쓰지도 않을 뿐,
-         기존 기기에 남아 있는 값은 건드리지 않는다 (CLAUDE.md 8번). */
-      setRewardUnlocked(true); setTab("reward");
-    }, "보상 관리");
-  };
+  /* 보상탭 이동 — 탭 바와 엄마용 홈 '오늘 챙길 일'의 보상승인 칩이 같이 쓴다.
+     [사용자 확정 2026-08-16] 들어올 때 받던 PIN 을 뺐다. 엄마용으로 넘어올 때 이미
+     한 번 받으므로 아이 손에 열릴 일이 없는데, 승인 한 번 하려고 두 번 묻는 꼴이었다.
+     여기서 rewardUnlocked 를 켜지 않는 것이 중요하다 — 그 값은 미션 삭제·점수 수정을
+     여는 '엄마 권한'과 같은 스위치라, 켜면 보상 탭에 들렀다는 이유로 미션까지 열린다. */
+  const goRewardTab=()=>{ setTab("reward"); };
   const submitGatePin=()=>{
     // 개발자 도구: DEV_MODE에서 DEV_PIN 입력 시 보상탭 대신 개발자 도구 진입
     if(DEV_MODE && gatePin===DEV_PIN){
@@ -3620,11 +3613,9 @@ export default function App() {
      누른 칸을 화면 맨 위로 데려온다 (접을 때는 그대로 둔다 — 제자리에 있으니 옮길 이유가 없다).
      레이아웃이 다시 잡힌 뒤에 재야 하므로 rAF 두 번 뒤에 옮긴다. */
   const toggleRewardSec=(key,ev)=>{
-    const cur={reward:showParentRewardManage,growth:showParentGrowthManage,record:showParentRecordManage,xp:showParentXpAdjust};
+    const cur={reward:showParentRewardManage,xp:showParentXpAdjust};
     const next=!cur[key];
     setShowParentRewardManage(key==="reward"&&next);
-    setShowParentGrowthManage(key==="growth"&&next);
-    setShowParentRecordManage(key==="record"&&next);
     setShowParentXpAdjust(key==="xp"&&next);
     const el=next?ev?.currentTarget:null;
     if(el) requestAnimationFrame(()=>requestAnimationFrame(()=>{
@@ -6060,7 +6051,7 @@ export default function App() {
             getScoreHistory, getSelectedTitle, getTotalTreasureCount, getUnlockedTitles, kidSkin, openEditReward,
             parentInnerSub, parentInnerTitle, rewardAgeGroup, rewardSecArrow, rewardSecCard, rewardSecInner,
             rewardSecSub, rewardSecTitle, setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
-            setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign, showParentGrowthManage, showParentRecordManage, showParentRewardManage,
+            setXpAdjustInput, setXpAdjustLabel, setXpAdjustSign, showParentRewardManage,
             showParentXpAdjust, showToast, th, toggleRewardSec, xpAdjustInput, xpAdjustLabel,
             xpAdjustSign,
           }}/>
