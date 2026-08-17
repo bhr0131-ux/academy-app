@@ -55,7 +55,7 @@ export default function RewardApprovals({
           <div key={req.id} style={{ background: "#fff", borderRadius: RAD.lg, padding: "11px 12px",
             border: `1px solid ${C.border}`, boxShadow: SHADOW.sm }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9 }}>
-              <span style={{ fontSize: 24, flexShrink: 0 }}>{req.emoji}</span>
+              <EmojiIcon emoji={req.emoji} size={24}/>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: FS.title, fontWeight: FW.bold, margin: 0, color: C.text,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{req.title}</p>

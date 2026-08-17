@@ -18,6 +18,8 @@ import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
 import FeePaySheet, { payMethodLabel } from "./components/parent/FeePaySheet.jsx";
 import ChildFace from "./components/parent/ChildFace.jsx";
 import CareIcon from "./components/parent/CareIcons.jsx";
+import EmojiIcon from "./components/parent/EmojiIcon.jsx";
+import { REWARD_EMOJI } from "./data/rewardEmoji.js";
 import SectionHead from "./components/parent/SectionHead.jsx";
 import XpAdjustCard from "./components/parent/XpAdjustCard.jsx";
 import { CalendarLegendSheet } from "./components/parent/CalendarMarks.jsx";
@@ -6380,6 +6382,12 @@ export default function App() {
               <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:0,lineHeight:1.5}}>
                 학원 일정과 아이의 숙제를 게임처럼 관리하는 플래너
               </p>
+              {/* [사용자 확정 2026-08-17] 보상 그림으로 Twemoji 를 쓴다 — CC-BY 4.0 은
+                  저작자 표시를 요구하므로 여기 한 줄로 밝힌다 (자세한 건
+                  public/assets/emoji/NOTICE.txt). */}
+              <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,opacity:0.7,margin:"8px 0 0",lineHeight:1.5}}>
+                보상 그림: Twemoji © Twitter, Inc and other contributors · CC-BY 4.0
+              </p>
             </div>
           </div>
         )}
@@ -6632,10 +6640,32 @@ export default function App() {
               <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🎁 보상 추가</h3>
               <button onClick={()=>setShowRewardModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
-            <label style={lbl}>보상 이모지</label>
-            <input value={rewardForm.emoji} onChange={e=>setRewardForm(p=>({...p,emoji:e.target.value}))}
-              placeholder="예: 🍦" maxLength={4}
-              style={{...inp,marginBottom:16,fontSize:24,textAlign:"center"}}/>
+            {/* [사용자 확정 2026-08-17] 이모지를 직접 치게 하니 폰에서 이모지 자판을 불러야 했고,
+                앱이 그림을 갖고 있지 않은 이모지가 들어오면 그 줄만 운영체제 이모지로 그려져
+                그림체가 섞였다 → 앱이 그림을 가진 것들 중에서 고른다.
+                예전에 적어 둔 이모지(목록 밖)는 맨 앞에 그대로 놔둬 고른 채로 열린다 —
+                고치다가 저장해도 그림이 바뀌지 않는다. */}
+            <label style={lbl}>보상 그림</label>
+            {(()=>{
+              const cur=rewardForm.emoji||"";
+              const list=cur&&!REWARD_EMOJI.includes(cur)?[cur,...REWARD_EMOJI]:REWARD_EMOJI;
+              return (
+                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(44px,1fr))",gap:6,marginBottom:16}}>
+                  {list.map(em=>{
+                    const on=em===cur;
+                    return (
+                      <button key={em} type="button" onClick={()=>setRewardForm(p=>({...p,emoji:em}))}
+                        aria-label={`보상 그림 ${em}`} aria-pressed={on}
+                        style={{height:44,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",
+                          borderRadius:RAD.sm,background:on?`${th.main}18`:CT.faint,
+                          border:`1.5px solid ${on?th.main:"transparent"}`,padding:0,fontFamily:"inherit"}}>
+                        <EmojiIcon emoji={em} size={24}/>
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
             <label style={lbl}>보상 이름 *</label>
             <input value={rewardForm.title} onChange={e=>setRewardForm(p=>({...p,title:e.target.value}))}
               placeholder="예: 아이스크림, 게임 30분, 치킨"
@@ -6655,7 +6685,11 @@ export default function App() {
               style={{...inp,marginBottom:20}}/>
             <div style={{background:th.light,border:`1px solid ${th.main}30`,borderRadius:14,padding:"14px",marginBottom:20}}>
               <p style={{fontSize:13,fontWeight:800,color:th.main,margin:"0 0 6px"}}>미리보기</p>
-              <p style={{fontSize:17,fontWeight:900,color:C.text,margin:0}}>{rewardForm.emoji||"🎁"} {rewardForm.title||"보상 이름"} · {rewardForm.point||0} {TM.coin}</p>
+              {/* 미리보기도 목록에 나올 그림 그대로 — 여기만 운영체제 이모지면 저장 후 달라 보인다 */}
+              <p style={{fontSize:17,fontWeight:900,color:C.text,margin:0,display:"flex",alignItems:"center",gap:6}}>
+                <EmojiIcon emoji={rewardForm.emoji||"🎁"} size={20}/>
+                {rewardForm.title||"보상 이름"} · {rewardForm.point||0} {TM.coin}
+              </p>
             </div>
             <button onClick={addRewardItem}
               style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",boxShadow:`0 4px 16px ${th.main}40`}}>
