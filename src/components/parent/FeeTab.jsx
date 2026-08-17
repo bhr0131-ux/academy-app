@@ -144,15 +144,13 @@ export default function FeeTab({
                 [사용자 지적] '납부 완료'인데 '납부 기록 없음'은 모순처럼 읽힌다.
                 기록이 없는 건 이 기능이 생기기 전에 체크만 해 둔 건이라,
                 상태를 '상세 미입력'으로 분명히 말하고 채워 넣게 안내한다. */}
+            {/* [사용자 확정 2026-08-17] '내역 보기' 링크를 뺐다 — ⋮ > 학원비 수정이 이제
+                학원비 설정과 이 달 납부 기록을 한 화면에서 보여 준다. 같은 곳으로 가는
+                길이 둘이었다. 낸 날·방법은 여기 한 줄로 그대로 읽힌다. */}
             {hasFee&&paid&&rec&&(
-              <div style={{display:"flex",alignItems:"center",gap:8,marginTop:5}}>
-                <span style={{fontSize:11.5,fontWeight:600,color:C.sub,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                  {`${Number(rec.date.slice(5,7))}월 ${Number(rec.date.slice(8,10))}일 납부${rec.method?` · ${payMethodLabel(rec.method)}`:""}${rec.memo?` · ${rec.memo}`:""}`}
-                </span>
-                <button onClick={()=>onPay(a.id)} style={{...actLink,marginLeft:"auto",color:actC}}>
-                  내역 보기
-                </button>
-              </div>
+              <p style={{margin:"5px 0 0",fontSize:11.5,fontWeight:600,color:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                {`${Number(rec.date.slice(5,7))}월 ${Number(rec.date.slice(8,10))}일 납부${rec.method?` · ${payMethodLabel(rec.method)}`:""}${rec.memo?` · ${rec.memo}`:""}`}
+              </p>
             )}
             {hasFee&&paid&&!rec&&(
               <div style={{marginTop:6,background:CT.faint,borderRadius:10,padding:"8px 10px"}}>
