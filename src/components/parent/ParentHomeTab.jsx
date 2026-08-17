@@ -45,7 +45,7 @@ export default function ParentHomeTab({
   homeDate, setHomeDate, homeAcOpen = {}, setHomeAcOpen, navH = 58,
   isVacationDay, getDailyEntry, getQuestItemsForDate, getChildRewardRequests,
   acKindLabel, getAcademyTheme,
-  onGoTab, onGoReward, onOpenRewardApprove, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
+  onGoTab, onGoReward, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
   onHolidayRest,
   /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
   childrenList = [], showSample = false,
@@ -124,10 +124,11 @@ export default function ParentHomeTab({
             go:onOpenSupplyCheck});
           if(homePendingQuest>0) alerts.push({icon:"mission",label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
             go:onOpenMissionCheck});
-          /* [사용자 확정 2026-08-16] 보상승인은 보상 탭으로 보내지 않고 팝업으로 그 자리에서
-             처리한다 — 승인 하나 하려고 비밀번호를 넣는 게 번거로웠다. */
+          /* [사용자 확정 2026-08-17] 팝업으로 그 자리에서 처리하던 것을 되돌려 보상 탭으로 보낸다 —
+             그 탭 맨 위가 이미 같은 '구매 승인 대기' 카드이고, 들어갈 때 받던 비밀번호도
+             없어졌다. 팝업은 같은 화면을 한 겹 더 만드는 셈이었다. */
           if(pendingRewardCnt>0) alerts.push({icon:"reward",label:`보상승인 ${pendingRewardCnt}개`,color:C.green,
-            go:onOpenRewardApprove||onGoReward});
+            go:onGoReward});
           if(absOnHome.length>0) alerts.push({icon:"absent",label:`결석 ${absOnHome.length}개`,color:C.red,
             go:()=>onGoTab("absence")});
           if(makeupOnHome.length>0) alerts.push({icon:"makeup",label:`보충수업 ${makeupOnHome.length}개`,color:C.orange,
