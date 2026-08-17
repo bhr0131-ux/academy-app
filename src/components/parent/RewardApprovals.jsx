@@ -53,7 +53,7 @@ export default function RewardApprovals({
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {requests.map(req => (
-          <div key={req.id} style={{ background: "#fff", borderRadius: RAD.lg, padding: "11px 12px",
+          <div key={req.id} style={{ background: "#fff", borderRadius: RAD.md, padding: "11px 12px",
             border: `1px solid ${C.border}`, boxShadow: SHADOW.sm }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9 }}>
               <EmojiIcon emoji={req.emoji} size={24}/>
@@ -79,7 +79,7 @@ export default function RewardApprovals({
               </button>
               <button onClick={() => onReject && onReject(req)} className="jelly-tap"
                 style={{ flex: 1, border: `1px solid ${C.border}`, background: "#fff", color: C.sub,
-                  borderRadius: RAD.sm, padding: "10px", fontSize: FS.sub, fontWeight: FW.semi, cursor: "pointer", fontFamily: F }}>
+                  borderRadius: RAD.sm, padding: "10px", fontSize: FS.body, fontWeight: FW.bold, cursor: "pointer", fontFamily: F }}>
                 거절
               </button>
             </div>
