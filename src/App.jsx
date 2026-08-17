@@ -298,6 +298,10 @@ export default function App() {
   const [rewardForm,     setRewardForm]     = useState(initReward.rewardForm);
   const [editingRewardId,setEditingRewardId]= useState(initReward.editingRewardId);
   const [showRewardModal,setShowRewardModal]= useState(initReward.showRewardModal);
+  /* [사용자 확정 2026-08-17] 보상 그림 44칸을 늘 펼쳐 두니 팝업의 절반을 먹었다 →
+     평소엔 고른 그림 한 칸만 보이고, 눌러야 아래로 펼쳐진다.
+     팝업을 열 때마다 접힌 채로 시작한다 (추가·수정 어느 쪽으로 들어와도). */
+  const [rewardEmojiOpen,setRewardEmojiOpen]= useState(false);
   const [openRewardId,   setOpenRewardId]   = useState(initReward.openRewardId);
   const [openRewardShop, setOpenRewardShop] = useState(initReward.openRewardShop);
   const [xpAdjustInput,  setXpAdjustInput]  = useState(initReward.xpAdjustInput);
@@ -430,6 +434,8 @@ export default function App() {
   const [childPickOpen,          setChildPickOpen]          = useState(false);            // 아이 전환 목록 열림
   // 엄마용으로 나갔다 돌아왔을 때 목록이 열린 채로 남지 않게 한다
   useEffect(()=>{ if(appMode!=="child") setChildPickOpen(false); },[appMode]);
+  // 보상 팝업을 열 때마다 그림 고르기는 접힌 채로 (추가·수정 어느 쪽이든)
+  useEffect(()=>{ if(showRewardModal) setRewardEmojiOpen(false); },[showRewardModal]);
   const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
@@ -6650,19 +6656,38 @@ export default function App() {
               const cur=rewardForm.emoji||"";
               const list=cur&&!REWARD_EMOJI.includes(cur)?[cur,...REWARD_EMOJI]:REWARD_EMOJI;
               return (
-                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(44px,1fr))",gap:6,marginBottom:16}}>
-                  {list.map(em=>{
-                    const on=em===cur;
-                    return (
-                      <button key={em} type="button" onClick={()=>setRewardForm(p=>({...p,emoji:em}))}
-                        aria-label={`보상 그림 ${em}`} aria-pressed={on}
-                        style={{height:44,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",
-                          borderRadius:RAD.sm,background:on?`${th.main}18`:CT.faint,
-                          border:`1.5px solid ${on?th.main:"transparent"}`,padding:0,fontFamily:"inherit"}}>
-                        <EmojiIcon emoji={em} size={24}/>
-                      </button>
-                    );
-                  })}
+                <div style={{marginBottom:16}}>
+                  {/* 접힌 줄 — 고른 그림 하나만. 다른 입력칸(inp)과 같은 높이·색이라 한 벌로 읽힌다 */}
+                  <button type="button" onClick={()=>setRewardEmojiOpen(v=>!v)}
+                    aria-expanded={rewardEmojiOpen}
+                    style={{...inp,marginBottom:0,height:44,boxSizing:"border-box",padding:"0 12px",cursor:"pointer",
+                      display:"flex",alignItems:"center",gap:8}}>
+                    <EmojiIcon emoji={cur||"🎁"} size={24}/>
+                    <span style={{flex:1,textAlign:"left",fontSize:FS.body,fontWeight:FW.normal,color:C.sub}}>
+                      {rewardEmojiOpen?"아래에서 골라 주세요":"눌러서 그림 고르기"}
+                    </span>
+                    <span aria-hidden style={{fontSize:12,color:C.sub,fontWeight:FW.bold,
+                      transition:"transform .2s",transform:rewardEmojiOpen?"rotate(180deg)":"none"}}>⌄</span>
+                  </button>
+                  {rewardEmojiOpen&&(
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(44px,1fr))",gap:6,
+                    marginTop:8,maxHeight:232,overflowY:"auto",padding:2}}>
+                    {list.map(em=>{
+                      const on=em===cur;
+                      return (
+                        /* 고르면 바로 접는다 — 고르기가 끝났는데 격자가 남아 있을 이유가 없다 */
+                        <button key={em} type="button"
+                          onClick={()=>{ setRewardForm(p=>({...p,emoji:em})); setRewardEmojiOpen(false); }}
+                          aria-label={`보상 그림 ${em}`} aria-pressed={on}
+                          style={{height:44,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",
+                            borderRadius:RAD.sm,background:on?`${th.main}18`:CT.faint,
+                            border:`1.5px solid ${on?th.main:"transparent"}`,padding:0,fontFamily:"inherit"}}>
+                          <EmojiIcon emoji={em} size={24}/>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  )}
                 </div>
               );
             })()}
