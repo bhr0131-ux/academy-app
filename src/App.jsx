@@ -1605,6 +1605,25 @@ export default function App() {
   /* 요일별 셔틀 한 칸 고치기.
      그 요일 항목이 아직 없으면(요일을 나중에 추가한 경우) 기본 장소·시간으로 만들어 준다 —
      예전에는 map 으로만 고쳐서, 없는 요일은 아무리 입력해도 저장되지 않았다. */
+  /* 셔틀 기본 칸(장소·시간) 고치기.
+     [사용자 지적 2026-08-17] 요일별을 켜 둔 채 기본을 바꿔도 요일별 칸이 그대로였다 —
+     기본값은 켤 때 한 번만 채워 넣었기 때문이다. 이제 '기본을 그대로 쓰던 요일'은 같이 따라온다.
+     따로 고쳐 둔 요일은 건드리지 않는다. 장소·시간을 따로 비교하므로, 시간만 고쳐 둔 요일도
+     장소는 계속 기본을 따라간다. */
+  const setBaseShuttle=(patch)=>setNewAc(p=>{
+    const old=parseShuttle(p.shuttleInfo||"");
+    const next={...old,...patch};
+    return {
+      ...p,
+      shuttleInfo:joinShuttle(next.time,next.place),
+      shuttleSchedules:(p.shuttleSchedules||[]).map(s=>({
+        ...s,
+        time :(s.time ||"")===(old.time ||"") ? next.time  : s.time,
+        place:(s.place||"")===(old.place||"") ? next.place : s.place,
+      })),
+    };
+  });
+
   const setShuttleDay=(day,patch)=>setNewAc(p=>{
     const list=p.shuttleSchedules||[];
     const base=parseShuttle(p.shuttleInfo||"");
@@ -7286,14 +7305,14 @@ export default function App() {
               <label style={lblIcon}><CareIcon name="shuttle" size={14}/>셔틀버스</label>
               <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <input value={parseShuttle(newAc.shuttleInfo||"").place} placeholder="장소 (예: 아파트 정문)"
-                  onChange={e=>setNewAc(p=>({...p,shuttleInfo:joinShuttle(parseShuttle(p.shuttleInfo||"").time,e.target.value)}))}
+                  onChange={e=>setBaseShuttle({place:e.target.value})}
                   style={{...inp,flex:1,width:"auto",minWidth:0,fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
                 {/* [사용자 지적 2026-08-17] flex:1 로 나누면 한국어 시간이 '오후 4:0' 으로 잘렸다.
                     글자 탓이 아니다 — '오후 4:00'(69px)은 '04:00 PM'(76px)보다 오히려 좁다.
                     삼성 브라우저의 시간 선택기가 오른쪽에 화살표를 붙이고 안쪽 여백도 넓게 잡는다.
                     → 시각 칸을 화살표까지 들어가는 너비로 고정하고, 남는 자리는 장소가 가져간다. */}
                 <input type="time" value={parseShuttle(newAc.shuttleInfo||"").time}
-                  onChange={e=>setNewAc(p=>({...p,shuttleInfo:joinShuttle(e.target.value,parseShuttle(p.shuttleInfo||"").place)}))}
+                  onChange={e=>setBaseShuttle({time:e.target.value})}
                   style={{...inp,flex:"0 0 156px",width:"auto",fontSize:FS.title,padding:"10px 10px",marginBottom:0}}/>
               </div>
 
