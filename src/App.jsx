@@ -6011,12 +6011,12 @@ export default function App() {
                                       border:"none",borderTop:i?`1px solid ${C.border}`:"none",background:"transparent",
                                       cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
                                     <span style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
-                                    <span style={{flex:1,minWidth:0}}>
-                                      <span style={{display:"block",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
+                                    {/* [사용자 확정 2026-08-17] '등록된 미션 N개'를 아랫줄에 두니
+                                        줄마다 두 층이라 목록이 길어졌다 → 이름 옆에 (N) 하나로. */}
+                                    <span style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5}}>
+                                      <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
                                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</span>
-                                      <span style={{display:"block",fontSize:11.5,fontWeight:700,color:C.sub,marginTop:1}}>
-                                        {cnt(ac.id)===0?"등록된 미션 없음":`등록된 미션 ${cnt(ac.id)}개`}
-                                      </span>
+                                      <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({cnt(ac.id)})</span>
                                     </span>
                                     <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
                                   </button>
@@ -6042,10 +6042,11 @@ export default function App() {
                                   점 대신 ＋ 로 — 학원을 고르는 줄이 아니라 새로 만드는 줄이다.
                                   9px 자리를 그대로 써서 제목 시작 위치는 학원 줄과 어긋나지 않는다. */}
                               <span aria-hidden="true" style={{width:9,height:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",color:th.main,fontSize:15,fontWeight:900,lineHeight:1}}>+</span>
-                              <span style={{flex:1,minWidth:0}}>
-                                <span style={{display:"block",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
-                                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>일반 미션 추가</span>
-                                <span style={{display:"block",fontSize:11.5,fontWeight:700,color:C.sub,marginTop:1}}>집안일 · 준비물 · 생활 미션</span>
+                              {/* 학원 줄과 같은 모양으로 — 이름 옆 (N) 하나 */}
+                              <span style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5}}>
+                                <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
+                                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>생활·일반 미션 추가</span>
+                                <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({cnt(EXTRA_QUEST_ID)})</span>
                               </span>
                               <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
                             </button>
