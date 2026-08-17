@@ -1153,6 +1153,16 @@ export default function App() {
     act?.run?.();
   };
 
+  /* [사용자 확정 2026-08-17] 네 자리를 다 눌렀는데 '확인'을 또 눌러야 했다 →
+     맞으면 마지막 자리를 누르는 순간 바로 연다.
+     틀렸을 때는 아무 일도 안 한다 — 고치는 동안 '비밀번호가 달라요'가 계속 뜨면
+     오히려 방해다. 그때는 예전처럼 '확인'을 눌러 알려 준다.
+     두 모달(아이 모드·엄마 모드)이 같은 gatePin 을 쓰므로 여기 한 곳이면 둘 다 된다. */
+  useEffect(()=>{
+    if(!gateAction||!gatePin) return;
+    if(gatePin===parentPin||(DEV_MODE&&gatePin===DEV_PIN)) submitGatePin();
+  },[gatePin,gateAction]);
+
   const addDevXP=(amount)=>{
     if(!DEV_MODE) return;
     addChildScore(childId,amount,`개발자 도구 점수 ${amount>=0?"+":""}${amount}`,"dev_xp");
