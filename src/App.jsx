@@ -1109,9 +1109,12 @@ export default function App() {
   const goMissionTab=()=>{ setTab("mission"); };
   /* 미션 탭 안에서 엄마 권한 열기 — 통과하면 보상 탭과 같은 잠금(rewardUnlocked)을 쓴다.
      권한 구조 안내는 여기서 1회 띄운다(예전엔 탭에 들어올 때 띄웠다). */
-  const unlockParentPower=()=>{
+  /* after: 비밀번호를 통과한 뒤 바로 이어서 할 일 (없으면 열기만 한다).
+     [사용자 확정 2026-08-17] '지난 미션 관리'는 열고 나서 같은 자리를 한 번 더 눌러야
+     목록이 떴다 — 비밀번호를 넣은 순간 바로 목록을 보여 준다. */
+  const unlockParentPower=(after)=>{
     if(!parentLocked()) return;
-    askPin(()=>{ setRewardUnlocked(true); }, "미션 관리");
+    askPin(()=>{ setRewardUnlocked(true); if(typeof after==="function") after(); }, "미션 관리");
   };
   /* 보상 탭 '보상 추가·수정·삭제' — 미션 탭의 엄마 권한과 같은 스위치를 쓴다.
      탭에 들어오는 것 자체는 막지 않고, 목록을 고치려 할 때만 비밀번호를 받는다
@@ -6079,7 +6082,7 @@ export default function App() {
                                  보여 준다 — 열어 볼 값어치가 있는지 비밀번호를 넣기 전에 알 수 있다. */
                               const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
                               return (
-                                <button onClick={unlockParentPower} className="jelly-tap"
+                                <button onClick={()=>unlockParentPower(()=>setShowPastMissionModal(rewardDate))} className="jelly-tap"
                                   style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"flex-start",gap:7}}>
                                   <span style={{display:"flex",alignItems:"center",gap:5}}>
                                     <span style={{color:th.main,display:"flex"}}><CareIcon name="lock" size={14}/></span> 지난 미션 관리
@@ -6088,10 +6091,6 @@ export default function App() {
                                 </button>
                               );
                             })()}
-                            {/* 왜 잠겨 있는지 한 줄 — 두 칸에 각각 붙이면 같은 말이 두 번이라 아래에 한 번만 */}
-                            <p style={{margin:0,textAlign:"center",fontSize:11.5,fontWeight:700,color:C.sub}}>
-                              비밀번호를 한 번 물어봐요
-                            </p>
                           </div>
                         ):(
                           <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -6109,7 +6108,7 @@ export default function App() {
                               const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
                               return (
                                 <button onClick={()=>setShowPastMissionModal(rewardDate)} className="jelly-tap"
-                                  style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"flex-start",gap:7}}>
+                                  style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${C.green}33`,background:`${C.green}0E`,color:mixBlack(C.green,0.25),fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"flex-start",gap:7}}>
                                   {/* [사용자 확정 2026-08-16] 위 '엄마 권한이 열렸어요'와 같은
                                       열린 자물쇠를 붙여 둘이 한 묶음으로 읽히게 한다. */}
                                   <span style={{display:"flex",alignItems:"center",gap:5}}>
