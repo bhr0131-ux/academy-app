@@ -7155,7 +7155,7 @@ export default function App() {
             </div>
 
             <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
-              필수 정보 입력 완료<br/><span style={{opacity:0.85}}>나머지는 필요할 때 추가할 수 있어요</span>
+              필수 정보 입력 완료<br/><span style={{opacity:0.85}}>나머지는 필요할 때 추가해도 돼요</span>
             </p>
 
             <button type="button" onClick={()=>setShowAcMore(v=>!v)} style={{width:"100%",padding:"13px",borderRadius:RAD.md,border:`1.5px dashed ${th.main}80`,background:mixWhite(th.main,0.80),color:th.main,fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",marginBottom:16}}>
