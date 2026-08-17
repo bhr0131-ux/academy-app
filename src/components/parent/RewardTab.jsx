@@ -55,13 +55,18 @@ export default function RewardTab({ D }) {
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {getChildRewards().slice().sort((a,b)=>a.point-b.point).map(reward=>(
                 <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:RAD.md,background:"#fff",border:`1px solid ${C.border}`}}>
+                  {/* [사용자 확정 2026-08-17] 이름 아래 '40 코인 필요' 두 줄이던 것을 한 줄로 —
+                      이름은 왼쪽, 값은 오른쪽 끝. 값이 한 세로줄에 모여 서로 견주기 쉽고
+                      목록 길이도 줄 60 → 45 로 줄어든다. */}
                   <EmojiIcon emoji={reward.emoji} size={24}/>
-                  <div style={{flex:1}}>
-                    <p style={{fontSize:FS.title,fontWeight:FW.bold,margin:0,color:C.text}}>{reward.title}</p>
-                    <p style={{fontSize:FS.body,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>{reward.point} {TM.coinEmoji} {TM.coin} 필요</p>
-                  </div>
+                  <p style={{flex:1,minWidth:0,fontSize:FS.title,fontWeight:FW.bold,margin:0,color:C.text,
+                    overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{reward.title}</p>
+                  <span style={{flexShrink:0,fontSize:FS.body,color:C.sub,fontWeight:FW.normal,whiteSpace:"nowrap"}}>
+                    {TM.coinEmoji} {reward.point}{TM.coin}
+                  </span>
                   {canEdit&&(
-                  <div style={{display:"flex",flexDirection:"column",gap:5}}>
+                  /* 한 줄이 됐으니 수정·삭제도 나란히 — 세로로 쌓으면 줄이 도로 두 줄 높이가 된다 */
+                  <div style={{display:"flex",gap:5,flexShrink:0}}>
                     <button onClick={()=>openEditReward(reward)}
                       style={{border:`1px solid ${th.main}30`,background:th.light,color:th.main,borderRadius:RAD.sm,padding:"5px 9px",fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
                       수정
