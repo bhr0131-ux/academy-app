@@ -62,7 +62,7 @@ export default function RewardTab({ D }) {
                   <EmojiIcon emoji={reward.emoji} size={24}/>
                   {canEdit?(
                     <div style={{flex:1,minWidth:0}}>
-                      <p style={{fontSize:FS.title,fontWeight:FW.bold,margin:0,color:C.text,
+                      <p style={{fontSize:FS.title,fontWeight:FW.semi,margin:0,color:C.text,
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{reward.title}</p>
                       <p style={{fontSize:FS.body,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>
                         {reward.point} {TM.coinEmoji} {TM.coin} 필요
@@ -70,7 +70,7 @@ export default function RewardTab({ D }) {
                     </div>
                   ):(
                     <>
-                      <p style={{flex:1,minWidth:0,fontSize:FS.title,fontWeight:FW.bold,margin:0,color:C.text,
+                      <p style={{flex:1,minWidth:0,fontSize:FS.title,fontWeight:FW.semi,margin:0,color:C.text,
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{reward.title}</p>
                       <span style={{flexShrink:0,fontSize:FS.body,color:C.sub,fontWeight:FW.normal,whiteSpace:"nowrap"}}>
                         {TM.coinEmoji} {reward.point}{TM.coin}
