@@ -456,10 +456,12 @@ export default function ParentHomeTab({
                   </p>
                 );
               })()}
-              {/* ③ 준비물과 오늘 미션을 한 줄에 나란히.
-                     칩이 길어지면 각 묶음 안에서 접히고, 그래도 좁으면 위아래로 나뉜다. */}
-              <div style={{display:"flex",alignItems:"flex-start",flexWrap:"wrap",gap:"10px 14px",marginBottom:14}}>
-                <div style={{flex:"1 1 auto",minWidth:"max-content",maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
+              {/* ③ 준비물 위, 오늘 미션 아래 — 늘 두 줄.
+                     [사용자 확정 2026-08-17] 예전엔 둘 다 짧으면 한 줄에 나란히 붙었는데,
+                     학원마다 한 줄이었다 두 줄이었다 해서 카드끼리 층이 안 맞았다.
+                     준비물이 하나뿐이어도 미션은 늘 그 아래로 내린다. */}
+              <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",gap:10,marginBottom:14}}>
+                <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
                   <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
                     <CareIcon name="bag" size={14}/>
                     <span style={{fontSize:FS.sub,fontWeight:FW.normal}}>준비물</span>
@@ -468,7 +470,7 @@ export default function ParentHomeTab({
                   {sup.map((x,i)=><span key={`d${i}`} style={{...chip,background:`${C.orange}15`,color:C.orange}}>+{x}</span>)}
                   {baseSup.length===0&&sup.length===0&&<span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>}
                 </div>
-                <div style={{flex:"1 1 auto",minWidth:"max-content",maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
+                <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
                   <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
                     <CareIcon name="mission" size={14}/>
                     <span style={{fontSize:FS.sub,fontWeight:FW.normal}}>오늘 미션</span>
