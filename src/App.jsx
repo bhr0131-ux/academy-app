@@ -7278,7 +7278,8 @@ export default function App() {
 
               {newAc.useCustomShuttle&&(
                 <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
-                  {(newAc.days||[]).map(day=>{
+                  {/* [사용자 확정 2026-08-17] 요일별 셔틀도 늘 월화수목금토일 순으로 */}
+                  {[...(newAc.days||[])].sort((a,b)=>DAYS.indexOf(a)-DAYS.indexOf(b)).map(day=>{
                     const shuttle=(newAc.shuttleSchedules||[]).find(s=>s.day===day)||{};
                     return (
                       <div key={day} style={{border:`1px solid ${C.border}`,borderRadius:RAD.md,padding:"12px",background:"#fff"}}>

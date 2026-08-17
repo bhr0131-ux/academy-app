@@ -60,6 +60,30 @@ function minutesOf(t) {
   return Number.isNaN(h) ? 0 : h * 60 + (m || 0);
 }
 
+/* 셔틀도 같은 규칙으로 묶는다 (사용자 확정 2026-08-17).
+   묶는 기준은 '시각 + 장소 + 메모'가 통째로 같은지 — 장소가 다르면 따로 보여야 한다.
+     목 16:45 후문
+     월화수금토일 16:00 아파트 정문
+   줄 사이는 이른 시각이 위. 시각이 없는 줄(장소만 적은 경우)은 맨 뒤로 보낸다. */
+function groupedShuttleRows(ac) {
+  const byText = new Map();
+  [...new Set((ac.shuttleSchedules || []).map(s => s.day))].forEach(d => {
+    const text = getShuttleText(ac, d);
+    if (!text) return;
+    if (!byText.has(text)) byText.set(text, []);
+    byText.get(text).push(d);
+  });
+  return [...byText.entries()]
+    .map(([text, days]) => ({
+      text,
+      d: days.filter(x => DAY_ORDER.includes(x))
+             .sort((a, b) => DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b)).join(""),
+      start: (text.match(/^(\d{1,2}:\d{2})/) ? minutesOf(text.match(/^(\d{1,2}:\d{2})/)[1]) : 99999),
+    }))
+    .filter(r => r.d)
+    .sort((a, b) => a.start - b.start);
+}
+
 /* [사용자 확정 2026-08-17] 요일마다 시간이 다른 학원의 시간표를 '같은 시간끼리' 묶는다.
    전에는 요일 하나하나를 그대로 늘어놓아 일곱 줄이 됐다 —
      목 08:45–09:25 · 금 10:45–11:25 · 토 08:45–09:25 · 일 08:45–09:25 · …
@@ -129,9 +153,11 @@ export default function RegisteredAcademyList({
         const homeworks = ac.baseHomeworks || [];
         const themeIcon = getAcademyTheme ? getAcademyTheme(ac.name, kidSkin, ac.kind).icon : "";
         /* 셔틀 — 요일마다 다른 학원은 요일별로 한 줄씩, 아니면 한 줄만 */
+        /* [사용자 확정 2026-08-17] 셔틀도 시간표와 같은 규칙 —
+           같은 시각·같은 장소를 쓰는 요일은 한 줄로 묶고, 요일은 월화수목금토일 순.
+           전에는 요일마다 한 줄이라 매일 다니는 학원이면 일곱 줄이 됐다. */
         const shuttleRows = ac.useCustomShuttle
-          ? [...new Set((ac.shuttleSchedules || []).map(s => s.day))]
-              .map(d => ({ d, text: getShuttleText(ac, d) })).filter(x => x.text)
+          ? groupedShuttleRows(ac)
           : (ac.shuttleInfo ? [{ d: "", text: ac.shuttleInfo }] : []);
         const hasDetail = Number(ac.fee || 0) > 0 || ac.teacher || ac.address
           || ac.phone || (ac.account || "").trim();
