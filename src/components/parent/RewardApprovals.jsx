@@ -25,6 +25,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { C, RAD, FW, FS, mixWhite, mixBlack, SHADOW } from "../../data/tokens.js";
+import EmojiIcon from "./EmojiIcon.jsx";
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
