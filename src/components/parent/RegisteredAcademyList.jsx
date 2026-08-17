@@ -60,6 +60,33 @@ function minutesOf(t) {
   return Number.isNaN(h) ? 0 : h * 60 + (m || 0);
 }
 
+/* [사용자 확정 2026-08-17] 요일마다 시간이 다른 학원의 시간표를 '같은 시간끼리' 묶는다.
+   전에는 요일 하나하나를 그대로 늘어놓아 일곱 줄이 됐다 —
+     목 08:45–09:25 · 금 10:45–11:25 · 토 08:45–09:25 · 일 08:45–09:25 · …
+   같은 시간을 쓰는 요일을 한 줄로 모으면 두 줄로 줄고, 무엇이 다른지가 바로 보인다.
+     화수목토일 08:45–09:25
+     월금 10:45–11:25
+   · 한 줄 안의 요일은 월화수목금토일 순
+   · 줄 사이는 이른 시간이 위 (하루를 시간 순으로 읽는 것과 같다) */
+function groupedScheduleLines(ac) {
+  const byRange = new Map();
+  (ac.schedules || []).forEach(s => {
+    const range = timeRange(s.time, s.duration ?? ac.duration);
+    if (!range) return;
+    if (!byRange.has(range)) byRange.set(range, { days: [], start: minutesOf(s.time) });
+    byRange.get(range).days.push(s.day);
+  });
+  return [...byRange.entries()]
+    .map(([range, v]) => ({
+      range, start: v.start,
+      days: v.days.filter(d => DAY_ORDER.includes(d))
+                  .sort((a, b) => DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b)).join(""),
+    }))
+    .filter(g => g.days)
+    .sort((a, b) => a.start - b.start)
+    .map(g => `${g.days} ${g.range}`);
+}
+
 /* 접힌 줄에 쓸 '요일 + 시간'.
    요일마다 시간이 다른 학원은 한 줄에 다 못 담으므로 요일만 쓰고 시간은 펼쳐서 본다. */
 function whenLabel(ac) {
@@ -161,7 +188,9 @@ export default function RegisteredAcademyList({
                       fontSize: FS.sub, fontWeight: FW.normal, color: SUBD, lineHeight: 1.4 }}>
                       <span style={{ marginTop: 1, flexShrink: 0 }}><CareIcon name="calendar" size={13} /></span>
                       <span style={{ minWidth: 0 }}>
-                        {(ac.schedules || []).map(s => `${s.day} ${timeRange(s.time, s.duration ?? ac.duration)}`).join("  ·  ")}
+                        {groupedScheduleLines(ac).map((line, i) => (
+                          <span key={line} style={{ display: "block", marginTop: i ? 2 : 0 }}>{line}</span>
+                        ))}
                       </span>
                     </p>
                   )}
