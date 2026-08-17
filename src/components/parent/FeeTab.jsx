@@ -53,10 +53,10 @@ export default function FeeTab({
         연도를 같이 써서 지난달을 보다가 헷갈리지 않게 한다. */}
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginBottom:12,position:"relative"}}>
       <button onClick={()=>setFeeMonth(m=>Math.max(1,m-1))} className="jelly-tap" aria-label="이전 달"
-        style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:RAD.sm,width:28,height:28,fontSize:FS.cardTitle,cursor:"pointer",color:C.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
+        style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
       <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text}}>{new Date().getFullYear()}년 {feeMonth}월</span>
       <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} className="jelly-tap" aria-label="다음 달"
-        style={{background:CT.card,border:`1px solid ${C.border}`,borderRadius:RAD.sm,width:28,height:28,fontSize:FS.cardTitle,cursor:"pointer",color:C.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
+        style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
       {feeMonth!==thisMonth&&(
         <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
           style={{position:"absolute",right:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 9px",cursor:"pointer",fontFamily:"inherit"}}>
