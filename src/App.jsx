@@ -3611,6 +3611,16 @@ export default function App() {
      라벨(13)을 값(14)보다 한 단 낮춰 '무엇을 적는 칸인지 → 적힌 값' 순으로 읽히게 한다. */
   const inp={ width:"100%",boxSizing:"border-box",minWidth:0,background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:RAD.sm,padding:"12px 14px",color:C.text,fontSize:FS.cardTitle,outline:"none",fontFamily:"inherit" };
   const lbl={ fontSize:FS.body,color:C.sub,display:"block",marginBottom:7,fontWeight:FW.normal };
+  /* [사용자 확정 2026-08-17] 라벨 뒤 괄호 부연 — '(선택)', '(미션 화면에서 눌러 추가)'.
+     예전엔 한쪽은 12.5/400, 다른 쪽은 14/700+흐리게라 같은 뜻인데 다르게 보였다. */
+  const hintSpan={ fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,opacity:0.7 };
+  /* 라벨 = 선 아이콘 + 글자. 이 화면의 작은 라벨은 전부 이 모양이다. */
+  const lblIcon={ ...lbl,fontSize:FS.cardTitle,display:"flex",alignItems:"center",gap:6 };
+  /* 입력칸 오른쪽에 붙는 보조 버튼 (주소록·지도검색) — '추가' 버튼과 크기·굵기·여백을 맞춘다.
+     색만 다르다: 추가는 채운 테마색(주요 행동), 이쪽은 흰 바탕 회색 테두리(보조). */
+  const sideBtn={ padding:"0 16px",borderRadius:RAD.sm,border:`1px solid ${C.border}`,background:"#fff",color:C.text,
+    fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,
+    display:"flex",alignItems:"center",gap:5,fontFamily:"inherit" };
   /* (이동됨) devBtn·devMiniBtn·devGroup·devGroupTitle — DevToolsPanel.jsx 로 분리 */
   const openCloseLabel=(open)=>open?"닫기 ▲":"열기 ▼";
   const openClosePill=(open)=>({fontSize:12,fontWeight:900,color:th.main,background:th.light,padding:"6px 9px",borderRadius:14,whiteSpace:"nowrap",flexShrink:0});
@@ -7181,7 +7191,7 @@ export default function App() {
             </button>
             {acSecSupply&&(
             <div style={{padding:"0 2px 16px"}}>
-            <label style={{...lbl,fontSize:FS.cardTitle,display:"flex",alignItems:"center",gap:6}}><CareIcon name="bag" size={14}/>항상 챙길 준비물</label>
+            <label style={lblIcon}><CareIcon name="bag" size={14}/>항상 챙길 준비물</label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseSupplies||[]).map((s,i)=>(
                 <span key={i} style={{fontSize:FS.cardTitle,padding:"5px 11px",borderRadius:RAD.lg,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:FW.normal}}>
@@ -7189,11 +7199,11 @@ export default function App() {
                 </span>
               ))}
             </div>
-            <div style={{display:"flex",gap:8,marginBottom:14}}>
+            <div style={{display:"flex",gap:8,marginBottom:12}}>
               <input value={supplyInput} onChange={e=>setSupplyInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseSupply()} placeholder="예: 교재, 필통" style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
               <button onClick={addBaseSupply} style={{padding:"0 16px",borderRadius:RAD.sm,border:"none",background:th.main,color:"#fff",fontWeight:FW.normal,fontSize:FS.cardTitle,cursor:"pointer"}}>추가</button>
             </div>
-            <label style={{...lbl,fontSize:FS.cardTitle}}>📚 반복 숙제 <span style={{fontSize:FS.sub,color:C.sub,fontWeight:400}}>(미션 화면에서 눌러 추가)</span></label>
+            <label style={lblIcon}><CareIcon name="repeat" size={14}/>반복 숙제 <span style={hintSpan}>(미션 화면에서 눌러 추가)</span></label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseHomeworks||[]).map((s,i)=>(
                 <span key={i} style={{fontSize:FS.cardTitle,padding:"5px 11px",borderRadius:RAD.lg,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:FW.normal}}>
@@ -7212,18 +7222,18 @@ export default function App() {
             {/* ② 학원비·납부 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
             <button type="button" onClick={()=>setAcSecFee(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:FS.cardTitle,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
-              <span>💰 학원비 · 납부일 · 계좌</span><span style={{color:C.sub}}>{acSecFee?"▲":"▼"}</span>
+              <span style={{display:"flex",alignItems:"center",gap:7}}><CareIcon name="fee" size={15}/>학원비 · 납부일 · 계좌</span><span style={{color:C.sub}}>{acSecFee?"▲":"▼"}</span>
             </button>
             {acSecFee&&(
             <div style={{padding:"0 2px 16px"}}>
               <div style={{display:"flex",gap:10,marginBottom:12}}>
                 {/* [사용자 확정 2026-08-10] 150000 보다 150,000 이 읽기 쉽다 — 치는 동안에도 콤마를 찍는다.
                     숫자 키패드는 inputMode 로 그대로 뜬다. */}
-                <div style={{flex:1,minWidth:0}}><label style={{...lbl,fontSize:FS.body}}>월 학원비(원)</label>
+                <div style={{flex:1,minWidth:0}}><label style={lblIcon}><CareIcon name="fee" size={14}/>월 학원비(원)</label>
                   <input inputMode="numeric" value={Number(newAc.fee||0)>0?Number(newAc.fee).toLocaleString():""}
                     onChange={e=>{ const n=Number(String(e.target.value).replace(/[^0-9]/g,"")); setNewAc(p=>({...p,fee:Number.isNaN(n)?0:n})); }}
                     placeholder="0" style={{...inp,fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/></div>
-                <div style={{flex:1,minWidth:0}}><label style={{...lbl,fontSize:FS.body}}>납부일</label>
+                <div style={{flex:1,minWidth:0}}><label style={lblIcon}><CareIcon name="calendar" size={14}/>납부일</label>
                   <div style={{position:"relative"}}>
                     <input inputMode="numeric" value={newAc.payDay===""?"":String(newAc.payDay)}
                       onFocus={e=>e.target.select&&e.target.select()}
@@ -7236,7 +7246,7 @@ export default function App() {
               </div>
               {/* [사용자 확정 2026-08-10] 이체할 때마다 문자를 찾아 헤매지 않게 계좌를 여기 적어 둔다.
                   선택 입력이고, 적어 두면 학원 카드에서 눌러 복사할 수 있다. */}
-              <label style={{...lbl,fontSize:FS.cardTitle}}>🏦 입금 계좌 <span style={{fontWeight:FW.normal,opacity:0.7}}>(선택)</span></label>
+              <label style={lblIcon}><CareIcon name="bank" size={14}/>입금 계좌 <span style={hintSpan}>(선택)</span></label>
               <input value={newAc.account||""} onChange={e=>setNewAc(p=>({...p,account:e.target.value}))}
                 placeholder="예: 국민 123456-01-234567 (홍길동)" style={{...inp,fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
             </div>
@@ -7246,35 +7256,33 @@ export default function App() {
             {/* ③ 학원정보 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
             <button type="button" onClick={()=>setAcSecInfo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:FS.cardTitle,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
-              <span>📋 학원 정보 (연락처·주소·셔틀)</span><span style={{color:C.sub}}>{acSecInfo?"▲":"▼"}</span>
+              <span style={{display:"flex",alignItems:"center",gap:7}}><CareIcon name="clipboard" size={15}/>학원 정보 (연락처·주소·셔틀)</span><span style={{color:C.sub}}>{acSecInfo?"▲":"▼"}</span>
             </button>
             {acSecInfo&&(
             <div style={{padding:"0 2px 16px"}}>
-              <label style={{...lbl,fontSize:FS.cardTitle}}>👩‍🏫 담당 선생님</label>
+              <label style={lblIcon}><CareIcon name="teacher" size={14}/>담당 선생님</label>
               <input value={newAc.teacher} onChange={e=>setNewAc(p=>({...p,teacher:e.target.value}))} placeholder="예: 김민준 선생님" style={{...inp,fontSize:FS.title,padding:"10px 12px",marginBottom:12}}/>
-              <label style={{...lbl,fontSize:FS.cardTitle}}>📞 연락처</label>
+              <label style={lblIcon}><CareIcon name="phone" size={14}/>연락처</label>
               <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <input value={newAc.phone} onChange={e=>setNewAc(p=>({...p,phone:e.target.value}))}
                   placeholder="예: 010-1234-5678" style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
-                <button type="button" onClick={pickTeacherContact}
-                  style={{padding:"0 12px",borderRadius:RAD.sm,border:`1px solid ${C.border}`,background:"#fff",color:C.text,fontSize:FS.body,fontWeight:FW.bold,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
-                  📒 주소록
+                <button type="button" onClick={pickTeacherContact} style={sideBtn}>
+                  <CareIcon name="contacts" size={14}/>주소록
                 </button>
               </div>
-              <label style={{...lbl,fontSize:FS.cardTitle}}>📍 주소</label>
+              <label style={lblIcon}><CareIcon name="pin" size={14}/>주소</label>
               <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <input value={newAc.address} onChange={e=>setNewAc(p=>({...p,address:e.target.value}))}
                   placeholder="예: 서울시 강남구" style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
-                <button type="button" onClick={openNaverMapSearch}
-                  style={{padding:"0 12px",borderRadius:RAD.sm,border:`1px solid ${C.border}`,background:"#fff",color:C.text,fontSize:FS.body,fontWeight:FW.bold,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
-                  🗺️ 지도검색
+                <button type="button" onClick={openNaverMapSearch} style={sideBtn}>
+                  <CareIcon name="search" size={14}/>지도검색
                 </button>
               </div>
 
               {/* [사용자 확정 2026-08-17] 한 줄 자유 메모 → '장소 · 시간' 두 칸.
                   저장은 여전히 shuttleInfo 한 줄이라 기존 학원 데이터가 그대로 살아 있다. */}
-              <label style={{...lbl,fontSize:FS.cardTitle}}>🚌 셔틀버스</label>
-              <div style={{display:"flex",gap:8,marginBottom:10}}>
+              <label style={lblIcon}><CareIcon name="shuttle" size={14}/>셔틀버스</label>
+              <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <input value={parseShuttle(newAc.shuttleInfo||"").place} placeholder="장소 (예: 아파트 정문)"
                   onChange={e=>setNewAc(p=>({...p,shuttleInfo:joinShuttle(parseShuttle(p.shuttleInfo||"").time,e.target.value)}))}
                   style={{...inp,flex:2,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
@@ -7297,12 +7305,14 @@ export default function App() {
                   });
                   return {...p,useCustomShuttle:true,shuttleSchedules};
                 });
-              }} style={{width:"100%",padding:"10px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomShuttle?th.main:C.border}`,background:newAc.useCustomShuttle?`${th.main}10`:CT.faint,color:newAc.useCustomShuttle?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",marginBottom:10}}>
-                {newAc.useCustomShuttle?"✓ 요일별 셔틀 설정 중":"🚌 요일별 셔틀 정보가 달라요"}
+              }} style={{width:"100%",padding:"10px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomShuttle?th.main:C.border}`,background:newAc.useCustomShuttle?`${th.main}10`:CT.faint,color:newAc.useCustomShuttle?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontFamily:"inherit"}}>
+                {/* 켜진 상태는 예전의 ✓ 자리에 같은 뜻의 선 아이콘을 둔다 */}
+                <CareIcon name={newAc.useCustomShuttle?"check":"shuttle"} size={14}/>
+                {newAc.useCustomShuttle?"요일별 셔틀 설정 중":"요일별 셔틀 정보가 달라요"}
               </button>
 
               {newAc.useCustomShuttle&&(
-                <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
+                <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:12}}>
                   {/* [사용자 확정 2026-08-17] 요일별 셔틀도 늘 월화수목금토일 순으로 */}
                   {[...(newAc.days||[])].sort((a,b)=>DAYS.indexOf(a)-DAYS.indexOf(b)).map(day=>{
                     /* 요일을 나중에 추가하면 항목이 없다 → 기본 장소·시간을 미리 보여 준다
@@ -7336,7 +7346,7 @@ export default function App() {
             {/* ④ 메모 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
             <button type="button" onClick={()=>setAcSecMemo(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:FS.cardTitle,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
-              <span>📝 메모</span><span style={{color:C.sub}}>{acSecMemo?"▲":"▼"}</span>
+              <span style={{display:"flex",alignItems:"center",gap:7}}><CareIcon name="memo" size={15}/>메모</span><span style={{color:C.sub}}>{acSecMemo?"▲":"▼"}</span>
             </button>
             {acSecMemo&&(
             <div style={{padding:"0 2px 16px"}}>
@@ -7346,8 +7356,8 @@ export default function App() {
             </div>
             </>)}
             {editTarget!==null&&(
-              <button onClick={()=>deleteAcademy(editTarget)} style={{width:"100%",marginTop:16,padding:12,borderRadius:RAD.md,border:`1px solid ${C.red}35`,background:"#fff",color:C.red,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
-                🗑 이 학원 삭제
+              <button onClick={()=>deleteAcademy(editTarget)} style={{width:"100%",marginTop:16,padding:12,borderRadius:RAD.md,border:`1px solid ${C.red}35`,background:"#fff",color:C.red,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                <CareIcon name="trash" size={14}/>이 학원 삭제
               </button>
             )}
             </div>

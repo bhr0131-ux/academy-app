@@ -214,6 +214,28 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M4.5 20a7.5 7.5 0 0 1 15 0" {...P} />
         </svg>
       );
+    case "clipboard": // 학원 정보 (연락처·주소·셔틀) 묶음
+      return (
+        <svg {...common}>
+          <rect x="4.8" y="5" width="14.4" height="15.5" rx="2.2" {...P} />
+          <rect x="9" y="2.8" width="6" height="3.6" rx="1.2" {...P} />
+          <path d="M8.6 11h6.8M8.6 15h4.4" {...P} />
+        </svg>
+      );
+    case "contacts": // 주소록 불러오기 (옆에 색인 탭이 달린 수첩)
+      return (
+        <svg {...common}>
+          <path d="M7 3.6h10.5a1.6 1.6 0 0 1 1.6 1.6v13.6a1.6 1.6 0 0 1-1.6 1.6H7Z" {...P} />
+          <path d="M7 3.6v16.8M4.6 7.6h2.4M4.6 12h2.4M4.6 16.4h2.4" {...P} />
+        </svg>
+      );
+    case "search":   // 지도검색 (돋보기 — 접힌 지도는 14px 에서 칸이 뭉갠다)
+      return (
+        <svg {...common}>
+          <circle cx="10.9" cy="10.9" r="6.3" {...P} />
+          <path d="m15.6 15.6 4.4 4.4" {...P} />
+        </svg>
+      );
     case "pin":      // 주소
       return (
         <svg {...common}>
