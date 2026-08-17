@@ -464,7 +464,7 @@ export default function ParentHomeTab({
                 <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
                   <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
                     <CareIcon name="bag" size={14}/>
-                    <span style={{fontSize:FS.sub,fontWeight:FW.normal}}>준비물</span>
+                    <span style={{fontSize:FS.tag,fontWeight:FW.normal}}>준비물</span>
                   </span>
                   {baseSup.map((x,i)=><span key={`b${i}`} style={{...chip,background:`${ac.color}18`,color:ac.color}}>{x}</span>)}
                   {sup.map((x,i)=><span key={`d${i}`} style={{...chip,background:`${C.orange}15`,color:C.orange}}>+{x}</span>)}
@@ -473,7 +473,7 @@ export default function ParentHomeTab({
                 <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
                   <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
                     <CareIcon name="mission" size={14}/>
-                    <span style={{fontSize:FS.sub,fontWeight:FW.normal}}>오늘 미션</span>
+                    <span style={{fontSize:FS.tag,fontWeight:FW.normal}}>오늘 미션</span>
                   </span>
                   {totalTodoCnt===0
                     ? <span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>
