@@ -88,7 +88,7 @@ const initChildren = {
   childId: "child_1",
   skinByChild: {},
   lastLevelByChild: {},
-  childForm: { name:"", gender:"boy", theme:CHILD_THEME_COLORS[0] },
+  childForm: { name:"", gender:"boy", theme:CHILD_THEME_COLORS[0], rewardAge:"kid" },
   editingChild: null,
   showChildMgr: false,
 };
@@ -282,7 +282,30 @@ export default function App() {
   // ── 도메인 D: reward (점수/보상/구매요청/XP조정) ──────────────────
   const [scoreData,      setScoreData, scoreRef] = useSyncState(initReward.scoreData);
   const [rewardData,     setRewardData, rewardRef] = useSyncState(initReward.rewardData);
-  const [rewardAgeGroup, setRewardAgeGroup] = useState("kid"); // 현재 보상 연령대 (kid|elemLow|elemHigh|teen|custom)
+  /* [사용자 확정 2026-08-17] 보상을 온 가족이 나눠 쓰던 것을 아이별로 나눈다 —
+     7살과 13살 형제에게 같은 보상 목록을 주는 게 맞지 않았다.
+       · 목록  : v6_reward 의 키를 "shared" → 아이 id 로. 저장 키도 모양(객체 지도)도
+                 그대로라 save/load 로직은 안 건드린다 (CLAUDE.md 8).
+                 자기 목록이 아직 없는 아이는 옛 "shared" 를 그대로 읽는다 (CLAUDE.md 9) —
+                 쓸 때만 자기 키에 담기므로 옛 데이터는 지워지지 않는다.
+       · 연령대: 새 키 v6_reward_age_by_child = {아이id: 연령대}.
+                 없으면 옛 단일 값(v6_reward_age_group)을 모두에게 적용해 읽는다. */
+  const [rewardAgeByChild, setRewardAgeByChild] = useState({});   // {아이id: kid|elemLow|elemHigh|teen|custom}
+  const [rewardAgeFallback, setRewardAgeFallback] = useState("kid"); // 옛 단일 값 (아이별 값이 없을 때)
+
+  /* 그 아이의 보상 목록. 아직 자기 목록이 없으면 옛 공용 목록("shared")을 그대로 본다 —
+     아이별로 나누기 전에 쓰던 데이터가 그대로 살아 있다. */
+  const getChildRewards=(cid=childId)=>rewardRef.current[cid]||rewardRef.current["shared"]||DEFAULT_REWARDS;
+  // 그 아이의 보상 연령대. 아이별 값이 없으면 옛 단일 값을 쓴다.
+  const getChildRewardAge=(cid=childId)=>rewardAgeByChild[cid]||rewardAgeFallback;
+  // 지금 보고 있는 아이의 연령대 (화면 여러 곳이 이 값 하나를 본다)
+  const rewardAgeGroup=getChildRewardAge(childId);
+  // 아이 하나의 연령대를 저장 (새 키에만 담는다 — 옛 키는 폴백으로 남겨 둔다)
+  const setChildRewardAge=(cid,age)=>setRewardAgeByChild(prev=>{
+    const next={...prev,[cid]:age};
+    save("v6_reward_age_by_child",next);
+    return next;
+  });
   const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
   const [pendingReject,    setPendingReject]    = useState(null); // 보상 구매 거절 확인 모달용 (요청 객체)
   /* [사용자 확정 2026-08-16] 홈의 '오늘 챙길 일' 보상승인 칩을 누르면 보상 탭으로 보내지 않고
@@ -750,7 +773,9 @@ export default function App() {
       const pinHint=await load("v6_pin_hint_seen");
       if(pinHint) setPinHintSeen(true);
       const rAge=await load("v6_reward_age_group");
-      if(rAge) setRewardAgeGroup(rAge);
+      if(rAge) setRewardAgeFallback(rAge);
+      const rAgeBy=await load("v6_reward_age_by_child");
+      if(rAgeBy) setRewardAgeByChild(rAgeBy);
       /* ── 마지막으로 보던 화면 되살리기 (사용자 요청 2026-08-09) ──
          지금까지 화면 위치(모드·탭)는 리액트 상태로만 들고 있어서, 다른 앱을 잠깐 쓰는 사이
          안드로이드가 웹뷰를 정리해 버리면 다시 켤 때 늘 아이용 탐험 탭에서 시작했다.
@@ -1010,8 +1035,10 @@ export default function App() {
 
     // 연령대에 맞는 보상 세트 적용 (kid|elem|teen)
     const ageRewards=getRewardsByAge(data.age);
-    setRewardData({ shared:ageRewards });
-    setRewardAgeGroup(data.age||"kid");
+    setRewardData({ [cid]:ageRewards });
+    setRewardAgeByChild({ [cid]:data.age||"kid" });
+    save("v6_reward_age_by_child",{ [cid]:data.age||"kid" });
+    // 옛 단일 키도 함께 남긴다 — 예전 버전으로 되돌려도 화면이 비지 않는다
     save("v6_reward_age_group",data.age||"kid");
 
     let acId=null;
@@ -1499,22 +1526,23 @@ export default function App() {
   // 버튼 클릭 → 같은 연령대면 무시, 아니면 확인 모달 띄움 (window.confirm은 미리보기에서 차단되므로 인앱 모달 사용)
   const changeRewardAge=(age)=>{
     if(age===rewardAgeGroup){ showToast(age==="custom"?"이미 '나만의 목록'이에요":`이미 '${REWARD_SETS_BY_AGE[age]?.label}' 보상이에요`); return; }
+
     setPendingAgeChange(age);
   };
   // 확인 모달에서 '변경'을 누르면 실제 적용
   const applyAgeChange=(age)=>{
+    /* [사용자 확정 2026-08-17] 지금 보고 있는 아이의 목록만 바꾼다 — 형제 것은 안 건드린다 */
+    const nm=children.find(c=>c.id===childId)?.name||"이 아이";
     if(age==="custom"){
-      setRewardData({ shared:[] });
-      setRewardAgeGroup("custom");
-      save("v6_reward_age_group","custom");
-      showToast("✏️ 나만의 목록으로 비웠어요");
+      setRewardData(prev=>({...prev,[childId]:[]}));
+      setChildRewardAge(childId,"custom");
+      showToast(`✏️ ${nm}의 목록을 비웠어요`);
     } else {
       const set=REWARD_SETS_BY_AGE[age];
       if(set){
-        setRewardData({ shared:set.rewards.map(r=>({...r})) });
-        setRewardAgeGroup(age);
-        save("v6_reward_age_group",age);
-        showToast(`${set.emoji} ${set.label} 보상으로 변경됐어요`);
+        setRewardData(prev=>({...prev,[childId]:set.rewards.map(r=>({...r}))}));
+        setChildRewardAge(childId,age);
+        showToast(`${set.emoji} ${nm} 보상을 '${set.label}'으로 바꿨어요`);
       }
     }
     setPendingAgeChange(null);
@@ -1570,7 +1598,7 @@ export default function App() {
     clearAllStorage();
     setChildren(DEFAULT_CHILDREN); setChildId("child_1");
     setAcademies({}); setAbsences({}); setPaidStatus({}); setPayInfo({}); setDayMemos({});
-    setDailyData({}); setScoreData({}); setRewardData({}); setRewardRequests({});
+    setDailyData({}); setScoreData({}); setRewardData({}); setRewardRequests({}); setRewardAgeByChild({});
     setBaseSeededKeys({});
     setPetData({});
     setSkinByChild({});
@@ -1800,7 +1828,7 @@ export default function App() {
            꾸미기 상점에서 산 테두리·배경(ownedDecor/equippedDecor/decorPrices)
            아바타 파츠(avatarOwned/avatarEquipped)와 캐릭터 표시 모드
            오늘의 발견 도감(discoveryData)
-           보상 목록 연령대(rewardAgeGroup)                                      */
+           보상 목록 연령대(rewardAgeGroup = 옛 단일 값 · rewardAgeByChild = 아이별)   */
       ownedDecor,
       equippedDecor,
       decorPrices,
@@ -1808,7 +1836,9 @@ export default function App() {
       avatarEquipped,
       charDisplayMode,
       discoveryData,
-      rewardAgeGroup
+      /* 옛 단일 값도 함께 담는다 — 이 백업을 예전 버전에서 열어도 연령대가 비지 않는다 */
+      rewardAgeGroup: rewardAgeFallback,
+      rewardAgeByChild
     };
 
     const blob=new Blob([JSON.stringify(backup,null,2)],{
@@ -1891,7 +1921,9 @@ export default function App() {
         if(data.avatarEquipped!==undefined) setAvatarEquipped(data.avatarEquipped||{});
         if(data.charDisplayMode!==undefined)setCharDisplayMode(data.charDisplayMode||{});
         if(data.discoveryData!==undefined)  setDiscoveryData(data.discoveryData||{});
-        if(data.rewardAgeGroup!==undefined){ setRewardAgeGroup(data.rewardAgeGroup||"kid"); save("v6_reward_age_group",data.rewardAgeGroup||"kid"); }
+        if(data.rewardAgeGroup!==undefined){ setRewardAgeFallback(data.rewardAgeGroup||"kid"); save("v6_reward_age_group",data.rewardAgeGroup||"kid"); }
+        /* 아이별 연령대는 새 백업에만 있다 — 없으면 위 옛 단일 값이 모든 아이에게 쓰인다 */
+        if(data.rewardAgeByChild!==undefined){ setRewardAgeByChild(data.rewardAgeByChild||{}); save("v6_reward_age_by_child",data.rewardAgeByChild||{}); }
 
         // 설치 정보: 복원본과 현재 중 더 이른 설치일을 유지 (창립 사용자 자격 보존)
         if(data.installInfo?.installDate){
@@ -2396,11 +2428,16 @@ export default function App() {
     } else {
       const newChildId=`child_${Date.now()}`;
       setChildren(p=>[...p,{id:newChildId,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}]);
+      /* [사용자 확정 2026-08-17] 고른 연령대로 이 아이만의 보상 목록을 만든다 —
+         형제 목록은 건드리지 않는다. 'custom'이면 빈 목록으로 시작해 엄마가 직접 채운다. */
+      const age=childForm.rewardAge||"kid";
+      setRewardData(prev=>({...prev,[newChildId]:age==="custom"?[]:getRewardsByAge(age).map(r=>({...r}))}));
+      setChildRewardAge(newChildId,age);
       setChildId(newChildId);
       showToast("추가됨 ✓");
     }
     setShowChildMgr(false); setEditingChild(null);
-    setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0]});
+    setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0],rewardAge:"kid"});
   };
   /* [버그 수정 2026-08-15] 아이를 지워도 그 아이 데이터가 저장소에 그대로 남았다.
      실측: 아이 하나 삭제 후에도 10개 키(v6_ac·v6_score·v6_treasure·v6_pet·v6_abs·
@@ -2419,7 +2456,10 @@ export default function App() {
     /* 아이 id 자체가 열쇠인 저장소 — 그 칸만 덜어낸다.
        (academies[cid] · scoreData[cid] 처럼 아이별로 통째 나뉜 것들) */
     const dropKey=(setter)=>setter(p=>{ if(!p||!(id in p)) return p; const n={...p}; delete n[id]; return n; });
-    [setAcademies,setAbsences,setScoreData,setRewardRequests,
+    /* [사용자 확정 2026-08-17] 보상 목록도 아이별이 되었으니 여기서 함께 덜어낸다.
+       옛 공용 목록("shared")은 아이 id 가 아니라 그대로 남는다 — 자기 목록이 없는
+       다른 아이의 폴백이라 지우면 안 된다. */
+    [setAcademies,setAbsences,setScoreData,setRewardRequests,setRewardData,
      setTreasureData,setPetData,setSkinByChild,setSelectedTitles,setSeenTitles,setEarnedTitleIds,
      setSpecialTitles,setBestStreakData,setLastLevelByChild,setOwnedDecor,setEquippedDecor,
      setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData].forEach(dropKey);
@@ -2438,6 +2478,14 @@ export default function App() {
     });
     [setDailyData,setDayMemos,setPaidStatus,setVacations,setBaseSeededKeys].forEach(dropPrefix);
 
+    // 아이별 보상 연령대 — 새 키라 저장까지 함께 갱신한다
+    setRewardAgeByChild(prev=>{
+      if(!(id in prev)) return prev;
+      const n={...prev}; delete n[id];
+      save("v6_reward_age_by_child",n);
+      return n;
+    });
+
     showToast("삭제됨");
   };
   /* 아이 순서 바꾸기 — 배열 순서가 곧 화면 위 아이 선택 탭의 순서다 (사용자 확정 2026-08-10) */
@@ -2452,7 +2500,7 @@ export default function App() {
   };
   const openAddChild=()=>{
     setEditingChild(null);
-    setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0]});
+    setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0],rewardAge:"kid"});
     setShowChildMgr(true);
   };
 
@@ -3286,7 +3334,6 @@ export default function App() {
   };
 
   /* 판단용 조회는 동기 거울에서 (연타·연속 갱신 안전) */
-  const getChildRewards=()=>rewardRef.current["shared"]||DEFAULT_REWARDS;
 
   const getCharacterEvolution=(cid)=>{
     const level=getChildLevel(cid).level;
@@ -3345,10 +3392,10 @@ export default function App() {
     if(!rewardForm.title.trim()){ showToast("보상 이름을 입력해줘"); return; }
     const rewardPayload={title:rewardForm.title.trim(),point:Number(rewardForm.point||0),emoji:rewardForm.emoji||"🎁",grade:rewardForm.grade||"common"};
     if(editingRewardId){
-      setRewardData(prev=>({...prev,shared:(prev["shared"]||DEFAULT_REWARDS).map(r=>r.id===editingRewardId?{...r,...rewardPayload}:r)}));
+      setRewardData(prev=>({...prev,[childId]:getChildRewards().map(r=>r.id===editingRewardId?{...r,...rewardPayload}:r)}));
       showToast("보상이 수정됐어요 ✏️");
     } else {
-      setRewardData(prev=>({...prev,shared:[...(prev["shared"]||DEFAULT_REWARDS),{id:newId(),...rewardPayload}]}));
+      setRewardData(prev=>({...prev,[childId]:[...getChildRewards(),{id:newId(),...rewardPayload}]}));
       showToast("보상이 추가됐어요 🎁");
     }
     setRewardForm({title:"",point:300,emoji:"🎁",grade:"common"});
@@ -3356,7 +3403,7 @@ export default function App() {
     setShowRewardModal(false);
   };
   const deleteReward=(rewardId)=>{
-    setRewardData(prev=>({...prev,shared:(prev["shared"]||DEFAULT_REWARDS).filter(r=>r.id!==rewardId)}));
+    setRewardData(prev=>({...prev,[childId]:getChildRewards().filter(r=>r.id!==rewardId)}));
     showToast("보상이 삭제됐어요");
   };
 
@@ -6183,8 +6230,12 @@ export default function App() {
 
 
             <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
+              {/* [사용자 확정 2026-08-17] 보상이 아이별이 되었으니 누구 것을 고치는지 밝힌다 —
+                  예전엔 온 가족 공용이라 이름을 적을 필요가 없었다. */}
               <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 연령대</p>
-              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>연령대를 고르면 그에 맞는 보상 목록으로 바뀌어요.</p>
+              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>
+                <b style={{color:th.main}}>{children.find(c=>c.id===childId)?.name||"이 아이"}</b>의 보상 목록이 그에 맞게 바뀌어요. 형제 것은 그대로예요.
+              </p>
               <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
                 {[["kid","🧸","어린이용"],["elemLow","🎒","초등\n저학년"],["elemHigh","🎽","초등\n고학년"],["teen","💸","고학년\n이상"],["custom","✏️","나만의\n목록"]].map(([k,em,lb])=>{
                   const on=rewardAgeGroup===k;
@@ -7011,6 +7062,33 @@ export default function App() {
                 );
               })}
             </div>
+
+            {/* [사용자 확정 2026-08-17] 보상은 아이별이라, 만들 때 나이에 맞는 목록을 골라 둔다.
+                수정할 때는 안 보인다 — 이미 만든 목록을 여기서 갈아엎으면 놀란다.
+                (나중에 바꾸려면 더보기 > 기타 > 보상 연령대) */}
+            {!editingChild&&(<>
+              <label style={lbl}>보상 연령대 *</label>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:8}}>
+                {[...Object.entries(REWARD_SETS_BY_AGE).map(([k,v])=>({k,label:v.label,emoji:v.emoji})),
+                  {k:"custom",label:"나만의 목록",emoji:"✏️"}].map(o=>{
+                  const on=(childForm.rewardAge||"kid")===o.k;
+                  return (
+                    <button key={o.k} onClick={()=>setChildForm(p=>({...p,rewardAge:o.k}))}
+                      style={{padding:"11px 10px",borderRadius:RAD.md,cursor:"pointer",fontFamily:"inherit",
+                        border:`2px solid ${on?th.main:C.border}`,background:on?`${th.main}12`:CT.faint,
+                        color:on?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:on?FW.bold:FW.normal,
+                        display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                      <EmojiIcon emoji={o.emoji} size={16}/>{o.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p style={{...hintSpan,display:"block",margin:"0 0 20px",lineHeight:1.5}}>
+                {childForm.rewardAge==="custom"
+                  ? "빈 목록으로 시작해요. 보상 탭에서 직접 채우면 돼요."
+                  : `${(REWARD_SETS_BY_AGE[childForm.rewardAge||"kid"]||REWARD_SETS_BY_AGE.kid).rewards.length}개 보상으로 시작해요. 이 아이 것만 만들어져요.`}
+              </p>
+            </>)}
 
             {/* 색상 미리보기 */}
             {(()=>{
