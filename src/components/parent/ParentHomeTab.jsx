@@ -76,13 +76,19 @@ export default function ParentHomeTab({
   // [사용자 확정 2026-08-07] 숙제와 미션을 나누지 않고 '미완료 미션' 하나로 센다.
   const homeQuestItems=getQuestItemsForDate(childId,homeDate);
   const homePendingQuest=homeQuestItems.filter(it=>!it.done&&!it.failed).length;
-  const homeSupplyCount=homeAc.reduce((n,ac)=>{
-    const entry=getDailyEntry(childId,ac.id,homeDate);
-    const hidden=entry.hiddenBase||[];
-    const base=(ac.baseSupplies||[]).filter(s=>!hidden.includes(s)).length;
-    const day=(entry.supplies||[]).length;
-    return n+base+day;
-  },0);
+  /* [버그 수정 2026-08-17] 준비물은 '학원마다 한 번'만 센다 (사용자 점검).
+     homeAc 는 같은 학원을 두 장 담을 수 있어서(정규 수업 + 그날 보충), 그대로 훑으면
+     그 학원 준비물이 두 번 더해졌다 — 칩은 '준비물 4개'인데 눌러서 연 확인 팝업은
+     3개였다(팝업은 학원 목록을 중복 없이 훑는다). 준비물은 그날 챙기는 가방 하나라
+     수업을 두 번 가더라도 개수는 하나다. */
+  const homeSupplyCount=[...new Map(homeAc.map(ac=>[String(ac.id),ac])).values()]
+    .reduce((n,ac)=>{
+      const entry=getDailyEntry(childId,ac.id,homeDate);
+      const hidden=entry.hiddenBase||[];
+      const base=(ac.baseSupplies||[]).filter(s=>!hidden.includes(s)).length;
+      const day=(entry.supplies||[]).length;
+      return n+base+day;
+    },0);
   return (
     <div>
       {/* 날짜 이동 — [사용자 확정 2026-08-10] 좌우 큰 네모 버튼을 없애고 화살표만 남긴다.
@@ -363,6 +369,11 @@ export default function ParentHomeTab({
         /* 미션은 제목을 칩 하나로 보여 준다 — '등록된 미션 없음' 같은 문장보다 짧고 바로 읽힌다.
            아직 안 한 것을 먼저 보여 주고 나머지는 '+N'. 여러 개를 다 칩으로 깔면
            칸이 좁아 줄줄이 접혀서 오히려 길어진다. 자세한 목록·점수는 미션 탭과 ✎ 수정에서 본다. */
+        /* [버그 수정 2026-08-17] 펼침 상태의 열쇠는 학원 id 가 아니라 카드 열쇠(_key)다.
+           같은 학원이 하루에 정규 수업과 보충으로 두 장 나오는 날(지난주 결석분을 오늘
+           보충), 둘 다 ac.id 가 같아 한 장을 펼치면 두 장이 같이 펼쳐졌다(사용자 점검).
+           _key 는 정규 카드일 때 String(ac.id) 라, 이미 펼쳐 둔 상태도 그대로 이어진다. */
+        const acKey=ac._key||ac.id;
         const missionAll=[...hw.map(h=>({text:h.text,done:h.done})),...todos.map(t=>({text:t.text,done:t.done}))];
         const missionChips=[...missionAll].sort((x,y)=>(x.done?1:0)-(y.done?1:0)).slice(0,1);
         const moreCnt=missionAll.length-missionChips.length;
@@ -392,8 +403,8 @@ export default function ParentHomeTab({
                   · touchAction:manipulation — 두 번 눌러 확대 판정을 기다리다 클릭이 삼켜짐
                   · userSelect:none — 글자 위에서 선택 제스처로 빠지며 클릭이 취소됨
                 [주의] 오른쪽 여백을 다시 줄이면 같은 증상이 돌아올 수 있다. */}
-            <button onClick={()=>setHomeAcOpen(p=>({...p,[ac.id]:!p[ac.id]}))} className="jelly-tap"
-              aria-expanded={!!homeAcOpen[ac.id]} aria-label={`${ac.name} 자세히`}
+            <button onClick={()=>setHomeAcOpen(p=>({...p,[acKey]:!p[acKey]}))} className="jelly-tap"
+              aria-expanded={!!homeAcOpen[acKey]} aria-label={`${ac.name} 자세히`}
               style={{width:"100%",border:"none",background:"transparent",padding:"10px 16px 10px 12px",
                 display:"flex",alignItems:"center",gap:9,cursor:"pointer",textAlign:"left",fontFamily:"inherit",
                 touchAction:"manipulation",userSelect:"none",WebkitUserSelect:"none"}}>
@@ -415,9 +426,9 @@ export default function ParentHomeTab({
               )}
               <span aria-hidden style={{flexShrink:0,width:24,height:24,display:"flex",
                 alignItems:"center",justifyContent:"center",fontSize:12,color:"#B9B3AD",fontWeight:FW.bold,
-                transition:"transform .2s",transform:homeAcOpen[ac.id]?"rotate(180deg)":"none"}}>⌄</span>
+                transition:"transform .2s",transform:homeAcOpen[acKey]?"rotate(180deg)":"none"}}>⌄</span>
             </button>
-            {homeAcOpen[ac.id]&&(
+            {homeAcOpen[acKey]&&(
             /* [사용자 확정 2026-08-10] 줄마다 한 항목씩 세로로 늘어놔 카드가 너무 길었다.
                펼쳐도 아래 학원(수학·태권도)이 같이 보이게 3단으로 압축한다.
                  ① 🎹 학원 이름 · 40분 수업            ☎ 💬
