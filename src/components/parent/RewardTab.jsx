@@ -54,20 +54,20 @@ export default function RewardTab({ D }) {
                 바탕과 거의 같은 색이 됐다(대비 1.04). 미션 카드와 같은 규칙으로 흰 줄. */}
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {getChildRewards().slice().sort((a,b)=>a.point-b.point).map(reward=>(
-                <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:14,background:"#fff",border:`1px solid ${C.border}`}}>
+                <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:RAD.md,background:"#fff",border:`1px solid ${C.border}`}}>
                   <EmojiIcon emoji={reward.emoji} size={24}/>
                   <div style={{flex:1}}>
-                    <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
-                    <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point} {TM.coinEmoji} {TM.coin} 필요</p>
+                    <p style={{fontSize:FS.title,fontWeight:FW.bold,margin:0,color:C.text}}>{reward.title}</p>
+                    <p style={{fontSize:FS.body,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>{reward.point} {TM.coinEmoji} {TM.coin} 필요</p>
                   </div>
                   {canEdit&&(
                   <div style={{display:"flex",flexDirection:"column",gap:5}}>
                     <button onClick={()=>openEditReward(reward)}
-                      style={{border:`1px solid ${th.main}30`,background:th.light,color:th.main,borderRadius:10,padding:"5px 9px",fontSize:13,fontWeight:800,cursor:"pointer"}}>
+                      style={{border:`1px solid ${th.main}30`,background:th.light,color:th.main,borderRadius:RAD.sm,padding:"5px 9px",fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
                       수정
                     </button>
                     <button onClick={()=>deleteReward(reward.id)}
-                      style={{border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:10,padding:"5px 9px",fontSize:13,fontWeight:800,cursor:"pointer"}}>
+                      style={{border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:RAD.sm,padding:"5px 9px",fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
                       삭제
                     </button>
                   </div>
