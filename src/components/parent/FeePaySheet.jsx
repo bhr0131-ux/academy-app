@@ -21,7 +21,7 @@
    [사용자 확정 2026-08-17] '학원비 수정'(월 학원비·납부일)과 '납부 기록'이 각각
    다른 시트로 떠 같은 학원비를 두 군데서 만지게 됐다 → 이 시트 하나로 합친다.
      showFee=true     월 학원비 · 납부일 칸을 위에 둔다 (⋮ > 학원비 수정)
-     showRecord=true  낸 날·금액·방법·메모 칸을 둔다 (미납 카드의 '납부 완료로 저장',
+     showRecord=true  낸 날·금액·방법·메모 칸을 둔다 (미납 카드의 '납부 처리',
                       그리고 이미 낸 학원을 ⋮ 로 열었을 때)
    onSave 는 둘을 한 번에 넘긴다 — 받는 쪽(App)이 필요한 것만 쓴다.
    ════════════════════════════════════════════════════════════════════════ */
@@ -153,7 +153,7 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
           className="jelly-tap"
           style={{ width: "100%", padding: 14, borderRadius: 14, border: "none", background: tone.grad,
             color: "#fff", fontSize: 16, fontWeight: 900, cursor: "pointer", fontFamily: F }}>
-          {!showRecord || editing ? "저장하기" : "납부 완료로 저장"}
+          {!showRecord || editing ? "저장하기" : "납부 처리"}
         </button>
 
         {/* 되돌리기는 잘못 눌렀을 때만 쓴다.
