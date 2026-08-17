@@ -284,7 +284,8 @@ export default function RegisteredAcademyList({
                       {(ac.account || "").trim() && <Row icon="bank" label="입금 계좌" value={ac.account}
                         action={onCopyAccount && <RowAct label="복사" color={ac.color} onPress={() => onCopyAccount(ac.account)} />} />}
                       {ac.teacher && <Row icon="teacher" label="선생님" value={ac.teacher} />}
-                      {ac.address && <Row icon="pin" label="주소" value={ac.address}
+                      {/* [사용자 확정 2026-08-17] 주소도 연락처와 같은 톤으로 — 둘 다 soft */}
+                      {ac.address && <Row icon="pin" label="주소" value={ac.address} soft
                         action={onOpenMap && <RowAct label="지도" color={ac.color} onPress={() => onOpenMap(ac.address)} />} />}
                       {ac.phone && <Row icon="phone" label="연락처" value={ac.phone} soft />}
                     </>)}
