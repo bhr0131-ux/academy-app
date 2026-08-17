@@ -2505,7 +2505,11 @@ export default function App() {
   };
   const openAddChild=()=>{
     setEditingChild(null);
-    setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0],rewardAge:"kid"});
+    /* [사용자 확정 2026-08-17] 연령대 기본값은 처음 등록한 아이의 것으로 —
+       형제는 나이가 비슷한 경우가 많아, 매번 'kid' 부터 다시 고르는 건 헛품이다.
+       아이가 아직 없으면(첫 아이) 예전처럼 'kid'. */
+    const firstAge=children.length?getChildRewardAge(children[0].id):"kid";
+    setChildForm({name:"",gender:"boy",theme:CHILD_THEME_COLORS[0],rewardAge:firstAge});
     setShowChildMgr(true);
   };
 
@@ -7109,7 +7113,7 @@ export default function App() {
                   <p style={{...hintSpan,display:"block",margin:"7px 0 20px",lineHeight:1.5}}>
                     {cur==="custom"
                       ? "빈 목록으로 시작해요. 보상 탭에서 직접 채우면 돼요."
-                      : `${(REWARD_SETS_BY_AGE[cur]||REWARD_SETS_BY_AGE.kid).rewards.length}개 보상으로 시작해요. 이 아이 것만 만들어져요.`}
+                      : `${(REWARD_SETS_BY_AGE[cur]||REWARD_SETS_BY_AGE.kid).rewards.length}개 보상으로 시작해요.`}
                   </p>
                 </>);
               })()}
