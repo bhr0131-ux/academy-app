@@ -183,6 +183,17 @@ export const getShuttleText = (academy, day) => {
   return academy.shuttleInfo||"";
 };
 
+/* [사용자 확정 2026-08-17] 셔틀 기본 정보는 '장소·시간' 두 칸으로 나눠 입력받는다.
+   다만 저장은 예전처럼 shuttleInfo 한 줄 문자열 그대로다 — 이미 쓰고 있는 데이터를
+   그대로 읽고 쓰기 위해서다(CLAUDE.md 8). 화면에서만 나누고, 저장할 때 다시 합친다.
+   시각으로 안 읽히는 옛 자유 문구("월수금 하원 차량 …")는 통째로 장소 칸에 들어가
+   글자 하나 잃지 않고 그대로 되돌아간다. */
+export const parseShuttle = (s = "") => {
+  const m = String(s).match(/^\s*(\d{1,2}:\d{2})\s*(.*)$/);
+  return m ? { time: m[1], place: m[2].trim() } : { time: "", place: String(s).trim() };
+};
+export const joinShuttle = (time, place) => [time, place].filter(Boolean).join(" ").trim();
+
 // ── 수업 시작까지 남은시간 계산 ─────────────────
 // "16:00" 형식 → 현재 시각 기준. 시작 전이면 '남음', 진행 중이면 '수업 중', 끝났으면 '종료'.
 export const getRemainInfo = (timeStr) => {
