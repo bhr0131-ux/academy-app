@@ -325,6 +325,9 @@ export default function App() {
      평소엔 고른 그림 한 칸만 보이고, 눌러야 아래로 펼쳐진다.
      팝업을 열 때마다 접힌 채로 시작한다 (추가·수정 어느 쪽으로 들어와도). */
   const [rewardEmojiOpen,setRewardEmojiOpen]= useState(false);
+  /* [사용자 확정 2026-08-17] 아이 추가의 '보상 연령대' 다섯 칸도 늘 펼쳐 두니 화면을
+     많이 먹었다 → 보상 그림과 같은 방식으로, 고른 것 한 줄만 보이고 눌러야 펼쳐진다. */
+  const [childAgeOpen,setChildAgeOpen]= useState(false);
   const [openRewardId,   setOpenRewardId]   = useState(initReward.openRewardId);
   const [openRewardShop, setOpenRewardShop] = useState(initReward.openRewardShop);
   const [xpAdjustInput,  setXpAdjustInput]  = useState(initReward.xpAdjustInput);
@@ -459,6 +462,8 @@ export default function App() {
   useEffect(()=>{ if(appMode!=="child") setChildPickOpen(false); },[appMode]);
   // 보상 팝업을 열 때마다 그림 고르기는 접힌 채로 (추가·수정 어느 쪽이든)
   useEffect(()=>{ if(showRewardModal) setRewardEmojiOpen(false); },[showRewardModal]);
+  // 아이 팝업도 마찬가지 — 열 때마다 연령대 고르기는 접힌 채로
+  useEffect(()=>{ if(showChildMgr) setChildAgeOpen(false); },[showChildMgr]);
   const [openTreasure,           setOpenTreasure]           = useState(initUi.openTreasure);
   const [openPet,                setOpenPet]                = useState(initUi.openPet);
   const [openHistory,            setOpenHistory]            = useState(initUi.openHistory);
@@ -7068,26 +7073,46 @@ export default function App() {
                 (나중에 바꾸려면 더보기 > 기타 > 보상 연령대) */}
             {!editingChild&&(<>
               <label style={lbl}>보상 연령대 *</label>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:8}}>
-                {[...Object.entries(REWARD_SETS_BY_AGE).map(([k,v])=>({k,label:v.label,emoji:v.emoji})),
-                  {k:"custom",label:"나만의 목록",emoji:"✏️"}].map(o=>{
-                  const on=(childForm.rewardAge||"kid")===o.k;
-                  return (
-                    <button key={o.k} onClick={()=>setChildForm(p=>({...p,rewardAge:o.k}))}
-                      style={{padding:"11px 10px",borderRadius:RAD.md,cursor:"pointer",fontFamily:"inherit",
-                        border:`2px solid ${on?th.main:C.border}`,background:on?`${th.main}12`:CT.faint,
-                        color:on?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:on?FW.bold:FW.normal,
-                        display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
-                      <EmojiIcon emoji={o.emoji} size={16}/>{o.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <p style={{...hintSpan,display:"block",margin:"0 0 20px",lineHeight:1.5}}>
-                {childForm.rewardAge==="custom"
-                  ? "빈 목록으로 시작해요. 보상 탭에서 직접 채우면 돼요."
-                  : `${(REWARD_SETS_BY_AGE[childForm.rewardAge||"kid"]||REWARD_SETS_BY_AGE.kid).rewards.length}개 보상으로 시작해요. 이 아이 것만 만들어져요.`}
-              </p>
+              {(()=>{
+                const OPTS=[...Object.entries(REWARD_SETS_BY_AGE).map(([k,v])=>({k,label:v.label,emoji:v.emoji})),
+                  {k:"custom",label:"나만의 목록",emoji:"✏️"}];
+                const cur=childForm.rewardAge||"kid";
+                const curOpt=OPTS.find(o=>o.k===cur)||OPTS[0];
+                return (<>
+                  {/* 접힌 줄 — 고른 것 하나만. 다른 입력칸(inp)과 같은 높이·색이라 한 벌로 읽힌다 */}
+                  <button type="button" onClick={()=>setChildAgeOpen(v=>!v)} aria-expanded={childAgeOpen}
+                    style={{...inp,marginBottom:0,height:44,boxSizing:"border-box",padding:"0 12px",cursor:"pointer",
+                      display:"flex",alignItems:"center",gap:8}}>
+                    <EmojiIcon emoji={curOpt.emoji} size={20}/>
+                    <span style={{flex:1,textAlign:"left",fontSize:FS.cardTitle,fontWeight:FW.normal,color:C.text}}>{curOpt.label}</span>
+                    <span aria-hidden style={{fontSize:12,color:C.sub,fontWeight:FW.bold,
+                      transition:"transform .2s",transform:childAgeOpen?"rotate(180deg)":"none"}}>⌄</span>
+                  </button>
+                  {childAgeOpen&&(
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginTop:8}}>
+                    {OPTS.map(o=>{
+                      const on=cur===o.k;
+                      return (
+                        /* 고르면 바로 접는다 — 고르기가 끝났는데 칸이 남아 있을 이유가 없다 */
+                        <button key={o.k} type="button"
+                          onClick={()=>{ setChildForm(p=>({...p,rewardAge:o.k})); setChildAgeOpen(false); }}
+                          style={{padding:"11px 10px",borderRadius:RAD.md,cursor:"pointer",fontFamily:"inherit",
+                            border:`2px solid ${on?th.main:C.border}`,background:on?`${th.main}12`:CT.faint,
+                            color:on?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:on?FW.bold:FW.normal,
+                            display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                          <EmojiIcon emoji={o.emoji} size={16}/>{o.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  )}
+                  <p style={{...hintSpan,display:"block",margin:"7px 0 20px",lineHeight:1.5}}>
+                    {cur==="custom"
+                      ? "빈 목록으로 시작해요. 보상 탭에서 직접 채우면 돼요."
+                      : `${(REWARD_SETS_BY_AGE[cur]||REWARD_SETS_BY_AGE.kid).rewards.length}개 보상으로 시작해요. 이 아이 것만 만들어져요.`}
+                  </p>
+                </>);
+              })()}
             </>)}
 
             {/* 색상 미리보기 */}
