@@ -76,12 +76,15 @@ export default function ParentHomeTab({
   // [사용자 확정 2026-08-07] 숙제와 미션을 나누지 않고 '미완료 미션' 하나로 센다.
   const homeQuestItems=getQuestItemsForDate(childId,homeDate);
   const homePendingQuest=homeQuestItems.filter(it=>!it.done&&!it.failed).length;
-  /* [버그 수정 2026-08-17] 준비물은 '학원마다 한 번'만 센다 (사용자 점검).
-     homeAc 는 같은 학원을 두 장 담을 수 있어서(정규 수업 + 그날 보충), 그대로 훑으면
-     그 학원 준비물이 두 번 더해졌다 — 칩은 '준비물 4개'인데 눌러서 연 확인 팝업은
-     3개였다(팝업은 학원 목록을 중복 없이 훑는다). 준비물은 그날 챙기는 가방 하나라
-     수업을 두 번 가더라도 개수는 하나다. */
-  const homeSupplyCount=[...new Map(homeAc.map(ac=>[String(ac.id),ac])).values()]
+  /* [사용자 확정 2026-08-17] 준비물은 '그날 실제로 가는 학원'의 것만 센다.
+       · 결석한 학원 → 안 가니까 준비물도 없다
+       · 보충으로 가는 학원 → 가니까 항상 챙길 준비물은 그대로 챙긴다
+     [버그 수정 2026-08-17] 같은 학원이 정규 수업과 보충으로 두 장일 수 있는데,
+     그대로 훑으면 그 학원 준비물이 두 번 더해졌다 — 칩은 '준비물 4개'인데 눌러서 연
+     확인 팝업은 3개였다. 그날 메고 가는 가방은 하나라 학원마다 한 번만 센다. */
+  const homeSupplyAc=[...homeAc.filter(ac=>!ac._absent)
+    .reduce((m,ac)=>m.set(String(ac.id),ac),new Map()).values()];
+  const homeSupplyCount=homeSupplyAc
     .reduce((n,ac)=>{
       const entry=getDailyEntry(childId,ac.id,homeDate);
       const hidden=entry.hiddenBase||[];
@@ -361,11 +364,15 @@ export default function ParentHomeTab({
           : ac._makeup ? (String(ac._label).includes(":") ? `${ac._label}–${endT}` : ac._label)
           : `${ac._time}–${endT}`;
         const entry=getDailyEntry(childId,ac.id,homeDate);
-        const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
+        const hw=entry.homeworks||[], todos=entry.todos||[];
+        /* [사용자 확정 2026-08-17] 결석한 날은 그 학원에 안 가므로 준비물도 없다 —
+           카드에도 '없음'으로 나온다. 미션은 집에서 할 수 있으니 그대로 둔다.
+           보충 카드는 반대로 늘 챙길 준비물이 그대로 붙는다(_absent 가 false 라 그대로). */
+        const sup=ac._absent?[]:(entry.supplies||[]);
         const totalTodoCnt=hw.length+todos.length;
         const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
         const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
-        const baseSup=(ac.baseSupplies||[]).filter(x=>!(entry.hiddenBase||[]).includes(x));
+        const baseSup=ac._absent?[]:(ac.baseSupplies||[]).filter(x=>!(entry.hiddenBase||[]).includes(x));
         /* 미션은 제목을 칩 하나로 보여 준다 — '등록된 미션 없음' 같은 문장보다 짧고 바로 읽힌다.
            아직 안 한 것을 먼저 보여 주고 나머지는 '+N'. 여러 개를 다 칩으로 깔면
            칸이 좁아 줄줄이 접혀서 오히려 길어진다. 자세한 목록·점수는 미션 탭과 ✎ 수정에서 본다. */
