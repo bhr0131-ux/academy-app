@@ -38,6 +38,11 @@ import { ADV_SIT_IMG } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 import { Mark, MarkText } from "./CalendarMarks.jsx";
 
+/* [사용자 확정 2026-08-17] 달력 아래 하루 상세는 홈의 학원 카드와 같은 것을 보여 주는
+   자리인데 글자 크기·굵기·칩 규격이 제각각이었다 → 홈 카드 값에 맞춘다.
+   보조 글자색도 홈과 같은 한 단계 진한 청회색을 쓴다 (C.sub 는 카드 위에서 흐렸다). */
+const SUBD="#5F678C";
+
 export default function CalendarTab({
   th, CT, childId, childGender, curAc = [], curAbs = [],
   calDate, setCalDate, calDays = [], calSelDate, setCalSelDate,
@@ -332,11 +337,11 @@ export default function CalendarTab({
                   const paid=isFeePaidOn&&isFeePaidOn(a.id,selInfo.m+1);
                   return (
                     <div key={a.id} style={{display:"flex",alignItems:"center",gap:8,marginTop:3}}>
-                      <span style={{flex:1,minWidth:0,fontSize:13,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                      <span style={{flex:1,minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                         {a.name}
-                        <span style={{fontSize:12,fontWeight:700,color:C.sub,marginLeft:6}}>{Number(a.fee).toLocaleString()}원</span>
+                        <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,marginLeft:6}}>{Number(a.fee).toLocaleString()}원</span>
                       </span>
-                      <span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"3px 9px",borderRadius:9,
+                      <span style={{flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",borderRadius:RAD.sm,
                         background:paid?`${C.green}12`:`${C.orange}12`,color:paid?C.green:C.orange}}>
                         {paid?"납부 완료":"미납"}
                       </span>
@@ -354,10 +359,10 @@ export default function CalendarTab({
                 <div style={{background:"#FFF8E1",border:"1px solid #F0A50055",borderRadius:12,padding:"9px 11px",marginBottom:9}}>
                   <div style={{display:"flex",alignItems:"center",gap:7,color:"#E65100",marginBottom:4}}>
                     <CareIcon name="vacation" size={14}/>
-                    <span style={{fontSize:12.5,fontWeight:900}}>휴원 (방학)</span>
+                    <span style={{fontSize:FS.sub,fontWeight:FW.bold}}>휴원 (방학)</span>
                   </div>
                   {vacOnDay.map(ac=>(
-                    <p key={ac.id} style={{margin:"2px 0 0",fontSize:13,fontWeight:700,color:C.text}}>{ac.name} 휴원</p>
+                    <p key={ac.id} style={{margin:"2px 0 0",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text}}>{ac.name} 휴원</p>
                   ))}
                 </div>
               );
@@ -367,17 +372,17 @@ export default function CalendarTab({
             {selInfo.absOnDay.length>0&&(
               <div style={{background:`${C.red}08`,border:`1px solid ${C.red}25`,borderRadius:12,padding:"9px 11px",marginBottom:9}}>
                 <div style={{display:"flex",alignItems:"center",gap:7,color:C.red,marginBottom:4}}>
-                  <CareIcon name="absent" size={14}/><span style={{fontSize:12.5,fontWeight:900}}>결석</span>
+                  <CareIcon name="absent" size={14}/><span style={{fontSize:FS.sub,fontWeight:FW.bold}}>결석</span>
                 </div>
                 {selInfo.absOnDay.map(ab=>{
                   const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
                   return (
                     <div key={ab.id} style={{display:"flex",alignItems:"center",gap:8,marginTop:3}}>
-                      <span style={{flex:1,minWidth:0,fontSize:13,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                        {ac.name}{ab.reason&&<span style={{fontSize:12,fontWeight:600,color:C.sub}}> · {ab.reason}</span>}
+                      <span style={{flex:1,minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                        {ac.name}{ab.reason&&<span style={{fontSize:FS.sub,fontWeight:FW.normal,color:SUBD}}> · {ab.reason}</span>}
                       </span>
                       {ac.phone&&<button onClick={()=>onSms(ac)} className="jelly-tap"
-                        style={{flexShrink:0,fontSize:11.5,padding:"4px 10px",borderRadius:9,border:`1px solid ${C.purple}30`,background:C.purpleL,color:C.purple,cursor:"pointer",fontWeight:800,fontFamily:"inherit"}}>문자</button>}
+                        style={{flexShrink:0,fontSize:FS.tag,padding:"4px 10px",borderRadius:RAD.sm,border:`1px solid ${C.purple}30`,background:C.purpleL,color:C.purple,cursor:"pointer",fontWeight:FW.semi,fontFamily:"inherit"}}>문자</button>}
                     </div>
                   );
                 })}
@@ -395,18 +400,18 @@ export default function CalendarTab({
                     <div key={ab.id} style={{marginTop:i?7:0,paddingTop:i?7:0,borderTop:i?`1px solid ${C.orange}1F`:"none"}}>
                       <div style={{display:"flex",alignItems:"center",gap:7,color:C.orange}}>
                         <CareIcon name="makeup" size={14}/>
-                        <span style={{fontSize:12.5,fontWeight:900}}>보충수업</span>
-                        <span style={{fontSize:11.5,fontWeight:700,opacity:0.85}}>· {ab.makeupStatus==="absent"?"불참":ab.makeupDone?"완료":"미완료"}</span>
+                        <span style={{fontSize:FS.sub,fontWeight:FW.bold}}>보충수업</span>
+                        <span style={{fontSize:FS.tag,fontWeight:FW.normal,opacity:0.85}}>· {ab.makeupStatus==="absent"?"불참":ab.makeupDone?"완료":"미완료"}</span>
                         <button onClick={()=>toggleMakeup(ab.id)} className="jelly-tap"
-                          style={{marginLeft:"auto",flexShrink:0,fontSize:11.5,padding:"4px 10px",borderRadius:9,border:"none",background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:C.sub,cursor:"pointer",fontWeight:800,fontFamily:"inherit"}}>
+                          style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,padding:"4px 10px",borderRadius:RAD.sm,border:"none",background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:SUBD,cursor:"pointer",fontWeight:FW.semi,fontFamily:"inherit"}}>
                           {ab.makeupStatus==="absent"?"✕ 불참":ab.makeupDone?"✓ 완료":"완료로"}
                         </button>
                       </div>
-                      <p style={{margin:"3px 0 0",fontSize:13.5,fontWeight:800,color:C.text}}>
+                      <p style={{margin:"3px 0 0",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text}}>
                         {ac.name}
                         {makeupTimeText(ab)&&<span style={{fontWeight:800,color:C.orange,marginLeft:7}}>{makeupTimeText(ab)}</span>}
                       </p>
-                      <p style={{margin:"1px 0 0",fontSize:11.5,fontWeight:600,color:C.sub}}>
+                      <p style={{margin:"1px 0 0",fontSize:FS.sub,fontWeight:FW.normal,color:SUBD}}>
                         결석일 {korDate(ab.date)} {dnOf(ab.date)}요일
                       </p>
                     </div>
@@ -420,7 +425,7 @@ export default function CalendarTab({
               <div style={{textAlign:"center",padding:"6px 0 10px",color:C.sub}}>
                 <img src={ADV_SIT_IMG[childGender]||ADV_SIT_IMG.boy} alt="" draggable={false}
                   style={{display:"block",height:78,width:"auto",maxWidth:"none",margin:"0 auto"}}/>
-                <p style={{fontSize:13.5,fontWeight:700,margin:"6px 0 0"}}>학원이 없는 날이에요</p>
+                <p style={{fontSize:FS.body,fontWeight:FW.normal,margin:"6px 0 0"}}>학원이 없는 날이에요</p>
               </div>
             )}
 
@@ -444,22 +449,22 @@ export default function CalendarTab({
                   <div style={{width:4,background:ac.color,flexShrink:0}}/>
                   <div style={{flex:1,minWidth:0,background:"#fff"}}>
                     <div style={{background:`${ac.color}10`,padding:"9px 12px",display:"flex",alignItems:"center",gap:9}}>
-                      <p style={{fontSize:14,fontWeight:800,margin:0,flex:1,minWidth:0,color:C.text,
+                      <p style={{fontSize:FS.cardTitle,fontWeight:FW.bold,margin:0,flex:1,minWidth:0,color:C.text,
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
                       {/* 0/1만 두면 무슨 숫자인지 알 수 없다 → '미션' 을 붙인다 (사용자 지적) */}
                       {totalTodoCnt>0&&(
-                        <span style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:3,fontSize:10.5,fontWeight:800,
-                          color:allDone?C.green:C.orange,background:allDone?`${C.green}12`:`${C.orange}12`,borderRadius:8,padding:"2px 8px"}}>
+                        <span style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:3,fontSize:FS.tag,fontWeight:FW.semi,
+                          color:allDone?C.green:C.orange,background:allDone?`${C.green}12`:`${C.orange}12`,borderRadius:RAD.sm,padding:"3px 8px"}}>
                           <CareIcon name="mission" size={11}/>미션 {doneCnt}/{totalTodoCnt}
                         </span>
                       )}
                     </div>
                     <div style={{padding:"8px 12px 10px"}}>
-                      <p style={{margin:0,fontSize:13.5,fontWeight:800,color:C.text}}>
-                        {sc?.time}–{endT}<span style={{fontSize:11.5,fontWeight:600,color:C.sub,marginLeft:6}}>· {sc?.duration}분</span>
+                      <p style={{margin:0,fontSize:FS.cardTitle,fontWeight:FW.normal,color:C.text}}>
+                        {sc?.time}–{endT}<span style={{fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,marginLeft:6}}>· {sc?.duration}분</span>
                       </p>
                       {shuttleText&&(
-                        <p style={{margin:"4px 0 0",display:"flex",alignItems:"flex-start",gap:6,fontSize:11.5,fontWeight:600,color:C.sub,lineHeight:1.35}}>
+                        <p style={{margin:"4px 0 0",display:"flex",alignItems:"flex-start",gap:6,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,lineHeight:1.35}}>
                           <span style={{marginTop:1}}><CareIcon name="shuttle" size={13}/></span>
                           <span style={{minWidth:0,whiteSpace:"pre-wrap"}}>{shuttleText}</span>
                         </p>
@@ -467,10 +472,10 @@ export default function CalendarTab({
                       <div style={{margin:"5px 0 0",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                         <span style={{color:C.sub,display:"flex"}}><CareIcon name="bag" size={13}/></span>
                         {baseSup.length===0&&sup.length===0
-                          ? <span style={{fontSize:11.5,fontWeight:600,color:C.sub,opacity:0.7}}>준비물 없음</span>
+                          ? <span style={{fontSize:FS.sub,fontWeight:FW.normal,padding:"3px 9px",borderRadius:RAD.lg,background:CT.faint,color:SUBD}}>없음</span>
                           : (<>
-                              {baseSup.map((s,i)=><span key={`b${i}`} style={{fontSize:11.5,padding:"2px 9px",borderRadius:20,background:`${ac.color}16`,color:ac.color,fontWeight:700}}>{s}</span>)}
-                              {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:11.5,padding:"2px 9px",borderRadius:20,background:`${C.orange}14`,color:C.orange,fontWeight:700}}>+{s}</span>)}
+                              {baseSup.map((s,i)=><span key={`b${i}`} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.lg,background:`${ac.color}16`,color:ac.color,fontWeight:FW.normal}}>{s}</span>)}
+                              {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.lg,background:`${C.orange}14`,color:C.orange,fontWeight:FW.normal}}>+{s}</span>)}
                             </>)}
                       </div>
                     </div>
