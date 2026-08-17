@@ -6539,8 +6539,16 @@ export default function App() {
       {showSupplyCheck&&(()=>{
         const date=showSupplyCheck;
         const dn=["일","월","화","수","목","금","토"][new Date(date.replace(/-/g,"/")).getDay()];
-        const acList=curAc.filter(a=>hasClassOnDay(a,dn)&&!isVacationDay(childId,a.id,date))
-                          .sort((a,b)=>getClassTime(a,dn).localeCompare(getClassTime(b,dn)));
+        /* [사용자 확정 2026-08-17] 홈의 '준비물 N개'와 같은 목록을 본다 — 예전에는
+           여기만 그날 정규 수업(hasClassOnDay)을 훑어서, 결석한 학원이 그대로 남고
+           보충으로 가는 학원은 빠졌다. getDayPlan 은 홈·아이용 지도가 이미 쓰는
+           '그날 실제 일정'이라 세 화면이 같은 것을 본다. 시간순 정렬도 그 안에서 끝난다.
+             · 결석  → 안 가니까 뺀다
+             · 보충  → 가니까 넣는다 (항상 챙길 준비물이 그대로 붙어 있다)
+             · 같은 학원이 정규+보충으로 두 번이면 가방은 하나라 한 번만 */
+        const acList=[...getDayPlan(curAc,curAbsLive,date,dn,(acId)=>isVacationDay(childId,acId,date))
+          .filter(a=>!a._absent)
+          .reduce((m,a)=>m.set(String(a.id),a),new Map()).values()];
         const groups=acList.map(ac=>{
           const entry=getDailyEntry(childId,ac.id,date);
           const hidden=entry.hiddenBase||[], checked=entry.checkedSupplies||[];
