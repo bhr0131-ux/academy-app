@@ -32,7 +32,7 @@ import { C, FS, FW, RAD, mixWhite, SHADOW } from "../../data/tokens.js";
    달력에서만 쓰는 순서를 여기에 따로 둔다. */
 const CAL_DAYS = ["일","월","화","수","목","금","토"];
 import { TODAY, getDN, toStr, addDays, parseLocal } from "../../utils/dates.js";
-import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText } from "../../data/sampleData.js";
+import { hasClassOnDay, getShuttleText, makeupTimeText, getDayPlan } from "../../data/sampleData.js";
 import { getHolidayName } from "../../data/characters.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
@@ -69,12 +69,23 @@ export default function CalendarTab({
     const holiday=getHolidayName(effSelDate);
     return {y,m,day,dn,acList,mk,absOnDay,makeupOnDay,holiday};
   })();
+  /* [사용자 확정 2026-08-17] 아래 학원 카드와 준비물 개수는 홈·아이용 지도와 같은
+     목록(getDayPlan)을 본다. 그전에는 여기만 '그날 정규 수업'으로 목록을 따로 만들어서,
+     결석한 학원이 준비물을 든 채 남고 보충으로만 가는 학원은 아예 안 보였다.
+     결석·보충 요약 줄(위)은 그대로 둔다 — 사유·결석일은 거기서만 볼 수 있다. */
+  const dayPlan=getDayPlan(curAc,curAbs,effSelDate,selInfo.dn,
+    (acId)=>isVacationDay(childId,acId,effSelDate));
   /* 고른 날 한 줄 요약 — 상세 카드를 보기 전에 하루 상황을 먼저 알려 준다 */
   const liveAc=selInfo.acList.filter(a=>!isVacationDay(childId,a.id,effSelDate));
-  const supCnt=liveAc.reduce((n,a)=>{
-    const e=getDailyEntry(childId,a.id,effSelDate);
-    return n+(a.baseSupplies||[]).filter(s=>!(e.hiddenBase||[]).includes(s)).length+(e.supplies||[]).length;
-  },0);
+  /* 준비물은 '그날 실제로 가는 학원'의 것만 (사용자 확정 2026-08-17).
+       · 결석 → 안 가니까 없다   · 보충 → 가니까 항상 챙길 준비물은 그대로
+     같은 학원이 정규+보충으로 두 장이어도 가방은 하나라 한 번만 센다. */
+  const supCnt=[...dayPlan.filter(a=>!a._absent)
+    .reduce((m,a)=>m.set(String(a.id),a),new Map()).values()]
+    .reduce((n,a)=>{
+      const e=getDailyEntry(childId,a.id,effSelDate);
+      return n+(a.baseSupplies||[]).filter(s=>!(e.hiddenBase||[]).includes(s)).length+(e.supplies||[]).length;
+    },0);
   const sumParts=[];
   if(liveAc.length) sumParts.push(`학원 ${liveAc.length}개`);
   if(supCnt) sumParts.push(`준비물 ${supCnt}개`);
@@ -432,20 +443,27 @@ export default function CalendarTab({
             {/* 학원 카드 — 홈 화면과 같은 규칙(왼쪽 세로선 + 아주 연한 머리 + 흰 본문).
                 준비물이 한두 개뿐인데 따로 제목 줄을 두면 카드가 두 배로 길어져서,
                 가방 아이콘 옆에 한 줄로 붙인다 (사용자 확정). */}
-            {selInfo.acList.filter(ac=>!isVacationDay(childId,ac.id,effSelDate)).map(ac=>{
+            {dayPlan.map(ac=>{
               const entry=getDailyEntry(childId,ac.id,effSelDate);
-              const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
-              const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
+              const hw=entry.homeworks||[], todos=entry.todos||[];
+              /* 결석한 날은 그 학원에 안 가므로 준비물도 없다 (사용자 확정 2026-08-17).
+                 미션은 집에서 할 수 있으니 그대로 둔다 — 홈 카드와 같은 규칙이다. */
+              const sup=ac._absent?[]:(entry.supplies||[]);
+              const baseSup=ac._absent?[]:(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
               const totalTodoCnt=hw.length+todos.length;
               const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
               const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
-              const sc=getScheduleForDay(ac,selInfo.dn);
-              const [h,m]=(sc?.time||"00:00").split(":").map(Number);
-              const tm=h*60+m+Number(sc?.duration||0);
+              const [h,m]=(ac._time||"00:00").split(":").map(Number);
+              const tm=h*60+m+Number(ac._duration||0);
               const endT=`${String(Math.floor(tm/60)%24).padStart(2,"0")}:${String(tm%60).padStart(2,"0")}`;
+              /* 시간 자리 — 홈 카드와 같은 말을 쓴다: 결석이면 '결석',
+                 보충이면 '보충 18:00–18:40'(시간이 없으면 '보충'), 보통은 시간 범위. */
+              const timeText = ac._absent ? "결석"
+                : ac._makeup ? (String(ac._label).includes(":") ? `${ac._label}–${endT}` : ac._label)
+                : `${ac._time}–${endT}`;
               const shuttleText=getShuttleText(ac,selInfo.dn);
               return (
-                <div key={ac.id} style={{marginBottom:9,borderRadius:13,border:`1px solid ${ac.color}44`,overflow:"hidden",boxShadow:"0 2px 8px rgba(90,70,60,0.06)",display:"flex"}}>
+                <div key={ac._key||ac.id} style={{marginBottom:9,borderRadius:13,border:`1px solid ${ac.color}44`,overflow:"hidden",boxShadow:"0 2px 8px rgba(90,70,60,0.06)",display:"flex"}}>
                   <div style={{width:4,background:ac.color,flexShrink:0}}/>
                   <div style={{flex:1,minWidth:0,background:"#fff"}}>
                     <div style={{background:`${ac.color}10`,padding:"9px 12px",display:"flex",alignItems:"center",gap:9}}>
@@ -460,8 +478,10 @@ export default function CalendarTab({
                       )}
                     </div>
                     <div style={{padding:"8px 12px 10px"}}>
-                      <p style={{margin:0,fontSize:FS.cardTitle,fontWeight:FW.normal,color:C.text}}>
-                        {sc?.time}–{endT}<span style={{fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,marginLeft:6}}>· {sc?.duration}분</span>
+                      <p style={{margin:0,fontSize:FS.cardTitle,fontWeight:FW.normal,
+                        color:ac._absent?C.red:ac._makeup?C.orange:C.text}}>
+                        {timeText}
+                        {!ac._absent&&<span style={{fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,marginLeft:6}}>· {ac._duration}분</span>}
                       </p>
                       {shuttleText&&(
                         <p style={{margin:"4px 0 0",display:"flex",alignItems:"flex-start",gap:6,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,lineHeight:1.35}}>
