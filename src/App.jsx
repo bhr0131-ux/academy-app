@@ -203,7 +203,7 @@ function TimeField({ value, onChange, hint, hintLeft = 11, style, boxStyle }) {
   const showHint = !value && !focused;
   return (
     <div style={{ position: "relative", display: "flex", minWidth: 0, ...boxStyle }}>
-      <input type="time" value={value || ""} onChange={onChange}
+      <input type="time" value={value || ""} onChange={onChange} className={showHint ? "time-empty" : undefined}
         onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
         style={{ ...style, width: "100%", color: showHint ? "transparent" : undefined }} />
       {showHint && (
@@ -7339,7 +7339,7 @@ export default function App() {
                     → 시각 칸을 화살표까지 들어가는 너비로 고정하고, 남는 자리는 장소가 가져간다. */}
                 <TimeField value={parseShuttle(newAc.shuttleInfo||"").time}
                   onChange={e=>setBaseShuttle({time:e.target.value})}
-                  hint="시간 (예: 15:00)" hintLeft={11} boxStyle={{flex:"0 0 168px"}}
+                  hint="시간 (예: 15:00)" hintLeft={11} boxStyle={{flex:"0 0 136px"}}
                   style={{...inp,fontSize:FS.title,padding:"10px 10px",marginBottom:0,height:42,boxSizing:"border-box"}}/>
               </div>
 
