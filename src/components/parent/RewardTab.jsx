@@ -1,4 +1,4 @@
-import { C } from "../../data/tokens.js";
+import { C, FS, FW, RAD, mixBlack } from "../../data/tokens.js";
 import { REWARD_SETS_BY_AGE } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 import RewardApprovals from "./RewardApprovals.jsx";
@@ -48,24 +48,6 @@ export default function RewardTab({ D }) {
         const canEdit=!parentLocked();
         return (
           <div style={{marginTop:14}}>
-            {canEdit?(
-            <button onClick={()=>{ setEditingRewardId(null); setRewardForm({title:"",point:300,emoji:"🎁",grade:"common"}); setShowRewardModal(true); }}
-              style={{width:"100%",border:"none",background:th.grad,color:"#fff",borderRadius:10,padding:"10px 12px",fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:10}}>
-              + 보상 추가
-            </button>
-            ):(
-            /* [사용자 확정 2026-08-16] 미션 탭의 잠금 버튼과 같이 두 줄로 —
-               아랫줄에 무엇이 일어나는지(비밀번호를 묻는다) 적어 둔다. */
-            <button onClick={unlockRewardManage} className="jelly-tap"
-              style={{width:"100%",border:`1px solid ${th.main}33`,background:`${th.main}0E`,borderRadius:10,padding:"10px 12px",cursor:"pointer",marginBottom:10,fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
-              <span style={{display:"inline-flex",alignItems:"center",gap:6,color:th.main,fontSize:12.5,fontWeight:900}}>
-                <CareIcon name="lock" size={14}/> 보상 추가·수정·삭제
-              </span>
-              <span style={{fontSize:11.5,fontWeight:700,color:C.sub}}>
-                비밀번호를 한 번 물어봐요
-              </span>
-            </button>
-            )}
             {/* [2026-08-16] 바깥 흰 카드를 벗기면서 줄 배경도 뒤집었다 —
                 옅은 회색(CT.faint)은 흰 카드 위에 있을 때만 구분됐고, 배경 위로 나오니
                 바탕과 거의 같은 색이 됐다(대비 1.04). 미션 카드와 같은 규칙으로 흰 줄. */}
@@ -92,6 +74,24 @@ export default function RewardTab({ D }) {
                 </div>
               ))}
             </div>
+            {/* [사용자 확정 2026-08-17] 이 버튼이 목록 위에 있어 보상을 보려면 늘 지나쳐야 했다 →
+                목록 아래로 내린다. 미션 탭의 잠금 칸과 같은 자리(맨 아래)·같은 모양이다.
+                잠겼을 때와 열렸을 때 자리가 같아 비밀번호를 넣어도 화면이 안 흔들린다. */}
+            {canEdit?(
+            <button onClick={()=>{ setEditingRewardId(null); setRewardForm({title:"",point:300,emoji:"🎁",grade:"common"}); setShowRewardModal(true); }}
+              style={{width:"100%",border:"none",background:th.grad,color:"#fff",borderRadius:RAD.sm,padding:"10px 12px",fontSize:FS.body,fontWeight:FW.bold,cursor:"pointer",marginTop:10,fontFamily:"inherit"}}>
+              + 보상 추가
+            </button>
+            ):(
+            <button onClick={unlockRewardManage} className="jelly-tap"
+              style={{width:"100%",marginTop:10,padding:"9px 12px",borderRadius:RAD.md,background:`${th.main}0E`,border:`1px solid ${th.main}33`,cursor:"pointer",fontFamily:"inherit",textAlign:"left",display:"flex",alignItems:"flex-start",gap:7}}>
+              <span style={{color:th.main,display:"flex",flexShrink:0,marginTop:1}}><CareIcon name="lock" size={14}/></span>
+              <span style={{minWidth:0}}>
+                <span style={{display:"block",fontSize:FS.sub,fontWeight:FW.semi,color:mixBlack(th.main,0.25)}}>엄마 권한 잠금</span>
+                <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>보상 추가·수정·삭제</span>
+              </span>
+            </button>
+            )}
           </div>
         );
         })()}
