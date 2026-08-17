@@ -25,7 +25,7 @@
      isFeePaidOn(acId, month)              그 달 학원비를 냈는지 (달력의 납부일 표시용)
    ════════════════════════════════════════════════════════════════════════ */
 
-import { C, mixWhite, SHADOW } from "../../data/tokens.js";
+import { C, FS, FW, RAD, mixWhite, SHADOW } from "../../data/tokens.js";
 
 /* [사용자 확정 2026-08-11] 달력은 일요일부터 토요일 순으로 늘어놓는다.
    앱의 공용 DAYS 는 월요일부터라(학원 등록의 요일 고르기 등이 그 순서를 쓴다)
@@ -104,13 +104,13 @@ export default function CalendarTab({
       <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:2,marginBottom:10,position:"relative",minWidth:0}}>
         <button onClick={()=>isWeek?goWeek(-1):goMonth(-1)}
           className="jelly-tap" aria-label={isWeek?"이전 주":"이전 달"}
-          style={{background:"none",border:"none",borderRadius:9,width:32,height:32,fontSize:17,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
-        <span style={{fontWeight:900,fontSize:isWeek?14.5:16,color:C.text,whiteSpace:"nowrap",minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>
+          style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
+        <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text,whiteSpace:"nowrap",minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>
           {isWeek?`${korMD(weekMon)} ~ ${korMD(weekSun)}`:`${calDate.getFullYear()}년 ${calDate.getMonth()+1}월`}
         </span>
         <button onClick={()=>isWeek?goWeek(1):goMonth(1)}
           className="jelly-tap" aria-label={isWeek?"다음 주":"다음 달"}
-          style={{background:"none",border:"none",borderRadius:9,width:32,height:32,fontSize:17,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
+          style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10,minWidth:0}}>
         <div style={{display:"flex",background:CT.faint,borderRadius:11,padding:2,flexShrink:0}}>
