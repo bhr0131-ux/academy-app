@@ -7175,7 +7175,7 @@ export default function App() {
               } else {
                 setNewAc(p=>({...p,useCustomSchedule:false}));
               }
-            }} style={{width:"100%",padding:"10px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomSchedule?th.main:C.border}`,background:newAc.useCustomSchedule?`${th.main}10`:CT.faint,color:newAc.useCustomSchedule?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontFamily:"inherit"}}>
+            }} style={{width:"100%",height:42,boxSizing:"border-box",padding:"0 16px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomSchedule?th.main:C.border}`,background:newAc.useCustomSchedule?`${th.main}10`:CT.faint,color:newAc.useCustomSchedule?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontFamily:"inherit"}}>
               {/* 아래 '요일별 셔틀' 토글과 짝이라 모양을 같게 둔다 — 켜지면 ✓ 자리에 check 아이콘 */}
               <CareIcon name={newAc.useCustomSchedule?"check":"calendar"} size={14}/>
               {newAc.useCustomSchedule?"요일별 수업시간 설정 중":"요일별로 수업시간이 달라요"}
@@ -7191,10 +7191,10 @@ export default function App() {
                     <span style={{width:28,fontSize:FS.title,fontWeight:FW.normal,color:DAY_COLORS[sc.day],flexShrink:0}}>{sc.day}</span>
                     <input type="time" value={sc.time}
                       onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,time:e.target.value}:s)}))}
-                      style={{...inp,flex:1,width:"auto",fontSize:FS.body,padding:"7px 10px"}}/>
+                      style={{...inp,flex:1,width:"auto",fontSize:FS.body,padding:"7px 10px",height:34,boxSizing:"border-box"}}/>
                     <input type="number" value={sc.duration}
                       onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,duration:Number(e.target.value)}:s)}))}
-                      style={{...inp,width:65,fontSize:FS.body,padding:"7px 8px"}}/>
+                      style={{...inp,width:65,fontSize:FS.body,padding:"7px 8px",height:34,boxSizing:"border-box"}}/>
                     <span style={{fontSize:FS.body,color:C.sub,flexShrink:0}}>분</span>
                   </div>
                 ))}
@@ -7332,7 +7332,7 @@ export default function App() {
               <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <input value={parseShuttle(newAc.shuttleInfo||"").place} placeholder="장소 (예: 아파트 정문)"
                   onChange={e=>setBaseShuttle({place:e.target.value})}
-                  style={{...inp,flex:1,width:"auto",minWidth:0,fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
+                  style={{...inp,flex:1,width:"auto",minWidth:0,fontSize:FS.title,padding:"10px 12px",marginBottom:0,height:42,boxSizing:"border-box"}}/>
                 {/* [사용자 지적 2026-08-17] flex:1 로 나누면 한국어 시간이 '오후 4:0' 으로 잘렸다.
                     글자 탓이 아니다 — '오후 4:00'(69px)은 '04:00 PM'(76px)보다 오히려 좁다.
                     삼성 브라우저의 시간 선택기가 오른쪽에 화살표를 붙이고 안쪽 여백도 넓게 잡는다.
@@ -7340,7 +7340,7 @@ export default function App() {
                 <TimeField value={parseShuttle(newAc.shuttleInfo||"").time}
                   onChange={e=>setBaseShuttle({time:e.target.value})}
                   hint="시간 (예: 15:00)" hintLeft={11} boxStyle={{flex:"0 0 168px"}}
-                  style={{...inp,fontSize:FS.title,padding:"10px 10px",marginBottom:0}}/>
+                  style={{...inp,fontSize:FS.title,padding:"10px 10px",marginBottom:0,height:42,boxSizing:"border-box"}}/>
               </div>
 
               <button type="button" onClick={()=>{
@@ -7357,40 +7357,40 @@ export default function App() {
                   });
                   return {...p,useCustomShuttle:true,shuttleSchedules};
                 });
-              }} style={{width:"100%",padding:"10px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomShuttle?th.main:C.border}`,background:newAc.useCustomShuttle?`${th.main}10`:CT.faint,color:newAc.useCustomShuttle?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontFamily:"inherit"}}>
+              }} style={{width:"100%",height:42,boxSizing:"border-box",padding:"0 16px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomShuttle?th.main:C.border}`,background:newAc.useCustomShuttle?`${th.main}10`:CT.faint,color:newAc.useCustomShuttle?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontFamily:"inherit"}}>
                 {/* 켜진 상태는 예전의 ✓ 자리에 같은 뜻의 선 아이콘을 둔다 */}
                 <CareIcon name={newAc.useCustomShuttle?"check":"shuttle"} size={14}/>
                 {newAc.useCustomShuttle?"요일별 셔틀 설정 중":"요일별 셔틀 정보가 달라요"}
               </button>
 
+              {/* [사용자 확정 2026-08-17] 요일마다 카드를 세우고 메모까지 세 칸을 두니
+                  위 '요일별 수업시간'과 딴 화면처럼 보였다 → 그쪽과 같은 모양으로 맞춘다.
+                  요일 한 줄 = [요일][장소][시각], 감싸는 연한 테마색 상자, 같은 글자·여백.
+                  메모 칸은 사용자 요청으로 뺀다 (이미 적어 둔 메모는 지우지 않고 그대로 둔다 —
+                  학원 카드에서는 예전처럼 시각·장소 뒤에 이어 보인다). */}
               {newAc.useCustomShuttle&&(
-                <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:12}}>
-                  {/* [사용자 확정 2026-08-17] 요일별 셔틀도 늘 월화수목금토일 순으로 */}
+                <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12,background:`${th.main}06`,borderRadius:RAD.md,padding:"12px"}}>
+                  {/* 요일별 셔틀도 늘 월화수목금토일 순으로 */}
                   {[...(newAc.days||[])].sort((a,b)=>DAYS.indexOf(a)-DAYS.indexOf(b)).map(day=>{
                     /* 요일을 나중에 추가하면 항목이 없다 → 기본 장소·시간을 미리 보여 준다
                        (칸을 고치는 순간 setShuttleDay 가 그 값 그대로 항목을 만든다). */
                     const base=parseShuttle(newAc.shuttleInfo||"");
                     const shuttle=(newAc.shuttleSchedules||[]).find(s=>s.day===day)||{time:base.time,place:base.place};
                     return (
-                      <div key={day} style={{border:`1px solid ${C.border}`,borderRadius:RAD.md,padding:"12px",background:"#fff"}}>
-                        <div style={{fontWeight:FW.semi,marginBottom:8,color:DAY_COLORS[day],fontSize:FS.cardTitle}}>{day}요일</div>
-                        {/* 위 기본 칸과 같은 순서로 — 장소 먼저, 시간 나중 */}
-                        <div style={{display:"flex",gap:8,marginBottom:8}}>
-                          <input value={shuttle.place||""} placeholder="장소"
-                            onChange={e=>setShuttleDay(day,{place:e.target.value})}
-                            style={{...inp,flex:1,width:"auto",minWidth:0,fontSize:FS.cardTitle,padding:"9px 11px"}}/>
-                          {/* 시각 칸은 위 기본 칸과 같은 이유로 고정 너비 (글자 14 라 조금 좁게) */}
-                          <TimeField value={shuttle.time||""}
-                            onChange={e=>setShuttleDay(day,{time:e.target.value})}
-                            hint="시간" hintLeft={10} boxStyle={{flex:"0 0 148px"}}
-                            style={{...inp,fontSize:FS.cardTitle,padding:"9px 9px"}}/>
-                        </div>
-                        <input value={shuttle.memo||""} placeholder="메모"
-                          onChange={e=>setShuttleDay(day,{memo:e.target.value})}
-                          style={{...inp,fontSize:FS.cardTitle,padding:"9px 11px"}}/>
+                      <div key={day} style={{display:"flex",alignItems:"center",gap:8,background:"#fff",border:`1.5px solid ${DAY_COLORS[day]}40`,borderRadius:RAD.sm,padding:"8px 10px"}}>
+                        <span style={{width:28,fontSize:FS.title,fontWeight:FW.normal,color:DAY_COLORS[day],flexShrink:0}}>{day}</span>
+                        {/* 위 기본 칸과 같은 순서로 — 장소 먼저, 시각 나중 */}
+                        <input value={shuttle.place||""} placeholder="장소"
+                          onChange={e=>setShuttleDay(day,{place:e.target.value})}
+                          style={{...inp,flex:1,width:"auto",minWidth:0,fontSize:FS.body,padding:"7px 10px",height:34,boxSizing:"border-box"}}/>
+                        <TimeField value={shuttle.time||""}
+                          onChange={e=>setShuttleDay(day,{time:e.target.value})}
+                          hint="시간" hintLeft={11} boxStyle={{flex:"0 0 128px"}}
+                          style={{...inp,fontSize:FS.body,padding:"7px 10px",height:34,boxSizing:"border-box"}}/>
                       </div>
                     );
                   })}
+                  {(newAc.days||[]).length===0&&<p style={{fontSize:FS.body,color:C.sub,margin:0,textAlign:"center"}}>위에서 요일을 먼저 선택해주세요</p>}
                 </div>
               )}
             </div>
@@ -7410,7 +7410,7 @@ export default function App() {
             </div>
             </>)}
             {editTarget!==null&&(
-              <button onClick={()=>deleteAcademy(editTarget)} style={{width:"100%",marginTop:16,padding:12,borderRadius:RAD.md,border:`1px solid ${C.red}35`,background:"#fff",color:C.red,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+              <button onClick={()=>deleteAcademy(editTarget)} style={{width:"100%",marginTop:16,height:42,boxSizing:"border-box",padding:"0 16px",borderRadius:RAD.md,border:`1px solid ${C.red}35`,background:"#fff",color:C.red,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
                 <CareIcon name="trash" size={14}/>이 학원 삭제
               </button>
             )}
