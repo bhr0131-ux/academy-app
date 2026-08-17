@@ -190,6 +190,32 @@ const initUi = {
 
 
 
+/* ── 시각 입력칸 ────────────────────────────────────────────────────────
+   [사용자 지적 2026-08-17] 장소 옆 빈 칸이 시간 자리인 줄 몰랐다.
+   <input type="time"> 은 placeholder 를 무시한다 (브라우저가 안 그린다) → 빈 칸일 때만
+   글자색을 투명하게 해 브라우저가 그리는 '--:--' 를 감추고, 그 자리에 안내 글자를 겹친다.
+   장소 칸의 placeholder 와 같은 회색·같은 자리라 두 칸이 한 짝으로 읽힌다.
+   누르는 순간(focus)에는 안내를 걷고 원래대로 돌려놓는다 — 시·분을 다 넣기 전까지
+   value 가 빈 값이라, 안 그러면 치는 동안 숫자가 투명하게 가려진다.
+   시계 아이콘은 브라우저가 따로 그리는 것이라 color 에 안 딸려간다. */
+function TimeField({ value, onChange, hint, hintLeft = 11, style, boxStyle }) {
+  const [focused, setFocused] = useState(false);
+  const showHint = !value && !focused;
+  return (
+    <div style={{ position: "relative", display: "flex", minWidth: 0, ...boxStyle }}>
+      <input type="time" value={value || ""} onChange={onChange}
+        onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+        style={{ ...style, width: "100%", color: showHint ? "transparent" : undefined }} />
+      {showHint && (
+        <span style={{ position: "absolute", left: hintLeft, top: "50%", transform: "translateY(-50%)",
+          pointerEvents: "none", fontSize: style?.fontSize, color: "#757575", whiteSpace: "nowrap" }}>
+          {hint}
+        </span>
+      )}
+    </div>
+  );
+}
+
 /* ════════════════════════════════════════════════════════════════════════
    SECTION 11. App() — 메인 컴포넌트
    ════════════════════════════════════════════════════════════════════════ */
@@ -7311,9 +7337,10 @@ export default function App() {
                     글자 탓이 아니다 — '오후 4:00'(69px)은 '04:00 PM'(76px)보다 오히려 좁다.
                     삼성 브라우저의 시간 선택기가 오른쪽에 화살표를 붙이고 안쪽 여백도 넓게 잡는다.
                     → 시각 칸을 화살표까지 들어가는 너비로 고정하고, 남는 자리는 장소가 가져간다. */}
-                <input type="time" value={parseShuttle(newAc.shuttleInfo||"").time}
+                <TimeField value={parseShuttle(newAc.shuttleInfo||"").time}
                   onChange={e=>setBaseShuttle({time:e.target.value})}
-                  style={{...inp,flex:"0 0 156px",width:"auto",fontSize:FS.title,padding:"10px 10px",marginBottom:0}}/>
+                  hint="시간 (예: 15:00)" hintLeft={11} boxStyle={{flex:"0 0 168px"}}
+                  style={{...inp,fontSize:FS.title,padding:"10px 10px",marginBottom:0}}/>
               </div>
 
               <button type="button" onClick={()=>{
@@ -7353,9 +7380,10 @@ export default function App() {
                             onChange={e=>setShuttleDay(day,{place:e.target.value})}
                             style={{...inp,flex:1,width:"auto",minWidth:0,fontSize:FS.cardTitle,padding:"9px 11px"}}/>
                           {/* 시각 칸은 위 기본 칸과 같은 이유로 고정 너비 (글자 14 라 조금 좁게) */}
-                          <input type="time" value={shuttle.time||""}
+                          <TimeField value={shuttle.time||""}
                             onChange={e=>setShuttleDay(day,{time:e.target.value})}
-                            style={{...inp,flex:"0 0 148px",width:"auto",fontSize:FS.cardTitle,padding:"9px 9px"}}/>
+                            hint="시간" hintLeft={10} boxStyle={{flex:"0 0 148px"}}
+                            style={{...inp,fontSize:FS.cardTitle,padding:"9px 9px"}}/>
                         </div>
                         <input value={shuttle.memo||""} placeholder="메모"
                           onChange={e=>setShuttleDay(day,{memo:e.target.value})}
