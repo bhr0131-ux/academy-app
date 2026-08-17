@@ -7192,7 +7192,7 @@ export default function App() {
           <FeePaySheet ac={ac} month={feeMonth} today={TODAY} value={payRec(ac.id)}
             tone={{text:C.text,sub:C.sub,border:C.border,faint:CT.faint,green:C.green,red:C.red,orange:C.orange,main:th.main,grad:th.grad}}
             onClose={()=>setPaySheet(null)}
-            onSave={(rec)=>{ savePayRec(ac.id,rec); setPaySheet(null); showToast("납부 완료로 저장했어요"); }}
+            onSave={(rec)=>{ savePayRec(ac.id,rec); setPaySheet(null); showToast("납부 처리했어요"); }}
             onUnpay={()=>{ clearPayRec(ac.id); setPaySheet(null); showToast("미납으로 되돌렸어요"); }} />
         );
       })()}
