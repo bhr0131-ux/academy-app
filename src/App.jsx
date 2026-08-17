@@ -5852,16 +5852,17 @@ export default function App() {
                     <div>
                       {/* 날짜 이동 */}
                       {/* [사용자 확정 2026-08-11] 화살표 상자가 커서 날짜 줄이 통째로 높아 보였다 →
-                          배경·테두리를 빼고 글자만 남긴다(누르는 자리는 44×44 그대로).
+                          배경·테두리를 빼고 글자만 남긴다.
                           '0/1 완료'는 가운데 따로 두지 않고 날짜 아래 한 줄 문장으로. */}
-                      {/* [사용자 확정 2026-08-11] 날짜 19는 앱에서 가장 큰 글자였다(달력 월 제목이 16) →
-                          달력과 같은 16으로. 화살표도 날짜에 맞춰 함께 줄인다. */}
+                      {/* [사용자 확정 2026-08-17] 예전엔 달력 월 제목(16)에 맞췄는데, 정작 매일 오가는
+                          홈 탭의 날짜 줄(15 / 화살표 800 / 34×34)과 달라 탭을 옮길 때마다 글자가
+                          커졌다 작아졌다 했다 → 홈과 같은 규격으로 맞춘다. */}
                       <div style={{display:"flex",alignItems:"center",gap:4,marginBottom:20}}>
                         <button onClick={()=>setRewardDate(addDays(rewardDate,-1))} className="jelly-tap" aria-label="이전 날"
-                          style={{width:44,height:44,borderRadius:12,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,fontFamily:"inherit"}}>‹</button>
+                          style={{width:34,height:34,borderRadius:RAD.sm,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>‹</button>
                         <div style={{flex:1,minWidth:0,textAlign:"center"}}>
                           <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,flexWrap:"wrap"}}>
-                            <span style={{fontSize:16,fontWeight:900,color:C.text}}>{rFullLabel}</span>
+                            <span style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text}}>{rFullLabel}</span>
                             {rDayTag&&<span style={{fontSize:11.5,background:th.main,color:"#fff",borderRadius:9,padding:"2px 8px",fontWeight:800,flexShrink:0}}>{rDayTag}</span>}
                             {!isRewToday&&(
                               <button onClick={()=>setRewardDate(TODAY)} className="jelly-tap"
@@ -5875,7 +5876,7 @@ export default function App() {
                               개수·완료 수는 그 머리 옆으로 옮긴다. */}
                         </div>
                         <button onClick={()=>setRewardDate(addDays(rewardDate,1))} className="jelly-tap" aria-label="다음 날"
-                          style={{width:44,height:44,borderRadius:12,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,fontFamily:"inherit"}}>›</button>
+                          style={{width:34,height:34,borderRadius:RAD.sm,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>›</button>
                       </div>
                       {/* [사용자 확정 2026-08-16] 홈의 '오늘의 학원'과 같은 구역 머리를
                           미션 목록 위에도 둔다 — 목록이 무엇인지 이름이 붙는다.
@@ -5893,8 +5894,12 @@ export default function App() {
                         <div style={{display:"flex",flexDirection:"column",gap:7}}>
                           {rewardTodayTodos.map(item=>(
                             /* [사용자 확정 2026-08-11] 항목 배경까지 분홍이라 카드와 구분이 안 됐다 →
-                               평소엔 흰 바탕 + 연한 테두리, 완료·미완료일 때만 색을 옅게 깐다. */
-                            <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{display:"flex",alignItems:"flex-start",gap:4,padding:"6px 11px 9px 4px",borderRadius:12,background:item.done?`${C.green}0C`:item.failed?`${C.sub}0C`:"#fff",border:`1px solid ${item.done?C.green+"33":item.failed?C.border:C.border}`}}>
+                               평소엔 흰 바탕 + 연한 테두리, 완료·미완료일 때만 색을 옅게 깐다.
+                               [사용자 확정 2026-08-17] 안여백이 위6·오른쪽11·아래9·왼쪽4 로 네 방향이
+                               다 달랐다 → 위아래를 8 로 맞추고 오른쪽은 12. 왼쪽만 4 로 두는 건
+                               바로 옆 40×40 체크 버튼이 그 자리를 대신 채우기 때문이다.
+                               둥글기 12 도 척도 밖이라 RAD.md(14) 로. */
+                            <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{display:"flex",alignItems:"flex-start",gap:4,padding:"8px 12px 8px 4px",borderRadius:RAD.md,background:item.done?`${C.green}0C`:item.failed?`${C.sub}0C`:"#fff",border:`1px solid ${item.done?C.green+"33":item.failed?C.border:C.border}`}}>
                               {/* 체크 원이 연회색이라 못 누르는 것처럼 보였다 → 테두리를 진하게,
                                   누르는 자리는 40×40 으로 넓힌다(원 자체는 24). */}
                               <button onClick={()=>{
@@ -5930,7 +5935,7 @@ export default function App() {
                                   {item.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:item.academyColor||th.main,background:`${item.academyColor||th.main}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}
                                 </p>
                                 <div style={{display:"flex",alignItems:"center",gap:7,margin:"5px 0 0",minWidth:0}}>
-                                  <span style={{display:"flex",alignItems:"center",gap:5,minWidth:0,fontSize:12,color:C.sub,fontWeight:600}}>
+                                  <span style={{display:"flex",alignItems:"center",gap:5,minWidth:0,fontSize:FS.sub,color:C.sub,fontWeight:FW.normal}}>
                                     <span style={{width:6,height:6,borderRadius:"50%",background:item.academyColor||th.main,flexShrink:0}}/>
                                     <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                                       {item.academyName} · {item.kind==="homework"?"숙제":"할 일"}
@@ -5962,7 +5967,7 @@ export default function App() {
                           border:missionPickOpen?`1px solid ${C.border}`:"none",background:"#fff"}}>
                           <button onClick={()=>setMissionPickOpen(v=>!v)} className="jelly-tap"
                             aria-expanded={missionPickOpen}
-                            style={{width:"100%",padding:"13px 10px",border:"none",background:th.grad,color:"#fff",fontSize:13.5,fontWeight:900,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+                            style={{width:"100%",padding:"13px 10px",border:"none",background:th.grad,color:"#fff",fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
                             {rewardTodayTodos.length===0?"오늘 미션 추가":"미션 추가·관리"}
                             <span aria-hidden style={{fontSize:12,transition:"transform .2s",transform:missionPickOpen?"rotate(180deg)":"none"}}>⌄</span>
                           </button>
@@ -6004,7 +6009,7 @@ export default function App() {
                                       cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
                                     <span style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
                                     <span style={{flex:1,minWidth:0}}>
-                                      <span style={{display:"block",fontSize:14.5,fontWeight:900,color:C.text,
+                                      <span style={{display:"block",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
                                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</span>
                                       <span style={{display:"block",fontSize:11.5,fontWeight:700,color:C.sub,marginTop:1}}>
                                         {cnt(ac.id)===0?"등록된 미션 없음":`등록된 미션 ${cnt(ac.id)}개`}
@@ -6035,7 +6040,7 @@ export default function App() {
                                   9px 자리를 그대로 써서 제목 시작 위치는 학원 줄과 어긋나지 않는다. */}
                               <span aria-hidden="true" style={{width:9,height:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",color:th.main,fontSize:15,fontWeight:900,lineHeight:1}}>+</span>
                               <span style={{flex:1,minWidth:0}}>
-                                <span style={{display:"block",fontSize:14.5,fontWeight:900,color:C.text,
+                                <span style={{display:"block",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
                                   overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>일반 미션 추가</span>
                                 <span style={{display:"block",fontSize:11.5,fontWeight:700,color:C.sub,marginTop:1}}>집안일 · 준비물 · 생활 미션</span>
                               </span>
