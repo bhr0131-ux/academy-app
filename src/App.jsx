@@ -6080,7 +6080,7 @@ export default function App() {
                               const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
                               return (
                                 <button onClick={unlockParentPower} className="jelly-tap"
-                                  style={{width:"100%",padding:"9px 10px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                                  style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"flex-start",gap:7}}>
                                   <span style={{display:"flex",alignItems:"center",gap:5}}>
                                     <span style={{color:th.main,display:"flex"}}><CareIcon name="lock" size={14}/></span> 지난 미션 관리
                                   </span>
@@ -6109,7 +6109,7 @@ export default function App() {
                               const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
                               return (
                                 <button onClick={()=>setShowPastMissionModal(rewardDate)} className="jelly-tap"
-                                  style={{width:"100%",padding:"9px 10px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                                  style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"flex-start",gap:7}}>
                                   {/* [사용자 확정 2026-08-16] 위 '엄마 권한이 열렸어요'와 같은
                                       열린 자물쇠를 붙여 둘이 한 묶음으로 읽히게 한다. */}
                                   <span style={{display:"flex",alignItems:"center",gap:5}}>
