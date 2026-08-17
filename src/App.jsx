@@ -306,7 +306,10 @@ export default function App() {
     save("v6_reward_age_by_child",next);
     return next;
   });
-  const [pendingAgeChange, setPendingAgeChange] = useState(null); // 연령대 변경 확인 모달용 (age 문자열)
+  /* 연령대 변경 확인 모달 — {age, cid}. [사용자 확정 2026-08-17] 아이 정보 수정에서도
+     연령대를 바꿀 수 있게 되면서, 지금 보고 있는 아이가 아닌 다른 아이를 고칠 수 있다.
+     그래서 어느 아이의 목록을 갈아 끼우는지 함께 들고 다닌다. */
+  const [pendingAgeChange, setPendingAgeChange] = useState(null);
   const [pendingReject,    setPendingReject]    = useState(null); // 보상 구매 거절 확인 모달용 (요청 객체)
   /* [사용자 확정 2026-08-16] 홈의 '오늘 챙길 일' 보상승인 칩을 누르면 보상 탭으로 보내지 않고
      이 팝업으로 그 자리에서 승인한다 — 승인 하나 하려고 비밀번호를 넣는 게 번거로웠다.
@@ -1526,27 +1529,22 @@ export default function App() {
     showToast(`📚 숙제 ${count}개 추가 완료! (${targetName})`);
   };
 
-  // 보상 연령대 변경: 선택한 연령대 세트로 보상 목록을 전체 교체(기존 커스텀 보상은 사라짐)
-  // age가 'custom'이면 목록을 비워 엄마가 직접 만들도록 함
-  // 버튼 클릭 → 같은 연령대면 무시, 아니면 확인 모달 띄움 (window.confirm은 미리보기에서 차단되므로 인앱 모달 사용)
-  const changeRewardAge=(age)=>{
-    if(age===rewardAgeGroup){ showToast(age==="custom"?"이미 '나만의 목록'이에요":`이미 '${REWARD_SETS_BY_AGE[age]?.label}' 보상이에요`); return; }
-
-    setPendingAgeChange(age);
-  };
+  /* [사용자 확정 2026-08-17] changeRewardAge 를 지웠다 — 기타 탭의 '보상 연령대' 카드가
+     유일한 호출부였고, 그 카드를 없애면서 부르는 곳이 사라졌다.
+     이제 아이 추가·수정 화면이 setPendingAgeChange({age,cid}) 로 바로 확인 모달을 띄운다. */
   // 확인 모달에서 '변경'을 누르면 실제 적용
-  const applyAgeChange=(age)=>{
-    /* [사용자 확정 2026-08-17] 지금 보고 있는 아이의 목록만 바꾼다 — 형제 것은 안 건드린다 */
-    const nm=children.find(c=>c.id===childId)?.name||"이 아이";
+  const applyAgeChange=(age,cid)=>{
+    /* [사용자 확정 2026-08-17] 고른 그 아이의 목록만 바꾼다 — 형제 것은 안 건드린다 */
+    const nm=children.find(c=>c.id===cid)?.name||"이 아이";
     if(age==="custom"){
-      setRewardData(prev=>({...prev,[childId]:[]}));
-      setChildRewardAge(childId,"custom");
+      setRewardData(prev=>({...prev,[cid]:[]}));
+      setChildRewardAge(cid,"custom");
       showToast(`✏️ ${nm}의 목록을 비웠어요`);
     } else {
       const set=REWARD_SETS_BY_AGE[age];
       if(set){
-        setRewardData(prev=>({...prev,[childId]:set.rewards.map(r=>({...r}))}));
-        setChildRewardAge(childId,age);
+        setRewardData(prev=>({...prev,[cid]:set.rewards.map(r=>({...r}))}));
+        setChildRewardAge(cid,age);
         showToast(`${set.emoji} ${nm} 보상을 '${set.label}'으로 바꿨어요`);
       }
     }
@@ -2429,6 +2427,10 @@ export default function App() {
     if(!childForm.name.trim()){ showToast("이름을 입력해줘"); return; }
     if(editingChild){
       setChildren(p=>p.map(c=>c.id===editingChild?{...c,name:childForm.name.trim(),gender:childForm.gender,theme:childForm.theme}:c));
+      /* [사용자 확정 2026-08-17] 연령대를 바꿨으면 보상 목록을 통째로 갈아 끼운다 —
+         직접 고친 보상도 사라지므로 한 번 묻는다 (기타 탭에 있던 확인과 같은 모달). */
+      const newAge=childForm.rewardAge||"kid";
+      if(newAge!==getChildRewardAge(editingChild)) setPendingAgeChange({age:newAge,cid:editingChild});
       showToast("수정됨 ✓");
     } else {
       const newChildId=`child_${Date.now()}`;
@@ -5447,19 +5449,22 @@ export default function App() {
 
       {/* 보상 연령대 변경 확인 모달 (window.confirm 대체) */}
       {pendingAgeChange&&(()=>{
-        const isCustom=pendingAgeChange==="custom";
-        const set=REWARD_SETS_BY_AGE[pendingAgeChange];
+        const {age:pAge,cid:pCid}=pendingAgeChange;
+        const isCustom=pAge==="custom";
+        const set=REWARD_SETS_BY_AGE[pAge];
         const label=isCustom?"✏️ 나만의 목록":`${set?.emoji} ${set?.label}`;
+        const pName=children.find(c=>c.id===pCid)?.name||"이 아이";
         return (
           <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>setPendingAgeChange(null)}>
             <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:26,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
-              <h3 style={{fontSize:19,fontWeight:900,margin:"0 0 10px",textAlign:"center"}}>{label}(으)로 바꿀까요?</h3>
+              <h3 style={{fontSize:19,fontWeight:900,margin:"0 0 10px",textAlign:"center"}}>{pName} 보상을<br/>{label}(으)로 바꿀까요?</h3>
               <p style={{fontSize:14,fontWeight:700,color:C.sub,textAlign:"center",lineHeight:1.6,margin:"0 0 20px"}}>
                 {isCustom
                   ? <>지금 보상 목록이 <b style={{color:C.red}}>모두 삭제</b>되고,<br/>직접 추가해야 해요.</>
                   : <>지금 보상 목록(직접 수정한 항목 포함)이<br/><b style={{color:C.red}}>모두 새 목록으로 교체</b>돼요.</>}
+                <br/><span style={{fontSize:12.5,opacity:0.8}}>형제 보상은 그대로예요.</span>
               </p>
-              <button onClick={()=>applyAgeChange(pendingAgeChange)}
+              <button onClick={()=>applyAgeChange(pAge,pCid)}
                 style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer",marginBottom:8}}>
                 네, 바꿀게요
               </button>
@@ -6238,27 +6243,9 @@ export default function App() {
             </div>
 
 
-            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              {/* [사용자 확정 2026-08-17] 보상이 아이별이 되었으니 누구 것을 고치는지 밝힌다 —
-                  예전엔 온 가족 공용이라 이름을 적을 필요가 없었다. */}
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎁 보상 연령대</p>
-              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>
-                <b style={{color:th.main}}>{children.find(c=>c.id===childId)?.name||"이 아이"}</b>의 보상 목록이 그에 맞게 바뀌어요. 형제 것은 그대로예요.
-              </p>
-              <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-                {[["kid","🧸","어린이용"],["elemLow","🎒","초등\n저학년"],["elemHigh","🎽","초등\n고학년"],["teen","💸","고학년\n이상"],["custom","✏️","나만의\n목록"]].map(([k,em,lb])=>{
-                  const on=rewardAgeGroup===k;
-                  return (
-                    <button key={k} onClick={()=>changeRewardAge(k)}
-                      style={{flex:"1 1 18%",minWidth:54,padding:"9px 2px",borderRadius:10,border:`2px solid ${on?th.main:C.border}`,background:on?`${th.main}14`:"#fff",color:on?th.main:C.sub,fontSize:11,fontWeight:900,cursor:"pointer",lineHeight:1.3,whiteSpace:"pre-line"}}>
-                      <span style={{display:"block",fontSize:17}}>{em}</span>
-                      {lb}{on?" ✓":""}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
+            {/* [사용자 확정 2026-08-17] '보상 연령대' 카드를 뺐다 — 아이 추가·수정 화면에서
+                같은 일을 하게 되어 두 군데가 됐다. 고르는 자리는 하나여야 한다.
+                (더보기 > 아이 선택 줄의 ＋ 또는 아이 목록의 '수정'에서 바꾼다) */}
 
             {/* 게임 디자인 선택 — 베이커리 미출시 동안 숨김 (BAKERY_ENABLED) */}
             {BAKERY_ENABLED && !skinByChild[childId] && (
@@ -7072,10 +7059,10 @@ export default function App() {
               })}
             </div>
 
-            {/* [사용자 확정 2026-08-17] 보상은 아이별이라, 만들 때 나이에 맞는 목록을 골라 둔다.
-                수정할 때는 안 보인다 — 이미 만든 목록을 여기서 갈아엎으면 놀란다.
-                (나중에 바꾸려면 더보기 > 기타 > 보상 연령대) */}
-            {!editingChild&&(<>
+            {/* [사용자 확정 2026-08-17] 보상은 아이별이라 여기서 나이에 맞는 목록을 고른다.
+                수정할 때도 바꿀 수 있다 — 다만 목록이 통째로 갈리므로 저장할 때 한 번 묻는다.
+                (기타 탭에 있던 '보상 연령대'는 같은 일을 두 군데서 하게 되어 없앴다) */}
+            {(<>
               <label style={lbl}>보상 연령대 *</label>
               {(()=>{
                 const OPTS=[...Object.entries(REWARD_SETS_BY_AGE).map(([k,v])=>({k,label:v.label,emoji:v.emoji})),
@@ -7111,9 +7098,13 @@ export default function App() {
                   </div>
                   )}
                   <p style={{...hintSpan,display:"block",margin:"7px 0 20px",lineHeight:1.5}}>
-                    {cur==="custom"
-                      ? "빈 목록으로 시작해요. 보상 탭에서 직접 채우면 돼요."
-                      : `${(REWARD_SETS_BY_AGE[cur]||REWARD_SETS_BY_AGE.kid).rewards.length}개 보상으로 시작해요.`}
+                    {editingChild
+                      ? (cur===getChildRewardAge(editingChild)
+                          ? "지금 이 아이의 보상 목록이에요."
+                          : "저장하면 이 아이의 보상 목록이 통째로 바뀌어요.")
+                      : (cur==="custom"
+                          ? "빈 목록으로 시작해요. 보상 탭에서 직접 채우면 돼요."
+                          : `${(REWARD_SETS_BY_AGE[cur]||REWARD_SETS_BY_AGE.kid).rewards.length}개 보상으로 시작해요.`)}
                   </p>
                 </>);
               })()}
@@ -7152,7 +7143,7 @@ export default function App() {
                       </div>
                       <ChildFace child={c} size={26} bg={mixWhite(getChildTheme(c).main,0.86)}/>
                       <span style={{flex:1,minWidth:0,fontSize:14.5,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</span>
-                      <button onClick={()=>{ setEditingChild(c.id); setChildForm({name:c.name,gender:c.gender}); }} style={{flexShrink:0,padding:"5px 11px",borderRadius:10,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>수정</button>
+                      <button onClick={()=>{ setEditingChild(c.id); setChildForm({name:c.name,gender:c.gender,theme:c.theme||CHILD_THEME_COLORS[0],rewardAge:getChildRewardAge(c.id)}); }} style={{flexShrink:0,padding:"5px 11px",borderRadius:10,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>수정</button>
                       <button onClick={()=>deleteChild(c.id)} style={{flexShrink:0,padding:"5px 11px",borderRadius:10,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>삭제</button>
                     </div>
                   );
