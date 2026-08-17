@@ -1,4 +1,5 @@
 import { useState } from "react";
+import EmojiIcon from "../parent/EmojiIcon.jsx";
 import { C, mixWhite, DUNGEON_SHOP, ITEM_ACTION_STYLE, getDungeonShopGradeColor,
   getDungeonShopItemBg, getDungeonShopItemShadow } from "../../data/tokens.js";
 import { getRewardGrade, UI_TEXT } from "../../data/characters.js";
@@ -106,7 +107,7 @@ export default function ItemShopSheet({ open, onClose, dark, skin = "dungeon", c
                         border: cute ? `1.5px solid ${grade.color}45` : "1px solid rgba(255,255,255,0.3)",
                         display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0,
                         boxShadow: cute ? `0 3px 10px ${grade.color}18` : "inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 6px rgba(0,0,0,0.12)" }}>
-                        {reward.emoji}
+                        <EmojiIcon emoji={reward.emoji} size={24}/>
                       </div>
                       <div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>

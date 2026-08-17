@@ -1,6 +1,7 @@
 import { C, FS, FW, RAD, mixBlack } from "../../data/tokens.js";
 import { REWARD_SETS_BY_AGE } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
+import EmojiIcon from "./EmojiIcon.jsx";
 import RewardApprovals from "./RewardApprovals.jsx";
 import SectionHead from "./SectionHead.jsx";
 
@@ -54,7 +55,7 @@ export default function RewardTab({ D }) {
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {getChildRewards().slice().sort((a,b)=>a.point-b.point).map(reward=>(
                 <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:14,background:"#fff",border:`1px solid ${C.border}`}}>
-                  <span style={{fontSize:24}}>{reward.emoji}</span>
+                  <EmojiIcon emoji={reward.emoji} size={24}/>
                   <div style={{flex:1}}>
                     <p style={{fontSize:15,fontWeight:900,margin:0,color:C.text}}>{reward.title}</p>
                     <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:"2px 0 0"}}>{reward.point} {TM.coinEmoji} {TM.coin} 필요</p>
