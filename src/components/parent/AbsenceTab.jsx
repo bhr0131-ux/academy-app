@@ -43,6 +43,7 @@ import TimeField from "./TimeField.jsx";
 const AB_PINK  = "#E85B9C";   // 보충 불참
 const AB_SLATE = "#6E7BA6";   // 일정 미정
 const AB_MID   = "#6B7392";   // 본문 중간 톤 — C.text(진함)와 C.sub(연함) 사이
+const AB_QUIET = "#C3C9DC";   // 끝난 건의 학원색 막대 — 색을 걷고 회색조로
 
 export default function AbsenceTab({
   th, CT, curAc = [], absList = [],
@@ -93,6 +94,15 @@ export default function AbsenceTab({
   const sortedAbs=absFilter==="pending"?sortedAll.filter(a=>!a.makeupDone)
                 :absFilter==="done"   ?sortedAll.filter(a=>a.makeupDone)
                 :sortedAll;
+  /* [사용자 확정 2026-08-17] '전체'로 보면 끝난 것과 안 끝난 것이 뒤섞여 있어
+     '내가 아직 뭘 해야 하나'가 한눈에 안 잡혔다(사용자 제보) → 위아래로 나눈다.
+     '보충 예정'·'보충 완료'만 걸러 볼 때는 이미 한 종류뿐이라 머리글을 안 붙인다. */
+  const pendingList=sortedAbs.filter(a=>!a.makeupDone);
+  const doneList=sortedAbs.filter(a=>a.makeupDone);
+  const groups=(absFilter==="all"&&pendingList.length>0&&doneList.length>0)
+    ? [{key:"pending",head:`아직 안 끝난 것 ${pendingList.length}건`,items:pendingList},
+       {key:"done",   head:`끝난 것 ${doneList.length}건`,          items:doneList}]
+    : [{key:"one",head:null,items:sortedAbs}];
 
   /* 보충 일정 수정 칸의 입력 세 개는 한 벌이다 — 날짜칸만 크고 시간칸만 작아서
      줄마다 단이 어긋나 보였다(사용자 점검). 높이는 padding 대신 CTRL_H 기준으로
@@ -140,11 +150,31 @@ export default function AbsenceTab({
 
     {/* 카드 — [사용자 확정 2026-08-10] 카드 안에 또 큰 박스가 들어가는 이중 구조를
         없애고 한 덩어리로 폈다. 한 화면에 1.5건만 보이던 것이 3건 이상 보인다. */}
-    {sortedAbs.map(ab=>{
+    {groups.map((g,gi)=>(
+    <div key={g.key} style={{marginTop:gi?6:0}}>
+    {g.head&&(
+      <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 10px"}}>
+        <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>{g.head}</span>
+        <div style={{flex:1,height:1,background:C.border}}/>
+      </div>
+    )}
+    {g.items.map(ab=>{
       const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
       const st=absState(ab);
       const carried=isCarry(ab);
       const mt=makeupTimeText(ab);
+      /* [사용자 확정 2026-08-17] "너무 알록달록해서 헷갈려" — 한 화면에 학원색·상태색이
+         카드마다 두세 개씩 겹쳐 있었다. 끝난 건은 더 할 일이 없으니 색을 걷는다.
+         그러면 화면에 남는 색은 '아직 할 일'뿐이라 눈이 거기로 먼저 간다.
+         '보충 불참'만 배지 글자를 원래 색으로 남긴다 — 결과가 나쁜 건은 조용해지면 안 된다.
+
+         왼쪽 막대도 학원색이 아니라 상태색을 쓴다. 이 화면에서는 학원 이름이 막대 바로
+         옆에 큰 글씨로 있어 색으로 또 말할 필요가 없는데, 그 색이 상태색과 나란히 놓여
+         카드마다 색이 둘씩 됐다. 막대·배지·버튼이 한 색이면 카드 하나가 한 덩어리로 읽힌다.
+         (홈·학원비 카드는 학원을 고르는 자리라 거기서는 학원색을 그대로 쓴다.) */
+      const quiet=!!ab.makeupDone;
+      const badgeC=quiet?(st.k==="absent"?AB_PINK:C.sub):st.color;
+      const badgeBg=quiet?(st.k==="absent"?`${AB_PINK}12`:CT.faint):`${st.color}14`;
       return (
         /* [사용자 확정 2026-08-17] 왼쪽 학원색 막대의 둥근 모서리가 반대(오른쪽)로
            들어가 있었다 — 카드 왼쪽 끝에 붙는 막대라 카드 모서리를 따라 왼쪽이
@@ -154,12 +184,12 @@ export default function AbsenceTab({
            위아래 여백은 카드가 아니라 오른쪽 내용 칸이 갖는다 — 카드가 여백을 가지면
            막대가 그 안에 갇혀 위아래로 11px씩 짧아진다. */
         <div key={ab.id} style={{position:"relative",background:"#fff",borderRadius:RAD.md,marginBottom:14,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,display:"flex",gap:11}}>
-          <div style={{width:4,borderRadius:`${RAD.md}px 0 0 ${RAD.md}px`,background:ac.color,flexShrink:0}}/>
+          <div style={{width:4,borderRadius:`${RAD.md}px 0 0 ${RAD.md}px`,background:quiet?AB_QUIET:st.color,flexShrink:0}}/>
           <div style={{flex:1,minWidth:0,padding:"11px 12px 11px 0"}}>
             <div style={{display:"flex",alignItems:"center",gap:7}}>
               <p style={{fontWeight:FW.semi,fontSize:FS.title,margin:0,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
               {carried&&<span style={{flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,color:C.orange,background:`${C.orange}14`,borderRadius:RAD.sm,padding:"1px 6px"}}>이월</span>}
-              <span style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 9px",borderRadius:RAD.sm,background:`${st.color}14`,color:st.color}}>{st.label}</span>
+              <span style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 9px",borderRadius:RAD.sm,background:badgeBg,color:badgeC}}>{st.label}</span>
               {/* ✕ 는 '닫기'로도 읽혀서 ⋮ 메뉴로 바꿨다 (사용자 지적) */}
               <button onClick={()=>setAbsMenu(m=>m===ab.id?null:ab.id)} className="jelly-tap"
                 aria-label={`${ac.name} 결석 기록 더보기`} aria-expanded={absMenu===ab.id}
@@ -208,8 +238,10 @@ export default function AbsenceTab({
                      배지와 똑같은 상태색을 입혀 살아 있는 버튼으로 만든다.
                      [2026-08-11] '결과 입력'은 무엇의 결과인지 막연했다 →
                      누르면 고르는 게 '보충 완료 / 보충 불참'이므로 그대로 이름에 쓴다. */
-                  style={{width:"100%",padding:"8px 0",borderRadius:RAD.sm,cursor:"pointer",fontSize:FS.sub,fontWeight:FW.semi,fontFamily:"inherit",
-                    border:`1px solid ${st.color}44`,background:`${st.color}0C`,color:st.color,whiteSpace:"nowrap"}}>
+                  style={{width:"100%",padding:"8px 0",borderRadius:RAD.sm,cursor:"pointer",fontSize:FS.sub,fontWeight:FW.semi,fontFamily:"inherit",whiteSpace:"nowrap",
+                    border:`1px solid ${quiet?C.border:st.color+"44"}`,
+                    background:quiet?"#fff":`${st.color}0C`,
+                    color:quiet?AB_MID:st.color}}>
                   {ab.makeupStatus?"보충 출석 수정":"보충 출석 여부"}
                 </button>
                 {makeupPick===ab.id&&(
@@ -265,6 +297,8 @@ export default function AbsenceTab({
         </div>
       );
     })}
+    </div>
+    ))}
     {sortedAbs.length===0&&(
       <div style={{textAlign:"center",padding:"36px 20px",background:mixWhite(th.main,0.93),borderRadius:RAD.lg,border:`1.5px dashed ${th.main}40`}}>
         <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:52,height:52,
