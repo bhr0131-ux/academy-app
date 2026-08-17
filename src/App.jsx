@@ -4,7 +4,7 @@ import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, A
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
 import { loadOrMigrateDaily, saveDailyShards, dirtyMonths } from "./utils/dailyStore.js";
-import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
+import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, parseShuttle, joinShuttle, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
@@ -1601,6 +1601,17 @@ export default function App() {
     setCopySelectedAcademyIds([]);
     showToast("학원 복사 완료 📚");
   };
+
+  /* 요일별 셔틀 한 칸 고치기.
+     그 요일 항목이 아직 없으면(요일을 나중에 추가한 경우) 기본 장소·시간으로 만들어 준다 —
+     예전에는 map 으로만 고쳐서, 없는 요일은 아무리 입력해도 저장되지 않았다. */
+  const setShuttleDay=(day,patch)=>setNewAc(p=>{
+    const list=p.shuttleSchedules||[];
+    const base=parseShuttle(p.shuttleInfo||"");
+    if(list.some(s=>s.day===day))
+      return {...p,shuttleSchedules:list.map(s=>s.day===day?{...s,...patch}:s)};
+    return {...p,shuttleSchedules:[...list,{day,time:base.time,place:base.place,memo:"",...patch}]};
+  });
 
   const openNaverMapSearch=()=>{
     const q=newAc.name||"학원";
@@ -7260,18 +7271,32 @@ export default function App() {
                 </button>
               </div>
 
-              <label style={{...lbl,fontSize:FS.cardTitle}}>🚌 셔틀버스 메모</label>
-              <textarea value={newAc.shuttleInfo||""} onChange={e=>setNewAc(p=>({...p,shuttleInfo:e.target.value}))}
-                placeholder="예: 월수금 하원 차량 / 3시10분 아파트 정문"
-                style={{...inp,fontSize:FS.title,padding:"10px 12px",minHeight:60,resize:"none",marginBottom:10}}/>
+              {/* [사용자 확정 2026-08-17] 한 줄 자유 메모 → '장소 · 시간' 두 칸.
+                  저장은 여전히 shuttleInfo 한 줄이라 기존 학원 데이터가 그대로 살아 있다. */}
+              <label style={{...lbl,fontSize:FS.cardTitle}}>🚌 셔틀버스</label>
+              <div style={{display:"flex",gap:8,marginBottom:10}}>
+                <input value={parseShuttle(newAc.shuttleInfo||"").place} placeholder="장소 (예: 아파트 정문)"
+                  onChange={e=>setNewAc(p=>({...p,shuttleInfo:joinShuttle(parseShuttle(p.shuttleInfo||"").time,e.target.value)}))}
+                  style={{...inp,flex:2,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
+                <input type="time" value={parseShuttle(newAc.shuttleInfo||"").time}
+                  onChange={e=>setNewAc(p=>({...p,shuttleInfo:joinShuttle(e.target.value,parseShuttle(p.shuttleInfo||"").place)}))}
+                  style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
+              </div>
 
               <button type="button" onClick={()=>{
-                setNewAc(p=>({...p,
-                  useCustomShuttle:!p.useCustomShuttle,
-                  shuttleSchedules:p.shuttleSchedules?.length
-                    ? p.shuttleSchedules
-                    : (p.days||[]).map(day=>({day,time:"",place:"",memo:""}))
-                }));
+                /* [사용자 확정 2026-08-17] 요일별로 켤 때 빈 칸이 아니라 위에 적은 기본
+                   장소·시간을 미리 채워 준다 — 요일별 수업시간과 같은 방식으로,
+                   엄마는 다른 요일만 고치면 된다. 이미 적어 둔 값은 덮어쓰지 않는다. */
+                setNewAc(p=>{
+                  if(p.useCustomShuttle) return {...p,useCustomShuttle:false};
+                  const base=parseShuttle(p.shuttleInfo||"");
+                  const existing=p.shuttleSchedules||[];
+                  const shuttleSchedules=(p.days||[]).map(day=>{
+                    const ex=existing.find(s=>s.day===day)||{};
+                    return {day,time:ex.time||base.time,place:ex.place||base.place,memo:ex.memo||""};
+                  });
+                  return {...p,useCustomShuttle:true,shuttleSchedules};
+                });
               }} style={{width:"100%",padding:"10px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomShuttle?th.main:C.border}`,background:newAc.useCustomShuttle?`${th.main}10`:CT.faint,color:newAc.useCustomShuttle?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",marginBottom:10}}>
                 {newAc.useCustomShuttle?"✓ 요일별 셔틀 설정 중":"🚌 요일별 셔틀 정보가 달라요"}
               </button>
@@ -7280,20 +7305,24 @@ export default function App() {
                 <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
                   {/* [사용자 확정 2026-08-17] 요일별 셔틀도 늘 월화수목금토일 순으로 */}
                   {[...(newAc.days||[])].sort((a,b)=>DAYS.indexOf(a)-DAYS.indexOf(b)).map(day=>{
-                    const shuttle=(newAc.shuttleSchedules||[]).find(s=>s.day===day)||{};
+                    /* 요일을 나중에 추가하면 항목이 없다 → 기본 장소·시간을 미리 보여 준다
+                       (칸을 고치는 순간 setShuttleDay 가 그 값 그대로 항목을 만든다). */
+                    const base=parseShuttle(newAc.shuttleInfo||"");
+                    const shuttle=(newAc.shuttleSchedules||[]).find(s=>s.day===day)||{time:base.time,place:base.place};
                     return (
                       <div key={day} style={{border:`1px solid ${C.border}`,borderRadius:RAD.md,padding:"12px",background:"#fff"}}>
                         <div style={{fontWeight:FW.semi,marginBottom:8,color:DAY_COLORS[day],fontSize:FS.cardTitle}}>{day}요일</div>
+                        {/* 위 기본 칸과 같은 순서로 — 장소 먼저, 시간 나중 */}
                         <div style={{display:"flex",gap:8,marginBottom:8}}>
-                          <input type="time" value={shuttle.time||""}
-                            onChange={e=>setNewAc(p=>({...p,shuttleSchedules:(p.shuttleSchedules||[]).map(s=>s.day===day?{...s,time:e.target.value}:s)}))}
-                            style={{...inp,flex:1,width:"auto",fontSize:FS.cardTitle,padding:"9px 11px"}}/>
-                          <input value={shuttle.place||""} placeholder="위치"
-                            onChange={e=>setNewAc(p=>({...p,shuttleSchedules:(p.shuttleSchedules||[]).map(s=>s.day===day?{...s,place:e.target.value}:s)}))}
+                          <input value={shuttle.place||""} placeholder="장소"
+                            onChange={e=>setShuttleDay(day,{place:e.target.value})}
                             style={{...inp,flex:2,width:"auto",fontSize:FS.cardTitle,padding:"9px 11px"}}/>
+                          <input type="time" value={shuttle.time||""}
+                            onChange={e=>setShuttleDay(day,{time:e.target.value})}
+                            style={{...inp,flex:1,width:"auto",fontSize:FS.cardTitle,padding:"9px 11px"}}/>
                         </div>
                         <input value={shuttle.memo||""} placeholder="메모"
-                          onChange={e=>setNewAc(p=>({...p,shuttleSchedules:(p.shuttleSchedules||[]).map(s=>s.day===day?{...s,memo:e.target.value}:s)}))}
+                          onChange={e=>setShuttleDay(day,{memo:e.target.value})}
                           style={{...inp,fontSize:FS.cardTitle,padding:"9px 11px"}}/>
                       </div>
                     );
