@@ -7287,10 +7287,14 @@ export default function App() {
               <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <input value={parseShuttle(newAc.shuttleInfo||"").place} placeholder="장소 (예: 아파트 정문)"
                   onChange={e=>setNewAc(p=>({...p,shuttleInfo:joinShuttle(parseShuttle(p.shuttleInfo||"").time,e.target.value)}))}
-                  style={{...inp,flex:2,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
+                  style={{...inp,flex:1,width:"auto",minWidth:0,fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
+                {/* [사용자 지적 2026-08-17] flex:1 로 나누면 한국어 시간이 '오후 4:0' 으로 잘렸다.
+                    글자 탓이 아니다 — '오후 4:00'(69px)은 '04:00 PM'(76px)보다 오히려 좁다.
+                    삼성 브라우저의 시간 선택기가 오른쪽에 화살표를 붙이고 안쪽 여백도 넓게 잡는다.
+                    → 시각 칸을 화살표까지 들어가는 너비로 고정하고, 남는 자리는 장소가 가져간다. */}
                 <input type="time" value={parseShuttle(newAc.shuttleInfo||"").time}
                   onChange={e=>setNewAc(p=>({...p,shuttleInfo:joinShuttle(e.target.value,parseShuttle(p.shuttleInfo||"").place)}))}
-                  style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
+                  style={{...inp,flex:"0 0 156px",width:"auto",fontSize:FS.title,padding:"10px 10px",marginBottom:0}}/>
               </div>
 
               <button type="button" onClick={()=>{
@@ -7328,10 +7332,11 @@ export default function App() {
                         <div style={{display:"flex",gap:8,marginBottom:8}}>
                           <input value={shuttle.place||""} placeholder="장소"
                             onChange={e=>setShuttleDay(day,{place:e.target.value})}
-                            style={{...inp,flex:2,width:"auto",fontSize:FS.cardTitle,padding:"9px 11px"}}/>
+                            style={{...inp,flex:1,width:"auto",minWidth:0,fontSize:FS.cardTitle,padding:"9px 11px"}}/>
+                          {/* 시각 칸은 위 기본 칸과 같은 이유로 고정 너비 (글자 14 라 조금 좁게) */}
                           <input type="time" value={shuttle.time||""}
                             onChange={e=>setShuttleDay(day,{time:e.target.value})}
-                            style={{...inp,flex:1,width:"auto",fontSize:FS.cardTitle,padding:"9px 11px"}}/>
+                            style={{...inp,flex:"0 0 148px",width:"auto",fontSize:FS.cardTitle,padding:"9px 9px"}}/>
                         </div>
                         <input value={shuttle.memo||""} placeholder="메모"
                           onChange={e=>setShuttleDay(day,{memo:e.target.value})}
