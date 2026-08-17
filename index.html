@@ -53,6 +53,11 @@
          예전에는 아이 모드 반환부 안의 <style>에 있어서 엄마용에서는 안 먹었다. */
       .jelly-tap{transition:transform .12s cubic-bezier(.34,1.56,.64,1)}
       .jelly-tap:active{transform:scale(0.9)}
+      /* 시각 입력칸이 비어 있을 때 — 안내 글자('시간 (예: 15:00)')를 겹쳐 놓으므로
+         브라우저가 오른쪽에 그리는 시계·화살표까지 감춘다. 안 그러면 안내 글자 끝의
+         ')' 위에 아이콘이 올라탄다 (삼성 브라우저는 원래 안 그리지만 크롬은 그린다).
+         칸을 누르거나 시각을 넣으면 이 class 가 빠져 아이콘이 돌아온다. */
+      .time-empty::-webkit-calendar-picker-indicator{ opacity:0; pointer-events:none }
       /* 하단 고정 메뉴 — 누르면 아이콘째 살짝 눌린다 */
       .nav-tap{transition:transform .12s ease}
       .nav-tap:active{transform:scale(0.9)}
