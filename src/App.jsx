@@ -6938,7 +6938,7 @@ export default function App() {
                           <div style={{flex:1}}>
                             <p style={{fontSize:FS.title,fontWeight:FW.bold,margin:0,color:C.text}}>{ac.name}</p>
                             <p style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub,margin:"3px 0 0"}}>
-                              {(ac.useCustomSchedule&&ac.schedules?.length)?ac.schedules.map(s=>`${s.day} ${s.time}`).join(" / "):`${(ac.days||[]).join("·")} ${ac.time||""}`}
+                              {(ac.useCustomSchedule&&ac.schedules?.length)?[...ac.schedules].sort((a,b)=>DAYS.indexOf(a.day)-DAYS.indexOf(b.day)).map(s=>`${s.day} ${s.time}`).join(" / "):`${(ac.days||[]).join("·")} ${ac.time||""}`}
                             </p>
                             {(ac.teacher||ac.phone)&&<p style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub,margin:"2px 0 0"}}>{ac.teacher} {ac.phone}</p>}
                           </div>
@@ -7116,7 +7116,9 @@ export default function App() {
             {/* 요일별 시간 개별 입력 */}
             {newAc.useCustomSchedule&&(
               <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12,background:`${th.main}06`,borderRadius:RAD.md,padding:"12px"}}>
-                {(newAc.schedules||[]).map(sc=>(
+                {/* [사용자 확정 2026-08-17] 고른 순서대로 쌓여 목·금·토·일·월… 처럼 뒤섞였다 →
+                    늘 월화수목금토일 순으로 보여 준다 (저장 순서는 건드리지 않는다). */}
+                {[...(newAc.schedules||[])].sort((a,b)=>DAYS.indexOf(a.day)-DAYS.indexOf(b.day)).map(sc=>(
                   <div key={sc.day} style={{display:"flex",alignItems:"center",gap:8,background:"#fff",border:`1.5px solid ${DAY_COLORS[sc.day]}40`,borderRadius:RAD.sm,padding:"8px 10px"}}>
                     <span style={{width:28,fontSize:FS.title,fontWeight:FW.normal,color:DAY_COLORS[sc.day],flexShrink:0}}>{sc.day}</span>
                     <input type="time" value={sc.time}
