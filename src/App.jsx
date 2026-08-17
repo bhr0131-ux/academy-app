@@ -6060,27 +6060,39 @@ export default function App() {
                         {missionPickOpen&&(
                         <div style={{padding:"0 12px 12px"}}>
                         {parentLocked()?(
-                          /* [사용자 확정 2026-08-16] 버튼 칸 안에서 두 줄로 —
-                             윗줄은 무엇을 하는 버튼인지, 아랫줄은 무엇이 열리는지. */
-                          <button onClick={unlockParentPower} className="jelly-tap"
-                            style={{width:"100%",padding:"10px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,cursor:"pointer",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
-                            {/* [사용자 확정 2026-08-16] '엄마 권한 열기'는 위의 미션 추가·관리도
-                                엄마 기능이라 헷갈렸다("그럼 저건 뭐지?") → 눌렀을 때 무엇이
-                                열리는지를 버튼 이름으로 쓴다. */}
-                            {/* [사용자 확정 2026-08-17] 셋을 ' · ' 로 이어 붙이니 기기 폭에 따라
-                                아무 데서나 접혀 어디까지가 한 덩어리인지 안 읽혔다 →
-                                두 줄로 나누고 각 줄 앞에 자물쇠를 하나씩 둔다.
-                                줄마다 keep-all 을 줘 낱말 중간에서는 안 잘린다. */}
-                            {["미션 삭제 · 미션 점수 수정","지난 미션 관리"].map(t=>(
-                              <span key={t} style={{display:"block",textAlign:"center",color:th.main,fontSize:12.5,fontWeight:900,lineHeight:1.5,wordBreak:"keep-all"}}>
-                                <span style={{display:"inline-flex",verticalAlign:-2,marginRight:5}}><CareIcon name="lock" size={14}/></span>
-                                {t}
+                          /* [사용자 확정 2026-08-17] 잠겼을 때도 열렸을 때와 같은 두 칸으로 —
+                             자리·크기·둥글기가 그대로라 비밀번호를 넣어도 화면이 안 흔들린다.
+                             ① 엄마 권한 잠금 (무엇이 잠겼는지)  ② 지난 미션 관리 (남은 개수까지)
+                             둘 다 같은 스위치(rewardUnlocked)를 쓰므로 어느 쪽을 눌러 열든
+                             나머지도 같이 열린다. */
+                          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                            <button onClick={unlockParentPower} className="jelly-tap"
+                              style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,background:`${th.main}0E`,border:`1px solid ${th.main}33`,cursor:"pointer",fontFamily:"inherit",textAlign:"left",display:"flex",alignItems:"flex-start",gap:7}}>
+                              <span style={{color:th.main,display:"flex",flexShrink:0,marginTop:1}}><CareIcon name="lock" size={14}/></span>
+                              <span style={{minWidth:0}}>
+                                <span style={{display:"block",fontSize:12.5,fontWeight:800,color:mixBlack(th.main,0.25)}}>엄마 권한 잠금</span>
+                                <span style={{display:"block",fontSize:11.5,fontWeight:700,color:C.sub,marginTop:2}}>미션 삭제 · 미션 점수 수정</span>
                               </span>
-                            ))}
-                            <span style={{fontSize:11.5,fontWeight:700,color:C.sub}}>
+                            </button>
+                            {isRewToday&&(()=>{
+                              /* [사용자 확정 2026-08-17] 열었을 때만 보이던 남은 개수를 잠겨 있을 때도
+                                 보여 준다 — 열어 볼 값어치가 있는지 비밀번호를 넣기 전에 알 수 있다. */
+                              const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
+                              return (
+                                <button onClick={unlockParentPower} className="jelly-tap"
+                                  style={{width:"100%",padding:"9px 10px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                                  <span style={{display:"flex",alignItems:"center",gap:5}}>
+                                    <span style={{color:th.main,display:"flex"}}><CareIcon name="lock" size={14}/></span> 지난 미션 관리
+                                  </span>
+                                  {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
+                                </button>
+                              );
+                            })()}
+                            {/* 왜 잠겨 있는지 한 줄 — 두 칸에 각각 붙이면 같은 말이 두 번이라 아래에 한 번만 */}
+                            <p style={{margin:0,textAlign:"center",fontSize:11.5,fontWeight:700,color:C.sub}}>
                               비밀번호를 한 번 물어봐요
-                            </span>
-                          </button>
+                            </p>
+                          </div>
                         ):(
                           <div style={{display:"flex",flexDirection:"column",gap:8}}>
                             {/* [사용자 확정 2026-08-16] 좌우로 벌려 놓으니 폭이 좁은 기기에서
