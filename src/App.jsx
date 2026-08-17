@@ -6063,17 +6063,20 @@ export default function App() {
                           /* [사용자 확정 2026-08-16] 버튼 칸 안에서 두 줄로 —
                              윗줄은 무엇을 하는 버튼인지, 아랫줄은 무엇이 열리는지. */
                           <button onClick={unlockParentPower} className="jelly-tap"
-                            style={{width:"100%",padding:"10px",borderRadius:12,border:`1px solid ${th.main}33`,background:`${th.main}0E`,cursor:"pointer",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+                            style={{width:"100%",padding:"10px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,cursor:"pointer",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
                             {/* [사용자 확정 2026-08-16] '엄마 권한 열기'는 위의 미션 추가·관리도
                                 엄마 기능이라 헷갈렸다("그럼 저건 뭐지?") → 눌렀을 때 무엇이
                                 열리는지를 버튼 이름으로 쓴다. */}
-                            {/* [사용자 확정 2026-08-16] 무엇이 열리는지 셋을 다 적는다.
-                                한 줄에 안 들어가면 ' · ' 에서 접히도록 keep-all 을 준다 —
-                                낱말 중간에서 잘리면 읽다가 걸린다. */}
-                            <span style={{display:"block",textAlign:"center",color:th.main,fontSize:12.5,fontWeight:900,lineHeight:1.5,wordBreak:"keep-all"}}>
-                              <span style={{display:"inline-flex",verticalAlign:-2,marginRight:5}}><CareIcon name="lock" size={14}/></span>
-                              지난 미션 관리 · 미션 삭제 · 미션 점수 수정
-                            </span>
+                            {/* [사용자 확정 2026-08-17] 셋을 ' · ' 로 이어 붙이니 기기 폭에 따라
+                                아무 데서나 접혀 어디까지가 한 덩어리인지 안 읽혔다 →
+                                두 줄로 나누고 각 줄 앞에 자물쇠를 하나씩 둔다.
+                                줄마다 keep-all 을 줘 낱말 중간에서는 안 잘린다. */}
+                            {["미션 삭제 · 미션 점수 수정","지난 미션 관리"].map(t=>(
+                              <span key={t} style={{display:"block",textAlign:"center",color:th.main,fontSize:12.5,fontWeight:900,lineHeight:1.5,wordBreak:"keep-all"}}>
+                                <span style={{display:"inline-flex",verticalAlign:-2,marginRight:5}}><CareIcon name="lock" size={14}/></span>
+                                {t}
+                              </span>
+                            ))}
                             <span style={{fontSize:11.5,fontWeight:700,color:C.sub}}>
                               비밀번호를 한 번 물어봐요
                             </span>
@@ -6083,7 +6086,7 @@ export default function App() {
                             {/* [사용자 확정 2026-08-16] 좌우로 벌려 놓으니 폭이 좁은 기기에서
                                 양쪽이 제각각 두 줄로 접혀 읽기 어려웠다 →
                                 윗줄은 자물쇠와 '열렸어요', 아랫줄은 무엇이 열렸는지. */}
-                            <div style={{padding:"9px 12px",borderRadius:12,background:`${C.green}0E`,border:`1px solid ${C.green}33`,display:"flex",alignItems:"flex-start",gap:7}}>
+                            <div style={{padding:"9px 12px",borderRadius:RAD.md,background:`${C.green}0E`,border:`1px solid ${C.green}33`,display:"flex",alignItems:"flex-start",gap:7}}>
                               <span style={{color:C.green,display:"flex",flexShrink:0,marginTop:1}}><CareIcon name="unlock" size={14}/></span>
                               <span style={{minWidth:0}}>
                                 <span style={{display:"block",fontSize:12.5,fontWeight:800,color:mixBlack(C.green,0.25)}}>엄마 권한이 열렸어요</span>
@@ -6094,7 +6097,7 @@ export default function App() {
                               const pastCnt=getPastQuestCandidates(childId,rewardDate).length;
                               return (
                                 <button onClick={()=>setShowPastMissionModal(rewardDate)} className="jelly-tap"
-                                  style={{width:"100%",padding:"9px 10px",borderRadius:12,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                                  style={{width:"100%",padding:"9px 10px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:C.sub,fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
                                   {/* [사용자 확정 2026-08-16] 위 '엄마 권한이 열렸어요'와 같은
                                       열린 자물쇠를 붙여 둘이 한 묶음으로 읽히게 한다. */}
                                   <span style={{display:"flex",alignItems:"center",gap:5}}>
