@@ -7130,8 +7130,10 @@ export default function App() {
               } else {
                 setNewAc(p=>({...p,useCustomSchedule:false}));
               }
-            }} style={{width:"100%",padding:"10px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomSchedule?th.main:C.border}`,background:newAc.useCustomSchedule?`${th.main}10`:CT.faint,color:newAc.useCustomSchedule?th.main:C.sub,fontSize:FS.body,fontWeight:FW.normal,cursor:"pointer",marginBottom:12}}>
-              {newAc.useCustomSchedule?"✓ 요일별 수업시간 설정 중":"📅 요일별로 수업시간이 달라요"}
+            }} style={{width:"100%",padding:"10px",borderRadius:RAD.sm,border:`1.5px solid ${newAc.useCustomSchedule?th.main:C.border}`,background:newAc.useCustomSchedule?`${th.main}10`:CT.faint,color:newAc.useCustomSchedule?th.main:C.sub,fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontFamily:"inherit"}}>
+              {/* 아래 '요일별 셔틀' 토글과 짝이라 모양을 같게 둔다 — 켜지면 ✓ 자리에 check 아이콘 */}
+              <CareIcon name={newAc.useCustomSchedule?"check":"calendar"} size={14}/>
+              {newAc.useCustomSchedule?"요일별 수업시간 설정 중":"요일별로 수업시간이 달라요"}
             </button>
 
             {/* 요일별 시간 개별 입력 */}
