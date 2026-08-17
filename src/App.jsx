@@ -7197,32 +7197,23 @@ export default function App() {
         );
       })()}
 
+      {/* [사용자 확정 2026-08-17] '학원비 수정'과 '납부 기록'이 따로 뜨던 두 시트를 하나로.
+          같은 학원비를 두 군데서 만지는 셈이었다. 이미 낸 달이면 기록 칸까지 함께 나온다. */}
       {feeEdit&&(()=>{
         const ac=curAc.find(a=>a.id===feeEdit.id);
         if(!ac) return null;
+        const rec=payRec(ac.id);
         return (
-          <div onClick={()=>setFeeEdit(null)} style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:260}}>
-            <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 20px 40px",width:"100%",maxWidth:430,boxSizing:"border-box"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-                <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>💰 {ac.name} 학원비</h3>
-                <button onClick={()=>setFeeEdit(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
-              </div>
-              <label style={lbl}>월 학원비 (원)</label>
-              <input type="number" inputMode="numeric" value={feeEdit.fee} onChange={e=>setFeeEdit(p=>({...p,fee:e.target.value}))}
-                placeholder="예: 150000" style={{...inp,marginBottom:14}}/>
-              <label style={lbl}>납부일 (매월)</label>
-              <input type="number" inputMode="numeric" value={feeEdit.payDay} onChange={e=>setFeeEdit(p=>({...p,payDay:e.target.value}))}
-                placeholder="예: 5" style={{...inp,marginBottom:20}}/>
-              <button onClick={()=>{
-                const fee=Math.max(0,Number(feeEdit.fee||0));
-                const pd=Math.min(31,Math.max(1,Number(feeEdit.payDay||1)));
-                setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===feeEdit.id?{...x,fee,payDay:pd}:x)}));
-                setFeeEdit(null); showToast("학원비를 저장했어요");
-              }} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer"}}>
-                저장하기
-              </button>
-            </div>
-          </div>
+          <FeePaySheet ac={ac} month={feeMonth} today={TODAY} value={rec}
+            showFee showRecord={!!rec}
+            tone={{text:C.text,sub:C.sub,border:C.border,faint:CT.faint,green:C.green,red:C.red,orange:C.orange,main:th.main,grad:th.grad}}
+            onClose={()=>setFeeEdit(null)}
+            onSave={(v)=>{
+              setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===ac.id?{...x,fee:v.fee,payDay:v.payDay}:x)}));
+              if(rec) savePayRec(ac.id,{date:v.date,amount:v.amount,method:v.method,memo:v.memo});
+              setFeeEdit(null); showToast("학원비를 저장했어요");
+            }}
+            onUnpay={rec?()=>{ clearPayRec(ac.id); setFeeEdit(null); showToast("미납으로 되돌렸어요"); }:undefined} />
         );
       })()}
 

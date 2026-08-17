@@ -17,6 +17,13 @@
      onSave   : ({date,amount,method,memo})=>void
      onUnpay  : ()=>void        이미 납부 처리된 건을 되돌린다 (기록이 있을 때만 보임)
      tone     : {text,sub,border,faint,green,red,orange,main,grad}
+
+   [사용자 확정 2026-08-17] '학원비 수정'(월 학원비·납부일)과 '납부 기록'이 각각
+   다른 시트로 떠 같은 학원비를 두 군데서 만지게 됐다 → 이 시트 하나로 합친다.
+     showFee=true     월 학원비 · 납부일 칸을 위에 둔다 (⋮ > 학원비 수정)
+     showRecord=true  낸 날·금액·방법·메모 칸을 둔다 (미납 카드의 '납부 완료로 저장',
+                      그리고 이미 낸 학원을 ⋮ 로 열었을 때)
+   onSave 는 둘을 한 번에 넘긴다 — 받는 쪽(App)이 필요한 것만 쓴다.
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
@@ -32,12 +39,15 @@ export const PAY_METHODS = [
 export const payMethodLabel = (k) => PAY_METHODS.find(m => m.key === k)?.label || "";
 const won = (v) => { const n = String(v ?? "").replace(/[^0-9]/g, ""); return n ? Number(n).toLocaleString() : ""; };
 
-export default function FeePaySheet({ ac, month, value, today, onClose, onSave, onUnpay, tone }) {
+export default function FeePaySheet({ ac, month, value, today, onClose, onSave, onUnpay, tone,
+  showFee = false, showRecord = true }) {
   const editing = !!value;
   const [date,   setDate]   = useState(value?.date || today);
   const [amount, setAmount] = useState(String(value?.amount ?? ac?.fee ?? ""));
   const [method, setMethod] = useState(value?.method || "transfer");
   const [memo,   setMemo]   = useState(value?.memo || "");
+  const [feeV,     setFeeV]     = useState(String(ac?.fee ?? ""));
+  const [payDayV,  setPayDayV]  = useState(String(ac?.payDay ?? 1));
   const [askUnpay, setAskUnpay] = useState(false);   // 되돌리기 확인 (한 번 더 묻는다)
   if (!ac) return null;
 
@@ -65,9 +75,43 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
               width: 28, height: 28, cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
         </div>
         <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 15px" }}>
-          {month}월 학원비 · 낸 날과 방법을 남겨 두면 나중에 확인하기 좋아요.
+          {showRecord
+            ? `${month}월 학원비 · 낸 날과 방법을 남겨 두면 나중에 확인하기 좋아요.`
+            : "매달 얼마를 언제 내는지 적어 두면 학원비 탭이 알아서 챙겨 줘요."}
         </p>
 
+        {/* 학원비 설정 — ⋮ > 학원비 수정으로 열었을 때만. 매달 바뀌지 않는 값이라 위에 둔다. */}
+        {showFee && (<>
+          <label style={lbl}>월 학원비 (원)</label>
+          <div style={{ position: "relative", marginBottom: 13 }}>
+            <input type="text" inputMode="numeric" value={won(feeV)}
+              onChange={e => setFeeV(e.target.value.replace(/[^0-9]/g, ""))}
+              placeholder="예: 150,000"
+              style={{ ...inp, paddingRight: 38, textAlign: "right", fontSize: 16 }} />
+            <span style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)",
+              fontSize: 14, fontWeight: 700, color: tone.sub, pointerEvents: "none" }}>원</span>
+          </div>
+
+          <label style={lbl}>납부일 (매월)</label>
+          <div style={{ position: "relative", marginBottom: showRecord ? 20 : 18 }}>
+            <input type="text" inputMode="numeric" value={payDayV}
+              onChange={e => setPayDayV(e.target.value.replace(/[^0-9]/g, "").slice(0, 2))}
+              placeholder="예: 5"
+              style={{ ...inp, paddingRight: 38, textAlign: "right", fontSize: 16 }} />
+            <span style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)",
+              fontSize: 14, fontWeight: 700, color: tone.sub, pointerEvents: "none" }}>일</span>
+          </div>
+        </>)}
+
+        {/* 납부 기록 — 이번 달에 실제로 낸 내용. 두 묶음이 한 시트에 있으니 선으로 나눈다. */}
+        {showFee && showRecord && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 14px" }}>
+            <span style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 900, color: tone.text }}>{month}월 납부 기록</span>
+            <div style={{ flex: 1, height: 1, background: tone.border }} />
+          </div>
+        )}
+
+        {showRecord && (<>
         <label style={lbl}>납부일</label>
         <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ ...inp, marginBottom: 13 }} />
 
@@ -102,12 +146,14 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
         <label style={lbl}>메모 (선택)</label>
         <input value={memo} onChange={e => setMemo(e.target.value)} placeholder="예: 교재비 포함"
           style={{ ...inp, marginBottom: 18 }} />
+        </>)}
 
-        <button onClick={() => onSave({ date, amount: Math.max(0, Number(amount || 0)), method, memo: memo.trim() })}
+        <button onClick={() => onSave({ date, amount: Math.max(0, Number(amount || 0)), method, memo: memo.trim(),
+          fee: Math.max(0, Number(feeV || 0)), payDay: Math.min(31, Math.max(1, Number(payDayV || 1))) })}
           className="jelly-tap"
           style={{ width: "100%", padding: 14, borderRadius: 14, border: "none", background: tone.grad,
             color: "#fff", fontSize: 16, fontWeight: 900, cursor: "pointer", fontFamily: F }}>
-          {editing ? "저장하기" : "납부 완료로 저장"}
+          {!showRecord || editing ? "저장하기" : "납부 완료로 저장"}
         </button>
 
         {/* 되돌리기는 잘못 눌렀을 때만 쓴다.
