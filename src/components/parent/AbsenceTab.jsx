@@ -33,7 +33,6 @@
      onPatch(id, patch)    : 보충 일정(makeupDate/makeupStart/makeupEnd) 부분 수정
      onResult(id, "done"|"absent") : 보충 출석 결과 넣기 / 같은 값이면 되돌리기
      onDelete(id)          : 기록 삭제
-     onSms(ac)             : 그 학원에 문자 보내기
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
@@ -51,13 +50,12 @@ import TimeField from "./TimeField.jsx";
 const AB_PINK  = "#E85B9C";   // 보충 불참 — 끝났지만 결과가 나쁜 건
 const AB_SLATE = "#6E7BA6";   // 보충 없음 (보충 일정을 아직 안 잡은 건)
 const AB_MID   = "#6B7392";   // 본문 중간 톤 — C.text(진함)와 C.sub(연함) 사이
-const AB_QUIET = "#C3C9DC";   // 끝난 건의 막대 — 색을 걷고 회색조로
 
 export default function AbsenceTab({
   th, CT, curAc = [], absList = [],
   absMonth, setAbsMonth, absFilter, setAbsFilter,
   absMenu, setAbsMenu, absTimeEdit, setAbsTimeEdit, makeupPick, setMakeupPick,
-  onAdd, onPatch, onResult, onDelete, onSms,
+  onAdd, onPatch, onResult, onDelete,
 }) {
   /* 끝난 것은 기본으로 접어 둔다 (사용자 확정 2026-08-18) — 이 화면 자리는
      아직 처리해야 할 결석에 쓰는 게 맞다. 탭을 옮기면 다시 접힌다. */
@@ -152,9 +150,6 @@ export default function AbsenceTab({
   const actLink={ background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
     fontSize:FS.sub,fontWeight:FW.semi,textDecoration:"underline",textUnderlineOffset:3,
     padding:"8px 0 8px 12px",flexShrink:0,whiteSpace:"nowrap" };
-  const smsLink={ background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
-    fontSize:FS.sub,fontWeight:FW.normal,color:AB_MID,
-    padding:"8px 12px 8px 0",flexShrink:0,whiteSpace:"nowrap" };
   const headRow={ display:"flex",alignItems:"center",gap:8,margin:"0 0 10px" };
   const headTxt={ fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0 };
 
@@ -176,7 +171,10 @@ export default function AbsenceTab({
          위아래 여백도 카드가 아니라 오른쪽 내용 칸이 갖는다 — 카드가 여백을 가지면
          막대가 그 안에 갇혀 짧아진다. */
       <div key={ab.id} style={{position:"relative",background:"#fff",borderRadius:RAD.md,marginBottom:compact?8:10,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,display:"flex",gap:11}}>
-        <div style={{width:4,borderRadius:`${RAD.md}px 0 0 ${RAD.md}px`,background:compact?AB_QUIET:st.color,flexShrink:0}}/>
+        {/* [사용자 확정 2026-08-18] 카드 앞 막대는 학원 테마색 — 끝난 건도 마찬가지다.
+            (2026-08-17 에 색을 줄이려고 상태색으로 바꿨었는데, 여기 막대는 '어느 학원인가'를
+            말하는 자리라 학원색이 맞다는 사용자 확인. 상태는 배지·주 행동 링크가 말한다.) */}
+        <div style={{width:4,borderRadius:`${RAD.md}px 0 0 ${RAD.md}px`,background:ac.color,flexShrink:0}}/>
         <div style={{flex:1,minWidth:0,padding:compact?"9px 12px 9px 0":"10px 12px 10px 0"}}>
           {/* ① 학원명 · 상태 */}
           <div style={{display:"flex",alignItems:"center",gap:7}}>
@@ -229,7 +227,6 @@ export default function AbsenceTab({
               (사용자 확정 2026-08-18) */}
           {!compact&&(
             <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
-              <button onClick={()=>onSms(ac)} style={smsLink}>문자 보내기</button>
               <div style={{position:"relative",marginLeft:"auto"}}>
                 <button onClick={openMain} style={{...actLink,color:st.color}}
                   aria-expanded={ma.act==="pick"?makeupPick===ab.id:absTimeEdit===ab.id}>
@@ -261,11 +258,6 @@ export default function AbsenceTab({
                 onClick={()=>{ setAbsTimeEdit(ab.id); setAbsMenu(null); }}
                 style={{...menuItem,color:C.text,borderTop:`1px solid ${C.border}`}}>
                 <CareIcon name="pencil" size={14}/>보충 일정 수정
-              </button>
-              <button role="menuitem" className="nav-menu-tap"
-                onClick={()=>{ setAbsMenu(null); onSms(ac); }}
-                style={{...menuItem,color:C.text,borderTop:`1px solid ${C.border}`}}>
-                <CareIcon name="sms" size={14}/>문자 보내기
               </button>
               <button role="menuitem" className="nav-menu-tap"
                 onClick={()=>{ onDelete(ab.id); setAbsMenu(null); }}
