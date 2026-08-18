@@ -24,6 +24,7 @@
      onCopyAccount(s): 입금 계좌 복사
    ════════════════════════════════════════════════════════════════════════ */
 
+import { useState } from "react";
 import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW } from "../../data/tokens.js";
 import { payMethodLabel } from "./FeePaySheet.jsx";
 import CareIcon from "./CareIcons.jsx";
@@ -47,6 +48,19 @@ export default function FeeTab({
   const restSum=total-paidSum;
   const thisMonth=new Date().getMonth()+1;
   const won=(n)=>`${n.toLocaleString()}원`;
+  /* [사용자 확정 2026-08-18] 다 낸 곳은 더 할 일이 없다 → 아래로 내리고 기본으로 접는다.
+     결석 탭과 같은 규칙이다. 이 화면 자리는 '아직 낼 곳'에 쓰는 게 맞다.
+     학원비를 아직 안 적은 곳은 '낼 곳' 쪽에 둔다 — 그것도 손이 가야 하는 일이다. */
+  const [doneOpen, setDoneOpen] = useState(false);
+  const isDone=(a)=>Number(a.fee||0)>0&&isPaid(a.id);
+  const todoAc=curAc.filter(a=>!isDone(a));
+  const doneAc=curAc.filter(isDone);
+  const groups=(todoAc.length>0&&doneAc.length>0)
+    ? [{key:"todo",head:`낼 곳 ${todoAc.length}곳`,items:todoAc,fold:false},
+       {key:"done",head:`납부 완료 ${doneAc.length}곳`,items:doneAc,fold:true}]
+    : [{key:"one",head:null,items:curAc,fold:false}];
+  const headRow={ display:"flex",alignItems:"center",gap:8,margin:"0 0 10px" };
+  const headTxt={ fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0 };
   return (
   <div>
     {/* 월 이동 — 화살표를 제목 양옆에 모아 하나의 조작 영역으로 (사용자 지적).
@@ -96,7 +110,25 @@ export default function FeeTab({
       )}
     </div>
 
-    {curAc.map(a=>{
+    {groups.map((g,gi)=>{
+      const folded=g.fold&&!doneOpen;
+      return (
+      <div key={g.key} style={{marginTop:gi?10:0}}>
+      {g.head&&(g.fold?(
+        <button onClick={()=>setDoneOpen(v=>!v)} className="jelly-tap" aria-expanded={!folded}
+          style={{...headRow,width:"100%",background:"none",border:"none",padding:"4px 0",cursor:"pointer",fontFamily:"inherit"}}>
+          <span style={headTxt}>{g.head}</span>
+          <span style={{flexShrink:0,fontSize:FS.tag,color:C.sub,fontWeight:FW.bold,display:"inline-block",
+            transition:"transform .2s",transform:folded?"none":"rotate(180deg)"}}>⌄</span>
+          <div style={{flex:1,height:1,background:C.border}}/>
+        </button>
+      ):(
+        <div style={headRow}>
+          <span style={headTxt}>{g.head}</span>
+          <div style={{flex:1,height:1,background:C.border}}/>
+        </div>
+      ))}
+      {!folded&&g.items.map(a=>{
       const st=payStatus(a);
       const paid=isPaid(a.id);
       const rec=payRec(a.id);
@@ -131,7 +163,7 @@ export default function FeeTab({
            오른쪽 내용 칸이 갖는다 — 홈 카드와 같은 구조다.
            카드에 overflow:hidden 을 걸면 아래 ⋮ 메뉴(position:absolute)까지 잘리므로,
            세로선 자신이 왼쪽 두 모서리만 둥글게 갖는다. */
-        <div key={a.id} style={{position:"relative",background:CT.card,borderRadius:RAD.md,marginBottom:14,border:`1px solid ${paid?C.green+"33":C.border}`,boxShadow:SHADOW.sm,display:"flex"}}>
+        <div key={a.id} style={{position:"relative",background:CT.card,borderRadius:RAD.md,marginBottom:14,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,display:"flex"}}>
           <div style={{width:4,borderRadius:`${RAD.md}px 0 0 ${RAD.md}px`,background:a.color,flexShrink:0}}/>
           <div style={{flex:1,minWidth:0,padding:"11px 12px"}}>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
@@ -229,6 +261,9 @@ export default function FeeTab({
             </>
           )}
         </div>
+      );
+    })}
+      </div>
       );
     })}
     {curAc.length===0&&<div style={{textAlign:"center",padding:"40px",color:C.sub,fontSize:FS.body,background:mixWhite(th.main,0.93),borderRadius:RAD.lg,border:`1.5px dashed ${th.main}40`}}>등록된 학원이 없어요</div>}
