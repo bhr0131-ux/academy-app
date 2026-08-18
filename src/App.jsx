@@ -5643,8 +5643,7 @@ export default function App() {
             onAdd={()=>setShowAbsModal(true)}
             onPatch={(id,patch)=>setAbsences(p=>({...p,[childId]:(p[childId]||[]).map(x=>x.id===id?{...x,...patch}:x)}))}
             onResult={(id,k)=>setMakeupResult(id,k)}
-            onDelete={(id)=>deleteAbs(id)}
-            onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }} />
+            onDelete={(id)=>deleteAbs(id)} />
         )}
 
         {/* ════ 미션 탭 ════ */}
