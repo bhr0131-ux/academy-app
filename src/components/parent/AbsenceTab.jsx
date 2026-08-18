@@ -25,7 +25,7 @@
      absList      : 화면에 뿌릴 결석 기록 — 지워진 학원의 '주인 없는 기록'은
                     App(curAbsLive)에서 이미 걸러서 넘어온다
      absMonth     : 보고 있는 달 "YYYY-MM"        setAbsMonth
-     absFilter    : "all" | "late" | "plan" | "done"   setAbsFilter
+     absFilter    : "all" | "pending" | "done"    setAbsFilter
      absMenu      : ⋮ 를 연 기록 id              setAbsMenu
      absTimeEdit  : 보충 일정 수정 칸을 연 기록 id  setAbsTimeEdit
      makeupPick   : 출석 확인 메뉴를 연 기록 id     setMakeupPick
@@ -122,16 +122,12 @@ export default function AbsenceTab({
   const pendingAll=byDate.filter(a=>!isSettled(a))
     .slice().sort((a,b)=>PRI[absState(a).k]-PRI[absState(b).k]);
   const doneAll=byDate.filter(isSettled);
-  const lateCnt=pendingAll.filter(a=>absState(a).k==="late").length;
-  const planCnt=pendingAll.length-lateCnt;
-
-  /* 요약 칩을 누르면 그 갈래만 걸러 본다 (예전 요약 3칸이 하던 일).
-     '보충 예정'은 아직 안 지난 것과 날짜 미정을 함께 센다 — 둘 다 '기다리는 중'이다. */
-  const pendingList=absFilter==="late"?pendingAll.filter(a=>absState(a).k==="late")
-                  :absFilter==="plan"?pendingAll.filter(a=>absState(a).k!=="late")
-                  :absFilter==="done"?[]
-                  :pendingAll;
-  const doneList=(absFilter==="all"||absFilter==="done")?doneAll:[];
+  /* [사용자 확정 2026-08-18] 칩이 세는 갈래는 예전 요약 3칸과 같게 되돌린다 —
+     전체 / 보충 예정(아직 안 끝난 것 전부) / 보충 완료. 모양만 한 줄 칩을 유지한다.
+     '확인 필요'는 카드 배지와 '처리 필요' 머리글이 이미 말해 준다.
+     옛 값("late"·"plan")이 남아 있어도 '전체'로 읽히게 !== 로 가른다. */
+  const pendingList=absFilter!=="done"   ?pendingAll:[];
+  const doneList   =absFilter!=="pending"?doneAll   :[];
   const shownCnt=pendingList.length+doneList.length;
   // '완료'만 걸러 봤을 때는 접어 두면 아무것도 안 보인다 → 그때는 늘 펼친다
   const doneShown=doneOpen||absFilter==="done";
@@ -329,10 +325,9 @@ export default function AbsenceTab({
         여기는 통계 화면이 아니라 결석 관리 화면이라 목록을 먼저 보여 주는 편이 낫다.
         누르면 그 갈래만 걸러 보는 것(예전 3칸이 하던 일)은 그대로 남긴다. */}
     <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:12}}>
-      <span style={{fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,flexShrink:0,marginRight:2}}>결석 {totalCnt}건</span>
-      {[{k:"late",l:"확인 필요",v:lateCnt,c:C.red},
-        {k:"plan",l:"보충 예정",v:planCnt,c:C.orange},
-        {k:"done",l:"완료",     v:doneAll.length,c:C.sub}].map(s=>{
+      {[{k:"all",    l:"전체",     v:totalCnt,       c:C.red},
+        {k:"pending",l:"보충 예정",v:pendingAll.length,c:C.orange},
+        {k:"done",   l:"보충 완료",v:doneAll.length,  c:C.sub}].map(s=>{
         const on=absFilter===s.k;
         return (
           <button key={s.k} onClick={()=>setAbsFilter(on?"all":s.k)} className="jelly-tap"
@@ -356,7 +351,7 @@ export default function AbsenceTab({
     {/* ── 처리 필요 ── */}
     {pendingList.length>0&&(
       <div>
-        {absFilter==="all"&&(
+        {doneList.length>0&&(
           <div style={headRow}>
             <span style={headTxt}>처리 필요 {pendingList.length}건</span>
             <div style={{flex:1,height:1,background:C.border}}/>
@@ -369,7 +364,7 @@ export default function AbsenceTab({
     {/* ── 끝난 것 — 기본 접힘 ── */}
     {doneList.length>0&&(
       <div style={{marginTop:pendingList.length?10:0}}>
-        {absFilter==="all"?(
+        {pendingList.length>0?(
           <button onClick={()=>setDoneOpen(v=>!v)} className="jelly-tap"
             aria-expanded={doneShown}
             style={{...headRow,width:"100%",background:"none",border:"none",padding:"4px 0",cursor:"pointer",fontFamily:"inherit"}}>
