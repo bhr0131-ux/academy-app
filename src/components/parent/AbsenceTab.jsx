@@ -204,6 +204,14 @@ export default function AbsenceTab({
           {/* 보충 일정 수정 — ⋮ 에서 열거나 '보충 추가·일정 변경'으로 연다 */}
           {(absTimeEdit===ab.id)&&(
             <div style={{marginTop:8,background:CT.faint,borderRadius:RAD.sm,padding:"9px 10px"}}>
+              {/* [사용자 확정 2026-08-18] 결석일을 잘못 적으면 고칠 데가 없어서 지우고
+                  다시 넣어야 했다 → 보충 예정일 위에 결석일 칸을 둔다.
+                  날짜를 바꾸면 이 기록이 속한 달도 바뀌므로, 다른 달로 옮기면
+                  이 화면(그 달 목록)에서는 사라지고 그 달로 넘어가면 보인다. */}
+              <label style={editLbl}>결석일</label>
+              <input type="date" value={ab.date||""} aria-label="결석일"
+                onChange={e=>{ if(e.target.value) onPatch(ab.id,{date:e.target.value}); }}
+                style={{...editInp,display:"block",marginBottom:8}}/>
               <label style={editLbl}>보충 예정일</label>
               <input type="date" value={ab.makeupDate||""} aria-label="보충 예정일"
                 onChange={e=>onPatch(ab.id,{makeupDate:e.target.value})}
