@@ -140,6 +140,15 @@ export default function AbsenceTab({
   const menuItem={ width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",
     fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",
     display:"flex",alignItems:"center",gap:8 };
+  /* [사용자 확정 2026-08-18] 주 행동을 채운 버튼이 아니라 학원비 탭의 '납부 처리'와
+     똑같은 모양(밑줄 글자)으로, 카드 오른쪽 아래에 둔다. 색은 그대로 상태색을 쓴다 —
+     배지와 링크가 한 색이라 눈이 '무슨 상태인가 → 그래서 뭘 하나'로 이어진다. */
+  const actLink={ background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
+    fontSize:FS.sub,fontWeight:FW.semi,textDecoration:"underline",textUnderlineOffset:3,
+    padding:"8px 0 8px 12px",flexShrink:0,whiteSpace:"nowrap" };
+  const smsLink={ background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
+    fontSize:FS.sub,fontWeight:FW.normal,color:AB_MID,
+    padding:"8px 12px 8px 0",flexShrink:0,whiteSpace:"nowrap" };
   const headRow={ display:"flex",alignItems:"center",gap:8,margin:"0 0 10px" };
   const headTxt={ fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0 };
 
@@ -186,14 +195,6 @@ export default function AbsenceTab({
             {ab.makeupDate
               ? <><span style={{color:compact?AB_MID:C.text}}>{shortD(ab.makeupDate)}{mt?` ${mt}`:""}</span> 보충</>
               : <span>보충 일정 미정</span>}
-            {/* 끝난 건은 버튼 줄 없이 이 줄 끝에서 바로 고친다 */}
-            {compact&&(
-              <button onClick={openMain}
-                style={{marginLeft:8,background:"none",border:"none",padding:0,cursor:"pointer",fontFamily:"inherit",
-                  fontSize:FS.sub,fontWeight:FW.semi,color:AB_MID,textDecoration:"underline",textUnderlineOffset:3}}>
-                수정
-              </button>
-            )}
           </p>
 
           {/* 보충 일정 수정 — ⋮ 에서 열거나 '일정 잡기·변경'으로 연다 */}
@@ -218,23 +219,18 @@ export default function AbsenceTab({
             </div>
           )}
 
-          {/* ③ 할 일 — 주 행동 하나만 채운 버튼, 문자는 옆에 작게 (사용자 확정 2026-08-18) */}
+          {/* ③ 할 일 — 학원비 탭 카드와 같은 줄 모양: 왼쪽 보조, 오른쪽 끝에 주 행동.
+              (사용자 확정 2026-08-18) */}
           {!compact&&(
-            <div style={{display:"flex",alignItems:"center",gap:10,marginTop:9}}>
-              <div style={{position:"relative",flexShrink:0}}>
-                <button onClick={openMain} className="jelly-tap"
-                  aria-expanded={ma.act==="pick"?makeupPick===ab.id:absTimeEdit===ab.id}
-                  style={{padding:"8px 18px",borderRadius:RAD.sm,cursor:"pointer",fontSize:FS.sub,fontWeight:FW.bold,fontFamily:"inherit",
-                    border:"none",background:st.color,color:"#fff",whiteSpace:"nowrap"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
+              <button onClick={()=>onSms(ac)} style={smsLink}>문자 보내기</button>
+              <div style={{position:"relative",marginLeft:"auto"}}>
+                <button onClick={openMain} style={{...actLink,color:st.color}}
+                  aria-expanded={ma.act==="pick"?makeupPick===ab.id:absTimeEdit===ab.id}>
                   {ma.label}
                 </button>
                 {makeupPick===ab.id&&pickMenu(ab,"up")}
               </div>
-              <button onClick={()=>onSms(ac)}
-                style={{background:"none",border:"none",padding:"6px 0",cursor:"pointer",fontFamily:"inherit",
-                  fontSize:FS.sub,fontWeight:FW.normal,color:AB_MID,whiteSpace:"nowrap"}}>
-                문자 보내기
-              </button>
             </div>
           )}
           {/* 끝난 건은 버튼 줄이 없어 '수정' 글자 바로 아래로 편다 —
@@ -282,7 +278,7 @@ export default function AbsenceTab({
     return (
       <>
         <div onClick={()=>setMakeupPick(null)} style={{position:"fixed",inset:0,zIndex:40}}/>
-        <div role="menu" style={{position:"absolute",...(dir==="down"?{top:4}:{bottom:40}),left:0,zIndex:41,minWidth:150,background:"#fff",borderRadius:RAD.md,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
+        <div role="menu" style={{position:"absolute",...(dir==="down"?{top:4,left:0}:{bottom:36,right:0}),zIndex:41,minWidth:150,background:"#fff",borderRadius:RAD.md,border:`1px solid ${C.border}`,boxShadow:"0 8px 24px -6px rgba(90,70,60,0.28)",overflow:"hidden"}}>
           {[{k:"done",l:"✓ 보충 완료",c:C.green},{k:"absent",l:"✕ 보충 불참",c:AB_PINK}].map((o,oi)=>(
             <button key={o.k} role="menuitem" className="nav-menu-tap"
               onClick={()=>{ onResult(ab.id,o.k); setMakeupPick(null); }}
