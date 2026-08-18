@@ -49,7 +49,7 @@ import TimeField from "./TimeField.jsx";
    할 일 쪽(출석 확인 필요)만 강한 빨강으로 세우고, 끝난 쪽은 아래 묶음에서
    회색조로 가라앉힌다(불참만 글자색을 남긴다). */
 const AB_PINK  = "#E85B9C";   // 보충 불참 — 끝났지만 결과가 나쁜 건
-const AB_SLATE = "#6E7BA6";   // 일정 미정
+const AB_SLATE = "#6E7BA6";   // 보충 없음 (보충 일정을 아직 안 잡은 건)
 const AB_MID   = "#6B7392";   // 본문 중간 톤 — C.text(진함)와 C.sub(연함) 사이
 const AB_QUIET = "#C3C9DC";   // 끝난 건의 막대 — 색을 걷고 회색조로
 
@@ -63,13 +63,17 @@ export default function AbsenceTab({
      아직 처리해야 할 결석에 쓰는 게 맞다. 탭을 옮기면 다시 접힌다. */
   const [doneOpen, setDoneOpen] = useState(false);
 
+  /* [사용자 확정 2026-08-18] '끝난 것'은 출석/불참을 누른 건만이 아니다 —
+     보충을 안 잡았는데 결석일까지 지난 건은 그냥 결석으로 끝난 것이라 더 할 일이 없다.
+     그래서 이 판정을 makeupDone 대신 쓴다 (묶음·개수·이월 모두 같은 기준). */
+  const isSettled=(a)=>!!a.makeupDone||(!a.makeupDate&&(a.date||"")<TODAY);
   const inMonth=(a)=>(a.date||"").slice(0,7)===absMonth;                       // 이번 달에 결석한 건
   /* 이월 규칙: 지난달 이전 결석 중 미처리(출석/불참 안 누름)인 것만.
       - 보충일정 있으면 → 그 보충일이 속한 달까지만 이월(보충월 ≥ 현재 보는 달)
-      - 보충일정 미정이면 → 출석/불참 누를 때까지 항상 이월 */
+      - 보충일정이 없고 결석일도 안 지났으면(미리 적어 둔 건) → 계속 이월 */
   const isCarry=(a)=>{
     if((a.date||"").slice(0,7)>=absMonth) return false;   // 이번 달 이후 결석은 이월 대상 아님
-    if(a.makeupDone) return false;                         // 이미 처리(출석/불참)된 건 제외
+    if(isSettled(a)) return false;                         // 이미 끝난 건은 따라오지 않는다
     if(a.makeupDate) return a.makeupDate.slice(0,7)>=absMonth; // 보충월이 현재 달 이상일 때만 따라옴
     return true;                                           // 보충 미정 → 항상 이월
   };
@@ -93,7 +97,9 @@ export default function AbsenceTab({
   const absState=(ab)=>{
     if(ab.makeupStatus==="absent") return {k:"absent",label:"보충 불참",color:AB_PINK};
     if(ab.makeupDone)              return {k:"done",  label:"보충 완료",color:C.green};
-    if(!ab.makeupDate)             return {k:"none",  label:"일정 미정",color:AB_SLATE};
+    /* [사용자 확정 2026-08-18] '일정 미정'은 '언젠가 잡긴 할 텐데'로 읽혔다.
+       보충을 안 하기로 한 결석도 많아서 '보충 없음'이 사실에 맞다. */
+    if(!ab.makeupDate)             return {k:"none",  label:"보충 없음",color:AB_SLATE};
     if(ab.makeupDate<TODAY)        return {k:"late",  label:"출석 확인 필요",color:C.red};
     return {k:"plan",label:"보충 예정",color:C.orange};
   };
@@ -101,7 +107,7 @@ export default function AbsenceTab({
      예전엔 '보충 출석 여부'와 '문자 보내기'가 같은 크기라 둘 다 주 행동처럼 보였다. */
   const mainAct=(k)=>
       k==="late" ? {label:"출석 확인", act:"pick"}
-    : k==="none" ? {label:"일정 잡기", act:"time"}
+    : k==="none" ? {label:"보충 추가", act:"time"}
     : k==="plan" ? {label:"일정 변경", act:"time"}
     :              {label:"출석 수정", act:"pick"};   // done · absent
 
@@ -111,12 +117,12 @@ export default function AbsenceTab({
     ...thisMonthAbs.slice().sort((a,b)=>b.date.localeCompare(a.date)),
   ];
   /* [사용자 확정 2026-08-18] 미처리 건은 날짜순이 아니라 '지금 해야 할 일' 순으로.
-     확인 필요(보충일이 지났다) → 일정 미정(날짜조차 없다) → 보충 예정(기다리면 된다).
+     확인 필요(보충일이 지났다) → 보충 없음(아직 안 잡았다) → 보충 예정(기다리면 된다).
      같은 순위 안에서는 위 날짜 정렬을 그대로 따른다. */
   const PRI={late:0,none:1,plan:2};
-  const pendingAll=byDate.filter(a=>!a.makeupDone)
+  const pendingAll=byDate.filter(a=>!isSettled(a))
     .slice().sort((a,b)=>PRI[absState(a).k]-PRI[absState(b).k]);
-  const doneAll=byDate.filter(a=>a.makeupDone);
+  const doneAll=byDate.filter(isSettled);
   const lateCnt=pendingAll.filter(a=>absState(a).k==="late").length;
   const planCnt=pendingAll.length-lateCnt;
 
@@ -194,10 +200,10 @@ export default function AbsenceTab({
             <span style={{margin:"0 5px",color:C.sub}}>→</span>
             {ab.makeupDate
               ? <><span style={{color:compact?AB_MID:C.text}}>{shortD(ab.makeupDate)}{mt?` ${mt}`:""}</span> 보충</>
-              : <span>보충 일정 미정</span>}
+              : <span>보충 없음</span>}
           </p>
 
-          {/* 보충 일정 수정 — ⋮ 에서 열거나 '일정 잡기·변경'으로 연다 */}
+          {/* 보충 일정 수정 — ⋮ 에서 열거나 '보충 추가·일정 변경'으로 연다 */}
           {(absTimeEdit===ab.id)&&(
             <div style={{marginTop:8,background:CT.faint,borderRadius:RAD.sm,padding:"9px 10px"}}>
               <label style={editLbl}>보충 예정일</label>
