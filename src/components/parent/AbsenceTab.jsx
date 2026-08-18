@@ -33,6 +33,7 @@
      onPatch(id, patch)    : 보충 일정(makeupDate/makeupStart/makeupEnd) 부분 수정
      onResult(id, "done"|"absent") : 보충 출석 결과 넣기 / 같은 값이면 되돌리기
      onDelete(id)          : 기록 삭제
+     onSms(ac)             : 그 학원에 문자 보내기 (⋮ 메뉴에서만 — 카드 줄에는 안 둔다)
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
@@ -55,7 +56,7 @@ export default function AbsenceTab({
   th, CT, curAc = [], absList = [],
   absMonth, setAbsMonth, absFilter, setAbsFilter,
   absMenu, setAbsMenu, absTimeEdit, setAbsTimeEdit, makeupPick, setMakeupPick,
-  onAdd, onPatch, onResult, onDelete,
+  onAdd, onPatch, onResult, onDelete, onSms,
 }) {
   /* 끝난 것은 기본으로 접어 둔다 (사용자 확정 2026-08-18) — 이 화면 자리는
      아직 처리해야 할 결석에 쓰는 게 맞다. 탭을 옮기면 다시 접힌다. */
@@ -266,6 +267,13 @@ export default function AbsenceTab({
                 onClick={()=>{ setAbsTimeEdit(ab.id); setAbsMenu(null); }}
                 style={{...menuItem,color:C.text,borderTop:`1px solid ${C.border}`}}>
                 <CareIcon name="pencil" size={14}/>보충 일정 수정
+              </button>
+              {/* [사용자 확정 2026-08-18] 문자 보내기는 카드 줄에서만 뺀 것이다 —
+                  ⋮ 안에는 그대로 둔다. */}
+              <button role="menuitem" className="nav-menu-tap"
+                onClick={()=>{ setAbsMenu(null); onSms(ac); }}
+                style={{...menuItem,color:C.text,borderTop:`1px solid ${C.border}`}}>
+                <CareIcon name="sms" size={14}/>문자 보내기
               </button>
               <button role="menuitem" className="nav-menu-tap"
                 onClick={()=>{ onDelete(ab.id); setAbsMenu(null); }}
