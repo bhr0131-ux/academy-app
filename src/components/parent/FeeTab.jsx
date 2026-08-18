@@ -101,11 +101,12 @@ export default function FeeTab({
           <p style={{fontSize:FS.title,fontWeight:FW.bold,color:restSum>0?C.red:C.sub,margin:"2px 0 0",whiteSpace:"nowrap"}}>{won(restSum)}</p>
         </div>
       </div>
-      {(billed.length===0||restSum===0)&&(
+      {/* [사용자 확정 2026-08-18] '등록된 학원비가 없어요'는 뺐다 — 바로 위 '0원'이
+          이미 같은 말을 하고, 아래 카드에 '학원비가 등록되지 않았어요 / ＋ 학원비 추가'가
+          또 있어 한 화면에서 같은 이야기를 세 번 했다. 다 냈을 때 한 줄만 남긴다. */}
+      {billed.length>0&&restSum===0&&(
       <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"9px 0 0",textAlign:"center",opacity:0.9}}>
-        {billed.length===0
-          ? "등록된 학원비가 없어요"
-          : `${billed.length}곳 모두 납부했어요`}
+        {billed.length}곳 모두 납부했어요
       </p>
       )}
     </div>
