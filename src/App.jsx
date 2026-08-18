@@ -10,6 +10,7 @@ import { ModeSelect, CoachmarkOverlay, OnboardingFlow } from "./components/Onboa
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
 import RewardTab from "./components/parent/RewardTab.jsx";
+import EtcTab from "./components/parent/EtcTab.jsx";
 import TimeField from "./components/parent/TimeField.jsx";
 import AbsenceTab from "./components/parent/AbsenceTab.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
@@ -3729,8 +3730,6 @@ export default function App() {
     fontSize:FS.cardTitle,fontWeight:FW.normal,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,
     display:"flex",alignItems:"center",gap:5,fontFamily:"inherit" };
   /* (이동됨) devBtn·devMiniBtn·devGroup·devGroupTitle — DevToolsPanel.jsx 로 분리 */
-  const openCloseLabel=(open)=>open?"닫기 ▲":"열기 ▼";
-  const openClosePill=(open)=>({fontSize:12,fontWeight:900,color:th.main,background:th.light,padding:"6px 9px",borderRadius:14,whiteSpace:"nowrap",flexShrink:0});
   /* ── 보상 탭 관리 카드 ───────────────────────────────────────────────
      [사용자 확정 2026-08-11]
      · 접힌 카드가 높아 한 화면에 셋밖에 안 들어왔다 → 여백·글자를 한 단계씩 줄인다.
@@ -5972,234 +5971,39 @@ export default function App() {
         )}
 
         {/* ════ 문자 탭 ════ */}
+        {/* ════ 기타 탭 ════ */}
+        {/* [2026-08-18] 화면 본문을 components/parent/EtcTab.jsx 로 옮겼다
+            (CLAUDE.md 규칙 3). 데이터·저장은 여전히 App에 있고, 값과 콜백만 내려보낸다. */}
         {tab==="etc"&&(
-          <div>
-            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <button
-                onClick={()=>{ setShowSettingsModal(false); setTab("home"); setShowCoachmark(true); }}
-                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",textAlign:"left"}}
-              >
-                <div>
-                  <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>📖 사용 가이드 다시 보기</p>
-                  <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>홈부터 각 탭이 어떤 기능인지 다시 안내해요</p>
-                </div>
-                <span style={openClosePill(true)}>보기</span>
-              </button>
-            </div>
-
-
-            {/* [사용자 확정 2026-08-17] '보상 연령대' 카드를 뺐다 — 아이 추가·수정 화면에서
-                같은 일을 하게 되어 두 군데가 됐다. 고르는 자리는 하나여야 한다.
-                (더보기 > 아이 선택 줄의 ＋ 또는 아이 목록의 '수정'에서 바꾼다) */}
-
-            {/* 게임 디자인 선택 — 베이커리 미출시 동안 숨김 (BAKERY_ENABLED) */}
-            {BAKERY_ENABLED && !skinByChild[childId] && (
-            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <button
-                onClick={()=>{ setShowSettingsModal(false); setShowModeSelect(true); }}
-                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",textAlign:"left"}}
-              >
-                <div>
-                  <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🎨 {children.find(c=>c.id===childId)?.name||"아이"} 게임 디자인 선택</p>
-                  <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>현재: {getSkin(kidSkin).selectEmoji} {getSkin(kidSkin).name} · 한 번 선택하면 변경할 수 없어요</p>
-                </div>
-                <span style={openClosePill(true)}>선택</span>
-              </button>
-            </div>
-            )}
-
-
-            {/* [사용자 확정 2026-08-16] 보상 탭에 있던 '수동 점수 조정'을 여기로 옮기고 잠갔다.
-                점수를 직접 더하고 빼는 자리라, 잠금이 없으면 아이가 🎒 버튼으로 엄마 관리에
-                넘어와 자기 점수를 올릴 수 있다 (엄마용 진입 자체에는 비밀번호가 없다).
-                잠금은 미션·보상과 같은 스위치를 쓴다 — 한 번 풀면 셋 다 열린다. */}
-            <XpAdjustCard D={{
-              TM, th, childId, addChildScore, showToast,
-              card:{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm},
-              secTitle:{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text},
-              secSub:{fontSize:13,fontWeight:700,color:C.sub,margin:0,lineHeight:1.5},
-              secArrow:rewardSecArrow,
+          <EtcTab D={{
+            th, CT, TM, childId, children, kidSkin, getSkin,
+            bakeryEnabled:BAKERY_ENABLED, skinChosen:!!skinByChild[childId],
+            onOpenGuide:()=>{ setShowSettingsModal(false); setTab("home"); setShowCoachmark(true); },
+            onOpenModeSelect:()=>{ setShowSettingsModal(false); setShowModeSelect(true); },
+            xp:{
+              addChildScore, showToast, secArrow:rewardSecArrow,
               open:showParentXpAdjust, setOpen:setShowParentXpAdjust,
               locked:parentLocked(),
               unlock:(after)=>askPin(()=>{ setRewardUnlocked(true); after&&after(); },"수동 점수 조정"),
               sign:xpAdjustSign, setSign:setXpAdjustSign,
               label:xpAdjustLabel, setLabel:setXpAdjustLabel,
               input:xpAdjustInput, setInput:setXpAdjustInput,
-            }}/>
-
-            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <button
-                onClick={()=>setOpenSmsManage(v=>!v)}
-                style={{width:"100%",border:"none",background:"transparent",padding:0,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",textAlign:"left"}}
-              >
-                <div>
-                  <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>💬 문자관리</p>
-                  <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:0}}>결석 안내, 보충 문의 등 문자 템플릿을 관리해요</p>
-                </div>
-                <span style={openClosePill(openSmsManage)}>{openCloseLabel(openSmsManage)}</span>
-              </button>
-
-              {openSmsManage&&(
-                <div style={{marginTop:14}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-              <p style={{fontSize:13,color:C.sub,fontWeight:700,margin:0}}>문자 템플릿 관리</p>
-              <button onClick={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }} style={{padding:"6px 12px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ 새 템플릿</button>
-            </div>
-            <div style={{background:`${C.purple}08`,border:`1px solid ${C.purple}25`,borderRadius:10,padding:"10px 13px",marginBottom:13}}>
-              <p style={{fontSize:13,color:C.purple,fontWeight:700,margin:"0 0 6px"}}>📌 사용 가능한 변수</p>
-              <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                {["{아이이름}","{학원명}","{날짜}","{시간}"].map(v=><span key={v} style={{fontSize:13,padding:"3px 9px",borderRadius:10,background:C.purpleL,color:C.purple,fontWeight:600}}>{v}</span>)}
-              </div>
-            </div>
-            {templates.map(tmpl=>(
-              <div key={tmpl.id} style={{background:CT.card,borderRadius:18,padding:"13px 15px",marginBottom:10,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-                  <span style={{fontWeight:700,fontSize:13,color:C.text}}>💬 {tmpl.title}</span>
-                  <div style={{display:"flex",gap:6}}>
-                    <button onClick={()=>{ setShowTmplEdit(tmpl.id); setEditTmpl({title:tmpl.title,body:tmpl.body}); }} style={{padding:"4px 10px",borderRadius:10,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:13,cursor:"pointer"}}>수정</button>
-                    <button onClick={()=>{ setTemplates(p=>p.filter(t=>t.id!==tmpl.id)); showToast("삭제됨"); }} style={{padding:"4px 10px",borderRadius:10,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,fontSize:13,cursor:"pointer"}}>삭제</button>
-                  </div>
-                </div>
-                <p style={{fontSize:13,color:C.sub,margin:0,whiteSpace:"pre-wrap",background:CT.faint,borderRadius:10,padding:"9px 11px",lineHeight:1.5}}>{tmpl.body}</p>
-              </div>
-            ))}
-                </div>
-              )}
-            </div>
-
-            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:C.text}}>🔐 보안</p>
-              <button onClick={()=>setShowPinChangeModal(true)}
-                style={{width:"100%",padding:12,borderRadius:14,border:`1.5px solid ${C.border}`,background:CT.faint,color:C.text,fontSize:13,fontWeight:900,cursor:"pointer"}}>
-                비밀번호 변경
-              </button>
-              <button onClick={()=>{ setSetupRecoveryQ(recoveryQuestion||""); setSetupRecoveryA(""); setShowRecoverySetupModal(true); }}
-                style={{width:"100%",padding:12,borderRadius:14,border:`1.5px solid ${C.border}`,background:CT.faint,color:C.text,fontSize:13,fontWeight:900,cursor:"pointer",marginTop:9}}>
-                {recoveryQuestion?"복구 질문 변경":"복구 질문 설정"}
-              </button>
-            </div>
-
-            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:C.text}}>💾 데이터 관리</p>
-
-              {/* 마지막 백업 상태 배너 */}
-              {(()=>{
-                const never = lastBackupDate===null;
-                const stale = !never && daysSinceBackup!==null && daysSinceBackup>=BACKUP_NUDGE_DAYS;
-                // 백업 이력 없어도 설치 15일 전이면 경고하지 않고 순한 안내로 (신규 잔소리 방지)
-                const earlyNew = never && daysSinceInstall!==null && daysSinceInstall<BACKUP_NUDGE_FIRST_DAYS;
-                const warn = (never && !earlyNew) || stale;
-                const txt = earlyNew
-                  ? "기록이 쌓이면 백업을 안내해 드릴게요"
-                  : never
-                  ? "아직 백업한 적이 없어요"
-                  : daysSinceBackup===0 ? "오늘 백업했어요 ✓"
-                  : `마지막 백업: ${daysSinceBackup}일 전`;
-                return (
-                  <div style={{display:"flex",alignItems:"center",gap:8,padding:"9px 12px",borderRadius:12,marginBottom:10,
-                    background:warn?`${C.red}12`:`${th.main}10`,border:`1px solid ${warn?C.red+"44":th.main+"22"}`}}>
-                    <span style={{fontSize:15}}>{warn?"⚠️":"🗂"}</span>
-                    <span style={{fontSize:12.5,fontWeight:800,color:warn?C.red:C.sub,lineHeight:1.4,wordBreak:"keep-all"}}>
-                      {txt}{warn&&<><br/><span style={{fontWeight:600}}>기기를 바꾸거나 앱을 지우면 기록이 사라져요. 백업을 권장해요.</span></>}
-                    </span>
-                  </div>
-                );
-              })()}
-
-              <button onClick={exportBackup}
-                style={{width:"100%",padding:12,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",marginBottom:9}}>
-                💾 데이터 백업하기
-              </button>
-
-              <label style={{display:"block",width:"100%",padding:12,borderRadius:14,border:`1.5px solid ${th.main}35`,background:th.light,color:th.main,fontSize:13,fontWeight:900,textAlign:"center",boxSizing:"border-box",cursor:"pointer"}}>
-                📂 데이터 복원하기
-                <input
-                  type="file"
-                  accept="application/json"
-                  onChange={e=>importBackup(e.target.files?.[0])}
-                  style={{display:"none"}}
-                />
-              </label>
-
-              <p style={{fontSize:11.5,fontWeight:600,color:C.sub,lineHeight:1.5,margin:"9px 0 0"}}>
-                ※ 다른 기기에서도 복원하여 사용할 수 있습니다.
-              </p>
-            </div>
-
-            {/* [사용자 확정 2026-08-16] '학부모 오픈채팅' → '버그 신고'.
-                 들어가는 곳은 같은 카카오톡 오픈채팅방이고, 무엇을 하러 가는 자리인지를 이름으로 쓴다. */}
-            <div style={{...gameCard,padding:"15px 16px",marginBottom:12,border:`1px solid ${th.main}22`,boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 3px",color:C.text}}>🐞 버그 신고</p>
-              <p style={{fontSize:13,fontWeight:700,color:C.sub,margin:"0 0 12px",lineHeight:1.5}}>카카오톡 오픈채팅방에서 버그 신고·문의를 함께 나눠요.</p>
-              <button
-                onClick={()=>window.open("https://open.kakao.com/o/g6H6WgFi","_blank","noopener,noreferrer")}
-                style={{width:"100%",padding:12,borderRadius:14,border:"none",background:mixWhite("#FEE500",0.45),color:"#3C1E1E",fontSize:14,fontWeight:900,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
-                <span style={{fontSize:16}}>💬</span> 오픈채팅방 입장하기
-              </button>
-            </div>
-            <div style={{...gameCard,padding:"15px 16px",marginTop:12,border:"2px solid #ffb4b4",background:"#fff5f5"}}>
-              <p style={{fontSize:15,fontWeight:900,color:"#dc2626",margin:"0 0 4px"}}>⚠️ 위험구역</p>
-              <p style={{fontSize:11.5,fontWeight:700,color:"#b91c1c",margin:"0 0 12px",lineHeight:1.4}}>
-                초기화는 되돌릴 수 없어요. 미리 데이터 백업을 권장해요.
-              </p>
-
-              <button
-                onClick={()=>resetGameData(childId)}
-                style={{
-                  width:"100%",
-                  padding:11,
-                  borderRadius:10,
-                  border:"1.5px solid #fca5a5",
-                  background:"#fff",
-                  color:"#ea580c",
-                  fontSize:13,
-                  fontWeight:900,
-                  cursor:"pointer",
-                  marginBottom:9
-                }}
-              >
-                🗑 현재 아이 초기화
-              </button>
-
-              <button
-                onClick={resetAllAppData}
-                style={{
-                  width:"100%",
-                  padding:11,
-                  borderRadius:10,
-                  border:"1.5px solid #f4a0a0",
-                  background:"#fef2f2",
-                  color:"#dc2626",
-                  fontSize:13,
-                  fontWeight:900,
-                  cursor:"pointer"
-                }}
-              >
-                🗑 전체 데이터 초기화
-              </button>
-            </div>
-
-            <div style={{...gameCard,padding:"16px",marginTop:14,textAlign:"center"}}>
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 6px",color:C.text}}>ℹ️ 앱 정보</p>
-              <p style={{fontSize:13,fontWeight:900,color:C.text,margin:"0 0 3px"}}>
-                미션팡
-              </p>
-              <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:"0 0 6px"}}>
-                버전 1.0
-              </p>
-              <p style={{fontSize:11,fontWeight:700,color:C.sub,margin:0,lineHeight:1.5}}>
-                학원 일정과 아이의 숙제를 게임처럼 관리하는 플래너
-              </p>
-              {/* [사용자 확정 2026-08-17] 보상 그림으로 Twemoji 를 쓴다 — CC-BY 4.0 은
-                  저작자 표시를 요구하므로 여기 한 줄로 밝힌다 (자세한 건
-                  public/assets/emoji/NOTICE.txt). */}
-              <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,opacity:0.7,margin:"8px 0 0",lineHeight:1.5}}>
-                보상 그림: Twemoji © Twitter, Inc and other contributors · CC-BY 4.0
-              </p>
-            </div>
-          </div>
+            },
+            smsOpen:openSmsManage, setSmsOpen:setOpenSmsManage,
+            templates,
+            onNewTmpl:()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); },
+            onEditTmpl:(t)=>{ setShowTmplEdit(t.id); setEditTmpl({title:t.title,body:t.body}); },
+            onDeleteTmpl:(id)=>{ setTemplates(p=>p.filter(t=>t.id!==id)); showToast("삭제됨"); },
+            onPinChange:()=>setShowPinChangeModal(true),
+            onRecoverySetup:()=>{ setSetupRecoveryQ(recoveryQuestion||""); setSetupRecoveryA(""); setShowRecoverySetupModal(true); },
+            recoveryQuestion,
+            backup:{ lastDate:lastBackupDate, daysSince:daysSinceBackup, daysSinceInstall,
+              nudgeDays:BACKUP_NUDGE_DAYS, nudgeFirstDays:BACKUP_NUDGE_FIRST_DAYS,
+              onExport:exportBackup, onImport:(f)=>importBackup(f) },
+            onResetChild:()=>resetGameData(childId),
+            onResetAll:resetAllAppData,
+          }}/>
         )}
-
       </div>
 
       {/* ── 하단 고정 메뉴 (사용자 확정 2026-08-09) ──

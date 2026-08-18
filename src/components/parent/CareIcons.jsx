@@ -181,6 +181,45 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z" {...P} />
         </svg>
       );
+    /* ── 기타 탭용 (사용자 확정 2026-08-18) — 이 탭만 제목이 이모지로 남아 있었다 ── */
+    case "guide":    // 사용 가이드 — 펼친 책
+      return (
+        <svg {...common}>
+          <path d="M12 6.6C10.4 5.4 8.4 4.9 5.5 5.1a1 1 0 0 0-.9 1v11a1 1 0 0 0 1.1 1c2.5-.2 4.5.2 6.3 1.4 1.8-1.2 3.8-1.6 6.3-1.4a1 1 0 0 0 1.1-1v-11a1 1 0 0 0-.9-1c-2.9-.2-4.9.3-6.5 1.5Z" {...P} />
+          <path d="M12 6.6v12.9" {...P} />
+        </svg>
+      );
+    case "save":     // 데이터 관리 — 저장(플로피)
+      return (
+        <svg {...common}>
+          <path d="M5 4.6h11.2L19.4 7.8V18a1.4 1.4 0 0 1-1.4 1.4H5A1.4 1.4 0 0 1 3.6 18V6a1.4 1.4 0 0 1 1.4-1.4Z" {...P} />
+          <path d="M7.8 4.6v4.2h7V4.6M7.4 19.4v-5.2h9.2v5.2" {...P} />
+        </svg>
+      );
+    case "bug":      // 버그 신고
+      return (
+        <svg {...common}>
+          <rect x="8" y="8.4" width="8" height="10.6" rx="4" {...P} />
+          <path d="M9.6 8.4a2.4 2.4 0 0 1 4.8 0" {...P} />
+          <path d="M8 11.6H4.6M8 15.6H5M16 11.6h3.4M16 15.6h3M9.4 6.2 8.2 4.6M14.6 6.2l1.2-1.6" {...P} />
+        </svg>
+      );
+    case "warn":     // 위험구역 — 느낌표 삼각형
+      return (
+        <svg {...common}>
+          <path d="M12 4.4 21 19.6H3L12 4.4Z" {...P} />
+          <path d="M12 10v3.6" {...P} />
+          <circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none" />
+        </svg>
+      );
+    case "info":     // 앱 정보
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="8.4" {...P} />
+          <path d="M12 11v5.2" {...P} />
+          <circle cx="12" cy="8" r=".9" fill="currentColor" stroke="none" />
+        </svg>
+      );
     case "sms":
       return (
         <svg {...common}>
