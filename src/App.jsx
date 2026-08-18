@@ -3628,18 +3628,20 @@ export default function App() {
      실제로 학원이 정한 기한을 넘겼는지는 알 수 없다. */
   const payStatus=(a)=>{
     if(Number(a.fee||0)===0) return {key:"none",label:"-",color:C.sub,free:true};
-    /* [사용자 확정 2026-08-18] '납부 완료'와 '납부 예정' 색을 맞바꿨다.
-       예전엔 다 낸 것이 초록으로 제일 눈에 띄고 아직 안 낸 것이 회색이라,
-       화면에서 제일 도드라지는 게 '더 할 일이 없는 건'이었다.
-       이제 신호등처럼 읽힌다 — 여유(초록) → 임박(주황) → 지남(빨강) → 끝(회색). */
+    /* [사용자 확정 2026-08-18] 이 화면의 색은 딱 세 갈래만 말한다.
+         · 아직 안 왔다 (납부 예정 · D-3)  → 검정, 그냥 읽을 값
+         · 오늘이거나 지났다 (오늘 납부일 · N일 지남) → 빨강, 지금 내야 한다
+         · 다 냈다 (납부 완료)            → 진회색, 더 할 일이 없다
+       그전에는 다 낸 것이 초록으로 제일 눈에 띄고 아직 안 낸 것이 회색이라,
+       화면에서 제일 도드라지는 게 '더 할 일이 없는 건'이었다. */
     if(isPaid(a.id)) return {key:"paid",label:"납부 완료",color:C.sub};
     const now=new Date(); now.setHours(0,0,0,0);
     const d=new Date(now.getFullYear(),feeMonth-1,Math.max(1,Number(a.payDay||1)));
     const diff=Math.round((d-now)/86400000);
     if(diff<0)   return {key:"late", label:`납부일 ${Math.abs(diff)}일 지남`,color:C.red};
-    if(diff===0) return {key:"today",label:"오늘 납부일",color:C.orange};
-    if(diff<=3)  return {key:"soon", label:`D-${diff}`,color:C.orange};
-    return {key:"wait",label:"납부 예정",color:C.green};
+    if(diff===0) return {key:"today",label:"오늘 납부일",color:C.red};
+    if(diff<=3)  return {key:"soon", label:`D-${diff}`,color:C.text};
+    return {key:"wait",label:"납부 예정",color:C.text};
   };
 
   // 결석
