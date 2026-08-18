@@ -143,7 +143,11 @@ export default function FeeTab({
          → 한 상태에 색은 하나. 이 값 하나를 배지 글자와 링크가 똑같이 쓴다.
          상태색 원본은 흰 바탕에서 흐리므로 검정을 28% 섞은 값을 기준색으로 삼는다. */
       const actC=mixBlack(st.color,0.28);
-      const actLink={background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
+      /* [사용자 확정 2026-08-18] 링크 글자는 상태색을 따르지 않고 검정 하나로.
+         '납부 처리'는 어느 카드에서나 같은 무게의 동작이라 색으로 갈릴 이유가 없고,
+         상태는 바로 위 배지가 이미 색으로 말한다 (결석 탭의 주 행동 링크와 같은 규칙).
+         actC 는 배지 글자에만 남는다. */
+      const actLink={background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",color:C.text,
         fontSize:FS.sub,fontWeight:FW.semi,textDecoration:"underline",textUnderlineOffset:3,
         padding:"8px 0 8px 12px",flexShrink:0,whiteSpace:"nowrap"};
       return (
@@ -204,7 +208,7 @@ export default function FeeTab({
             {hasFee&&paid&&!rec&&(
               <div style={{marginTop:6,background:CT.faint,borderRadius:RAD.sm,padding:"8px 10px"}}>
                 <p style={{margin:0,fontSize:FS.tag,fontWeight:FW.normal,color:SUBD}}>납부일과 결제 방법을 입력해 주세요</p>
-                <button onClick={()=>onPay(a.id)} style={{...actLink,padding:"8px 0 4px",color:actC}}>
+                <button onClick={()=>onPay(a.id)} style={{...actLink,padding:"8px 0 4px"}}>
                   납부 정보 추가
                 </button>
               </div>
@@ -219,7 +223,7 @@ export default function FeeTab({
                 <span style={{fontSize:FS.tag,fontWeight:FW.normal,color:SUBD,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                   납부 예정일 {feeMonth}월 {a.payDay}일
                 </span>
-                <button onClick={()=>onPay(a.id)} style={{...actLink,marginLeft:"auto",color:actC}}>
+                <button onClick={()=>onPay(a.id)} style={{...actLink,marginLeft:"auto"}}>
                   납부 처리
                 </button>
               </div>
