@@ -145,12 +145,13 @@ export default function AbsenceTab({
   const menuItem={ width:"100%",border:"none",background:"none",padding:"11px 13px",textAlign:"left",
     fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",
     display:"flex",alignItems:"center",gap:8 };
-  /* [사용자 확정 2026-08-18] 주 행동을 채운 버튼이 아니라 학원비 탭의 '납부 처리'와
-     똑같은 모양(밑줄 글자)으로, 카드 오른쪽 아래에 둔다. 색은 그대로 상태색을 쓴다 —
-     배지와 링크가 한 색이라 눈이 '무슨 상태인가 → 그래서 뭘 하나'로 이어진다. */
+  /* [사용자 확정 2026-08-18] 주 행동은 학원비 탭의 '납부 처리'와 똑같은 모양(밑줄 글자)으로
+     카드 오른쪽 아래에 둔다. 색은 상태와 무관하게 검정 하나 —
+     '출석 확인 · 보충 추가 · 일정 변경'은 다 같은 무게의 동작이라 색으로 갈릴 이유가 없고,
+     상태는 바로 위 배지가 이미 색으로 말한다. 링크까지 물들면 카드에 색이 둘이 된다. */
   const actLink={ background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
     fontSize:FS.sub,fontWeight:FW.semi,textDecoration:"underline",textUnderlineOffset:3,
-    padding:"8px 0 8px 12px",flexShrink:0,whiteSpace:"nowrap" };
+    padding:"8px 0 8px 12px",flexShrink:0,whiteSpace:"nowrap",color:C.text };
   const headRow={ display:"flex",alignItems:"center",gap:8,margin:"0 0 10px" };
   const headTxt={ fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0 };
 
@@ -237,7 +238,7 @@ export default function AbsenceTab({
           {!compact&&(
             <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
               <div style={{position:"relative",marginLeft:"auto"}}>
-                <button onClick={openMain} style={{...actLink,color:st.color}}
+                <button onClick={openMain} style={actLink}
                   aria-expanded={ma.act==="pick"?makeupPick===ab.id:absTimeEdit===ab.id}>
                   {ma.label}
                 </button>
