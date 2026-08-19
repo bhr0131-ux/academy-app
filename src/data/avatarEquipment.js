@@ -70,6 +70,8 @@ export const AVATAR_THEMES = {
   adventure: { label: "탐험",   emoji: "🧭", color: "#16A34A" },
   bakery:    { label: "베이커리", emoji: "🧁", color: "#F472B6" },
   common:    { label: "공용",   emoji: "⭐", color: "#64748B" },
+  picnic:    { label: "소풍",   emoji: "🍓", color: "#FB7185" },
+  magic:     { label: "마법",   emoji: "🔮", color: "#8B5CF6" },
   seasonal:  { label: "시즌",   emoji: "🎄", color: "#DC2626" },
   /* [2026-08-14] 마법학교 세트 — 탐험복과 분위기를 확실히 나누려고 테마를 따로 뒀다.
      모자·신발·상의·하의·가방·목장식·얼굴장식·손장비 8종을 채울 예정이고,
@@ -151,6 +153,15 @@ export const AVATAR_CATALOG = [
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp" },
+
+  /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
+     이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
+     눈으로 맞출 필요가 없다 — 전신 그림을 베이스와 같은 자리(키 848·발끝 y940)에 맞춘 뒤
+     베이스와 다른 픽셀만 남기면 그게 곧 제자리에 놓인 옷이다(맨살·머리 부분은 저절로 빠진다).
+     앞으로 옷 원화는 이 방식으로 받는 게 제일 정확하다.
+     둘 다 상·하의가 한 장이라 사파리 옷과 같이 상의 슬롯 하나로 넣는다. */
+  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price: 180, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/top/picnic-outfit-girl.webp", thumb: "assets/avatar/thumb/top_picnic.webp" },
+  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price: 220, rarity: "epic", theme: "magic",  forGender: "girl", img: "assets/avatar/top/magic-outfit-girl.webp",  thumb: "assets/avatar/thumb/top_magic.webp" },
   /* 부츠는 좌·우 짝을 따로 배치한다. 원화가 세로로 길어 높이 140px(신발 공통) 규칙에
      맞추면 폭이 모자라 베이스 양말이 옆으로 삐져나와서, 가로만 1.25배 늘려 탑재했다. */
   { id: "shoes_boots_green", slot: "shoes", label: "사파리 부츠", emoji: "🥾", price: 100, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/safari-boots-girl.webp?v=2", soleY: 978, soleYGirl: 978, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
@@ -181,7 +192,7 @@ export const RETIRED_ITEM_INFO = {
   bottom_khaki:       { label: "카키 반바지", price: 130 },
   bottom_cream:       { label: "크림 반바지", price: 150 },
   bottom_denim:       { label: "데님 반바지", price: 170 },
-  bottom_magic_skirt: { label: "별빛 마법사 주름치마", price: 200 },
+  bottom_magic_skirt: { label: "별빛 마법사 주름치마", price: 200 },   // 새 '별빛 마법사 옷'으로 대체 — 그림은 지웠다
   shoes_boots:        { label: "탐험 부츠",   price: 80  },
   shoes_boots_sand:   { label: "크림 부츠",   price: 120 },
   neck_scarf:         { label: "빨간 스카프", price: 90  },
