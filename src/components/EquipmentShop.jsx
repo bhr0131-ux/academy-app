@@ -252,7 +252,10 @@ export default function EquipmentShop({
                     </button>
                   )
                 ) : (
+                  /* 기본 지급 옷(starter)은 벗으면 속옷만 남아서 벗기를 막는다 —
+                     버튼도 누를 수 없는 '입는 중'으로 둔다(다른 옷을 입으면 알아서 교체된다). */
                   <button
+                    disabled={isEquipped && item.starter}
                     onClick={() => {
                       /* [버그 수정 2026-08-12] 미리보기(preview)가 실제 장착(equipped)을 덮어쓰는
                          구조라(previewEquipped = {...equipped, ...preview}), 같은 슬롯을 입어보던
@@ -267,12 +270,15 @@ export default function EquipmentShop({
                     }}
                     style={{
                       width: "100%", border: "none", borderRadius: 10, padding: "7px 4px",
-                      fontWeight: 800, fontSize: 12, cursor: "pointer",
-                      background: isEquipped ? "#FEE2E2" : (C.green || "#22C55E"),
-                      color: isEquipped ? "#DC2626" : "#fff",
+                      fontWeight: 800, fontSize: 12,
+                      cursor: (isEquipped && item.starter) ? "default" : "pointer",
+                      background: (isEquipped && item.starter) ? "#EEF0F6" : (isEquipped ? "#FEE2E2" : (C.green || "#22C55E")),
+                      color: (isEquipped && item.starter) ? "#8890B0" : (isEquipped ? "#DC2626" : "#fff"),
                     }}
                   >
-                    {isEquipped ? (slotMeta?.removable ? "벗기" : "장착중") : "장착"}
+                    {isEquipped
+                      ? (item.starter ? "입는 중" : (slotMeta?.removable ? "벗기" : "장착중"))
+                      : "장착"}
                   </button>
                 )}
               </div>
