@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   getAvatarLayers, DEFAULT_AVATAR_BG, AVATAR_BASE_IMG, AVATAR_BASE_IMG_GIRL, AVATAR_BASE_EMOJI, AVATAR_BASE_Z,
   AVATAR_BASE_BODY_IMG, AVATAR_BASE_HEAD_IMG, AVATAR_BASE_BODY_IMG_GIRL, AVATAR_BASE_HEAD_IMG_GIRL,
+  itemHidesHead,
 } from "../data/avatarEquipment.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -195,7 +196,7 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
   const soleY = (gender === "girl" ? shoeItem?.soleYGirl : shoeItem?.soleY)
     ?? shoeItem?.soleY ?? BARE_SOLE;
 
-  const hidesHeadItem = layers.find((l) => l.item?.hidesHead)?.item || null;
+  const hidesHeadItem = layers.find((l) => itemHidesHead(l.item, gender))?.item || null;
   const hidesHeadSrc = hidesHeadItem ? equipSrc(hidesHeadItem, gender) : null;
   const [readySrc, setReadySrc] = useState(null);
   useEffect(() => {

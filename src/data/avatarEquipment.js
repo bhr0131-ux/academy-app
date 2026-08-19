@@ -143,13 +143,20 @@ export const AVATAR_CATALOG = [
      비행사 모자는 상점에 안 나오지만(winter) 같은 베이스라 함께 줄였다.
      파일명은 그대로 덮어썼고 경로에 ?v=2 를 붙여 기존 기기의 캐시를 끊는다. */
   { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/explorer-helmet.webp?v=2", imgGirl: "assets/avatar/hat/explorer-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_explorer.webp" },
-  { id: "hat_safari",     slot: "hat",   label: "사파리 모자", emoji: "⛑️", price: 180, rarity: "rare",   theme: "adventure", img: "assets/avatar/hat/safari-brown.webp?v=2",    imgGirl: "assets/avatar/hat/safari-brown-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_safari.webp" },
+  /* [2026-08-19] 사파리 세트(여아) — 사용자 원화 4장을 기존 아이템 4종에 갈아 끼웠다.
+     이름·그림만 바꾸고 id·가격은 그대로라 이미 산·입은 아이는 안 깨진다.
+     여아 그림만 먼저 들어와서 forGender:"girl" 로 여아 상점에만 내보낸다(남아 원화는 나중).
+     머리띠는 머리를 덮는 물건이 아니라서 여아일 때만 hidesHead를 끈다(hidesHeadGirl).
+     남아가 이미 산 '사파리 모자'는 예전 그림 그대로 얼굴째 덮으며 계속 나온다. */
+  { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price: 180, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-brown.webp?v=2",    imgGirl: "assets/avatar/hat/safari-band-girl.webp", hidesHead: true, hidesHeadGirl: false, thumb: "assets/avatar/thumb/hat_safari.webp" },
   /* 비행사(방한) 모자 — 겨울 시즌·설원 맵 전용으로 빼 둔다 (사용자 확정).
      그림·데이터는 그대로 두고 ACTIVE_SEASONS에 "winter"를 넣는 순간 상점에 다시 나온다. */
   { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp?v=2",     imgGirl: "assets/avatar/hat/aviator-cap-girl.webp",  hidesHead: true, season: "winter" },
   { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp?v=2",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_blossom.webp" },
   { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp", artPending: true },
-  { id: "top_vest",       slot: "top",   label: "탐험 조끼",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/top/explorer-vest.webp", artPending: true },
+  /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
+     상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/top/safari-outfit-girl.webp", thumb: "assets/avatar/thumb/top_vest.webp" },
   /* [2026-08-16] 기본 반팔티·반바지는 '슬롯 아이템'이 아니라 베이스 몸통 그림 자체에
      그려 넣었다(사용자 확정 — 원화를 옷 입은 몸 한 장으로 받았다). 그래서 여기에
      starter 아이템이 없다. 몸통이 흰 반팔·초록 반바지·흰 양말을 이미 입고 있다.
@@ -175,12 +182,12 @@ export const AVATAR_CATALOG = [
      soleY/soleYGirl = 그 신발을 신었을 때의 밑창 높이. 접지 그림자가 이 값을 따라간다
      (맨발보다 30~45px 아래라, 안 쓰면 신발만 그림자 밖으로 나간다). */
   { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp", imgGirl: "assets/avatar/shoes/explorer-boots-girl.webp", soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots.webp" },
-  { id: "shoes_boots_green", slot: "shoes", label: "새싹 부츠", emoji: "🌱", price: 100, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/green-boots.webp",    imgGirl: "assets/avatar/shoes/green-boots-girl.webp",    soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
+  { id: "shoes_boots_green", slot: "shoes", label: "사파리 부츠", emoji: "🥾", price: 100, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/green-boots.webp",    imgGirl: "assets/avatar/shoes/safari-boots-girl.webp",   soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
   { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp",    imgGirl: "assets/avatar/shoes/cream-boots-girl.webp",    soleY: 966, soleYGirl: 968, thumb: "assets/avatar/thumb/shoes_boots_sand.webp" },
   { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp", artPending: true },
   /* 탐험 배낭 — 원화가 '앞에서 본 어깨끈'(침낭 롤 + 버클 + 칼집)이라 캐릭터 뒤(z15)에 그리면
      몸통에 완전히 가려진다. 그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
-  { id: "back_backpack",       slot: "back", label: "탐험 배낭", emoji: "🎒", price: 250, rarity: "epic", theme: "adventure", img: "assets/avatar/back/explorer-straps.webp", z: 37, thumb: "assets/avatar/thumb/back_backpack.webp" },
+  { id: "back_backpack",       slot: "back", label: "사파리 가방", emoji: "👜", price: 250, rarity: "epic", theme: "adventure", forGender: "girl", img: "assets/avatar/back/explorer-straps.webp", imgGirl: "assets/avatar/back/safari-bag-girl.webp", z: 37, thumb: "assets/avatar/thumb/back_backpack.webp" },
   { id: "back_backpack_sky",   slot: "back", label: "하늘 배낭", emoji: "🎒", price: 270, rarity: "epic", theme: "adventure", img: "assets/avatar/back/sky-straps.webp",      z: 37, thumb: "assets/avatar/thumb/back_backpack_sky.webp" },
   { id: "back_backpack_cream", slot: "back", label: "크림 배낭", emoji: "🎒", price: 290, rarity: "epic", theme: "adventure", img: "assets/avatar/back/cream-straps.webp",    z: 37, thumb: "assets/avatar/thumb/back_backpack_cream.webp" },
 ];
@@ -200,9 +207,17 @@ export const isItemInSeason = (it) => !it.season || ACTIVE_SEASONS.includes(it.s
    → 이미 산·입은 아이템은 성별을 바꿔도 그대로 유지된다(데이터 안 깨짐).      */
 export const isItemForGender = (it, gender) => !it.forGender || !gender || it.forGender === gender;
 
+/* ── 머리를 덮는 장비 ───────────────────────────────────────────────────
+   모자처럼 얼굴째 덮는 그림은 베이스 '머리' 장을 안 그린다(hidesHead).
+   같은 id라도 남녀 그림이 다를 수 있어서(예: 남아=사파리 모자 / 여아=머리띠)
+   여아일 때만 다르게 두고 싶으면 hidesHeadGirl 을 붙인다. 없으면 hidesHead 그대로. */
+export const itemHidesHead = (it, gender) =>
+  (gender === "girl" && it && it.hidesHeadGirl !== undefined) ? !!it.hidesHeadGirl : !!(it && it.hidesHead);
+
 /* ── 그림 대기 아이템 ────────────────────────────────────────────────────
    [버그 2026-08-15] 카탈로그에는 있는데 img 파일이 없는 아이템이 3종 있었다
    (탐험 고글 120 · 탐험 조끼 150 · 빨간 스카프 90). 사면 그림 대신 이모지만
+   [2026-08-19] 탐험 조끼는 사파리 옷 원화가 들어와 artPending을 뗐다. 남은 건 2종.
    떠서, 돈을 내고 미완성품을 받는 상태였다.
    artPending 이 붙으면 상점에 안 나온다. 시즌과 같은 방식이라
    getAvatarItem·레이어 조회는 그대로 → 이미 산 아이는 계속 쓸 수 있다.
