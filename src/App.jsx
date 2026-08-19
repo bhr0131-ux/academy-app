@@ -9,6 +9,7 @@ import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark 
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
+import AvatarResetModal from "./components/AvatarResetModal.jsx";
 import RewardTab from "./components/parent/RewardTab.jsx";
 import EtcTab from "./components/parent/EtcTab.jsx";
 import TimeField from "./components/parent/TimeField.jsx";
@@ -55,6 +56,7 @@ import {
   CHAR_DISPLAY_GROWTH, CHAR_DISPLAY_AVATAR, DEFAULT_CHAR_DISPLAY_MODE,
   getDefaultEquipped, computeAvatarPurchase, computeAvatarEquipToggle,
   computeCharDisplayToggle, normalizeOwned, normalizeEquipped, getAvatarItem,
+  AVATAR_RESET_KEY, computeAvatarRefund,
 } from "./data/avatarEquipment.js";
 
 import { Fragment, useState, useEffect, useRef } from "react";
@@ -325,6 +327,8 @@ export default function App() {
   // ── 꾸미기 아바타 장비 시스템 (신규, 아이별 맵. 기존 decor와 별개) ──
   const [avatarOwned,      setAvatarOwned, avatarOwnedRef] = useSyncState({});   // { [childId]: string[] }
   const [avatarEquipped,   setAvatarEquipped, avatarEquippedRef] = useSyncState({});   // { [childId]: {slot:itemId} }
+  /* 꾸미기 전면 개편(2026-08-19) 환불 안내 — 앱을 켤 때 1회만 뜬다 */
+  const [avatarResetNotice, setAvatarResetNotice] = useState(null);
   const [charDisplayMode,  setCharDisplayMode]  = useState({});   // { [childId]: "growth"|"avatar" }
   const [showEquipShop,    setShowEquipShop]    = useState(false);
   const [decorPrices,      setDecorPrices]      = useState(initProgress.decorPrices);
@@ -554,7 +558,7 @@ export default function App() {
       const decPrices=await load("v6_decor_prices");
       // ── 꾸미기 아바타 데이터 로드 (v2 키. 없으면 빈 값→기본값 폴백) ──
       const avOwned=await load(AVATAR_OWNED_KEY);
-      const avEquip=await load(AVATAR_EQUIPPED_KEY);
+      let avEquip=await load(AVATAR_EQUIPPED_KEY);
       // ── v1→v2 마이그레이션 (1회, 읽기 폴백) ──
       //  v2 데이터가 아직 없고 구 키(v6_avatar_owned)에 기록이 있으면:
       //   · v2 카탈로그에도 있는 아이템(배경 3종) → 보유 그대로 이전
@@ -595,6 +599,37 @@ export default function App() {
         if(retiredTouched){
           avOwnedMerged=cleanedOwned;
           save(AVATAR_OWNED_KEY,cleanedOwned); // 즉시 저장 → 다음 실행에서 중복 환불 방지
+        }
+      }
+      /* ── [2026-08-19] 꾸미기 전면 개편: 산 아바타 아이템 전액 환불 + 보유·장착 초기화 ──
+         사용자 확정 — 상점을 사파리 세트 기준으로 새로 채우기로 해서, 지금까지 산 것을
+         한 번에 코인으로 돌려주고 보유·장착을 비운다(새 상점에서 다시 산다).
+         새 키(AVATAR_RESET_KEY) 하나로 1회만 실행한다. 기존 키·로직은 손대지 않는다
+         (CLAUDE.md 8·9). 환불 코인은 아래 avRefunds 반영부가 그대로 처리한다. */
+      let avatarResetRows=null;
+      {
+        const resetDone=await load(AVATAR_RESET_KEY);
+        if(!resetDone){
+          const rawOwned=(avOwnedMerged&&typeof avOwnedMerged==="object")?avOwnedMerged:{};
+          const rows=[];
+          for(const rcid of Object.keys(rawOwned)){
+            const {items,sum}=computeAvatarRefund(rawOwned[rcid]);
+            if(items.length){
+              rows.push({childId:rcid,items,sum});
+              avRefunds=avRefunds||{};
+              avRefunds[rcid]=(avRefunds[rcid]||0)+sum;
+            }
+          }
+          if(rows.length) avatarResetRows=rows;
+          // 보유·장착 비우기 (돌려줬으므로 다시 사야 한다)
+          const clearedOwned={}, clearedEquip={};
+          const rawEq=(avEquip&&typeof avEquip==="object")?avEquip:{};
+          for(const ocid of Object.keys(rawOwned)) clearedOwned[ocid]=[];
+          for(const ecid of new Set([...Object.keys(rawEq),...Object.keys(rawOwned)])) clearedEquip[ecid]=getDefaultEquipped();
+          avOwnedMerged=clearedOwned; avEquip=clearedEquip;
+          save(AVATAR_OWNED_KEY,clearedOwned);
+          save(AVATAR_EQUIPPED_KEY,clearedEquip);
+          save(AVATAR_RESET_KEY,"1");   // 1회 표식 — 다음 실행부터 건너뛴다
         }
       }
       const avMode=await load(CHAR_DISPLAY_MODE_KEY);
@@ -717,6 +752,17 @@ export default function App() {
           };
         }
         save("v6_score",scoreFinal); // 즉시 저장 (v2 키 생성 후엔 재실행 안 됨)
+      }
+      /* 환불 안내 팝업 — 코인을 넣은 뒤에 띄운다. 지금 등록된 아이 것만 보여 준다
+         (지운 아이 몫도 코인은 돌려주지만 안내에 이름이 없으면 헷갈린다). */
+      if(avatarResetRows){
+        const chList=Array.isArray(ch)?ch:[];
+        const rows=avatarResetRows
+          .map(r=>({...r,childName:chList.find(c=>c.id===r.childId)?.name}))
+          .filter(r=>!!r.childName);
+        if(rows.length) setAvatarResetNotice({
+          rows, total:rows.reduce((a,r)=>a+r.sum,0), multi:chList.length>1,
+        });
       }
       if(scoreFinal) setScoreData(scoreFinal);
       if(reward) setRewardData(reward);
@@ -3902,6 +3948,8 @@ export default function App() {
           // 탐험(개방감): 루트 바탕도 시트와 같은 아이보리 — 시트·콘텐츠·바닥이 한 장의 종이처럼 이어짐 (카드만 색 유지)
           ?"linear-gradient(180deg, #F0F3F3 0%, #EAEFE9 100%)"
           :(GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`)),backgroundSize:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflowX:"clip",overflowY:"visible",wordBreak:"keep-all"}}>
+      {/* 꾸미기 전면 개편 환불 안내 — 앱을 켤 때 1회 (부모·아이 화면 어디서 열든 뜬다) */}
+      <AvatarResetModal notice={avatarResetNotice} onClose={()=>setAvatarResetNotice(null)} />
         {/* 말랑한 배경 블롭 */}
         <div style={{position:"absolute",top:-40,right:-50,width:170,height:170,borderRadius:"50%",background:`radial-gradient(circle at 35% 35%, ${th.main}26, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 11s ease-in-out infinite",pointerEvents:"none",zIndex:0}}/>
         <div style={{position:"absolute",top:240,left:-60,width:150,height:150,borderRadius:"50%",background:`radial-gradient(circle at 50% 50%, ${GP.gold}24, transparent 70%)`,filter:"blur(6px)",animation:"blobShift 14s ease-in-out infinite 1.5s",pointerEvents:"none",zIndex:0}}/>
@@ -5305,6 +5353,9 @@ export default function App() {
 
   return (
     <div style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:90,wordBreak:"keep-all"}}>
+
+      {/* 꾸미기 전면 개편 환불 안내 — 앱을 켤 때 1회 (부모·아이 화면 어디서 열든 뜬다) */}
+      <AvatarResetModal notice={avatarResetNotice} onClose={()=>setAvatarResetNotice(null)} />
 
       {/* 토스트 */}
       {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}

@@ -110,90 +110,99 @@ export const AVATAR_RARITY = {
 };
 
 /* ── 아이템 카탈로그 ────────────────────────────────────────────────────
-   초기 6종은 슬롯을 분산해 꾸미는 재미를 확보한다 (손 장비는 제작 난이도
-   문제로 v1에서 제외, 목 장식으로 대체). 전부 탐험 테마 — 6종을 모두
-   장착하면 "완전무장 탐험가" 컨셉 아트가 완성되도록 구성.
-   배경 3종은 v1에서 그대로 승계(id·가격 동일 → 마이그레이션 시 보유 이전).
+   [2026-08-19 개편] 사용자 확정 — 예전 아이템(탐험 헬멧·꽃 헬멧·비행사 모자·탐험 고글·
+   반바지 4종·탐험 부츠·크림 부츠·빨간 스카프·하늘/크림 배낭)을 전부 카탈로그에서 뺐다.
+   앞으로는 '사파리 세트'처럼 남녀 원화를 따로 받은 세트 단위로만 채운다.
+   · 이미 산 아이는 손해 보지 않는다 — 앱을 켤 때 1회, 산 값 그대로 코인으로 돌려주고
+     보유·장착 기록을 비운다(App.jsx의 전면 환불 블록 + 아래 RETIRED_ITEM_INFO).
+   · 뺀 아이템의 그림 파일은 지우지 않고 public/assets/avatar/ 에 그대로 둔다.
+     (비행사 모자를 겨울 시즌용으로 남겨 둔 것과 같은 방식 — 다시 넣을 때 그대로 쓴다.
+      art-src 원본도 유지. 새 그림으로 '교체'한 게 아니라 '보류'라 CLAUDE.md 6번 대상 아님)
 
    각 아이템: id / slot / label / emoji(폴백) / price / rarity / theme /
              img(1024 정렬 webp) / starter(기본 지급) / z(슬롯 기본 z 덮어쓰기) /
              imgGirl(여아 전용 그림 — 얼굴째 덮는 모자처럼 성별 얼굴이 필요한 장비용,
                      없으면 img를 남녀 공용으로 쓴다) /
+             forGender(그 성별 상점에만 노출) / hidesHead·hidesHeadGirl(베이스 머리 감춤) /
+             soleY·soleYGirl(신발 밑창 높이 — 접지 그림자가 따라간다) /
              thumb(상점 카드 그림 — 없으면 emoji로 폴백)                     */
 export const AVATAR_CATALOG = [
-  /* 배경 — 제거됨 (구 '꾸미기 상점'의 배경과 중복되어 아바타 꾸미기에서는 다루지 않음).
-     기존 구매자는 로드 시 코인 환불(App의 RETIRED_AVATAR_ITEMS 처리). 기본 배경은
-     DEFAULT_AVATAR_BG(뷰어 항상 표시)로 유지되므로 스타터 배경 없이도 문제 없음. */
+  /* ── 사파리 세트 (여아) — 사용자 원화 2026-08-19 ────────────────────────
+     원화 4장을 기존 아이템 4종에 갈아 끼웠다. id·가격은 그대로라 데이터가 안 깨진다.
+     여아 그림만 먼저 들어와서 4종 모두 forGender:"girl" (남아 원화는 나중에).
+     탑재값(배율·좌표)은 art-src/README.md '사파리 세트(여아) 탑재값'에 적어 뒀다. */
 
-  /* 초기 장비 6종 — 탐험 테마 */
-  // 모자 4종 — 전부 hidesHead: 베이스 머리를 지우고 이 그림(모자+얼굴)으로 대체한다.
-  //   원화의 눈 간격을 베이스 머리(124.5)에 맞춰 키우고, 턱 끝을 y=404·중심 x=506에 정렬해 탑재.
-  /* [사용자 확정 2026-08-14] 남아 모자 4종을 0.86배로 줄여 다시 탑재했다 (?v=2).
-     증상: "여아는 모자를 써도 얼굴 크기가 비슷한데 남아는 모자를 쓰면 머리가 너무 커진다".
-     원인: 위 줄의 '베이스 머리 눈 간격 124.5'가 옛 값이다. 남아 베이스 머리는 그 뒤에
-       0.965배로 한 번 줄었는데(art-src/README '남아는 이후 별도 조정') 모자 원화는 안 줄였다.
-       게다가 남아 모자 원화 자체가 여아 것보다 1.16배 크게 그려져 있었다.
-     실측(1024 캔버스에서 몸통+모자를 겹쳐 잰 머리 상자 폭):
-       탐험 남 426 / 여 368 · 사파리 남 417 / 여 360 · 꽃 남 430 / 여 367
-       눈 간격도 남 124.2~124.6 / 여 106.1~107.2 로 같은 비율(1.16)이었다.
-     조치: 남아 모자 4종을 0.86배 축소. 기준점은 '턱 끝'(x=506, y=405/405/404/410) —
-       여기를 고정해야 목 이음매가 안 벌어진다(고친 뒤에도 목 열 투명 틈은 전과 같은 1곳뿐).
-       결과 머리 폭 367/360/370 으로 여아 368/360/367 과 사실상 같아졌고,
-       눈 간격도 106.9~107.3 으로 여아와 맞는다.
-     비행사 모자는 상점에 안 나오지만(winter) 같은 베이스라 함께 줄였다.
-     파일명은 그대로 덮어썼고 경로에 ?v=2 를 붙여 기존 기기의 캐시를 끊는다. */
-  { id: "hat_explorer",   slot: "hat",   label: "탐험 헬멧",   emoji: "🪖", price: 200, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/explorer-helmet.webp?v=2", imgGirl: "assets/avatar/hat/explorer-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_explorer.webp" },
-  /* [2026-08-19] 사파리 세트(여아) — 사용자 원화 4장을 기존 아이템 4종에 갈아 끼웠다.
-     이름·그림만 바꾸고 id·가격은 그대로라 이미 산·입은 아이는 안 깨진다.
-     여아 그림만 먼저 들어와서 forGender:"girl" 로 여아 상점에만 내보낸다(남아 원화는 나중).
-     머리띠는 머리를 덮는 물건이 아니라서 여아일 때만 hidesHead를 끈다(hidesHeadGirl).
-     남아가 이미 산 '사파리 모자'는 예전 그림 그대로 얼굴째 덮으며 계속 나온다. */
+  /* 머리띠는 머리를 덮는 물건이 아니라서 여아일 때만 hidesHead를 끈다(hidesHeadGirl).
+     같은 id의 남아 그림은 얼굴째 덮는 사파리 모자라 hidesHead를 켜 둬야 한다. */
   { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price: 180, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-brown.webp?v=2",    imgGirl: "assets/avatar/hat/safari-band-girl.webp", hidesHead: true, hidesHeadGirl: false, thumb: "assets/avatar/thumb/hat_safari.webp" },
-  /* 비행사(방한) 모자 — 겨울 시즌·설원 맵 전용으로 빼 둔다 (사용자 확정).
-     그림·데이터는 그대로 두고 ACTIVE_SEASONS에 "winter"를 넣는 순간 상점에 다시 나온다. */
-  { id: "hat_aviator",    slot: "hat",   label: "비행사 모자", emoji: "🧢", price: 260, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/aviator-cap.webp?v=2",     imgGirl: "assets/avatar/hat/aviator-cap-girl.webp",  hidesHead: true, season: "winter" },
-  { id: "hat_blossom",    slot: "hat",   label: "꽃 헬멧",     emoji: "👒", price: 220, rarity: "epic",   theme: "adventure", img: "assets/avatar/hat/blossom-helmet.webp?v=2",  imgGirl: "assets/avatar/hat/blossom-helmet-girl.webp", hidesHead: true, thumb: "assets/avatar/thumb/hat_blossom.webp" },
-  { id: "face_goggles",   slot: "face",  label: "탐험 고글",   emoji: "🥽", price: 120, rarity: "rare",   theme: "adventure", img: "assets/avatar/face/goggles.webp", artPending: true },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/top/safari-outfit-girl.webp", thumb: "assets/avatar/thumb/top_vest.webp" },
-  /* [2026-08-16] 기본 반팔티·반바지는 '슬롯 아이템'이 아니라 베이스 몸통 그림 자체에
-     그려 넣었다(사용자 확정 — 원화를 옷 입은 몸 한 장으로 받았다). 그래서 여기에
-     starter 아이템이 없다. 몸통이 흰 반팔·초록 반바지·흰 양말을 이미 입고 있다.
-     [주의] 하의 슬롯 아이템(카키·크림·데님)을 장착하면 몸통에 그려진 초록 반바지
-     위에 덧그려진다. 그 3종은 어차피 베이스 v5→v6 전환 때부터 자리가 어긋나 있어
-     v7 전환 때 함께 다시 맞춰야 한다. */
-  /* 하의 3종 — [주의] 베이스 v5(2026-08-14)로 몸이 바뀌면서 자리가 어긋나 있다.
-     예전 몸(초록 반바지)에 맞춰 놓은 값이라 새 몸에 다시 맞춰야 한다.
-     새 몸 기준값: 허리 y? · 다리 ? — 재측정 후 이 주석을 갱신할 것.
-     기본 바지는 사용자 원화를 받아 하의 슬롯의 기본 지급 아이템으로 넣을 예정. */
-  { id: "bottom_khaki",   slot: "bottom", label: "카키 반바지", emoji: "🩳", price: 130, rarity: "common", theme: "adventure", img: "assets/avatar/bottom/khaki-cargo.webp?v=2", thumb: "assets/avatar/thumb/bottom_khaki.webp" },
-  { id: "bottom_cream",   slot: "bottom", label: "크림 반바지", emoji: "🩳", price: 150, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/cream-cargo.webp?v=2", thumb: "assets/avatar/thumb/bottom_cream.webp" },
-  /* 마법학교 세트 1번 — 별빛 마법사 주름치마 (사용자 원화 2026-08-14).
-     원화가 베이스 몸통과 같은 723×1536 캔버스에 그려져 있어 몸통과 같은 변환
-     (배율 0.3922 · 원화(364.5,0) → 캔버스(512,340))을 쓰되, 원화끼리 6px 어긋나 있어
-     오른쪽 +6px · 위로 -45px 을 더해 탑재했다 (art-src/README 에 실측값과 근거).
-     탑재 상자 x408~612 · y513~666 — 허리가 민소매 밑단 안으로 들어가 흰 셔츠가 안 샌다.
-     몸통이 남녀 공용이라 그림은 한 장이지만, 여아 옷이라 상점에는 여아에게만 보인다
-     (forGender). 마법학교 세트 나머지도 같은 값으로 들어온다. */
-  { id: "bottom_magic_skirt", slot: "bottom", label: "별빛 마법사 주름치마", emoji: "🌟", price: 200, rarity: "epic", theme: "magic", forGender: "girl", img: "assets/avatar/bottom/magic-skirt.webp" },
-  { id: "bottom_denim",   slot: "bottom", label: "데님 반바지", emoji: "🩳", price: 170, rarity: "rare",   theme: "adventure", img: "assets/avatar/bottom/denim-shorts.webp?v=2", thumb: "assets/avatar/thumb/bottom_denim.webp" },
-  /* 신발 3종 — 좌·우 짝을 따로 배치해 남녀 각각 손으로 맞춘 값이다(사용자 확정).
-     soleY/soleYGirl = 그 신발을 신었을 때의 밑창 높이. 접지 그림자가 이 값을 따라간다
-     (맨발보다 30~45px 아래라, 안 쓰면 신발만 그림자 밖으로 나간다). */
-  { id: "shoes_boots",    slot: "shoes", label: "탐험 부츠",   emoji: "🥾", price: 80,  rarity: "common", theme: "adventure", img: "assets/avatar/shoes/explorer-boots.webp", imgGirl: "assets/avatar/shoes/explorer-boots-girl.webp", soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots.webp" },
+  /* 부츠는 좌·우 짝을 따로 배치한다. 원화가 세로로 길어 높이 140px(신발 공통) 규칙에
+     맞추면 폭이 모자라 베이스 양말이 옆으로 삐져나와서, 가로만 1.25배 늘려 탑재했다. */
   { id: "shoes_boots_green", slot: "shoes", label: "사파리 부츠", emoji: "🥾", price: 100, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/green-boots.webp",    imgGirl: "assets/avatar/shoes/safari-boots-girl.webp",   soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
-  { id: "shoes_boots_sand", slot: "shoes", label: "크림 부츠", emoji: "🍦", price: 120, rarity: "common", theme: "adventure", img: "assets/avatar/shoes/cream-boots.webp",    imgGirl: "assets/avatar/shoes/cream-boots-girl.webp",    soleY: 966, soleYGirl: 968, thumb: "assets/avatar/thumb/shoes_boots_sand.webp" },
-  { id: "neck_scarf",     slot: "neck",  label: "빨간 스카프", emoji: "🧣", price: 90,  rarity: "common", theme: "adventure", img: "assets/avatar/neck/red-scarf.webp", artPending: true },
-  /* 탐험 배낭 — 원화가 '앞에서 본 어깨끈'(침낭 롤 + 버클 + 칼집)이라 캐릭터 뒤(z15)에 그리면
-     몸통에 완전히 가려진다. 그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
+  /* 가방 원화가 '앞에서 멘 모습'이라 등 슬롯 기본 z(15, 캐릭터 뒤)로는 몸통에 가려진다.
+     그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
   { id: "back_backpack",       slot: "back", label: "사파리 가방", emoji: "👜", price: 250, rarity: "epic", theme: "adventure", forGender: "girl", img: "assets/avatar/back/explorer-straps.webp", imgGirl: "assets/avatar/back/safari-bag-girl.webp", z: 37, thumb: "assets/avatar/thumb/back_backpack.webp" },
-  { id: "back_backpack_sky",   slot: "back", label: "하늘 배낭", emoji: "🎒", price: 270, rarity: "epic", theme: "adventure", img: "assets/avatar/back/sky-straps.webp",      z: 37, thumb: "assets/avatar/thumb/back_backpack_sky.webp" },
-  { id: "back_backpack_cream", slot: "back", label: "크림 배낭", emoji: "🎒", price: 290, rarity: "epic", theme: "adventure", img: "assets/avatar/back/cream-straps.webp",    z: 37, thumb: "assets/avatar/thumb/back_backpack_cream.webp" },
 ];
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
 export const getAvatarItem  = (id) => AVATAR_CATALOG.find(it => it.id === id) || null;
+
+/* ── 2026-08-19 꾸미기 전면 개편: 산 것 전부 환불 ────────────────────────
+   사용자 확정 — 꾸미기 상점을 사파리 세트 기준으로 새로 채우기로 해서,
+   지금까지 산 아바타 아이템을 **한 아이도 손해 없이** 전부 코인으로 돌려준다.
+   · 카탈로그에 남아 있는 4종도 환불 대상이다("다 환불"). 보유·장착을 싹 비우고
+     새 상점에서 다시 사게 한다.
+   · 카탈로그에서 뺀 아이템은 가격을 알 길이 없으므로 아래 표에 이름·값을 남긴다.
+     (구 v1 아이템은 LEGACY_PRICES, 그 전에 은퇴한 4종은 App.jsx RETIRED_AVATAR_ITEMS)
+   · 새 키 1개만 추가한다(CLAUDE.md 9번) — 기존 키·로직은 그대로 둔다.        */
+export const AVATAR_RESET_KEY = "v6_avatar_reset_2608";   // 이 개편의 1회 실행 표식
+
+/* 카탈로그에서 뺀 아이템 — 환불 안내에 쓸 이름과 되돌려 줄 코인 */
+export const RETIRED_ITEM_INFO = {
+  hat_explorer:       { label: "탐험 헬멧",   price: 200 },
+  hat_aviator:        { label: "비행사 모자", price: 260 },
+  hat_blossom:        { label: "꽃 헬멧",     price: 220 },
+  face_goggles:       { label: "탐험 고글",   price: 120 },
+  bottom_khaki:       { label: "카키 반바지", price: 130 },
+  bottom_cream:       { label: "크림 반바지", price: 150 },
+  bottom_denim:       { label: "데님 반바지", price: 170 },
+  bottom_magic_skirt: { label: "별빛 마법사 주름치마", price: 200 },
+  shoes_boots:        { label: "탐험 부츠",   price: 80  },
+  shoes_boots_sand:   { label: "크림 부츠",   price: 120 },
+  neck_scarf:         { label: "빨간 스카프", price: 90  },
+  back_backpack_sky:  { label: "하늘 배낭",   price: 270 },
+  back_backpack_cream:{ label: "크림 배낭",   price: 290 },
+  /* 더 예전에 은퇴한 것들 — 이미 환불됐을 수 있지만 남아 있으면 여기서 처리된다 */
+  shoes_boots_desert: { label: "사막 부츠",   price: 140 },
+  shoes_boots_ribbon: { label: "리본 부츠",   price: 150 },
+  background_forest:  { label: "마법 숲 배경", price: 120 },
+  background_galaxy:  { label: "은하수 배경",  price: 300 },
+  background_sky:     { label: "하늘 배경",    price: 0   },
+};
+
+/* 아이템 id → 환불 정보. 카탈로그에 있으면 카탈로그 값, 없으면 위 표를 본다.
+   둘 다 없는 정체불명 id는 이름만 붙여 0코인으로 (보유 목록에서는 지운다). */
+export const getRefundInfo = (id) => {
+  const it = getAvatarItem(id);
+  if (it) return { label: it.label, price: Number(it.price) || 0 };
+  return RETIRED_ITEM_INFO[id] || { label: String(id), price: 0 };
+};
+
+/* 한 아이의 보유 목록 → 환불 명세.  { items:[{id,label,price}], sum } */
+export const computeAvatarRefund = (ownedList) => {
+  const seen = new Set();
+  const items = [];
+  let sum = 0;
+  for (const id of (Array.isArray(ownedList) ? ownedList : [])) {
+    if (seen.has(id)) continue;              // 같은 아이템을 두 번 세지 않는다
+    seen.add(id);
+    const { label, price } = getRefundInfo(id);
+    if (price > 0) { items.push({ id, label, price }); sum += price; }
+  }
+  return { items, sum };
+};
 /* ── 시즌 아이템 ────────────────────────────────────────────────────────
    season이 붙은 아이템은 그 시즌이 열렸을 때만 상점에 나온다. 지금 열린 시즌은 없다.
    겨울 이벤트·설원 맵을 만들 때 여기에 "winter"를 넣으면 그대로 살아난다
