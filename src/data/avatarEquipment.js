@@ -40,20 +40,25 @@ export const DEFAULT_CHAR_DISPLAY_MODE = CHAR_DISPLAY_GROWTH;
    꾸미기 전용 캐릭터 1장. 모자·안경·손지물 없이 맨몸(기본옷)으로 제작된
    1024×1024 이미지. 모든 장비는 이 위에 덧씌워진다.
    아트가 아직 없으면 뷰어가 성장 3단계 캐릭터 → 이모지 순으로 폴백한다. */
-export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=2";        // 남아(머리+몸통 합본 — 폴백용)
-export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=2"; // 여아(합본 — 폴백용)
+export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=7";        // 남아(머리+몸통 합본 — 폴백용)
+export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=7"; // 여아(합본 — 폴백용)
 /* 베이스를 '몸통'과 '머리' 두 장으로 나눠 둔다 (사용자 확정).
    모자처럼 얼굴째 덮는 장비(hidesHead)를 쓰면 머리 장을 아예 안 그리고 그 자리에 장비 그림만 얹는다.
    → 예전처럼 베이스 머리 위에 덮어 씌우면 크기가 조금만 안 맞아도 턱선·귀선이 겹쳐 보였는데,
      아예 안 그리므로 그 문제가 원천적으로 사라진다.
    두 장은 합본과 같은 1024×1024 좌표계라 그냥 겹쳐 그리면 정확히 맞는다.
-   [2026-08-16] 몸통을 옷 입은 그림으로 덮어쓰면서 경로에 ?v=2 를 붙였다 — 파일명이
-   같아서 이미 받아 둔 기기는 예전 속옷 그림을 계속 보여준다(모자·하의가 쓰는 방식과 동일).
-   머리(head/head-girl)는 안 바뀌었으므로 그대로 둔다. */
-export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=2";
-export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp";
-export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=2";
-export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp";
+   [2026-08-19] 베이스 v7 로 교체 (사용자 확정 — 남아·여아 둘 다). v6(옷 입은 몸)과 비율이
+   완전히 다른 치비 몸이고 속옷 차림이라, 기본 반팔티·반바지를 '기본 지급 아이템'으로
+   따로 넣었다(아래 top_tee_white · bottom_shorts_green).
+   탑재: 원화 723×1536 의 알파 상자 높이를 848 로 줄여 발끝 y940 · 가로 중심 x512
+   (v6 과 같은 화면 자리 — 아바타 크기가 안 바뀐다).
+   목선(원화 남 y630 · 여 y578)에서 머리/몸통을 갈랐다. 여아 갈래머리 끝은 어깨와 붙어 있어
+   몸통 장에 남는데, 지금 카탈로그에 hidesHead 장비가 없어 보이는 데 문제는 없다.
+   파일명은 그대로 덮어썼고 경로에 ?v=7 을 붙여 기존 기기의 캐시를 끊는다. */
+export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=7";
+export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=7";
+export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=7";
+export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp?v=7";
 export const AVATAR_BASE_EMOJI = "🧒";
 
 /* ── 기본 배경 (아이템 아님) ────────────────────────────────────────── */
@@ -132,18 +137,26 @@ export const AVATAR_CATALOG = [
      여아 그림만 먼저 들어와서 4종 모두 forGender:"girl" (남아 원화는 나중에).
      탑재값(배율·좌표)은 art-src/README.md '사파리 세트(여아) 탑재값'에 적어 뒀다. */
 
-  /* 머리띠는 머리를 덮는 물건이 아니라서 여아일 때만 hidesHead를 끈다(hidesHeadGirl).
-     같은 id의 남아 그림은 얼굴째 덮는 사파리 모자라 hidesHead를 켜 둬야 한다. */
-  { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price: 180, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-brown.webp?v=2",    imgGirl: "assets/avatar/hat/safari-band-girl.webp", hidesHead: true, hidesHeadGirl: false, thumb: "assets/avatar/thumb/hat_safari.webp" },
+  /* ── 기본 지급 옷 2종 — 값 0, 처음부터 갖고 시작한다 ────────────────────
+     베이스 v7 이 속옷 차림이라 '옷'을 아이템으로 뺐다(art-src/README 확정값으로 탑재).
+     starter 가 붙으면 normalizeOwned 가 항상 보유에 넣고 getDefaultEquipped 가 입혀 준다.
+     그리고 벗을 수 없다(computeAvatarEquipToggle) — 벗으면 속옷만 남기 때문이다.
+     다른 상의·하의를 입으면 그 슬롯에서 자연스럽게 교체된다. */
+  { id: "top_tee_white",       slot: "top",    label: "기본 반팔티", emoji: "👕", price: 0, rarity: "common", theme: "common", starter: true, img: "assets/avatar/top/starter-tee.webp",       imgGirl: "assets/avatar/top/starter-tee-girl.webp",       thumb: "assets/avatar/thumb/top_tee_white.webp" },
+  { id: "bottom_shorts_green", slot: "bottom", label: "기본 반바지", emoji: "🩳", price: 0, rarity: "common", theme: "common", starter: true, img: "assets/avatar/bottom/starter-shorts.webp", imgGirl: "assets/avatar/bottom/starter-shorts-girl.webp", thumb: "assets/avatar/thumb/bottom_shorts_green.webp" },
+
+  /* 머리띠 — 머리를 덮는 물건이 아니라 hidesHead 를 안 쓴다.
+     (얼굴째 덮던 남아 사파리 모자 그림은 v7 몸에 안 맞아 카탈로그에서 뺐다 — 파일은 남아 있다) */
+  { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price: 180, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-band-girl.webp?v=2", thumb: "assets/avatar/thumb/hat_safari.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/top/safari-outfit-girl.webp", thumb: "assets/avatar/thumb/top_vest.webp" },
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp" },
   /* 부츠는 좌·우 짝을 따로 배치한다. 원화가 세로로 길어 높이 140px(신발 공통) 규칙에
      맞추면 폭이 모자라 베이스 양말이 옆으로 삐져나와서, 가로만 1.25배 늘려 탑재했다. */
-  { id: "shoes_boots_green", slot: "shoes", label: "사파리 부츠", emoji: "🥾", price: 100, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/green-boots.webp",    imgGirl: "assets/avatar/shoes/safari-boots-girl.webp",   soleY: 966, soleYGirl: 981, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
+  { id: "shoes_boots_green", slot: "shoes", label: "사파리 부츠", emoji: "🥾", price: 100, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/safari-boots-girl.webp?v=2", soleY: 978, soleYGirl: 978, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
   /* 가방 원화가 '앞에서 멘 모습'이라 등 슬롯 기본 z(15, 캐릭터 뒤)로는 몸통에 가려진다.
      그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
-  { id: "back_backpack",       slot: "back", label: "사파리 가방", emoji: "👜", price: 250, rarity: "epic", theme: "adventure", forGender: "girl", img: "assets/avatar/back/explorer-straps.webp", imgGirl: "assets/avatar/back/safari-bag-girl.webp", z: 37, thumb: "assets/avatar/thumb/back_backpack.webp" },
+  { id: "back_backpack",       slot: "back", label: "사파리 가방", emoji: "👜", price: 250, rarity: "epic", theme: "adventure", forGender: "girl", img: "assets/avatar/back/safari-bag-girl.webp?v=2", z: 37, thumb: "assets/avatar/thumb/back_backpack.webp" },
 ];
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
@@ -313,7 +326,9 @@ export const computeAvatarEquipToggle = (ownedList = [], equippedMap = {}, itemI
   if (!ownedList.includes(itemId)) return { ok: false, reason: "not_owned", nextEquipped: equippedMap };
   const slot = getSlot(item.slot);
   const currentlyEquipped = equippedMap[item.slot] === itemId;
-  const nextEquipped = (currentlyEquipped && slot && slot.removable)
+  /* 기본 지급 옷(starter)은 벗을 수 없다 — 벗으면 속옷만 남는다.
+     다른 상의·하의를 입으면 그 슬롯에서 알아서 교체되므로 갈아입는 데 지장은 없다. */
+  const nextEquipped = (currentlyEquipped && slot && slot.removable && !item.starter)
     ? { ...equippedMap, [item.slot]: null }
     : { ...equippedMap, [item.slot]: itemId };
   return { ok: true, reason: null, nextEquipped };
