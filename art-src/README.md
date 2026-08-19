@@ -49,6 +49,13 @@ git 히스토리에서 꺼낸다 — 예: `git show <커밋>:art-src/... > 복�
 | 탐험 | 432 / 963 | 578 / 966 | 434 / 978 | 582 / 981 |
 | 새싹 | 432 / 963 | 578 / 966 | 434 / 978 | 582 / 981 |
 | 크림 | 437 / 963 | 571 / 966 | 440 / 965 | 576 / 968 |
+| 사파리(여아) | — | — | 434 / 978 | 582 / 981 |
+
+**사파리 부츠(여아)만 가로 1.25배** — 원화가 한 짝을 크게 그린 그림이라 세로 140px에 맞추면
+폭이 69px밖에 안 나와서, 베이스 몸통에 그려진 흰 양말·신발이 부츠 양옆으로 삐져나온다
+(안 가려진 베이스 발 픽셀 3,634개 → 다른 신발은 1,000~2,450개).
+가로만 1.25배 늘려 폭 86px로 맞추면 2,303개로 다른 신발과 같은 수준이 되고, 부츠가
+통통해져 원화 분위기와도 맞는다. 세로는 140px 규칙 그대로다.
 
 **접지 그림자는 신발을 따라간다** — 밑창이 맨발 바닥(남 934·여 936)보다 30~45px 아래라,
 그림자를 고정하면 신발만 그림자 밖으로 나간다. 카탈로그 아이템의 `soleY`/`soleYGirl`을
@@ -56,6 +63,17 @@ git 히스토리에서 꺼낸다 — 예: `git show <커밋>:art-src/... > 복�
 
 **미리보기 눈금 주의** — 위치 확인용 확대 이미지는 계단식(nearest) 확대라 가장자리가
 네모나게 보인다. 그림 결함이 아니다 (실측: 원화 6장 모두 떠 있는 조각 0개).
+
+**사파리 세트(여아) 탑재값 — 2026-08-19**
+베이스 실측: 여아 몸통 상자 (369,340)-(656,940) · 여아 머리 상자 (360,91)-(667,411).
+| 아이템 | 배율 | 맞춘 기준 | 탑재 상자 |
+|---|---|---|---|
+| 사파리 옷 | 0.875 | 소매 최대폭 296px(원화 y124) → 몸통 어깨폭 259px(캔버스 y460) | (381,352)-(642,738) |
+| 사파리 가방 | 220/208 | 어깨끈 위끝을 어깨(400,390)에 걸침, z:37로 옷 위 | (400,390)-(619,784) |
+| 사파리 머리띠 | — | 아치 최대폭 줄을 y245에 맞춤 (y200은 머리 위로 떠 보인다) | (376,117)-(648,282) |
+| 사파리 부츠 | 높이 140 · 가로 ×1.25 | 위 신발 표의 여아 좌/우 값 | (390,838)-(624,980) |
+머리띠는 머리를 덮는 물건이 아니라 `hidesHeadGirl:false`로 베이스 머리를 살려 둔다
+(같은 id의 남아 사파리 모자는 그대로 `hidesHead:true`).
 
 **어깨끈(배낭) 탑재 공식** — 원화가 '앞에서 본 어깨끈'이면 등 슬롯 기본 z(15, 캐릭터 뒤)로는
 몸통에 가려진다. 카탈로그 아이템에 `z: 37`(상의 35 위·목장식 40 아래)을 달아 앞으로 끌어온다.
@@ -176,12 +194,11 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | base-girl-v4-head.webp | 여아 머리 원화 v4 (현행 — 눈 정렬 후 3px 내려 몸통과 이어 붙여 탑재) | avatar/base/head-girl.webp |
 | base-girl-v4-body.webp | 여아 몸통 원화 v4 (현행 — 발끝 y936 정렬, 머리와 이어 붙여 탑재) | avatar/base/body-girl.webp |
 | shoe-explorer-L/R.webp | 탐험 부츠 원화 한 짝씩 (현행) | avatar/shoes/explorer-boots(-girl).webp |
-| shoe-green-L/R.webp | 새싹 부츠 원화 한 짝씩 (현행) | avatar/shoes/green-boots(-girl).webp |
+| shoe-green-L/R.webp | 새싹 부츠 원화 한 짝씩 (**남아만 현행** — 여아는 사파리 부츠로 교체) | avatar/shoes/green-boots.webp |
 | shoe-cream-L/R.webp | 크림 부츠 원화 한 짝씩 (현행, 고해상도 원본) | avatar/shoes/cream-boots(-girl).webp |
 | hat-explorer-v3.webp | 탐험 헬멧 원화 남아 v3 (현행, hidesHead) | avatar/hat/explorer-helmet.webp |
 | hat-explorer-helmet-girl.webp | 탐험 헬멧 원화 여아 (현행, imgGirl) | avatar/hat/explorer-helmet-girl.webp |
-| hat-safari-brown.webp | 사파리 모자 원화 남아 (현행, hidesHead) | avatar/hat/safari-brown.webp |
-| hat-safari-brown-girl.webp | 사파리 모자 원화 여아 (현행, imgGirl) | avatar/hat/safari-brown-girl.webp |
+| hat-safari-brown.webp | 사파리 모자 원화 남아 (현행, hidesHead — 여아는 사파리 머리띠로 교체) | avatar/hat/safari-brown.webp |
 | hat-aviator-cap.webp | 비행사 모자 원화 남아 (**겨울 시즌 보관** — season:"winter", 상점 미노출) | avatar/hat/aviator-cap.webp |
 | hat-aviator-cap-girl.webp | 비행사 모자 원화 여아 (**겨울 시즌 보관**) | avatar/hat/aviator-cap-girl.webp |
 | hat-blossom.webp | 꽃 헬멧 원화 남아 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
@@ -189,6 +206,10 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | bottom-khaki-cargo.webp | 카키 반바지 원화 (벨트 달린 카고) | avatar/bottom/khaki-cargo.webp |
 | bottom-cream-cargo.webp | 크림 반바지 원화 (카고) | avatar/bottom/cream-cargo.webp |
 | bottom-denim-shorts.webp | 데님 반바지 원화 (밑단 롤업) | avatar/bottom/denim-shorts.webp |
+| safari-girl-band-src.webp | 사파리 머리띠 원화 여아 (현행) | avatar/hat/safari-band-girl.webp |
+| safari-girl-outfit-src.webp | 사파리 옷 원화 여아 — 블라우스+반바지 한 장 (현행) | avatar/top/safari-outfit-girl.webp |
+| safari-girl-boot-src.webp | 사파리 부츠 원화 여아 한 짝 (정면, 좌우 반전해서 한 켤레로) | avatar/shoes/safari-boots-girl.webp |
+| safari-girl-set-src.webp | 사파리 세트 전체 시트 여아 — 가방은 여기서 오려 냈다 | avatar/back/safari-bag-girl.webp |
 | back-explorer-straps.webp | 탐험 배낭 원화 (초록 롤 + 갈색 가죽끈, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
 | back-sky-straps.webp | 하늘 배낭 원화 (파랑 롤 + 갈색 가죽끈) | avatar/back/sky-straps.webp |
 | back-cream-straps.webp | 크림 배낭 원화 (크림 롤 + 캔버스끈, 체커보드 배경 제거) | avatar/back/cream-straps.webp |
