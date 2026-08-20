@@ -9,7 +9,9 @@
    화면 흐름 (사용자 확정 2026-08-09)
      아이 선택 → [월간|주간] → 달력 → 고른 날 요약 → 고른 날 상세
      · 월간은 '그날의 특이사항', 주간은 '반복 일정 비교'로 역할을 나눈다.
-     · 달력에는 평소와 다른 일만 찍는다 — 매일 반복되는 학원·셔틀은 안 찍는다.
+     · 달력 글자 표시는 평소와 다른 일만 찍는다 — 셔틀 같은 반복 일정은 안 찍는다.
+     · [2026-08-19] 그날 가는 학원은 학원 카드 색 '작은 점'으로 찍는다. 글자가 아니라
+       점이라 칸이 안 복잡해지면서 한 달치 학원 요일이 한눈에 들어온다.
 
    props
      th, CT          : 아이 테마색 / 그 테마에 맞춘 박스색 세트
@@ -190,6 +192,14 @@ export default function CalendarTab({
             const e=getDailyEntry(childId,a.id,dateStr);
             return (e.supplies||[]).length>0||(e.hiddenBase||[]).length>0; })) marks.push("supply");
           if((dayMemos[mk]||"").trim()) marks.push("memo");
+          /* [사용자 확정 2026-08-19] 그날 가는 학원을 학원 카드 색 점으로 찍는다.
+             글자 표시는 '평소와 다른 일'만 찍는 규칙 그대로고, 점은 그 아래 층이다 —
+             한 달을 펼쳐 놓고 '이 아이가 어느 요일에 어디를 가는지'가 한눈에 보인다.
+             목록은 홈·상세와 같은 getDayPlan 을 쓴다(결석·휴원은 빠지고 보충은 들어온다).
+             같은 학원이 정규+보충으로 두 장이어도 가방은 하나라 점도 하나만 찍는다. */
+          const dayAc=[...getDayPlan(curAc,curAbs,dateStr,dn,(acId)=>isVacationDay(childId,acId,dateStr))
+            .filter(a=>!a._absent)
+            .reduce((m,a)=>m.set(String(a.id),a),new Map()).values()];
           return (
             /* [사용자 확정 2026-08-10] 칸마다 테두리를 두르니 버튼 31개를 늘어놓은 것처럼 보였다.
                보통 날은 테두리·배경 없이, 고른 날만 옅은 배경 + 테두리. 높이 50 → 38 (−24%). */
@@ -205,6 +215,18 @@ export default function CalendarTab({
               {holiday&&(
                 <div style={{fontSize:9,color:"#E74C3C",fontWeight:700,lineHeight:1.1,maxWidth:"100%",
                   overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{holiday}</div>
+              )}
+              {dayAc.length>0&&(
+                /* 점은 숫자 바로 아래 한 줄 — 여섯 개까지 찍고 넘치면 아랫줄로 접힌다.
+                   (한 칸이 360px 기준 약 44px 라 5.5px 점 여섯 개가 겨우 들어간다) */
+                <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",alignItems:"center",
+                  columnGap:3,rowGap:2,width:"100%",marginTop:1}}>
+                  {dayAc.map(a=>(
+                    <span key={a._key} title={a.name} aria-hidden="true"
+                      style={{width:5.5,height:5.5,borderRadius:"50%",flexShrink:0,
+                        background:a.color||th.main}}/>
+                  ))}
+                </div>
               )}
               {marks.length>0&&(
                 /* 칸이 좁아 한 줄에 두 개쯤 들어간다 — 넘치면 아랫줄로 접힌다.
