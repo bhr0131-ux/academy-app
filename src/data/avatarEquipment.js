@@ -72,6 +72,7 @@ export const AVATAR_THEMES = {
   common:    { label: "공용",   emoji: "⭐", color: "#64748B" },
   picnic:    { label: "소풍",   emoji: "🍓", color: "#FB7185" },
   magic:     { label: "마법",   emoji: "🔮", color: "#8B5CF6" },
+  space:     { label: "우주",   emoji: "🚀", color: "#6366F1" },
   seasonal:  { label: "시즌",   emoji: "🎄", color: "#DC2626" },
   /* [2026-08-14] 마법학교 세트 — 탐험복과 분위기를 확실히 나누려고 테마를 따로 뒀다.
      모자·신발·상의·하의·가방·목장식·얼굴장식·손장비 8종을 채울 예정이고,
@@ -162,6 +163,10 @@ export const AVATAR_CATALOG = [
      둘 다 상·하의가 한 장이라 사파리 옷과 같이 상의 슬롯 하나로 넣는다. */
   { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price: 180, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/top/picnic-outfit-girl.webp", thumb: "assets/avatar/thumb/top_picnic.webp" },
   { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price: 220, rarity: "epic", theme: "magic",  forGender: "girl", img: "assets/avatar/top/magic-outfit-girl.webp",  thumb: "assets/avatar/thumb/top_magic.webp" },
+  /* 우주복 — 옷이 흰색이라 '베이스와 색이 다른 픽셀' 규칙만으로는 안 떼어졌다.
+     베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
+     바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나. */
+  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price: 250, rarity: "epic", theme: "space",  forGender: "girl", img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
   /* 부츠는 좌·우 짝을 따로 배치한다. 원화가 세로로 길어 높이 140px(신발 공통) 규칙에
      맞추면 폭이 모자라 베이스 양말이 옆으로 삐져나와서, 가로만 1.25배 늘려 탑재했다. */
   { id: "shoes_boots_green", slot: "shoes", label: "사파리 부츠", emoji: "🥾", price: 100, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/safari-boots-girl.webp?v=2", soleY: 978, soleYGirl: 978, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
