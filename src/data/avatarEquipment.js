@@ -181,6 +181,10 @@ export const AVATAR_CATALOG = [
   /* 우주복 — 옷이 흰색이라 '베이스와 색이 다른 픽셀' 규칙만으로는 안 떼어졌다.
      베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
      바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나. */
+  /* 해적 옷 — 이 원화도 '옷만 오려 낸 그림'이라 상체를 눈으로 맞췄다(하늘 나들이 옷과 같은 방식).
+     긴소매라 소맷부리가 손목에 닿는 배율을 골랐다 — 0.72는 팔뚝이 남고 0.76부터는 손을 덮는다.
+     배율 0.74 · 깃 위끝 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (350,372)-(674,754). */
+  { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price: 240, rarity: "epic", theme: "pirate", forGender: "girl", coversBottom: true, img: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp" },
   { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price: 250, rarity: "epic", theme: "space",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
   /* 부츠는 좌·우 짝을 따로 배치한다. 원화가 세로로 길어 높이 140px(신발 공통) 규칙에
      맞추면 폭이 모자라 베이스 양말이 옆으로 삐져나와서, 가로만 1.25배 늘려 탑재했다. */
