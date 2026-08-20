@@ -16,10 +16,10 @@
          추가 준비물 ■ 분홍 네모       메모     ▬ 회색 막대
          학원비 납부일 ▲ 파랑 삼각형
 
-   MARKS 의 key 는 달력 칸과 범례가 같이 쓴다. 순서가 곧 표시 우선순위다.
+   [2026-08-20] 범례 시트는 뺐다(사용자 확정) — 글자 표시라 뜻이 바로 읽히고,
+   학원 점은 학원 카드 색 그대로라 따로 설명할 게 없었다.
+   찍히는 순서(=중요도)는 CalendarTab 의 marks 배열이 정한다.
    ════════════════════════════════════════════════════════════════════════ */
-
-const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
 export const MARK_COLORS = {
   absent: "#E5484D", makeup: "#F5A524", makeupDone: "#2FB67C",
@@ -90,64 +90,4 @@ export function Mark({ kind, size = 7 }) {
     return <span style={{ ...base, width: size + 2, height: Math.max(2, size - 4), borderRadius: 2, background: c }} />;
   }
   return <span style={{ ...base, width: size, height: size, borderRadius: "50%", background: c }} />;
-}
-
-/* 순서가 곧 칸에 찍히는 순서(=중요도)다. 놓치면 곤란한 것부터 앞에 둔다. */
-export const MARKS = [
-  { key: "absent",     label: "학원에 못 간 날" },
-  { key: "makeup",     label: "보충수업 예정" },
-  { key: "makeupDone", label: "보충수업 완료" },
-  { key: "vacation",   label: "학원 방학·휴원" },
-  { key: "fee",        label: "학원비 내는 날" },
-  { key: "supply",     label: "평소와 다른 준비물" },
-  { key: "memo",       label: "내가 적어 둔 메모" },
-];
-
-/* 범례 — 달력 오른쪽 위 작은 버튼을 누르면 열리는 바텀시트 (사용자 확정).
-   늘 두 줄을 차지하던 범례를 접어 넣고, 필요할 때만 펼쳐 본다. */
-export function CalendarLegendSheet({ onClose, tone }) {
-  return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,20,40,0.55)",
-      display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: "22px 22px 0 0",
-        padding: "10px 18px calc(26px + env(safe-area-inset-bottom))", width: "100%", maxWidth: 430,
-        boxSizing: "border-box", fontFamily: F }}>
-        <div aria-hidden="true" style={{ width: 38, height: 4, borderRadius: 999,
-          background: tone.border, margin: "0 auto 12px" }} />
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: tone.text }}>달력 표시 보기</h3>
-          <button onClick={onClose} aria-label="닫기" className="jelly-tap"
-            style={{ background: tone.faint + "88", border: "none", borderRadius: 10, width: 28, height: 28,
-              cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
-        </div>
-        <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 12px", lineHeight: 1.5 }}>
-          날짜 아래 <b>작은 점</b>은 그날 가는 학원이에요 — 학원 카드와 같은 색이에요.<br/>
-          <b>글자</b>는 평소와 다른 일만 표시해요.
-        </p>
-        {/* [사용자 확정 2026-08-19] 점 표시 설명 — 색은 학원마다 다르므로 예시 색으로 보여 준다 */}
-        <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "7px 2px", marginBottom: 2 }}>
-          <span style={{ width: 34, display: "flex", justifyContent: "flex-start", gap: 3 }}>
-            {["#00B8A9", "#FF6B6B", "#FF9500"].map(c => (
-              <span key={c} style={{ width: 5.5, height: 5.5, borderRadius: "50%", background: c }} />
-            ))}
-          </span>
-          <span style={{ fontSize: 13.5, fontWeight: 700, color: tone.text }}>그날 가는 학원 (학원 색)</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 10 }}>
-          {MARKS.map((m) => (
-            <div key={m.key} style={{ display: "flex", alignItems: "center", gap: 11, padding: "7px 2px",
-              borderTop: `1px solid ${tone.border}` }}>
-              <span style={{ width: 34, display: "flex", justifyContent: "flex-start" }}>
-                <MarkText kind={m.key} size={11} />
-              </span>
-              <span style={{ fontSize: 13.5, fontWeight: 700, color: tone.text }}>{m.label}</span>
-            </div>
-          ))}
-        </div>
-        <p style={{ fontSize: 11.5, color: tone.sub, fontWeight: 600, margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
-          날짜를 누르면 아래에서 그날 자세한 내용을 볼 수 있어요.
-        </p>
-      </div>
-    </div>
-  );
 }

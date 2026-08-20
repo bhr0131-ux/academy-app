@@ -26,7 +26,6 @@ import EmojiIcon from "./components/parent/EmojiIcon.jsx";
 import { REWARD_EMOJI } from "./data/rewardEmoji.js";
 import SectionHead from "./components/parent/SectionHead.jsx";
 import XpAdjustCard from "./components/parent/XpAdjustCard.jsx";
-import { CalendarLegendSheet } from "./components/parent/CalendarMarks.jsx";
 import CalendarTab from "./components/parent/CalendarTab.jsx";
 import ParentHomeTab from "./components/parent/ParentHomeTab.jsx";
 import FeeTab from "./components/parent/FeeTab.jsx";
@@ -431,7 +430,6 @@ export default function App() {
   const [absMenu,                setAbsMenu]                = useState(null);             // 결석 카드 ⋮ 더보기
   const [absFilter,              setAbsFilter]              = useState("all");            // 결석 요약 칸 필터 all|pending|done
   const [calView,                setCalView]                = useState("month");          // 달력 보기 — 월간 | 주간
-  const [calLegend,              setCalLegend]              = useState(false);            // 달력 표시 설명 시트
   const [memoEdit,               setMemoEdit]               = useState(null);             // 메모 쓰는 중인 날짜 키
   const [memoDraft,              setMemoDraft]              = useState("");
   const childStripRef = useRef(null);                                                       // 엄마용 아이 선택 줄 (가운데 맞추기용)
@@ -1988,7 +1986,7 @@ export default function App() {
     showSupplyCheck || showMissionCheck || showPastMissionModal ||
     showRewardModal || showPinChangeModal || showRecoverySetupModal || showRecoveryModal ||
     showResetPinModal || showVacModal || showChildMgr || showAcademyCopyModal ||
-    calLegend || paySheet || feeEdit || showAddAcModal || showDetailModal ||
+    paySheet || feeEdit || showAddAcModal || showDetailModal ||
     showDailyModal || showSmsModal || showTmplEdit || showAbsModal || showKindPicker ||
     holidayRest
   );
@@ -5645,7 +5643,6 @@ export default function App() {
             calDate={calDate} setCalDate={setCalDate} calDays={calDays}
             calSelDate={calSelDate} setCalSelDate={setCalSelDate}
             calView={calView} setCalView={setCalView}
-            onOpenLegend={()=>setCalLegend(true)}
             dayMemos={dayMemos} setDayMemos={setDayMemos}
             memoEdit={memoEdit} setMemoEdit={setMemoEdit}
             memoDraft={memoDraft} setMemoDraft={setMemoDraft}
@@ -6087,12 +6084,12 @@ export default function App() {
               // 미션은 매일 보는 화면이라 보상보다 앞에 둔다.
               { key:"mission",  label:"미션",   icon:"mission",  active:tab==="mission",
                 onPress:()=>{ setMoreMenuOpen(false); goMissionTab(); } },
-              /* [사용자 확정 2026-08-19] 달력을 '더보기' 안에서 꺼내 미션 옆으로 올렸다.
-                 '학원' 칸이 빠지면서 남은 자리다 — 두 번 눌러야 열리던 화면이 한 번이 된다. */
-              { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar", onPress:go("calendar") },
               // 보상은 누를 때마다 PIN을 다시 받는다 (goRewardTab이 그 규칙을 갖고 있다)
               { key:"reward",   label:"보상",   icon:"reward",   active:tab==="reward",
                 onPress:()=>{ setMoreMenuOpen(false); goRewardTab(); } },
+              /* [사용자 확정 2026-08-20] 달력을 '더보기' 안에서 꺼내 보상과 더보기 사이에 뒀다
+                 ('학원' 칸이 빠지면서 남은 자리). 두 번 눌러야 열리던 화면이 한 번이 된다. */
+              { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar", onPress:go("calendar") },
               // 더보기는 화면을 바꾸지 않고 '위로 열리는 메뉴'만 띄운다 (사용자 확정 2026-08-09)
               { key:"more",     label:"더보기", icon:"more",     active:isMoreTab(tab)||moreMenuOpen,
                 onPress:()=>setMoreMenuOpen(v=>!v) },
@@ -6824,12 +6821,6 @@ export default function App() {
 
       {/* ── 학원비 넣기/고치기 (학원비 탭) ──
              저장은 학원 정보(fee·payDay)에 그대로 들어간다 → 학원 탭 카드에도 바로 반영된다 */}
-      {/* ── 달력 표시 설명 (범례) ── */}
-      {calLegend&&(
-        <CalendarLegendSheet onClose={()=>setCalLegend(false)}
-          tone={{text:C.text,sub:C.sub,border:C.border,faint:CT.faint}} />
-      )}
-
       {/* ── 학원비 납부 완료 처리 (바텀시트) ── */}
       {paySheet&&(()=>{
         const ac=curAc.find(a=>a.id===paySheet.acId);

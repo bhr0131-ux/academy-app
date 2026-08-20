@@ -19,7 +19,6 @@
      calDate, setCalDate, calDays          보고 있는 달과 그 달의 날짜 배열
      calSelDate, setCalSelDate             고른 날 (null이면 오늘)
      calView, setCalView                   "month" | "week"
-     onOpenLegend()                        표시 설명 시트 열기
      dayMemos, setDayMemos, memoEdit, setMemoEdit, memoDraft, setMemoDraft
      mKey, isVacationDay, getDailyEntry, getWeeklySchedule, acKindLabel, toggleMakeup
      onSms(ac)                             결석 학원에 문자 보내기
@@ -27,7 +26,7 @@
      isFeePaidOn(acId, month)              그 달 학원비를 냈는지 (달력의 납부일 표시용)
    ════════════════════════════════════════════════════════════════════════ */
 
-import { C, FS, FW, RAD, mixWhite, SHADOW } from "../../data/tokens.js";
+import { C, FS, FW, RAD, CTRL_H, mixWhite, SHADOW } from "../../data/tokens.js";
 
 /* [사용자 확정 2026-08-11] 달력은 일요일부터 토요일 순으로 늘어놓는다.
    앱의 공용 DAYS 는 월요일부터라(학원 등록의 요일 고르기 등이 그 순서를 쓴다)
@@ -45,10 +44,29 @@ import { Mark, MarkText } from "./CalendarMarks.jsx";
    보조 글자색도 홈과 같은 한 단계 진한 청회색을 쓴다 (C.sub 는 카드 위에서 흐렸다). */
 const SUBD="#5F678C";
 
+/* [사용자 확정 2026-08-20] 하루 상세의 알림 네 종류(학원비·휴원·결석·보충)가
+   제각각이었다 — 학원비·휴원·결석은 테두리 상자, 보충만 왼쪽 세로선 배너.
+   홈 화면은 이미 '왼쪽 세로선 + 아주 옅은 배경' 배너로 통일돼 있어서 그쪽에 맞춘다.
+   같은 정보가 두 화면에서 같은 모양으로 보인다. */
+function Banner({ color, bg, children }) {
+  return (
+    <div style={{display:"flex",gap:10,background:bg,borderRadius:RAD.sm,marginBottom:9,overflow:"hidden"}}>
+      <div style={{width:3,background:color,flexShrink:0}}/>
+      <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>{children}</div>
+    </div>
+  );
+}
+/* 배너 제목 줄 — 아이콘 13 + 꼬리표 크기 글자 (홈과 같은 값) */
+const bnHead = (color) => ({display:"flex",alignItems:"center",gap:6,color});
+const bnTitle = {fontSize:FS.tag,fontWeight:FW.bold};
+/* 배너 안 오른쪽 작은 버튼·배지 — 문자·완료로·미납이 값이 달라 들쭉날쭉했다 */
+const bnChip = {flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 9px",borderRadius:RAD.sm,
+  border:"none",cursor:"pointer",fontFamily:"inherit",lineHeight:1.3};
+
 export default function CalendarTab({
   th, CT, childId, childGender, curAc = [], curAbs = [],
   calDate, setCalDate, calDays = [], calSelDate, setCalSelDate,
-  calView, setCalView, onOpenLegend,
+  calView, setCalView,
   dayMemos = {}, setDayMemos, memoEdit, setMemoEdit, memoDraft, setMemoDraft,
   mKey, isVacationDay, getDailyEntry, getWeeklySchedule, acKindLabel, toggleMakeup, isFeePaidOn,
   onSms, onVacation,
@@ -116,9 +134,10 @@ export default function CalendarTab({
   const isWeek=calView==="week";
   return (
     <div>
-      {/* [사용자 확정 2026-08-10] 월간|주간·화살표·월 제목·범례가 한 줄에서 비슷한 무게로
+      {/* [사용자 확정 2026-08-10] 월간|주간·화살표·월 제목이 한 줄에서 비슷한 무게로
           경쟁해 무엇이 중심인지 안 잡혔다. 월 제목과 화살표를 한 묶음으로 첫 줄에,
-          보기 전환은 둘째 줄로 내린다. '표시' → '범례'(뜻이 바로 통한다). */}
+          보기 전환은 둘째 줄로 내린다.
+          [2026-08-20] 둘째 줄 오른쪽에 있던 '범례' 버튼은 뺐다 (사용자 확정). */}
       <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:2,marginBottom:10,position:"relative",minWidth:0}}>
         <button onClick={()=>isWeek?goWeek(-1):goMonth(-1)}
           className="jelly-tap" aria-label={isWeek?"이전 주":"이전 달"}
@@ -131,11 +150,11 @@ export default function CalendarTab({
           style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10,minWidth:0}}>
-        <div style={{display:"flex",background:CT.faint,borderRadius:11,padding:2,flexShrink:0}}>
+        <div style={{display:"flex",background:CT.faint,borderRadius:RAD.md,padding:2,flexShrink:0}}>
           {[{k:"month",l:"월간"},{k:"week",l:"주간"}].map(v=>(
             <button key={v.k} onClick={()=>setCalView(v.k)} className="jelly-tap"
-              style={{border:"none",cursor:"pointer",borderRadius:9,padding:"5px 14px",fontFamily:"inherit",
-                fontSize:12.5,fontWeight:calView===v.k?900:700,
+              style={{border:"none",cursor:"pointer",borderRadius:RAD.sm,padding:"5px 14px",fontFamily:"inherit",
+                fontSize:FS.sub,fontWeight:calView===v.k?FW.bold:FW.normal,
                 background:calView===v.k?"#fff":"transparent",color:calView===v.k?th.main:C.sub,
                 boxShadow:calView===v.k?"0 1px 4px rgba(90,70,60,0.14)":"none"}}>{v.l}</button>
           ))}
@@ -143,14 +162,8 @@ export default function CalendarTab({
         <div style={{flex:1}}/>
         {isWeek&&!(TODAY>=weekMon&&TODAY<=weekSun)&&(
           <button onClick={()=>setCalSelDate(TODAY)} className="jelly-tap"
-            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:9,color:th.main,fontSize:11.5,fontWeight:800,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
             이번 주
-          </button>
-        )}
-        {calView==="month"&&(
-          <button onClick={onOpenLegend} className="jelly-tap" aria-label="달력 범례 보기"
-            style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:4,background:"none",border:"none",padding:"5px 2px",fontSize:11.5,fontWeight:700,color:C.sub,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
-            범례
           </button>
         )}
       </div>
@@ -159,7 +172,7 @@ export default function CalendarTab({
       {calView==="month"&&(<>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",textAlign:"center",marginBottom:4}}>
         {CAL_DAYS.map((d,i)=>(
-          <div key={d} style={{fontSize:12,fontWeight:700,color:i===0?"#E74C3C":i===6?"#3498DB":C.sub,padding:"4px 0"}}>{d}</div>
+          <div key={d} style={{fontSize:FS.sub,fontWeight:FW.normal,color:i===0?"#E74C3C":i===6?"#3498DB":C.sub,padding:"4px 0"}}>{d}</div>
         ))}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3}}>
@@ -204,16 +217,17 @@ export default function CalendarTab({
             /* [사용자 확정 2026-08-10] 칸마다 테두리를 두르니 버튼 31개를 늘어놓은 것처럼 보였다.
                보통 날은 테두리·배경 없이, 고른 날만 옅은 배경 + 테두리. 높이 50 → 38 (−24%). */
             <div key={i} onClick={()=>setCalSelDate(dateStr)}
-              style={{background:isSel?`${th.main}12`:"transparent",borderRadius:9,padding:"3px 2px",minHeight:38,cursor:"pointer",
+              style={{background:isSel?`${th.main}12`:"transparent",borderRadius:RAD.sm,padding:"3px 2px",minHeight:38,cursor:"pointer",
                 border:`1px solid ${isSel?th.main+"55":"transparent"}`,
                 display:"flex",flexDirection:"column",alignItems:"center",gap:1,transition:"background .15s"}}>
               {/* 오늘은 숫자만 동그라미로 감싼다 — 칸 전체를 칠하면 안의 표시가 안 보인다 (사용자 지적) */}
               <div style={{width:20,height:20,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
                 background:isToday?th.main:"transparent",
-                fontSize:12.5,fontWeight:isToday||isSel?900:600,
+                fontSize:FS.sub,fontWeight:isToday||isSel?FW.bold:FW.normal,
                 color:isToday?"#fff":holiday||dn==="일"?"#E74C3C":dn==="토"?"#3498DB":C.text}}>{day}</div>
               {holiday&&(
-                <div style={{fontSize:9,color:"#E74C3C",fontWeight:700,lineHeight:1.1,maxWidth:"100%",
+                /* 공휴일 이름만 눈금(FS) 밖의 9px — 한 칸이 44px 라 FS.tag(11.5)로는 '대체공휴일'이 잘린다 */
+                <div style={{fontSize:9,color:"#E74C3C",fontWeight:FW.normal,lineHeight:1.1,maxWidth:"100%",
                   overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{holiday}</div>
               )}
               {dayAc.length>0&&(
@@ -257,17 +271,19 @@ export default function CalendarTab({
               const isTodayRow=dayDate===TODAY;
               return (
                 <div key={day} onClick={()=>{ setCalSelDate(dayDate); setCalView("month"); }}
-                  style={{background:CT.card,borderRadius:13,border:`1px solid ${isTodayRow?th.main+"55":C.border}`,
+                  style={{background:CT.card,borderRadius:RAD.md,border:`1px solid ${isTodayRow?th.main+"55":C.border}`,
                     padding:"10px 12px",cursor:"pointer",display:"flex",gap:12,alignItems:"flex-start"}}>
-                  <div style={{flexShrink:0,width:46,textAlign:"center"}}>
-                    <p style={{margin:0,fontSize:13.5,fontWeight:900,color:isTodayRow?th.main:C.text}}>{day}요일</p>
-                    <p style={{margin:"1px 0 0",fontSize:10.5,fontWeight:600,color:C.sub}}>
+                  {/* 날짜 칸 폭 — 글자 눈금을 FS.tag(11.5)로 올리면서 '8월 16일'이 두 줄로
+                      접혔다. 한 줄에 들어가는 폭으로 넓힌다. */}
+                  <div style={{flexShrink:0,width:58,textAlign:"center"}}>
+                    <p style={{margin:0,fontSize:FS.body,fontWeight:FW.bold,color:isTodayRow?th.main:C.text}}>{day}요일</p>
+                    <p style={{margin:"1px 0 0",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub}}>
                       {isTodayRow?"오늘":korDate(dayDate)}
                     </p>
                   </div>
                   <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:10}}>
                     {items.length===0
-                      ? <p style={{margin:0,fontSize:12.5,fontWeight:600,color:C.sub,opacity:0.7}}>일정 없음</p>
+                      ? <p style={{margin:0,fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,opacity:0.7}}>일정 없음</p>
                       : items.map(ac=>{
                           const onVac=isVacationDay(childId,ac.id,dayDate);
                           return (
@@ -282,13 +298,13 @@ export default function CalendarTab({
                                어느 학원인지는 날짜를 눌러 월간 상세에서 본다.
                                길면 두 줄로 내리지 않고 말줄임 — 카드 높이를 일정하게 둔다. */
                             <div key={ac.id} style={{display:"flex",alignItems:"center",gap:9,minWidth:0,opacity:onVac?0.55:1}}>
-                              <span style={{width:3,height:15,borderRadius:9,background:ac.color,flexShrink:0}}/>
+                              <span style={{width:3,height:15,borderRadius:RAD.pill,background:ac.color,flexShrink:0}}/>
                               <span style={{flexShrink:0,minWidth:46,display:"flex"}}>
                                 {onVac
-                                  ? <span style={{fontSize:10.5,fontWeight:900,color:"#E65100",background:"#F0A50022",borderRadius:7,padding:"2px 7px"}}>휴원</span>
-                                  : <span style={{fontSize:12.5,fontWeight:700,color:C.sub}}>{ac.classTime}</span>}
+                                  ? <span style={{fontSize:FS.tag,fontWeight:FW.semi,color:"#E65100",background:"#F0A50022",borderRadius:RAD.sm,padding:"2px 7px"}}>휴원</span>
+                                  : <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub}}>{ac.classTime}</span>}
                               </span>
-                              <span style={{flex:1,minWidth:0,fontSize:13.5,fontWeight:800,color:C.text,
+                              <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,
                                 overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
                             </div>
                           );
@@ -303,23 +319,23 @@ export default function CalendarTab({
 
       {/* ── 고른 날 상세 (월간 보기에서만 — 주간에서는 요일을 누르면 월간으로 돌아온다) ── */}
       {calView==="month"&&(
-        <div style={{marginTop:14,background:CT.card,borderRadius:14,border:`1px solid ${th.main}2A`,overflow:"hidden",boxShadow:"0 2px 8px rgba(90,70,60,0.06)"}}>
+        <div style={{marginTop:14,background:CT.card,borderRadius:RAD.md,border:`1px solid ${th.main}2A`,overflow:"hidden",boxShadow:SHADOW.sm}}>
           {/* 머리 — 날짜 + 한 줄 요약. 예전엔 파랑 면적이 커서 아래 내용보다 세게 보였다. */}
-          <div style={{background:mixWhite(th.main,0.90),padding:"11px 14px",borderBottom:`1px solid ${th.main}1F`}}>
+          <div style={{background:mixWhite(th.main,0.90),padding:"11px 13px",borderBottom:`1px solid ${th.main}1F`}}>
             <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
-              <p style={{fontSize:15.5,fontWeight:900,margin:0,color:C.text}}>
-                {selInfo.m+1}월 {selInfo.day}일 <span style={{fontSize:13,fontWeight:700,color:C.sub}}>{selInfo.dn}요일</span>
+              <p style={{fontSize:FS.title,fontWeight:FW.bold,margin:0,color:C.text}}>
+                {selInfo.m+1}월 {selInfo.day}일 <span style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub}}>{selInfo.dn}요일</span>
               </p>
-              {effSelDate===TODAY&&<span style={{fontSize:11,background:th.main,color:"#fff",borderRadius:8,padding:"2px 8px",fontWeight:800}}>오늘</span>}
-              {selInfo.holiday&&<span style={{fontSize:11,background:`${C.red}14`,color:C.red,borderRadius:8,padding:"2px 8px",fontWeight:800}}>{selInfo.holiday}</span>}
+              {effSelDate===TODAY&&<span style={{fontSize:FS.tag,background:th.main,color:"#fff",borderRadius:RAD.sm,padding:"2px 8px",fontWeight:FW.semi}}>오늘</span>}
+              {selInfo.holiday&&<span style={{fontSize:FS.tag,background:`${C.red}14`,color:C.red,borderRadius:RAD.sm,padding:"2px 8px",fontWeight:FW.semi}}>{selInfo.holiday}</span>}
               {effSelDate!==TODAY&&(
                 <button onClick={()=>setCalSelDate(null)} className="jelly-tap"
-                  style={{marginLeft:"auto",background:"#fff",border:`1px solid ${th.main}33`,borderRadius:8,color:th.main,fontSize:11,fontWeight:800,padding:"3px 9px",cursor:"pointer",fontFamily:"inherit"}}>
+                  style={{marginLeft:"auto",background:"#fff",border:`1px solid ${th.main}33`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 9px",cursor:"pointer",fontFamily:"inherit"}}>
                   ↩ 오늘로
                 </button>
               )}
             </div>
-            <p style={{margin:"4px 0 0",fontSize:12,fontWeight:600,color:C.sub}}>
+            <p style={{margin:"4px 0 0",fontSize:FS.sub,fontWeight:FW.normal,color:C.sub}}>
               {sumParts.length?sumParts.join(" · "):"일정 없음"}
             </p>
           </div>
@@ -334,27 +350,27 @@ export default function CalendarTab({
                   <input autoFocus value={memoDraft} onChange={e=>setMemoDraft(e.target.value)}
                     onKeyDown={e=>{ if(e.key==="Enter"){ setDayMemos(p=>({...p,[selInfo.mk]:memoDraft.trim()})); setMemoEdit(null); } }}
                     placeholder="이 날 기억할 일"
-                    style={{flex:1,minWidth:0,background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"9px 12px",fontSize:13.5,fontWeight:700,color:C.text,outline:"none",fontFamily:"inherit"}}/>
+                    style={{flex:1,minWidth:0,minHeight:CTRL_H,boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:RAD.sm,padding:"9px 12px",fontSize:FS.body,fontWeight:FW.normal,color:C.text,outline:"none",fontFamily:"inherit"}}/>
                   <button onClick={()=>{ setDayMemos(p=>({...p,[selInfo.mk]:memoDraft.trim()})); setMemoEdit(null); }} className="jelly-tap"
-                    style={{flexShrink:0,padding:"0 14px",borderRadius:10,border:"none",background:th.grad,color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>저장</button>
+                    style={{flexShrink:0,minHeight:CTRL_H,padding:"0 16px",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontSize:FS.body,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>저장</button>
                 </div>
               );
               if(memo) return (
-                <div style={{display:"flex",alignItems:"flex-start",gap:9,marginBottom:12,background:CT.faint,borderRadius:11,padding:"9px 11px"}}>
+                <div style={{display:"flex",alignItems:"flex-start",gap:9,marginBottom:9,background:CT.faint,borderRadius:RAD.md,padding:"9px 11px"}}>
                   <span style={{color:C.sub,marginTop:1}}><CareIcon name="memo" size={14}/></span>
-                  <p style={{margin:0,flex:1,minWidth:0,fontSize:13,fontWeight:700,color:C.text,lineHeight:1.4,
+                  <p style={{margin:0,flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.normal,color:C.text,lineHeight:1.4,
                     display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{memo}</p>
                   <button onClick={()=>{ setMemoDraft(memo); setMemoEdit(selInfo.mk); }}
-                    style={{flexShrink:0,background:"none",border:"none",color:th.main,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>수정</button>
+                    style={{flexShrink:0,background:"none",border:"none",color:C.text,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>수정</button>
                 </div>
               );
               /* [사용자 확정 2026-08-10] 메모는 핵심 기능이 아닌데 카드 폭 전체를 쓰는
                  큰 점선 버튼이라 세로를 많이 잡아먹었다 → 작은 글자 버튼으로. */
               return (
                 <button onClick={()=>{ setMemoDraft(""); setMemoEdit(selInfo.mk); }} className="jelly-tap"
-                  style={{display:"inline-flex",alignItems:"center",gap:5,marginBottom:10,
-                    padding:"5px 11px",borderRadius:9,border:`1px solid ${C.border}`,background:"#fff",
-                    color:C.sub,fontSize:11.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+                  style={{display:"inline-flex",alignItems:"center",gap:5,marginBottom:9,
+                    padding:"5px 11px",borderRadius:RAD.sm,border:`1px solid ${C.border}`,background:"#fff",
+                    color:C.sub,fontSize:FS.tag,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
                   <CareIcon name="memo" size={12}/> ＋ 메모
                 </button>
               );
@@ -362,26 +378,26 @@ export default function CalendarTab({
 
             {/* 학원비 납부일 */}
             {feeDueOnSel.length>0&&(
-              <div style={{background:`${th.main}0A`,border:`1px solid ${th.main}33`,borderRadius:12,padding:"9px 11px",marginBottom:9}}>
-                <div style={{display:"flex",alignItems:"center",gap:7,color:th.main,marginBottom:4}}>
-                  <Mark kind="fee" size={9}/><span style={{fontSize:12.5,fontWeight:900}}>학원비 납부일</span>
+              <Banner color={th.main} bg={`${th.main}0A`}>
+                <div style={bnHead(th.main)}>
+                  <Mark kind="fee" size={9}/><span style={bnTitle}>학원비 납부일</span>
                 </div>
                 {feeDueOnSel.map(a=>{
                   const paid=isFeePaidOn&&isFeePaidOn(a.id,selInfo.m+1);
                   return (
-                    <div key={a.id} style={{display:"flex",alignItems:"center",gap:8,marginTop:3}}>
-                      <span style={{flex:1,minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                    <div key={a.id} style={{display:"flex",alignItems:"center",gap:8,margin:"2px 0 0"}}>
+                      <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                         {a.name}
-                        <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,marginLeft:6}}>{Number(a.fee).toLocaleString()}원</span>
+                        <span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginLeft:6}}>{Number(a.fee).toLocaleString()}원</span>
                       </span>
-                      <span style={{flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",borderRadius:RAD.sm,
+                      <span style={{...bnChip,cursor:"default",
                         background:paid?`${C.green}12`:`${C.orange}12`,color:paid?C.green:C.orange}}>
                         {paid?"납부 완료":"미납"}
                       </span>
                     </div>
                   );
                 })}
-              </div>
+              </Banner>
             )}
 
             {/* 휴원(방학) */}
@@ -389,68 +405,68 @@ export default function CalendarTab({
               const vacOnDay=selInfo.acList.filter(a=>isVacationDay(childId,a.id,effSelDate));
               if(vacOnDay.length===0) return null;
               return (
-                <div style={{background:"#FFF8E1",border:"1px solid #F0A50055",borderRadius:12,padding:"9px 11px",marginBottom:9}}>
-                  <div style={{display:"flex",alignItems:"center",gap:7,color:"#E65100",marginBottom:4}}>
-                    <CareIcon name="vacation" size={14}/>
-                    <span style={{fontSize:FS.sub,fontWeight:FW.bold}}>휴원 (방학)</span>
+                <Banner color="#F0A500" bg="#FFF9EC">
+                  <div style={bnHead("#E65100")}>
+                    <CareIcon name="vacation" size={13}/><span style={bnTitle}>휴원 (방학)</span>
                   </div>
-                  {vacOnDay.map(ac=>(
-                    <p key={ac.id} style={{margin:"2px 0 0",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text}}>{ac.name} 휴원</p>
-                  ))}
-                </div>
+                  <p style={{margin:"2px 0 0",fontSize:FS.body,fontWeight:FW.semi,color:C.text}}>
+                    {vacOnDay.map(ac=>ac.name).join(" · ")}
+                  </p>
+                </Banner>
               );
             })()}
 
             {/* 결석 */}
             {selInfo.absOnDay.length>0&&(
-              <div style={{background:`${C.red}08`,border:`1px solid ${C.red}25`,borderRadius:12,padding:"9px 11px",marginBottom:9}}>
-                <div style={{display:"flex",alignItems:"center",gap:7,color:C.red,marginBottom:4}}>
-                  <CareIcon name="absent" size={14}/><span style={{fontSize:FS.sub,fontWeight:FW.bold}}>결석</span>
+              <Banner color={C.red} bg={`${C.red}08`}>
+                <div style={bnHead(C.red)}>
+                  <CareIcon name="absent" size={13}/><span style={bnTitle}>결석</span>
                 </div>
                 {selInfo.absOnDay.map(ab=>{
                   const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
                   return (
-                    <div key={ab.id} style={{display:"flex",alignItems:"center",gap:8,marginTop:3}}>
-                      <span style={{flex:1,minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                        {ac.name}{ab.reason&&<span style={{fontSize:FS.sub,fontWeight:FW.normal,color:SUBD}}> · {ab.reason}</span>}
+                    <div key={ab.id} style={{display:"flex",alignItems:"center",gap:8,margin:"2px 0 0"}}>
+                      <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                        {ac.name}{ab.reason&&<span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub}}> · {ab.reason}</span>}
                       </span>
                       {ac.phone&&<button onClick={()=>onSms(ac)} className="jelly-tap"
-                        style={{flexShrink:0,fontSize:FS.tag,padding:"4px 10px",borderRadius:RAD.sm,border:`1px solid ${C.purple}30`,background:C.purpleL,color:C.purple,cursor:"pointer",fontWeight:FW.semi,fontFamily:"inherit"}}>문자</button>}
+                        style={{...bnChip,background:C.purpleL,color:C.purple}}>문자</button>}
                     </div>
                   );
                 })}
-              </div>
+              </Banner>
             )}
 
             {/* 보충수업 — 날짜를 2026-08-08 대신 한국어로 (사용자 지적) */}
             {selInfo.makeupOnDay.length>0&&(
               /* [사용자 확정 2026-08-10] 학원 카드만큼 큰 카드라 정규 일정처럼 보였다 →
                  왼쪽 주황 세로선 + 얇은 배너로 (홈 화면과 같은 규칙). */
-              <div style={{background:`${C.orange}0A`,borderLeft:`3px solid ${C.orange}`,borderRadius:"0 10px 10px 0",padding:"8px 11px",marginBottom:9}}>
+              <Banner color={C.orange} bg={`${C.orange}0A`}>
                 {selInfo.makeupOnDay.map((ab,i)=>{
                   const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
                   return (
                     <div key={ab.id} style={{marginTop:i?7:0,paddingTop:i?7:0,borderTop:i?`1px solid ${C.orange}1F`:"none"}}>
-                      <div style={{display:"flex",alignItems:"center",gap:7,color:C.orange}}>
-                        <CareIcon name="makeup" size={14}/>
-                        <span style={{fontSize:FS.sub,fontWeight:FW.bold}}>보충수업</span>
+                      <div style={bnHead(C.orange)}>
+                        <CareIcon name="makeup" size={13}/>
+                        <span style={bnTitle}>보충수업</span>
                         <span style={{fontSize:FS.tag,fontWeight:FW.normal,opacity:0.85}}>· {ab.makeupStatus==="absent"?"불참":ab.makeupDone?"완료":"미완료"}</span>
                         <button onClick={()=>toggleMakeup(ab.id)} className="jelly-tap"
-                          style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,padding:"4px 10px",borderRadius:RAD.sm,border:"none",background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:SUBD,cursor:"pointer",fontWeight:FW.semi,fontFamily:"inherit"}}>
+                          style={{...bnChip,marginLeft:"auto",
+                            background:ab.makeupDone?`${C.green}18`:CT.faint,color:ab.makeupDone?C.green:SUBD}}>
                           {ab.makeupStatus==="absent"?"✕ 불참":ab.makeupDone?"✓ 완료":"완료로"}
                         </button>
                       </div>
-                      <p style={{margin:"3px 0 0",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text}}>
+                      <p style={{margin:"2px 0 0",fontSize:FS.body,fontWeight:FW.semi,color:C.text}}>
                         {ac.name}
-                        {makeupTimeText(ab)&&<span style={{fontWeight:800,color:C.orange,marginLeft:7}}>{makeupTimeText(ab)}</span>}
+                        {makeupTimeText(ab)&&<span style={{color:C.orange,marginLeft:7}}>{makeupTimeText(ab)}</span>}
                       </p>
-                      <p style={{margin:"1px 0 0",fontSize:FS.sub,fontWeight:FW.normal,color:SUBD}}>
+                      <p style={{margin:"1px 0 0",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub}}>
                         결석일 {korDate(ab.date)} {dnOf(ab.date)}요일
                       </p>
                     </div>
                   );
                 })}
-              </div>
+              </Banner>
             )}
 
             {selInfo.acList.length===0&&selInfo.absOnDay.length===0&&selInfo.makeupOnDay.length===0&&(
@@ -485,7 +501,7 @@ export default function CalendarTab({
                 : `${ac._time}–${endT}`;
               const shuttleText=getShuttleText(ac,selInfo.dn);
               return (
-                <div key={ac._key||ac.id} style={{marginBottom:9,borderRadius:13,border:`1px solid ${ac.color}44`,overflow:"hidden",boxShadow:"0 2px 8px rgba(90,70,60,0.06)",display:"flex"}}>
+                <div key={ac._key||ac.id} style={{marginBottom:9,borderRadius:RAD.md,border:`1px solid ${ac.color}44`,overflow:"hidden",boxShadow:SHADOW.sm,display:"flex"}}>
                   <div style={{width:4,background:ac.color,flexShrink:0}}/>
                   <div style={{flex:1,minWidth:0,background:"#fff"}}>
                     <div style={{background:`${ac.color}10`,padding:"9px 12px",display:"flex",alignItems:"center",gap:9}}>
@@ -514,10 +530,10 @@ export default function CalendarTab({
                       <div style={{margin:"5px 0 0",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                         <span style={{color:C.sub,display:"flex"}}><CareIcon name="bag" size={13}/></span>
                         {baseSup.length===0&&sup.length===0
-                          ? <span style={{fontSize:FS.sub,fontWeight:FW.normal,padding:"3px 9px",borderRadius:RAD.lg,background:CT.faint,color:SUBD}}>없음</span>
+                          ? <span style={{fontSize:FS.sub,fontWeight:FW.normal,padding:"3px 9px",borderRadius:RAD.pill,background:CT.faint,color:SUBD}}>없음</span>
                           : (<>
-                              {baseSup.map((s,i)=><span key={`b${i}`} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.lg,background:`${ac.color}16`,color:ac.color,fontWeight:FW.normal}}>{s}</span>)}
-                              {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.lg,background:`${C.orange}14`,color:C.orange,fontWeight:FW.normal}}>+{s}</span>)}
+                              {baseSup.map((s,i)=><span key={`b${i}`} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.pill,background:`${ac.color}16`,color:ac.color,fontWeight:FW.normal}}>{s}</span>)}
+                              {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.pill,background:`${C.orange}14`,color:C.orange,fontWeight:FW.normal}}>+{s}</span>)}
                             </>)}
                       </div>
                     </div>
@@ -532,7 +548,7 @@ export default function CalendarTab({
       {/* 방학 전체 관리 버튼 */}
       <button onClick={onVacation}
         className="jelly-tap"
-        style={{display:"flex",alignItems:"center",justifyContent:"center",gap:7,width:"100%",marginTop:12,padding:"10px",borderRadius:11,border:"1px dashed #F0A50088",background:"#FFFBF0",color:"#E65100",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+        style={{display:"flex",alignItems:"center",justifyContent:"center",gap:7,width:"100%",marginTop:12,minHeight:CTRL_H,padding:"10px",borderRadius:RAD.md,border:"1px dashed #F0A50088",background:"#FFFBF0",color:"#E65100",fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
         <CareIcon name="vacation" size={14}/> 방학 기간 관리
       </button>
     </div>
