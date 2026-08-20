@@ -73,6 +73,7 @@ export const AVATAR_THEMES = {
   picnic:    { label: "소풍",   emoji: "🍓", color: "#FB7185" },
   magic:     { label: "마법",   emoji: "🔮", color: "#8B5CF6" },
   space:     { label: "우주",   emoji: "🚀", color: "#6366F1" },
+  pirate:    { label: "해적",   emoji: "🏴‍☠️", color: "#1E3A5F" },
   seasonal:  { label: "시즌",   emoji: "🎄", color: "#DC2626" },
   /* [2026-08-14] 마법학교 세트 — 탐험복과 분위기를 확실히 나누려고 테마를 따로 뒀다.
      모자·신발·상의·하의·가방·목장식·얼굴장식·손장비 8종을 채울 예정이고,
@@ -154,6 +155,11 @@ export const AVATAR_CATALOG = [
      예전엔 머리띠만 오려 낸 그림을 눈으로 맞춰서 머리보다 크게 얹혀 있었다
      (탑재 상자 362~659 → 391~640, 머리 폭 안으로 들어옴). art-src/README 참고. */
   { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price: 180, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-band-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_safari.webp" },
+  /* 해적 모자 — 머리띠와 같은 방식('베이스가 쓰고 있는 머리 그림' → 얼굴 상자로 맞춤).
+     챙이 이마를 덮지만 얼굴은 그대로 보이므로 hidesHead 는 안 쓴다.
+     떼어낼 때 가장 큰 덩어리에 앞머리·눈까지 딸려 와서(모자를 쓰면 앞머리가 다르게 그려진다)
+     머리카락색·살색을 걸러 모자만 남겼다 — 베이스 얼굴이 그대로 살아 있어야 한다. */
+  { id: "hat_pirate",     slot: "hat",   label: "해적 모자",   emoji: "🏴‍☠️", price: 240, rarity: "epic", theme: "pirate", forGender: "girl", img: "assets/avatar/hat/pirate-hat-girl.webp", thumb: "assets/avatar/thumb/hat_pirate.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", coversBottom: true, img: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp" },
