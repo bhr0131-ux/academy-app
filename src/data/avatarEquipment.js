@@ -153,7 +153,7 @@ export const AVATAR_CATALOG = [
   { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price: 180, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-band-girl.webp?v=2", thumb: "assets/avatar/thumb/hat_safari.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp" },
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", coversBottom: true, img: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
@@ -161,12 +161,12 @@ export const AVATAR_CATALOG = [
      베이스와 다른 픽셀만 남기면 그게 곧 제자리에 놓인 옷이다(맨살·머리 부분은 저절로 빠진다).
      앞으로 옷 원화는 이 방식으로 받는 게 제일 정확하다.
      둘 다 상·하의가 한 장이라 사파리 옷과 같이 상의 슬롯 하나로 넣는다. */
-  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price: 180, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/top/picnic-outfit-girl.webp", thumb: "assets/avatar/thumb/top_picnic.webp" },
-  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price: 220, rarity: "epic", theme: "magic",  forGender: "girl", img: "assets/avatar/top/magic-outfit-girl.webp",  thumb: "assets/avatar/thumb/top_magic.webp" },
+  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price: 180, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp", thumb: "assets/avatar/thumb/top_picnic.webp" },
+  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price: 220, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/magic-outfit-girl.webp",  thumb: "assets/avatar/thumb/top_magic.webp" },
   /* 우주복 — 옷이 흰색이라 '베이스와 색이 다른 픽셀' 규칙만으로는 안 떼어졌다.
      베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
      바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나. */
-  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price: 250, rarity: "epic", theme: "space",  forGender: "girl", img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
+  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price: 250, rarity: "epic", theme: "space",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
   /* 부츠는 좌·우 짝을 따로 배치한다. 원화가 세로로 길어 높이 140px(신발 공통) 규칙에
      맞추면 폭이 모자라 베이스 양말이 옆으로 삐져나와서, 가로만 1.25배 늘려 탑재했다. */
   { id: "shoes_boots_green", slot: "shoes", label: "사파리 부츠", emoji: "🥾", price: 100, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/safari-boots-girl.webp?v=2", soleY: 978, soleYGirl: 978, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
@@ -177,6 +177,31 @@ export const AVATAR_CATALOG = [
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
 export const getAvatarItem  = (id) => AVATAR_CATALOG.find(it => it.id === id) || null;
+
+/* ── 한 벌 옷(coversBottom) 규칙 ────────────────────────────────────────
+   사파리·딸기 소풍·별빛 마법사·우주복은 원화가 상·하의 한 장이라 상의 슬롯에 넣었다.
+   이걸 입으면 아래 입고 있던 기본 반바지를 벗어야 한다 — 안 그러면 옷 밑단·가랑이
+   틈으로 초록이 비친다(실측: 딸기 소풍 옷에서 반바지의 10.3%가 안 가려진다).
+   벗으면 기본 반바지가 다시 돌아온다. 보유 기록은 안 건드리고 장착만 오간다.  */
+export const STARTER_ID_BY_SLOT = (slotKey) =>
+  AVATAR_CATALOG.find(it => it.starter && it.slot === slotKey)?.id || null;
+export const topCoversBottom = (equippedMap = {}) => {
+  const top = getAvatarItem(equippedMap.top);
+  return !!(top && top.coversBottom);
+};
+export const applyBottomRule = (equippedMap = {}) => {
+  const next = { ...equippedMap };
+  if (topCoversBottom(next)) next.bottom = null;              // 한 벌 옷 → 하의 벗김
+  else if (!next.bottom) next.bottom = STARTER_ID_BY_SLOT("bottom"); // 벗으면 기본 반바지 복귀
+  return next;
+};
+/* 한 벌 옷을 입은 채로 하의를 고르면 '바지를 입겠다'는 뜻이다 —
+   그대로 두면 하의가 다시 벗겨져 버튼이 아무 일도 안 하는 것처럼 보인다.
+   그래서 상의를 기본 반팔티로 되돌린 뒤 하의를 입힌다. */
+const yieldTopForBottom = (equippedMap = {}, slotKey) =>
+  (slotKey === "bottom" && topCoversBottom(equippedMap))
+    ? { ...equippedMap, top: STARTER_ID_BY_SLOT("top") }
+    : equippedMap;
 
 /* ── 2026-08-19 꾸미기 전면 개편: 산 것 전부 환불 ────────────────────────
    사용자 확정 — 꾸미기 상점을 사파리 세트 기준으로 새로 채우기로 해서,
@@ -274,7 +299,7 @@ export const getDefaultEquipped = () => {
   const eq = {};
   for (const slot of AVATAR_SLOTS) eq[slot.key] = null;
   for (const it of AVATAR_CATALOG) if (it.starter) eq[it.slot] = it.id;
-  return eq;
+  return applyBottomRule(eq);
 };
 
 /* ── v1 → v2 마이그레이션 (읽기 폴백) ───────────────────────────────────
@@ -323,7 +348,7 @@ export const normalizeEquipped = (equippedMap, ownedList) => {
   for (const it of AVATAR_CATALOG) {
     if (it.starter && !out[it.slot]) out[it.slot] = it.id;
   }
-  return out;
+  return applyBottomRule(out);
 };
 
 /* ── 순수 로직: 구매 (성공 시 자동 장착) ─────────────────────────────── */
@@ -332,7 +357,7 @@ export const computeAvatarPurchase = (ownedList = [], equippedMap = {}, coins = 
   if (!item) return { ok: false, reason: "not_found", nextOwned: ownedList, nextEquipped: equippedMap, cost: 0 };
   if (ownedList.includes(itemId)) return { ok: false, reason: "already_owned", nextOwned: ownedList, nextEquipped: equippedMap, cost: 0 };
   if (coins < item.price) return { ok: false, reason: "insufficient", nextOwned: ownedList, nextEquipped: equippedMap, cost: item.price };
-  return { ok: true, reason: null, nextOwned: [...ownedList, itemId], nextEquipped: { ...equippedMap, [item.slot]: itemId }, cost: item.price };
+  return { ok: true, reason: null, nextOwned: [...ownedList, itemId], nextEquipped: applyBottomRule({ ...yieldTopForBottom(equippedMap, item.slot), [item.slot]: itemId }), cost: item.price };
 };
 
 /* ── 순수 로직: 장착/벗기 토글 ──────────────────────────────────────── */
@@ -344,9 +369,10 @@ export const computeAvatarEquipToggle = (ownedList = [], equippedMap = {}, itemI
   const currentlyEquipped = equippedMap[item.slot] === itemId;
   /* 기본 지급 옷(starter)은 벗을 수 없다 — 벗으면 속옷만 남는다.
      다른 상의·하의를 입으면 그 슬롯에서 알아서 교체되므로 갈아입는 데 지장은 없다. */
-  const nextEquipped = (currentlyEquipped && slot && slot.removable && !item.starter)
-    ? { ...equippedMap, [item.slot]: null }
-    : { ...equippedMap, [item.slot]: itemId };
+  const from = yieldTopForBottom(equippedMap, item.slot);
+  const nextEquipped = applyBottomRule((currentlyEquipped && slot && slot.removable && !item.starter)
+    ? { ...from, [item.slot]: null }
+    : { ...from, [item.slot]: itemId });
   return { ok: true, reason: null, nextEquipped };
 };
 
@@ -356,8 +382,12 @@ export const computeCharDisplayToggle = (mode) =>
 
 /* ── 완성 아바타 레이어 목록 (뷰어가 map 렌더) ───────────────────────── */
 export const getAvatarLayers = (equippedMap = {}) => {
+  /* 한 벌 옷을 입고 있으면 하의 장은 아예 안 그린다.
+     상점 '입어보기'는 장착 로직을 안 거치고 화면만 겹쳐 보여 주므로 여기서도 막아야 한다. */
+  const hideBottom = topCoversBottom(equippedMap);
   return AVATAR_SLOTS
     .map(slot => {
+      if (hideBottom && slot.key === "bottom") return null;
       const id = equippedMap[slot.key];
       const item = id ? getAvatarItem(id) : null;
       /* 아이템에 z가 있으면 슬롯 기본 z보다 우선 — 원화가 '앞에서 본 모습'이라
