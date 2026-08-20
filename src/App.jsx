@@ -143,11 +143,11 @@ const initOnboarding = {
   firstTipPending: false, firstTipSeen: false,
   pinHintSeen: false,
 };
-/* '더보기' 안에 묶인 세 화면 (사용자 확정 2026-08-09: 하단 메뉴 5칸으로 줄이면서 통합) */
-/* [사용자 확정 2026-08-10] 하단 5칸을 홈·학원·미션·보상·더보기로 바꾸면서
-   달력이 '더보기' 안으로 들어왔다. 순서는 사용자가 정한 대로 달력 → 학원비 → 결석·보충.
-   '기타'(사용 가이드·오픈채팅)는 목록에는 없었지만 들어갈 다른 자리가 없어 맨 뒤에 남겨 둔다. */
-const MORE_TABS = [{ k:"calendar", l:"달력" }, { k:"fee", l:"학원비" }, { k:"absence", l:"결석·보충" }, { k:"etc", l:"기타" }];
+/* '더보기' 안에 묶인 화면들 (사용자 확정 2026-08-09: 하단 메뉴 5칸으로 줄이면서 통합) */
+/* [사용자 확정 2026-08-19] 달력을 '더보기' 밖으로 꺼내 미션 옆 칸으로 올렸다.
+   학원 칸이 빠지면서 아래 바에 자리가 하나 남아 있었다.
+   남은 셋은 학원비 → 결석·보충 → 기타 순서 그대로 둔다. */
+const MORE_TABS = [{ k:"fee", l:"학원비" }, { k:"absence", l:"결석·보충" }, { k:"etc", l:"기타" }];
 const isMoreTab = (t) => MORE_TABS.some(m => m.k === t);
 
 /* 엄마용을 되살려 주는 시간 (사용자 요청: '잠깐' 다른 앱 갔다 온 경우).
@@ -415,7 +415,7 @@ export default function App() {
   const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
   const [bagEvent,               setBagEvent]               = useState(null);             // 가방 카드에 1분간 띄우는 소식
   const [holidayRest,            setHolidayRest]            = useState(null);             // 공휴일 '쉬는 학원 고르기' 시트 {name, ids:[]}
-  const [moreTab,                setMoreTab]                = useState("calendar");       // '더보기' 안에서 마지막으로 본 칸
+  const [moreTab,                setMoreTab]                = useState("fee");            // '더보기' 안에서 마지막으로 본 칸
   const [moreMenuOpen,           setMoreMenuOpen]           = useState(false);            // '더보기' 눌러 위로 열리는 메뉴
   const [showKindPicker,         setShowKindPicker]         = useState(false);            // 학원 종류 고르기 시트
   const [homeAcOpen,             setHomeAcOpen]             = useState({});                // 엄마용 홈 '오늘의 학원' 펼친 카드
@@ -6068,7 +6068,7 @@ export default function App() {
         if(anyModalOpen) return null;
         // 다른 칸으로 갈 땐 열려 있던 '더보기' 메뉴를 먼저 닫는다
         const go=(k)=>()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab(k); };   // 미션·보상 밖으로 나가면 잠금이 다시 걸린다
-        const MORE_ICON={calendar:"calendar",fee:"fee",absence:"absence",etc:"settings"};
+        const MORE_ICON={fee:"fee",absence:"absence",etc:"settings"};
         // 비활성 색은 따뜻한 갈회색 대신 중성 회청색 — 화면의 파랑 계열과 겉돌지 않게 (사용자 확정 2026-08-10)
         return (
           <ParentNav accent={th.main} dim="#8A93A0" maxWidth={430}
@@ -6084,9 +6084,12 @@ export default function App() {
                  토글에서 같은 일을 다 할 수 있다(학원 탭이 쓰던 값·동작을 전부 옮겼음을
                  필드 단위로 대조해 확인). 매일 보는 화면이 아닌데 홈 옆자리를 차지했다. */
               // [사용자 확정 2026-08-10] 보상 안에 접혀 있던 미션 관리를 이 자리로 꺼냈다.
-              // 미션은 매일 보는 화면이라 보상보다 앞에 둔다. 달력은 '더보기'로 내려갔다.
+              // 미션은 매일 보는 화면이라 보상보다 앞에 둔다.
               { key:"mission",  label:"미션",   icon:"mission",  active:tab==="mission",
                 onPress:()=>{ setMoreMenuOpen(false); goMissionTab(); } },
+              /* [사용자 확정 2026-08-19] 달력을 '더보기' 안에서 꺼내 미션 옆으로 올렸다.
+                 '학원' 칸이 빠지면서 남은 자리다 — 두 번 눌러야 열리던 화면이 한 번이 된다. */
+              { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar", onPress:go("calendar") },
               // 보상은 누를 때마다 PIN을 다시 받는다 (goRewardTab이 그 규칙을 갖고 있다)
               { key:"reward",   label:"보상",   icon:"reward",   active:tab==="reward",
                 onPress:()=>{ setMoreMenuOpen(false); goRewardTab(); } },

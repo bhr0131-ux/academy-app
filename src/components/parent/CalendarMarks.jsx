@@ -8,6 +8,9 @@
        (반복 일정은 주간 보기와 아래 상세 카드에서 본다).
      · 이모지 대신 색+모양 도형을 쓴다. 기기마다 모양이 달라지지 않고,
        색만으로 구분하지 않으므로 색을 구분하기 어려운 사람도 알아볼 수 있다.
+     · [2026-08-19] 위 규칙에 한 줄 붙는다 — '그날 가는 학원'은 학원 카드 색 작은 점으로
+       찍는다(CalendarTab). 글자가 아니라 점이라 칸이 복잡해지지 않는다.
+
          결석   ● 빨강 동그라미      보충 예정 ◆ 주황 마름모
          보충 완료 ✓ 초록 체크        방학     ◎ 주황 링(속 빈 원)
          추가 준비물 ■ 분홍 네모       메모     ▬ 회색 막대
@@ -118,13 +121,22 @@ export function CalendarLegendSheet({ onClose, tone }) {
               cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
         </div>
         <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 12px", lineHeight: 1.5 }}>
-          월간 달력에는 평소와 다른 일정만 표시해요.<br/>
-          매일 반복되는 학원·셔틀은 날짜를 누르거나 주간 보기에서 확인할 수 있어요.
+          날짜 아래 <b>작은 점</b>은 그날 가는 학원이에요 — 학원 카드와 같은 색이에요.<br/>
+          <b>글자</b>는 평소와 다른 일만 표시해요.
         </p>
+        {/* [사용자 확정 2026-08-19] 점 표시 설명 — 색은 학원마다 다르므로 예시 색으로 보여 준다 */}
+        <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "7px 2px", marginBottom: 2 }}>
+          <span style={{ width: 34, display: "flex", justifyContent: "flex-start", gap: 3 }}>
+            {["#00B8A9", "#FF6B6B", "#FF9500"].map(c => (
+              <span key={c} style={{ width: 5.5, height: 5.5, borderRadius: "50%", background: c }} />
+            ))}
+          </span>
+          <span style={{ fontSize: 13.5, fontWeight: 700, color: tone.text }}>그날 가는 학원 (학원 색)</span>
+        </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 10 }}>
-          {MARKS.map((m, i) => (
+          {MARKS.map((m) => (
             <div key={m.key} style={{ display: "flex", alignItems: "center", gap: 11, padding: "7px 2px",
-              borderTop: i === 0 ? "none" : `1px solid ${tone.border}` }}>
+              borderTop: `1px solid ${tone.border}` }}>
               <span style={{ width: 34, display: "flex", justifyContent: "flex-start" }}>
                 <MarkText kind={m.key} size={11} />
               </span>
