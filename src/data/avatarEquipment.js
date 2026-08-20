@@ -163,6 +163,12 @@ export const AVATAR_CATALOG = [
      둘 다 상·하의가 한 장이라 사파리 옷과 같이 상의 슬롯 하나로 넣는다. */
   { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price: 180, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp", thumb: "assets/avatar/thumb/top_picnic.webp" },
   { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price: 220, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/magic-outfit-girl.webp",  thumb: "assets/avatar/thumb/top_magic.webp" },
+  /* 하늘 나들이 옷 — 이 원화만 '입은 전신 그림'이 아니라 '옷만 오려 낸 그림'으로 왔다.
+     게다가 그린 몸이 베이스 v7 보다 다리가 길어서, 같이 온 '타이츠 있는 판'은
+     어깨에 맞추면 타이츠가 발등까지 내려오고 발목에 맞추면 소매가 팔보다 좁았다.
+     그래서 타이츠 없는 판을 골라 상체만 맞췄다 — 다리 길이 차이가 상관없어진다.
+     배율 0.74 · 깃 위끝을 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (356,372)-(666,751). */
+  { id: "top_sky",        slot: "top",   label: "하늘 나들이 옷", emoji: "☁️", price: 200, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/sky-outing-girl.webp", thumb: "assets/avatar/thumb/top_sky.webp" },
   /* 우주복 — 옷이 흰색이라 '베이스와 색이 다른 픽셀' 규칙만으로는 안 떼어졌다.
      베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
      바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나. */
