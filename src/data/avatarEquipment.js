@@ -149,8 +149,11 @@ export const AVATAR_CATALOG = [
   { id: "bottom_shorts_green", slot: "bottom", label: "기본 반바지", emoji: "🩳", price: 0, rarity: "common", theme: "common", starter: true, img: "assets/avatar/bottom/starter-shorts.webp", imgGirl: "assets/avatar/bottom/starter-shorts-girl.webp", thumb: "assets/avatar/thumb/bottom_shorts_green.webp" },
 
   /* 머리띠 — 머리를 덮는 물건이 아니라 hidesHead 를 안 쓴다.
-     (얼굴째 덮던 남아 사파리 모자 그림은 v7 몸에 안 맞아 카탈로그에서 뺐다 — 파일은 남아 있다) */
-  { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price: 180, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-band-girl.webp?v=2", thumb: "assets/avatar/thumb/hat_safari.webp" },
+     (얼굴째 덮던 남아 사파리 모자 그림은 v7 몸에 안 맞아 카탈로그에서 뺐다 — 파일은 남아 있다)
+     [2026-08-20] '베이스가 쓰고 있는 머리 그림'을 새로 받아 다시 탑재했다(?v=3).
+     예전엔 머리띠만 오려 낸 그림을 눈으로 맞춰서 머리보다 크게 얹혀 있었다
+     (탑재 상자 362~659 → 391~640, 머리 폭 안으로 들어옴). art-src/README 참고. */
+  { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price: 180, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-band-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_safari.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", coversBottom: true, img: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp" },
