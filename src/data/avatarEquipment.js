@@ -191,10 +191,6 @@ export const AVATAR_CATALOG = [
   { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price: 240, rarity: "epic", theme: "pirate", forGender: "girl", coversBottom: true, img: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp" },
   { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price: 250, rarity: "epic", theme: "space",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
 
-  /* ── 신발 ─────────────────────────────────────────────────────────────
-     딸기 구두 — 전신 그림에서 발목 아래(y880~)만 떼어냈다. 흰 프릴 양말 + 빨간 구두 한 장.
-     밑창이 y984 라 접지 그림자도 거기에 맞춘다(맨발 938보다 46px 아래). */
-  { id: "shoes_picnic",   slot: "shoes", label: "딸기 구두",   emoji: "👠", price: 180, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/shoes/picnic-shoes-girl.webp", soleY: 984, soleYGirl: 984, thumb: "assets/avatar/thumb/shoes_picnic.webp" },
 ];
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
@@ -250,6 +246,7 @@ export const RETIRED_ITEM_INFO = {
   neck_scarf:         { label: "빨간 스카프", price: 90  },
   shoes_boots_green:  { label: "사파리 부츠", price: 100 },   // [2026-08-20] 사용자 확정으로 뺐다 (그림은 남아 있다)
   back_backpack:      { label: "사파리 가방", price: 250 },   // [2026-08-20] 사용자 확정으로 뺐다 (그림은 남아 있다)
+  shoes_picnic:       { label: "딸기 구두",   price: 180 },   // [2026-08-20] 넣었다가 사용자 확정으로 뺐다 (그림은 남아 있다)
   back_backpack_sky:  { label: "하늘 배낭",   price: 270 },
   back_backpack_cream:{ label: "크림 배낭",   price: 290 },
   /* 더 예전에 은퇴한 것들 — 이미 환불됐을 수 있지만 남아 있으면 여기서 처리된다 */
