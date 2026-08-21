@@ -159,6 +159,10 @@ export const AVATAR_CATALOG = [
      챙이 이마를 덮지만 얼굴은 그대로 보이므로 hidesHead 는 안 쓴다.
      떼어낼 때 가장 큰 덩어리에 앞머리·눈까지 딸려 와서(모자를 쓰면 앞머리가 다르게 그려진다)
      머리카락색·살색을 걸러 모자만 남겼다 — 베이스 얼굴이 그대로 살아 있어야 한다. */
+  /* 딸기 밀짚모자 — 해적 모자와 같은 방식(쓰고 있는 머리 그림 → 얼굴 상자로 맞춤).
+     챙이 이마를 덮어 앞머리가 딸려 오므로 머리카락색·살색을 걸러 냈고,
+     그래도 남는 얇은 머리 가닥은 열기 연산(침식→팽창)으로 잘라 냈다. */
+  { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price: 200, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/hat/picnic-hat-girl.webp", thumb: "assets/avatar/thumb/hat_picnic.webp" },
   { id: "hat_pirate",     slot: "hat",   label: "해적 모자",   emoji: "🏴‍☠️", price: 240, rarity: "epic", theme: "pirate", forGender: "girl", img: "assets/avatar/hat/pirate-hat-girl.webp", thumb: "assets/avatar/thumb/hat_pirate.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
@@ -186,6 +190,11 @@ export const AVATAR_CATALOG = [
      배율 0.74 · 깃 위끝 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (350,372)-(674,754). */
   { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price: 240, rarity: "epic", theme: "pirate", forGender: "girl", coversBottom: true, img: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp" },
   { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price: 250, rarity: "epic", theme: "space",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
+
+  /* ── 신발 ─────────────────────────────────────────────────────────────
+     딸기 구두 — 전신 그림에서 발목 아래(y880~)만 떼어냈다. 흰 프릴 양말 + 빨간 구두 한 장.
+     밑창이 y984 라 접지 그림자도 거기에 맞춘다(맨발 938보다 46px 아래). */
+  { id: "shoes_picnic",   slot: "shoes", label: "딸기 구두",   emoji: "👠", price: 180, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/shoes/picnic-shoes-girl.webp", soleY: 984, soleYGirl: 984, thumb: "assets/avatar/thumb/shoes_picnic.webp" },
 ];
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
