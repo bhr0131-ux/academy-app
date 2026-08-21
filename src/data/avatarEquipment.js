@@ -194,7 +194,13 @@ export const AVATAR_CATALOG = [
   /* 해적 옷 — 이 원화도 '옷만 오려 낸 그림'이라 상체를 눈으로 맞췄다(하늘 나들이 옷과 같은 방식).
      긴소매라 소맷부리가 손목에 닿는 배율을 골랐다 — 0.72는 팔뚝이 남고 0.76부터는 손을 덮는다.
      배율 0.74 · 깃 위끝 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (350,372)-(674,754). */
-  { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price: 240, rarity: "epic", theme: "pirate", forGender: "girl", coversBottom: true, img: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp" },
+  /* [2026-08-21] 남아 원화가 들어와 남녀 공용이 됐다 (사파리 옷에 이어 두 번째).
+       남아: 줄무늬 셔츠 + 남색 조끼 + 빨간 띠 + 검정 반바지 · 여아: 블라우스 + 남색 반바지
+     남아 원화는 '입고 있는 전신 그림'인데 **알파 채널에 옷만 담겨 있었다** —
+     RGB 는 몸까지 다 있고 알파는 옷 모양이다. 그래서 배경을 지워 몸 실루엣으로 배율만 잡고
+     (머리끝·발끝 → 배율 0.59329), 같은 변환을 알파에 담긴 옷에 그대로 적용했다.
+     색으로 옷을 골라낼 필요가 없어서 제일 깔끔하다. 탑재 상자 (358,397)-(670,763). */
+  { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price: 240, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp" },
   { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price: 250, rarity: "epic", theme: "space",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
 
 ];
