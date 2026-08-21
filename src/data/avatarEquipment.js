@@ -166,7 +166,13 @@ export const AVATAR_CATALOG = [
   { id: "hat_pirate",     slot: "hat",   label: "해적 모자",   emoji: "🏴‍☠️", price: 240, rarity: "epic", theme: "pirate", forGender: "girl", img: "assets/avatar/hat/pirate-hat-girl.webp", thumb: "assets/avatar/thumb/hat_pirate.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "👚", price: 150, rarity: "rare",   theme: "adventure", forGender: "girl", coversBottom: true, img: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp" },
+  /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
+       남아: 크림 셔츠 + 탄색 조끼 + 카고 반바지 · 여아: 블라우스 + 반바지
+     상점 카드 그림도 갈린다(thumbGirl) — 남아에게 여아 블라우스를 보여 주면 헷갈린다.
+     남아 탑재값은 배율 0.62 · 가로만 1.12배 · 깃 위끝 y380 (art-src/README 참고).
+     옷걸이에 건 모양이라 어깨선이 처져 있어서, 깃을 기본 반팔티 자리(y411)에 맞추면
+     어깨 위에 맨살 띠가 남는다. 세로를 올려야 없어진다. */
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
