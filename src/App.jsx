@@ -577,9 +577,9 @@ export default function App() {
       // ── 은퇴(판매 중단) 아이템 정리: 보유 제거 + 구매가 환불 (멱등: 정리 저장 후엔 재실행 안 됨) ──
       //  카탈로그에서 뺀 아이템을 이미 구매한 아이가 코인을 잃지 않도록 보호한다.
       //  환불은 아래 기존 avRefunds 반영부(꾸미기 상점 개편 환불)를 그대로 재사용한다.
-      /* [2026-08-20] 사파리 부츠를 뺐다(사용자 확정) — 산 아이에게 100코인을 돌려준다.
+      /* [2026-08-20] 사파리 부츠·가방을 뺐다(사용자 확정) — 산 아이에게 값만큼 돌려준다.
          그림은 지우지 않아서(비행사 모자와 같은 방식) 다시 넣을 때 그대로 쓴다. */
-      const RETIRED_AVATAR_ITEMS={ shoes_boots_desert:140, shoes_boots_ribbon:150, background_forest:120, background_galaxy:300, shoes_boots_green:100 }; // { 은퇴 아이템 id: 환불 코인 } (배경은 아바타 꾸미기에서 제거됨 — 구 꾸미기 상점 배경과 중복. background_sky는 무료라 환불 없이 normalize에서 정리)
+      const RETIRED_AVATAR_ITEMS={ shoes_boots_desert:140, shoes_boots_ribbon:150, background_forest:120, background_galaxy:300, shoes_boots_green:100, back_backpack:250 }; // { 은퇴 아이템 id: 환불 코인 } (배경은 아바타 꾸미기에서 제거됨 — 구 꾸미기 상점 배경과 중복. background_sky는 무료라 환불 없이 normalize에서 정리)
       let retiredRows=null;
       if(avOwnedMerged && typeof avOwnedMerged==="object"){
         let retiredTouched=false;
