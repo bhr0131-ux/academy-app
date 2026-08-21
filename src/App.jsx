@@ -55,7 +55,7 @@ import {
   CHAR_DISPLAY_GROWTH, CHAR_DISPLAY_AVATAR, DEFAULT_CHAR_DISPLAY_MODE,
   getDefaultEquipped, computeAvatarPurchase, computeAvatarEquipToggle,
   computeCharDisplayToggle, normalizeOwned, normalizeEquipped, getAvatarItem,
-  AVATAR_RESET_KEY, computeAvatarRefund,
+  AVATAR_RESET_KEY, computeAvatarRefund, getRefundInfo,
 } from "./data/avatarEquipment.js";
 
 import { Fragment, useState, useEffect, useRef } from "react";
@@ -577,26 +577,47 @@ export default function App() {
       // ── 은퇴(판매 중단) 아이템 정리: 보유 제거 + 구매가 환불 (멱등: 정리 저장 후엔 재실행 안 됨) ──
       //  카탈로그에서 뺀 아이템을 이미 구매한 아이가 코인을 잃지 않도록 보호한다.
       //  환불은 아래 기존 avRefunds 반영부(꾸미기 상점 개편 환불)를 그대로 재사용한다.
-      const RETIRED_AVATAR_ITEMS={ shoes_boots_desert:140, shoes_boots_ribbon:150, background_forest:120, background_galaxy:300 }; // { 은퇴 아이템 id: 환불 코인 } (배경은 아바타 꾸미기에서 제거됨 — 구 꾸미기 상점 배경과 중복. background_sky는 무료라 환불 없이 normalize에서 정리)
+      /* [2026-08-20] 사파리 부츠를 뺐다(사용자 확정) — 산 아이에게 100코인을 돌려준다.
+         그림은 지우지 않아서(비행사 모자와 같은 방식) 다시 넣을 때 그대로 쓴다. */
+      const RETIRED_AVATAR_ITEMS={ shoes_boots_desert:140, shoes_boots_ribbon:150, background_forest:120, background_galaxy:300, shoes_boots_green:100 }; // { 은퇴 아이템 id: 환불 코인 } (배경은 아바타 꾸미기에서 제거됨 — 구 꾸미기 상점 배경과 중복. background_sky는 무료라 환불 없이 normalize에서 정리)
+      let retiredRows=null;
       if(avOwnedMerged && typeof avOwnedMerged==="object"){
         let retiredTouched=false;
         const cleanedOwned={};
         for(const ocid of Object.keys(avOwnedMerged)){
           const list=Array.isArray(avOwnedMerged[ocid])?avOwnedMerged[ocid]:[];
+          const back=[];                                   // 이 아이에게 돌려준 것들 (안내 팝업용)
           cleanedOwned[ocid]=list.filter(iid=>{
             const refundAmt=RETIRED_AVATAR_ITEMS[iid];
             if(refundAmt!==undefined){
               avRefunds=avRefunds||{};
               avRefunds[ocid]=(avRefunds[ocid]||0)+refundAmt;
+              if(refundAmt>0) back.push({id:iid,...getRefundInfo(iid),price:refundAmt});
               retiredTouched=true;
               return false;
             }
             return true;
           });
+          if(back.length){
+            retiredRows=retiredRows||[];
+            retiredRows.push({childId:ocid,items:back,sum:back.reduce((a,b)=>a+b.price,0)});
+          }
         }
         if(retiredTouched){
           avOwnedMerged=cleanedOwned;
           save(AVATAR_OWNED_KEY,cleanedOwned); // 즉시 저장 → 다음 실행에서 중복 환불 방지
+          /* 장착 중이었으면 그 슬롯도 비운다 — normalizeEquipped 가 '보유한 것만' 남기므로
+             화면은 알아서 맞지만, 저장값에도 남겨 두면 다음에 되살릴 때 헷갈린다. */
+          if(avEquip && typeof avEquip==="object"){
+            const gone=new Set(Object.keys(RETIRED_AVATAR_ITEMS));
+            const cleanedEq={};
+            for(const ecid of Object.keys(avEquip)){
+              const m=(avEquip[ecid]&&typeof avEquip[ecid]==="object")?{...avEquip[ecid]}:{};
+              for(const k of Object.keys(m)) if(gone.has(m[k])) m[k]=null;
+              cleanedEq[ecid]=m;
+            }
+            avEquip=cleanedEq; save(AVATAR_EQUIPPED_KEY,cleanedEq);
+          }
         }
       }
       /* ── [2026-08-19] 꾸미기 전면 개편: 산 아바타 아이템 전액 환불 + 보유·장착 초기화 ──
@@ -753,9 +774,20 @@ export default function App() {
       }
       /* 환불 안내 팝업 — 코인을 넣은 뒤에 띄운다. 지금 등록된 아이 것만 보여 준다
          (지운 아이 몫도 코인은 돌려주지만 안내에 이름이 없으면 헷갈린다). */
-      if(avatarResetRows){
+      /* 전면 개편 환불(1회)과 은퇴 아이템 환불을 한 팝업에 합쳐서 보여 준다 */
+      const noticeRows=(()=>{
+        if(!avatarResetRows && !retiredRows) return null;
+        const byChild=new Map();
+        for(const r of [...(avatarResetRows||[]),...(retiredRows||[])]){
+          const cur=byChild.get(r.childId)||{childId:r.childId,items:[],sum:0};
+          cur.items=[...cur.items,...r.items]; cur.sum+=r.sum;
+          byChild.set(r.childId,cur);
+        }
+        return [...byChild.values()];
+      })();
+      if(noticeRows){
         const chList=Array.isArray(ch)?ch:[];
-        const rows=avatarResetRows
+        const rows=noticeRows
           .map(r=>({...r,childName:chList.find(c=>c.id===r.childId)?.name}))
           .filter(r=>!!r.childName);
         if(rows.length) setAvatarResetNotice({

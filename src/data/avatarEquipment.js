@@ -186,9 +186,6 @@ export const AVATAR_CATALOG = [
      배율 0.74 · 깃 위끝 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (350,372)-(674,754). */
   { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price: 240, rarity: "epic", theme: "pirate", forGender: "girl", coversBottom: true, img: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp" },
   { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price: 250, rarity: "epic", theme: "space",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
-  /* 부츠는 좌·우 짝을 따로 배치한다. 원화가 세로로 길어 높이 140px(신발 공통) 규칙에
-     맞추면 폭이 모자라 베이스 양말이 옆으로 삐져나와서, 가로만 1.25배 늘려 탑재했다. */
-  { id: "shoes_boots_green", slot: "shoes", label: "사파리 부츠", emoji: "🥾", price: 100, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/safari-boots-girl.webp?v=2", soleY: 978, soleYGirl: 978, thumb: "assets/avatar/thumb/shoes_boots_green.webp" },
   /* 가방 원화가 '앞에서 멘 모습'이라 등 슬롯 기본 z(15, 캐릭터 뒤)로는 몸통에 가려진다.
      그래서 이 아이템만 z를 상의(35) 위·목장식(40) 아래로 올린다. */
   { id: "back_backpack",       slot: "back", label: "사파리 가방", emoji: "👜", price: 250, rarity: "epic", theme: "adventure", forGender: "girl", img: "assets/avatar/back/safari-bag-girl.webp?v=2", z: 37, thumb: "assets/avatar/thumb/back_backpack.webp" },
@@ -245,6 +242,7 @@ export const RETIRED_ITEM_INFO = {
   shoes_boots:        { label: "탐험 부츠",   price: 80  },
   shoes_boots_sand:   { label: "크림 부츠",   price: 120 },
   neck_scarf:         { label: "빨간 스카프", price: 90  },
+  shoes_boots_green:  { label: "사파리 부츠", price: 100 },   // [2026-08-20] 사용자 확정으로 뺐다 (그림은 남아 있다)
   back_backpack_sky:  { label: "하늘 배낭",   price: 270 },
   back_backpack_cream:{ label: "크림 배낭",   price: 290 },
   /* 더 예전에 은퇴한 것들 — 이미 환불됐을 수 있지만 남아 있으면 여기서 처리된다 */

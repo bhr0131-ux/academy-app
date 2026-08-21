@@ -264,7 +264,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | pirate-girl-hat-worn-src.webp | **해적 모자 원화 여아 (사용자 원화 2026-08-20)** — 베이스 v7 여아가 **쓰고 있는 머리 그림**(664×592, 투명). 남색 삼각모 + 주황 테두리 + 불가사리. 얼굴 상자로 맞춤(배율 0.6336) · 탑재 상자 (313,58)-(723,329) | avatar/hat/pirate-hat-girl.webp |
 | safari-girl-band-worn-src.webp | **사파리 머리띠 원화 여아 v2 (사용자 원화 2026-08-20)** — 베이스 v7 여아가 **쓰고 있는 머리 그림**(512×512, 투명). 초록 리본 머리띠 + 관자놀이 데이지. 예전 '머리띠만 오려 낸' 원화(safari-girl-band-src)는 지웠다 | avatar/hat/safari-band-girl.webp |
 | safari-girl-outfit-src.webp | 사파리 옷 원화 여아 — 블라우스+반바지 한 장 (현행) | avatar/top/safari-outfit-girl.webp |
-| safari-girl-boot-src.webp | 사파리 부츠 원화 여아 한 짝 (정면, 좌우 반전해서 한 켤레로) | avatar/shoes/safari-boots-girl.webp |
+| safari-girl-boot-src.webp | 사파리 부츠 원화 여아 한 짝 (정면, 좌우 반전해서 한 켤레로) | **(상점에서 뺌 2026-08-20)** — 그림은 avatar/shoes/safari-boots-girl.webp 에 그대로 있다. 다시 넣을 때 재사용 |
 | safari-girl-set-src.webp | 사파리 세트 전체 시트 여아 — 가방은 여기서 오려 냈다 | avatar/back/safari-bag-girl.webp |
 | back-explorer-straps.webp | 탐험 배낭 원화 (초록 롤 + 갈색 가죽끈, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
 | back-sky-straps.webp | 하늘 배낭 원화 (파랑 롤 + 갈색 가죽끈) | avatar/back/sky-straps.webp |
