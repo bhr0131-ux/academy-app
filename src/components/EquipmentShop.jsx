@@ -11,14 +11,17 @@ const SHOP_SLOTS = SHOP_SLOT_ORDER.map(getSlot).filter(Boolean);
 /* 카드 그림 — item.thumb 이 있으면 그림, 없거나 로드 실패면 기존 이모지로 폴백.
    높이만 고정하고 폭은 그림 비율대로 두어(모자는 가로로 넓고 부츠는 세로로 길다)
    카드마다 크기가 들쭉날쭉해 보이지 않게 한다. */
-function ItemThumb({ item }) {
+/* [2026-08-20] 남녀 그림이 다른 아이템(사파리 옷)이 생겨서 thumbGirl 을 본다 —
+   남아에게 여아 블라우스 그림을 보여 주면 무슨 옷인지 헷갈린다. */
+function ItemThumb({ item, gender }) {
   const [failed, setFailed] = useState(false);
   const BOX = 46;
-  if (item.thumb && !failed) {
+  const thumbSrc = (gender === "girl" && item.thumbGirl) || item.thumb;
+  if (thumbSrc && !failed) {
     return (
       <div style={{ height: BOX, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img
-          src={"/" + item.thumb.replace(/^\/+/, "")}
+          src={"/" + thumbSrc.replace(/^\/+/, "")}
           alt={item.label}
           onError={() => setFailed(true)}
           draggable={false}
@@ -83,7 +86,7 @@ export default function EquipmentShop({
     if (!open) return;
     const seen = new Set();
     for (const s of SHOP_SLOTS) for (const it of getItemsBySlot(s.key, gender)) {
-      for (const p of [it.img, it.imgGirl, it.thumb]) {
+      for (const p of [it.img, it.imgGirl, it.thumb, it.thumbGirl]) {
         if (!p || seen.has(p)) continue;
         seen.add(p);
         const img = new Image();
@@ -217,7 +220,7 @@ export default function EquipmentShop({
                     희귀도는 카드 테두리 색으로만 남는다. */}
 
                 {/* 파츠 아이콘 — 그림(thumb) 우선, 없거나 로드 실패면 이모지 */}
-                <ItemThumb item={item} />
+                <ItemThumb item={item} gender={gender} />
 
                 {/* 이름 */}
                 <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: C.text }}>{item.label}</p>
