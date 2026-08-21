@@ -792,6 +792,7 @@ export default function App() {
           .filter(r=>!!r.childName);
         if(rows.length) setAvatarResetNotice({
           rows, total:rows.reduce((a,r)=>a+r.sum,0), multi:chList.length>1,
+          full:!!avatarResetRows,   // 전면 개편이 낀 경우에만 '모두 환불' 이라고 쓴다
         });
       }
       if(scoreFinal) setScoreData(scoreFinal);

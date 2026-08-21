@@ -10,7 +10,8 @@ import { C, FS, FW, RAD, SHADOW, CTRL_H } from "../data/tokens.js";
    notice = {
      rows:  [{ childId, childName, items:[{id,label,price}], sum }],
      total: number,
-     multi: boolean            // 아이가 2명 이상이면 이름으로 묶어서 보여 준다
+     multi: boolean,           // 아이가 2명 이상이면 이름으로 묶어서 보여 준다
+     full:  boolean            // true = 상점 전면 개편(1회) · false = 일부 아이템만 판매 중단
    }
    ════════════════════════════════════════════════════════════════════════ */
 const won = (n) => Number(n || 0).toLocaleString();
@@ -37,12 +38,14 @@ export default function AvatarResetModal({ notice, onClose }) {
         {/* 머리말 */}
         <div style={{ padding:"22px 20px 16px", textAlign:"center" }}>
           <div style={{ fontSize:38, lineHeight:1 }}>🪙</div>
+          {/* [2026-08-20] 전면 개편이 아니라 '일부 아이템만 판매 중단'일 때도 이 팝업을 쓴다.
+              그때 '모두·전부'라고 하면 산 걸 다 빼앗긴 것처럼 읽혀서 말을 갈라 쓴다. */}
           <div style={{ fontSize:FS.modalTitle, fontWeight:FW.bold, color:C.text, marginTop:10 }}>
-            꾸미기 아이템을 모두 환불했어요
+            {notice.full ? "꾸미기 아이템을 모두 환불했어요" : "상점에서 빠진 아이템을 환불했어요"}
           </div>
           <div style={{ fontSize:FS.sub, fontWeight:FW.normal, color:C.sub, marginTop:7, lineHeight:1.55 }}>
-            꾸미기 상점을 새로 단장하는 중이에요.<br />
-            지금까지 산 아이템은 코인으로 전부 돌려드렸어요.
+            {notice.full ? (<>꾸미기 상점을 새로 단장하는 중이에요.<br />지금까지 산 아이템은 코인으로 전부 돌려드렸어요.</>)
+                         : (<>이제 팔지 않는 아이템이 있어요.<br />산 값만큼 코인으로 돌려드렸어요.</>)}
           </div>
         </div>
 
