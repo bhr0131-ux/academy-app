@@ -261,8 +261,9 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const hover = flying || (riding && rideKind === "dive");
   /* 하늘길 높이는 '캐릭터 가운데' 기준 [사용자 확정 2026-08-01] —
      공중엔 발 딛을 데가 없어 배경 위에서 가늠할 때 가운데가 자연스럽다.
-     바닥길은 그대로 발밑 기준 (땅에 닿아야 하니까). 만세는 내려서 하므로 발밑. */
-  const centerAnchored = riding && !!alt && rideKind === "fly" && !landing;
+     바닥길은 그대로 발밑 기준 (땅에 닿아야 하니까). 만세는 내려서 하므로 발밑.
+     물속길(잠수정)도 같은 이유로 가운데 기준 [사용자 확정 2026-08-22] */
+  const centerAnchored = riding && !!alt && (rideKind === "fly" || rideKind === "dive") && !landing;
   const bottomPos1 = bottomPos0 + (riding && !alt ? (mount.lift ?? 0) : 0);
   /* 출발 전엔 출발 크기 그대로, 이동 중·도착은 진행도만큼 보간된 크기 */
   const charH = idle || P.charH1 == null ? ch0 : ch0 + t * (P.charH1 - ch0);
