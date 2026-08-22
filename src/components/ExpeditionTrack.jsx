@@ -135,7 +135,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
         ? (1 - u) * (1 - u) * cb0 + 2 * (1 - u) * u * (2 * P.charBm - (cb0 + cb1) / 2) + u * u * cb1
         : cb0 + u * (cb1 - cb0),
     ];
-    return [p[0], p[1] - ((alt && rideKind === "fly") ? guideHalf : 0)];
+    return [p[0], p[1] - ((alt && (rideKind === "fly" || rideKind === "dive")) ? guideHalf : 0)];
   };
   const guideOn = total > 0;
   /* 타원 폭(카드 폭 %) — 미션이 많은 날은 서로 붙지 않게 줄인다 */
