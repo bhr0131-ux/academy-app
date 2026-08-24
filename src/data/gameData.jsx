@@ -772,6 +772,12 @@ export const CHARACTER_EVOLUTIONS = [
 ];
 
 // ── 펫 진화 (한 길, 0→4단계). 보물상자에서 낮은 확률로 1단계씩 진화 ──
+// 단계별로 그림을 받은 만큼만 이모지 대신 그림으로 — 사용자 원화(2026-08-24).
+// 그림이 아직 없는 단계는 이모지 그대로 (PET_STAGE_IMG[stage] 가 없으면 폴백).
+export const PET_STAGE_IMG = {
+  0: "/assets/pet/egg.webp",       // 신비한 알
+  1: "/assets/pet/stage1.webp",    // 아기 드래곤
+};
 export const PET_STAGES = [
   { stage:0, emoji:"🥚", name:"신비한 알",     desc:"모든 탐험의 시작" },
   { stage:1, emoji:"🐣", name:"아기 드래곤",   desc:"세상을 처음 만난 작은 용" },

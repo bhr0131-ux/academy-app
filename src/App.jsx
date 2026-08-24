@@ -1,5 +1,5 @@
 import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
-import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
+import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
@@ -3075,6 +3075,8 @@ export default function App() {
         setTimeout(()=>showGameEvent({
           type:"title",
           emoji:petEvolved.to.emoji,
+          charImg:PET_STAGE_IMG[petEvolved.to.stage],
+          charImgPrev:PET_STAGE_IMG[petEvolved.from.stage],
           title:isFirstHatch
             ? "부화 성공! 🎉"
             : (kidSkin==="cute"?"펫이 자랐어요!":"펫 진화!"),

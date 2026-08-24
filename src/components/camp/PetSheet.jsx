@@ -1,5 +1,5 @@
 import { C, mixWhite, mixHex } from "../../data/tokens.js";
-import { PET_STAGES, petView } from "../../data/gameData.jsx";
+import { PET_STAGES, petView, PET_STAGE_IMG } from "../../data/gameData.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
    PetSheet — 나의 펫 (캐릭터 탭에서 열리는 바텀시트, 캠프 개편 4/6)
@@ -64,18 +64,25 @@ export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dunge
                 backgroundImage: `radial-gradient(1.5px 1.5px at 20% 25%, rgba(255,255,255,0.9), transparent), radial-gradient(1.3px 1.3px at 75% 20%, rgba(255,209,102,0.9), transparent), radial-gradient(1.2px 1.2px at 85% 60%, rgba(255,255,255,0.6), transparent), radial-gradient(1.4px 1.4px at 35% 78%, rgba(180,220,255,0.8), transparent)` }} />
             )}
             <div style={{ position: "relative" }}>
-              <div style={{ fontSize: 64, lineHeight: 1, margin: "0 0 8px",
-                filter: cute ? "none" : "drop-shadow(0 0 8px rgba(255,220,120,0.8))" }}>{pet.emoji}</div>
+              {!cute && PET_STAGE_IMG[stage] ? (
+                <img src={PET_STAGE_IMG[stage]} alt={pet.name} draggable={false}
+                  style={{ display: "block", height: 64, width: "auto", margin: "0 auto 8px",
+                    filter: "drop-shadow(0 0 8px rgba(255,220,120,0.8))" }}/>
+              ) : (
+                <div style={{ fontSize: 64, lineHeight: 1, margin: "0 0 8px",
+                  filter: cute ? "none" : "drop-shadow(0 0 8px rgba(255,220,120,0.8))" }}>{pet.emoji}</div>
+              )}
               <p style={{ fontSize: 18, fontWeight: 900, color: cute ? C.text : "#fff", margin: "0 0 3px" }}>{pet.name}</p>
               <p style={{ fontSize: 13.5, fontWeight: 700, color: cute ? C.sub : "rgba(255,255,255,0.7)",
                 margin: "0 0 12px", lineHeight: 1.45 }}>{pet.desc}</p>
               <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 12 }}>
                 {PET_STAGES.map((p, i) => {
                   const pv = petView(p, i, skin);
-                  return (
-                    <span key={i} style={{ fontSize: 19, opacity: i <= stage ? 1 : 0.25,
-                      filter: i <= stage ? "none" : "grayscale(1)" }}>{pv.emoji}</span>
-                  );
+                  const dim = { opacity: i <= stage ? 1 : 0.25, filter: i <= stage ? "none" : "grayscale(1)" };
+                  return !cute && PET_STAGE_IMG[i]
+                    ? <img key={i} src={PET_STAGE_IMG[i]} alt={pv.name} draggable={false}
+                        style={{ display: "block", height: 19, width: "auto", ...dim }}/>
+                    : <span key={i} style={{ fontSize: 19, ...dim }}>{pv.emoji}</span>;
                 })}
               </div>
               <div style={{ background: cute ? "rgba(255,255,255,0.7)" : "rgba(15,18,34,0.32)",
