@@ -3305,7 +3305,7 @@ export default function App() {
         sub:bonus>0?`${lv.name} · ${TM.coinEmoji} +${bonus}`:lv.name};
     } else if(snap.pet>was.pet){
       const pet=petView(PET_STAGES[stage],stage,kidSkin);
-      ev={emoji:pet.emoji||"🐣",title:"펫이 진화했어요!",sub:pet.name};
+      ev={emoji:pet.emoji||"🐣",img:kidSkin!=="cute"?PET_STAGE_IMG[stage]:null,title:"펫이 진화했어요!",sub:pet.name};
     } else if(snap.box>was.box){
       ev={emoji:TM.boxEmoji,title:`${TM.box}가 생겼어요!`,sub:`${TM.book}에 ${snap.box}개`};
     } else if(snap.streak>was.streak){
