@@ -777,6 +777,9 @@ export const CHARACTER_EVOLUTIONS = [
 export const PET_STAGE_IMG = {
   0: "/assets/pet/egg.webp",       // 신비한 알
   1: "/assets/pet/stage1.webp",    // 아기 드래곤
+  2: "/assets/pet/stage2.webp",    // 개구쟁이 드래곤
+  3: "/assets/pet/stage3.webp",    // 늠름한 청룡
+  4: "/assets/pet/stage4.webp",    // 전설의 드래곤
 };
 export const PET_STAGES = [
   { stage:0, emoji:"🥚", name:"신비한 알",     desc:"모든 탐험의 시작" },
