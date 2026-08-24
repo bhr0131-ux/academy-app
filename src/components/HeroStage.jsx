@@ -314,24 +314,24 @@ export default function HeroStage({ D }) {
                         <span style={{position:"absolute",top:-11,left:-17,fontSize:13,animation:"eggSparkle 5s ease-in-out infinite",pointerEvents:"none"}}>✨</span>
                         <span style={{position:"absolute",top:-4,right:-16,fontSize:11,animation:"eggSparkle 5s ease-in-out infinite -0.3s",pointerEvents:"none"}}>✨</span>
                         <img src={PET_STAGE_IMG[0]} alt={pet.name} draggable={false}
-                          style={{display:"block",height:46,width:"auto",animation:"eggWiggle 5s ease-in-out infinite",transformOrigin:"50% 90%",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 5px 7px rgba(0,0,0,0.25))"}}/>
+                          style={{display:"block",height:62,width:"auto",animation:"eggWiggle 5s ease-in-out infinite",transformOrigin:"50% 90%",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 5px 7px rgba(0,0,0,0.25))"}}/>
                       </div>
                       {/* 둥지 */}
                       <div style={{fontSize:15,lineHeight:1,marginTop:-6,letterSpacing:"-0.35em",paddingRight:"0.35em",filter:"drop-shadow(0 2px 3px rgba(40,70,40,0.3))"}}>🌿🌿🌿</div>
                     </>
                     ):!cute?(
                     <>
-                      {/* [탐험] 부화한 펫: 캐릭터 키 대비 존재감 확보 — 34→46px + 크림 외곽선 + 상단 말풍선.
+                      {/* [탐험] 부화한 펫: 캐릭터 키 대비 존재감 확보 — 34→46→62px(사용자 확정 2026-08-24) + 크림 외곽선 + 상단 말풍선.
                           (삭제됨) 상시 반짝이 ✨ — 지도 발견 지점 ✨와 헷갈려서 뺐다. 알만 유지 (사용자 확정) */}
                       <div style={{position:"relative"}}>
                         {PET_STAGE_IMG[pet.stage] ? (
                           <img src={PET_STAGE_IMG[pet.stage]} alt={pet.name} draggable={false}
-                            style={{display:"block",height:46,width:"auto",animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 6px 8px rgba(0,0,0,0.25))"}}/>
+                            style={{display:"block",height:62,width:"auto",animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 6px 8px rgba(0,0,0,0.25))"}}/>
                         ) : (
-                          <div style={{fontSize:46,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 6px 8px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
+                          <div style={{fontSize:62,lineHeight:1,animation:"floatHero 2.6s ease-in-out infinite -1.3s",filter:"drop-shadow(0 0 2px rgba(246,243,232,0.95)) drop-shadow(0 0 1px rgba(246,243,232,0.9)) drop-shadow(0 6px 8px rgba(0,0,0,0.25))"}}>{pet.emoji}</div>
                         )}
                       </div>
-                      <div style={{width:34,height:8,borderRadius:"50%",background:"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
+                      <div style={{width:46,height:11,borderRadius:"50%",background:"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                       {/* 말풍선 — 펫 위 (사용자 확정: 알 말풍선과 통일), 꼬리는 아래로.
                           펫 연결 발견을 한 날은 ❤️로 바뀐다 — 하트 날은 말풍선·하트를 키우고
                           더 위로 띄운다 (사용자 조정: 18→30px, 글자 11→16) */}
