@@ -4160,7 +4160,7 @@ export default function App() {
         <TitleSheet open={openTitle} onClose={()=>setOpenTitle(false)}
           dark={kidSkin!=="cute"} titles={getAllTitles(childId)}
           isUnlocked={(id)=>isTitleUnlocked(childId,id)} selectedId={getSelectedTitle(childId).id}
-          onSelect={selectTitle} faint={CT.faint}
+          onSelect={selectTitle} faint={CT.faint} GP={GP}
           unlockedCount={getUnlockedTitles(childId).length} totalCount={getAllTitles(childId).length} />
         {/* 레벨 상세 시트 — 캐릭터 탭 가방 카드를 누르면 연다.
             가방에는 자리가 좁아 못 넣은 것들(진화 모습·레벨 설명·남은 XP)을 여기서 본다.
@@ -4203,7 +4203,7 @@ export default function App() {
         <ItemShopSheet open={openRewardShop} onClose={()=>setOpenRewardShop(false)}
           dark={kidSkin!=="cute"} skin={kidSkin} coin={getChildCoin(childId)}
           rewards={getChildRewards()} hasPending={(id)=>hasPendingRewardRequest(childId,id)}
-          onRequest={requestReward} themeMain={th.main}
+          onRequest={requestReward} themeMain={th.main} GP={GP}
           coinName={TM.coin} coinEmoji={TM.coinEmoji} goldDark={GP.dark} gold={GP.gold}
           approvedCount={getApprovedRewardCount(childId)} />
         {/* ── 아바타 꾸미기 상점 모달 (신규) ── */}
