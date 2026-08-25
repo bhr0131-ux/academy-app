@@ -2813,9 +2813,10 @@ export default function App() {
     const eqPetSkin=getEquipped(cid,"petskin");
     if(eqPetSkin&&isMaxPet(cid)){
       const pv=decorView(eqPetSkin,kidSkin);
-      // 스킨은 이모지 전용 아이템이라 img는 비운다 — 그림(PET_STAGE_IMG)을 그대로
-      // 두면 스킨을 사도 화면이 안 바뀐다. img가 없으면 화면은 emoji로 그린다.
-      return { ...base, emoji:pv.emoji, name:pv.name, img:null };
+      // 스킨 그림(pv.img, 탐험 전용 — 받은 4종만)이 있으면 그걸, 없으면 기존처럼
+      // 이모지로. 여기서 img를 안 비우면 그림 없는 스킨을 사도 예전 펫 그림
+      // (PET_STAGE_IMG)이 그대로 남아 스킨을 사도 화면이 안 바뀌었다.
+      return { ...base, emoji:pv.emoji, name:pv.name, img:kidSkin!=="cute"?(pv.img||null):null };
     }
     return { ...base, img:kidSkin!=="cute"?(PET_STAGE_IMG[st]||null):null };
   };
