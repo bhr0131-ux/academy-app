@@ -1,4 +1,4 @@
-import { C } from "../../data/tokens.js";
+import { C, DUNGEON_DECOR_CARD, dungeonDecorRarity } from "../../data/tokens.js";
 import { TITLE_RARITY } from "../../data/characters.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -9,6 +9,13 @@ import { TITLE_RARITY } from "../../data/characters.js";
    시트가 화면 전체를 쓰므로 격자가 페이지 스크롤에 끼어 있지 않고
    제 스크롤을 가진다는 것만 달라졌다.
 
+   [사용자 지적 2026-08-24] 탐험 쪽이 리스킨 전 색(청회색 헤더·검은 배경)에
+   남아 있었고, 특히 '받은 상장'만 밝은 회백색 카드(rarity.dgrad)로 튀어
+   나머지 잠긴 카드들과 한 화면처럼 안 보였다. 꾸미기 상점과 같은 재료
+   (GP.appBg/headerBg, DUNGEON_DECOR_CARD)로 맞췄다 — 카드는 받았든 안
+   받았든 같은 남색 판이고, 등급은 테두리 글로우로만 표현한다(꾸미기
+   상점과 같은 규칙). 베이커리(cute) 쪽은 그대로, 손대지 않았다.
+
    props
      open, onClose
      dark        : 탐험 스킨이면 true
@@ -17,10 +24,11 @@ import { TITLE_RARITY } from "../../data/characters.js";
      selectedId  : 지금 전시 중인 상장 id
      onSelect    : (titleId) => void  (잠긴 상장 토스트는 App 쪽 selectTitle이 처리)
      faint       : 베이커리 옅은 배경 (CT.faint)
+     GP          : 팔레트(App의 GP) — 탐험 배경·헤더색
      unlockedCount, totalCount : 머리줄 표시용
    ════════════════════════════════════════════════════════════════════════ */
 export default function TitleSheet({ open, onClose, dark, titles = [], isUnlocked, selectedId,
-  onSelect, faint, unlockedCount = 0, totalCount = 0 }) {
+  onSelect, faint, GP = {}, unlockedCount = 0, totalCount = 0 }) {
   if (!open) return null;
 
   return (
@@ -28,17 +36,17 @@ export default function TitleSheet({ open, onClose, dark, titles = [], isUnlocke
       background: "rgba(20,16,32,0.55)", backdropFilter: "blur(3px)",
       display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
       <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 460, height: "88vh",
-        overflow: "hidden", background: dark ? "#20293A" : "#fff", borderRadius: "24px 24px 0 0",
+        overflow: "hidden", background: dark ? (GP.appBg || "#20293A") : "#fff", borderRadius: "24px 24px 0 0",
         display: "flex", flexDirection: "column", boxShadow: "0 -12px 40px rgba(0,0,0,0.3)" }}>
 
-        <div style={{ padding: "16px 20px 14px",
-          background: dark ? "linear-gradient(160deg, #6F95A5, #61828F)" : "linear-gradient(160deg,#FDE7EF,#F9C5D6)",
-          color: dark ? "#fff" : "#6B4A5C", flexShrink: 0 }}>
+        <div style={{ position: "sticky", top: 0, zIndex: 5, padding: "16px 20px 14px",
+          background: dark ? (GP.headerBg || "linear-gradient(135deg, #4E7A57, #33503F)") : "linear-gradient(160deg,#FDE7EF,#F9C5D6)",
+          color: dark ? (GP.onDark || "#fff") : "#6B4A5C", flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}>👑 상장</p>
               <p style={{ margin: "4px 0 0", fontSize: 12.5, fontWeight: 700,
-                color: dark ? "rgba(255,255,255,0.85)" : "#8A6B7A" }}>
+                color: dark ? (GP.onDarkSub || "rgba(255,255,255,0.85)") : "#8A6B7A" }}>
                 받은 상장을 골라 캐릭터 옆에 전시할 수 있어요 · {unlockedCount}/{totalCount}개 획득
               </p>
             </div>
@@ -56,39 +64,42 @@ export default function TitleSheet({ open, onClose, dark, titles = [], isUnlocke
               const unlocked = isUnlocked(title.id);
               const selected = selectedId === title.id;
               const rarity = TITLE_RARITY[title.rarity || "common"];
-              const cardBg   = dark ? (unlocked ? rarity.dgrad : "linear-gradient(180deg,#2C3658 0%,#252E4C 100%)") : (unlocked ? rarity.grad : faint);
-              const cardBdr  = unlocked ? rarity.borderClr : (dark ? "#3E486B" : C.border);
-              const restGlow = dark && unlocked ? rarity.glow : "none";
+              const dr = dungeonDecorRarity(title.rarity);
+              // 탐험: 받았든 안 받았든 같은 남색 카드(꾸미기 상점과 같은 규칙) — 등급은 테두리·글로우로만
+              const cardBg   = dark ? DUNGEON_DECOR_CARD.cardBg : (unlocked ? rarity.grad : faint);
+              const cardBdr  = dark ? (selected ? "#FFD976" : dr.border) : (unlocked ? rarity.borderClr : C.border);
+              const restGlow = dark ? dr.glow : "none";
               const selGlow  = dark
-                ? `${rarity.glow}, 0 0 26px ${rarity.borderClr}66, 0 0 0 1px ${rarity.borderClr}, 0 6px 18px rgba(8,16,40,0.55)`
+                ? `0 0 22px rgba(255,217,118,.28), 0 6px 18px rgba(8,16,40,0.42), inset 0 1px 0 rgba(255,255,255,0.08)`
                 : `0 0 24px rgba(255,255,255,0.55), 0 0 0 1px ${rarity.color}, 0 6px 18px ${rarity.color}33`;
-              const nameClr  = dark ? (unlocked ? "#1B2238" : "rgba(240,245,252,0.78)") : (selected ? rarity.color : unlocked ? C.text : C.sub);
-              const condClr  = dark ? (unlocked ? "rgba(27,34,56,0.7)" : "rgba(240,245,252,0.64)") : C.sub;
-              const rrClr    = dark
-                ? (title.rarity === "legendary" ? "#7A5C12" : title.rarity === "epic" ? "#4A3A8A" : title.rarity === "rare" ? "#244C8A" : "#3A4255")
+              const nameClr  = dark ? (unlocked ? "#EAF0FF" : "rgba(234,240,255,0.5)") : (selected ? rarity.color : unlocked ? C.text : C.sub);
+              const condClr  = dark ? (unlocked ? "rgba(234,240,255,0.66)" : "rgba(234,240,255,0.4)") : C.sub;
+              const rrClr    = dark ? dr.badgeText
                 : (title.rarity === "common" ? "#5A4A3A" : title.rarity === "legendary" ? "#7B5C00" : rarity.color);
               return (
                 <button key={title.id} onClick={() => onSelect(title.id)} disabled={!unlocked}
-                  style={{ borderRadius: 14, padding: "12px 10px", position: "relative",
+                  style={{ borderRadius: 18, padding: "12px 10px", position: "relative",
                     transition: "transform .15s ease, box-shadow .15s ease",
                     transform: selected ? "scale(1.03)" : "scale(1)",
                     background: cardBg,
                     border: `2px solid ${cardBdr}`,
                     boxShadow: selected ? selGlow : restGlow,
-                    opacity: unlocked ? 1 : 0.5, cursor: unlocked ? "pointer" : "not-allowed", textAlign: "center" }}>
+                    opacity: unlocked ? 1 : (dark ? 0.55 : 0.5), filter: !unlocked && dark ? "grayscale(.25)" : "none",
+                    cursor: unlocked ? "pointer" : "not-allowed", textAlign: "center" }}>
                   {selected && (
                     <span style={{ position: "absolute", top: 7, right: 7, width: 20, height: 20, borderRadius: "50%",
-                      background: rarity.color, color: "#fff", fontSize: 13, fontWeight: 900,
+                      background: dark ? "#fff" : rarity.color, color: dark ? "#1F2937" : "#fff", fontSize: 13, fontWeight: 900,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      boxShadow: `0 2px 6px ${rarity.color}66` }}>✓</span>
+                      boxShadow: dark ? "0 2px 6px rgba(0,0,0,0.35)" : `0 2px 6px ${rarity.color}66` }}>✓</span>
                   )}
                   <p style={{ fontSize: 24, margin: "0 0 5px" }}>{unlocked ? title.emoji : "🔒"}</p>
-                  <p style={{ fontSize: 11, fontWeight: 900, color: rrClr, margin: "0 0 3px" }}>{rarity.icon} {rarity.name}</p>
-                  <p style={{ fontSize: 13, fontWeight: 900, margin: "0 0 3px", color: nameClr }}>{title.name}</p>
+                  <p style={{ fontSize: 11, fontWeight: 900, color: rrClr, margin: "0 0 3px",
+                    background: dark ? dr.badgeBg : "transparent", display: "inline-block", padding: dark ? "1px 7px" : 0, borderRadius: 8 }}>{rarity.icon} {rarity.name}</p>
+                  <p style={{ fontSize: 13, fontWeight: 900, margin: "3px 0 3px", color: nameClr }}>{title.name}</p>
                   <p style={{ fontSize: 11, color: condClr, margin: 0, fontWeight: 700, lineHeight: 1.3 }}>{title.condition}</p>
                   {selected
-                    ? <p style={{ fontSize: 11, fontWeight: 900, color: "#fff", background: rarity.color, borderRadius: 20, padding: "3px 9px", display: "inline-block", margin: "7px 0 0" }}>✓ 선택됨</p>
-                    : unlocked && <p style={{ fontSize: 11, fontWeight: 900, color: rrClr, background: dark ? "rgba(255,255,255,0.55)" : "#fff", border: `1px solid ${rarity.borderClr}`, borderRadius: 20, padding: "3px 9px", display: "inline-block", margin: "7px 0 0" }}>선택</p>}
+                    ? <p style={{ fontSize: 11, fontWeight: 900, color: dark ? "#1F2937" : "#fff", background: dark ? "#fff" : rarity.color, borderRadius: 20, padding: "3px 9px", display: "inline-block", margin: "7px 0 0" }}>✓ 선택됨</p>
+                    : unlocked && <p style={{ fontSize: 11, fontWeight: 900, color: dark ? "#EAF0FF" : rrClr, background: dark ? "rgba(255,255,255,0.14)" : "#fff", border: `1px solid ${dark ? "rgba(255,255,255,0.3)" : rarity.borderClr}`, borderRadius: 20, padding: "3px 9px", display: "inline-block", margin: "7px 0 0" }}>선택</p>}
                 </button>
               );
             })}
