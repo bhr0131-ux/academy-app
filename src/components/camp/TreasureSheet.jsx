@@ -76,7 +76,7 @@ export default function TreasureSheet({ open, onClose, dark, skin = "dungeon", t
                   style={{ position: "relative", overflow: "hidden", borderRadius: 14, padding: "13px 8px",
                     border: `${count > 0 ? (box.type === "legend" ? "2.5px" : "2px") : "1.5px"} solid ${count > 0 ? box.color : (dark ? "#EAD9AE" : C.border)}`,
                     background: count > 0
-                      ? (box.type === "legend" ? `linear-gradient(135deg, ${box.color}33, ${dark ? "#FFFCF2" : "#FFFDF5"})` : `linear-gradient(135deg, ${box.color}22, #fff)`)
+                      ? `linear-gradient(135deg, ${box.color}${box.type === "legend" ? "33" : "22"}, ${dark ? "#FFF9EC" : "#fff"})`
                       : (dark ? "#FBF3DE" : faint),
                     opacity: count > 0 ? 1 : 0.75, cursor: count > 0 ? "pointer" : "not-allowed", textAlign: "center",
                     boxShadow: count > 0

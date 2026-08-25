@@ -75,7 +75,7 @@ export default function HistorySheet({ open, onClose, dark, items = [], logInfo,
                 return (
                   <div key={item.id} style={dark
                     ? { display: "flex", gap: 12, alignItems: "center", padding: "12px", paddingLeft: 14, borderRadius: 14,
-                        background: "#FFFFFF", border: "1px solid #EAD9AE",
+                        background: "#FFF9EC", border: "1px solid #EAD9AE",
                         borderLeft: `4px solid ${bar}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)", marginBottom: 8 }
                     : { display: "flex", gap: 12, alignItems: "center", padding: "12px", borderRadius: 14,
                         background: "#fff", border: `1px solid ${C.border}`, marginBottom: 8 }}>
