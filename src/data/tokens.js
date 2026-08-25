@@ -241,7 +241,8 @@ export const CAMP_SHEET = {
 // rarity 키: common(일반) / rare(희귀) / epic(영웅) / legendary(전설)
 export const DUNGEON_DECOR_CARD = {
   // 통일 카드 배경 — 모든 등급 동일. 등급은 테두리·뱃지·그림자로만 표현
-  cardBg: "#FFFFFF",
+  // [사용자 확정 2026-08-25] 순백 대신 살짝 아이보리 — 눈이 더 편하다.
+  cardBg: "#FFF9EC",
   // 미리보기 박스(아이콘 자리) — 카드보다 한 단계 따뜻한 크림 톤
   previewBg: "linear-gradient(135deg, #FBF3DE 0%, #F3E6C4 100%)",
   previewBorder: "rgba(180,150,90,0.30)",
