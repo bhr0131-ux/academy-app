@@ -220,20 +220,36 @@ export const ITEM_ACTION_STYLE = {
     buttonShadow: "none",
   },
 };
-// 탐험모드 "꾸미기 상점" 카드 전용 — 카드 배경은 네이비로 통일하고
-// 등급은 테두리색 + glow 로만 구분 (WoW 인벤토리/장비창 느낌).
+// 캐릭터 탭 팝업 시트(꾸미기·아이템 상점 · 상장 · 보물창고 · 나의 펫 · 연속 달성 ·
+// 탐험 기록) 전용 밝은 팔레트. [사용자 확정 2026-08-25: "우린 이제 밝은 수채화
+// 그림으로 바꿨는데 이것만 어두워"] — 리스킨 전 '던전(RPG)' 시절 남색 배경을
+// 걷어내고 앱 나머지가 이미 쓰는 크림·올리브 톤으로 맞췄다.
+// 다른 화면 전역 팔레트(GP=dungeonPalette)는 손대지 않았다 — 이 7개 시트 전용이다.
+export const CAMP_SHEET = {
+  bodyBg: "linear-gradient(180deg, #FFFCF5 0%, #F6EDD6 100%)",
+  headerBg: "linear-gradient(135deg, #7CB86A, #4C9450)",
+  headerText: "#FFFFFF",
+  headerTextSub: "rgba(255,255,255,0.88)",
+  chipBg: "rgba(255,255,255,0.22)",
+  chipBorder: "rgba(255,255,255,0.55)",
+  chipText: "#FFFFFF",
+  text: "#3A2E1C",
+  textSub: "#8A7458",
+};
+// 탐험모드 "꾸미기 상점" 카드 전용 — 카드 배경은 흰색으로 통일하고
+// 등급은 테두리색 + 은은한 그림자로만 구분.
 // rarity 키: common(일반) / rare(희귀) / epic(영웅) / legendary(전설)
 export const DUNGEON_DECOR_CARD = {
-  // 통일 카드 배경 — 모든 등급 동일. 등급은 테두리·뱃지·glow로만 표현
-  cardBg: "linear-gradient(180deg, #2F3D63 0%, #253250 100%)",
-  // 미리보기 박스(아이콘 자리) — 카드보다 한 단계 더 깊은 톤
-  previewBg: "linear-gradient(135deg, #232C49 0%, #313D60 100%)",
-  previewBorder: "rgba(150,175,225,0.22)",
+  // 통일 카드 배경 — 모든 등급 동일. 등급은 테두리·뱃지·그림자로만 표현
+  cardBg: "#FFFFFF",
+  // 미리보기 박스(아이콘 자리) — 카드보다 한 단계 따뜻한 크림 톤
+  previewBg: "linear-gradient(135deg, #FBF3DE 0%, #F3E6C4 100%)",
+  previewBorder: "rgba(180,150,90,0.30)",
   rarity: {
-    common:    { border:"rgba(160,122,78,.75)",  glow:"0 0 16px rgba(160,122,78,0.12)",  badgeText:"#D7B98A", badgeBg:"rgba(160,122,78,0.22)" },
-    rare:      { border:"rgba(199,205,216,.85)", glow:"0 0 16px rgba(230,236,245,0.16)", badgeText:"#E5EAF2", badgeBg:"rgba(199,205,216,0.18)" },
-    epic:      { border:"rgba(142,107,255,.85)", glow:"0 0 16px rgba(142,107,255,0.24)", badgeText:"#C9B8FF", badgeBg:"rgba(142,107,255,0.22)" },
-    legendary: { border:"rgba(242,193,78,.9)",   glow:"0 0 16px rgba(242,193,78,0.22)",  badgeText:"#FFD976", badgeBg:"rgba(242,193,78,0.20)" },
+    common:    { border:"#C9A96A", glow:"0 3px 10px rgba(170,140,90,0.16)",  badgeText:"#8A6B2E", badgeBg:"rgba(170,140,90,0.16)" },
+    rare:      { border:"#5B9BEA", glow:"0 3px 12px rgba(70,140,230,0.18)",  badgeText:"#2E64AE", badgeBg:"rgba(70,140,230,0.14)" },
+    epic:      { border:"#A277E8", glow:"0 3px 12px rgba(150,110,230,0.20)", badgeText:"#6B3FC0", badgeBg:"rgba(150,110,230,0.14)" },
+    legendary: { border:"#E8AE2E", glow:"0 3px 14px rgba(230,170,40,0.26)",  badgeText:"#9C6E00", badgeBg:"rgba(230,170,40,0.18)" },
   },
 };
 export const dungeonDecorRarity = (r="common") => DUNGEON_DECOR_CARD.rarity[r] || DUNGEON_DECOR_CARD.rarity.common;

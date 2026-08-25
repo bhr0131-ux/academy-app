@@ -1,4 +1,4 @@
-import { C } from "../../data/tokens.js";
+import { C, CAMP_SHEET } from "../../data/tokens.js";
 import { getBoxInfo, TREASURE_MILESTONE } from "../../data/characters.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -12,6 +12,10 @@ import { getBoxInfo, TREASURE_MILESTONE } from "../../data/characters.js";
        2500 → 9998 로 올렸다. 결과 모달은 원래 9999라 그대로다.
      · 상자를 열고 결과 모달을 닫으면 이 시트로 돌아온다 — 개수는 App
        상태에서 오므로 자동으로 줄어 있다.
+
+   [사용자 지적 2026-08-25] "이제 밝은 수채화 그림으로 바꿨는데 이것만 어두워" —
+   탐험(dark) 쪽 헤더·배경·상자 카드를 리스킨 전 어두운 남색 톤에서
+   CAMP_SHEET 밝은 크림 팔레트로 바꿨다. 베이커리(cute) 쪽은 그대로.
 
    props
      open, onClose
@@ -30,12 +34,9 @@ export default function TreasureSheet({ open, onClose, dark, skin = "dungeon", t
 
   const cute = skin === "cute";
   const BOXES = [
-    { type: "normal", key: "normalBox", color: C.sub,
-      rewardBg: "linear-gradient(135deg, #515E78 0%, #657188 100%)", rewardBorder: "#7C8AA1", rewardGlow: "rgba(120,170,255,0.12)" },
-    { type: "rare", key: "rareBox", color: C.purple,
-      rewardBg: "linear-gradient(135deg, #514A86 0%, #6A6398 100%)", rewardBorder: "#8279A7", rewardGlow: "rgba(150,120,230,0.14)" },
-    { type: "legend", key: "legendBox", color: "#F5B301",
-      rewardBg: "linear-gradient(135deg, #927526 0%, #B09C62 100%)", rewardBorder: "#B6AA7F", rewardGlow: "rgba(255,215,100,0.24)" },
+    { type: "normal", key: "normalBox", color: "#8A7458" },
+    { type: "rare", key: "rareBox", color: C.purple },
+    { type: "legend", key: "legendBox", color: "#F5B301" },
   ];
 
   return (
@@ -43,22 +44,22 @@ export default function TreasureSheet({ open, onClose, dark, skin = "dungeon", t
       background: "rgba(20,16,32,0.55)", backdropFilter: "blur(3px)",
       display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
       <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 460, maxHeight: "88vh",
-        overflow: "hidden", background: dark ? "#20293A" : "#fff", borderRadius: "24px 24px 0 0",
+        overflow: "hidden", background: dark ? CAMP_SHEET.bodyBg : "#fff", borderRadius: "24px 24px 0 0",
         display: "flex", flexDirection: "column", boxShadow: "0 -12px 40px rgba(0,0,0,0.3)" }}>
 
         <div style={{ padding: "16px 20px 14px",
-          background: dark ? "linear-gradient(160deg, #7EA7B5, #6E929E)" : "linear-gradient(160deg,#FDE7EF,#F9C5D6)",
-          color: dark ? "#fff" : "#6B4A5C", flexShrink: 0 }}>
+          background: dark ? CAMP_SHEET.headerBg : "linear-gradient(160deg,#FDE7EF,#F9C5D6)",
+          color: dark ? CAMP_SHEET.headerText : "#6B4A5C", flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}>{bookEmoji} {bookName}</p>
               <p style={{ margin: "4px 0 0", fontSize: 12.5, fontWeight: 700,
-                color: dark ? "rgba(255,255,255,0.85)" : "#8A6B7A" }}>
+                color: dark ? CAMP_SHEET.headerTextSub : "#8A6B7A" }}>
                 미션을 완료하면 {boxName}를 받아요 · {treasure.completedQuestCount || 0} {cute ? "도장 꾹" : "CLEAR"}
               </p>
             </div>
             <button onClick={onClose} aria-label="닫기" style={{ border: "none", cursor: "pointer",
-              background: dark ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.6)",
+              background: dark ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.6)",
               color: dark ? "#fff" : "#6B4A5C", borderRadius: 10, width: 30, height: 30,
               fontSize: 15, fontWeight: 900, flexShrink: 0 }}>✕</button>
           </div>
@@ -73,37 +74,30 @@ export default function TreasureSheet({ open, onClose, dark, skin = "dungeon", t
               return (
                 <button key={box.type} onClick={() => onOpen(box.type)} disabled={count <= 0}
                   style={{ position: "relative", overflow: "hidden", borderRadius: 14, padding: "13px 8px",
-                    border: `${count > 0 ? (box.type === "legend" ? "2.5px" : "2px") : "1.5px"} solid ${count > 0 ? (cute ? box.color : box.rewardBorder) : (cute ? C.border : "rgba(255,255,255,0.30)")}`,
+                    border: `${count > 0 ? (box.type === "legend" ? "2.5px" : "2px") : "1.5px"} solid ${count > 0 ? box.color : (dark ? "#EAD9AE" : C.border)}`,
                     background: count > 0
-                      ? (cute
-                          ? (box.type === "legend" ? `linear-gradient(135deg, ${box.color}33, #FFFDF5)` : `linear-gradient(135deg, ${box.color}22, #fff)`)
-                          : box.rewardBg)
-                      : (cute ? faint : "rgba(255,255,255,0.12)"),
-                    opacity: count > 0 ? 1 : 0.8, cursor: count > 0 ? "pointer" : "not-allowed", textAlign: "center",
+                      ? (box.type === "legend" ? `linear-gradient(135deg, ${box.color}33, ${dark ? "#FFFCF2" : "#FFFDF5"})` : `linear-gradient(135deg, ${box.color}22, #fff)`)
+                      : (dark ? "#FBF3DE" : faint),
+                    opacity: count > 0 ? 1 : 0.75, cursor: count > 0 ? "pointer" : "not-allowed", textAlign: "center",
                     boxShadow: count > 0
-                      ? (cute
-                          ? (box.type === "legend" ? `0 4px 16px ${box.color}66, 0 0 0 1px ${box.color}33` : `0 4px 14px ${box.color}30`)
-                          : `0 0 18px ${box.rewardGlow}, inset 0 1px 0 rgba(255,255,255,0.25)`)
+                      ? (box.type === "legend" ? `0 4px 16px ${box.color}55, 0 0 0 1px ${box.color}33` : `0 4px 14px ${box.color}28`)
                       : "none" }}>
-                  {!cute && count > 0 && box.type === "legend" && (
+                  {count > 0 && box.type === "legend" && (
                     <span style={{ position: "absolute", top: 8, right: 10, fontSize: 16, opacity: 0.9 }}>✨</span>
                   )}
-                  <p style={{ fontSize: cute ? 28 : 40, margin: "0 0 5px",
-                    filter: !cute && count > 0 ? "drop-shadow(0 0 10px rgba(255,255,255,0.35))" : "none" }}>{info.emoji}</p>
-                  <p style={{ fontSize: 13, fontWeight: 900, color: cute ? (count > 0 ? C.text : C.sub) : (count > 0 ? "#fff" : "rgba(255,255,255,0.85)"), margin: "0 0 3px" }}>{info.name}</p>
-                  <p style={{ fontSize: 13, fontWeight: 900, color: cute ? (count > 0 ? box.color : C.sub) : (count > 0 ? "#fff" : "rgba(255,255,255,0.8)"), margin: "0 0 4px" }}>x {count}</p>
+                  <p style={{ fontSize: cute ? 28 : 36, margin: "0 0 5px" }}>{info.emoji}</p>
+                  <p style={{ fontSize: 13, fontWeight: 900, color: count > 0 ? (dark ? CAMP_SHEET.text : C.text) : (dark ? CAMP_SHEET.textSub : C.sub), margin: "0 0 3px" }}>{info.name}</p>
+                  <p style={{ fontSize: 13, fontWeight: 900, color: count > 0 ? box.color : (dark ? CAMP_SHEET.textSub : C.sub), margin: "0 0 4px" }}>x {count}</p>
                   {count > 0 && <p style={{ fontSize: 11, fontWeight: 900, color: "#fff",
-                    background: cute ? box.color : "rgba(255,255,255,0.18)",
-                    border: cute ? "none" : "1px solid rgba(255,255,255,0.25)",
-                    borderRadius: 20, padding: "2px 8px", display: "inline-block", margin: 0 }}>열기</p>}
+                    background: box.color, borderRadius: 20, padding: "2px 8px", display: "inline-block", margin: 0 }}>열기</p>}
                 </button>
               );
             })}
           </div>
-          <p style={{ fontSize: 11.5, color: dark ? "rgba(255,255,255,0.85)" : C.sub, fontWeight: 700, margin: "14px 0 0", lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11.5, color: dark ? CAMP_SHEET.textSub : C.sub, fontWeight: 700, margin: "14px 0 0", lineHeight: 1.5 }}>
             {cute ? `미션을 모으면 ${boxName}를 받아요! (겹칠 땐 더 좋은 상자로 받아요)` : "미션을 모으면 상자를 받아요! (겹칠 땐 더 좋은 상자로 받아요)"}
           </p>
-          <p style={{ fontSize: 11.5, color: dark ? "rgba(255,255,255,0.85)" : C.sub, fontWeight: 700, margin: "5px 0 0", lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11.5, color: dark ? CAMP_SHEET.textSub : C.sub, fontWeight: 700, margin: "5px 0 0", lineHeight: 1.5 }}>
             {getBoxInfo("normal", skin).emoji} {TREASURE_MILESTONE.normal}개 → {getBoxInfo("normal", skin).name} · {getBoxInfo("rare", skin).emoji} {TREASURE_MILESTONE.rare}개 → {getBoxInfo("rare", skin).name} · {getBoxInfo("legend", skin).emoji} {TREASURE_MILESTONE.legend}개 → {getBoxInfo("legend", skin).name}
           </p>
         </div>

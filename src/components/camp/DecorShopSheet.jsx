@@ -1,4 +1,4 @@
-import { C, DUNGEON_DECOR_CARD, dungeonDecorRarity, mixWhite } from "../../data/tokens.js";
+import { C, CAMP_SHEET, DUNGEON_DECOR_CARD, dungeonDecorRarity, mixWhite } from "../../data/tokens.js";
 import {
   DECOR_GROUPS, DECOR_RARITY, decorView,
   BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER,
@@ -17,9 +17,13 @@ import {
      buyDecor / toggleEquipDecor → onBuy / onEquip
    구매 규칙·코인 차감·장착 저장은 전부 App에 그대로 있다. 여기는 그리기만 한다.
 
+   [사용자 확정 2026-08-25] 탐험(dungeon) 쪽 색을 CAMP_SHEET/DUNGEON_DECOR_CARD
+   밝은 팔레트로 바꿨다 — "이제 밝은 수채화 그림으로 바꿨는데 이것만 어두워".
+   구조·로직은 그대로, 색 값만 남색→크림으로.
+
    props
      open, onClose
-     kidSkin, th, GP, TM     스킨·테마·표기 토큰
+     kidSkin, th, TM         스킨·테마·표기 토큰
      coin                    보유 코인
      ownedCount              꾸미기 보유 개수 (머리줄 '컬렉션 n개')
      avatarOwnedCount        아바타 파츠 보유 개수 (아바타 꾸미기 카드)
@@ -31,7 +35,7 @@ import {
      onBuy(rawItem) · onEquip(그룹키, id) · onOpenAvatarShop()
    ════════════════════════════════════════════════════════════════════════ */
 export default function DecorShopSheet({
-  open, onClose, kidSkin = "dungeon", th, GP, TM,
+  open, onClose, kidSkin = "dungeon", th, TM,
   coin = 0, ownedCount = 0, avatarOwnedCount = 0, equipped = {},
   isOwned = () => false, priceOf = (it) => it.price, themedBorder = (it) => it,
   maxPet = false, onBuy, onEquip, onOpenAvatarShop,
@@ -40,21 +44,21 @@ export default function DecorShopSheet({
   const eq = equipped;
   return (
     <div onClick={()=>onClose()} style={{position:"fixed",inset:0,zIndex:200,background:"rgba(20,16,28,0.55)",backdropFilter:"blur(3px)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div onClick={e=>e.stopPropagation()} style={{width:"100%",maxWidth:430,maxHeight:"92vh",overflowY:"auto",background:GP.appBg||C.bg,borderRadius:"28px 28px 0 0",boxShadow:"0 -10px 40px rgba(0,0,0,0.3)",animation:"popInUp .35s ease both"}}>
+      <div onClick={e=>e.stopPropagation()} style={{width:"100%",maxWidth:430,maxHeight:"92vh",overflowY:"auto",background:kidSkin==="cute"?C.bg:CAMP_SHEET.bodyBg,borderRadius:"28px 28px 0 0",boxShadow:"0 -10px 40px rgba(0,0,0,0.3)",animation:"popInUp .35s ease both"}}>
         {/* 헤더 */}
-        <div style={{position:"sticky",top:0,zIndex:5,background:kidSkin==="cute"?`linear-gradient(135deg, ${mixWhite(th.main,0.5)}, ${mixWhite(th.main,0.66)})`:GP.headerBg,padding:"18px 18px 14px",borderRadius:"28px 28px 0 0",color:GP.onDark,boxShadow:`0 4px 16px ${th.main}22`}}>
+        <div style={{position:"sticky",top:0,zIndex:5,background:kidSkin==="cute"?`linear-gradient(135deg, ${mixWhite(th.main,0.5)}, ${mixWhite(th.main,0.66)})`:CAMP_SHEET.headerBg,padding:"18px 18px 14px",borderRadius:"28px 28px 0 0",color:kidSkin==="cute"?undefined:CAMP_SHEET.headerText,boxShadow:`0 4px 16px ${th.main}22`}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <p style={{fontSize:19,fontWeight:900,margin:0}}>🛍️ {kidSkin==="cute"?"꾸미기 가게":"꾸미기 상점"}</p>
-            <button onClick={()=>onClose()} style={{border:"none",background:GP.chipBg,color:GP.chipText,width:34,height:34,borderRadius:"50%",fontSize:18,fontWeight:900,cursor:"pointer"}}>✕</button>
+            <button onClick={()=>onClose()} style={{border:"none",background:kidSkin==="cute"?"rgba(255,255,255,0.6)":CAMP_SHEET.chipBg,color:kidSkin==="cute"?"#6B4A5C":CAMP_SHEET.chipText,width:34,height:34,borderRadius:"50%",fontSize:18,fontWeight:900,cursor:"pointer"}}>✕</button>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:8,marginTop:8,flexWrap:"wrap"}}>
-            <div style={{display:"inline-flex",alignItems:"center",gap:6,background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:14,padding:"5px 12px"}}>
+            <div style={{display:"inline-flex",alignItems:"center",gap:6,background:kidSkin==="cute"?"rgba(255,255,255,0.5)":CAMP_SHEET.chipBg,border:`1px solid ${kidSkin==="cute"?"rgba(255,255,255,0.7)":CAMP_SHEET.chipBorder}`,borderRadius:14,padding:"5px 12px"}}>
               <span style={{fontSize:16}}>{TM.coinEmoji}</span>
-              <span style={{fontSize:14,fontWeight:900,color:GP.chipText}}>{coin} {TM.coin}</span>
+              <span style={{fontSize:14,fontWeight:900,color:kidSkin==="cute"?"#6B4A5C":CAMP_SHEET.chipText}}>{coin} {TM.coin}</span>
             </div>
-            <div style={{display:"inline-flex",alignItems:"center",gap:6,background:GP.chipBg,border:`1px solid ${GP.chipBorder}`,borderRadius:14,padding:"5px 12px"}}>
+            <div style={{display:"inline-flex",alignItems:"center",gap:6,background:kidSkin==="cute"?"rgba(255,255,255,0.5)":CAMP_SHEET.chipBg,border:`1px solid ${kidSkin==="cute"?"rgba(255,255,255,0.7)":CAMP_SHEET.chipBorder}`,borderRadius:14,padding:"5px 12px"}}>
               <span style={{fontSize:16}}>{kidSkin==="cute"?"🎀":"🔮"}</span>
-              <span style={{fontSize:14,fontWeight:900,color:GP.chipText}}>컬렉션 {ownedCount}개</span>
+              <span style={{fontSize:14,fontWeight:900,color:kidSkin==="cute"?"#6B4A5C":CAMP_SHEET.chipText}}>컬렉션 {ownedCount}개</span>
             </div>
           </div>
         </div>
@@ -80,21 +84,21 @@ export default function DecorShopSheet({
             const grpLocked = grp.lockUntilMaxPet && !maxPet;   // 펫 스킨만 잠금 대상(캐릭터 스킨은 폐지)
             return (
             <div key={grp.key} style={{marginTop:18}}>
-              <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:kidSkin!=="cute"?"#EAF0FF":C.text}}>{grp.key==="hat"&&kidSkin!=="cute"?"⚔️":grp.icon} {grp.key==="hat"&&kidSkin!=="cute"?"장비":grp.label}{grp.key==="petskin"&&<span style={{fontSize:11,fontWeight:800,color:kidSkin!=="cute"?"rgba(200,212,240,0.6)":C.sub,marginLeft:6}}>펫 최종 진화 시 해제</span>}</p>
+              <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:kidSkin!=="cute"?CAMP_SHEET.text:C.text}}>{grp.key==="hat"&&kidSkin!=="cute"?"⚔️":grp.icon} {grp.key==="hat"&&kidSkin!=="cute"?"장비":grp.label}{grp.key==="petskin"&&<span style={{fontSize:11,fontWeight:800,color:kidSkin!=="cute"?CAMP_SHEET.textSub:C.sub,marginLeft:6}}>펫 최종 진화 시 해제</span>}</p>
               {grpLocked?(
                 <div style={kidSkin!=="cute"
-                  ?{background:DUNGEON_DECOR_CARD.previewBg,border:`1.5px dashed rgba(150,175,225,0.3)`,borderRadius:18,padding:"22px 14px",display:"flex",flexDirection:"column",alignItems:"center",gap:6}
+                  ?{background:DUNGEON_DECOR_CARD.previewBg,border:`1.5px dashed ${DUNGEON_DECOR_CARD.previewBorder}`,borderRadius:18,padding:"22px 14px",display:"flex",flexDirection:"column",alignItems:"center",gap:6}
                   :{background:C.faint,border:`1.5px dashed ${C.border}`,borderRadius:18,padding:"22px 14px",display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
                   <span style={{fontSize:30}}>🔒</span>
                   {grp.key==="petskin"?(
                     <>
-                      <p style={{fontSize:12.5,fontWeight:900,margin:0,color:kidSkin!=="cute"?"#EAF0FF":C.text,textAlign:"center",lineHeight:1.4}}>{kidSkin==="cute"?"펫이 마지막까지 자라면 열려요!":"펫이 마지막까지 진화하면 열려요!"}</p>
-                      <p style={{fontSize:11,fontWeight:700,margin:0,color:kidSkin!=="cute"?"rgba(200,212,240,0.6)":C.sub,textAlign:"center"}}>{kidSkin==="cute"?"전설의 유니콘이 되면 특별한 펫으로 바꿀 수 있어요 🐾":"전설의 드래곤이 되면 특별한 펫으로 바꿀 수 있어요 🐾"}</p>
+                      <p style={{fontSize:12.5,fontWeight:900,margin:0,color:kidSkin!=="cute"?CAMP_SHEET.text:C.text,textAlign:"center",lineHeight:1.4}}>{kidSkin==="cute"?"펫이 마지막까지 자라면 열려요!":"펫이 마지막까지 진화하면 열려요!"}</p>
+                      <p style={{fontSize:11,fontWeight:700,margin:0,color:kidSkin!=="cute"?CAMP_SHEET.textSub:C.sub,textAlign:"center"}}>{kidSkin==="cute"?"전설의 유니콘이 되면 특별한 펫으로 바꿀 수 있어요 🐾":"전설의 드래곤이 되면 특별한 펫으로 바꿀 수 있어요 🐾"}</p>
                     </>
                   ):(
                     <>
-                      <p style={{fontSize:12.5,fontWeight:900,margin:0,color:kidSkin!=="cute"?"#EAF0FF":C.text,textAlign:"center",lineHeight:1.4}}>{kidSkin==="cute"?"전설의 파티시에가 되면 열려요!":"전설의 수호자가 되면 열려요!"}</p>
-                      <p style={{fontSize:11,fontWeight:700,margin:0,color:kidSkin!=="cute"?"rgba(200,212,240,0.6)":C.sub,textAlign:"center"}}>Lv.17에 도달하면 특별한 캐릭터로 변신할 수 있어요 ✨</p>
+                      <p style={{fontSize:12.5,fontWeight:900,margin:0,color:kidSkin!=="cute"?CAMP_SHEET.text:C.text,textAlign:"center",lineHeight:1.4}}>{kidSkin==="cute"?"전설의 파티시에가 되면 열려요!":"전설의 수호자가 되면 열려요!"}</p>
+                      <p style={{fontSize:11,fontWeight:700,margin:0,color:kidSkin!=="cute"?CAMP_SHEET.textSub:C.sub,textAlign:"center"}}>Lv.17에 도달하면 특별한 캐릭터로 변신할 수 있어요 ✨</p>
                     </>
                   )}
                 </div>
@@ -130,24 +134,24 @@ export default function DecorShopSheet({
                   const canBuy=coin>=price;
                   // 4단계 상태: 착용중 > 보유 > 구매가능 > 구매불가(코인부족) — 탐험모드 카드/버튼/뱃지 공용
                   const state = equipped?"equipped":owned?"owned":canBuy?"available":"locked";
-                  // 탐험모드: 카드 배경을 네이비로 통일하고 등급은 테두리+glow 로만 표현 (RPG 장비창 느낌)
+                  // 탐험모드: 카드 배경을 흰색으로 통일하고 등급은 테두리로만 표현
                   const dungeon = kidSkin!=="cute";
                   let dr = dungeonDecorRarity(it.rarity);
                   // (통일 규칙) 테두리 아이템도 카드 오라는 등급색만 사용 — 아이템 고유색은 미리보기 썸네일에서만 표현
                   return (
                     <div key={it.id}
                       style={dungeon
-                      ?{background:DUNGEON_DECOR_CARD.cardBg,   // 배경 통일 — 상태·등급은 테두리/뱃지/glow로만
-                        border:`2px solid ${equipped?"#FFD976":dr.border}`,borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 0 22px rgba(255,217,118,.28), 0 6px 16px rgba(8,16,40,0.42), inset 0 1px 0 rgba(255,255,255,0.08)`:`${dr.glow}, 0 6px 16px rgba(8,16,40,0.42), inset 0 1px 0 rgba(255,255,255,0.06)`,opacity:state==="locked"?0.55:1,filter:state==="locked"?"grayscale(.25)":"none",display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden"}
+                      ?{background:DUNGEON_DECOR_CARD.cardBg,   // 배경 통일 — 상태·등급은 테두리/뱃지/그림자로만
+                        border:`2px solid ${equipped?"#E0A106":dr.border}`,borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 0 16px rgba(224,161,6,0.24), 0 4px 14px rgba(0,0,0,0.10)`:`${dr.glow}, 0 3px 10px rgba(0,0,0,0.06)`,opacity:state==="locked"?0.6:1,filter:state==="locked"?"grayscale(.2)":"none",display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden"}
                       :{background:equipped?`${th.main}14`:(owned?`${th.main}08`:C.card),border:`1.5px solid ${equipped?th.main:(owned?th.main+"66":rc+"44")}`,borderRadius:18,padding:"12px 11px",boxShadow:equipped?`0 6px 18px ${th.main}44`:`0 3px 10px ${rc}1f`,display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",overflow:"hidden"}}>
-                      {(it.rarity==="legendary"||it.rarity==="epic")&&<div style={{position:"absolute",inset:0,background:dungeon?`radial-gradient(85% 55% at 50% 0%, ${dr.border}26, transparent 72%)`:`radial-gradient(80% 60% at 50% 0%, ${rc}1a, transparent 70%)`,pointerEvents:"none"}}/>}
+                      {(it.rarity==="legendary"||it.rarity==="epic")&&<div style={{position:"absolute",inset:0,background:dungeon?`radial-gradient(85% 55% at 50% 0%, ${dr.border}1a, transparent 72%)`:`radial-gradient(80% 60% at 50% 0%, ${rc}1a, transparent 70%)`,pointerEvents:"none"}}/>}
                       {/* 상태 뱃지 (우측 상단): 베이커리만 사용. 탐험은 하단 액션 영역에서 표시 */}
                       {!dungeon&&equipped?(
                         <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#0F1220",background:th.main,borderRadius:999,padding:"2px 8px",boxShadow:"0 2px 6px rgba(0,0,0,0.3)"}}>✓ 착용중</span>
                       ):(!dungeon&&owned)?(
                         <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:th.main,background:`${th.main}18`,border:`1px solid ${th.main+"55"}`,borderRadius:999,padding:"2px 8px"}}>📦 보유중</span>
                       ):(dungeon&&equipped)?(
-                        <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#1F2937",background:"#fff",borderRadius:999,padding:"2px 8px",boxShadow:"0 2px 6px rgba(0,0,0,0.35)"}}>✓ 착용중</span>
+                        <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#fff",background:"#E0A106",borderRadius:999,padding:"2px 8px",boxShadow:"0 2px 6px rgba(224,161,6,0.35)"}}>✓ 착용중</span>
                       ):(dungeon&&state==="available")?(
                         <span style={{position:"absolute",top:7,right:7,zIndex:2,fontSize:9.5,fontWeight:900,letterSpacing:0.3,color:"#fff",background:"rgba(78,163,255,.95)",borderRadius:999,padding:"2px 8px",boxShadow:"0 0 12px rgba(78,163,255,.35)"}}>구매 가능</span>
                       ):null}
@@ -159,7 +163,7 @@ export default function DecorShopSheet({
                             미리 보여 준다 — 이모지만 보면 무엇을 사는지 알 수 없다.
                             그림이 아직 없으면 onError 로 이모지 미리보기로 되돌아간다. */}
                         {grp.key==="border"
-                          ? <span style={{width:38,height:38,borderRadius:11,background:dungeon?"#27314F":C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>🧒</span>
+                          ? <span style={{width:38,height:38,borderRadius:11,background:dungeon?"#F3E6C4":C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>🧒</span>
                           : it.img
                             ? <img src={it.img} alt="" draggable={false}
                                 onError={e=>{ e.currentTarget.style.display="none";
@@ -168,7 +172,7 @@ export default function DecorShopSheet({
                             : it.emoji}
                         {it.img&&grp.key!=="border"&&<span style={{display:"none"}}>{it.emoji}</span>}
                       </div>
-                      <p style={{fontSize:12.5,fontWeight:900,margin:0,color:dungeon?"#EAF0FF":C.text,textAlign:"center",lineHeight:1.25}}>{it.name}</p>
+                      <p style={{fontSize:12.5,fontWeight:900,margin:0,color:dungeon?CAMP_SHEET.text:C.text,textAlign:"center",lineHeight:1.25}}>{it.name}</p>
                       <span style={{fontSize:10,fontWeight:900,color:dungeon?dr.badgeText:rc,background:dungeon?dr.badgeBg:`${rc}18`,borderRadius:8,padding:"1px 7px"}}>{DECOR_RARITY[it.rarity]?({common:"일반",rare:"희귀",epic:"영웅",legendary:"전설"}[it.rarity]):"일반"}</span>
                       {/* 액션 버튼 */}
                       {!owned?(
@@ -177,9 +181,9 @@ export default function DecorShopSheet({
                             ?(price===0
                               // 무료: 민트 그라데이션 CTA
                               ?{width:"100%",borderRadius:11,padding:"8px",fontSize:13,fontWeight:900,cursor:"pointer",marginTop:2,
-                                background:"linear-gradient(135deg, rgba(117,235,165,.28), rgba(90,169,255,.18))",
-                                border:"1px solid rgba(117,235,165,.35)",
-                                color:"#EFFFF5",
+                                background:"linear-gradient(135deg, #6FE0A0 0%, #4FC98A 100%)",
+                                border:"1px solid rgba(79,201,138,.5)",
+                                color:"#FFFFFF",
                                 display:"flex",alignItems:"center",justifyContent:"center",gap:5}
                               :state==="available"
                               // 구매 가능: 밝은 파랑 CTA — "누를 수 있음"이 즉시 보이게
@@ -191,9 +195,9 @@ export default function DecorShopSheet({
                                 display:"flex",alignItems:"center",justifyContent:"center",gap:5}
                               // 구매 불가(코인 부족): 확실히 흐리게
                               :{width:"100%",borderRadius:11,padding:"8px",fontSize:13,fontWeight:900,cursor:"not-allowed",marginTop:2,
-                                background:"rgba(255,255,255,.05)",
-                                border:"1px solid rgba(255,255,255,.08)",
-                                color:"rgba(255,255,255,.35)",
+                                background:"#F1E9D3",
+                                border:"1px solid #E4D6AE",
+                                color:"#B8A47C",
                                 display:"flex",alignItems:"center",justifyContent:"center",gap:5})
                             :{width:"100%",border:"none",borderRadius:11,padding:"8px",fontSize:12.5,fontWeight:900,cursor:canBuy?"pointer":"not-allowed",
                               background:canBuy?th.grad:"#E5E7EB",color:canBuy?"#fff":"#9CA3AF",marginTop:2}}>
@@ -207,9 +211,9 @@ export default function DecorShopSheet({
                         <button onClick={()=>onEquip(grp.key,it.id)}
                           style={{width:"100%",borderRadius:11,padding:"8px",fontSize:12.5,fontWeight:900,marginTop:2,cursor:"pointer",
                           display:"flex",alignItems:"center",justifyContent:"center",gap:5,
-                          border:equipped?"1px solid rgba(255,217,118,.38)":"1px solid rgba(117,235,165,.42)",
-                          background:equipped?"rgba(255,217,118,.16)":"linear-gradient(135deg, rgba(75,220,140,.30), rgba(80,190,255,.16))",
-                          color:equipped?"#FFD976":"#B8FFD0"}}>
+                          border:equipped?"1px solid rgba(224,161,6,.45)":"1px solid rgba(79,201,138,.45)",
+                          background:equipped?"rgba(224,161,6,.14)":"rgba(79,201,138,.16)",
+                          color:equipped?"#8A6A1E":"#1E7D4A"}}>
                           {equipped?"✓ 착용중":"착용하기"}
                         </button>
                       ):(
@@ -228,7 +232,7 @@ export default function DecorShopSheet({
             </div>
             );
           })}
-          <p style={{fontSize:11.5,color:kidSkin!=="cute"?"rgba(200,212,240,0.62)":C.sub,textAlign:"center",margin:"20px 0 0",lineHeight:1.5}}>꾸민 모습은 '내 캐릭터' 카드에 바로 나타나요 ✨</p>
+          <p style={{fontSize:11.5,color:kidSkin!=="cute"?CAMP_SHEET.textSub:C.sub,textAlign:"center",margin:"20px 0 0",lineHeight:1.5}}>꾸민 모습은 '내 캐릭터' 카드에 바로 나타나요 ✨</p>
         </div>
       </div>
     </div>
