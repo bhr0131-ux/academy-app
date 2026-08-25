@@ -1,4 +1,4 @@
-import { C } from "../../data/tokens.js";
+import { C, CAMP_SHEET } from "../../data/tokens.js";
 
 /* ════════════════════════════════════════════════════════════════════════
    StreakSheet — 연속 달성 (캐릭터 탭에서 열리는 바텀시트)
@@ -8,8 +8,11 @@ import { C } from "../../data/tokens.js";
    그루터기가 제자리에서 펼쳐지면 장면이 두 동강 나기 때문이다.
 
    이 단계에서는 '담는 그릇'만 바꾼다 — 보여 주는 내용(현재·최고기록 두 칸)은
-   아코디언에 있던 것을 그대로 옮겼다. 색도 그대로다(탐험 스킨=어두운 카드,
-   베이커리 스킨=옅은 카드).
+   아코디언에 있던 것을 그대로 옮겼다.
+
+   [사용자 지적 2026-08-25] "이제 밝은 수채화 그림으로 바꿨는데 이것만 어두워" —
+   탐험(dark) 쪽 헤더·배경·기록 카드를 리스킨 전 어두운 남색 톤에서 CAMP_SHEET
+   밝은 크림 팔레트로 바꿨다. 베이커리(cute) 쪽은 그대로.
 
    props
      open, onClose
@@ -24,15 +27,15 @@ export default function StreakSheet({ open, onClose, dark, streak = 0, best = 0,
 
   /* 아코디언에 있던 두 칸을 그대로 옮긴 것 — 값만 크게 보여 준다 */
   const box = (on) => on
-    ? { background: `linear-gradient(135deg, #2E2740 0%, ${on === "now" ? "#5A3A2A" : "#5E4E28"} 100%)`,
+    ? { background: on === "now" ? "linear-gradient(135deg, #FFF3E4 0%, #FFE4C2 100%)" : "linear-gradient(135deg, #FFF9E4 0%, #FCEBB8 100%)",
         borderRadius: 16, padding: "18px 12px", textAlign: "center",
-        border: `1px solid ${on === "now" ? "rgba(255,176,99,0.34)" : "rgba(255,216,107,0.34)"}`,
-        boxShadow: `0 0 11px ${on === "now" ? "rgba(255,150,70,0.14)" : "rgba(255,216,107,0.15)"} inset, 0 4px 12px rgba(8,16,40,0.4)` }
+        border: `1px solid ${on === "now" ? "rgba(210,130,50,0.35)" : "rgba(200,150,20,0.35)"}`,
+        boxShadow: `0 4px 12px ${on === "now" ? "rgba(210,130,50,0.14)" : "rgba(200,150,20,0.14)"}` }
     : { background: faint, borderRadius: 16, padding: "16px 12px", textAlign: "center", border: `1px solid ${C.border}` };
 
   const cards = [
-    { k: "now",  label: "🔥 현재",   value: streak, labelColor: "rgba(255,205,160,0.9)", numColor: "#FFAE63", glow: "rgba(255,174,99,0.4)" },
-    { k: "best", label: "🏆 최고기록", value: best,   labelColor: "rgba(255,228,160,0.9)", numColor: "#FFD86B", glow: "rgba(255,216,107,0.4)" },
+    { k: "now",  label: "🔥 현재",   value: streak, labelColor: "#A8622A", numColor: "#C2661C" },
+    { k: "best", label: "🏆 최고기록", value: best,   labelColor: "#9C7A0E", numColor: "#B4880A" },
   ];
 
   return (
@@ -40,45 +43,44 @@ export default function StreakSheet({ open, onClose, dark, streak = 0, best = 0,
       background: "rgba(20,16,32,0.55)", backdropFilter: "blur(3px)",
       display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
       <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 460, maxHeight: "88vh",
-        overflow: "hidden", background: dark ? "#20293A" : "#fff", borderRadius: "24px 24px 0 0",
+        overflow: "hidden", background: dark ? CAMP_SHEET.bodyBg : "#fff", borderRadius: "24px 24px 0 0",
         display: "flex", flexDirection: "column", boxShadow: "0 -12px 40px rgba(0,0,0,0.3)" }}>
 
-        {/* 머리 — 캐릭터 탭 카드와 같은 청회색이라 이어지는 느낌을 준다 */}
+        {/* 머리 */}
         <div style={{ padding: "16px 20px 14px",
-          background: dark ? "linear-gradient(160deg, #82A8B5, #71939F)" : "linear-gradient(160deg,#FDE7EF,#F9C5D6)",
-          color: dark ? "#fff" : "#6B4A5C", flexShrink: 0 }}>
+          background: dark ? CAMP_SHEET.headerBg : "linear-gradient(160deg,#FDE7EF,#F9C5D6)",
+          color: dark ? CAMP_SHEET.headerText : "#6B4A5C", flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}>🔥 연속 달성</p>
               <p style={{ margin: "4px 0 0", fontSize: 12.5, fontWeight: 700,
-                color: dark ? "rgba(255,255,255,0.85)" : "#8A6B7A" }}>
+                color: dark ? CAMP_SHEET.headerTextSub : "#8A6B7A" }}>
                 매일 미션을 해내면 며칠 연속인지 쌓여요
               </p>
             </div>
             <button onClick={onClose} aria-label="닫기" style={{ border: "none", cursor: "pointer",
-              background: dark ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.6)",
+              background: dark ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.6)",
               color: dark ? "#fff" : "#6B4A5C", borderRadius: 10, width: 30, height: 30,
               fontSize: 15, fontWeight: 900, flexShrink: 0 }}>✕</button>
           </div>
         </div>
 
         {/* 내용 */}
-        <div style={{ padding: "18px 18px 26px", overflowY: "auto", background: dark ? "#20293A" : "#fff" }}>
+        <div style={{ padding: "18px 18px 26px", overflowY: "auto", background: dark ? CAMP_SHEET.bodyBg : "#fff" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {cards.map(c => (
               <div key={c.k} style={box(dark ? c.k : null)}>
                 <p style={{ fontSize: 12.5, fontWeight: 800, margin: "0 0 6px",
                   color: dark ? c.labelColor : C.sub }}>{c.label}</p>
                 <p style={{ fontSize: dark ? 34 : 28, fontWeight: 900, margin: 0, lineHeight: 1,
-                  color: dark ? c.numColor : (c.k === "best" ? gold : C.text),
-                  textShadow: dark ? `0 0 12px ${c.glow}` : "none" }}>
+                  color: dark ? c.numColor : (c.k === "best" ? gold : C.text) }}>
                   {c.value}<span style={{ fontSize: 15, marginLeft: 3 }}>일</span>
                 </p>
               </div>
             ))}
           </div>
           <p style={{ margin: "16px 2px 0", fontSize: 12.5, fontWeight: 700, lineHeight: 1.6,
-            color: dark ? "rgba(255,255,255,0.7)" : C.sub }}>
+            color: dark ? CAMP_SHEET.textSub : C.sub }}>
             하루라도 미션을 다 못 하면 현재 기록은 0일로 돌아가요. 최고기록은 그대로 남아요.
           </p>
         </div>
