@@ -478,16 +478,15 @@ export const BAKERY_BGS = [
 ];
 // 펫 스킨: 펫이 최종 진화(전설의 드래곤/유니콘) 했을 때 잠금 해제. 장착하면 펫 대신 이 동물 이모지로 보임(완성형).
 // 캐릭터 스킨과 동일한 구조 — petskin:true. 탐험/베이커리 공용 이모지(동물은 두 모드 모두 자연스러움).
-// [사용자 원화 2026-08-25] 4종만 그림을 받았다 — img가 있는 것만 그림으로 그려지고
-// (decorView가 베이커리로 넘어갈 때 img를 걸러내므로 탐험 전용), 나머지 2종(사자·유니콘)은
-// 그림이 올 때까지 이모지 그대로.
+// [사용자 원화 2026-08-25] 6종 전부 그림을 받았다 — decorView가 베이커리로
+// 넘어갈 때 img를 걸러내므로 탐험 전용, 베이커리는 이모지 그대로.
 export const DECOR_PET_SKINS = [
   { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:280, rarity:"rare",      petskin:true, img:"/assets/petskin/fox.webp",       bakery:{ name:"솜사탕 여우" } },
   { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:280, rarity:"rare",      petskin:true, img:"/assets/petskin/panda.webp",     bakery:{ name:"마시멜로 판다" } },
   { id:"pk_rabbit",    emoji:"🐰",   name:"질풍 토끼",     price:380, rarity:"epic",      petskin:true, img:"/assets/petskin/rabbit.webp",    bakery:{ emoji:"🐦", name:"노래하는 새" } },
   { id:"pk_butterfly", emoji:"🦋",   name:"신비한 나비",   price:380, rarity:"epic",      petskin:true, img:"/assets/petskin/butterfly.webp", bakery:{ emoji:"🐰", name:"딸기 토끼" } },
-  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:470, rarity:"legendary", petskin:true, bakery:{ name:"꿀빛 사자" } },
-  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:470, rarity:"legendary", petskin:true, bakery:{ emoji:"🦋", name:"반짝 나비" } },
+  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:470, rarity:"legendary", petskin:true, img:"/assets/petskin/lion.webp",      bakery:{ name:"꿀빛 사자" } },
+  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:470, rarity:"legendary", petskin:true, img:"/assets/petskin/unicorn.webp",   bakery:{ emoji:"🦋", name:"반짝 나비" } },
 ];
 // 베이커리 모드 펫 스킨 표시 순서 (탐험 순서와 분리). 가격·등급은 슬롯(탐험) 값을 그대로 따름.
 // 순서: 솜사탕여우→마시멜로판다→노래하는새→반짝나비→딸기토끼→꿀빛사자

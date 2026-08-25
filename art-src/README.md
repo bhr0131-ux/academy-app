@@ -455,11 +455,11 @@ bbox로 여백만 잘라내고 배포본은 높이 480px로 축소했다(전부 
 | pet/stage4-dragon-src.webp | 4단계 '전설의 드래곤' (1224×1285 → bbox 크롭 1208×1284) | pet/stage4.webp |
 
 **펫 스킨 그림 (사용자 원화 2026-08-25)** — 펫 최종 진화 후 사는 동물 스킨
-6종 중 4종만 그림을 받았다(불꽃 여우·대나무 판다·질풍 토끼·신비한 나비).
-DECOR_PET_SKINS 항목에 `img`를 달면 꾸미기 상점 썸네일·무대 펫·펫 소개
-시트가 전부 자동으로 그림을 쓴다(decorView가 베이커리로 넘어갈 때 img를
-걸러내므로 탐험 전용). 그림 없는 2종(용맹한 사자·전설의 유니콘)은 이모지
-그대로 — img가 없으면 저절로 이모지로 되돌아간다.
+6종 전부 그림을 받았다(불꽃 여우·대나무 판다·질풍 토끼·신비한 나비 →
+용맹한 사자·전설의 유니콘 순으로 두 번에 나눠 받음). DECOR_PET_SKINS
+항목에 `img`를 달면 꾸미기 상점 썸네일·무대 펫·펫 소개 시트가 전부
+자동으로 그림을 쓴다(decorView가 베이커리로 넘어갈 때 img를 걸러내므로
+탐험 전용 — 베이커리는 이모지 그대로).
 
 | 원화 | 용도 | 탑재 에셋 |
 |---|---|---|
@@ -467,4 +467,6 @@ DECOR_PET_SKINS 항목에 `img`를 달면 꾸미기 상점 썸네일·무대 펫
 | petskin/panda-src.webp | 펫 스킨 '대나무 판다' (1254×1254 → bbox 크롭 1194×1175) | petskin/panda.webp |
 | petskin/rabbit-src.webp | 펫 스킨 '질풍 토끼' (1254×1254 → bbox 크롭 1234×1254) | petskin/rabbit.webp |
 | petskin/butterfly-src.webp | 펫 스킨 '신비한 나비' (1350×1165 → bbox 크롭 1312×1114) | petskin/butterfly.webp |
+| petskin/lion-src.webp | 펫 스킨 '용맹한 사자' (1254×1254 → bbox 크롭 1193×1219) | petskin/lion.webp |
+| petskin/unicorn-src.webp | 펫 스킨 '전설의 유니콘' (1254×1254 → bbox 크롭 1127×1248) | petskin/unicorn.webp |
 
