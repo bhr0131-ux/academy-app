@@ -2813,9 +2813,11 @@ export default function App() {
     const eqPetSkin=getEquipped(cid,"petskin");
     if(eqPetSkin&&isMaxPet(cid)){
       const pv=decorView(eqPetSkin,kidSkin);
-      return { ...base, emoji:pv.emoji, name:pv.name };
+      // 스킨은 이모지 전용 아이템이라 img는 비운다 — 그림(PET_STAGE_IMG)을 그대로
+      // 두면 스킨을 사도 화면이 안 바뀐다. img가 없으면 화면은 emoji로 그린다.
+      return { ...base, emoji:pv.emoji, name:pv.name, img:null };
     }
-    return base;
+    return { ...base, img:kidSkin!=="cute"?(PET_STAGE_IMG[st]||null):null };
   };
 
   // ── 꾸미기(데코) 헬퍼 ──
@@ -4190,6 +4192,7 @@ export default function App() {
         {/* 나의 펫 시트 — 캐릭터 탭 '나의 펫' 카드에서 연다 */}
         <PetSheet open={openPet} onClose={()=>setOpenPet(false)}
           dark={kidSkin!=="cute"} stage={getPetStage(childId)} skin={kidSkin}
+          pet={getPet(childId)}
           themeMain={th.main} boxName={TM.box} boxEmoji={TM.boxEmoji} />
         {/* 보물창고 시트 — 캐릭터 탭 '보물창고' 카드에서 연다 */}
         <TreasureSheet open={openTreasure} onClose={()=>setOpenTreasure(false)}
