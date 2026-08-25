@@ -13,14 +13,17 @@ import { PET_STAGES, petView, PET_STAGE_IMG } from "../../data/gameData.jsx";
      dark    : 탐험 스킨이면 true
      stage   : getPetStage(childId)
      skin    : kidSkin ("dungeon" | "cute") — petView 분기용
+     pet     : App의 getPet(childId) 결과 {emoji,name,desc,img,stage} — 있으면 이걸 그대로
+               쓴다. 펫 스킨을 장착했으면(완성형) img가 비어 있어 스킨 이모지로 그려진다.
+               안 주면(구버전 호환) 이 컴포넌트가 직접 petView로 계산한다 — 스킨은 반영 안 됨.
      themeMain : th.main (배경 그라데이션에 살짝 섞는 테마색)
      boxName, boxEmoji : TM.box / TM.boxEmoji (스킨별 상자 이름)
    ════════════════════════════════════════════════════════════════════════ */
-export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dungeon",
+export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dungeon", pet: petProp,
   themeMain = "#60A8FF", boxName = "보물상자", boxEmoji = "🎁" }) {
   if (!open) return null;
 
-  const pet = petView(PET_STAGES[stage], stage, skin);
+  const pet = petProp || petView(PET_STAGES[stage], stage, skin);
   const isMax = stage >= PET_STAGES.length - 1;
   const cute = skin === "cute";
 
@@ -64,8 +67,8 @@ export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dunge
                 backgroundImage: `radial-gradient(1.5px 1.5px at 20% 25%, rgba(255,255,255,0.9), transparent), radial-gradient(1.3px 1.3px at 75% 20%, rgba(255,209,102,0.9), transparent), radial-gradient(1.2px 1.2px at 85% 60%, rgba(255,255,255,0.6), transparent), radial-gradient(1.4px 1.4px at 35% 78%, rgba(180,220,255,0.8), transparent)` }} />
             )}
             <div style={{ position: "relative" }}>
-              {!cute && PET_STAGE_IMG[stage] ? (
-                <img src={PET_STAGE_IMG[stage]} alt={pet.name} draggable={false}
+              {!cute && pet.img ? (
+                <img src={pet.img} alt={pet.name} draggable={false}
                   style={{ display: "block", height: 64, width: "auto", margin: "0 auto 8px",
                     filter: "drop-shadow(0 0 8px rgba(255,220,120,0.8))" }}/>
               ) : (
