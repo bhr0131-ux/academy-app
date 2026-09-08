@@ -378,9 +378,13 @@ export const DECOR_HATS = [
 export const BAKERY_HAT_ORDER = ["hat_light","hat_tophat","hat_star","hat_axe","hat_goggles","hat_flame"];
 export const BAKERY_HAT_PRICE = { hat_light:0, hat_tophat:80, hat_star:270, hat_axe:400, hat_goggles:580, hat_flame:870 };
 export const BAKERY_HAT_RARITY = { hat_light:"common", hat_tophat:"common", hat_star:"rare", hat_axe:"rare", hat_goggles:"epic", hat_flame:"legendary" };
+/* [사용자 확정 2026-08-26] 테두리는 상점에서 삭제됐다 —
+   "구매하는 테두리는 장착했을때 지금 배경에 안어울리는것같아".
+   목록은 남겨 둔다: 이미 산 아이의 코인을 App 로드 시 이 가격으로 돌려주기 때문
+   (모자(hat) 때와 같은 방식). 화면 어디에도 그리지 않는다.
+   ※ themed(테마색 입히기) 런타임 생성기 themedBorder() 는 함께 삭제했다. */
 export const DECOR_BORDERS = [
   // 테두리 4종 — 테마색(탐험:다이아 / 베이커리:루비) · 실버 · 골드 · 무지개
-  // 테마 테두리: 아이가 고른 테마색(분홍/살구/연두/보라/파랑)을 그대로 따라간다. grad·glow 는 런타임에 themedBorder() 가 생성.
   { id:"bd_theme",   emoji:"💎", name:"테마",    price:120, rarity:"rare",      shimmer:true, themed:true, grad:"linear-gradient(115deg,#22D3EE 0%,#A5F3FC 22%,#FFFFFF 40%,#7DD3FC 58%,#67E8F9 76%,#C7F9FF 92%,#38BDF8 100%)", glow:"rgba(34,211,238,0.72)", glowCute:"rgba(120,200,220,0.36)" },
   { id:"bd_silver",  emoji:"🥈", name:"실버",    price:220, rarity:"rare",      shimmer:true, grad:"linear-gradient(115deg,#8A909C 0%,#C7CCD4 20%,#FFFFFF 38%,#D5D9E0 52%,#9CA3AF 70%,#EAECF0 86%,#B6BBC4 100%)", glow:"rgba(190,196,206,0.7)", glowCute:"rgba(150,156,168,0.35)" },
   { id:"bd_gold",    emoji:"🥇", name:"골드",    price:400, rarity:"epic",      shimmer:true, grad:"linear-gradient(115deg,#C8860B 0%,#F5C542 18%,#FFF6C9 36%,#FBD24E 52%,#E0A21A 70%,#FFE89B 86%,#D9A323 100%)", glow:"rgba(245,180,30,0.78)", glowCute:"rgba(232,165,40,0.4)" },
@@ -493,7 +497,7 @@ export const DECOR_PET_SKINS = [
 export const BAKERY_PETSKIN_ORDER = ["pk_fox","pk_panda","pk_rabbit","pk_dragon","pk_butterfly","pk_lion"];
 export const DECOR_GROUPS = [
   { key:"hat",     label:"모자",     icon:"🎩", items:DECOR_HATS },
-  { key:"border",  label:"테두리",   icon:"💎", items:DECOR_BORDERS },
+  { key:"border",  label:"테두리",   icon:"💎", items:DECOR_BORDERS },   // 상점에서 제외 (환불 계산용으로만 남김)
   { key:"bg",      label:"배경",     icon:"🌸", items:DECOR_BGS },
   { key:"petskin", label:"펫",       icon:"🐾", items:DECOR_PET_SKINS, lockUntilMaxPet:true },
 ];
