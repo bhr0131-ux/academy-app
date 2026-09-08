@@ -654,43 +654,52 @@ export default function App() {
       const avMode=await load(CHAR_DISPLAY_MODE_KEY);
       const savedSkinMap=await load("v6_kid_skin_map"); // 아이별 스킨 맵 (신규)
       const savedSkin=await load("v6_kid_skin");         // 단일 스킨 (구버전, 마이그레이션용)
-      // ── 구 '꾸미기 상점'의 장비/모자(hat) 카테고리 제거: 보유 기록 삭제 + 코인 환불 ──
-      //  신규 '아바타 꾸미기'와 중복되어 이 상점에서 뺐으므로, 이미 구매한 아이의 코인을 돌려준다.
-      //  가격은 아이 스킨(탐험/베이커리)·부모 오버라이드(decPrices)를 반영해 산정.
-      //  멱등: 보유목록에서 hat 아이템을 지우고 즉시 저장하므로 다음 실행에선 환불 대상이 없다.
+      // ── 구 '꾸미기 상점'에서 뺀 카테고리(hat·border) 제거: 보유 기록 삭제 + 코인 환불 ──
+      //  hat    : 신규 '아바타 꾸미기'와 중복되어 제외.
+      //  border : [사용자 확정 2026-08-26] "구매하는 테두리는 장착했을때 지금 배경에
+      //           안어울리는것같아" → '삭제'. 무대를 감싸던 프레임이 수채화 배경과 겉돌았다.
+      //  이미 구매한 아이의 코인은 돌려준다. 가격은 아이 스킨(탐험/베이커리)·부모
+      //  오버라이드(decPrices)를 반영해 산정 (베이커리 슬롯가는 모자에만 있다).
+      //  멱등: 보유목록에서 해당 아이템을 지우고 즉시 저장하므로 다음 실행에선 환불 대상이 없다.
       //  (avRefunds 반영부에서 코인+내역 처리 — RETIRED_AVATAR_ITEMS 방식과 동일)
+      //  ※ 저장 키(v6_owned_decor / v6_equipped_decor)와 save/load 로직은 그대로다 —
+      //    지워지는 것은 은퇴한 아이템 id뿐이다 (CLAUDE.md 8).
       {
         const hatItems=(DECOR_GROUPS.find(g=>g.key==="hat")?.items)||[];
+        const borderItems=(DECOR_GROUPS.find(g=>g.key==="border")?.items)||[];
         const hatIdSet=new Set(hatItems.map(h=>h.id));
-        const hatPriceFor=(id,skin)=>{
+        const retiredItems=[...hatItems,...borderItems];
+        const retiredIdSet=new Set(retiredItems.map(h=>h.id));
+        const retiredPriceFor=(id,skin)=>{
           const ov=decPrices?.[id];
           if(ov===0||ov>0) return Number(ov);                 // 부모 오버라이드 우선
-          const base=hatItems.find(h=>h.id===id);
+          const base=retiredItems.find(h=>h.id===id);
           if(!base) return 0;
-          return skin==="cute" ? (BAKERY_HAT_PRICE[id]??base.price) : base.price;
+          return (skin==="cute"&&hatIdSet.has(id)) ? (BAKERY_HAT_PRICE[id]??base.price) : base.price;
         };
         if(ownedDec && typeof ownedDec==="object"){
-          let hatTouched=false;
+          let retiredTouched=false;
           const cleanedOwnedDec={};
           for(const dcid of Object.keys(ownedDec)){
             const list=Array.isArray(ownedDec[dcid])?ownedDec[dcid]:[];
             const skin=(savedSkinMap&&savedSkinMap[dcid])||savedSkin||DEFAULT_SKIN;
             const kept=[]; let refund=0;
             for(const id of list){
-              if(hatIdSet.has(id)){ refund+=hatPriceFor(id,skin); hatTouched=true; }
+              if(retiredIdSet.has(id)){ refund+=retiredPriceFor(id,skin); retiredTouched=true; }
               else kept.push(id);
             }
             cleanedOwnedDec[dcid]=kept;
             if(refund>0){ avRefunds=avRefunds||{}; avRefunds[dcid]=(avRefunds[dcid]||0)+refund; }
           }
-          if(hatTouched){
+          if(retiredTouched){
             ownedDec=cleanedOwnedDec;
             save("v6_owned_decor",cleanedOwnedDec);           // 즉시 저장 → 중복 환불 방지
-            if(equipDec && typeof equipDec==="object"){        // 장착된 hat 슬롯도 정리
+            if(equipDec && typeof equipDec==="object"){        // 장착된 hat·border 슬롯도 정리
               const cleanedEqDec={};
               for(const ecid of Object.keys(equipDec)){
                 const m=(equipDec[ecid]&&typeof equipDec[ecid]==="object")?{...equipDec[ecid]}:{};
                 if("hat" in m) delete m.hat;
+                if("border" in m) delete m.border;
                 cleanedEqDec[ecid]=m;
               }
               equipDec=cleanedEqDec;
@@ -2907,34 +2916,12 @@ export default function App() {
   };
 
   // 현재 장착 데코 객체 조회 (스킨 반영). 없으면 null
-  // ── 테마 테두리 색 생성 ──
-  //  아이가 고른 테마색(th.main)을 기준으로 보석 느낌의 광택 그라데이션을 만든다.
-  //  밝은 하이라이트(흰색) → 원색 → 진한 톤 순으로 섞어 금속/보석 광택을 재현.
-  const themedBorder = (d, theme) => {
-    if(!d || !d.themed || !theme?.main) return d;
-    const m = theme.main;
-    const lite = mixWhite(m, 0.55);   // 밝은 톤
-    const pale = mixWhite(m, 0.82);   // 하이라이트
-    const deep = mixBlack(m, 0.22);   // 진한 톤
-    return {
-      ...d,
-      /* 이름 없는 테마가 또 들어와도 "undefined 보석"이 되지 않게 받쳐 둔다
-         (GENDER_THEME 에 name 이 없어서 실제로 그렇게 나왔었다) */
-      name: theme.name ? `${theme.name} 보석` : "테마 보석",
-      grad: `linear-gradient(115deg, ${deep} 0%, ${lite} 22%, ${pale} 40%, ${m} 58%, ${lite} 76%, ${pale} 92%, ${deep} 100%)`,
-      glow: `${m}b8`,
-      glowCute: `${m}66`,
-    };
-  };
-
   const getEquipped=(cid,groupKey)=>{
     const id=(equippedDecor[cid]||{})[groupKey];
-    let d=id?decorView(getDecorById(id),kidSkin):null;
-    // 모자/장비 카테고리는 두 모드 모두 상점에서 제거됨 → 이미 장착된 데이터가 있어도 표시하지 않는다.
-    // (장착 데이터 자체는 지우지 않아 되돌리기 쉬움)
-    if(d&&groupKey==="hat") return null;
-    // 테마 테두리는 그 아이의 테마색으로 색을 입힌다
-    if(d&&d.themed) d=themedBorder(d, getChildTheme(children.find(c=>c.id===cid)));
+    const d=id?decorView(getDecorById(id),kidSkin):null;
+    // 모자/장비(hat)·테두리(border) 카테고리는 상점에서 제거됨 → 이미 장착된 데이터가
+    // 남아 있어도 표시하지 않는다. (장착 데이터 자체는 지우지 않아 되돌리기 쉬움)
+    if(d&&(groupKey==="hat"||groupKey==="border")) return null;
     return d;
   };
   const getOwnedCount=(cid)=>(ownedDecor[cid]||[]).length;
@@ -4143,7 +4130,6 @@ export default function App() {
           equipped={equippedDecor[childId]||{}}
           isOwned={(id)=>isDecorOwned(childId,id)}
           priceOf={getDecorPrice}
-          themedBorder={themedBorder}
           maxPet={isMaxPet(childId)}
           onBuy={buyDecor}
           onEquip={toggleEquipDecor}

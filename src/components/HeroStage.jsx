@@ -1,5 +1,5 @@
 import AvatarViewer from "./AvatarViewer.jsx";
-import { mixWhite, mixBlack, dungeonTone } from "../data/tokens.js";
+import { mixWhite, mixBlack } from "../data/tokens.js";
 import { ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_CHAR_SIZE, BAKERY_CHAR_SIZE, AVATAR_HOME_SIZE, ADV_CHAR_STAGE_OF, TITLE_RARITY } from "../data/characters.js";
 import { CHAR_DISPLAY_AVATAR } from "../data/avatarEquipment.js";
 import { getDiscovery, getDiscoveryOn } from "../data/discoveries.js";
@@ -43,9 +43,11 @@ export default function HeroStage({ D }) {
           const title=getSelectedTitle(childId);
           const cute=kidSkin==="cute";
           const stageBgDeco=getEquipped(childId,"bg");
-          const stageBorder=getEquipped(childId,"border");
-          // 테두리 빛번짐(glow) — 베이커리(밝은 무대)에선 채도 낮은 glowCute 사용 + 번짐 약하게
-          const bGlow=stageBorder?((cute&&stageBorder.glowCute)?stageBorder.glowCute:stageBorder.glow):null;
+          /* [사용자 확정 2026-08-26] 꾸미기 상점의 '테두리'는 삭제했다 —
+             "구매하는 테두리는 장착했을때 지금 배경에 안어울리는것같아".
+             무대를 감싸던 4px 프레임·글로우·반짝임 스윕과, 프레임을 돋보이게
+             하려고 무대 안쪽을 어둡게 깔던 stageBg 분기까지 함께 걷어냈다.
+             (수채화 원화 배경이 항상 그대로 보인다.) */
           // 진행도에 따른 말풍선 멘트 + 캐릭터 기분
           const msg=getProgressMessage(q.percent,q.total);
           const allDone=q.total>0&&q.percent===100;
@@ -55,40 +57,23 @@ export default function HeroStage({ D }) {
           // 무대 배경: 탐험은 다크 샤이니, 베이커리는 따뜻한 크림 스포트라이트
           const stageBg=cute
             ?`radial-gradient(120% 95% at 50% 5%, #ffffff, ${mixWhite(th.main,0.5)} 50%, ${mixWhite(th.main,0.38)})`
-            :(stageBorder
-                // 테두리 장착 시: 안쪽을 테마색 머금은 한 톤 밝은 다크로 → 화려한 프레임이 돋보임
-                ?`radial-gradient(125% 100% at 50% 0%, ${th.main}4a 0%, ${dungeonTone(th.main,40)} 42%, ${dungeonTone(th.main,22)} 100%)`
-                :`radial-gradient(120% 95% at 50% -10%, ${th.main}40 0%, transparent 55%), ${dungeonShinyBg}`);
+            :`radial-gradient(120% 95% at 50% -10%, ${th.main}40 0%, transparent 55%), ${dungeonShinyBg}`;
           // 무대 위 스포트라이트(캐릭터를 비추는 빛) — 탐험은 위쪽에 따뜻한 골드 광원을 더해 차가운 블루 단조로움을 풀고 생기를 줌
           const spotlight=cute
             ?"radial-gradient(ellipse 60% 50% at 50% 62%, rgba(255,255,255,0.55), transparent 70%)"
             :`radial-gradient(ellipse 70% 42% at 50% 30%, ${GP.gold||"#FFD166"}30, transparent 68%), radial-gradient(ellipse 58% 48% at 50% 60%, ${th.main}3d, transparent 72%)`;
-          // 탐험(개방감): 테두리 장착 시에도 풀블리드 유지 — 프레임은 화면 가장자리 4px 림 + 글로우로만 표현
+          // 탐험(개방감): 무대는 늘 풀블리드 — 감싸는 프레임 없음
           return (
-            <div style={{position:"relative",zIndex:1,margin:cute?"16px 16px 0":"0",borderRadius:cute?34:"0",padding:stageBorder?4:0,overflow:"hidden",
-              background:stageBorder?stageBorder.grad:"transparent",
-              backgroundSize:stageBorder&&(stageBorder.shimmer||stageBorder.rainbow)?"260% 260%":"100% 100%",
-              boxShadow:stageBorder?(cute?`0 10px 26px ${bGlow}, 0 0 14px ${bGlow}`:`0 14px 36px ${bGlow}, 0 0 26px ${bGlow}`):"none",
-              animation:stageBorder&&stageBorder.rainbow
-                ?"rainbowFlow 4s linear infinite"
-                :stageBorder&&stageBorder.shimmer
-                  ?"metalShine 4s linear infinite"
-                  :"none"}}>
-              {/* 반짝이 프레임 광택 스윕 (실버/골드/루비/레전드) */}
-              {stageBorder&&(stageBorder.shimmer||stageBorder.rainbow)&&(
-                <div style={{position:"absolute",inset:0,borderRadius:"inherit",pointerEvents:"none",zIndex:0,overflow:"hidden"}}>
-                  <div style={{position:"absolute",top:0,left:"-40%",width:"45%",height:"100%",background:`linear-gradient(105deg, transparent, rgba(255,255,255,${cute?0.6:0.85}), transparent)`,transform:"skewX(-18deg)",willChange:"transform",animation:"shineMove 4s ease-in-out infinite"}}/>
-                </div>
-              )}
-            <div className={cute?undefined:(stageBorder?"amStageFill amStageFillBd":"amStageFill")}
-              style={{position:"relative",borderRadius:cute?(stageBorder?30:34):"0",padding:cute?"18px 18px 16px":"120px 18px 26px",overflow:"hidden",
-              // 목업형(탐험): 테두리 장착 여부와 무관하게 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림
+            <div style={{position:"relative",zIndex:1,margin:cute?"16px 16px 0":"0",borderRadius:cute?34:"0",overflow:"hidden"}}>
+            <div className={cute?undefined:"amStageFill"}
+              style={{position:"relative",borderRadius:cute?34:"0",padding:cute?"18px 18px 16px":"120px 18px 26px",overflow:"hidden",
+              // 목업형(탐험): 장면이 화면 높이를 채우고 캐릭터는 하단 정렬 → 하늘이 넓게 열림
               // 높이는 index.html의 .amStageFill(=화면 높이 − 시트 머리)로 준다 — 첫 화면이 탭 줄에서 딱 끝나게.
               ...(!cute?{display:"flex",flexDirection:"column",justifyContent:"flex-end",boxSizing:"border-box"}:{}),
               contain:"paint",   // 카드 내부의 애니메이션 리페인트를 카드 안으로 격리 → 헤더 등 바깥 UI 페인트 지연 방지
               background:stageBg,
-              // 탐험(개방감): 테두리 없이 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
-              border:stageBorder?"none":(cute?"2px solid #fff":"none"),
+              // 탐험(개방감): 화면 끝까지. 베이커리: 기존 카드형(흰 테두리) 유지
+              border:cute?"2px solid #fff":"none",
               boxShadow:cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:"none"}}>
               {/* 탐험 기본 풍경 (밤·숲속 캠프) — 배경 꾸미기 미장착 시 기본 배경으로 */}
               {!cute&&!stageBgDeco&&<DungeonScenery/>}

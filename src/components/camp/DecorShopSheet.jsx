@@ -22,32 +22,37 @@ import {
    밝은 팔레트로 바꿨다 — "이제 밝은 수채화 그림으로 바꿨는데 이것만 어두워".
    구조·로직은 그대로, 색 값만 남색→크림으로.
 
-   [사용자 확정 2026-08-26] 들어가면 테두리·배경·펫은 바로 사고, 아바타
+   [사용자 확정 2026-08-26] 들어가면 배경·펫은 바로 사고, 아바타
    꾸미기(모자·옷·신발)만 카드 한 번 더 눌러야 열리던 게 안 맞았다 —
    "버튼을 크게 두종류로 나눠서 아바타꾸미기 / 배경꾸미기로 누를수있게
-   하고, 배경꾸미기 안에 테두리,배경,펫을 넣으면 어때?" 그대로 반영.
+   하고, 배경꾸미기 안에 배경,펫을 넣으면 어때?" 그대로 반영.
    이제 첫 화면은 큰 버튼 두 개(아바타 꾸미기 · 배경 꾸미기)뿐이고,
-   '배경 꾸미기'를 누르면 테두리·배경·펫 그리드(예전 본문)가 이 시트
+   '배경 꾸미기'를 누르면 배경·펫 그리드(예전 본문)가 이 시트
    안에서 열린다 — '아바타 꾸미기'는 예전처럼 별도 모달(EquipmentShop)로.
    두 길 다 "한 번 더 누른다"로 대칭이 맞다.
+
+   [사용자 확정 2026-08-26] 테두리(border) 카테고리는 상점에서 뺐다 —
+   "구매하는 테두리는 장착했을때 지금 배경에 안어울리는것같아" → '삭제'.
+   무대를 감싸던 프레임이 수채화 원화 배경과 겉돌았다. hat 때와 같은
+   방식으로 UI만 빼고 데이터·저장 로직(v6_owned_decor/v6_equipped_decor)은
+   그대로 두었으며, 이미 산 아이에게는 App 로드 시 코인을 돌려준다.
 
    props
      open, onClose
      kidSkin, th, TM         스킨·테마·표기 토큰
      coin                    보유 코인
-     ownedCount              꾸미기 보유 개수 (테두리·배경·펫 합산 — '배경 꾸미기' 카드 배지)
+     ownedCount              꾸미기 보유 개수 (배경·펫 합산 — '배경 꾸미기' 카드 배지)
      avatarOwnedCount        아바타 파츠 보유 개수 ('아바타 꾸미기' 카드 배지)
      equipped                { 그룹키: 아이템id } 착용 중인 것
      isOwned(id)             보유 여부
      priceOf(item)           판매가 (부모가 고친 값이 있으면 그 값)
-     themedBorder(item, th)  테마색을 입힌 테두리 아이템
      maxPet                  펫이 최종 진화했는가 (펫 스킨 잠금 해제 조건)
      onBuy(rawItem) · onEquip(그룹키, id) · onOpenAvatarShop()
    ════════════════════════════════════════════════════════════════════════ */
 export default function DecorShopSheet({
   open, onClose, kidSkin = "dungeon", th, TM,
   coin = 0, ownedCount = 0, avatarOwnedCount = 0, equipped = {},
-  isOwned = () => false, priceOf = (it) => it.price, themedBorder = (it) => it,
+  isOwned = () => false, priceOf = (it) => it.price,
   maxPet = false, onBuy, onEquip, onOpenAvatarShop,
 }) {
   /* 첫 화면은 늘 '고르기'(picker) — 시트를 새로 열 때마다 되돌아온다.
@@ -114,15 +119,15 @@ export default function DecorShopSheet({
               <span style={{fontSize:34,flexShrink:0}}>🌈</span>
               <span style={{flex:1,minWidth:0}}>
                 <span style={{display:"block",fontSize:17,fontWeight:900,color:cute?C.text:"#FFFFFF"}}>배경 꾸미기</span>
-                <span style={{display:"block",fontSize:12.5,fontWeight:800,color:cute?C.sub:"rgba(255,255,255,0.85)",marginTop:3}}>테두리·배경·펫을 꾸며요 · {ownedCount}개 보유</span>
+                <span style={{display:"block",fontSize:12.5,fontWeight:800,color:cute?C.sub:"rgba(255,255,255,0.85)",marginTop:3}}>배경·펫을 꾸며요 · {ownedCount}개 보유</span>
               </span>
               <span style={{fontSize:19,color:cute?C.sub:"rgba(255,255,255,0.85)",flexShrink:0}}>›</span>
             </button>
           </div>
         ) : (
-        /* 본문: 카테고리별 (배경 꾸미기 — 테두리·배경·펫) */
+        /* 본문: 카테고리별 (배경 꾸미기 — 배경·펫) */
         <div style={{padding:"6px 16px 26px"}}>
-          {DECOR_GROUPS.filter(grp=>grp.key!=="hat").map(grp=>{   // 모자/장비(hat) 카테고리는 '아바타 꾸미기'와 중복되어 이 상점에서 제외(데이터·저장 로직은 유지)
+          {DECOR_GROUPS.filter(grp=>grp.key!=="hat"&&grp.key!=="border").map(grp=>{   // 모자/장비(hat)는 '아바타 꾸미기'와 중복, 테두리(border)는 수채화 배경과 안 어울려 제외 — 둘 다 데이터·저장 로직은 유지
             const grpLocked = grp.lockUntilMaxPet && !maxPet;   // 펫 스킨만 잠금 대상(캐릭터 스킨은 폐지)
             return (
             <div key={grp.key} style={{marginTop:18}}>
@@ -154,10 +159,6 @@ export default function DecorShopSheet({
                     items=BAKERY_HAT_ORDER.map(id=>grp.items.find(it=>it.id===id)).filter(Boolean)
                       .map(it=>({ ...it, price:BAKERY_HAT_PRICE[it.id]??it.price, rarity:BAKERY_HAT_RARITY[it.id]||it.rarity }));
                   }
-                  // 테두리 그룹: 'themed' 아이템은 이 아이의 테마색으로 색을 입혀 미리보기에도 반영
-                  if(grp.key==="border"){
-                    items=items.map(it=> it.themed ? themedBorder(it, th) : it);
-                  }
                   // 베이커리 모드의 '배경'은 전용 6슬롯 배열을 사용(탐험 4슬롯과 분리)
                   if(cute && grp.key==="bg"){
                     items=BAKERY_BGS;
@@ -179,7 +180,6 @@ export default function DecorShopSheet({
                   // 탐험모드: 카드 배경을 흰색으로 통일하고 등급은 테두리로만 표현
                   const dungeon = !cute;
                   let dr = dungeonDecorRarity(it.rarity);
-                  // (통일 규칙) 테두리 아이템도 카드 오라는 등급색만 사용 — 아이템 고유색은 미리보기 썸네일에서만 표현
                   return (
                     <div key={it.id}
                       style={dungeon
@@ -199,20 +199,18 @@ export default function DecorShopSheet({
                       ):null}
                       {/* 미리보기 */}
                       <div style={{position:"relative",width:54,height:54,borderRadius:16,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,
-                        background:grp.key==="bg"?`radial-gradient(circle at 50% 40%, ${it.tint||rc+"22"}, ${dungeon?DUNGEON_DECOR_CARD.previewBg:C.faint})`:(grp.key==="border"?it.grad:(dungeon?DUNGEON_DECOR_CARD.previewBg:C.faint)),
-                        border:grp.key==="border"?"none":`1px solid ${dungeon?DUNGEON_DECOR_CARD.previewBorder:C.border}`,boxShadow:grp.key==="border"?`0 0 12px ${(cute&&it.glowCute)?it.glowCute:it.glow}`:"none"}}>
+                        background:grp.key==="bg"?`radial-gradient(circle at 50% 40%, ${it.tint||rc+"22"}, ${dungeon?DUNGEON_DECOR_CARD.previewBg:C.faint})`:(dungeon?DUNGEON_DECOR_CARD.previewBg:C.faint),
+                        border:`1px solid ${dungeon?DUNGEON_DECOR_CARD.previewBorder:C.border}`}}>
                         {/* [사용자 확정 2026-08-11] 원화가 있는 배경(it.img)은 상점에서도 그 그림으로
                             미리 보여 준다 — 이모지만 보면 무엇을 사는지 알 수 없다.
                             그림이 아직 없으면 onError 로 이모지 미리보기로 되돌아간다. */}
-                        {grp.key==="border"
-                          ? <span style={{width:38,height:38,borderRadius:11,background:dungeon?"#F3E6C4":C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>🧭</span>
-                          : it.img
-                            ? <img src={it.img} alt="" draggable={false}
-                                onError={e=>{ e.currentTarget.style.display="none";
-                                  if(e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display=""; }}
-                                style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",borderRadius:16}}/>
-                            : it.emoji}
-                        {it.img&&grp.key!=="border"&&<span style={{display:"none"}}>{it.emoji}</span>}
+                        {it.img
+                          ? <img src={it.img} alt="" draggable={false}
+                              onError={e=>{ e.currentTarget.style.display="none";
+                                if(e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display=""; }}
+                              style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",borderRadius:16}}/>
+                          : it.emoji}
+                        {it.img&&<span style={{display:"none"}}>{it.emoji}</span>}
                       </div>
                       <p style={{fontSize:12.5,fontWeight:900,margin:0,color:dungeon?CAMP_SHEET.text:C.text,textAlign:"center",lineHeight:1.25}}>{it.name}</p>
                       <span style={{fontSize:10,fontWeight:900,color:dungeon?dr.badgeText:rc,background:dungeon?dr.badgeBg:`${rc}18`,borderRadius:8,padding:"1px 7px"}}>{DECOR_RARITY[it.rarity]?({common:"일반",rare:"희귀",epic:"영웅",legendary:"전설"}[it.rarity]):"일반"}</span>
