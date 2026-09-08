@@ -16,6 +16,16 @@ import {
      · 장비: imgGirl(여아 전용, 있을 때) → img → 슬롯별 emojiPos 위치에 대표 이모지
      · 베이스: 몸통+머리 2장 → (로드 실패 시) 합본 1장 → baseCharImg(성장 3단계) → 이모지
 
+   속옷 가리기 [사용자 지적 2026-08-26: "아바타 속옷만 입는 모습 안보이게"]
+     베이스 몸통(v7)은 속옷 차림이고 옷은 그 위에 얹는 별개 레이어다. 그런데 몸통과
+     옷을 각각 독립 <img>로 그려서, 캐시가 없는 첫 진입에선 몸통이 먼저 뜨고 옷이
+     한 박자 늦게 붙었다 — 그 사이 속옷 차림이 그대로 보였다(실측 0.35초 지점).
+     그래서 몸을 가리는 옷(상의·하의)이 '실제로 로드된 뒤에' 캐릭터를 한꺼번에
+     그린다. 로드 실패도 완료로 쳐서(onerror) 그림이 없는 아이템 때문에 캐릭터가
+     영영 안 나오는 일은 없다. 배경은 기다리지 않고 먼저 깔린다.
+     ※ 벗기로 속옷이 되는 길은 이미 막혀 있다 — 기본 지급 옷(starter)은 벗을 수 없고
+       (computeAvatarEquipToggle), 슬롯이 비면 normalizeEquipped 가 다시 채운다.
+
    머리 숨김
      hidesHead가 붙은 장비(모자 등)를 착용하면 베이스의 '머리' 장을 아예 안 그린다.
      그 장비 그림이 모자와 얼굴을 함께 담고 있어 머리를 대신하기 때문. 예전처럼 베이스
@@ -211,6 +221,35 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
   }, [hidesHeadSrc]);
   const hideHead = !!hidesHeadSrc && readySrc === hidesHeadSrc;
 
+  /* ── 속옷 가림: 상의·하의 그림이 다 준비될 때까지 캐릭터를 감춘다 ──
+     베이스 몸통이 속옷 차림이라, 옷보다 몸통이 먼저 그려지면 그 사이가 보인다.
+     (한 벌 옷을 입으면 하의 장이 아예 없으므로 기다릴 대상에서도 자동으로 빠진다) */
+  const coverSrcs = layers
+    .filter((l) => l.slot === "top" || l.slot === "bottom")
+    .map((l) => equipSrc(l.item, gender))
+    .filter(Boolean);
+  const coverKey = coverSrcs.join("|");
+  const [coveredKey, setCoveredKey] = useState("");
+  useEffect(() => {
+    if (!coverKey) { setCoveredKey(""); return; }   // 기다릴 옷이 없으면 그냥 그린다
+    let alive = true, left = coverSrcs.length;
+    const done = () => { if (alive && --left <= 0) setCoveredKey(coverKey); };
+    for (const src of coverSrcs) {
+      const im = new Image();
+      let fired = false;
+      const once = () => { if (!fired) { fired = true; done(); } };
+      im.onload = once;
+      im.onerror = once;   // 실패해도 완료로 친다 — 그림 없는 옷 때문에 영영 안 나오면 안 된다
+      im.src = "/" + src.replace(/^\/+/, "");
+      if (im.complete && im.naturalWidth > 0) once();   // 캐시된 경우 즉시
+    }
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coverKey]);
+  /* 옷이 준비되기 전에는 캐릭터·그림자·장비를 통째로 숨긴다 (배경은 그대로 둔다).
+     display가 아니라 visibility라 자리·z 순서는 그대로여서 나타날 때 흔들림이 없다. */
+  const charVis = { visibility: coveredKey === coverKey ? "visible" : "hidden" };
+
   return (
     <div
       style={{
@@ -234,14 +273,16 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
         />
       )}
       {/* 접지 그림자 — 배경 위, 베이스 캐릭터 아래 */}
-      {showShadow && <GroundShadow size={size} soleY={soleY} />}
+      {showShadow && <div style={charVis}><GroundShadow size={size} soleY={soleY} /></div>}
       {/* 뒤쪽 레이어(배경·등 장비) → 베이스 캐릭터 → 앞쪽 레이어 순서로 z 배치 */}
       {layers.map((layer) => (
-        <div key={layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex }}>
+        /* 배경 슬롯은 몸을 가리는 것과 무관하므로 기다리지 않고 먼저 깔린다 */
+        <div key={layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex,
+          ...(layer.slot === "background" ? null : charVis) }}>
           <AvatarLayer item={layer.item} emojiPos={layer.emojiPos} size={size} gender={gender} />
         </div>
       ))}
-      <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z }}>
+      <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z, ...charVis }}>
         <BaseCharacter baseCharImg={baseCharImg} size={size} gender={gender} hideHead={hideHead} />
       </div>
     </div>
