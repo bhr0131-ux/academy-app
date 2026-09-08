@@ -205,7 +205,7 @@ export default function DecorShopSheet({
                             미리 보여 준다 — 이모지만 보면 무엇을 사는지 알 수 없다.
                             그림이 아직 없으면 onError 로 이모지 미리보기로 되돌아간다. */}
                         {grp.key==="border"
-                          ? <span style={{width:38,height:38,borderRadius:11,background:dungeon?"#F3E6C4":C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>🧒</span>
+                          ? <span style={{width:38,height:38,borderRadius:11,background:dungeon?"#F3E6C4":C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>🧭</span>
                           : it.img
                             ? <img src={it.img} alt="" draggable={false}
                                 onError={e=>{ e.currentTarget.style.display="none";
