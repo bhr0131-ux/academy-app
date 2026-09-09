@@ -282,7 +282,16 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   const halfW = riding && mount.ar
     ? ((imgH / CARD_H) * mount.ar / (sc.bgAR || 390 / CARD_H)) * 100 / 2
     : 0;
-  const xPos = Math.min(Math.max(xPos0, halfW + 0.5), 100 - halfW - 0.5);
+  /* 가장자리 여백 [2026-08-27 전수 점검] — 그림에 걸린 글로우·그림자
+     (drop-shadow 0 0 2px + 0 3px 4px)가 그림 상자보다 4~5px 더 번진다.
+     여백이 0.5%(390 카드에서 2px)면 그림은 안 잘려도 번짐이 카드 경계에서
+     뚝 끊겨 '그림이 잘린 것처럼' 보였다 — 실제로 12챕터를 훑다가 두 번 속았다.
+     1.5%(≈6px)면 번짐까지 카드 안에서 자연스럽게 사라진다.
+     456개 조합(12챕터 × 탈것 × 3지점 × 남녀) 중 이 값에 걸리는 건
+     출발 자리의 폭 넓은 하늘 탈것 15개뿐이고, 나머지는 원래 여유가 넉넉해
+     이 값과 무관하게 자리가 그대로다. */
+  const EDGE_PAD = 1.5;
+  const xPos = Math.min(Math.max(xPos0, halfW + EDGE_PAD), 100 - halfW - EDGE_PAD);
   /* 그리는 그림이 바뀌는 순간엔 크기를 트윈하지 않는다 — 그림은 즉시 바뀌는데 크기만
      1.4초에 걸쳐 변하면 '이전 그림이 새 크기로 줄었다가 바뀌는' 것처럼 보인다.
      같은 그림으로 이동하는 동안에는(바다의 원근 charH->charH1) 그대로 부드럽게 트윈한다. */
