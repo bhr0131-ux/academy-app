@@ -174,26 +174,31 @@ export const REWARD_SETS_BY_AGE = {
 };
 export const getRewardsByAge=(age)=>(REWARD_SETS_BY_AGE[age]||REWARD_SETS_BY_AGE.kid).rewards;
 
+/* [사용자 확정 2026-08-27] 상자 보상을 절반으로 내렸다 (18~36 → 9~18 등).
+   상자가 코인 수입의 47% 를 차지해 '매일 미션을 하는 것'보다 상자를 여는 쪽이
+   더 큰 보상이었다. 미션 코인을 1.5배로 올리면서(QUEST_COIN_MUL) 이쪽을 줄여
+   총수입은 거의 그대로 두고(+3%) 상자 비중만 23% 로 낮춘다 — 상자는 계속
+   '열어 보는 재미'로 남고, 보상의 중심은 미션으로 옮긴다. */
 export const TREASURE_REWARD_TABLE = {
   normal:{
     name:"일반상자",
     emoji:"📦",
-    min:18,
-    max:36,
+    min:9,
+    max:18,
     headerGrad:"linear-gradient(135deg,#94A3B8,#CBD5E1)"
   },
   rare:{
     name:"희귀상자",
     emoji:"🎁",
-    min:42,
-    max:72,
+    min:21,
+    max:36,
     headerGrad:"linear-gradient(135deg,#3B82F6,#60A5FA)"
   },
   legend:{
     name:"전설상자",
     emoji:"👑",
-    min:108,
-    max:168,
+    min:54,
+    max:84,
     headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"
   }
 };

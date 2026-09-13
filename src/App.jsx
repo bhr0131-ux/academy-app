@@ -1,4 +1,4 @@
-import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
+import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
@@ -70,6 +70,12 @@ import { Fragment, useState, useEffect, useRef } from "react";
         이 플래그와 무관하게 항상 동작한다.
    ════════════════════════════════════════════════════════════════════════ */
 const DEV_MODE = true; // ★ 사용자 요청(2026-07-20): 별도 지시 전까지 켜둘 것 — 끄기 전 반드시 사용자 확인
+
+/* 미션 보상의 코인 — XP(=point)는 그대로 두고 코인만 QUEST_COIN_MUL 배 (tokens.js 주석 참고).
+   지급하는 곳과 "💎 +N 코인"이라고 보여 주는 곳이 반드시 같은 값을 써야 해서 함수로 뺐다.
+   [주의] 미션 체크를 풀면 음수로 들어온다. 부호를 떼고 반올림한 뒤 다시 붙이지 않으면
+   JS 반올림이 -7.5 → -7, +7.5 → +8 로 어긋나 껐다 켰다 할 때마다 코인이 1씩 샌다. */
+const questCoin = (p) => Math.sign(Number(p||0)) * Math.round(Math.abs(Number(p||0)) * QUEST_COIN_MUL);
 
 /* ════════════════════════════════════════════════════════════════════════
    SECTION 10. STATE LAYER (도메인별 초기값)
@@ -2667,7 +2673,7 @@ export default function App() {
 
   const getQuestRewardText=(item)=>{
     const point=item.point||DEFAULT_HOMEWORK_SCORE;
-    return `${TM.xpEmoji} +${point}${TM.xpUnit}  ·  ${TM.coinEmoji} +${point} ${TM.coin}`;
+    return `${TM.xpEmoji} +${point}${TM.xpUnit}  ·  ${TM.coinEmoji} +${questCoin(point)} ${TM.coin}`;
   };
 
   /* 기록 종류 → 선 아이콘 (엄마용 '탐험 기록' 목록 전용).
@@ -3487,8 +3493,12 @@ export default function App() {
     showToast("보상이 삭제됐어요");
   };
 
-  const addChildScore=(cid,point,memo="",type="quest")=>{
+  /* coinPoint 를 따로 주면 코인만 다른 값으로 넣는다 (안 주면 예전처럼 XP와 같은 값).
+     [사용자 확정 2026-08-27] 미션 코인을 올리면서 레벨 속도는 그대로 두려고 나눴다 —
+     예전엔 xp 와 coin 에 같은 p 를 넣어 둘을 따로 조절할 수 없었다. */
+  const addChildScore=(cid,point,memo="",type="quest",coinPoint=null)=>{
     const p=Number(point||0);
+    const c=coinPoint==null?p:Number(coinPoint||0);
     let capturedBefore=null;
     let capturedAfter=null;
     setScoreData(prev=>{
@@ -3499,8 +3509,8 @@ export default function App() {
       return {...prev,[cid]:{
         ...cur,
         xp:Math.max(0,curXp+p),
-        coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+p),
-        history:[...(cur.history||[]),{id:newId(),point:p,xp:p,coin:p,date:TODAY,type,memo}]
+        coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+c),
+        history:[...(cur.history||[]),{id:newId(),point:p,xp:p,coin:c,date:TODAY,type,memo}]
       }};
     });
     // 상태 반영 후, 캡처한 정확한 before/after로 레벨업 판정
@@ -3529,7 +3539,7 @@ export default function App() {
   // addReward = XP/코인 지급 (미션/보물상자용)
   /* [사용자 확정 2026-08-11] 기록 목록에 '미션 클리어'만 줄줄이 찍혀 무엇을 했는지 안 남았다 →
      미션 이름을 memo 로 함께 넘긴다. (기존 기록은 memo 가 없으므로 예전처럼 '미션 클리어'로 보인다) */
-  const addReward=(cid,point,reason="quest",memo="")=>addChildScore(cid,point,memo,reason);
+  const addReward=(cid,point,reason="quest",memo="")=>addChildScore(cid,point,memo,reason,questCoin(point));
   // spendCoin = 코인만 차감 (구매용)
   const spendCoin=(cid,amount,memo="")=>spendChildScore(cid,amount,memo);
   // refundCoin = 코인만 환불 (구매 거절 시 되돌려줌, XP·레벨 영향 없음)
@@ -4985,7 +4995,7 @@ export default function App() {
                                     : (()=>{const pt=item.point||DEFAULT_HOMEWORK_SCORE;return (
                                         <div style={{display:"flex",gap:10,fontWeight:900,fontSize:13.5,opacity:item.done?0.7:1}}>
                                           <span style={{color:"#D89A26"}}>{TM.xpEmoji} +{pt}{TM.xpUnit}</span>
-                                          <span style={{color:"#2E8FD6"}}>{TM.coinEmoji} +{pt} {TM.coin}</span>
+                                          <span style={{color:"#2E8FD6"}}>{TM.coinEmoji} +{questCoin(pt)} {TM.coin}</span>
                                         </div>
                                       );})()}
                               </div>
@@ -5210,7 +5220,7 @@ export default function App() {
             <p style={{fontSize:19,fontWeight:900,margin:0,whiteSpace:"nowrap"}}>
               <span style={{color:GP.gold}}>{TM.xpEmoji} +{charCheer.xp}</span>
               <span style={{color:C.sub,margin:"0 8px"}}>·</span>
-              <span style={{color:C.green}}>{TM.coinEmoji} +{charCheer.xp}</span>
+              <span style={{color:C.green}}>{TM.coinEmoji} +{questCoin(charCheer.xp)}</span>
             </p>
           </div>
         </div>

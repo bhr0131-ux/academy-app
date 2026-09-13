@@ -436,6 +436,16 @@ export const GAME_MODAL_STYLE = {
 };
 export const PALETTE = ["#FF6B6B","#FFC312","#26de81","#4A90E2","#9B59B6","#E91E8C"];
 export const DEFAULT_HOMEWORK_SCORE = 10;
+/* ── 미션 코인 배수 [사용자 확정 2026-08-27] ──────────────────────────────
+   원래 미션 하나를 끝내면 '점수(XP) = 코인'으로 같은 값이 들어갔다. 그래서
+   "상자 보상을 줄이고 미션 코인을 늘리자"를 하려면 레벨 속도까지 같이 빨라졌다.
+   이제 코인만 이 배수를 곱해 준다 — XP(레벨 속도)는 예전 그대로다.
+     · 미션 1개: XP 10 · 코인 15
+     · 상자 보상은 절반으로 (TREASURE_REWARD_TABLE)
+   합치면 총수입은 예전과 거의 같고(+3%) 상자 비중만 47% → 23% 로 내려간다.
+   '매일 미션을 하는 것'이 더 직접적으로 보상받고, 상자는 재미 쪽으로 남는다.
+   부모가 미션 점수를 고치면(dailyHwPoint) 코인도 그 값에 배수가 걸린다. */
+export const QUEST_COIN_MUL = 1.5;
 export const EXTRA_QUEST_ID = "extra_quest";
 export const DEV_PIN = "9999"; // 개발자 도구 진입용 PIN
 
