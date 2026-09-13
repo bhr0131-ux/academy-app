@@ -985,8 +985,14 @@ export default function App() {
     const inst=installInfo?.installDate?new Date(installInfo.installDate):null;
     return (inst&&!isNaN(inst))?toStr(inst):TODAY;
   };
-  // 그 날짜에 수집품을 얻을 수 있는지 (앞으로 넘긴 날도 막는다 — 뒤로 넘기기와 같은 구멍이라서)
-  const canDiscoverOn=(cid,d)=>!!d && d<=TODAY && d>=discoveryStartOf(cid);
+  /* 그 날짜에 수집품을 얻을 수 있는지 — **오늘 하루뿐**이다.
+     [사용자 확정 2026-08-27] "오늘의 발견은 오늘만 나오는 거야."
+     예전엔 d<=TODAY 라 날짜를 뒤로 넘기면 지나간 날의 발견이 그 자리에서 도감에 들어왔다.
+     지도(AdventureMap)가 지난 날짜를 '이미 길을 다 걸은 것'으로 쳐서(mode==="past")
+     들어가자마자 발견 지점을 지난 것이 되기 때문이다 — 하루씩 뒤로 넘기며 도감을
+     채울 수 있었다. 앞날을 막아 둔 것과 같은 구멍이라 뒷날도 똑같이 막는다.
+     ※ 이미 받아 둔 지난 날의 발견은 그대로 남는다 (기록을 지우는 게 아니다). */
+  const canDiscoverOn=(cid,d)=>!!d && d===TODAY && d>=discoveryStartOf(cid);
 
   const handleSparkPass=(d)=>{
     if(!loaded||!childId) return;
@@ -1356,7 +1362,7 @@ export default function App() {
     const d=childDate||TODAY;
     const log=(discoveryData?.[childId]?.log||[]).filter(e=>e.d!==d);
     setDiscoveryData({...discoveryData,[childId]:{...(discoveryData?.[childId]||{}),log}});
-    showToast("이날 발견을 지웠어요 — 탐험 탭을 다시 열면 재발견돼요");
+    showToast("이날 발견을 지웠어요 — 오늘이면 탐험 탭에서 다시 발견돼요 (지난 날은 다시 안 생겨요)");
   };
   /* 지난 n일 발견 기록 심기 — 실제 룰과 같은 고정 시드라 날짜별 결과도 실제와 동일 */
   const devFillDiscoveryDays=(n)=>{
@@ -4514,6 +4520,10 @@ export default function App() {
                           const _dd=childDate||TODAY;
                           const _de=getDiscoveryOn(discoveryData,childId,_dd);
                           const _d=_de?getDiscovery(_de.id):null;
+                          /* [사용자 확정 2026-08-27] 발견 지점은 '오늘' 아니면 안 그린다 —
+                             앞날에 아무것도 없듯이, 못 받고 지나간 날도 비워 둔다.
+                             그날 이미 받아 둔 게 있으면(_d) 그건 기록이라 계속 보여 준다. */
+                          if(!_d && !canDiscoverOn(childId,_dd)) return null;
                           return {t:rollSparkT(childId,_dd),emoji:_d?.emoji||null,found:!!_d,gain:_d?.pet||null};
                         })()}
                         onSparkPass={()=>handleSparkPass(childDate||TODAY)}
