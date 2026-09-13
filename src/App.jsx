@@ -3482,6 +3482,8 @@ export default function App() {
   };
   const addRewardItem=()=>{
     if(!rewardForm.title.trim()){ showToast("보상 이름을 입력해줘"); return; }
+    // 필요 코인은 0 이상만 — 음수를 넣으면 '사면 코인이 늘어나는' 보상이 된다
+    if(Number(rewardForm.point||0)<0){ showToast(`필요 ${TM.coin}은 0보다 작을 수 없어요`); return; }
     const rewardPayload={title:rewardForm.title.trim(),point:Number(rewardForm.point||0),emoji:rewardForm.emoji||"🎁",grade:rewardForm.grade||"common"};
     if(editingRewardId){
       setRewardData(prev=>({...prev,[childId]:getChildRewards().map(r=>r.id===editingRewardId?{...r,...rewardPayload}:r)}));
@@ -3532,7 +3534,13 @@ export default function App() {
   const spendChildScore=(cid,amount,memo="보상샵 구매 승인")=>{
     setScoreData(prev=>{
       const cur=prev[cid]||{xp:0,coin:0,history:[]};
-      const cost=Number(amount||0);
+      /* [버그 수정 2026-08-27] 쓰는 값은 절대 음수가 될 수 없다.
+         엄마용 '보상 추가'의 필요 코인 칸에 하한이 없어서 -100 짜리 보상을 만들 수 있었고
+         (숫자 칸이라 마이너스가 그대로 들어간다), 아이가 그걸 '받을래요' 하면
+         coin - (-100) 이 되어 코인이 오히려 100 늘었다. 승인만 받으면 몇 번이든
+         반복돼 무한 코인이 된다. 입력 쪽도 막았지만(addRewardItem·min=0),
+         이미 저장돼 있는 이상한 값까지 여기서 한 번 더 걸러 준다. */
+      const cost=Math.max(0,Number(amount||0));
       return {...prev,[cid]:{
         ...cur,
         xp:Number(cur.xp??cur.total??0),
@@ -3550,7 +3558,8 @@ export default function App() {
   const spendCoin=(cid,amount,memo="")=>spendChildScore(cid,amount,memo);
   // refundCoin = 코인만 환불 (구매 거절 시 되돌려줌, XP·레벨 영향 없음)
   const refundCoin=(cid,amount,memo="구매 거절 환불")=>{
-    const back=Number(amount||0);
+    // 돌려주는 값도 음수 불가 — 음수면 환불이 오히려 코인을 빼앗는다 (위 spendChildScore 주석 참고)
+    const back=Math.max(0,Number(amount||0));
     setScoreData(prev=>{
       const cur=prev[cid]||{xp:0,coin:0,history:[]};
       return {...prev,[cid]:{
@@ -6439,7 +6448,7 @@ export default function App() {
               ))}
             </div>
             <label style={lbl}>필요 {TM.coin} *</label>
-            <input type="number" value={rewardForm.point} onChange={e=>setRewardForm(p=>({...p,point:Number(e.target.value)}))}
+            <input type="number" min="0" value={rewardForm.point} onChange={e=>setRewardForm(p=>({...p,point:Number(e.target.value)}))}
               placeholder="예: 300"
               style={{...inp,marginBottom:20}}/>
             <div style={{background:th.light,border:`1px solid ${th.main}30`,borderRadius:14,padding:"14px",marginBottom:20}}>
