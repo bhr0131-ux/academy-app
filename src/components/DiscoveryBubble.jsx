@@ -26,7 +26,12 @@ export default function DiscoveryBubble({ id, isNew = false, onDone }) {
 
   const legend = d?.rarity === "legend";
   useEffect(() => {
-    if (!d || !isNew || !legend) return;
+    /* [점검 2026-08-27] 반짝이를 끄는 길이 3초 타이머 하나뿐인데, 그 사이 발견이
+       바뀌면(전설 → 보통) cleanup 이 타이머를 지우고 아래 early return 으로 빠져
+       반짝이가 켜진 채 남는다 — 가방 알림에서 겪은 것과 같은 갈래다.
+       지금 이 컴포넌트는 안 쓰지만(파일 머리 주석), 되살릴 때를 대비해 막아 둔다.
+       끄는 조건에서 먼저 꺼 놓고 시작한다. */
+    if (!d || !isNew || !legend) { setBurst(false); return; }
     setBurst(true);
     const t = setTimeout(() => { setBurst(false); onDone && onDone(); }, 3000);
     return () => clearTimeout(t);
