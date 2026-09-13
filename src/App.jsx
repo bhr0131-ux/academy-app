@@ -3322,13 +3322,28 @@ export default function App() {
   const boxNudgeRef=useRef(null);
   useEffect(()=>{
     if(!loaded||!childId||appMode!=="child") return;
+    const show=(n)=>{
+      setBagEvent({emoji:TM.boxEmoji,title:`안 연 ${TM.box} ${n}개`,sub:`${TM.book}에서 열어 보세요`,nudge:true});
+      clearTimeout(boxNudgeRef.current);
+      boxNudgeRef.current=setTimeout(()=>setBagEvent(p=>(p&&p.nudge)?null:p),25000);
+    };
+    const n0=getTotalTreasureCount(childId);
+    /* [버그 수정 2026-08-27 · 사용자 지적 "보물상자가 없는데 열으래"]
+       상자를 열면 treasureData 가 바뀌어 이 effect 가 다시 도는데, 그때 cleanup 이
+       25초 자동 내림 타이머까지 지워 버렸다. 알림을 내리는 건 그 타이머뿐이라
+       '안 연 보물상자 1개'가 화면에 그대로 남았다 — 정작 보물창고는 0개인데.
+       그래서 개수가 바뀌면 떠 있는 알림부터 맞춘다: 다 열었으면 내리고,
+       남아 있으면 새 개수로 고쳐 다시 건다. */
+    if(bagEventRef.current&&bagEventRef.current.nudge){
+      if(n0<=0) setBagEvent(null);
+      else show(n0);
+    }
+    if(n0<=0) return;                                       // 상자가 없으면 타이머도 안 건다
     const tick=()=>{
       const n=getTotalTreasureCount(childId);
       if(n<=0) return;
       if(bagEventRef.current) return;                       // 진짜 소식이 떠 있으면 건너뛴다
-      setBagEvent({emoji:TM.boxEmoji,title:`안 연 ${TM.box} ${n}개`,sub:`${TM.book}에서 열어 보세요`,nudge:true});
-      clearTimeout(boxNudgeRef.current);
-      boxNudgeRef.current=setTimeout(()=>setBagEvent(p=>(p&&p.nudge)?null:p),25000);
+      show(n);
     };
     const first=setTimeout(tick,15000);                     // 아이 화면에 들어오고 15초쯤 뒤 첫 알림
     const id=setInterval(tick,180000);                      // 그 뒤 3분마다
