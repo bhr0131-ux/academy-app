@@ -1,3 +1,4 @@
+import { DECOR_PRICE } from "./characters.js";
 /* ════════════════════════════════════════════════════════════════════════
    아바타 꾸미기 장비 시스템 v2 — 데이터 & 순수 로직
    ────────────────────────────────────────────────────────────────────────
@@ -154,7 +155,7 @@ export const AVATAR_CATALOG = [
      [2026-08-20] '베이스가 쓰고 있는 머리 그림'을 새로 받아 다시 탑재했다(?v=3).
      예전엔 머리띠만 오려 낸 그림을 눈으로 맞춰서 머리보다 크게 얹혀 있었다
      (탑재 상자 362~659 → 391~640, 머리 폭 안으로 들어옴). art-src/README 참고. */
-  { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price: 180, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-band-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_safari.webp" },
+  { id: "hat_safari",     slot: "hat",   label: "사파리 머리띠", emoji: "🌼", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-band-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_safari.webp" },
   /* 해적 모자 — 머리띠와 같은 방식('베이스가 쓰고 있는 머리 그림' → 얼굴 상자로 맞춤).
      챙이 이마를 덮지만 얼굴은 그대로 보이므로 hidesHead 는 안 쓴다.
      떼어낼 때 가장 큰 덩어리에 앞머리·눈까지 딸려 와서(모자를 쓰면 앞머리가 다르게 그려진다)
@@ -162,8 +163,8 @@ export const AVATAR_CATALOG = [
   /* 딸기 밀짚모자 — 해적 모자와 같은 방식(쓰고 있는 머리 그림 → 얼굴 상자로 맞춤).
      챙이 이마를 덮어 앞머리가 딸려 오므로 머리카락색·살색을 걸러 냈고,
      그래도 남는 얇은 머리 가닥은 열기 연산(침식→팽창)으로 잘라 냈다. */
-  { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price: 200, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/hat/picnic-hat-girl.webp", thumb: "assets/avatar/thumb/hat_picnic.webp" },
-  { id: "hat_pirate",     slot: "hat",   label: "해적 모자",   emoji: "🏴‍☠️", price: 240, rarity: "epic", theme: "pirate", forGender: "girl", img: "assets/avatar/hat/pirate-hat-girl.webp", thumb: "assets/avatar/thumb/hat_pirate.webp" },
+  { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/hat/picnic-hat-girl.webp", thumb: "assets/avatar/thumb/hat_picnic.webp" },
+  { id: "hat_pirate",     slot: "hat",   label: "해적 모자",   emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "girl", img: "assets/avatar/hat/pirate-hat-girl.webp", thumb: "assets/avatar/thumb/hat_pirate.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
@@ -173,7 +174,7 @@ export const AVATAR_CATALOG = [
      [2026-08-21] 가랑이 V 틈으로 베이스 흰 속옷이 비쳐서 그 자리만 반바지 색으로 메웠다.
      옷걸이에 건 모양이라 어깨선이 처져 있어서, 깃을 기본 반팔티 자리(y411)에 맞추면
      어깨 위에 맨살 띠가 남는다. 세로를 올려야 없어진다. */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price: 150, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=3", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=3", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
@@ -181,14 +182,14 @@ export const AVATAR_CATALOG = [
      베이스와 다른 픽셀만 남기면 그게 곧 제자리에 놓인 옷이다(맨살·머리 부분은 저절로 빠진다).
      앞으로 옷 원화는 이 방식으로 받는 게 제일 정확하다.
      둘 다 상·하의가 한 장이라 사파리 옷과 같이 상의 슬롯 하나로 넣는다. */
-  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price: 180, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp", thumb: "assets/avatar/thumb/top_picnic.webp" },
-  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price: 220, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/magic-outfit-girl.webp",  thumb: "assets/avatar/thumb/top_magic.webp" },
+  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp", thumb: "assets/avatar/thumb/top_picnic.webp" },
+  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/magic-outfit-girl.webp",  thumb: "assets/avatar/thumb/top_magic.webp" },
   /* 하늘 나들이 옷 — 이 원화만 '입은 전신 그림'이 아니라 '옷만 오려 낸 그림'으로 왔다.
      게다가 그린 몸이 베이스 v7 보다 다리가 길어서, 같이 온 '타이츠 있는 판'은
      어깨에 맞추면 타이츠가 발등까지 내려오고 발목에 맞추면 소매가 팔보다 좁았다.
      그래서 타이츠 없는 판을 골라 상체만 맞췄다 — 다리 길이 차이가 상관없어진다.
      배율 0.74 · 깃 위끝을 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (356,372)-(666,751). */
-  { id: "top_sky",        slot: "top",   label: "하늘 나들이 옷", emoji: "☁️", price: 200, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/sky-outing-girl.webp", thumb: "assets/avatar/thumb/top_sky.webp" },
+  { id: "top_sky",        slot: "top",   label: "하늘 나들이 옷", emoji: "☁️", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/sky-outing-girl.webp", thumb: "assets/avatar/thumb/top_sky.webp" },
   /* 우주복 — 옷이 흰색이라 '베이스와 색이 다른 픽셀' 규칙만으로는 안 떼어졌다.
      베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
      바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나. */
@@ -201,8 +202,8 @@ export const AVATAR_CATALOG = [
      RGB 는 몸까지 다 있고 알파는 옷 모양이다. 그래서 배경을 지워 몸 실루엣으로 배율만 잡고
      (머리끝·발끝 → 배율 0.59329), 같은 변환을 알파에 담긴 옷에 그대로 적용했다.
      색으로 옷을 골라낼 필요가 없어서 제일 깔끔하다. 탑재 상자 (358,397)-(670,763). */
-  { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price: 240, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp" },
-  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price: 250, rarity: "epic", theme: "space",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
+  { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp" },
+  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
 
 ];
 
