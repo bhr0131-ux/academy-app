@@ -326,7 +326,12 @@ export default function App() {
   const [seenTitles,       setSeenTitles]       = useState(initProgress.seenTitles);
   const [earnedTitleIds,   setEarnedTitleIds]   = useState(initProgress.earnedTitleIds);
   const [specialTitles,    setSpecialTitles]    = useState(initProgress.specialTitles);
-  const [treasureData,     setTreasureData]     = useState(initProgress.treasureData);
+  /* [버그 수정 2026-08-27] 보물상자도 연타 안전 상태로 바꾼다 (utils/useSyncState.js).
+     코인·보유 데코는 이미 거울을 쓰는데 상자만 빠져 있어서, 상자 1개일 때
+     '열기'를 같은 순간에 두 번 누르면 둘 다 옛 개수(1)를 보고 통과했다.
+     개수는 Math.max(0,…) 라 0에서 멈추지만 코인 보상은 두 번 들어갔다
+     (실측: 상자 1개로 12 + 15 = 27코인, 내역 2건). */
+  const [treasureData,     setTreasureData, treasureRef] = useSyncState(initProgress.treasureData);
   const [ownedDecor,       setOwnedDecor, ownedDecorRef] = useSyncState(initProgress.ownedDecor);
   const [equippedDecor,    setEquippedDecor]    = useState(initProgress.equippedDecor);
   // ── 꾸미기 아바타 장비 시스템 (신규, 아이별 맵. 기존 decor와 별개) ──
@@ -2825,7 +2830,9 @@ export default function App() {
     return reward;
   };
 
-  const getChildTreasure=(cid)=>treasureData[cid]||{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0};
+  /* 판단용 읽기는 거울에서 — 연타해도 두 번째 클릭이 첫 번째 결과를 본다.
+     (렌더 중에 읽어도 state 와 같거나 한 발 앞선 값이라 화면에는 문제가 없다) */
+  const getChildTreasure=(cid)=>treasureRef.current[cid]||{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0};
   const getPetStage=(cid)=>Math.max(0,Math.min(PET_STAGES.length-1,Number(petData[cid]??0)));
   const getPet=(cid)=>{
     const st=getPetStage(cid);
@@ -2945,7 +2952,9 @@ export default function App() {
   const giveTreasureForQuestOnce=(cid,questKey)=>{
     if(!questKey) return;
     // 적립 "규칙"은 순수 함수가 계산. 여기선 상태 반영과 팝업 알림만.
-    const cur=treasureData[cid];
+    // 거울에서 읽는다 — 미션 두 개를 빠르게 체크하면 둘 다 옛 개수를 보고
+    // "미션 8개 달성!" 팝업이 두 번 뜰 수 있었다 (개수 자체는 prev 기준이라 정확했다).
+    const cur=treasureRef.current[cid];
     const { changed, earned, nextCount } = computeQuestTreasure(cur, questKey, TODAY);
     if(!changed) return; // 이미 이 미션으로 보상 처리됨
 
