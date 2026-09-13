@@ -393,6 +393,27 @@ export const DECOR_BORDERS = [
 // 배경: 프로필 카드 배경 장식 (장식 이모지 + 은은한 그라데이션 오버레이)
 // 기본(base) = 탐험 톤, bakery = 베이커리 톤. decorView 가 cute 일 때 bakery 필드로 치환.
 // darkStage: 장착 시 무대가 밤하늘 톤(어두움)으로 바뀌는 배경 — 무대 위 글씨(응원문구 등)를 밝은색으로 반전하는 기준.
+/* ── 꾸미기 가격 사다리 [사용자 확정 2026-08-27] ──────────────────────────
+   "꾸미기 가격이 너무 저렴해서 쉽게 구매가능해. 실제 보상이랑 비교하면서 올리자"
+
+   기준은 실물 보상(DEFAULT_REWARDS)이다. 두 가지는 같은 코인 지갑을 쓰므로
+   꾸미기가 싸면 실물 보상이 멀어지고, 비싸면 꾸미기가 그림의 떡이 된다.
+     · 꾸미기는 한 번 사면 영구히 갖는다 / 실물 보상은 한 번 쓰면 사라진다
+       → 같은 등급이면 꾸미기를 실물 보상 '최고가'보다 위에 둔다.
+     · 등급     실물 보상        꾸미기     모으는 날(하루 미션 3개 = 56코인)
+       ⚪ 일반   30~90           200        3.6일
+       🟢 희귀   100~160         350        6.2일
+       🟣 영웅   230~480         600       10.7일
+       🟡 전설   700~1,800       950       17.0일
+
+   [중요] 항목마다 숫자를 직접 적지 말고 이 표를 쓸 것 — 예전에 칸마다 값이
+   제각각이어서 같은 영웅인데 아바타 250 · 배경 450으로 1.8배씩 벌어져 있었다.
+   특정 항목만 다르게 하고 싶을 때만 숫자를 직접 적는다.
+   부모가 고친 값(decPrices)이 있으면 그게 항상 이깁니다.
+   ※ 은퇴한 테두리(DECOR_BORDERS)는 환불 계산용이라 예전 가격 그대로 둔다.
+   ※ 베이커리 전용 값(BAKERY_BGS·BAKERY_HAT_PRICE)은 그 모드가 꺼져 있어 안 건드렸다. */
+export const DECOR_PRICE = { common:200, rare:350, epic:600, legendary:950 };
+
 export const DECOR_BGS = [
   /* [사용자 확정 2026-08-12] 원화 탑재 — 이로써 꾸미기 배경 여섯 판이 모두 원화가 됐다.
      안개 낀 연민트빛 숲, 가운데 큰 나무, 왼쪽에 하얀 여우, 빛나는 버섯, 반짝임, 가운데로 난 길.
@@ -402,7 +423,7 @@ export const DECOR_BGS = [
      원화가 없는 bakery(벚꽃 배경)는 예전 그대로라 거기에만 darkStage 를 남긴다.
      deco 목록은 손대지 않았다 — 지금 장식 이모지는 화면에서 통째로 꺼 둔 상태라
      (HeroStage 의 SHOW_BG_DECO_EMOJI) 눈으로 맞춰 볼 수가 없다. 다시 켤 때 그림 보고 고른다. */
-  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:160,  rarity:"common",    img:"/assets/stage-bg-forest.webp", deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(200,180,245,0.10)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)", darkStage:true } },
+  { id:"bg_sakura",  emoji:"🌲", name:"마법 숲",     price:DECOR_PRICE.common,  rarity:"common",    img:"/assets/stage-bg-forest.webp", deco:["🌲","🍄","✨","🦋","🐿️","🦌"],            tint:"rgba(200,180,245,0.10)",   bakery:{ emoji:"🌸", name:"벚꽃 배경", deco:["🌸","🌷","🌸"], tint:"rgba(251,207,232,0.4)", darkStage:true } },
   /* [사용자 확정 2026-08-12] 이름은 '깊은 바다'.
      (2026-08-11 에 '별빛 심해'로 바꿨다가 되돌렸다 — 다시 바꾸지 말 것)
      img 가 있는 배경은 무대에 그 원화를 한 장 덮는다 — 지금 있는 SVG 바다 풍경 위에.
@@ -434,7 +455,7 @@ export const DECOR_BGS = [
      앞쪽에 여럿 그려지고 왼쪽 아래에 해마가 들어왔다. 대신 v7에 있던 조개가 빠졌다.
        · 🐠 제거 — 이제 물고기가 그림에 또렷하게 여럿 있다(v7 은 멀리 실루엣뿐이었다)
        · 🐚 추가 — 그림에서 빠진 자리를 대신 채운다 */
-  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:220,  rarity:"rare",      img:"/assets/stage-bg-deepsea.webp", deco:["🫧","🐙","✨","🫧","🐚"],       tint:"rgba(150,225,250,0.10)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)", darkStage:true } },
+  { id:"bg_rainbow", emoji:"🌊", name:"깊은 바다",   price:DECOR_PRICE.rare,  rarity:"rare",      img:"/assets/stage-bg-deepsea.webp", deco:["🫧","🐙","✨","🫧","🐚"],       tint:"rgba(150,225,250,0.10)",  bakery:{ emoji:"🌈", name:"무지개 배경", deco:["🌈","🧁","🍰"], tint:"rgba(196,181,253,0.32)", darkStage:true } },
   /* [사용자 확정 2026-08-12] 원화 탑재. 그림에 이미 들어 있는 것은 장식에서 뺀다 —
      야자·큰 잎·덤불(🌴 🍃 🌿)이 화면을 가득 채우고, 큰부리새(🦜)·나무늘보·코끼리까지
      다 그려져 있다. 남는 건 그림에 없으면서 정글다운 것들:
@@ -443,14 +464,14 @@ export const DECOR_BGS = [
      연한 초록을 아주 옅게만.
      darkStage 도 끈다 — 위쪽이 밝은 하늘·연둣빛이라 무대 문구를 크림색으로 반전하면 안 읽힌다.
      원화가 없는 bakery(민트 정원)는 예전 그대로라 거기에만 darkStage 를 남긴다. */
-  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:300,  rarity:"rare",      img:"/assets/stage-bg-jungle.webp", deco:["🐒","🌺","🐍","🌺","🐒"],       tint:"rgba(120,200,130,0.10)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)", darkStage:true } },
+  { id:"bg_jungle",  emoji:"🌴", name:"정글 원정대", price:DECOR_PRICE.rare,  rarity:"rare",      img:"/assets/stage-bg-jungle.webp", deco:["🐒","🌺","🐍","🌺","🐒"],       tint:"rgba(120,200,130,0.10)",   bakery:{ emoji:"🍃", name:"민트 정원", deco:["🍃","🌿","🍵"], tint:"rgba(167,243,208,0.34)", darkStage:true } },
   /* [사용자 확정 2026-08-11] 원화 탑재. 그림에 이미 들어 있는 것은 장식에서 뺀다 —
      공룡 둘·화산·고사리·바위·발자국·구름이 다 그려져 있다. 남는 건 그림에 없으면서
      공룡 섬다운 것들: 알·뼈·바람에 날리는 잎.
      tint 는 올리브 0.30 이었는데 이 그림 위쪽은 밝은 하늘색이라 올리브를 덮으면 탁해진다 →
      하늘과 같은 연한 파랑을 아주 옅게.
      darkStage 도 끈다 — 위쪽이 밝은 하늘이라 무대 문구를 크림색으로 반전하면 안 읽힌다. */
-  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:350,  rarity:"epic",      img:"/assets/stage-bg-dino.webp", deco:["🥚","🍃","🦴","🥚","🍃"],            tint:"rgba(165,220,250,0.12)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)", darkStage:true } },
+  { id:"bg_dino",    emoji:"🦕", name:"공룡 섬",     price:DECOR_PRICE.epic,  rarity:"epic",      img:"/assets/stage-bg-dino.webp", deco:["🥚","🍃","🦴","🥚","🍃"],            tint:"rgba(165,220,250,0.12)",  bakery:{ emoji:"🥚", name:"초코에그 섬", deco:["🥚","🍫","🌴"], tint:"rgba(180,120,80,0.30)", darkStage:true } },
   /* [사용자 확정 2026-08-12] 원화 탑재. 그림에 이미 들어 있는 것은 장식에서 뺀다 —
      섬·바위·야자수·폭포·모랫길·바다, 그리고 동굴 안에서 빛나는 보물상자와 오른쪽 아래 조개까지
      다 그려져 있다. 남는 건 그림에 없으면서 보물섬다운 것들:
@@ -459,7 +480,7 @@ export const DECOR_BGS = [
      하늘과 같은 연한 파랑을 아주 옅게 (공룡 섬과 같은 판단).
      darkStage 도 끈다 — 위쪽이 밝은 하늘이라 무대 문구를 크림색으로 반전하면 안 읽힌다.
      원화가 없는 bakery(푸딩 섬)는 예전 그대로라 거기에만 darkStage 를 남긴다. */
-  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:450,  rarity:"epic",      img:"/assets/stage-bg-island.webp", deco:["🗺️","🏴‍☠️","⚓","🦀","🗺️"],          tint:"rgba(165,220,250,0.10)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)", darkStage:true } },
+  { id:"bg_star",    emoji:"🏝️", name:"보물섬",     price:DECOR_PRICE.epic,  rarity:"epic",      img:"/assets/stage-bg-island.webp", deco:["🗺️","🏴‍☠️","⚓","🦀","🗺️"],          tint:"rgba(165,220,250,0.10)",  bakery:{ emoji:"🍮", name:"푸딩 섬", deco:["🍮","🏝️","🌴"], tint:"rgba(253,224,71,0.30)", darkStage:true } },
   /* [사용자 확정 2026-08-12] 원화 탑재 (v3 — v2와 같은 구도를 더 맑게 다시 그린 판).
      아래쪽 지구의 둥근 지평선이 그대로 아이가 서는 바닥이 된다.
      이 그림은 장식으로 넣던 것을 거의 다 이미 그리고 있다 —
@@ -469,7 +490,7 @@ export const DECOR_BGS = [
      tint 는 남색 0.32 였는데 원화 자체가 이미 짙은 남보라라 같은 색을 덮으면 그림이 뭉갠다 →
      아주 옅게만 (달 지면의 연보랏빛을 살리는 정도).
      darkStage 는 그대로 켠다 — 위쪽이 짙은 밤하늘이라 응원문구는 크림색이 맞다. */
-  { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:560, rarity:"legendary", darkStage:true, img:"/assets/stage-bg-space.webp", deco:["☄️","🛸","🌠","☄️","🛸"],       tint:"rgba(140,150,235,0.12)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
+  { id:"bg_cloud",   emoji:"🚀", name:"우주 탐사",   price:DECOR_PRICE.legendary, rarity:"legendary", darkStage:true, img:"/assets/stage-bg-space.webp", deco:["☄️","🛸","🌠","☄️","🛸"],       tint:"rgba(140,150,235,0.12)",  bakery:{ emoji:"☁️", name:"솜사탕 구름", deco:["☁️","☁️","🍬"], tint:"rgba(186,230,253,0.35)" } },
 ];
 // 베이커리 전용 배경 6슬롯 (탐험 4슬롯과 분리). deco[0]=메인(가장 자주 등장). 종류 4개↑면 무대카드 전체에 고르게 분산됨.
 export const BAKERY_BGS = [
@@ -485,12 +506,12 @@ export const BAKERY_BGS = [
 // [사용자 원화 2026-08-25] 6종 전부 그림을 받았다 — decorView가 베이커리로
 // 넘어갈 때 img를 걸러내므로 탐험 전용, 베이커리는 이모지 그대로.
 export const DECOR_PET_SKINS = [
-  { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:280, rarity:"rare",      petskin:true, img:"/assets/petskin/fox.webp",       bakery:{ name:"솜사탕 여우" } },
-  { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:280, rarity:"rare",      petskin:true, img:"/assets/petskin/panda.webp",     bakery:{ name:"마시멜로 판다" } },
-  { id:"pk_rabbit",    emoji:"🐰",   name:"질풍 토끼",     price:380, rarity:"epic",      petskin:true, img:"/assets/petskin/rabbit.webp",    bakery:{ emoji:"🐦", name:"노래하는 새" } },
-  { id:"pk_butterfly", emoji:"🦋",   name:"신비한 나비",   price:380, rarity:"epic",      petskin:true, img:"/assets/petskin/butterfly.webp", bakery:{ emoji:"🐰", name:"딸기 토끼" } },
-  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:470, rarity:"legendary", petskin:true, img:"/assets/petskin/lion.webp",      bakery:{ name:"꿀빛 사자" } },
-  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:470, rarity:"legendary", petskin:true, img:"/assets/petskin/unicorn.webp",   bakery:{ emoji:"🦋", name:"반짝 나비" } },
+  { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:DECOR_PRICE.rare, rarity:"rare",      petskin:true, img:"/assets/petskin/fox.webp",       bakery:{ name:"솜사탕 여우" } },
+  { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:DECOR_PRICE.rare, rarity:"rare",      petskin:true, img:"/assets/petskin/panda.webp",     bakery:{ name:"마시멜로 판다" } },
+  { id:"pk_rabbit",    emoji:"🐰",   name:"질풍 토끼",     price:DECOR_PRICE.epic, rarity:"epic",      petskin:true, img:"/assets/petskin/rabbit.webp",    bakery:{ emoji:"🐦", name:"노래하는 새" } },
+  { id:"pk_butterfly", emoji:"🦋",   name:"신비한 나비",   price:DECOR_PRICE.epic, rarity:"epic",      petskin:true, img:"/assets/petskin/butterfly.webp", bakery:{ emoji:"🐰", name:"딸기 토끼" } },
+  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:DECOR_PRICE.legendary, rarity:"legendary", petskin:true, img:"/assets/petskin/lion.webp",      bakery:{ name:"꿀빛 사자" } },
+  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:DECOR_PRICE.legendary, rarity:"legendary", petskin:true, img:"/assets/petskin/unicorn.webp",   bakery:{ emoji:"🦋", name:"반짝 나비" } },
 ];
 // 베이커리 모드 펫 스킨 표시 순서 (탐험 순서와 분리). 가격·등급은 슬롯(탐험) 값을 그대로 따름.
 // 순서: 솜사탕여우→마시멜로판다→노래하는새→반짝나비→딸기토끼→꿀빛사자
