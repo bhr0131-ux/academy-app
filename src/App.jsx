@@ -1,4 +1,4 @@
-import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, DUNGEON_SHOP, ITEM_ACTION_STYLE, DUNGEON_DECOR_CARD, dungeonDecorRarity, getDungeonShopGradeColor, getDungeonShopItemBg, getDungeonShopItemShadow, mixHex, makeThemeColors, SHADOW, gameCard, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
+import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
@@ -3951,7 +3951,7 @@ export default function App() {
         <button onClick={()=>{const d=new Date(childDate+"T00:00:00");d.setDate(d.getDate()-1);setChildDate(toStr(d));}}
           style={{...jellyChip({background:_dn?"rgba(255,255,255,0.20)":GP.chipBg,border:_dn?"1px solid rgba(255,255,255,0.30)":`1px solid ${GP.chipBorder}`,borderRadius:10},{radius:12}),color:_dn?"#FFF8EB":GP.chipText,width:28,height:28,fontSize:16,cursor:"pointer",fontWeight:900}}>‹</button>
         <div style={{textAlign:"center"}}>
-          <p style={{fontSize:14,fontWeight:900,margin:0,color:_dn?"#F0F3F3":GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
+          <p style={{fontSize:14,fontWeight:900,margin:0,color:_dn?KID_PAPER.onDeep:GP.boxText}}>{childDt.getMonth()+1}월 {childDt.getDate()}일 {childTodayDN}요일</p>
           {!isChildToday&&<p style={{fontSize:10.5,color:_dn?"#FFF8EB":GP.gold,margin:"1px 0 0",fontWeight:800}}>오늘과 다른 날짜예요</p>}
         </div>
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
@@ -3969,7 +3969,7 @@ export default function App() {
           ?"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif"
           :"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",background:kidSkin!=="cute"
           // 탐험(개방감): 루트 바탕도 시트와 같은 아이보리 — 시트·콘텐츠·바닥이 한 장의 종이처럼 이어짐 (카드만 색 유지)
-          ?"linear-gradient(180deg, #F0F3F3 0%, #EAEFE9 100%)"
+          ?KID_PAPER.bg
           :(GP.appPattern?`${GP.appPattern}, ${GP.appBg}`:(GP.appBg||`linear-gradient(180deg, ${mixWhite(th.main,0.86)} 0%, ${C.bg} 38%, ${C.bg} 100%)`)),backgroundSize:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternSize}, ${GP.appPatternSize}, cover`:"auto",backgroundPosition:GP.appPattern&&kidSkin==="cute"?`${GP.appPatternPos}, 0 0`:"0 0",minHeight:"100vh",maxWidth:430,margin:"0 auto",color:C.text,paddingBottom:30,position:"relative",overflowX:"clip",overflowY:"visible",wordBreak:"keep-all"}}>
       {/* 꾸미기 전면 개편 환불 안내 — 앱을 켤 때 1회 (부모·아이 화면 어디서 열든 뜬다) */}
       <AvatarResetModal notice={avatarResetNotice} onClose={()=>setAvatarResetNotice(null)} />
@@ -4425,9 +4425,12 @@ export default function App() {
           );
         })()}
 
-        {/* 탭 본문. 캐릭터 탭만 종이색(#FBF3ED) — 가방·아이콘 원화가 종이 위에 놓인 그림이라
-            시트색(#F0F3F3, 회청색) 위에 두면 원화 가장자리가 떠 보인다 (사용자 확정: 배경 그림은 안 쓴다) */}
-        <div key={childTab} className={kidSkin==="cute"?undefined:"amTabFill"} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:(childTab==="growth"?"#FBF3ED":"#F0F3F3")}}>
+        {/* 탭 본문 — 세 탭 모두 종이색(KID_PAPER.sheet).
+            원래는 캐릭터 탭만 #FBF3ED 였다: 가방·아이콘 원화가 회청색(#F0F3F3) 위에서
+            가장자리가 떠 보였기 때문. 탐험 탭도 양피지 지도·초록 일지·원화 아이콘이
+            들어오면서 같은 문제가 생겨, 2026-08-27 전체 색 점검 때 셋을 통일했다.
+            (사용자 확정: 배경 그림은 안 쓴다) */}
+        <div key={childTab} className={kidSkin==="cute"?undefined:"amTabFill"} style={{padding:kidSkin==="cute"?"16px":"6px 16px 16px",position:"relative",zIndex:2,animation:"popInUp .35s ease-out",background:kidSkin==="cute"?undefined:KID_PAPER.sheet}}>
           {/* ── 탐험장소 탭 (학원카드) ── */}
           {childTab==="area"&&(
             <>
