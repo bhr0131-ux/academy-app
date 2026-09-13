@@ -3297,13 +3297,20 @@ export default function App() {
       const pet=petView(PET_STAGES[stage],stage,kidSkin);
       ev={emoji:pet.emoji||"🐣",img:kidSkin!=="cute"?PET_STAGE_IMG[stage]:null,title:"펫이 진화했어요!",sub:pet.name};
     } else if(snap.box>was.box){
-      ev={emoji:TM.boxEmoji,title:`${TM.box}가 생겼어요!`,sub:`${TM.book}에 ${snap.box}개`};
+      ev={emoji:TM.boxEmoji,title:`${TM.box}가 생겼어요!`,sub:`${TM.book}에 ${snap.box}개`,box:true};
     } else if(snap.streak>was.streak){
       ev={emoji:"🔥",title:"연속 달성 최고기록!",sub:`${snap.streak}일 연속 달성 중`};
     } else if(snap.title!==was.title){
       const t=getSelectedTitle(childId);
       ev={emoji:t.emoji||"👑",title:"상장을 바꿨어요",sub:t.name};
     }
+    /* [점검 2026-08-27 · '안 연 상자' 알림 버그와 같은 갈래]
+       상자 소식은 개수를 문구에 담는다("보물창고에 3개"). 그런데 이 소식은 60초 동안
+       떠 있고, 상자를 받자마자 열어 보는 게 가장 흔한 행동이라 그 사이에 문구가
+       거짓말이 된다. 여기 나오는 값 중 '줄어들 수 있는 것'은 상자 개수뿐이라
+       (레벨·펫 단계·최고 연속기록은 내려가지 않고, 상장은 바뀌면 새 소식이 뜬다)
+       상자가 줄면 떠 있던 상자 소식을 내린다. */
+    if(snap.box<was.box) setBagEvent(p=>(p&&p.box)?null:p);
     if(!ev) return;
     setBagEvent(ev);
     clearTimeout(bagTimerRef.current);
