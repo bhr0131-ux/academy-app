@@ -4567,6 +4567,9 @@ export default function App() {
                           return {t:rollSparkT(childId,_dd),emoji:_d?.emoji||null,found:!!_d,gain:_d?.pet||null};
                         })()}
                         onSparkPass={()=>handleSparkPass(childDate||TODAY)}
+                        /* 발견 팝("🍖 펫 먹이")을 '그날 한 번'으로 묶는 열쇠 — 날짜를 넘겨도
+                           지도는 다시 만들어지지 않아서 컴포넌트가 스스로 날을 구분하지 못한다 */
+                        dayKey={childDate||TODAY}
                         eventId={rollEvent(childId,childDate||TODAY)?.id||null}
                         /* 지도에 오늘 나오는 동물 두 마리 (사용자 확정: 다섯 중 랜덤 2).
                            이벤트 동물이 그 다섯 중 하나면 반드시 포함된다 —

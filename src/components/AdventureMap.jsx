@@ -23,6 +23,10 @@
                                                   gain=펫 연결이면 {kind,amount} ("먹이 +1" 연출)
      onSparkPass : ()=>void                       캐릭터가 발견 지점을 '시간 기준'으로
                                                   지나간 순간 (App이 여기서 발견을 기록)
+     dayKey   : string                            보고 있는 날짜(YYYY-MM-DD). 발견 팝을
+                                                  '날마다 한 번'으로 묶는 데만 쓴다 —
+                                                  날짜를 넘겨도 이 컴포넌트는 다시
+                                                  만들어지지 않기 때문이다.
      eventId  : string|null                       오늘의 랜덤 이벤트 id (ev_monkey 등).
                                                   원화 속 그 동물 머리 위에 👋 말풍선.
                                                   나비·거북이·무지개는 원화에 없어 아직
@@ -324,7 +328,7 @@ const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); ret
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
 // onPick: 학원 건물 탭 → 탐험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
-export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, spark = null, onSparkPass = null, eventId = null, dayAnimals = [], showRainbow = false }) {
+export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, spark = null, onSparkPass = null, eventId = null, dayAnimals = [], showRainbow = false, dayKey = "" }) {
   /* [사용자 확정 2026-08-13] time 은 '이름표에 찍는 글자'(14:00 · 보충 14:00 · 보충)이고,
      시각 계산은 at(HH:MM)으로 한다 — 보충은 글자와 실제 시각이 다르기 때문이다.
      at 이 없는 예전 호출은 time 을 그대로 시각으로 읽는다(그때는 둘이 같았다). */
@@ -499,15 +503,24 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   // sparkPop = '지나가는 순간' 2.3초 창 — "펫 먹이 +1" 떠오르기 전용.
   // 과거 날짜처럼 '이미 지난 채로' 열었으면 재생하지 않는다 (지나가는 순간에만).
   // ("발견!" 칩은 이와 별개로, 한 번 뜨면 그날 내내 남는다 — 사용자 확정)
-  const sparkInit = useRef(null);
-  if (sparkInit.current === null && sparkT !== null) sparkInit.current = sparkDone;
+  /* [버그 수정 2026-09-14] '이미 재생했나'는 날마다 새로 따져야 한다.
+     예전엔 처음 그려질 때 딱 한 번 정하고(sparkInit) 다시는 안 고쳤는데,
+     날짜를 넘겨도 지도는 다시 만들어지지 않아서(key 없음) 첫 화면에서 정해진 값이
+     그 세션 내내 남았다. 그래서 두 방향 모두 틀렸다 —
+       · 지난 날짜를 먼저 보고 오늘로 오면 → 오늘 발견의 "🍖 펫 먹이"가 아예 안 떴다.
+       · 오늘을 먼저 보고 지난 날짜로 가면 → 이미 받아 둔 발견인데 다시 떠올랐다.
+     이제는 (1) 오늘이 아니면 절대 재생하지 않고, (2) 날짜별로 한 번만 재생한다.
+     판정에 트윈 t 를 안 쓰는 것도 중요하다 — 날짜를 넘긴 직후 t 는 아직 앞 날짜의
+     위치라, 그걸 기준 삼으면 같은 버그가 다시 생긴다. */
+  const sparkSeen = useRef({});
   const [sparkPop, setSparkPop] = useState(false);
   useEffect(() => {
-    if (!sparkDone || sparkInit.current) return;
+    if (!sparkDone || mode !== "today" || sparkSeen.current[dayKey]) { setSparkPop(false); return; }
+    sparkSeen.current[dayKey] = true;
     setSparkPop(true);
     const to = setTimeout(() => setSparkPop(false), 2300);
     return () => clearTimeout(to);
-  }, [sparkDone]);
+  }, [sparkDone, mode, dayKey]);
 
   // ── 지나온 길 발자국 ──────────────────────────────────────
   // 모래길 중심선(pointAt)을 등간격 샘플링해 발자국을 전부 깔아두고,
