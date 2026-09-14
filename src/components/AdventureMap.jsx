@@ -802,14 +802,19 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
               boxShadow: "0 2px 6px rgba(60,80,40,0.25)", animation: "amFound .55s ease-out both" }}>
               {spark.emoji} 발견!
             </div>
-            {/* 펫 연결 발견 — 지나가는 순간에만 "🍖 펫 먹이 +1"이 물건 위로 떠오르다 사라진다
-                (사용자 확정: 펫은 화면에 안 보일 때가 많아 무대가 아니라 여기서. 칩 없이 글자만) */}
+            {/* 펫 연결 발견 — 지나가는 순간에만 "🍖 펫 먹이"가 물건 위로 떠오르다 사라진다
+                (사용자 확정: 펫은 화면에 안 보일 때가 많아 무대가 아니라 여기서. 칩 없이 글자만)
+                [사용자 확정 2026-08-28] 수량(+1)은 뺐다 — discoveries.js 의 pet 효과는
+                "아직 펫 수치에 반영하지 않는다, 정의만 해 둔 상태"인데 화면에는 숫자까지
+                붙여 보여 주고 있었다. 실제로 주는 게 없으니 개수를 약속하지 않는다.
+                먹이·친밀도 수치를 진짜로 넣는 날 amount 를 다시 붙이면 된다
+                (데이터의 amount 값은 그때 쓰려고 그대로 남겨 뒀다). */}
             {sparkPop && spark.gain && (
               <div style={{ position: "absolute", left: "50%", bottom: "100%", marginBottom: 26,
                 whiteSpace: "nowrap", fontSize: 11, fontWeight: 900, color: "#B4551D",
                 textShadow: "0 0 3px rgba(255,251,240,0.95), 0 0 5px rgba(255,251,240,0.9), 0 1px 2px rgba(255,251,240,0.9)",
                 animation: "amGainUp 2.2s ease-out both" }}>
-                {spark.gain.kind === "먹이" ? "🍖" : "❤️"} 펫 {spark.gain.kind} +{spark.gain.amount}
+                {spark.gain.kind === "먹이" ? "🍖" : "❤️"} 펫 {spark.gain.kind}
               </div>
             )}
             <span style={{ fontSize: 13, lineHeight: 1, display: "block",
