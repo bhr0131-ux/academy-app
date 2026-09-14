@@ -2838,8 +2838,17 @@ export default function App() {
   /* 판단용 읽기는 거울에서 — 연타해도 두 번째 클릭이 첫 번째 결과를 본다.
      (렌더 중에 읽어도 state 와 같거나 한 발 앞선 값이라 화면에는 문제가 없다) */
   const getChildTreasure=(cid)=>treasureRef.current[cid]||{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0};
-  // 판단용 읽기는 거울에서 — 연타해도 두 번째가 첫 번째 결과를 본다
-  const getPetStage=(cid)=>Math.max(0,Math.min(PET_STAGES.length-1,Number(petRef.current[cid]??0)));
+  /* 판단용 읽기는 거울에서 — 연타해도 두 번째가 첫 번째 결과를 본다.
+     [버그 수정 2026-08-28] 값이 숫자가 아니면(백업 복원 파일이 손상됐거나 손으로 고친 경우,
+     옛 저장형식 등) Number() 가 NaN 이 되고, Math.min/max 는 NaN 을 그대로 통과시킨다.
+     그러면 PET_STAGES[NaN] 이 undefined 가 되어 캐릭터 탭이 통째로 흰 화면이 됐다
+     (실측: v6_pet 이 객체나 엉뚱한 문자열일 때 "Cannot read properties of undefined").
+     숫자가 아니면 알(0)로 보고, 소수점도 내림해 항상 있는 단계만 가리키게 한다. */
+  const getPetStage=(cid)=>{
+    const raw=Number(petRef.current[cid]??0);
+    if(!Number.isFinite(raw)) return 0;
+    return Math.max(0,Math.min(PET_STAGES.length-1,Math.floor(raw)));
+  };
   const getPet=(cid)=>{
     const st=getPetStage(cid);
     const base=petView(PET_STAGES[st],st,kidSkin);
@@ -3034,10 +3043,11 @@ export default function App() {
       // 천장 카운트: 실제 드롭 성공 여부에 맞춰 보정 (성공=0, 미획득=누적)
       nextLegendPity = dropResult.title ? 0 : pity;
     }
-    // 펫 진화: 등급별 확률 + 전설상자 천장(2개마다 보장). 이미 최종단계면 진화 없음
+    // 펫 진화: 등급별 확률 + 전설상자 천장(PET_EVOLVE_LEGEND_PITY 개마다 보장 — 지금 4개).
+    // 이미 최종단계면 진화 없음
     let petEvolved=null;
     const curStage=getPetStage(childId);
-    // 전설상자를 열 때마다 누적 카운트 증가, 2가 되면 이번에 보장
+    // 전설상자를 열 때마다 누적 카운트 증가, 천장에 닿으면 이번에 보장
     let petGuaranteed=false;
     let nextPetPity=Number(cur.legendPetPity||0);
     if(boxType==="legend"){
@@ -3071,8 +3081,11 @@ export default function App() {
       petEvolved={ from:petView(PET_STAGES[curStage],curStage,kidSkin), to:petView(PET_STAGES[nextStage],nextStage,kidSkin) };
       /* 절대값(nextStage)을 써넣지 않고 prev 에서 한 칸 올린다 — 어떤 순서로 들어와도
          '한 번 열면 한 칸'이 지켜진다. 위 거울과 이중으로 막는 셈. */
-      setPetData(prev=>({...prev,[childId]:Math.min(PET_STAGES.length-1,
-        Math.max(0,Number(prev[childId]??0))+1)}));
+      setPetData(prev=>{
+        const r=Number(prev[childId]??0);
+        const base=Number.isFinite(r)?Math.max(0,Math.floor(r)):0;   // 깨진 값이면 알(0)부터
+        return {...prev,[childId]:Math.min(PET_STAGES.length-1,base+1)};
+      });
     }
     setScoreData(prev=>{
       const score=prev[childId]||{xp:0,coin:0,history:[]};
