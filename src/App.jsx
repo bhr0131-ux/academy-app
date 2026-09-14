@@ -321,7 +321,12 @@ export default function App() {
   const [xpAdjustSign,   setXpAdjustSign]   = useState(initReward.xpAdjustSign);
 
   // ── 도메인 E: progress (펫/칭호/보물/꾸미기/뱃지/기록) ────────────
-  const [petData,          setPetData]          = useState(initProgress.petData);
+  /* [정리 2026-08-28] 펫 단계도 연타 안전 상태로 (utils/useSyncState.js).
+     상자·코인은 이미 거울을 쓰는데 펫만 남아 있었다. 아래 진화 처리에서 '지금 몇 단계인지'를
+     렌더 전 값으로 읽어, 전설상자 두 개를 같은 틱에 열면 둘 다 같은 단계를 보고
+     같은 숫자를 써넣어 한 칸만 올랐다(덜 오름 — 더 오르지는 않는다).
+     여는 순간 연출 화면이 덮어 실제로 일어나긴 어렵지만, 남겨 둘 이유도 없어 맞춰 둔다. */
+  const [petData,          setPetData, petRef]  = useSyncState(initProgress.petData);
   const [selectedTitles,   setSelectedTitles]   = useState(initProgress.selectedTitles);
   const [seenTitles,       setSeenTitles]       = useState(initProgress.seenTitles);
   const [earnedTitleIds,   setEarnedTitleIds]   = useState(initProgress.earnedTitleIds);
@@ -2833,7 +2838,8 @@ export default function App() {
   /* 판단용 읽기는 거울에서 — 연타해도 두 번째 클릭이 첫 번째 결과를 본다.
      (렌더 중에 읽어도 state 와 같거나 한 발 앞선 값이라 화면에는 문제가 없다) */
   const getChildTreasure=(cid)=>treasureRef.current[cid]||{completedQuestCount:0,normalBox:0,rareBox:0,legendBox:0};
-  const getPetStage=(cid)=>Math.max(0,Math.min(PET_STAGES.length-1,Number(petData[cid]??0)));
+  // 판단용 읽기는 거울에서 — 연타해도 두 번째가 첫 번째 결과를 본다
+  const getPetStage=(cid)=>Math.max(0,Math.min(PET_STAGES.length-1,Number(petRef.current[cid]??0)));
   const getPet=(cid)=>{
     const st=getPetStage(cid);
     const base=petView(PET_STAGES[st],st,kidSkin);
@@ -3030,7 +3036,7 @@ export default function App() {
     }
     // 펫 진화: 등급별 확률 + 전설상자 천장(2개마다 보장). 이미 최종단계면 진화 없음
     let petEvolved=null;
-    const curStage=Math.max(0,Math.min(PET_STAGES.length-1,Number(petData[childId]??0)));
+    const curStage=getPetStage(childId);
     // 전설상자를 열 때마다 누적 카운트 증가, 2가 되면 이번에 보장
     let petGuaranteed=false;
     let nextPetPity=Number(cur.legendPetPity||0);
@@ -3063,7 +3069,10 @@ export default function App() {
     if(willEvolve){
       const nextStage=curStage+1;
       petEvolved={ from:petView(PET_STAGES[curStage],curStage,kidSkin), to:petView(PET_STAGES[nextStage],nextStage,kidSkin) };
-      setPetData(prev=>({...prev,[childId]:nextStage}));
+      /* 절대값(nextStage)을 써넣지 않고 prev 에서 한 칸 올린다 — 어떤 순서로 들어와도
+         '한 번 열면 한 칸'이 지켜진다. 위 거울과 이중으로 막는 셈. */
+      setPetData(prev=>({...prev,[childId]:Math.min(PET_STAGES.length-1,
+        Math.max(0,Number(prev[childId]??0))+1)}));
     }
     setScoreData(prev=>{
       const score=prev[childId]||{xp:0,coin:0,history:[]};
