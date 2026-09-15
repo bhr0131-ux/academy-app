@@ -335,6 +335,16 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   const atOf = (a) => a.at || a.time;
   const sorted = [...items].sort((a, b) => toMin(atOf(a)) - toMin(atOf(b)));
   const n = sorted.length;
+  /* [사용자 확정 2026-09-15] 건물 자리는 8곳까지만 찍어 뒀다. 9곳 이상이면 예전엔
+     '길 위 균등 분배' 폴백으로 떨어졌는데, 건물이 길 위에 올라앉아 서로 포개지고
+     보물상자와 아이까지 덮었다 (건물끼리 겹침 9곳 33% · 12곳 44%, 상자 가림 13% → 27%).
+     그래서 지도에는 이른 시간 순으로 8곳까지만 그리고, 남은 곳은 상자 옆에 '+N곳 더'로 알린다.
+     상자 칩(n/N)과 아이 이동은 그대로 '그날 전부'를 센다 — 지도에 안 그렸다고
+     안 다녀온 게 아니기 때문이다. */
+  const MAX_SPOTS = 8;
+  const shown = sorted.slice(0, MAX_SPOTS);
+  const sn = shown.length;
+  const hiddenCount = n - sn;
   // 학원 0~3곳=짧은 지도 / 4곳 이상=긴 지도 (사용자 확정: 짧은 지도에 3곳 배치 지점 지정)
   const M = n <= 3 ? MAP_SHORT : MAP_LONG;
   // 5곳 이상이면 이름표를 '시간만' 한 줄로 줄이고 건물 아래에 붙인다 (사용자 확정 — 지도가 빽빽해져서)
@@ -345,9 +355,10 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   // 프리셋은 '배열 순서 = 시간순(①②③…)'으로 작성한다. 예전엔 y로 정렬했지만,
   // 사용자가 자리를 옮기다 ①이 ②보다 아래로 내려가면 두 학원이 서로 뒤바뀌는 문제가 있어
   // 배열 순서를 그대로 쓴다 (자리 번호 = 시간 순번이 항상 일치).
-  const spots = M.spots[n]
-    ? M.spots[n]
-    : sorted.map((_, i) => pointAt((i + 1) / (n + 1)));
+  // sn 은 1~8 이라 프리셋이 반드시 있다. 폴백은 프리셋이 비었을 때를 대비한 안전망일 뿐.
+  const spots = M.spots[sn]
+    ? M.spots[sn]
+    : shown.map((_, i) => pointAt((i + 1) / (sn + 1)));
   /* ── 오늘 지도에 나올 동물 두 마리 ──────────────────────────────────
      dayAnimals 는 일곱 마리의 '오늘 순서'다. 여기서 앞에서부터 두 마리를
      고르되, **오늘 세워진 건물이 덮는 자리의 동물은 건너뛴다.**
@@ -417,6 +428,11 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
     }
     stopT.push(bt);
   });
+  /* 지도에 안 그린 9번째 이후 학원도 아이는 다녀온다 — 마지막 건물과 보물상자 사이를
+     균등하게 나눠 그 사이를 계속 걷게 한다 (안 그러면 8번째 건물에 하루 종일 멈춰 선다). */
+  const stopAt = (i) => i < sn
+    ? stopT[i]
+    : stopT[sn - 1] + (1 - stopT[sn - 1]) * ((i - sn + 1) / (n - sn + 1));
   // ── 시간 기준 이동 (B안) ──────────────────────────────────
   // 수업 시작 30분 전에 출발해 시작 시각에 도착, 수업이 끝나면 다음 학원으로. 마지막 수업 종료 후 보물상자로.
   const [, setTick] = useState(0);
@@ -444,8 +460,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
   else if (lastEnded) targetT = 1;
   else {
     let j = 0; while (j < n && nowMin >= ends[j]) j++;   // 아직 안 끝난 첫 수업 = 현재 목적지
-    const from = j === 0 ? 0 : stopT[j - 1];
-    const to = stopT[j];
+    const from = j === 0 ? 0 : stopAt(j - 1);
+    const to = stopAt(j);
     const t0 = starts[j] - TRAVEL, t1 = starts[j];
     targetT = nowMin <= t0 ? from : nowMin >= t1 ? to : from + (to - from) * ((nowMin - t0) / (t1 - t0));
   }
@@ -637,7 +653,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       ))}
 
       {/* ── 학원 건물 Overlay (배경 무수정 — 길 옆 잔디 고정 좌표, 비슷한 크기) ── */}
-      {sorted.map((ac, i) => {
+      {shown.map((ac, i) => {
         const [x, y, lp, bi, ldx] = spots[i];
         const d = done(ac, i);
         const B = BUILDINGS[(bi ?? i) % BUILDINGS.length];
@@ -754,12 +770,25 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       {/* ── 보물상자 진행도 칩 — 자물쇠 n/N, 전부 완료하면 열린 자물쇠. 상자 '아래' 배치 (사용자 확정) ── */}
       {n > 0 && mode !== "future" && (
         <div style={{ position: "absolute", left: `${CHEST[0]}%`, top: `${CHEST[1] + (M.cdy || 8)}%`, transform: "translate(-50%,-50%)", zIndex: 2, pointerEvents: "none",
-          background: "rgba(255,251,240,0.94)", border: `1px solid ${doneCount >= n ? "rgba(212,160,60,0.75)" : "rgba(155,114,74,0.4)"}`, borderRadius: 999,
-          padding: "2px 8px", fontSize: 10.5, fontWeight: 900, whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(60,80,40,0.2)",
-          // 다 열었으면 상자 테두리와 같은 황금빛으로 — 잠겨 있을 땐 종이 글자색 그대로
-          color: doneCount >= n ? "#9A6F1E" : "#5D4633",
-          display: "flex", alignItems: "center", gap: 4 }}>
-          <MapIcon name={doneCount >= n ? "unlock" : "lock"} size={11} />{doneCount}/{n}
+          display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+          <div style={{
+            background: "rgba(255,251,240,0.94)", border: `1px solid ${doneCount >= n ? "rgba(212,160,60,0.75)" : "rgba(155,114,74,0.4)"}`, borderRadius: 999,
+            padding: "2px 8px", fontSize: 10.5, fontWeight: 900, boxShadow: "0 2px 5px rgba(60,80,40,0.2)",
+            // 다 열었으면 상자 테두리와 같은 황금빛으로 — 잠겨 있을 땐 종이 글자색 그대로
+            color: doneCount >= n ? "#9A6F1E" : "#5D4633",
+            display: "flex", alignItems: "center", gap: 4 }}>
+            <MapIcon name={doneCount >= n ? "unlock" : "lock"} size={11} />{doneCount}/{n}
+          </div>
+          {/* 지도에 다 못 그린 학원 — 자리가 8곳뿐이라 나머지는 숫자로만 알린다 (사용자 확정 2026-09-15).
+              상자 칩은 '그날 전부'를 세므로, 이 칩은 '지도에 몇 곳이 빠졌나'만 말한다. */}
+          {hiddenCount > 0 && (
+            <div style={{
+              background: "rgba(238,233,221,0.90)", border: "1px solid rgba(155,114,74,0.30)", borderRadius: 999,
+              padding: "2px 7px", fontSize: 10, fontWeight: 900, color: "#6B5140",
+              boxShadow: "0 2px 5px rgba(60,80,40,0.14)" }}>
+              +{hiddenCount}곳 더
+            </div>
+          )}
         </div>
       )}
 
