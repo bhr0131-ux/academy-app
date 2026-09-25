@@ -174,7 +174,7 @@ export const AVATAR_CATALOG = [
      [2026-08-21] 가랑이 V 틈으로 베이스 흰 속옷이 비쳐서 그 자리만 반바지 색으로 메웠다.
      옷걸이에 건 모양이라 어깨선이 처져 있어서, 깃을 기본 반팔티 자리(y411)에 맞추면
      어깨 위에 맨살 띠가 남는다. 세로를 올려야 없어진다. */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=4", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=4", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=3", thumb: "assets/avatar/thumb/top_vest.webp", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
@@ -213,7 +213,7 @@ export const AVATAR_CATALOG = [
      RGB 는 몸까지 다 있고 알파는 옷 모양이다. 그래서 배경을 지워 몸 실루엣으로 배율만 잡고
      (머리끝·발끝 → 배율 0.59329), 같은 변환을 알파에 담긴 옷에 그대로 적용했다.
      색으로 옷을 골라낼 필요가 없어서 제일 깔끔하다. 탑재 상자 (358,397)-(670,763). */
-  { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp" },
+  { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_pirate.webp", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp" },
   /* 민트꽃 후드 — 남아 전용 첫 아이템(forGender:"boy"). 크림 후드 + 왼팔만 보라 소매 +
      민트 후드 안감·꽃 패치 + 짙은 카고 반바지. 상·하의가 한 장이라 상의 슬롯 하나.
      원화는 옷만 오려 낸 깨끗한 그림인데 **후드 안쪽 목·가슴 살은 일부러 남겼다** —
