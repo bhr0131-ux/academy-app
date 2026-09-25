@@ -192,7 +192,18 @@ export const AVATAR_CATALOG = [
   { id: "top_sky",        slot: "top",   label: "하늘 나들이 옷", emoji: "☁️", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/sky-outing-girl.webp", thumb: "assets/avatar/thumb/top_sky.webp" },
   /* 우주복 — 옷이 흰색이라 '베이스와 색이 다른 픽셀' 규칙만으로는 안 떼어졌다.
      베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
-     바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나. */
+     바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나.
+     [2026-09-25] 남아 원화가 들어와 남녀 공용이 됐다 (사파리·해적 옷에 이어 세 번째).
+       남아: 크림 우주복 + 남색 깃·벨트·소맷부리 + 금단추 + 별 패치 · 여아: 연보라 배색
+     남아 원화도 해적 옷과 같이 **알파에 옷만 담겨 있어** 색으로 옷을 골라낼 필요가 없었다
+     (RGB 엔 손·목·발목 살까지 다 있지만 그 자리의 알파가 0 이다).
+     다만 원화의 몸이 베이스 v7 보다 팔다리가 길고 가늘어 한 배율로는 안 맞았다 —
+     가슴·허리 폭으로 맞추면(0.62) 바지가 발등을 덮고, 키로 맞추면(0.55) 옷이 몸보다 좁았다.
+     그래서 가로 0.62 · 세로 0.555 로 따로 줬다(세로 11% 눌림). 베이스가 통통한 치비라
+     눌린 쪽이 오히려 몸에 맞는다. 깃 위끝 y400 → 탑재 상자 (349,398)-(676,888).
+     실측: 소매부리 y638(손목 y625 바로 아래) · 바지밑단 y888(발목 y885 바로 아래, 맨발 노출).
+     ※ 깃이 머리 장(y403~405)을 170px 덮는데 그 자리는 턱이 아니라 목(폭 58~62)이라 맞다.
+       상의는 z35 로 베이스(z20) 위에 그려지므로 깃이 목을 감싼다. */
   /* 해적 옷 — 이 원화도 '옷만 오려 낸 그림'이라 상체를 눈으로 맞췄다(하늘 나들이 옷과 같은 방식).
      긴소매라 소맷부리가 손목에 닿는 배율을 골랐다 — 0.72는 팔뚝이 남고 0.76부터는 손을 덮는다.
      배율 0.74 · 깃 위끝 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (350,372)-(674,754). */
@@ -203,7 +214,7 @@ export const AVATAR_CATALOG = [
      (머리끝·발끝 → 배율 0.59329), 같은 변환을 알파에 담긴 옷에 그대로 적용했다.
      색으로 옷을 골라낼 필요가 없어서 제일 깔끔하다. 탑재 상자 (358,397)-(670,763). */
   { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp" },
-  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/space-suit-girl.webp",    thumb: "assets/avatar/thumb/top_space.webp" },
+  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp", imgGirl: "assets/avatar/top/space-suit-girl.webp", thumb: "assets/avatar/thumb/top_space.webp", thumbGirl: "assets/avatar/thumb/top_space-girl.webp" },
 
 ];
 
