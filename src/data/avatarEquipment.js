@@ -182,8 +182,8 @@ export const AVATAR_CATALOG = [
      베이스와 다른 픽셀만 남기면 그게 곧 제자리에 놓인 옷이다(맨살·머리 부분은 저절로 빠진다).
      앞으로 옷 원화는 이 방식으로 받는 게 제일 정확하다.
      둘 다 상·하의가 한 장이라 사파리 옷과 같이 상의 슬롯 하나로 넣는다. */
-  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp", thumb: "assets/avatar/thumb/top_picnic.webp" },
-  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/magic-outfit-girl.webp",  thumb: "assets/avatar/thumb/top_magic.webp" },
+  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_picnic.webp" },
+  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/magic-outfit-girl.webp?v=2",  thumb: "assets/avatar/thumb/top_magic.webp" },
   /* 하늘 나들이 옷 — 이 원화만 '입은 전신 그림'이 아니라 '옷만 오려 낸 그림'으로 왔다.
      게다가 그린 몸이 베이스 v7 보다 다리가 길어서, 같이 온 '타이츠 있는 판'은
      어깨에 맞추면 타이츠가 발등까지 내려오고 발목에 맞추면 소매가 팔보다 좁았다.
