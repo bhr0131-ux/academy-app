@@ -214,6 +214,18 @@ export const AVATAR_CATALOG = [
      (머리끝·발끝 → 배율 0.59329), 같은 변환을 알파에 담긴 옷에 그대로 적용했다.
      색으로 옷을 골라낼 필요가 없어서 제일 깔끔하다. 탑재 상자 (358,397)-(670,763). */
   { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp", thumb: "assets/avatar/thumb/top_pirate.webp", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp" },
+  /* 민트꽃 후드 — 남아 전용 첫 아이템(forGender:"boy"). 크림 후드 + 왼팔만 보라 소매 +
+     민트 후드 안감·꽃 패치 + 짙은 카고 반바지. 상·하의가 한 장이라 상의 슬롯 하나.
+     원화는 옷만 오려 낸 깨끗한 그림인데 **후드 안쪽 목·가슴 살은 일부러 남겼다** —
+     후드 구멍이 베이스 목(폭 58~62)보다 훨씬 넓어서, 살을 지우면 그 자리가 뻥 뚫린다.
+     배율 가로 0.50 · 세로 0.45 (세로 10% 눌림 — 원화가 베이스보다 홀쭉하다) ·
+     후드 위끝 y396 → 탑재 상자 (350,394)-(674,737).
+     실측: 소매부리 y635(손목 y625 바로 아래) · 반바지 밑단 y737(허벅지 중간).
+     어깨에 드러나는 베이스는 줄당 1~8px 뿐이라 화면에서 안 보인다.
+     [주의] id 를 top_hoodie 로 하면 안 된다 — 구 v1 아이템 id 와 겹쳐서
+     (LEGACY_PRICES.top_hoodie = 110), 옛 기록을 가진 아이가 환불 대신 '보유'로
+     넘어와 버린다(computeAvatarMigration). 그래서 top_hoodie_mint 로 둔다. */
+  { id: "top_hoodie_mint", slot: "top",  label: "민트꽃 후드",  emoji: "🧥", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/hoodie-boy.webp", thumb: "assets/avatar/thumb/top_hoodie.webp" },
   { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp", imgGirl: "assets/avatar/top/space-suit-girl.webp", thumb: "assets/avatar/thumb/top_space.webp", thumbGirl: "assets/avatar/thumb/top_space-girl.webp" },
 
 ];
