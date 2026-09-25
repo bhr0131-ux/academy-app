@@ -163,8 +163,8 @@ export const AVATAR_CATALOG = [
   /* 딸기 밀짚모자 — 해적 모자와 같은 방식(쓰고 있는 머리 그림 → 얼굴 상자로 맞춤).
      챙이 이마를 덮어 앞머리가 딸려 오므로 머리카락색·살색을 걸러 냈고,
      그래도 남는 얇은 머리 가닥은 열기 연산(침식→팽창)으로 잘라 냈다. */
-  { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/hat/picnic-hat-girl.webp", thumb: "assets/avatar/thumb/hat_picnic.webp" },
-  { id: "hat_pirate",     slot: "hat",   label: "해적 모자",   emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "girl", img: "assets/avatar/hat/pirate-hat-girl.webp", thumb: "assets/avatar/thumb/hat_pirate.webp" },
+  { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/hat/picnic-hat-girl.webp?v=2", thumb: "assets/avatar/thumb/hat_picnic.webp" },
+  { id: "hat_pirate",     slot: "hat",   label: "해적 모자",   emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "girl", img: "assets/avatar/hat/pirate-hat-girl.webp?v=2", thumb: "assets/avatar/thumb/hat_pirate.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
