@@ -174,7 +174,7 @@ export const AVATAR_CATALOG = [
      [2026-08-21] 가랑이 V 틈으로 베이스 흰 속옷이 비쳐서 그 자리만 반바지 색으로 메웠다.
      옷걸이에 건 모양이라 어깨선이 처져 있어서, 깃을 기본 반팔티 자리(y411)에 맞추면
      어깨 위에 맨살 띠가 남는다. 세로를 올려야 없어진다. */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=3", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=4", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_vest.webp", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
