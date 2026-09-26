@@ -43,22 +43,43 @@ function ItemThumb({ item, gender }) {
   return <div style={{ height: BOX, fontSize: 32, lineHeight: `${BOX}px` }}>{item.emoji}</div>;
 }
 
-/* 무대 크기 — 고정값을 쓰지 않고 **남는 자리를 재서 그만큼 채운다** (사용자 확정:
-   "배경 네모칸을 아예 확장, 공간을 최대한 활용"). 목록이 짧은 탭(모자 3개)에서는
-   아래가 텅 비는 대신 아바타가 커지고, 목록이 긴 탭에서는 목록이 자리를 가져간다.
-   아바타 그림은 정사각이라 가로·세로 중 작은 쪽에 맞춘다. */
+/* ── 무대 크기 ─────────────────────────────────────────────────────────
+   남는 자리를 재서 그만큼 채우되 **위아래로 묶어 둔다** (사용자 확정 2026-09-26).
+   처음엔 안 묶었더니 탭마다 아바타가 230 ↔ 386 으로 널뛰어서, 옷 탭에서는
+   무늬를 못 알아볼 만큼 작고 모자 탭에서는 배경만 커졌다. 탭을 바꿀 때마다
+   그 아래 목록 위치도 크게 흔들렸다.
+
+     MIN = BASE        옷 탭(상품이 많은 쪽)에서도 이 아래로는 안 내려간다.
+     MAX = BASE × 1.25 상품이 없다시피 해도 기본보다 25%까지만 커진다.
+
+   BASE 는 화면 크기에서만 정한다 — **상품 개수와 무관해야** 탭을 옮겨도
+   기준이 안 흔들린다. */
+const STAGE_MAX_RATIO = 1.25;
+const stageBounds = () => {
+  if (typeof window === "undefined") return { min: 200, max: 250 };
+  const modalW = Math.min(460, window.innerWidth - 20);   // 모달 실제 폭
+  const base = Math.round(Math.max(170, Math.min(modalW - 44, window.innerHeight * 0.29, 268)));
+  return { min: base, max: Math.round(base * STAGE_MAX_RATIO) };
+};
+
 /* active — 모달이 닫혀 있는 동안은 트리 자체가 없어서(open=false → null) 잴 게 없다.
-   열릴 때 다시 재도록 의존성에 넣는다. 안 그러면 처음 재기에 실패한 기본값(200)이
+   열릴 때 다시 재도록 의존성에 넣는다. 안 그러면 처음 재기에 실패한 기본값이
    그대로 굳어 무대가 안 커진다. */
-const useBoxSize = (active) => {
+const useStageSize = (active) => {
   const ref = useRef(null);
-  const [size, setSize] = useState(200);
+  const [bounds, setBounds] = useState(stageBounds);
+  const [box, setBox] = useState(0);
+  useEffect(() => {
+    const onResize = () => setBounds(stageBounds());
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
   useEffect(() => {
     const el = ref.current;
     if (!active || !el) return;
     const measure = () => {
       const r = el.getBoundingClientRect();
-      setSize(Math.max(120, Math.floor(Math.min(r.width, r.height))));
+      setBox(Math.floor(Math.min(r.width, r.height)));
     };
     measure();
     if (typeof ResizeObserver === "undefined") {
@@ -69,7 +90,8 @@ const useBoxSize = (active) => {
     ro.observe(el);
     return () => ro.disconnect();
   }, [active]);
-  return [ref, size];
+  const size = Math.max(bounds.min, Math.min(box || bounds.min, bounds.max));
+  return [ref, size, bounds];
 };
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -133,7 +155,11 @@ export default function EquipmentShop({
     setShake((n) => n + 1); setCoinFlash((n) => n + 1);
   };
 
-  const [stageRef, stage] = useBoxSize(open);
+  const [stageRef, stage, stageLimit] = useStageSize(open);
+  /* 자세히 보기 — 아바타를 누르면 크게 열린다. 목록은 그대로 있으니(위에 겹쳐 띄운다)
+     닫으면 보던 상품 자리로 그대로 돌아온다. */
+  const [zoom, setZoom] = useState(false);
+  useEffect(() => { if (!open) setZoom(false); }, [open]);
 
   /* 열 때마다 탭을 다시 잡는다 — 아이를 바꾸면 성별이 달라지고, 비어 있는 탭에
      멈춰 있으면 "상점에 아무것도 없다"로 보인다. */
@@ -296,18 +322,40 @@ export default function EquipmentShop({
         </div>
 
         {/* ── 무대 — 입어본 모습. 목록을 스크롤해도 여기는 안 움직인다.
-               flex:1 이라 목록이 짧은 탭에서는 이쪽이 자리를 다 가져간다 ── */}
+               자리를 남는 만큼 가져가되 min~max 안에서만 움직인다(stageBounds).
+               캐릭터 주변 여백을 줄이려고 위아래 패딩은 4px 만 둔다 — 그림 안쪽의
+               배경 여백은 배경 원화라 여기서 줄일 수 없다. ── */}
         <div ref={stageRef} style={{
-          flex: "1 1 0", minHeight: 130, position: "relative", padding: "8px 0",
+          /* 먼저 최대치(max)를 차지하고, 목록이 자리를 더 달라고 할 때만 min 까지 줄어든다.
+             둘 다 grow 로 두면 남는 자리를 반씩 나눠 가져 무대가 최대치에 못 닿는다. */
+          flex: "0 1 auto", height: stageLimit.max + 8, minHeight: stageLimit.min + 8,
+          position: "relative", padding: "4px 0",
           display: "flex", alignItems: "center", justifyContent: "center", background: G.soft,
         }}>
-          <AvatarViewer equipped={previewEquipped} size={stage} baseCharImg={baseCharImg} gender={gender} />
+          {/* 아바타를 누르면 크게 열린다 — 옷 무늬·장식을 확인하려고 목록 자리를
+              양보할 필요가 없게. 닫으면 보던 상품 자리로 그대로 돌아온다. */}
+          <button
+            onClick={() => setZoom(true)}
+            aria-label="아바타 크게 보기"
+            style={{ border: "none", background: "transparent", padding: 0, cursor: "zoom-in", lineHeight: 0 }}
+          >
+            <AvatarViewer equipped={previewEquipped} size={stage} baseCharImg={baseCharImg} gender={gender} />
+          </button>
+          <span style={{
+            /* AvatarViewer 안쪽 레이어가 z 10~70 을 쓴다(모자 50, 효과 70) —
+               같은 쌓임 맥락이라 z 를 그 위로 올려야 안 가린다 */
+            position: "absolute", zIndex: 90, left: 12, top: 12, pointerEvents: "none",
+            background: "rgba(255,255,255,0.88)", color: G.text, border: `1px solid ${G.line}`,
+            borderRadius: 999, padding: "4px 9px", fontSize: 10.5, fontWeight: 900,
+          }}>
+            🔍 크게 보기
+          </span>
           {/* 입어보던 걸 한 번에 되돌리는 길 — 안 사고 빠져나올 수 있어야 한다 */}
           {Object.keys(preview).length > 0 && (
             <button
               onClick={() => { setPreview({}); setSelectedId(""); }}
               style={{
-                position: "absolute", zIndex: 3, right: 12, top: 12, border: `1px solid ${G.line}`,
+                position: "absolute", zIndex: 90, right: 12, top: 12, border: `1px solid ${G.line}`,
                 background: "rgba(255,255,255,0.92)", color: G.text, borderRadius: 999,
                 padding: "6px 12px", fontSize: 11.5, fontWeight: 900, cursor: "pointer",
               }}
@@ -349,8 +397,12 @@ export default function EquipmentShop({
             (사용자 확정 2026-09-26). 안내는 하단 버튼 한 곳에서만 한다. */}
 
         {/* ── 목록 — 이 화면에서 스크롤되는 곳은 여기뿐이다 ── */}
+        {/* 무대가 최대치에서 멈춘 뒤 남는 자리는 여기가 먹는다(flex:1) — 안 그러면
+            갈 곳 없는 여백이 모달 맨 아래, 하단 바 밑에 하얗게 떴다. */}
         <div style={{
-          flex: "0 1 auto", minHeight: 0, maxHeight: "52%", overflowY: "auto",
+          /* minHeight — 목록이 뭉개지지 않을 만큼은 지킨다. 여기가 버티면
+             좁은 화면에서 무대가 대신 min 까지 줄어든다. */
+          flex: "1 1 auto", minHeight: 150, overflowY: "auto",
           padding: "14px 16px 16px", background: "#fff",
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9, alignContent: "start",
         }}>
@@ -431,6 +483,40 @@ export default function EquipmentShop({
           </button>
         </div>
       </div>
+
+      {/* ── 자세히 보기 ──────────────────────────────────────────────────
+          상점 위에 겹쳐 띄운다 — 목록을 갈아치우지 않으니 닫으면 보던 상품
+          자리(스크롤 위치·고른 것)로 그대로 돌아온다. 바탕이나 '닫기'를 누르면 닫힌다. */}
+      {zoom && (
+        <div
+          onClick={(e) => { e.stopPropagation(); setZoom(false); }}
+          style={{
+            position: "fixed", inset: 0, zIndex: 4100, background: "rgba(16,22,16,0.72)",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            gap: 14, padding: 12, cursor: "zoom-out",
+          }}
+        >
+          <AvatarViewer
+            equipped={previewEquipped}
+            size={Math.max(200, Math.min(
+              (typeof window !== "undefined" ? window.innerWidth : 360) - 24,
+              (typeof window !== "undefined" ? window.innerHeight : 640) - 130,
+              520,
+            ))}
+            baseCharImg={baseCharImg}
+            gender={gender}
+          />
+          <button
+            onClick={(e) => { e.stopPropagation(); setZoom(false); }}
+            style={{
+              minHeight: 48, border: "none", borderRadius: 999, padding: "0 30px",
+              background: "#fff", color: G.text, fontSize: 15, fontWeight: 900, cursor: "pointer",
+            }}
+          >
+            닫기
+          </button>
+        </div>
+      )}
     </div>
   );
 }
