@@ -14,7 +14,10 @@ import RewardTab from "./components/parent/RewardTab.jsx";
 import EtcTab from "./components/parent/EtcTab.jsx";
 import TimeField from "./components/parent/TimeField.jsx";
 import AbsenceTab from "./components/parent/AbsenceTab.jsx";
+import RepeatMissionSheet, { RepeatMissionChips } from "./components/parent/RepeatMissionSheet.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
+import { REPEAT_MISSION_KEY, REPEAT_MISSION_MAX, getRepeatList, normalizeRepeat, addRepeatMission, editRepeatMission,
+         removeRepeatMission, applyRepeatToEntry, isRepeatInEntry } from "./data/repeatMissions.js";
 import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscovery, getTodayHint, getCollectedCount, rollEvent, DISCO_EVENTS, rollMapAnimals, rollRainbow, rollSparkT } from "./data/discoveries.js";
 import HomeSheet from "./components/HomeSheet.jsx";
 import ParentNav, { PARENT_NAV_H } from "./components/parent/ParentNav.jsx";
@@ -409,6 +412,10 @@ export default function App() {
   const [journalAcId,            setJournalAcId]            = useState(null); // 탐험일지 표시 학원 (null=시간 기준 자동)
   /* 오늘의 발견 — 지도 발견 지점을 지나간 날 하루 1개 (미션과 무관). 저장은 새 키(v6_discoveries)로만. */
   const [discoveryData,         setDiscoveryData]          = useState({});
+  /* 반복 미션 — 자주 쓰는 미션을 저장해 두고 미션 추가 팝업에서 눌러 넣는다.
+     저장은 새 키(v6_repeat_missions)로만. 기존 미션 저장(일별 entry)은 안 건드린다. */
+  const [repeatMissions,        setRepeatMissions]         = useState({});
+  const [showRepeatSheet,       setShowRepeatSheet]        = useState(false);
   const [openDiscoveryBook,     setOpenDiscoveryBook]      = useState(false);
   /* (삭제됨) discoveryPop — 머리 위 말풍선 전용 상태였는데 말풍선을 빼며 같이 제거 (사용자 확정) */
   // 탐험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
@@ -559,6 +566,7 @@ export default function App() {
             p=await load("v6_paid"), dm=await load("v6_dm"),
             bsk=await load("v6_base_seeded"),
             petD=await load("v6_pet"), discD=await load(DISCOVERY_KEY),
+            repeatD=await load(REPEAT_MISSION_KEY),
             tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac"),
             pin=await load("v6_parent_pin"), score=await load("v6_score"),
             reward=await load("v6_reward"), rewardReq=await load("v6_reward_requests"),
@@ -829,6 +837,7 @@ export default function App() {
       if(lastLv) setLastLevelByChild(lastLv);
       if(selectedTitle) setSelectedTitles(selectedTitle);
       if(treasure) setTreasureData(treasure);
+      if(repeatD) setRepeatMissions(normalizeRepeat(repeatD,DEFAULT_HOMEWORK_SCORE));
       if(seenTitlesData) setSeenTitles(seenTitlesData);
       if(earnedTitlesData) setEarnedTitleIds(earnedTitlesData);
       if(specialTitleData) setSpecialTitles(specialTitleData);
@@ -980,6 +989,7 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_base_seeded",baseSeededKeys); },[baseSeededKeys,loaded]);
   useEffect(()=>{ if(loaded) save("v6_pet",petData); },[petData,loaded]);
   useEffect(()=>{ if(loaded) save(DISCOVERY_KEY,discoveryData); },[discoveryData,loaded]);
+  useEffect(()=>{ if(loaded) save(REPEAT_MISSION_KEY,repeatMissions); },[repeatMissions,loaded]);
   /* 오늘의 발견 — 하루 1개. [사용자 확정] 미션과 무관하다.
      지도 위 아이가 '이전 학원을 마치고 이동하며 발견 지점을 지나간 순간'
      (AdventureMap의 시간 기준 판정 → onSparkPass) 기록한다.
@@ -3486,6 +3496,26 @@ export default function App() {
   };
   // 최종 성장체(마지막 단계) 도달 여부 — 캐릭터 스킨 잠금 해제 기준
   // 펫 최종 진화(마지막 단계) 도달 여부 — 펫 스킨 잠금 해제 기준
+  /* ── 반복 미션 ────────────────────────────────────────────────────────
+     자주 쓰는 미션을 저장해 두고, 미션 추가 팝업에서 눌러 바로 넣는다.
+     규칙(빈 글자·중복·최대 개수·점수 다듬기)은 data/repeatMissions.js 가 갖는다. */
+  const getRepeatMissions=(cid)=>getRepeatList(repeatMissions,cid);
+  const addRepeat=({text,point,kind})=>{
+    const r=addRepeatMission(repeatMissions,childId,{id:newId(),text,point,kind},DEFAULT_HOMEWORK_SCORE);
+    if(!r.ok){
+      showToast(r.reason==="duplicate"?"같은 반복 미션이 이미 있어요"
+               :r.reason==="full"?`반복 미션은 ${REPEAT_MISSION_MAX}개까지예요`:"내용을 입력해 주세요");
+      return;
+    }
+    setRepeatMissions(r.next); showToast("반복 미션에 저장했어요 ✨");
+  };
+  const editRepeat=(id,patch)=>{
+    const r=editRepeatMission(repeatMissions,childId,id,patch,DEFAULT_HOMEWORK_SCORE);
+    if(!r.ok){ showToast(r.reason==="duplicate"?"같은 반복 미션이 이미 있어요":"내용을 입력해 주세요"); return; }
+    setRepeatMissions(r.next);
+  };
+  const removeRepeat=(id)=>setRepeatMissions(removeRepeatMission(repeatMissions,childId,id));
+
   const isMaxPet=(cid)=>getPetStage(cid)>=PET_STAGES.length-1;
 
   const getChildRewardRequests=(cid)=>rewardReqRef.current[cid]||[];
@@ -6046,6 +6076,29 @@ export default function App() {
                               </span>
                               <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
                             </button>
+
+                            {/* [사용자 확정 2026-09-26] 반복 미션 — 학원을 안 다니는 아이도 반복 할 일을
+                                쓸 수 있게. 여기서 만들어 두면 위의 어느 줄로 들어가든(학원·생활·일반)
+                                그 팝업 안에서 눌러 바로 넣는다. 만드는 자리라 학원 줄과 같은 모양에
+                                표식만 ＋ 로 (생활·일반 줄과 같은 규칙). */}
+                            <button onClick={()=>setShowRepeatSheet(true)}
+                              className="jelly-tap"
+                              style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
+                                border:"none",borderTop:`1px solid ${C.border}`,background:"transparent",
+                                cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
+                              <span aria-hidden="true" style={{width:9,height:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",color:th.main,fontSize:15,fontWeight:900,lineHeight:1}}>+</span>
+                              <span style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5}}>
+                                <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
+                                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>반복 미션 추가</span>
+                                <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({getRepeatMissions(childId).length})</span>
+                              </span>
+                              <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
+                            </button>
+                            {getRepeatMissions(childId).length===0&&(
+                              <p style={{margin:"2px 0 0 19px",fontSize:11.5,fontWeight:700,color:C.sub,lineHeight:1.45}}>
+                                자주 쓰는 미션을 저장해 두면 위 어디에든 눌러서 바로 넣을 수 있어요
+                              </p>
+                            )}
                           </div>
                           );
                         })()}
@@ -7388,6 +7441,14 @@ export default function App() {
         </div>
       )}
 
+      {/* ── 반복 미션 시트 (엄마용 미션탭 → 반복 미션 추가) ── */}
+      <RepeatMissionSheet
+        open={showRepeatSheet} onClose={()=>setShowRepeatSheet(false)}
+        list={getRepeatMissions(childId)}
+        canScore={rewardUnlocked} defaultPoint={DEFAULT_HOMEWORK_SCORE}
+        onAdd={addRepeat} onEdit={editRepeat} onRemove={removeRepeat}
+        tone={{text:C.text,sub:C.sub,border:C.border,faint:C.faint,main:th.main,grad:th.grad,red:C.red}}/>
+
       {/* ── 날짜별 숙제/준비물 모달 ── */}
       {showDailyModal&&(()=>{
         const {academyId,date,acName,acColor,baseSupplies,fromMission}=showDailyModal;
@@ -7405,6 +7466,16 @@ export default function App() {
         const addHw=()=>{ const v=dailyHwInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyHwPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,homeworks:[...hw,{id:newId(),text:v,done:false,point:pt}]}); setDailyHwInput(""); };
         const addSup=()=>{ const v=dailySupInput.trim(); if(!v) return; upd({...entry,supplies:[...sup,v]}); setDailySupInput(""); };
         const addTodo=()=>{ const v=dailyTodoInput.trim(); if(!v) return; const pt=isParentEdit?Number(dailyTodoPoint||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE; upd({...entry,todos:[...todos,{id:newId(),text:v,done:false,point:pt}]}); setDailyTodoInput(""); };
+        /* [사용자 확정 2026-09-26] 반복 미션 칩 — 저장해 둔 미션을 눌러 이 자리에 바로 넣는다.
+           · 넣을 곳은 지금 열려 있는 팝업(학원 또는 생활·일반)과 날짜다
+           · 생활·일반(isExtra)은 숙제 칸이 없으므로 숙제로 저장한 것도 할 일로 들어간다
+           · 점수는 저장된 값을 그대로 쓴다 — 만들 때 이미 엄마 권한으로 정한 값이다 */
+        const pickRepeat=(item)=>{
+          const r=applyRepeatToEntry(entry,item,{id:newId(),isExtra});
+          if(!r.ok){ showToast("이미 오늘 미션에 있어요"); return; }
+          upd(r.next);
+          showToast(`${item.text} 추가! ${r.kind==="hw"?"📘":"✅"}`);
+        };
         const startEditItem=(kind,id,text,point)=>{ setEditingDailyItem({kind,id}); setEditingDailyText(text); setEditingDailyPoint(String(point||DEFAULT_HOMEWORK_SCORE)); };
         const saveEditItem=()=>{
           const v=editingDailyText.trim(); if(!v||!editingDailyItem){ setEditingDailyItem(null); return; }
@@ -7555,6 +7626,12 @@ export default function App() {
                 const add =kind==="hw"?addHw:addTodo;
                 return (
                   <div style={{marginBottom:20,background:CT.faint,borderRadius:RAD.md,padding:"12px 12px 13px"}}>
+                    {/* 반복 미션에서 고르기 — 저장된 게 없으면 아무것도 안 그린다 */}
+                    <RepeatMissionChips
+                      list={getRepeatMissions(childId)} isExtra={isExtra}
+                      isInEntry={(it)=>isRepeatInEntry(entry,it,isExtra)}
+                      onPick={pickRepeat}
+                      tone={{text:C.text,sub:C.sub,border:CT.faintB,faint:"#fff",main:th.main}}/>
                     {/* [사용자 확정 2026-08-11] 흰 캡슐 위에 다시 색 버튼이 얹힌 구조가 복잡해 보였다 →
                         라벨을 위로 올리고 버튼 둘을 같은 너비로 나란히. 고른 쪽만 색으로 채운다. */}
                     {/* [사용자 확정 2026-08-16] '미션 종류' 라벨을 없애고, 숙제·할 일 두 버튼을
