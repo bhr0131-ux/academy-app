@@ -1,4 +1,4 @@
-import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
+import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, EXTRA_QUEST_ICON, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorNeedsMaxPet, decorView, getTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
@@ -2492,6 +2492,9 @@ export default function App() {
   /* 미션 목록처럼 학원 객체가 아니라 id·이름만 들고 다니는 자리에서 아이콘을 뽑는다.
      학원을 찾으면 등록할 때 고른 종류(kind)로, 못 찾으면 예전처럼 이름으로 추측한다. */
   const acIconOf=(acId,acName="")=>{
+    /* '할일'(생활·일반)은 학원이 아니다 — 이름으로 추측하는 길을 타면 학원 기본값인
+       '미지의 탐험 🏰'이 붙는다(옛 던전 모드 기본값). 먼저 걸러 낸다. */
+    if(String(acId)===String(EXTRA_QUEST_ID)) return EXTRA_QUEST_ICON;
     const ac=(academies[childId]||[]).find(a=>a.id===acId);
     return getAcademyTheme(ac?.name||acName,kidSkin,ac?.kind||"").icon;
   };
@@ -4797,16 +4800,20 @@ export default function App() {
                   const dungeon=getAcademyTheme(ac.name,kidSkin,ac.kind);
                   const baseSup=(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s));
                   const rl=isChildToday?getRemainLabel(sc?.time,sc?.duration||40):null;
-                  const chipSty=(checked)=>({fontSize:11,padding:"3px 10px",borderRadius:999,cursor:"pointer",fontWeight:400,transition:"all .15s",
+                  /* [사용자 확정 2026-09-26] 준비물도 미션 줄과 같은 신호등으로 —
+                     아직 안 챙겼으면 주황(#B4652A), 챙기면 초록(#4E7B3A).
+                     예전엔 안 챙긴 것도 옅은 갈색이라 '할 일이 남았다'로 안 읽혔다.
+                     글자도 11 → 13.5 로 키웠다 (빠뜨리면 안 되는 거라 중요하다). */
+                  const chipSty=(checked)=>({fontSize:13.5,padding:"5px 12px",borderRadius:999,cursor:"pointer",fontWeight:400,transition:"all .15s",
                     fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",
-                    display:"inline-flex",alignItems:"center",gap:4,
-                    background:checked?"rgba(127,163,90,0.30)":"rgba(122,88,50,0.10)",
-                    border:checked?"1.5px solid #7FA35A":"1px solid rgba(122,88,50,0.4)",
-                    color:checked?"#3E5C28":"#5A4430"});
+                    display:"inline-flex",alignItems:"center",gap:5,
+                    background:checked?"rgba(127,163,90,0.30)":"rgba(212,138,74,0.16)",
+                    border:checked?"1.5px solid #7FA35A":"1.5px solid #D4894A",
+                    color:checked?"#3E5C28":"#B4652A"});
                   /* [사용자 확정 2026-08-11] 칩 앞의 ✅ ⬜ 도 운영체제 이모지라 종이 위에서 튀었다 →
                      칩 글자색을 그대로 따르는 작은 체크·빈 동그라미로. */
                   const chipMark=(checked)=>(
-                    <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" style={{flexShrink:0}}>
+                    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" style={{flexShrink:0}}>
                       {checked
                         ? <path d="m5.5 12.6 4.2 4.2 8.8-9.6" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                         : <circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" strokeWidth="2.4" opacity="0.6"/>}

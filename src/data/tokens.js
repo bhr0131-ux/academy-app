@@ -447,6 +447,11 @@ export const DEFAULT_HOMEWORK_SCORE = 10;
    부모가 미션 점수를 고치면(dailyHwPoint) 코인도 그 값에 배수가 걸린다. */
 export const QUEST_COIN_MUL = 1.5;
 export const EXTRA_QUEST_ID = "extra_quest";
+/* '할일'(생활·일반 미션)은 학원이 아니라서 학원 아이콘 표에 안 걸린다 —
+   이름으로 추측하는 길을 타고 내려가 '미지의 탐험 🏰'(옛 던전 모드 기본값)이
+   붙어 있었다. 학원이 아닌 걸 성으로 그리면 아이가 이게 뭔지 알 수 없다.
+   [사용자 확정 2026-09-26] 과녁으로 바꾼다 — 탐험일지의 '추가 미션' 줄과 같은 그림이다. */
+export const EXTRA_QUEST_ICON = "🎯";
 export const DEV_PIN = "9999"; // 개발자 도구 진입용 PIN
 
 // 비밀번호 복구 질문 목록 (콤보 선택)
