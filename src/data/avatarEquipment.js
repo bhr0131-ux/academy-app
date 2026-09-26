@@ -112,6 +112,27 @@ export const AVATAR_BASE_Z = 20;
    '배경'은 구 꾸미기 상점과 중복되어 제외, '효과'도 제외(사용자 확정). */
 export const SHOP_SLOT_ORDER = ["hat", "shoes", "top", "bottom", "back", "neck", "face", "hand"];
 
+/* ── 상점 탭 ───────────────────────────────────────────────────────────
+   [사용자 확정 2026-09-26] 상점에서는 '상의'·'하의'를 나누지 않고 **'옷' 한 탭**으로
+   묶는다. 아이가 고를 때 위아래를 따로 생각하지 않고, 지금 파는 옷은 대부분
+   위아래가 붙은 한 장 그림이라 '상의' 탭에 치마가 들어가 있는 꼴이었다.
+
+   [중요] 이건 **보여 주는 방식**만 묶는 것이다. slot(top/bottom)은 그대로 둔다 —
+   아바타 겹치는 순서(z)와 저장된 착용 데이터(equipped.top / equipped.bottom)가
+   전부 slot 을 쓴다. 여기서 슬롯을 합치면 기존 사용자 데이터가 깨진다.
+
+   slots : 이 탭이 모아 보여 줄 슬롯들 (앞에 적힌 순서대로 목록에 쌓인다) */
+export const SHOP_TABS = [
+  { key: "hat",     label: "모자",      emoji: "🎩", slots: ["hat"] },
+  { key: "shoes",   label: "신발",      emoji: "👟", slots: ["shoes"] },
+  { key: "clothes", label: "옷",        emoji: "👕", slots: ["top", "bottom"] },
+  { key: "back",    label: "등 장비",   emoji: "🎒", slots: ["back"] },
+  { key: "neck",    label: "목 장식",   emoji: "🧣", slots: ["neck"] },
+  { key: "face",    label: "얼굴 장식", emoji: "🥽", slots: ["face"] },
+  { key: "hand",    label: "손 장비",   emoji: "🪄", slots: ["hand"] },
+];
+export const getShopTab = (key) => SHOP_TABS.find(t => t.key === key) || null;
+
 export const AVATAR_SLOT_KEYS = AVATAR_SLOTS.map(s => s.key);
 export const getSlot = (key) => AVATAR_SLOTS.find(s => s.key === key) || null;
 
@@ -354,6 +375,14 @@ export const isItemArtReady = (it) => !it.artPending;
    (getAvatarItem/레이어 조회는 시즌·성별과 무관하게 그대로 동작 → 보유·착용 데이터 안 깨짐) */
 export const getItemsBySlot = (slotKey, gender) =>
   AVATAR_CATALOG.filter(it => it.slot === slotKey && isItemInSeason(it) && isItemForGender(it, gender) && isItemArtReady(it));
+
+/* 상점 탭 하나가 보여 줄 목록 — 탭이 여러 슬롯을 묶으면(옷 = 상의+하의) 적힌
+   순서대로 이어 붙인다. 한 슬롯짜리 탭은 getItemsBySlot 과 결과가 같다. */
+export const getItemsByTab = (tabKey, gender) => {
+  const tab = getShopTab(tabKey);
+  if (!tab) return [];
+  return tab.slots.flatMap(slotKey => getItemsBySlot(slotKey, gender));
+};
 export const STARTER_ITEM_IDS = AVATAR_CATALOG.filter(it => it.starter).map(it => it.id);
 
 /** 신규 사용자 기본 장착: 스타터(하늘 배경)만. 장비 슬롯은 전부 비움 */

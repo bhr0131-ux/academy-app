@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { C, CAMP_SHEET } from "../data/tokens.js";
 import AvatarViewer from "./AvatarViewer.jsx";
 import {
-  AVATAR_RARITY, SHOP_SLOT_ORDER, getItemsBySlot, getSlot,
+  AVATAR_RARITY, SHOP_TABS, getItemsByTab, getSlot,
 } from "../data/avatarEquipment.js";
 
-/* 탭 순서는 데이터(SHOP_SLOT_ORDER)에서만 관리한다 — 배경·효과는 거기서 이미 빠져 있다. */
-const SHOP_SLOTS = SHOP_SLOT_ORDER.map(getSlot).filter(Boolean);
+/* 탭 목록·순서는 데이터(SHOP_TABS)에서만 관리한다 — 배경·효과는 거기서 이미 빠져
+   있고, '옷'처럼 여러 슬롯을 한 탭으로 묶는 것도 거기서 정한다. */
 
 /* 상점 강조색 — 헤더를 아이템 상점과 같은 초록으로 맞춘 뒤(2026-09-26) 안쪽만 보라로
    남아 있어서 한 화면에 두 계열이 섞였다. 상점 전체를 초록 한 계열로 쓴다. */
@@ -112,9 +112,9 @@ export default function EquipmentShop({
   /* [버그 수정 2026-09-26] 첫 탭을 고정(모자)으로 두었더니 **남아가 상점을 열면 빈 탭**이었다 —
      모자는 지금 여아 전용 3종뿐이라 남아에게는 아무것도 안 보인다.
      성별에 맞는 아이템이 있는 첫 탭에서 시작한다(남아는 상의, 여아는 모자). */
-  const firstFilledSlot = (g) =>
-    (SHOP_SLOTS.find((s) => getItemsBySlot(s.key, g).length > 0) || SHOP_SLOTS[0]).key;
-  const [activeSlot, setActiveSlot] = useState(() => firstFilledSlot(gender));
+  const firstFilledTab = (g) =>
+    (SHOP_TABS.find((t) => getItemsByTab(t.key, g).length > 0) || SHOP_TABS[0]).key;
+  const [activeTab, setActiveTab] = useState(() => firstFilledTab(gender));
 
   /* 고른 파츠 하나 — 하단 바가 이것 하나의 행동만 보여 준다. */
   const [selectedId, setSelectedId] = useState("");
@@ -139,7 +139,7 @@ export default function EquipmentShop({
      멈춰 있으면 "상점에 아무것도 없다"로 보인다. */
   useEffect(() => {
     if (!open) return;
-    setActiveSlot((cur) => (getItemsBySlot(cur, gender).length > 0 ? cur : firstFilledSlot(gender)));
+    setActiveTab((cur) => (getItemsByTab(cur, gender).length > 0 ? cur : firstFilledTab(gender)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, gender]);
 
@@ -166,7 +166,7 @@ export default function EquipmentShop({
   useEffect(() => {
     if (!open) return;
     const seen = new Set();
-    for (const s of SHOP_SLOTS) for (const it of getItemsBySlot(s.key, gender)) {
+    for (const t of SHOP_TABS) for (const it of getItemsByTab(t.key, gender)) {
       for (const p of [it.img, it.imgGirl, it.thumb, it.thumbGirl]) {
         if (!p || seen.has(p)) continue;
         seen.add(p);
@@ -179,10 +179,9 @@ export default function EquipmentShop({
   if (!open) return null;
 
   /* 여아 전용·남아 전용 아이템은 그 성별에게만 보인다(데이터의 forGender). */
-  const items = getItemsBySlot(activeSlot, gender);
-  const slotMeta = getSlot(activeSlot);
-  /* 이 탭에 위아래 한 벌(coversBottom)이 하나라도 있으면 '세트' 뜻풀이를 한 줄 붙인다 */
-  const hasSet = items.some((it) => it.coversBottom);
+  const items = getItemsByTab(activeTab, gender);
+  /* 슬롯 정보는 **고른 아이템 기준**으로 본다 — '옷' 탭처럼 한 탭이 여러 슬롯을
+     담으면 탭에서 슬롯을 끌어오면 안 된다(상의를 골랐는데 하의 규칙을 볼 수 있다). */
 
   const sel = selectedId ? items.find((it) => it.id === selectedId) || null : null;
   const selOwned = !!sel && owned.includes(sel.id);
@@ -223,7 +222,7 @@ export default function EquipmentShop({
               setPreview((p) => { if (!(sel.slot in p)) return p; const n = { ...p }; delete n[sel.slot]; return n; });
               onToggle && onToggle(sel.id);
             } };
-  } else if (sel.starter || !slotMeta?.removable) {
+  } else if (sel.starter || !getSlot(sel.slot)?.removable) {
     /* 기본 지급 옷(starter)은 벗으면 속옷만 남아서 벗기를 막는다 */
     bar = { label: "✓ 지금 입는 중", tone: "mute", onPress: null };
   } else {
@@ -324,12 +323,12 @@ export default function EquipmentShop({
           overflowX: "auto", padding: "10px 14px", background: "#fff",
           borderBottom: `1px solid ${C.line || "#EEE"}`,
         }}>
-          {SHOP_SLOTS.map((s) => {
-            const active = s.key === activeSlot;
+          {SHOP_TABS.map((s) => {
+            const active = s.key === activeTab;
             return (
               <button
                 key={s.key}
-                onClick={() => { setActiveSlot(s.key); setSelectedId(""); }}
+                onClick={() => { setActiveTab(s.key); setSelectedId(""); }}
                 style={{
                   flexShrink: 0, border: "none", cursor: "pointer", minHeight: 38,
                   padding: "0 14px", borderRadius: 999, fontWeight: 800, fontSize: 13.5,
@@ -353,11 +352,6 @@ export default function EquipmentShop({
           <span style={{ flex: 1, minWidth: 0, fontSize: 11.5, fontWeight: 800, color: C.sub }}>
             마음에 드는 옷을 골라보세요
           </span>
-          {hasSet && (
-            <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 900, color: G.text }}>
-              세트 = 위아래 한 벌
-            </span>
-          )}
         </div>
 
         {/* ── 목록 — 이 화면에서 스크롤되는 곳은 여기뿐이다 ── */}
@@ -402,15 +396,8 @@ export default function EquipmentShop({
                   position: "relative",
                 }}
               >
-                {/* 세트 = 위아래 한 벌(coversBottom). 하의를 따로 안 사도 된다는 표시. */}
-                {item.coversBottom && (
-                  <span style={{
-                    position: "absolute", left: 4, top: 4, background: G.deep, color: "#fff",
-                    fontSize: 9, fontWeight: 900, borderRadius: 6, padding: "1px 5px", lineHeight: 1.5,
-                  }}>
-                    세트
-                  </span>
-                )}
+                {/* (삭제됨) '세트' 뱃지 — 위아래 한 벌이라는 뜻으로 붙였는데,
+                    세트라면 모자·신발까지 갖춰야 세트다 (사용자 확정 2026-09-26). */}
 
                 {/* 파츠 그림 — thumb 우선, 없거나 로드 실패면 이모지 */}
                 <ItemThumb item={item} gender={gender} />
