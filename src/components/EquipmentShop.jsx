@@ -55,7 +55,19 @@ function ItemThumb({ item, gender }) {
 export default function EquipmentShop({
   open, onClose, coins = 0, owned = [], equipped = {}, onBuy, onToggle, baseCharImg = null, gender = "boy",
 }) {
-  const [activeSlot, setActiveSlot] = useState(SHOP_SLOTS[0].key);
+  /* [버그 수정 2026-09-26] 첫 탭을 고정(모자)으로 두었더니 **남아가 상점을 열면 빈 탭**이었다 —
+     모자는 지금 여아 전용 3종뿐이라 남아에게는 아무것도 안 보인다.
+     성별에 맞는 아이템이 있는 첫 탭에서 시작한다(남아는 상의, 여아는 모자). */
+  const firstFilledSlot = (g) =>
+    (SHOP_SLOTS.find((s) => getItemsBySlot(s.key, g).length > 0) || SHOP_SLOTS[0]).key;
+  const [activeSlot, setActiveSlot] = useState(() => firstFilledSlot(gender));
+  /* 열 때마다 다시 잡는다 — 아이를 바꾸면 성별이 달라지고, 비어 있는 탭에 멈춰 있으면
+     "상점에 아무것도 없다"로 보인다. */
+  useEffect(() => {
+    if (!open) return;
+    setActiveSlot((cur) => (getItemsBySlot(cur, gender).length > 0 ? cur : firstFilledSlot(gender)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, gender]);
 
   /* 미리보기 — 아직 안 산 파츠를 '입혀만' 보는 상태. { [slot]: itemId }
      슬롯당 하나씩이라 여러 슬롯을 동시에 걸쳐 볼 수 있다(모자+신발 같이 보기).
