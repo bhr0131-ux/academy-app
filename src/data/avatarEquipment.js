@@ -88,17 +88,21 @@ export const AVATAR_THEMES = {
 
    emojiPos: 아트 미제작 시 이모지 폴백의 대략 위치 {x,y: 0~1 중심좌표, s: 크기비율}
    (이미지 에셋이 준비되면 위치는 이미지 자체에 박혀 있으므로 사용 안 함)   */
+/* wearVerb — 상점 하단 버튼 문구를 만드는 말("이 {label} {wearVerb}").
+   모자는 '쓰기', 신발은 '신기'… 슬롯마다 한국어 동사가 다른데, 화면 코드에
+   슬롯별 if 를 늘어놓으면 슬롯을 하나 더 만들 때마다 화면을 고쳐야 한다.
+   상의·하의만 label 대신 '옷'을 쓴다(wearNoun) — "이 상의 입기"는 어색하다. */
 export const AVATAR_SLOTS = [
-  { key: "background", label: "배경",     emoji: "🌈", zIndex: 10, removable: true, emojiPos: null },
-  { key: "back",       label: "등 장비",  emoji: "🎒", zIndex: 15, removable: true, emojiPos: { x: 0.30, y: 0.48, s: 0.34 } },
-  { key: "shoes",      label: "신발",     emoji: "👟", zIndex: 25, removable: true, emojiPos: { x: 0.50, y: 0.87, s: 0.24 } },
-  { key: "bottom",     label: "하의",     emoji: "👖", zIndex: 30, removable: true, emojiPos: { x: 0.50, y: 0.70, s: 0.28 } },
-  { key: "top",        label: "상의",     emoji: "👕", zIndex: 35, removable: true, emojiPos: { x: 0.50, y: 0.55, s: 0.32 } },
-  { key: "neck",       label: "목 장식",  emoji: "🧣", zIndex: 40, removable: true, emojiPos: { x: 0.50, y: 0.47, s: 0.24 } },
-  { key: "face",       label: "얼굴 장식", emoji: "🥽", zIndex: 45, removable: true, emojiPos: { x: 0.50, y: 0.30, s: 0.26 } },
-  { key: "hat",        label: "모자",     emoji: "🎩", zIndex: 50, removable: true, emojiPos: { x: 0.50, y: 0.10, s: 0.30 } },
-  { key: "hand",       label: "손 장비",  emoji: "🪄", zIndex: 55, removable: true, emojiPos: { x: 0.80, y: 0.58, s: 0.26 } },
-  { key: "effect",     label: "효과",     emoji: "✨", zIndex: 70, removable: true, emojiPos: { x: 0.50, y: 0.50, s: 0.85 } },
+  { key: "background", label: "배경",     emoji: "🌈", zIndex: 10, removable: true, wearVerb: "깔기", emojiPos: null },
+  { key: "back",       label: "등 장비",  emoji: "🎒", zIndex: 15, removable: true, wearVerb: "메기", emojiPos: { x: 0.30, y: 0.48, s: 0.34 } },
+  { key: "shoes",      label: "신발",     emoji: "👟", zIndex: 25, removable: true, wearVerb: "신기", emojiPos: { x: 0.50, y: 0.87, s: 0.24 } },
+  { key: "bottom",     label: "하의",     emoji: "👖", zIndex: 30, removable: true, wearVerb: "입기", wearNoun: "옷", emojiPos: { x: 0.50, y: 0.70, s: 0.28 } },
+  { key: "top",        label: "상의",     emoji: "👕", zIndex: 35, removable: true, wearVerb: "입기", wearNoun: "옷", emojiPos: { x: 0.50, y: 0.55, s: 0.32 } },
+  { key: "neck",       label: "목 장식",  emoji: "🧣", zIndex: 40, removable: true, wearVerb: "하기", emojiPos: { x: 0.50, y: 0.47, s: 0.24 } },
+  { key: "face",       label: "얼굴 장식", emoji: "🥽", zIndex: 45, removable: true, wearVerb: "쓰기", emojiPos: { x: 0.50, y: 0.30, s: 0.26 } },
+  { key: "hat",        label: "모자",     emoji: "🎩", zIndex: 50, removable: true, wearVerb: "쓰기", emojiPos: { x: 0.50, y: 0.10, s: 0.30 } },
+  { key: "hand",       label: "손 장비",  emoji: "🪄", zIndex: 55, removable: true, wearVerb: "들기", emojiPos: { x: 0.80, y: 0.58, s: 0.26 } },
+  { key: "effect",     label: "효과",     emoji: "✨", zIndex: 70, removable: true, wearVerb: "켜기", emojiPos: { x: 0.50, y: 0.50, s: 0.85 } },
 ];
 
 /* 베이스 캐릭터가 그려지는 z (등 장비 뒤/신발 앞 사이) — 뷰어에서 사용 */
