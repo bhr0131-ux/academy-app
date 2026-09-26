@@ -523,13 +523,25 @@ export const BAKERY_BGS = [
 // 캐릭터 스킨과 동일한 구조 — petskin:true. 탐험/베이커리 공용 이모지(동물은 두 모드 모두 자연스러움).
 // [사용자 원화 2026-08-25] 6종 전부 그림을 받았다 — decorView가 베이커리로
 // 넘어갈 때 img를 걸러내므로 탐험 전용, 베이커리는 이모지 그대로.
+/* desc / maxMsg — 펫 스킨을 끼면 '나의 펫' 시트의 소개 문구와 맨 아래 한 줄도
+   그 동물 것으로 바뀐다 (사용자 확정 2026-09-26). 예전엔 이름·그림만 바꿔서,
+   유니콘을 끼고도 "전설로 남을 위대한 존재"(드래곤 5단계 설명)와
+   "🏆 최종 진화 완료! 최고의 펫이에요"가 그대로 떴다.
+   [베이커리] 지금은 꺼져 있다(BAKERY_ENABLED=false). 다시 켜면 이름이 달라지므로
+   (불꽃 여우 → 솜사탕 여우) 그때 bakery 쪽에 desc·maxMsg 를 따로 넣어 주면 된다. */
 export const DECOR_PET_SKINS = [
-  { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:DECOR_PRICE.rare, rarity:"rare",      petskin:true, img:"/assets/petskin/fox.webp",       bakery:{ name:"솜사탕 여우" } },
-  { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:DECOR_PRICE.rare, rarity:"rare",      petskin:true, img:"/assets/petskin/panda.webp",     bakery:{ name:"마시멜로 판다" } },
-  { id:"pk_rabbit",    emoji:"🐰",   name:"질풍 토끼",     price:DECOR_PRICE.epic, rarity:"epic",      petskin:true, img:"/assets/petskin/rabbit.webp",    bakery:{ emoji:"🐦", name:"노래하는 새" } },
-  { id:"pk_butterfly", emoji:"🦋",   name:"신비한 나비",   price:DECOR_PRICE.epic, rarity:"epic",      petskin:true, img:"/assets/petskin/butterfly.webp", bakery:{ emoji:"🐰", name:"딸기 토끼" } },
-  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:DECOR_PRICE.legendary, rarity:"legendary", petskin:true, img:"/assets/petskin/lion.webp",      bakery:{ name:"꿀빛 사자" } },
-  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:DECOR_PRICE.legendary, rarity:"legendary", petskin:true, img:"/assets/petskin/unicorn.webp",   bakery:{ emoji:"🦋", name:"반짝 나비" } },
+  { id:"pk_fox",       emoji:"🦊",   name:"불꽃 여우",     price:DECOR_PRICE.rare, rarity:"rare",      petskin:true, img:"/assets/petskin/fox.webp",
+    desc:"작은 불꽃을 품은 장난꾸러기",     maxMsg:"🔥 너의 도전에 뜨거운 응원을 보내요!",       bakery:{ name:"솜사탕 여우" } },
+  { id:"pk_panda",     emoji:"🐼",   name:"대나무 판다",   price:DECOR_PRICE.rare, rarity:"rare",      petskin:true, img:"/assets/petskin/panda.webp",
+    desc:"대나무 숲의 느긋한 친구",         maxMsg:"🎋 천천히 가도 좋아요. 늘 함께할게요!",      bakery:{ name:"마시멜로 판다" } },
+  { id:"pk_rabbit",    emoji:"🐰",   name:"질풍 토끼",     price:DECOR_PRICE.epic, rarity:"epic",      petskin:true, img:"/assets/petskin/rabbit.webp",
+    desc:"바람보다 빠른 꼬마 모험가",       maxMsg:"💨 새로운 도전도 신나게 뛰어넘어요!",        bakery:{ emoji:"🐦", name:"노래하는 새" } },
+  { id:"pk_butterfly", emoji:"🦋",   name:"신비한 나비",   price:DECOR_PRICE.epic, rarity:"epic",      petskin:true, img:"/assets/petskin/butterfly.webp",
+    desc:"작은 날개에 담긴 신비한 빛",      maxMsg:"✨ 너의 하루에 반짝임을 더해줘요!",          bakery:{ emoji:"🐰", name:"딸기 토끼" } },
+  { id:"pk_lion",      emoji:"🦁",   name:"용맹한 사자",   price:DECOR_PRICE.legendary, rarity:"legendary", petskin:true, img:"/assets/petskin/lion.webp",
+    desc:"작은 몸에 담긴 커다란 용기",      maxMsg:"🛡️ 어려운 도전 앞에서도 네 곁을 지켜요!",    bakery:{ name:"꿀빛 사자" } },
+  { id:"pk_dragon",    emoji:"🦄",   name:"전설의 유니콘", price:DECOR_PRICE.legendary, rarity:"legendary", petskin:true, img:"/assets/petskin/unicorn.webp",
+    desc:"무지갯빛 꿈을 품은 특별한 친구",  maxMsg:"🌈 너와 함께하는 매일이 마법 같아요!",       bakery:{ emoji:"🦋", name:"반짝 나비" } },
 ];
 // 베이커리 모드 펫 스킨 표시 순서 (탐험 순서와 분리). 가격·등급은 슬롯(탐험) 값을 그대로 따름.
 // 순서: 솜사탕여우→마시멜로판다→노래하는새→반짝나비→딸기토끼→꿀빛사자

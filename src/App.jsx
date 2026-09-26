@@ -2874,7 +2874,11 @@ export default function App() {
       // 스킨 그림(pv.img, 탐험 전용 — 받은 4종만)이 있으면 그걸, 없으면 기존처럼
       // 이모지로. 여기서 img를 안 비우면 그림 없는 스킨을 사도 예전 펫 그림
       // (PET_STAGE_IMG)이 그대로 남아 스킨을 사도 화면이 안 바뀌었다.
-      return { ...base, emoji:pv.emoji, name:pv.name, img:kidSkin!=="cute"?(pv.img||null):null };
+      /* 이름·그림만 바꾸면 유니콘을 끼고도 설명은 드래곤 5단계 것("전설로 남을
+         위대한 존재")이 그대로 뜬다 — 소개 문구(desc)와 '나의 펫' 맨 아래
+         한 줄(maxMsg)도 그 동물 것으로 바꾼다 (사용자 확정 2026-09-26). */
+      return { ...base, emoji:pv.emoji, name:pv.name, desc:pv.desc||base.desc, maxMsg:pv.maxMsg||null,
+               img:kidSkin!=="cute"?(pv.img||null):null };
     }
     return { ...base, img:kidSkin!=="cute"?(PET_STAGE_IMG[st]||null):null };
   };
