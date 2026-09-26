@@ -338,7 +338,9 @@ export default function App() {
      (실측: 상자 1개로 12 + 15 = 27코인, 내역 2건). */
   const [treasureData,     setTreasureData, treasureRef] = useSyncState(initProgress.treasureData);
   const [ownedDecor,       setOwnedDecor, ownedDecorRef] = useSyncState(initProgress.ownedDecor);
-  const [equippedDecor,    setEquippedDecor]    = useState(initProgress.equippedDecor);
+  /* [버그 수정 2026-09-26] 장착 데코도 동기 거울을 둔다 — buyDecor 가 구매 규칙을 계산할 때
+     이 값을 읽는데, 한 틱에 두 번 사면 두 번째가 옛 값을 보고 첫 번째 자동 장착을 덮어썼다. */
+  const [equippedDecor,    setEquippedDecor, equippedDecorRef] = useSyncState(initProgress.equippedDecor);
   // ── 꾸미기 아바타 장비 시스템 (신규, 아이별 맵. 기존 decor와 별개) ──
   const [avatarOwned,      setAvatarOwned, avatarOwnedRef] = useSyncState({});   // { [childId]: string[] }
   const [avatarEquipped,   setAvatarEquipped, avatarEquippedRef] = useSyncState({});   // { [childId]: {slot:itemId} }
@@ -2883,8 +2885,12 @@ export default function App() {
     const price=getDecorPrice(decor);
     if(getChildCoin(cid)<price){ showToast(`${TM.coin}이 부족해요 ${TM.coinEmoji}`); return; }
     spendCoin(cid,price,`${decorView(decor,kidSkin).name} 꾸미기 구매`);
+    /* [버그 수정 2026-09-26] 계산도 동기 거울에서 읽는다.
+       가드(isDecorOwned)는 거울을 봤는데 계산은 state 를 봐서, 한 틱에 서로 '다른' 두 개를
+       사면 두 번째가 첫 번째를 못 본 채 목록을 새로 만들어 첫 번째를 지웠다.
+       실측(실제 모듈·React 배칭): 200+300 코인을 쓰고 300짜리 하나만 남았다. */
     const { nextOwned, nextEquipped, groupKey } =
-      computeDecorPurchase(ownedDecor[cid]||[], equippedDecor[cid]||{}, decor.id);
+      computeDecorPurchase(ownedDecorRef.current[cid]||[], equippedDecorRef.current[cid]||{}, decor.id);
     setOwnedDecor(prev=>({...prev,[cid]:nextOwned}));
     if(groupKey) setEquippedDecor(prev=>({...prev,[cid]:nextEquipped}));
     showToast(`${decorView(decor,kidSkin).name} 획득! 🎉`);
