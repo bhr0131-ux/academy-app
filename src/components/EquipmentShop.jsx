@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { C } from "../data/tokens.js";
+import { C, CAMP_SHEET } from "../data/tokens.js";
 import AvatarViewer from "./AvatarViewer.jsx";
 import {
   AVATAR_RARITY, SHOP_SLOT_ORDER, getItemsBySlot, getSlot,
@@ -155,10 +155,11 @@ export default function EquipmentShop({
           @keyframes esCoinFlash{0%{transform:scale(1)}35%{transform:scale(1.18);
             background:rgba(255,255,255,0.55)}100%{transform:scale(1)}}
         `}</style>
-        {/* 헤더 */}
+        {/* 헤더 — [사용자 확정 2026-09-26] 아이템 상점·꾸미기 상점 시트와 같은 초록으로
+            맞춘다. 여기만 보라·분홍이라 같은 흐름에서 상점이 둘로 갈려 보였다. */}
         <div style={{
           padding: "18px 20px", display: "flex", alignItems: "center", justifyContent: "space-between",
-          background: "linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)", color: "#fff",
+          background: CAMP_SHEET.headerBg, color: CAMP_SHEET.headerText,
         }}>
           <div>
             <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}>👗 꾸미기 상점</p>
