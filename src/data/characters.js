@@ -604,6 +604,16 @@ export const getDecorGroupKey = (decorId) => {
   return null;
 };
 
+/* ── 순수 규칙: 이 데코가 '펫 최종 진화' 잠금 대상인가 ──────────────
+   [2026-09-26] 잠금 규칙이 화면(DecorShopSheet)에만 있었다. 잠긴 그룹은 카드를
+   아예 안 그려서 지금은 누를 버튼이 없지만, 그건 화면 사정이다 — 화면을 고치다
+   버튼이 노출되면 구매 쪽에 막을 것이 없어 그냥 사진다.
+   규칙은 데이터에 두고 화면·구매 양쪽이 같은 것을 본다. */
+export const decorNeedsMaxPet = (decorId) => {
+  const grp = DECOR_GROUPS.find(g => g.items.some(it => it.id === decorId));
+  return !!(grp && grp.lockUntilMaxPet);
+};
+
 /* ── 순수 규칙: 데코 구매 결과 계산 ────────────────────────────────
    입력: 현재 보유목록/장착맵(해당 아이분), 살 데코id
    출력: 다음 보유목록, 다음 장착맵, 장착된 그룹키
