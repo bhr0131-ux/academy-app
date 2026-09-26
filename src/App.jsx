@@ -2946,7 +2946,13 @@ export default function App() {
     const res=computeAvatarPurchase(owned, equipped, getChildCoin(cid), itemId);
     if(!res.ok){
       if(res.reason==="already_owned") showToast("이미 가지고 있어요 ✨");
-      else if(res.reason==="insufficient") showToast(`${TM.coin}이 부족해요 ${TM.coinEmoji}`);
+      /* [사용자 확정 2026-09-26] "부족해요"만으로는 얼마나 모자란지를 모른다 —
+         아이템 상점(ItemShopSheet)이 이미 "N 코인 더 모으면 살 수 있어요"라고
+         말하고 있어서 꾸미기 상점도 같은 말로 맞춘다. */
+      else if(res.reason==="insufficient"){
+        const need=Math.max(0,(item.price||0)-getChildCoin(cid));
+        showToast(`${TM.coinEmoji} ${TM.coin} ${need}개 더 모으면 살 수 있어요`,2200);
+      }
       return;
     }
     spendCoin(cid,res.cost,`${item.label} 꾸미기 파츠 구매`);
@@ -4323,6 +4329,7 @@ export default function App() {
           equipped={getAvatarEquipped(childId)}
           baseCharImg={getAvatarBaseCharImg(childId)}
           gender={(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy"}
+          coinEmoji={TM.coinEmoji}
           onBuy={buyAvatarItem}
           onToggle={toggleAvatarItem}
         />

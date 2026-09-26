@@ -54,7 +54,23 @@ function ItemThumb({ item, gender }) {
 
 export default function EquipmentShop({
   open, onClose, coins = 0, owned = [], equipped = {}, onBuy, onToggle, baseCharImg = null, gender = "boy",
+  /* 코인 이름·그림은 스킨마다 다르다(탐험 💎 코인 / 베이커리 🍪 쿠키) — 여기서 하드코딩하면
+     같은 화면에서 카드는 🪙, 안내는 💎 로 갈린다. App 이 TERMS 값을 내려 준다. */
+  coinEmoji = "🪙",
 }) {
+  /* [사용자 확정 2026-09-26] 코인이 모자랄 때 '왜 못 사는지'를 알려 준다.
+     예전엔 구매 버튼이 그냥 회색(disabled)이라 눌러도 아무 일이 없었다 —
+     아이 입장에선 고장난 것처럼 보인다. 이제 세 군데서 같이 알려 준다.
+       ① 카드에 가격을 항상 띄운다 (입어보기를 누르기 전에도)
+       ② 모자라면 가격 밑에 '코인 부족' 한 줄
+       ③ 그래도 누르면 카드가 흔들리고, 위쪽 코인 뱃지가 반짝이고,
+          "코인 N개 더 모으면 살 수 있어요" 안내가 뜬다 (App 의 onBuy 가 띄운다) */
+  const [shakeId, setShakeId] = useState("");   // 방금 흔든 카드 (id)
+  const [coinFlash, setCoinFlash] = useState(0); // 헤더 코인 뱃지 반짝임 트리거
+  const bumpShort = (itemId) => {
+    setShakeId(itemId); setCoinFlash((n) => n + 1);
+    setTimeout(() => setShakeId((cur) => (cur === itemId ? "" : cur)), 520);
+  };
   /* [버그 수정 2026-09-26] 첫 탭을 고정(모자)으로 두었더니 **남아가 상점을 열면 빈 탭**이었다 —
      모자는 지금 여아 전용 3종뿐이라 남아에게는 아무것도 안 보인다.
      성별에 맞는 아이템이 있는 첫 탭에서 시작한다(남아는 상의, 여아는 모자). */
@@ -130,6 +146,15 @@ export default function EquipmentShop({
           boxShadow: "0 24px 60px rgba(0,0,0,0.3)",
         }}
       >
+        {/* 이 모달에서만 쓰는 두 가지 — 앱 전역 keyframes 는 아이 화면 안쪽에 있어서
+            상점(포털 없이 같은 트리지만 별도 컴포넌트)에서 확실히 쓰려고 여기 둔다 */}
+        <style>{`
+          @keyframes esShake{0%,100%{transform:translateX(0)}15%{transform:translateX(-5px)}
+            30%{transform:translateX(5px)}45%{transform:translateX(-4px)}
+            60%{transform:translateX(4px)}80%{transform:translateX(-2px)}}
+          @keyframes esCoinFlash{0%{transform:scale(1)}35%{transform:scale(1.18);
+            background:rgba(255,255,255,0.55)}100%{transform:scale(1)}}
+        `}</style>
         {/* 헤더 */}
         <div style={{
           padding: "18px 20px", display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -141,11 +166,12 @@ export default function EquipmentShop({
               파츠를 사서 나만의 아바타를 꾸며요
             </p>
           </div>
-          <div style={{
+          <div key={coinFlash} style={{
             display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.2)",
             padding: "8px 12px", borderRadius: 999, fontWeight: 900, fontSize: 15,
+            animation: coinFlash ? "esCoinFlash .55s ease-out" : undefined,
           }}>
-            🪙 {coins.toLocaleString()}
+            {coinEmoji} {coins.toLocaleString()}
           </div>
         </div>
 
@@ -226,6 +252,7 @@ export default function EquipmentShop({
                   background: (isEquipped || isPreviewing) ? (C.purpleL || "#F5F0FF") : "#fff",
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                   position: "relative",
+                  animation: shakeId === item.id ? "esShake .5s ease-out" : undefined,
                 }}
               >
                 {/* (삭제됨) 희귀도·테마 배지 — 그림 위를 가려서 뺐다 (사용자 확정).
@@ -237,6 +264,22 @@ export default function EquipmentShop({
                 {/* 이름 */}
                 <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: C.text }}>{item.label}</p>
 
+                {/* 가격 — 안 산 파츠는 '입어보기'를 누르기 전에도 항상 보인다 (사용자 확정).
+                    예전엔 입어본 뒤에야 버튼에 가격이 떠서, 입어보고 나서야 비싼 걸 알았다. */}
+                {!isOwned && (
+                  <p style={{ margin: 0, fontSize: 12.5, fontWeight: 900, lineHeight: 1.1,
+                    color: canAfford ? C.text : C.sub }}>
+                    {coinEmoji} {item.price}
+                  </p>
+                )}
+
+                {/* 코인 부족 — 가격 바로 아래 한 줄 (사용자 확정: 가격은 그대로 두고 그 아래) */}
+                {!isOwned && !canAfford && (
+                  <p style={{ margin: -2, fontSize: 10.5, fontWeight: 900, lineHeight: 1.1, color: C.orange }}>
+                    코인 부족
+                  </p>
+                )}
+
                 {/* 액션 버튼 — 안 산 파츠는 '보기'(입어보기) → 눌러서 입혀보면 '구매'로 바뀐다.
                     같은 슬롯의 다른 파츠를 보기하면 그쪽으로 넘어가고, 이 카드는 다시 '보기'가 된다. */}
                 {!isOwned ? (
@@ -244,6 +287,7 @@ export default function EquipmentShop({
                     <button
                       onClick={() => setPreview((p) => ({ ...p, [item.slot]: item.id }))}
                       style={{
+                        marginTop: "auto",
                         width: "100%", border: `2px solid ${C.purple}`, borderRadius: 10, padding: "5px 4px",
                         fontWeight: 800, fontSize: 12, cursor: "pointer",
                         background: "#fff", color: C.purple,
@@ -252,18 +296,20 @@ export default function EquipmentShop({
                       👀 입어보기
                     </button>
                   ) : (
+                    /* 코인이 모자라도 disabled 로 두지 않는다 — 눌러도 아무 일이 없으면
+                       아이는 고장난 걸로 여긴다. 누르면 흔들리고 코인 뱃지가 반짝이고
+                       onBuy 쪽에서 "N개 더 모으면 살 수 있어요" 안내가 뜬다. */
                     <button
-                      onClick={() => canAfford && onBuy && onBuy(item.id)}
-                      disabled={!canAfford}
+                      onClick={() => { if (!canAfford) bumpShort(item.id); onBuy && onBuy(item.id); }}
                       style={{
+                        marginTop: "auto",
                         width: "100%", border: "none", borderRadius: 10, padding: "7px 4px",
-                        fontWeight: 800, fontSize: 12,
-                        cursor: canAfford ? "pointer" : "not-allowed",
+                        fontWeight: 800, fontSize: 12, cursor: "pointer",
                         background: canAfford ? C.purple : "#E5E5EA",
                         color: canAfford ? "#fff" : "#A0A0A8",
                       }}
                     >
-                      🪙 {item.price}
+                      {canAfford ? "구매하기" : "🔒 구매하기"}
                     </button>
                   )
                 ) : (
@@ -284,6 +330,7 @@ export default function EquipmentShop({
                       onToggle && onToggle(item.id);
                     }}
                     style={{
+                      marginTop: "auto",
                       width: "100%", border: "none", borderRadius: 10, padding: "7px 4px",
                       fontWeight: 800, fontSize: 12,
                       cursor: (isEquipped && item.starter) ? "default" : "pointer",
