@@ -205,7 +205,15 @@ export default function EquipmentShop({
   /* 슬롯 정보는 **고른 아이템 기준**으로 본다 — '옷' 탭처럼 한 탭이 여러 슬롯을
      담으면 탭에서 슬롯을 끌어오면 안 된다(상의를 골랐는데 하의 규칙을 볼 수 있다). */
 
-  const sel = selectedId ? items.find((it) => it.id === selectedId) || null : null;
+  /* 고른 것 — [버그 수정 2026-09-26] 탭을 옮길 때마다 고른 걸 지웠더니,
+     옷을 입어보고 → 모자 탭에 갔다가 → 다시 옷 탭으로 오면 **무대에는 그 옷을
+     입고 있는데 카드는 아무것도 안 골라져 있고** 하단은 "골라보세요"였다.
+     이제 지우지 않고, 고른 게 이 탭에 없으면 **이 탭에서 입어보는 중인 것**을
+     따라간다 — 화면에 입고 있는 것과 하단 바가 늘 같은 걸 가리킨다.
+     ('옷'처럼 한 탭이 두 슬롯을 담으면 목록에 먼저 오는 슬롯을 따른다) */
+  const sel = (selectedId && items.find((it) => it.id === selectedId))
+           || items.find((it) => preview[it.slot] === it.id)
+           || null;
   const selOwned = !!sel && owned.includes(sel.id);
   const selEquipped = !!sel && equipped[sel.slot] === sel.id;
   const selAfford = !!sel && coins >= sel.price;
@@ -357,7 +365,8 @@ export default function EquipmentShop({
             return (
               <button
                 key={s.key}
-                onClick={() => { setActiveTab(s.key); setSelectedId(""); }}
+                /* 탭을 옮겨도 고른 건 안 지운다 — 위 sel 계산 참고 */
+                onClick={() => setActiveTab(s.key)}
                 style={{
                   flexShrink: 0, border: "none", cursor: "pointer", minHeight: 38,
                   padding: "0 14px", borderRadius: 999, fontWeight: 800, fontSize: 13.5,
@@ -398,7 +407,7 @@ export default function EquipmentShop({
           {items.map((item) => {
             const isOwned = owned.includes(item.id);
             const isEquipped = equipped[item.slot] === item.id;
-            const isSel = selectedId === item.id;
+            const isSel = !!sel && sel.id === item.id;
             const canAfford = coins >= item.price;
             const rar = AVATAR_RARITY[item.rarity] || AVATAR_RARITY.common;
 
