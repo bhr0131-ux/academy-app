@@ -344,20 +344,14 @@ export default function EquipmentShop({
           })}
         </div>
 
-        {/* ── 안내 한 줄 ── */}
-        <div style={{
-          flexShrink: 0, display: "flex", alignItems: "center", gap: 8,
-          padding: "8px 16px 2px", background: "#fff",
-        }}>
-          <span style={{ flex: 1, minWidth: 0, fontSize: 11.5, fontWeight: 800, color: C.sub }}>
-            마음에 드는 옷을 골라보세요
-          </span>
-        </div>
+        {/* (삭제됨) 목록 위 '마음에 드는 옷을 골라보세요' 한 줄 — 아무것도 안 고른
+            상태의 하단 버튼 문구와 똑같은 말이라 한 화면에 두 번 나왔다
+            (사용자 확정 2026-09-26). 안내는 하단 버튼 한 곳에서만 한다. */}
 
         {/* ── 목록 — 이 화면에서 스크롤되는 곳은 여기뿐이다 ── */}
         <div style={{
           flex: "0 1 auto", minHeight: 0, maxHeight: "52%", overflowY: "auto",
-          padding: "10px 16px 16px", background: "#fff",
+          padding: "14px 16px 16px", background: "#fff",
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9, alignContent: "start",
         }}>
           {items.length === 0 && (
