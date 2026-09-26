@@ -97,8 +97,10 @@ export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dunge
                 borderRadius: 10, padding: "9px 12px", fontSize: 12, fontWeight: 700,
                 color: cute ? C.sub : CAMP_SHEET.textSub, lineHeight: 1.5,
                 border: `1px solid ${cute ? themeMain + "1A" : "rgba(230,190,110,0.4)"}` }}>
+                {/* 펫 스킨을 끼고 있으면 그 동물의 한 줄로 바뀐다(pet.maxMsg) —
+                    스킨은 최종 진화 뒤에만 낄 수 있어서 isMax 쪽에서만 본다. */}
                 {isMax
-                  ? (cute ? "🏆 최종 성장 완료! 최고의 펫이에요" : "🏆 최종 진화 완료! 최고의 펫이에요")
+                  ? (pet.maxMsg || (cute ? "🏆 최종 성장 완료! 최고의 펫이에요" : "🏆 최종 진화 완료! 최고의 펫이에요"))
                   : `${boxEmoji} ${boxName}를 열면 가끔 ${cute ? "펫이 자라요" : "펫이 진화해요"}`}
               </div>
             </div>
