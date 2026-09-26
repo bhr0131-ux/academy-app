@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getExpedition, getExpeditionMount, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, CHAR_IMG, mountImgOf,
+import { getExpedition, getExpeditionMount, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, itemPlaceOf, CHAR_IMG, mountImgOf,
   POSE_MUL, GOAL_MARK_ENABLED } from "../data/expeditions.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -500,13 +500,24 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
                 transform: facingLeft ? "scaleX(-1)" : undefined,   // 뒤로 갈 땐 왼쪽을 본다 (기획: 좌우 반전)
                 margin: "0 auto",
                 filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 3px 4px rgba(0,0,0,0.3))" }} />
-            {/* 아이템: 걷기 캐릭터에 이모지 배지만 추가 (별도 캐릭터 안 만듦) */}
-            {item && !mount && (
-              <span style={{ position: "absolute", right: -13, top: 8, fontSize: 15, lineHeight: 1, zIndex: 2,
-                filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}>
-                {item.img ? <img src={item.img} alt="" style={{ height: 16 }} /> : item.emoji}
-              </span>
-            )}
+            {/* 준비물 — 앞으로 내민 손 옆에 들린다. 자리·크기·기울기는 데이터에서
+                (expeditions.js 의 ITEM_PLACE). 좌표는 캐릭터 상자 기준 % 라 카드가
+                커져도 손에서 안 떨어진다. 캐릭터가 뒤를 보면 물건도 같이 뒤집는다. */}
+            {item && !mount && (() => {
+              const pl = itemPlaceOf(exp.item);
+              const flip = facingLeft ? " scaleX(-1)" : "";
+              return (
+                <span style={{ position: "absolute", left: `${pl.x}%`, top: `${pl.y}%`,
+                  height: `${pl.size}%`, zIndex: 2, lineHeight: 1,
+                  transform: `translate(-50%,-50%) rotate(${pl.rot}deg)${flip}`,
+                  transformOrigin: "50% 50%", display: "block",
+                  filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}>
+                  {item.img
+                    ? <img src={item.img} alt="" draggable={false} style={{ height: "100%", width: "auto", display: "block" }} />
+                    : <span style={{ fontSize: 15 }}>{item.emoji}</span>}
+                </span>
+              );
+            })()}
           </div>
           {/* 접지 그림자 — 그림 바로 아래에 붙는다. 나는 탈것(lift)은 그리지 않는다:
               그룹째 떠오르기 때문에 그림자만 공중에 남아 더 어색해진다. */}
