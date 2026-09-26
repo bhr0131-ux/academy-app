@@ -1,6 +1,8 @@
+import { useState, useRef, useLayoutEffect } from "react";
 import AvatarViewer from "./AvatarViewer.jsx";
 import { mixWhite, mixBlack } from "../data/tokens.js";
-import { ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_CHAR_SIZE, BAKERY_CHAR_SIZE, AVATAR_HOME_SIZE, ADV_CHAR_STAGE_OF, TITLE_RARITY } from "../data/characters.js";
+import { ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_CHAR_SIZE, BAKERY_CHAR_SIZE, AVATAR_HOME_SIZE, ADV_CHAR_STAGE_OF, TITLE_RARITY,
+         PET_GAP_FROM_CHAR, PET_DX_AVATAR, PET_DX_FALLBACK } from "../data/characters.js";
 import { CHAR_DISPLAY_AVATAR } from "../data/avatarEquipment.js";
 import { getDiscovery, getDiscoveryOn } from "../data/discoveries.js";
 import { TODAY } from "../utils/dates.js";
@@ -28,6 +30,23 @@ const SHOW_BG_DECO_EMOJI = false;
    ════════════════════════════════════════════════════════════════════════ */
 export default function HeroStage({ D }) {
   const { GP, th, kidSkin, childId, childDate, children, discoveryData, dungeonShinyBg, DungeonScenery, BakeryScenery, AdventureBgScenery, getAvatarBaseCharImg, getAvatarEquipped, getCharMode, getChildLevel, getEquipped, getPet, getProgressMessage, getSelectedTitle, getTodayQuestProgress, setChildTab, toggleCharDisplayMode } = D;
+
+  /* 캐릭터 그림 폭 재기 — 펫을 몸 옆에 일정한 간격으로 붙이려고 쓴다.
+     그림은 높이만 정해 두고 폭은 비율대로라(width:auto) 원화마다 폭이 다르다.
+     그림이 늦게 로드되거나 단계·모드가 바뀌면 상자 크기가 바뀌므로 ResizeObserver
+     가 알아서 다시 잰다 (같은 값이면 setState 가 알아서 넘어간다). */
+  const charBoxRef = useRef(null);
+  const [charW, setCharW] = useState(0);
+  useLayoutEffect(() => {
+    const el = charBoxRef.current;
+    if (!el) return;
+    const measure = () => setCharW(Math.round(el.getBoundingClientRect().width));
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [childId, kidSkin]);
           const q=getTodayQuestProgress(childId,childDate||TODAY);
           const level=getChildLevel(childId);
           const pet=getPet(childId);
@@ -35,11 +54,13 @@ export default function HeroStage({ D }) {
              수치는 안 건드린다 — 발견이 펫과 이어져 있다는 '기분'만 주는 연출이다. */
           const _petDe=getDiscoveryOn(discoveryData,childId,childDate||TODAY);
           const petHeart=!!(_petDe&&getDiscovery(_petDe.id)?.pet);
-          /* 펫 가로 위치 — 성장 캐릭터는 진화할수록 원화 폭이 넓어져(1단계 452px → 4단계 554px)
-             고정 62px면 부츠에 붙는다 (사용자 지적). 단계별로 벌린다.
-             아바타(꾸미기) 모드는 캔버스 폭이 거의 안 변해 기존 62 유지. */
-          const PET_DX={1:62,2:76,3:86,4:98,5:102};
-          const petDx=getCharMode(childId)===CHAR_DISPLAY_AVATAR?62:(PET_DX[ADV_CHAR_STAGE_OF(getChildLevel(childId).level)]||62);
+          /* 펫 가로 위치 — **그려진 캐릭터 폭을 재서** 반폭 + 일정한 여백으로 잡는다.
+             예전엔 단계별 고정표였는데 원화가 바뀔 때마다 다시 맞춰야 했다
+             (characters.js 의 PET_GAP_FROM_CHAR 주석 참고).
+             아바타(꾸미기) 모드는 정사각 캔버스라 폭이 거의 안 변해 고정값을 쓴다. */
+          const petDx = getCharMode(childId)===CHAR_DISPLAY_AVATAR
+            ? PET_DX_AVATAR
+            : (charW ? Math.round(charW/2) + PET_GAP_FROM_CHAR : PET_DX_FALLBACK);
           const title=getSelectedTitle(childId);
           const cute=kidSkin==="cute";
           const stageBgDeco=getEquipped(childId,"bg");
@@ -236,7 +257,7 @@ export default function HeroStage({ D }) {
                     <div style={{position:"relative",zIndex:1}}>
               {/* 캐릭터+무기를 한 컨테이너로 묶어 같은 둥실(floatHero)로 통째로 움직인다 → 타이밍 100% 일치 */}
                       {/* 목업형: '캐릭터' 타일이 빠진 대신 캐릭터를 탭하면 내 캐릭터 탭이 열린다 (기능 보존) */}
-                      <div onClick={cute?undefined:()=>setChildTab("growth")} style={{position:"relative",display:"inline-block",willChange:"transform",animation:charAnim,cursor:cute?undefined:"pointer"}}>
+                      <div ref={charBoxRef} onClick={cute?undefined:()=>setChildTab("growth")} style={{position:"relative",display:"inline-block",willChange:"transform",animation:charAnim,cursor:cute?undefined:"pointer"}}>
                       {(()=>{ // AI 일러스트 캐릭터 — 탐험/베이커리 모두 (진화 단계별 키 성장, 발끝 하단 정렬)
                         const _st=ADV_CHAR_STAGE_OF(level.level); // 두 모드 동일 구간(1/5/9/13/17)
                         const _g=(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy";
