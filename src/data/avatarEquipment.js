@@ -251,6 +251,17 @@ export const AVATAR_CATALOG = [
      (LEGACY_PRICES.top_hoodie = 110), 옛 기록을 가진 아이가 환불 대신 '보유'로
      넘어와 버린다(computeAvatarMigration). 그래서 top_hoodie_mint 로 둔다. */
   { id: "top_hoodie_mint", slot: "top",  label: "민트꽃 후드",  emoji: "🧥", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/hoodie-boy.webp", thumb: "assets/avatar/thumb/top_hoodie.webp" },
+  /* 도토리 탐험복 — 남아 (사용자 원화 2026-09-26). 크림 셔츠 + 나뭇잎 망토 +
+     도토리 금브로치 + 가죽 벨트 + 갈색 카고 반바지.
+     원화가 '옷만 오려 낸 깨끗한 그림'이라(연결 조각 1개·안쪽 구멍 0) 색으로
+     떼어낼 일이 없었다 — 후드·사파리와 같은 경우다.
+     배율 0.42 균등 · 망토 위끝 y383 → 탑재 상자 (366,383)-(661,740).
+     배율은 사파리 옷 남아에 맞춰 잡았다 — 소매부리 폭 293px, 상자 x366~661 로
+     둘이 거의 같은 자리에 온다(사파리 (366,386)-(659,742)). 같은 몸에 입히는
+     같은 종류의 옷이라 자리가 어긋나면 갈아입을 때 튄다.
+     망토 깃 안쪽 목·가슴 살은 남겼다 — 깃 구멍(폭 39)이 베이스 목(폭 67)보다
+     좁아서 살을 지우면 깃 사이로 구멍이 보인다(민트꽃 후드와 같은 이유). */
+  { id: "top_acorn",      slot: "top",   label: "도토리 탐험복", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", coversBottom: true, img: "assets/avatar/top/acorn-outfit-boy.webp", thumb: "assets/avatar/thumb/top_acorn.webp" },
   { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=2", imgGirl: "assets/avatar/top/space-suit-girl.webp", thumb: "assets/avatar/thumb/top_space.webp", thumbGirl: "assets/avatar/thumb/top_space-girl.webp" },
 
 ];
