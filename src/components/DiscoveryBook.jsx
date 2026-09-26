@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CAMP_SHEET } from "../data/tokens.js";
 import {
   DISCOVERY_RARITY, DISCOVERY_TOTAL,
   getCollectionByCategory, getCollectedCount, getDiscoveryLog, getDiscovery, rollEvent,
@@ -51,7 +52,9 @@ export default function DiscoveryBook({ open, onClose, data, childId, childName 
         }}
       >
         {/* 헤더 */}
-        <div style={{ padding: "16px 20px", background: "linear-gradient(135deg,#8A6B47,#B08A5B)", color: "#fff" }}>
+        {/* 헤더 — [사용자 확정 2026-09-26] 상점 시트들과 같은 초록으로 맞춘다.
+            본문 양피지·갈색 글씨는 그대로 둔다(도감 느낌). */}
+        <div style={{ padding: "16px 20px", background: CAMP_SHEET.headerBg, color: CAMP_SHEET.headerText }}>
           <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}>📖 발견 도감</p>
           <p style={{ margin: "3px 0 0", fontSize: 12, fontWeight: 700, opacity: 0.92 }}>
             {childName ? `${childName}이(가) ` : ""}지금까지 <b>{found}</b> / {DISCOVERY_TOTAL} 가지를 발견했어요

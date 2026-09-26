@@ -113,9 +113,12 @@ export default function DecorShopSheet({
             <button onClick={()=>setView("bg")}
               style={{width:"100%",boxSizing:"border-box",padding:"20px 18px",borderRadius:22,cursor:"pointer",textAlign:"left",
                 display:"flex",alignItems:"center",gap:14,
-                background:cute?`linear-gradient(135deg, ${mixWhite("#8B5CF6",0.82)}, #fff)`:"linear-gradient(135deg, #6FA25E, #4C8548)",
-                border:cute?`1.5px solid #8B5CF655`:"1px solid rgba(190,222,200,0.45)",
-                boxShadow:cute?"0 6px 16px rgba(139,92,246,0.14)":"0 6px 18px rgba(60,100,60,0.28)"}}>
+                /* [사용자 확정 2026-09-26] 초록·보라였던 걸 '아바타 꾸미기'와 같은 파랑톤으로
+                   맞춘다 — 나란히 놓인 두 버튼이 서로 다른 색 계열이라 따로 놀았다.
+                   구분은 색이 아니라 그림(👗 / 🌈)과 이름이 맡는다. */
+                background:cute?`linear-gradient(135deg, ${mixWhite(th.main,0.82)}, #fff)`:"linear-gradient(135deg, #7398A8, #648492)",
+                border:cute?`1.5px solid ${th.main}55`:"1px solid rgba(190,220,232,0.45)",
+                boxShadow:cute?`0 6px 16px ${th.main}22`:"0 6px 18px rgba(60,90,105,0.28)"}}>
               <span style={{fontSize:34,flexShrink:0}}>🌈</span>
               <span style={{flex:1,minWidth:0}}>
                 <span style={{display:"block",fontSize:17,fontWeight:900,color:cute?C.text:"#FFFFFF"}}>배경 꾸미기</span>
