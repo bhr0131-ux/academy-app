@@ -166,14 +166,25 @@ const _RARITY_OF = {
 Object.entries(_RARITY_OF).forEach(([r, keys]) => keys.forEach((k) => { if (MOUNTS[k]) MOUNTS[k].r = r; }));
 Object.values(MOUNTS).forEach((m) => { if (!m.r) m.r = "common"; });
 
-/* ── Adventure Item Sheet (13종) — 걷기 캐릭터에 아이템만 추가 ── */
+/* ── Adventure Item Sheet (13종) — 걷기 캐릭터에 아이템만 추가 ──
+   [사용자 원화 2026-09-26] 여섯 개(랜턴·밧줄·도시락·물병·나침반·횃불)는 그림이 들어왔다.
+   img 가 있으면 그림, 없으면 이모지 — 그리는 쪽(ExpeditionTrack)이 이미 그 구조다.
+   지금 회차에 실제로 붙어 있는 건 밧줄(바위산)·나침반(숲)·횃불(동굴)·도시락(숲길)
+   네 개고, 랜턴·물병은 회차에 아직 안 붙었지만 받은 김에 같이 넣어 둔다.
+   그림이 없는 일곱 개(배낭·보물지도·깃발·삽·망원경·구급파우치·황금열쇠)는
+   이모지 그대로 — 보물지도는 '보물상자' 회차에서 지금도 🗺️ 로 나온다. */
 export const ADVENTURE_ITEMS = {
   backpack:{ emoji:"🎒", name:"배낭" },   map:{ emoji:"🗺️", name:"보물지도" },
-  compass:{ emoji:"🧭", name:"나침반" },  flag:{ emoji:"🚩", name:"깃발" },
-  torch:{ emoji:"🔥", name:"횃불" },      shovel:{ emoji:"🪏", name:"삽" },
-  rope:{ emoji:"🪢", name:"밧줄" },       telescope:{ emoji:"🔭", name:"망원경" },
-  lantern:{ emoji:"🏮", name:"랜턴" },    bottle:{ emoji:"🧉", name:"물병" },
-  lunchbox:{ emoji:"🍱", name:"도시락" }, firstaid:{ emoji:"🩹", name:"구급파우치" },
+  compass:{ emoji:"🧭", name:"나침반",   img:"assets/expedition/item/compass.webp" },
+  flag:{ emoji:"🚩", name:"깃발" },
+  torch:{ emoji:"🔥", name:"횃불",       img:"assets/expedition/item/torch.webp" },
+  shovel:{ emoji:"🪏", name:"삽" },
+  rope:{ emoji:"🪢", name:"밧줄",        img:"assets/expedition/item/rope.webp" },
+  telescope:{ emoji:"🔭", name:"망원경" },
+  lantern:{ emoji:"🏮", name:"랜턴",     img:"assets/expedition/item/lantern.webp" },
+  bottle:{ emoji:"🧉", name:"물병",      img:"assets/expedition/item/bottle.webp" },
+  lunchbox:{ emoji:"🍱", name:"도시락",  img:"assets/expedition/item/lunchbox.webp" },
+  firstaid:{ emoji:"🩹", name:"구급파우치" },
   goldkey:{ emoji:"🗝️", name:"황금열쇠" },
 };
 
