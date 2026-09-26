@@ -156,10 +156,6 @@ export default function EquipmentShop({
   };
 
   const [stageRef, stage, stageLimit] = useStageSize(open);
-  /* 자세히 보기 — 아바타를 누르면 크게 열린다. 목록은 그대로 있으니(위에 겹쳐 띄운다)
-     닫으면 보던 상품 자리로 그대로 돌아온다. */
-  const [zoom, setZoom] = useState(false);
-  useEffect(() => { if (!open) setZoom(false); }, [open]);
 
   /* 열 때마다 탭을 다시 잡는다 — 아이를 바꾸면 성별이 달라지고, 비어 있는 탭에
      멈춰 있으면 "상점에 아무것도 없다"로 보인다. */
@@ -332,24 +328,9 @@ export default function EquipmentShop({
           position: "relative", padding: "4px 0",
           display: "flex", alignItems: "center", justifyContent: "center", background: G.soft,
         }}>
-          {/* 아바타를 누르면 크게 열린다 — 옷 무늬·장식을 확인하려고 목록 자리를
-              양보할 필요가 없게. 닫으면 보던 상품 자리로 그대로 돌아온다. */}
-          <button
-            onClick={() => setZoom(true)}
-            aria-label="아바타 크게 보기"
-            style={{ border: "none", background: "transparent", padding: 0, cursor: "zoom-in", lineHeight: 0 }}
-          >
-            <AvatarViewer equipped={previewEquipped} size={stage} baseCharImg={baseCharImg} gender={gender} />
-          </button>
-          <span style={{
-            /* AvatarViewer 안쪽 레이어가 z 10~70 을 쓴다(모자 50, 효과 70) —
-               같은 쌓임 맥락이라 z 를 그 위로 올려야 안 가린다 */
-            position: "absolute", zIndex: 90, left: 12, top: 12, pointerEvents: "none",
-            background: "rgba(255,255,255,0.88)", color: G.text, border: `1px solid ${G.line}`,
-            borderRadius: 999, padding: "4px 9px", fontSize: 10.5, fontWeight: 900,
-          }}>
-            🔍 크게 보기
-          </span>
+          {/* (삭제됨) '🔍 크게 보기' — 아바타를 눌러 크게 여는 기능. 무대를
+              MAX 까지 키워 두니 굳이 따로 열 일이 없었다 (사용자 확정 2026-09-26). */}
+          <AvatarViewer equipped={previewEquipped} size={stage} baseCharImg={baseCharImg} gender={gender} />
           {/* 입어보던 걸 한 번에 되돌리는 길 — 안 사고 빠져나올 수 있어야 한다 */}
           {Object.keys(preview).length > 0 && (
             <button
@@ -483,40 +464,6 @@ export default function EquipmentShop({
           </button>
         </div>
       </div>
-
-      {/* ── 자세히 보기 ──────────────────────────────────────────────────
-          상점 위에 겹쳐 띄운다 — 목록을 갈아치우지 않으니 닫으면 보던 상품
-          자리(스크롤 위치·고른 것)로 그대로 돌아온다. 바탕이나 '닫기'를 누르면 닫힌다. */}
-      {zoom && (
-        <div
-          onClick={(e) => { e.stopPropagation(); setZoom(false); }}
-          style={{
-            position: "fixed", inset: 0, zIndex: 4100, background: "rgba(16,22,16,0.72)",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            gap: 14, padding: 12, cursor: "zoom-out",
-          }}
-        >
-          <AvatarViewer
-            equipped={previewEquipped}
-            size={Math.max(200, Math.min(
-              (typeof window !== "undefined" ? window.innerWidth : 360) - 24,
-              (typeof window !== "undefined" ? window.innerHeight : 640) - 130,
-              520,
-            ))}
-            baseCharImg={baseCharImg}
-            gender={gender}
-          />
-          <button
-            onClick={(e) => { e.stopPropagation(); setZoom(false); }}
-            style={{
-              minHeight: 48, border: "none", borderRadius: 999, padding: "0 30px",
-              background: "#fff", color: G.text, fontSize: 15, fontWeight: 900, cursor: "pointer",
-            }}
-          >
-            닫기
-          </button>
-        </div>
-      )}
     </div>
   );
 }
