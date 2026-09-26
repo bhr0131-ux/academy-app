@@ -176,7 +176,10 @@ export const SKINS = {
       { kw:["한자","중국어","일본어","제2외국어","스페인어"],  icon:"🀄", label:"동방 문자의 길" },
       { kw:["요리","쿠킹","베이킹"],                           icon:"🍳", label:"마녀의 부엌" },
     ],
-    academyDefault:{ icon:"🏰", label:"미지의 탐험" },
+    /* [사용자 확정 2026-09-26] 기본 아이콘을 🏰 → 🎯 로 바꿨다. 이름에 과목 낱말이
+       없는 학원("청담어학원" 같은)이 여기로 떨어지는데, 성 그림은 옛 던전 모드
+       잔재라 지금 그림체와 따로 놀았다. 이름은 '미지의 탐험' 그대로 둔다. */
+    academyDefault:{ icon:"🎯", label:"미지의 탐험" },
     // 완료 연출 타입
     clearEffect:"slash", // 검 베기 느낌
   },
@@ -446,7 +449,7 @@ export const getAcademyDungeon = (name="") => {
   for(const r of ACADEMY_DUNGEON_RULES){
     if(r.kw.some(k=>n.includes(k.toLowerCase()))) return r;
   }
-  return { icon:"🏰", label:"미지의 탐험" };
+  return { icon:"🎯", label:"미지의 탐험" };   // 위 SKINS.dungeon.academyDefault 와 같은 값으로 맞춘다
 };
 
 // ── 스킨별 학원 아이콘/라벨 매칭 ───────────────────────────
