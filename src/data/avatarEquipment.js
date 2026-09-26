@@ -271,6 +271,14 @@ export const topCoversBottom = (equippedMap = {}) => {
 };
 export const applyBottomRule = (equippedMap = {}) => {
   const next = { ...equippedMap };
+  /* [버그 수정 2026-09-26] 산 상의를 '벗기' 하면 top 이 빈 채로 남아 **속옷 차림**이
+     됐다. 하의는 여기서 기본 반바지로 되돌리는데 상의에는 같은 규칙이 없었다.
+     "벗기로 속옷이 되는 길은 막혀 있다"는 건 기본 옷을 못 벗게 한 것뿐이었고,
+     빈 슬롯을 다시 채우는 건 normalizeEquipped(=앱을 새로 켤 때)뿐이라
+     벗은 그 자리에서는 앱을 껐다 켜기 전까지 속옷이 그대로 보였다.
+     상의도 하의와 똑같이 기본 옷으로 되돌린다. (top 을 먼저 정해야 아래
+     한 벌 옷 판단이 맞는다) */
+  if (!next.top) next.top = STARTER_ID_BY_SLOT("top");        // 벗으면 기본 반팔티 복귀
   if (topCoversBottom(next)) next.bottom = null;              // 한 벌 옷 → 하의 벗김
   else if (!next.bottom) next.bottom = STARTER_ID_BY_SLOT("bottom"); // 벗으면 기본 반바지 복귀
   return next;
@@ -376,12 +384,20 @@ export const isItemArtReady = (it) => !it.artPending;
 export const getItemsBySlot = (slotKey, gender) =>
   AVATAR_CATALOG.filter(it => it.slot === slotKey && isItemInSeason(it) && isItemForGender(it, gender) && isItemArtReady(it));
 
+/* [사용자 확정 2026-09-26] 기본 지급 옷(기본 반팔티·기본 반바지)은 **상점 목록에
+   안 띄운다.** 처음부터 가지고 있고, 벗을 수도 없어서(starter) 상점에서 할 수 있는
+   게 '입는 중' 확인뿐이었다 — 살 수 있는 옷 사이에 껴 있으면 자리만 차지한다.
+   [중요] 취급은 하나도 안 바뀐다. 지급·자동 장착(getDefaultEquipped·
+   normalizeEquipped)·벗기 금지(computeAvatarEquipToggle)는 카탈로그를 보지
+   이 함수를 안 본다. 여기서 빼는 건 '상점 진열'뿐이다. */
+export const isItemInShop = (it) => !it.starter;
+
 /* 상점 탭 하나가 보여 줄 목록 — 탭이 여러 슬롯을 묶으면(옷 = 상의+하의) 적힌
-   순서대로 이어 붙인다. 한 슬롯짜리 탭은 getItemsBySlot 과 결과가 같다. */
+   순서대로 이어 붙인다. */
 export const getItemsByTab = (tabKey, gender) => {
   const tab = getShopTab(tabKey);
   if (!tab) return [];
-  return tab.slots.flatMap(slotKey => getItemsBySlot(slotKey, gender));
+  return tab.slots.flatMap(slotKey => getItemsBySlot(slotKey, gender)).filter(isItemInShop);
 };
 export const STARTER_ITEM_IDS = AVATAR_CATALOG.filter(it => it.starter).map(it => it.id);
 
