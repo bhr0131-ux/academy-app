@@ -25,7 +25,7 @@ import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
 import FeePaySheet, { payMethodLabel } from "./components/parent/FeePaySheet.jsx";
 import ChildFace from "./components/parent/ChildFace.jsx";
 import CareIcon from "./components/parent/CareIcons.jsx";
-import EmojiIcon from "./components/EmojiIcon.jsx";
+import EmojiIcon, { EmojiText } from "./components/EmojiIcon.jsx";
 import { REWARD_EMOJI } from "./data/rewardEmoji.js";
 import SectionHead from "./components/parent/SectionHead.jsx";
 import XpAdjustCard from "./components/parent/XpAdjustCard.jsx";
@@ -4002,7 +4002,7 @@ export default function App() {
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,position:"relative",zIndex:1}}>
                   <p style={{fontSize:12,fontWeight:900,letterSpacing:1.5,margin:0,color:kidSkin==="cute"?GP.boxSub:"#8A6A2E"}}>{T.heroStatus}</p>
                   <p style={{display:"inline-block",...jellyChip({background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"#EDF8FD",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"1px solid rgba(125,183,216,0.6)",borderRadius:20},{radius:20}),fontSize:13,fontWeight:900,color:kidSkin==="cute"?GP.boxText:"#355D76",padding:"5px 12px",margin:0,maxWidth:"58%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
-                    {title.emoji} {title.name}
+                    <EmojiIcon emoji={title.emoji} size={13} style={{verticalAlign:"-0.18em",marginRight:3}}/>{title.name}
                   </p>
                 </div>
                 <div style={{marginTop:5,marginBottom:13,position:"relative",zIndex:1,minWidth:0}}>
@@ -4046,7 +4046,7 @@ export default function App() {
                       )}
                       <JellyBar percent={progress.percent} height={14} fallbackTrack="rgba(47,86,112,0.16)" fallbackBorder="1px solid rgba(143,201,237,0.7)" />
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginTop:6,fontSize:11.5,fontWeight:800,opacity:0.88}}>
-                        <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nextLevel?<>다음 레벨 : {nextLevel.emoji} Lv.{nextLevel.level} {nextLevel.name}</>:"🏆 최고 레벨 달성!"}</span>
+                        <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nextLevel?<>다음 레벨 : <EmojiIcon emoji={nextLevel.emoji} size={11.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>Lv.{nextLevel.level} {nextLevel.name}</>:<EmojiText>🏆 최고 레벨 달성!</EmojiText>}</span>
                         <span style={{opacity:0.78,flexShrink:0}}>{nextLevel?(kidSkin==="cute"?`${progress.remainXp}${TM.xpUnit} 남음`:`${progress.currentXp}/${progress.needXp} · ${progress.remainXp} 남음`):""}</span>
                       </div>
                     </div>
@@ -4188,7 +4188,7 @@ export default function App() {
           /* 빈 칸(탐험 없는 날·미션 없는 날)에서 앉아 쉬는 캐릭터 — 숨 쉬듯 아주 조금만 */
           @keyframes sitBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
         `}}/>
-        {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
+        {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}><EmojiText>{toast}</EmojiText></div>}
 
         {showKidCoachmark&&(
           <KidCoachmark th={th} skin={kidSkin} onFinish={()=>{ setShowKidCoachmark(false); save("v6_kid_guide_seen","1"); }} />
@@ -4409,11 +4409,11 @@ export default function App() {
                   // 밝은 무대: 흰 글로우 대신 옅은 웜브라운 그림자 — 흰 구름 위에서도 글자가 묻히지 않게
                   textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 2px rgba(93,70,51,0.30), 0 2px 10px rgba(93,70,51,0.18)"}}>
                   {_lines.map((ln,i)=><Fragment key={i}>{i>0&&<br/>}{ln}</Fragment>)}
-                  {_emoji&&<span style={{fontSize:"0.64em",verticalAlign:"baseline",marginLeft:3}}>{_emoji}</span>}
+                  {_emoji&&<EmojiIcon emoji={_emoji} size="0.64em" style={{verticalAlign:"-0.08em",marginLeft:3}}/>}
                   {/* 발견·만남 줄은 응원 문구에서 한 뼘 떨어뜨린다 (사용자 조정: 9→18px) */}
-                  {_ddi&&<span style={{display:"block",fontSize:13.5,marginTop:18,opacity:0.96}}>{_ddi.emoji} {_ddi.msg}</span>}
-                  {_dev&&<span style={{display:"block",fontSize:13.5,marginTop:_ddi?4:18,opacity:0.9}}>{_dev.emoji} {_dev.msg}</span>}
-                  {_rainLine&&<span style={{display:"block",fontSize:13.5,marginTop:(_ddi||_dev)?4:18,opacity:0.9}}>{_rainLine.emoji} {_rainLine.msg}</span>}
+                  {_ddi&&<span style={{display:"block",fontSize:13.5,marginTop:18,opacity:0.96}}><EmojiIcon emoji={_ddi.emoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{_ddi.msg}</span>}
+                  {_dev&&<span style={{display:"block",fontSize:13.5,marginTop:_ddi?4:18,opacity:0.9}}><EmojiIcon emoji={_dev.emoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{_dev.msg}</span>}
+                  {_rainLine&&<span style={{display:"block",fontSize:13.5,marginTop:(_ddi||_dev)?4:18,opacity:0.9}}><EmojiIcon emoji={_rainLine.emoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{_rainLine.msg}</span>}
                 </h1>
               );
             })()}
@@ -5116,7 +5116,7 @@ export default function App() {
                                 {item.failed
                                   ? <p style={{fontSize:12.5,fontWeight:900,color:C.red,margin:0}}>보상 없음</p>
                                   : kidSkin==="cute"
-                                    ? <p style={{fontSize:12.5,fontWeight:900,color:GP.gold,margin:0}}>{getQuestRewardText(item)}</p>
+                                    ? <p style={{fontSize:12.5,fontWeight:900,color:GP.gold,margin:0}}><EmojiText>{getQuestRewardText(item)}</EmojiText></p>
                                     : (()=>{const pt=item.point||DEFAULT_HOMEWORK_SCORE;return (
                                         <div style={{display:"flex",gap:10,fontWeight:900,fontSize:13.5,opacity:item.done?0.7:1}}>
                                           <span style={{color:"#D89A26"}}><EmojiIcon emoji={TM.xpEmoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{pt}{TM.xpUnit}</span>
@@ -5316,7 +5316,7 @@ export default function App() {
                   boxShadow:dk?"0 0 18px rgba(255,216,107,0.30), inset 0 1px 0 rgba(255,232,160,.12)":"none"}}>
                   <p style={{margin:0,fontSize:13,fontWeight:900,color:dk?"#FFD86B":"#F5B301",textShadow:dk?"0 0 10px rgba(255,216,107,.5)":"none"}}>✨ 전설 상장 획득</p>
                   <p style={{marginTop:6,fontSize:20,fontWeight:900,margin:"6px 0 0",color:dk?"#FFE9B0":C.text}}>
-                    {treasureModal.titleReward.emoji} {treasureModal.titleReward.name}
+                    <EmojiIcon emoji={treasureModal.titleReward.emoji} size={20} style={{verticalAlign:"-0.18em",marginRight:4}}/>{treasureModal.titleReward.name}
                   </p>
                 </div>
                 );
@@ -5447,7 +5447,7 @@ export default function App() {
                     <div style={{position:"absolute",top:0,left:"-60%",width:"45%",height:"100%",background:"linear-gradient(105deg,transparent,rgba(255,255,255,.5),transparent)",transform:"skewX(-18deg)",animation:"shineMove 3.2s ease-in-out infinite"}}/>
                   </div>
                   <div style={{position:"relative"}}>
-                    <div style={{fontSize:50,lineHeight:1,marginBottom:6,filter:"drop-shadow(0 3px 6px rgba(0,0,0,.18))"}}>{eventModal.emoji}</div>
+                    <div style={{lineHeight:1,marginBottom:6,filter:"drop-shadow(0 3px 6px rgba(0,0,0,.18))"}}><EmojiIcon emoji={eventModal.emoji} size={50}/></div>
                     <div style={{fontSize:11,letterSpacing:5,fontWeight:800,color:cEyebrow,marginBottom:6}}>CERTIFICATE</div>
                     <div style={{fontSize:30,fontWeight:900,letterSpacing:8,color:cTitle,marginBottom:4}}>상 장</div>
                     <div style={{display:"inline-block",height:3,width:54,borderRadius:2,background:cRibbon,margin:"10px auto 16px"}}/>
@@ -5461,7 +5461,7 @@ export default function App() {
                     </div>
                     {eventModal.reward&&(
                       <div style={{borderRadius:11,padding:"10px 12px",fontSize:13,fontWeight:900,marginBottom:kidSkin==="cute"?10:20,marginTop:kidSkin==="cute"?6:0,background:cRewardBg,color:cRewardTx,border:`1px solid ${cRewardBd}`}}>
-                        {String(eventModal.reward).split("\n").map((line,i)=>(<div key={i}>{line}</div>))}
+                        {String(eventModal.reward).split("\n").map((line,i)=>(<div key={i}><EmojiText>{line}</EmojiText></div>))}
                       </div>
                     )}
                     <button onClick={()=>setEventModal(null)}
@@ -5505,7 +5505,7 @@ export default function App() {
                     <img src={eventModal.charImg} alt="진화한 캐릭터" draggable={false}
                       style={{display:"block",height:148,width:"auto",maxWidth:"none",filter:"drop-shadow(0 8px 14px rgba(0,0,0,0.25))",animation:"jellyIn 0.55s ease-out 0.25s backwards"}}/>
                   </div>
-                : <p style={{fontSize:58,margin:"0 0 8px",position:"relative"}}>{eventModal.emoji}</p>}
+                : <p style={{margin:"0 0 8px",position:"relative"}}><EmojiIcon emoji={eventModal.emoji} size={58}/></p>}
               <p style={{fontSize:kidSkin==="cute"?22:24,fontWeight:900,margin:0,letterSpacing:kidSkin==="cute"?0:1,position:"relative"}}>{eventModal.title}</p>
             </div>
             {/* 본문 */}
@@ -5515,7 +5515,7 @@ export default function App() {
               {eventModal.reward&&(
                 <div style={{background:kidSkin==="cute"?mixWhite(th.main,0.86):GP.boxSolid,border:`1px solid ${kidSkin==="cute"?mixWhite(th.main,0.6):GP.boxBorder}`,color:kidSkin==="cute"?mixBlack(th.main,0.25):GP.boxText,borderRadius:14,padding:"11px 12px",fontSize:13,fontWeight:900,marginBottom:16,lineHeight:1.5}}>
                   {String(eventModal.reward).split("\n").map((line,i)=>(
-                    <div key={i}>{line}</div>
+                    <div key={i}><EmojiText>{line}</EmojiText></div>
                   ))}
                 </div>
               )}
@@ -5540,7 +5540,7 @@ export default function App() {
       <AvatarResetModal notice={avatarResetNotice} onClose={()=>setAvatarResetNotice(null)} />
 
       {/* 토스트 */}
-      {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}>{toast}</div>}
+      {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}><EmojiText>{toast}</EmojiText></div>}
 
       {/* 범용 PIN 게이트 모달 (부모모드: 보상탭 진입 · 위험구역 초기화 보호) */}
       {gateAction&&(

@@ -42,3 +42,39 @@ export default function EmojiIcon({ emoji, size = 24, style }) {
     </span>
   );
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   EmojiText — 글 속에 섞인 이모지만 골라 그림으로 바꿔 준다
+   ────────────────────────────────────────────────────────────────────────
+   [사용자 확정 2026-09-27] 토스트·모달 문구는 `${TM.coinEmoji} 코인이 부족해요`
+   처럼 문자열 한 덩어리라 이모지 자리에 컴포넌트를 끼울 수가 없었다. 그래서
+   문자열을 받아 이모지만 잘라 내고 그 자리에 EmojiIcon 을 넣는다 —
+   부르는 쪽 문구는 그대로 두고 감싸기만 하면 된다.
+
+     <EmojiText>{toast}</EmojiText>
+
+   크기는 기본 1em — 감싼 글자 크기를 그대로 따라가므로 어디에 써도 맞는다.
+   그림이 없는 이모지는 손대지 않고 글자 그대로 흘려보낸다 (EmojiIcon 과 같은 규칙).
+   문자열이 아닌 것(이미 JSX)은 그대로 돌려준다.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* 이모지 한 덩어리 — 국기(지역표시 2개) · 기본 이모지 + 변이선택자/키캡 · ZWJ 로 이은 것 */
+const EMOJI_RE = /(?:[\u{1F1E6}-\u{1F1FF}]{2}|[\u{1F000}-\u{1FAFF}\u{2300}-\u{27BF}\u{2B00}-\u{2BFF}\u{2600}-\u{26FF}][\u{FE0F}\u{20E3}]?(?:\u{200D}[\u{1F000}-\u{1FAFF}\u{2300}-\u{27BF}][\u{FE0F}]?)*)/gu;
+
+export function EmojiText({ children, size = "1em", style }) {
+  if (typeof children !== "string" || !children) return children ?? null;
+  const out = [];
+  let last = 0, i = 0;
+  for (const m of children.matchAll(EMOJI_RE)) {
+    if (!hasEmojiArt(m[0])) continue;
+    if (m.index > last) out.push(children.slice(last, m.index));
+    out.push(
+      <EmojiIcon key={`e${i++}`} emoji={m[0]} size={size}
+        style={{ verticalAlign: "-0.18em", ...style }} />
+    );
+    last = m.index + m[0].length;
+  }
+  if (!out.length) return children;
+  if (last < children.length) out.push(children.slice(last));
+  return <>{out}</>;
+}

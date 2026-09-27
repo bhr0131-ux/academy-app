@@ -86,7 +86,7 @@ export default function TreasureSheet({ open, onClose, dark, skin = "dungeon", t
                   {count > 0 && box.type === "legend" && (
                     <span style={{ position: "absolute", top: 8, right: 10, fontSize: 16, opacity: 0.9 }}>✨</span>
                   )}
-                  <p style={{ fontSize: cute ? 28 : 36, margin: "0 0 5px" }}>{info.emoji}</p>
+                  <p style={{ margin: "0 0 5px" }}><EmojiIcon emoji={info.emoji} size={cute ? 28 : 36}/></p>
                   <p style={{ fontSize: 13, fontWeight: 900, color: count > 0 ? (dark ? CAMP_SHEET.text : C.text) : (dark ? CAMP_SHEET.textSub : C.sub), margin: "0 0 3px" }}>{info.name}</p>
                   <p style={{ fontSize: 13, fontWeight: 900, color: count > 0 ? box.color : (dark ? CAMP_SHEET.textSub : C.sub), margin: "0 0 4px" }}>x {count}</p>
                   {count > 0 && <p style={{ fontSize: 11, fontWeight: 900, color: "#fff",
@@ -99,7 +99,7 @@ export default function TreasureSheet({ open, onClose, dark, skin = "dungeon", t
             {cute ? `미션을 모으면 ${boxName}를 받아요! (겹칠 땐 더 좋은 상자로 받아요)` : "미션을 모으면 상자를 받아요! (겹칠 땐 더 좋은 상자로 받아요)"}
           </p>
           <p style={{ fontSize: 11.5, color: dark ? CAMP_SHEET.textSub : C.sub, fontWeight: 700, margin: "5px 0 0", lineHeight: 1.5 }}>
-            {getBoxInfo("normal", skin).emoji} {TREASURE_MILESTONE.normal}개 → {getBoxInfo("normal", skin).name} · {getBoxInfo("rare", skin).emoji} {TREASURE_MILESTONE.rare}개 → {getBoxInfo("rare", skin).name} · {getBoxInfo("legend", skin).emoji} {TREASURE_MILESTONE.legend}개 → {getBoxInfo("legend", skin).name}
+            <EmojiIcon emoji={getBoxInfo("normal", skin).emoji} size={11.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{TREASURE_MILESTONE.normal}개 → {getBoxInfo("normal", skin).name} · <EmojiIcon emoji={getBoxInfo("rare", skin).emoji} size={11.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{TREASURE_MILESTONE.rare}개 → {getBoxInfo("rare", skin).name} · <EmojiIcon emoji={getBoxInfo("legend", skin).emoji} size={11.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{TREASURE_MILESTONE.legend}개 → {getBoxInfo("legend", skin).name}
           </p>
         </div>
       </div>

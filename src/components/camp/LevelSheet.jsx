@@ -1,5 +1,5 @@
 import { PAPER, INK, INK_SUB, BAR_FILL, BAR_TRACK } from "./gridLayout.js";
-import EmojiIcon from "../EmojiIcon.jsx";
+import EmojiIcon, { EmojiText } from "../EmojiIcon.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
    LevelSheet — 가방(레벨 카드)을 누르면 뜨는 레벨 상세 시트 (캠프 개편 7/7)
@@ -60,7 +60,7 @@ export default function LevelSheet({
             <span style={{ fontSize: 12, fontWeight: 900, color: INK_SUB, background: TILE,
               border: `1px solid ${LINE}`, borderRadius: 999, padding: "4px 11px", minWidth: 0,
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {title.emoji} {title.name}
+              <EmojiIcon emoji={title.emoji} size={12} style={{verticalAlign:"-0.18em",marginRight:3}}/>{title.name}
             </span>
           )}
           <button onClick={onClose} aria-label="닫기" className="jelly-tap"
@@ -84,7 +84,7 @@ export default function LevelSheet({
             <div style={{ minWidth: 0, flex: 1 }}>
               <p style={{ margin: 0, fontSize: 20, fontWeight: 900, color: INK, lineHeight: 1.25,
                 wordBreak: "keep-all" }}>
-                {level.emoji} Lv.{level.level} {level.name}
+                <EmojiIcon emoji={level.emoji} size={20} style={{verticalAlign:"-0.18em",marginRight:4}}/>Lv.{level.level} {level.name}
               </p>
               {desc && <p style={{ margin: "5px 0 0", fontSize: 13, fontWeight: 700, color: INK_SUB,
                 lineHeight: 1.5, wordBreak: "keep-all" }}>“{desc}”</p>}
@@ -107,7 +107,7 @@ export default function LevelSheet({
               <>
                 <span style={{ fontSize: 13, fontWeight: 800, color: INK, minWidth: 0,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  다음 {nextLevel.emoji} Lv.{nextLevel.level} {nextLevel.name}
+                  다음 <EmojiIcon emoji={nextLevel.emoji} size={13} style={{verticalAlign:"-0.18em",marginRight:3}}/>Lv.{nextLevel.level} {nextLevel.name}
                 </span>
                 <span style={{ marginLeft: "auto", flexShrink: 0, fontSize: 12.5, fontWeight: 900,
                   color: INK_SUB, whiteSpace: "nowrap" }}>
@@ -115,7 +115,7 @@ export default function LevelSheet({
                 </span>
               </>
             ) : (
-              <span style={{ fontSize: 14, fontWeight: 900, color: INK }}>🏆 최고 레벨을 찍었어요!</span>
+              <span style={{ fontSize: 14, fontWeight: 900, color: INK }}><EmojiText>🏆 최고 레벨을 찍었어요!</EmojiText></span>
             )}
           </div>
 
@@ -140,7 +140,7 @@ export default function LevelSheet({
             <div style={{ marginTop: 10, background: TILE, border: `1px solid ${LINE}`, borderRadius: 14,
               padding: "11px 13px" }}>
               <p style={{ margin: 0, fontSize: 13, fontWeight: 900, color: INK }}>
-                {evo.emoji ? `${evo.emoji} ` : "🧬 "}{evo.name}
+<EmojiIcon emoji={evo.emoji || "🧬"} size={13} style={{verticalAlign:"-0.18em",marginRight:3}}/>{evo.name}
                 {evo.stage > 0 && (
                   <span style={{ marginLeft: 6, fontSize: 11.5, fontWeight: 800, color: INK_SUB }}>
                     성장 {evo.stage}/5 단계

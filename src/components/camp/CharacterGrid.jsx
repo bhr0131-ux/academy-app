@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import EmojiIcon from "../EmojiIcon.jsx";
+import EmojiIcon, { EmojiText } from "../EmojiIcon.jsx";
 import {
   gridSizes, CARD_PANEL, PAPER, INK, INK_SUB, BAR_FILL, BAR_TRACK,
 } from "./gridLayout.js";
@@ -107,14 +107,14 @@ export default function CharacterGrid({
                   animation: "bagNewsBob 2.2s ease-in-out infinite" }}/>
               ) : (
                 <p style={{ margin: 0, fontSize: Math.round(S.cardH * 0.20), lineHeight: 1,
-                  animation: "bagNewsBob 2.2s ease-in-out infinite" }}>{event.emoji}</p>
+                  animation: "bagNewsBob 2.2s ease-in-out infinite" }}><EmojiIcon emoji={event.emoji} size={Math.round(S.cardH * 0.20)}/></p>
               )}
               <p style={{ margin: `${Math.round(S.cardH * 0.045)}px 0 0`, fontSize: Math.round(S.labelF * 1.06),
-                fontWeight: 900, color: INK, lineHeight: 1.2, wordBreak: "keep-all" }}>{event.title}</p>
+                fontWeight: 900, color: INK, lineHeight: 1.2, wordBreak: "keep-all" }}><EmojiText>{event.title}</EmojiText></p>
               {event.sub && (
                 <p style={{ margin: "3px 0 0", fontSize: Math.round(S.labelF * 0.84), fontWeight: 800,
                   color: INK_SUB, lineHeight: 1.3, wordBreak: "keep-all", overflow: "hidden",
-                  textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{event.sub}</p>
+                  textOverflow: "ellipsis", whiteSpace: "nowrap" }}><EmojiText>{event.sub}</EmojiText></p>
               )}
             </div>
           ) : (<>
@@ -125,13 +125,13 @@ export default function CharacterGrid({
           <p style={{ margin: 0, fontSize: Math.round(S.labelF * 1.12), fontWeight: 900, color: INK,
             lineHeight: 1.18, textAlign: "center", wordBreak: "keep-all", maxWidth: "100%",
             display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-            {level.emoji} Lv.{level.level} {level.name}
+            <EmojiIcon emoji={level.emoji} size={Math.round(S.labelF * 1.12)} style={{verticalAlign:"-0.18em",marginRight:5}}/>Lv.{level.level} {level.name}
           </p>
 
           {/* 다음 등급까지 — 다음 레벨이 없으면 최고 레벨 문구 */}
           <p style={{ margin: 0, fontSize: Math.round(S.labelF * 0.8), fontWeight: 800, color: INK_SUB,
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>
-            {nextLevel ? `다음 등급까지 ${Math.max(0, 100 - pct)}%` : "🏆 최고 레벨 달성!"}
+            <EmojiText>{nextLevel ? `다음 등급까지 ${Math.max(0, 100 - pct)}%` : "🏆 최고 레벨 달성!"}</EmojiText>
           </p>
 
           {/* 진행 막대 — 왼쪽 발자국에서 오른쪽 깃발까지 (시안대로).

@@ -1,5 +1,5 @@
 import { C, CAMP_SHEET, mixWhite } from "../../data/tokens.js";
-import EmojiIcon from "../EmojiIcon.jsx";
+import EmojiIcon, { EmojiText } from "../EmojiIcon.jsx";
 import { PET_STAGES, petView, PET_STAGE_IMG } from "../../data/gameData.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -78,12 +78,12 @@ export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dunge
                   style={{ display: "block", height: 64, width: "auto", margin: "0 auto 8px",
                     filter: "drop-shadow(0 0 8px rgba(255,220,120,0.8))" }}/>
               ) : (
-                <div style={{ fontSize: 64, lineHeight: 1, margin: "0 0 8px",
-                  filter: cute ? "none" : "drop-shadow(0 0 8px rgba(255,220,120,0.8))" }}>{pet.emoji}</div>
+                <div style={{ lineHeight: 1, margin: "0 0 8px",
+                  filter: cute ? "none" : "drop-shadow(0 0 8px rgba(255,220,120,0.8))" }}><EmojiIcon emoji={pet.emoji} size={64}/></div>
               )}
               <p style={{ fontSize: 18, fontWeight: 900, color: cute ? C.text : CAMP_SHEET.text, margin: "0 0 3px" }}>{pet.name}</p>
               <p style={{ fontSize: 13.5, fontWeight: 700, color: cute ? C.sub : CAMP_SHEET.textSub,
-                margin: "0 0 12px", lineHeight: 1.45 }}>{pet.desc}</p>
+                margin: "0 0 12px", lineHeight: 1.45 }}><EmojiText>{pet.desc}</EmojiText></p>
               <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 12 }}>
                 {PET_STAGES.map((p, i) => {
                   const pv = petView(p, i, skin);
@@ -91,7 +91,7 @@ export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dunge
                   return !cute && PET_STAGE_IMG[i]
                     ? <img key={i} src={PET_STAGE_IMG[i]} alt={pv.name} draggable={false}
                         style={{ display: "block", height: 19, width: "auto", ...dim }}/>
-                    : <span key={i} style={{ fontSize: 19, ...dim }}>{pv.emoji}</span>;
+                    : <EmojiIcon key={i} emoji={pv.emoji} size={19} style={dim}/>;
                 })}
               </div>
               <div style={{ background: cute ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.55)",
@@ -100,9 +100,9 @@ export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dunge
                 border: `1px solid ${cute ? themeMain + "1A" : "rgba(230,190,110,0.4)"}` }}>
                 {/* 펫 스킨을 끼고 있으면 그 동물의 한 줄로 바뀐다(pet.maxMsg) —
                     스킨은 최종 진화 뒤에만 낄 수 있어서 isMax 쪽에서만 본다. */}
-                {isMax
+                <EmojiText>{isMax
                   ? (pet.maxMsg || (cute ? "🏆 최종 성장 완료! 최고의 펫이에요" : "🏆 최종 진화 완료! 최고의 펫이에요"))
-                  : `${boxEmoji} ${boxName}를 열면 가끔 ${cute ? "펫이 자라요" : "펫이 진화해요"}`}
+                  : `${boxEmoji} ${boxName}를 열면 가끔 ${cute ? "펫이 자라요" : "펫이 진화해요"}`}</EmojiText>
               </div>
             </div>
           </div>
