@@ -169,12 +169,13 @@ Object.values(MOUNTS).forEach((m) => { if (!m.r) m.r = "common"; });
 /* ── Adventure Item Sheet (13종) — 걷기 캐릭터에 아이템만 추가 ──
    [사용자 원화 2026-09-26] 여섯 개(랜턴·밧줄·도시락·물병·나침반·횃불)는 그림이 들어왔다.
    img 가 있으면 그림, 없으면 이모지 — 그리는 쪽(ExpeditionTrack)이 이미 그 구조다.
-   지금 회차에 실제로 붙어 있는 건 밧줄(바위산)·나침반(숲)·횃불(동굴)·도시락(숲길)
-   네 개고, 랜턴·물병은 회차에 아직 안 붙었지만 받은 김에 같이 넣어 둔다.
-   그림이 없는 일곱 개(배낭·보물지도·깃발·삽·망원경·구급파우치·황금열쇠)는
-   이모지 그대로 — 보물지도는 '보물상자' 회차에서 지금도 🗺️ 로 나온다. */
+   [2026-09-27] 보물지도까지 들어와 **회차에 붙어 있는 다섯 개는 전부 그림**이 됐다 —
+   밧줄(바위산)·나침반(숲)·횃불(동굴)·도시락(숲길)·보물지도(보물상자).
+   랜턴·물병은 회차에 아직 안 붙었지만 받은 김에 같이 넣어 뒀다.
+   그림이 없는 여섯 개(배낭·깃발·삽·망원경·구급파우치·황금열쇠)는 이모지 그대로다. */
 export const ADVENTURE_ITEMS = {
-  backpack:{ emoji:"🎒", name:"배낭" },   map:{ emoji:"🗺️", name:"보물지도" },
+  backpack:{ emoji:"🎒", name:"배낭" },
+  map:{ emoji:"🗺️", name:"보물지도",     img:"assets/expedition/item/map.webp" },
   compass:{ emoji:"🧭", name:"나침반",   img:"assets/expedition/item/compass.webp" },
   flag:{ emoji:"🚩", name:"깃발" },
   torch:{ emoji:"🔥", name:"횃불",       img:"assets/expedition/item/torch.webp" },
@@ -204,6 +205,7 @@ export const ADVENTURE_ITEMS = {
 export const ITEM_PLACE_DEFAULT = { x: 97, y: 68, size: 26, rot: 0 };
 export const ITEM_PLACE = {
   rope:     { x: 99,  y: 70, size: 28, rot:  -8 },  // 둥글게 감은 밧줄을 손에 걸고
+  map:      { x: 97,  y: 64, size: 26, rot:  -6 },  // 펼쳐 들고 길을 본다 (가로로 넓다)
   compass:  { x: 97,  y: 62, size: 24, rot:   8 },  // 들어 올려 방향을 본다
   torch:    { x: 98,  y: 58, size: 40, rot:  14 },  // 불이 위로 — 길쭉해서 크게
   lunchbox: { x: 100, y: 70, size: 24, rot:  -5 },  // 손잡이를 쥐고 늘어뜨린다
