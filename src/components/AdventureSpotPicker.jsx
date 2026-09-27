@@ -20,6 +20,7 @@
      onSelect   : (id)=>void
    ════════════════════════════════════════════════════════════════════════ */
 import { Fragment } from "react";
+import EmojiIcon from "./EmojiIcon.jsx";
 import { FLAG_RED } from "./AdventureMap.jsx";   // 깃발 색은 지도와 한 곳에서 관리 (두 곳이 같은 표시)
 
 const D = 38;           // 스탬프 원판 지름 px
@@ -95,7 +96,7 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
                     : "0 2px 5px rgba(93,70,51,0.18)" }}>
                   {/* 이모지는 지나온 칸도 원색 그대로 (사용자 확정 — 지도 건물과 같은 규칙).
                       '지나왔다'는 표시는 원판 위의 빨간 깃발과 원판·글자 톤다운으로 충분하다. */}
-                  <span style={{ fontSize: EM, lineHeight: 1 }}>{it.icon}</span>
+                  <EmojiIcon emoji={it.icon} size={EM}/>
                   {/* 지나온 학원 = 원판 위에 꽂은 깃발 (사용자 요청) — 정복한 지점 표시.
                       이모지 대신 CSS로 그려 지도 팔레트(초록 깃발·갈색 장대)와 톤을 맞춘다 */}
                   {it.passed && (

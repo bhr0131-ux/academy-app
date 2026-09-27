@@ -1,4 +1,5 @@
 import { C, CAMP_SHEET } from "../../data/tokens.js";
+import EmojiIcon from "../EmojiIcon.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
    HistorySheet — 탐험 기록 (캐릭터 탭에서 열리는 바텀시트, 캠프 개편 3/6)
@@ -91,10 +92,10 @@ export default function HistorySheet({ open, onClose, dark, items = [], logInfo,
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.memo || item.date || ""}</p>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      {xp > 0 && <p style={{ margin: 0, color: dark ? "#1E9270" : gold, fontWeight: 900, fontSize: 13 }}>{xpEmoji} +{xp}</p>}
+                      {xp > 0 && <p style={{ margin: 0, color: dark ? "#1E9270" : gold, fontWeight: 900, fontSize: 13 }}><EmojiIcon emoji={xpEmoji} size={13} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{xp}</p>}
                       {coin !== 0 && <p style={{ margin: "2px 0 0",
                         color: dark ? (coin > 0 ? "#1E9270" : "#D0466A") : (coin > 0 ? C.green : C.red),
-                        fontWeight: 900, fontSize: 13 }}>{coinEmoji} {coin > 0 ? "+" : ""}{coin}</p>}
+                        fontWeight: 900, fontSize: 13 }}><EmojiIcon emoji={coinEmoji} size={13} style={{verticalAlign:"-0.18em",marginRight:3}}/>{coin > 0 ? "+" : ""}{coin}</p>}
                     </div>
                   </div>
                 );

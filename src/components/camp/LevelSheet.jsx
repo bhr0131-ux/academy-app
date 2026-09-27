@@ -1,4 +1,5 @@
 import { PAPER, INK, INK_SUB, BAR_FILL, BAR_TRACK } from "./gridLayout.js";
+import EmojiIcon from "../EmojiIcon.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
    LevelSheet — 가방(레벨 카드)을 누르면 뜨는 레벨 상세 시트 (캠프 개편 7/7)
@@ -110,7 +111,7 @@ export default function LevelSheet({
                 </span>
                 <span style={{ marginLeft: "auto", flexShrink: 0, fontSize: 12.5, fontWeight: 900,
                   color: INK_SUB, whiteSpace: "nowrap" }}>
-                  {labels.xpEmoji} {progress.remainXp.toLocaleString()} 남음
+                  <EmojiIcon emoji={labels.xpEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{progress.remainXp.toLocaleString()} 남음
                 </span>
               </>
             ) : (
@@ -123,7 +124,7 @@ export default function LevelSheet({
             {[[labels.coinEmoji, `보유 ${labels.coin}`, coin], [labels.xpEmoji, `누적 ${labels.xp}`, xp]].map(([em, lab, val]) => (
               <div key={lab} style={{ background: TILE, border: `1px solid ${LINE}`, borderRadius: 14,
                 padding: "11px 12px", display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-                <span style={{ fontSize: 21, flexShrink: 0 }}>{em}</span>
+                <EmojiIcon emoji={em} size={21}/>
                 <div style={{ minWidth: 0 }}>
                   <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: INK_SUB, whiteSpace: "nowrap" }}>{lab}</p>
                   <p style={{ margin: "1px 0 0", fontSize: 18, fontWeight: 900, color: INK,

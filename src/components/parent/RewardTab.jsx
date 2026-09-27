@@ -1,7 +1,7 @@
 import { C, FS, FW, RAD, mixBlack } from "../../data/tokens.js";
 import { REWARD_SETS_BY_AGE } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
-import EmojiIcon from "./EmojiIcon.jsx";
+import EmojiIcon from "../EmojiIcon.jsx";
 import RewardApprovals from "./RewardApprovals.jsx";
 import SectionHead from "./SectionHead.jsx";
 
@@ -65,7 +65,7 @@ export default function RewardTab({ D }) {
                       <p style={{fontSize:FS.title,fontWeight:FW.semi,margin:0,color:C.text,
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{reward.title}</p>
                       <p style={{fontSize:FS.body,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>
-                        {reward.point} {TM.coinEmoji} {TM.coin} 필요
+                        {reward.point} <EmojiIcon emoji={TM.coinEmoji} size={FS.body} style={{verticalAlign:"-0.18em",marginRight:3}}/> {TM.coin} 필요
                       </p>
                     </div>
                   ):(
@@ -73,7 +73,7 @@ export default function RewardTab({ D }) {
                       <p style={{flex:1,minWidth:0,fontSize:FS.title,fontWeight:FW.semi,margin:0,color:C.text,
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{reward.title}</p>
                       <span style={{flexShrink:0,fontSize:FS.body,color:C.sub,fontWeight:FW.normal,whiteSpace:"nowrap"}}>
-                        {TM.coinEmoji} {reward.point}{TM.coin}
+                        <EmojiIcon emoji={TM.coinEmoji} size={FS.body} style={{verticalAlign:"-0.18em",marginRight:3}}/> {reward.point}{TM.coin}
                       </span>
                     </>
                   )}

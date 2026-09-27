@@ -246,9 +246,10 @@ export default function EtcTab({ D }) {
         </p>
         {/* [사용자 확정 2026-08-17] 보상 그림으로 Twemoji 를 쓴다 — CC-BY 4.0 은
             저작자 표시를 요구하므로 여기 한 줄로 밝힌다 (자세한 건
-            public/assets/emoji/NOTICE.txt). */}
+            public/assets/emoji/NOTICE.txt).
+            [2026-09-27] 보상 말고 학원 종류·재화 그림에도 쓰게 되어 '보상 그림' → '이모지 그림'. */}
         <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,opacity:0.7,margin:"8px 0 0",lineHeight:1.5}}>
-          보상 그림: Twemoji © Twitter, Inc and other contributors · CC-BY 4.0
+          이모지 그림: Twemoji © Twitter, Inc and other contributors · CC-BY 4.0
         </p>
       </div>
     </div>

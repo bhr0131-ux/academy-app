@@ -1,5 +1,5 @@
 import { useState } from "react";
-import EmojiIcon from "../parent/EmojiIcon.jsx";
+import EmojiIcon from "../EmojiIcon.jsx";
 import { C, mixWhite, CAMP_SHEET, DUNGEON_DECOR_CARD, dungeonDecorRarity } from "../../data/tokens.js";
 import { getRewardGrade, UI_TEXT } from "../../data/characters.js";
 
@@ -76,7 +76,7 @@ export default function ItemShopSheet({ open, onClose, dark, skin = "dungeon", c
           {dark && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: CAMP_SHEET.chipBg, border: `1px solid ${CAMP_SHEET.chipBorder}`, borderRadius: 14, padding: "5px 12px" }}>
-                <span style={{ fontSize: 16 }}>{coinEmoji}</span>
+                <EmojiIcon emoji={coinEmoji} size={16}/>
                 <span style={{ fontSize: 14, fontWeight: 900, color: CAMP_SHEET.chipText }}>{coin} {coinName}</span>
               </div>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: CAMP_SHEET.chipBg, border: `1px solid ${CAMP_SHEET.chipBorder}`, borderRadius: 14, padding: "5px 12px" }}>
@@ -96,7 +96,7 @@ export default function ItemShopSheet({ open, onClose, dark, skin = "dungeon", c
               <p style={{ fontSize: 13, fontWeight: 900, letterSpacing: 1, margin: "0 0 4px", color: themeMain }}>WALLET</p>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <p style={{ fontSize: 17, fontWeight: 900, margin: 0 }}>보유 {coinName}</p>
-                <p style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#E09A00" }}>{coin} {coinEmoji} {coinName}</p>
+                <p style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#E09A00" }}>{coin} <EmojiIcon emoji={coinEmoji} size={24} style={{verticalAlign:"-0.18em",marginRight:3}}/>{coinName}</p>
               </div>
             </div>
           )}

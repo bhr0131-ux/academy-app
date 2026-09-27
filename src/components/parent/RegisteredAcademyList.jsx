@@ -24,6 +24,7 @@
 import { C, RAD, FW, FS, mixWhite } from "../../data/tokens.js";
 import { getShuttleText } from "../../data/sampleData.js";
 import CareIcon from "./CareIcons.jsx";
+import EmojiIcon from "../EmojiIcon.jsx";
 import { dayGroupLabel, Row, RowAct } from "./AcademyTab.jsx";
 
 /* 홈 탭과 같은 중간 톤 — 보조 글자보다 진하고 본문보다 연하다 */
@@ -199,7 +200,8 @@ export default function RegisteredAcademyList({
                     <p style={{ flex: 1, minWidth: 0, margin: 0, display: "flex", alignItems: "baseline", gap: 5 }}>
                       <span style={{ minWidth: 0, fontSize: FS.cardTitle, fontWeight: FW.bold, color: C.text,
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {themeIcon} {ac.name}
+                        <EmojiIcon emoji={themeIcon} size={FS.cardTitle}
+                          style={{verticalAlign:"-0.18em",marginRight:4}}/>{ac.name}
                       </span>
                       {!ac.useCustomSchedule && ac.duration && (
                         <span style={{ flexShrink: 0, fontSize: FS.sub, fontWeight: FW.normal, color: SUBD, whiteSpace: "nowrap" }}>
