@@ -4429,7 +4429,7 @@ export default function App() {
               ):(
               <button onClick={()=>{ setAppMode("parent"); setTab("home"); }} className="jelly-tap"
                 style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
-                <img src="assets/btn-parent.webp" alt="엄마용"
+                <img src="assets/btn-parent.webp" alt="엄마모드"
                   style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
               </button>
               )}
@@ -4498,7 +4498,7 @@ export default function App() {
                   style={{background:"none",border:"none",padding:0,marginTop:2,cursor:"pointer",lineHeight:0}}>
                   <img
                     src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
-                    alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장 캐릭터 보기":"꾸미기 아바타 보기"}
+                    alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장 캐릭터 보기":"내 아바타 보기"}
                     style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
                 </button>
               )}
