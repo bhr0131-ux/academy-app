@@ -382,10 +382,10 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | back-explorer-straps.webp | 탐험 배낭 원화 (초록 롤 + 갈색 가죽끈, z:37로 앞에 그림) | avatar/back/explorer-straps.webp |
 | back-sky-straps.webp | 하늘 배낭 원화 (파랑 롤 + 갈색 가죽끈) | avatar/back/sky-straps.webp |
 | back-cream-straps.webp | 크림 배낭 원화 (크림 롤 + 캔버스끈, 체커보드 배경 제거) | avatar/back/cream-straps.webp |
-| btn-parent-badge-v2.webp | '엄마용' 원형 뱃지 v2 (엄마 얼굴, 현행) | btn-parent.webp |
-| btn-child-switch-badge-v2.webp | 아이 전환 원형 뱃지 v2 (남매, 2명 이상일 때만 노출, 현행) | btn-child-switch.webp |
-| btn-my-avatar-badge.webp | '내 아바타' 원형 뱃지 (초록 실루엣, 현행 — 팻말에서 교체) | btn-my-avatar.webp |
-| btn-growth-character-badge.webp | '성장캐릭터' 원형 뱃지 (새싹, 현행 — 팻말에서 교체) | btn-growth-character.webp |
+| btn-parent-badge-v3.webp | '엄마용' 원형 뱃지 v3 — **뱃지 안에 글자가 박혀 있다**(엄마 얼굴 + '엄마용', 현행). v2 는 그림만 있어 무슨 버튼인지 알기 어려웠다 | btn-parent.webp |
+| btn-child-switch-badge-v3.webp | 아이 선택 원형 뱃지 v3 — 글자 박힘(남매 + '아이선택', 2명 이상일 때만 노출, 현행) | btn-child-switch.webp |
+| btn-my-avatar-badge-v3.webp | '꾸미기' 원형 뱃지 v3 — 글자 박힘(초록 실루엣 + '꾸미기', 현행) | btn-my-avatar.webp |
+| btn-growth-character-badge-v3.webp | '성장' 원형 뱃지 v3 — 글자 박힘(새싹 + '성장', 현행) | btn-growth-character.webp |
 | chest-closed-v1-src.webp | 닫힌 보물상자 (v10 지도 원화에서 오려 낸 것 — v11 지도엔 상자가 안 그려져 있어 따로 얹는다. 화면용 230px) | chest-closed.webp |
 | map-ev/parrot-v1-src.webp | 지도 동물 — 앵무새 (그루터기 대신 나무 횃대+수풀, 투명. 지도 폭의 16%) | map-ev/parrot.webp |
 | map-ev/monkey-v2-src.webp | 지도 동물 — 원숭이 v2 (바위에 앉은 모습, 나뭇가지·덩굴 없음. 원화가 검정 배경으로 와서 테두리에 닿은 검정만 지우고 가장자리를 다듬어 탑재. 지도 폭의 20%) | map-ev/monkey.webp |
