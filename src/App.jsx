@@ -4454,9 +4454,9 @@ export default function App() {
                    right:0 로 붙이면 목록이 앱 안쪽으로만 자라므로 어떤 화면 폭에서도 안 삐져나온다. */
                 <div style={{position:"relative",lineHeight:0,zIndex:40}}>
                   <button className="jelly-tap" onClick={()=>setChildPickOpen(v=>!v)}
-                    aria-haspopup="listbox" aria-expanded={childPickOpen} aria-label="아이 전환"
+                    aria-haspopup="listbox" aria-expanded={childPickOpen} aria-label="아이 선택"
                     style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0,display:"block"}}>
-                    <img src="assets/btn-child-switch.webp" alt="아이 전환"
+                    <img src="assets/btn-child-switch.webp" alt="아이 선택"
                       style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
                   </button>
                   {childPickOpen&&(<>
@@ -4498,7 +4498,7 @@ export default function App() {
                   style={{background:"none",border:"none",padding:0,marginTop:2,cursor:"pointer",lineHeight:0}}>
                   <img
                     src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
-                    alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장캐릭터 보기":"내 아바타 보기"}
+                    alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장 캐릭터 보기":"꾸미기 아바타 보기"}
                     style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
                 </button>
               )}
