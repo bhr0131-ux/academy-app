@@ -41,8 +41,8 @@ export const DEFAULT_CHAR_DISPLAY_MODE = CHAR_DISPLAY_GROWTH;
    꾸미기 전용 캐릭터 1장. 모자·안경·손지물 없이 맨몸(기본옷)으로 제작된
    1024×1024 이미지. 모든 장비는 이 위에 덧씌워진다.
    아트가 아직 없으면 뷰어가 성장 3단계 캐릭터 → 이모지 순으로 폴백한다. */
-export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=7";        // 남아(머리+몸통 합본 — 폴백용)
-export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=7"; // 여아(합본 — 폴백용)
+export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=8";        // 남아(머리+몸통 합본 — 폴백용)
+export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; // 여아(합본 — 폴백용)
 /* 베이스를 '몸통'과 '머리' 두 장으로 나눠 둔다 (사용자 확정).
    모자처럼 얼굴째 덮는 장비(hidesHead)를 쓰면 머리 장을 아예 안 그리고 그 자리에 장비 그림만 얹는다.
    → 예전처럼 베이스 머리 위에 덮어 씌우면 크기가 조금만 안 맞아도 턱선·귀선이 겹쳐 보였는데,
@@ -55,11 +55,14 @@ export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=7"; 
    (v6 과 같은 화면 자리 — 아바타 크기가 안 바뀐다).
    목선(원화 남 y630 · 여 y578)에서 머리/몸통을 갈랐다. 여아 갈래머리 끝은 어깨와 붙어 있어
    몸통 장에 남는데, 지금 카탈로그에 hidesHead 장비가 없어 보이는 데 문제는 없다.
-   파일명은 그대로 덮어썼고 경로에 ?v=7 을 붙여 기존 기기의 캐시를 끊는다. */
-export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=7";
-export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=7";
-export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=7";
-export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp?v=7";
+   [2026-09-27] 베이스 v8 로 교체 (사용자가 디자인만 다듬어 다시 그려 줌 — 남아 앞머리·
+   여아 갈래머리 모양이 달라졌다). 원화 캔버스·알파 상자·목선 y가 v7과 거의 같아
+   (남 630 · 여 578 그대로 맞았다 — 겹쳐서 확인함) 위 탑재 공식을 그대로 재사용했다.
+   파일명은 그대로 덮어썼고 경로에 ?v=8 을 붙여 기존 기기의 캐시를 끊는다. */
+export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=8";
+export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=8";
+export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=8";
+export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp?v=8";
 export const AVATAR_BASE_EMOJI = "🧒";
 
 /* ── 기본 배경 (아이템 아님) ────────────────────────────────────────── */
