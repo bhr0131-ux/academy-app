@@ -1,3 +1,4 @@
+import EmojiIcon from "../EmojiIcon.jsx";
 import { C, CAMP_SHEET, DUNGEON_DECOR_CARD, dungeonDecorRarity } from "../../data/tokens.js";
 import { TITLE_RARITY } from "../../data/characters.js";
 
@@ -94,7 +95,7 @@ export default function TitleSheet({ open, onClose, dark, titles = [], isUnlocke
                       display: "flex", alignItems: "center", justifyContent: "center",
                       boxShadow: dark ? "0 2px 6px rgba(224,161,6,0.4)" : `0 2px 6px ${rarity.color}66` }}>✓</span>
                   )}
-                  <p style={{ fontSize: 24, margin: "0 0 5px" }}>{unlocked ? title.emoji : "🔒"}</p>
+                  <p style={{ fontSize: 24, margin: "0 0 5px" }}>{unlocked ? <EmojiIcon emoji={title.emoji} size={24}/> : "🔒"}</p>
                   <p style={{ fontSize: 11, fontWeight: 900, color: rrClr, margin: "0 0 3px",
                     background: dark ? dr.badgeBg : "transparent", display: "inline-block", padding: dark ? "1px 7px" : 0, borderRadius: 8 }}>{rarity.icon} {rarity.name}</p>
                   <p style={{ fontSize: 13, fontWeight: 900, margin: "3px 0 3px", color: nameClr }}>{title.name}</p>

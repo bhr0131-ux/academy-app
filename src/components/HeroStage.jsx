@@ -1,5 +1,6 @@
 import { useState, useRef, useLayoutEffect } from "react";
 import AvatarViewer from "./AvatarViewer.jsx";
+import EmojiIcon from "./EmojiIcon.jsx";
 import { mixWhite, mixBlack } from "../data/tokens.js";
 import { ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_CHAR_SIZE, BAKERY_CHAR_SIZE, AVATAR_HOME_SIZE, ADV_CHAR_STAGE_OF, TITLE_RARITY,
          PET_GAP_FROM_CHAR, PET_DX_AVATAR, PET_DX_FALLBACK } from "../data/characters.js";
@@ -374,7 +375,7 @@ export default function HeroStage({ D }) {
                     background: cute ? `linear-gradient(135deg, ${ring}26, ${ring}12)` : GP.chipBg,
                     border:`1.5px solid ${ring}${borderOpacity}`,borderRadius:999,padding:"3px 10px 3px 4px",
                     boxShadow: cute ? `0 3px 9px ${ring}33` : "0 2px 6px rgba(0,0,0,0.3)"}}>
-                    <span style={{width:24,height:24,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:cute?`radial-gradient(circle at 50% 35%, #fff, ${ring}22)`:`radial-gradient(circle at 50% 35%, ${ring}44, rgba(0,0,0,0.35))`,border:`1.5px solid ${ring}`,fontSize:13,flexShrink:0}}>{emoji}</span>
+                    <span style={{width:24,height:24,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:cute?`radial-gradient(circle at 50% 35%, #fff, ${ring}22)`:`radial-gradient(circle at 50% 35%, ${ring}44, rgba(0,0,0,0.35))`,border:`1.5px solid ${ring}`,flexShrink:0}}><EmojiIcon emoji={emoji} size={13}/></span>
                     <span style={{fontSize:10,fontWeight:900,color:lightText?"#fff":mixBlack(ring,0.2),whiteSpace:"nowrap",letterSpacing:0.2,textShadow:lightText?"0 1px 2px rgba(0,0,0,0.55)":"none"}}>{text}</span>
                   </div>
                   );
@@ -398,12 +399,12 @@ export default function HeroStage({ D }) {
                   <div style={{position:"relative",zIndex:2,marginTop:-28,marginBottom:24,display:"flex",alignItems:"center",justifyContent:"center",gap:5,
                     fontSize:12.5,fontWeight:900,color:lineCol,textShadow:lineSh,whiteSpace:"nowrap",letterSpacing:"0.01em"}}>
                     <span style={{display:"flex",alignItems:"center",gap:4}}>
-                      <span style={{fontSize:"1.1em",lineHeight:1}}>{level.emoji}</span>
+                      <EmojiIcon emoji={level.emoji} size="1.1em"/>
                       Lv.{level.level} {kidName}
                     </span>
                     <span style={{opacity:0.42,fontSize:"0.95em"}}>│</span>
                     <span style={{display:"flex",alignItems:"center",gap:4}}>
-                      <span style={{fontSize:"1.1em",lineHeight:1}}>{title.emoji}</span>
+                      <EmojiIcon emoji={title.emoji} size="1.1em"/>
                       {title.name}
                     </span>
                   </div>

@@ -847,7 +847,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
               background: "rgba(255,251,240,0.95)", border: "1px solid rgba(212,160,60,0.65)", borderRadius: 999,
               padding: "2px 8px", fontSize: 10.5, fontWeight: 900, color: "#5D4633", whiteSpace: "nowrap",
               boxShadow: "0 2px 6px rgba(60,80,40,0.25)", animation: "amFound .55s ease-out both" }}>
-              {spark.emoji} 발견!
+              <EmojiIcon emoji={spark.emoji} size={10.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>발견!
             </div>
             {/* 펫 연결 발견 — 지나가는 순간에만 "🍖 펫 먹이"가 물건 위로 떠오르다 사라진다
                 (사용자 확정: 펫은 화면에 안 보일 때가 많아 무대가 아니라 여기서. 칩 없이 글자만)
@@ -864,8 +864,8 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                 {spark.gain.kind === "먹이" ? "🍖" : "❤️"} 펫 {spark.gain.kind}
               </div>
             )}
-            <span style={{ fontSize: 13, lineHeight: 1, display: "block",
-              filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 2px 3px rgba(60,80,40,0.3))" }}>{spark.emoji}</span>
+            <span style={{ lineHeight: 1, display: "block",
+              filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 2px 3px rgba(60,80,40,0.3))" }}><EmojiIcon emoji={spark.emoji} size={13}/></span>
           </div>
         );
         /* 발견 전 예고 ✨ — 언제든 보이면서 '반짝반짝'해야 한다 (사용자 확정 2건).

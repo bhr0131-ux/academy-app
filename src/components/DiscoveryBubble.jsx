@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { DISCOVERY_RARITY, getDiscovery } from "../data/discoveries.js";
+import EmojiIcon from "./EmojiIcon.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
    DiscoveryBubble — (현재 미사용) '오늘의 발견' 말풍선
@@ -68,7 +69,7 @@ export default function DiscoveryBubble({ id, isNew = false, onDone }) {
         boxShadow: legend ? `0 3px 12px ${rc.color}66` : "0 2px 7px rgba(93,70,51,0.28)",
         animation: isNew ? (legend ? "discoPop 3s ease-out" : "discoRise .5s ease-out") : "none",
       }}>
-        {d.emoji} {d.msg}
+        <EmojiIcon emoji={d.emoji} size="1em" style={{verticalAlign:"-0.18em",marginRight:3}}/>{d.msg}
         {/* 말풍선 꼬리 */}
         <span style={{
           position: "absolute", left: "50%", bottom: -5, transform: "translateX(-50%)",

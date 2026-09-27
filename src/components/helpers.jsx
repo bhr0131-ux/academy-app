@@ -26,11 +26,13 @@ export function CharacterSectionHeader({icon,title,subtitle,open,onToggle,dark=f
   );
 }
 
+import EmojiIcon from "./EmojiIcon.jsx";
+
 export function GameModalHeader({emoji,title,color,cute=false}){
   return (
     <div style={{padding:"26px 20px",textAlign:"center",color:cute?"#6B4A5C":"#fff",background:color,position:"relative",overflow:"hidden"}}>
       <div style={{position:"absolute",inset:0,background:`linear-gradient(90deg, transparent, rgba(255,255,255,${cute?0.4:0.55}), transparent)`,animation:"shineMove 1.6s ease-in-out infinite"}}/>
-      <p style={{fontSize:56,margin:"0 0 10px",position:"relative"}}>{emoji}</p>
+      <p style={{margin:"0 0 10px",position:"relative"}}><EmojiIcon emoji={emoji} size={56}/></p>
       <p style={{margin:0,fontSize:cute?22:24,fontWeight:900,letterSpacing:cute?0:undefined,position:"relative"}}>{title}</p>
     </div>
   );

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import EmojiIcon from "./EmojiIcon.jsx";
 import { CAMP_SHEET } from "../data/tokens.js";
 import {
   DISCOVERY_RARITY, DISCOVERY_TOTAL,
@@ -75,7 +76,7 @@ export default function DiscoveryBook({ open, onClose, data, childId, childName 
             return (
               <div key={cat.key} style={{ marginBottom: 18 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 8 }}>
-                  <span style={{ fontSize: 15 }}>{cat.emoji}</span>
+                  <EmojiIcon emoji={cat.emoji} size={15}/>
                   <span style={{ fontSize: 13, fontWeight: 900, color: "#6B523A" }}>{cat.label}</span>
                   <span style={{ fontSize: 11.5, fontWeight: 800, color: done ? "#4E7B3A" : "#A2917C" }}>
                     {cat.found}/{cat.total}
@@ -147,10 +148,10 @@ export default function DiscoveryBook({ open, onClose, data, childId, childName 
                     padding: "7px 10px", marginBottom: 6, borderRadius: 12,
                     background: "#fff", border: `1px solid ${rc.color}33`,
                   }}>
-                    <span style={{ fontSize: 20 }}>{d.emoji}</span>
+                    <EmojiIcon emoji={d.emoji} size={20}/>
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: "block", fontSize: 12.5, fontWeight: 800, color: "#5A4430" }}>{d.name}</span>
-                      {ev && <span style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#A2917C", marginTop: 1 }}>{ev.emoji} {ev.msg}</span>}
+                      {ev && <span style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#A2917C", marginTop: 1 }}><EmojiIcon emoji={ev.emoji} size={10} style={{verticalAlign:"-0.18em",marginRight:3}}/>{ev.msg}</span>}
                     </span>
                     {d.rarity !== "common" && (
                       <span style={{ fontSize: 9.5, fontWeight: 900, color: rc.color }}>{rc.label}</span>

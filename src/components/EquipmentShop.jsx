@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { C, CAMP_SHEET } from "../data/tokens.js";
 import AvatarViewer from "./AvatarViewer.jsx";
-import EmojiIcon from "./EmojiIcon.jsx";
+import EmojiIcon, { EmojiText } from "./EmojiIcon.jsx";
 import {
   AVATAR_RARITY, SHOP_TABS, getItemsByTab, getSlot,
 } from "../data/avatarEquipment.js";
@@ -443,7 +443,7 @@ export default function EquipmentShop({
                   {item.label}
                 </span>
                 <span style={{ fontSize: 11.5, fontWeight: 900, color: status.color, lineHeight: 1.1 }}>
-                  {status.text}
+                  <EmojiText>{status.text}</EmojiText>
                 </span>
               </button>
             );
@@ -457,7 +457,7 @@ export default function EquipmentShop({
         }}>
           {bar.note && (
             <p style={{ margin: "0 0 7px", textAlign: "center", fontSize: 12, fontWeight: 900, color: C.orange }}>
-              {bar.note}
+              <EmojiText>{bar.note}</EmojiText>
             </p>
           )}
           <button
@@ -470,7 +470,7 @@ export default function EquipmentShop({
               animation: shake ? "esShake .5s ease-out" : undefined,
             }}
           >
-            {bar.label}
+            <EmojiText>{bar.label}</EmojiText>
           </button>
         </div>
       </div>
