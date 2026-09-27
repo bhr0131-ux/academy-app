@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ACADEMY_KINDS, ACADEMY_KIND_CUSTOM } from "../../data/gameData.jsx";
+import EmojiIcon from "../EmojiIcon.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
    AcademyKindPicker — 학원 '종류' 고르기 (검색 + 직접 입력)
@@ -79,7 +80,9 @@ export default function AcademyKindPicker({ open, value = "", customLabel = "", 
                 style={{ width: "100%", border: "none", background: "none", cursor: "pointer",
                   padding: "13px 4px", display: "flex", alignItems: "center", gap: 11, fontFamily: F,
                   borderBottom: "1px solid rgba(90,70,60,0.07)", textAlign: "left" }}>
-                <span style={{ fontSize: 21, width: 26, flexShrink: 0, textAlign: "center" }}>{k.icon}</span>
+                <span style={{ width: 26, flexShrink: 0, display: "flex", justifyContent: "center" }}>
+                  <EmojiIcon emoji={k.icon} size={21}/>
+                </span>
                 <span style={{ flex: 1, fontSize: 15.5, fontWeight: on ? 900 : 700, color: on ? accent : "#3E3832" }}>
                   {k.label}
                 </span>

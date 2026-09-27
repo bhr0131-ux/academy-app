@@ -1,4 +1,5 @@
 import { C, CAMP_SHEET } from "../../data/tokens.js";
+import EmojiIcon from "../EmojiIcon.jsx";
 import { getBoxInfo, TREASURE_MILESTONE } from "../../data/characters.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -52,7 +53,7 @@ export default function TreasureSheet({ open, onClose, dark, skin = "dungeon", t
           color: dark ? CAMP_SHEET.headerText : "#6B4A5C", flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
-              <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}>{bookEmoji} {bookName}</p>
+              <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}><EmojiIcon emoji={bookEmoji} size={19} style={{verticalAlign:"-0.18em",marginRight:3}}/>{bookName}</p>
               <p style={{ margin: "4px 0 0", fontSize: 12.5, fontWeight: 700,
                 color: dark ? CAMP_SHEET.headerTextSub : "#8A6B7A" }}>
                 미션을 완료하면 {boxName}를 받아요 · {treasure.completedQuestCount || 0} {cute ? "도장 꾹" : "CLEAR"}

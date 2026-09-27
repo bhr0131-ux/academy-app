@@ -34,6 +34,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useRef } from "react";
+import EmojiIcon from "./EmojiIcon.jsx";
 
 // 앱 전체 글씨체(카페24 써라운드)로 통일 — 제목·값 모두 (사용자 확정)
 const F_HAND = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
@@ -96,8 +97,10 @@ export default function AdventureJournalCard({
         display: "flex", alignItems: "center", pointerEvents: "none" }}>
         {/* 이모지 칸 14.1~31% — 이모지 글자가 자체 여백 때문에 왼쪽으로 치우쳐서, 칸을 아래 아이콘 네 개의 중심과 맞는다.
             칸 오른쪽 끝은 31%(COL_L)라 글자는 아래 글자열과 같은 자리에서 시작한다. */}
-        <span style={{ width: "16.9%", flexShrink: 0, textAlign: "center",
-          fontSize: "clamp(20.5px, 7vw, 32.1px)", lineHeight: 1 }}>{icon}</span>
+        <span style={{ width: "16.9%", flexShrink: 0, display: "flex",
+          alignItems: "center", justifyContent: "center", lineHeight: 1 }}>
+          <EmojiIcon emoji={icon} size="clamp(20.5px, 7vw, 32.1px)"/>
+        </span>
         <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "baseline", gap: 7, overflow: "hidden" }}>
           <p style={{ margin: 0, fontFamily: F_HAND, fontWeight: 400, fontSize: "clamp(15.2px, 5.2vw, 23.8px)",
             color: "#4E432A", lineHeight: 1.15, textShadow: "0 1px 0 rgba(255,255,255,0.7)",

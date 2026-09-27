@@ -25,7 +25,7 @@ import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
 import FeePaySheet, { payMethodLabel } from "./components/parent/FeePaySheet.jsx";
 import ChildFace from "./components/parent/ChildFace.jsx";
 import CareIcon from "./components/parent/CareIcons.jsx";
-import EmojiIcon from "./components/parent/EmojiIcon.jsx";
+import EmojiIcon from "./components/EmojiIcon.jsx";
 import { REWARD_EMOJI } from "./data/rewardEmoji.js";
 import SectionHead from "./components/parent/SectionHead.jsx";
 import XpAdjustCard from "./components/parent/XpAdjustCard.jsx";
@@ -4022,14 +4022,14 @@ export default function App() {
                   const coinXpBlock=(
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginTop:14,marginBottom:6,position:"relative",zIndex:1}}>
                       <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"#EDF8FD",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
-                        <span style={{fontSize:20}}>{TM.coinEmoji}</span>
+                        <EmojiIcon emoji={TM.coinEmoji} size={20}/>
                         <div style={{minWidth:0}}>
                           <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>보유 {TM.coin}</p>
                           <p style={{fontSize:17,fontWeight:900,margin:"1px 0 0",lineHeight:1}}>{coin}</p>
                         </div>
                       </div>
                       <div style={{background:kidSkin==="cute"?`linear-gradient(160deg, ${mixWhite(th.main,0.9)}, ${mixWhite(th.main,0.8)})`:"#EDF8FD",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.78)}`:"none",borderRadius:kidSkin==="cute"?16:18,padding:"8px 11px",display:"flex",alignItems:"center",gap:8,position:"relative",zIndex:1,boxShadow:kidSkin==="cute"?`0 4px 11px ${th.main}22, inset 0 1.5px 3px rgba(255,255,255,0.7)`:"none"}}>
-                        <span style={{fontSize:20}}>{TM.xpEmoji}</span>
+                        <EmojiIcon emoji={TM.xpEmoji} size={20}/>
                         <div style={{minWidth:0}}>
                           <p style={{fontSize:11,fontWeight:800,opacity:0.7,margin:0,letterSpacing:0.5}}>누적 {TM.xp}</p>
                           <p style={{fontSize:17,fontWeight:900,margin:"1px 0 0",lineHeight:1}}>{xp}</p>
@@ -4237,7 +4237,7 @@ export default function App() {
                 style={{...inputStyle,marginBottom:12}}/>
               {/* [사용자 확정 2026-08-11] 보상이 늘 10/10 로 정해져 있는데 어디에도 안 적혀 있었다 */}
               <p style={{fontSize:12.5,fontWeight:800,margin:"0 0 14px",color:subColor,textAlign:"center"}}>
-                다 하면 {TM.xpEmoji} {DEFAULT_HOMEWORK_SCORE}{TM.xpUnit} · {TM.coinEmoji} {DEFAULT_HOMEWORK_SCORE} {TM.coin}
+                다 하면 <EmojiIcon emoji={TM.xpEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{DEFAULT_HOMEWORK_SCORE}{TM.xpUnit} · <EmojiIcon emoji={TM.coinEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{DEFAULT_HOMEWORK_SCORE} {TM.coin}
               </p>
               {/* 등록 버튼 — 아무것도 안 넣었으면 못 누르게 (빈 상태인데 색이 진해 눌리는 줄 알았다) */}
               <button onClick={kidAddMission} disabled={!canAdd}
@@ -4878,8 +4878,8 @@ export default function App() {
                           <div style={{position:"absolute",top:-30,right:-20,width:110,height:110,borderRadius:"50%",background:"rgba(255,255,255,0.45)",pointerEvents:"none"}}/>
                           <div style={{position:"absolute",bottom:-26,left:30,width:70,height:70,borderRadius:"50%",background:"rgba(255,255,255,0.35)",pointerEvents:"none"}}/>
                           </>}
-                          <div style={{position:"relative",width:50,height:50,borderRadius:16,background:ST.on?"rgba(255,255,255,0.7)":"rgba(255,255,255,0.22)",border:ST.on?`2px solid rgba(255,255,255,0.85)`:"2px solid rgba(255,255,255,0.45)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,boxShadow:ST.on?"0 3px 9px rgba(150,110,120,0.18)":"0 4px 12px rgba(0,0,0,0.22)"}}>
-                            {dungeon.icon}
+                          <div style={{position:"relative",width:50,height:50,borderRadius:16,background:ST.on?"rgba(255,255,255,0.7)":"rgba(255,255,255,0.22)",border:ST.on?`2px solid rgba(255,255,255,0.85)`:"2px solid rgba(255,255,255,0.45)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:ST.on?"0 3px 9px rgba(150,110,120,0.18)":"0 4px 12px rgba(0,0,0,0.22)"}}>
+                            <EmojiIcon emoji={dungeon.icon} size={26}/>
                           </div>
                           <div style={{flex:1,minWidth:0,position:"relative"}}>
                             {/* 탐험 구조로 통일: 학원명(위) → 라벨(아래) + 남은시간 배지(우측 하단) */}
@@ -5066,8 +5066,9 @@ export default function App() {
                             <div style={{flex:1,minWidth:0}}>
                             {/* 머리줄 — 학원 아이콘 + 학원명만. 얇게 */}
                             <div style={{padding:"6px 12px 0",display:"flex",alignItems:"center",gap:7,minWidth:0}}>
-                              <span style={{flexShrink:0,width:20,height:20,borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,
-                                background:item.done||item.failed?"#E4E0D6":`${acCol}1F`}}>{acIconOf(item.academyId,item.academyName)}</span>
+                              <span style={{flexShrink:0,width:20,height:20,borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",
+                                background:item.done||item.failed?"#E4E0D6":`${acCol}1F`}}>
+                                <EmojiIcon emoji={acIconOf(item.academyId,item.academyName)} size={13}/></span>
                               <p style={{fontSize:12.5,fontWeight:700,color:"#8A8072",margin:0,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                                 {item.academyName}
                               </p>
@@ -5118,8 +5119,8 @@ export default function App() {
                                     ? <p style={{fontSize:12.5,fontWeight:900,color:GP.gold,margin:0}}>{getQuestRewardText(item)}</p>
                                     : (()=>{const pt=item.point||DEFAULT_HOMEWORK_SCORE;return (
                                         <div style={{display:"flex",gap:10,fontWeight:900,fontSize:13.5,opacity:item.done?0.7:1}}>
-                                          <span style={{color:"#D89A26"}}>{TM.xpEmoji} +{pt}{TM.xpUnit}</span>
-                                          <span style={{color:"#2E8FD6"}}>{TM.coinEmoji} +{questCoin(pt)} {TM.coin}</span>
+                                          <span style={{color:"#D89A26"}}><EmojiIcon emoji={TM.xpEmoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{pt}{TM.xpUnit}</span>
+                                          <span style={{color:"#2E8FD6"}}><EmojiIcon emoji={TM.coinEmoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{questCoin(pt)} {TM.coin}</span>
                                         </div>
                                       );})()}
                               </div>
@@ -5275,7 +5276,7 @@ export default function App() {
         /* zIndex 9998: 보물창고가 시트(4000)로 바뀌며 연출이 그 위에 와야 한다. 결과 모달은 9999. */
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.80)",zIndex:9998,display:"flex",justifyContent:"center",alignItems:"center"}}>
           <div style={{textAlign:"center",color:"#fff"}}>
-            <div style={{fontSize:82,animation:"boxBounce .7s ease-in-out infinite"}}>{TM.boxEmoji}</div>
+            <div style={{animation:"boxBounce .7s ease-in-out infinite"}}><EmojiIcon emoji={TM.boxEmoji} size={82}/></div>
             <p style={{fontSize:24,fontWeight:900,marginTop:14,margin:"14px 0 6px"}}>{kidSkin==="cute"?`${TM.box} 여는 중...`:`${TM.box} 오픈 중...`}</p>
             <p style={{fontSize:15,opacity:0.7,margin:0,animation:"shimmer 1s ease-in-out infinite"}}>두근두근...</p>
           </div>
@@ -5302,7 +5303,7 @@ export default function App() {
             />
             <div style={{...GAME_MODAL_STYLE.body,textAlign:"center"}}>
               <p style={{fontSize:15,fontWeight:900,color:C.sub,margin:"0 0 8px"}}>{treasureModal.boxName}</p>
-              <p style={{fontSize:30,fontWeight:900,color:kidSkin==="cute"?th.main:GP.gold,margin:"0 0 4px"}}>{TM.coinEmoji} +{treasureModal.rewardCoin}</p>
+              <p style={{fontSize:30,fontWeight:900,color:kidSkin==="cute"?th.main:GP.gold,margin:"0 0 4px"}}><EmojiIcon emoji={TM.coinEmoji} size={30} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{treasureModal.rewardCoin}</p>
               <p style={{fontSize:13,color:C.sub,fontWeight:800,margin:"0 0 16px"}}>
                 {kidSkin==="cute"?`${TM.box} 보상을 받았어요!`:`${TM.box} 보상을 획득했어요!`}
               </p>
@@ -5342,9 +5343,9 @@ export default function App() {
           <div style={{background:"#fff",borderRadius:22,padding:"14px 24px",boxShadow:kidSkin==="cute"?`0 16px 50px ${th.main}3a`:"0 16px 50px rgba(0,0,0,0.28)",border:`3px solid ${kidSkin==="cute"?th.main:GP.gold}`,textAlign:"center",animation:"cheerTextIn .5s cubic-bezier(.34,1.56,.64,1) forwards, cheerTextOut .35s ease-in .95s forwards"}}>
             <p style={{fontSize:26,fontWeight:900,color:GP.dark,margin:"0 0 6px",whiteSpace:"nowrap"}}>{charCheer.msg}</p>
             <p style={{fontSize:19,fontWeight:900,margin:0,whiteSpace:"nowrap"}}>
-              <span style={{color:GP.gold}}>{TM.xpEmoji} +{charCheer.xp}</span>
+              <span style={{color:GP.gold}}><EmojiIcon emoji={TM.xpEmoji} size={19} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{charCheer.xp}</span>
               <span style={{color:C.sub,margin:"0 8px"}}>·</span>
-              <span style={{color:C.green}}>{TM.coinEmoji} +{questCoin(charCheer.xp)}</span>
+              <span style={{color:C.green}}><EmojiIcon emoji={TM.coinEmoji} size={19} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{questCoin(charCheer.xp)}</span>
             </p>
           </div>
         </div>

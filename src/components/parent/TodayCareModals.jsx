@@ -30,6 +30,7 @@
 
 import { mixWhite, RAD, FW, FS } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
+import EmojiIcon from "../EmojiIcon.jsx";
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
@@ -80,7 +81,7 @@ function AcHead({ icon, name, color, right, tone, nameColor }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
       <span style={{ fontSize: FS.title, flexShrink: 0, display: "flex", alignItems: "center", color: tone.sub }}>
-        {icon || <CareIcon name="school" size={15} />}
+        {icon ? <EmojiIcon emoji={icon} size={FS.title}/> : <CareIcon name="school" size={15} />}
       </span>
       <p style={{ margin: 0, fontSize: FS.body, fontWeight: FW.bold, color: nameColor || tone.text, minWidth: 0, flex: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</p>

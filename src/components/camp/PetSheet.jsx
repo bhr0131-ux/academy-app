@@ -1,4 +1,5 @@
 import { C, CAMP_SHEET, mixWhite } from "../../data/tokens.js";
+import EmojiIcon from "../EmojiIcon.jsx";
 import { PET_STAGES, petView, PET_STAGE_IMG } from "../../data/gameData.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -48,7 +49,7 @@ export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dunge
               <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}>{cute ? "🦄" : "🐾"} 나의 펫</p>
               <p style={{ margin: "4px 0 0", fontSize: 12.5, fontWeight: 700,
                 color: dark ? CAMP_SHEET.headerTextSub : "#8A6B7A" }}>
-                {boxEmoji} {boxName}를 열면 펫이 조금씩 자라요
+                <EmojiIcon emoji={boxEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{boxName}를 열면 펫이 조금씩 자라요
               </p>
             </div>
             <button onClick={onClose} aria-label="닫기" style={{ border: "none", cursor: "pointer",

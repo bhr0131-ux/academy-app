@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import EmojiIcon from "../EmojiIcon.jsx";
 import { C, CAMP_SHEET, DUNGEON_DECOR_CARD, dungeonDecorRarity, mixWhite } from "../../data/tokens.js";
 import {
   DECOR_GROUPS, DECOR_RARITY, decorView,
@@ -81,7 +82,7 @@ export default function DecorShopSheet({
           </div>
           <div style={{display:"flex",alignItems:"center",gap:8,marginTop:8,flexWrap:"wrap"}}>
             <div style={{display:"inline-flex",alignItems:"center",gap:6,background:cute?"rgba(255,255,255,0.5)":CAMP_SHEET.chipBg,border:`1px solid ${cute?"rgba(255,255,255,0.7)":CAMP_SHEET.chipBorder}`,borderRadius:14,padding:"5px 12px"}}>
-              <span style={{fontSize:16}}>{TM.coinEmoji}</span>
+              <EmojiIcon emoji={TM.coinEmoji} size={16}/>
               <span style={{fontSize:14,fontWeight:900,color:cute?"#6B4A5C":CAMP_SHEET.chipText}}>{coin} {TM.coin}</span>
             </div>
             {view==="bg"&&(
@@ -247,8 +248,8 @@ export default function DecorShopSheet({
                           {price===0
                             ?<span>무료</span>
                             :dungeon
-                              ?<>{TM.coinEmoji} <span>{price}</span> <span style={{fontSize:10.5,fontWeight:800,opacity:0.72}}>{state==="available"?`${TM.coin} 구매`:TM.coin}</span></>
-                              :<>{TM.coinEmoji} {price}</>}
+                              ?<><EmojiIcon emoji={TM.coinEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/><span>{price}</span> <span style={{fontSize:10.5,fontWeight:800,opacity:0.72}}>{state==="available"?`${TM.coin} 구매`:TM.coin}</span></>
+                              :<><EmojiIcon emoji={TM.coinEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{price}</>}
                         </button>
                       ):dungeon?(
                         <button onClick={()=>onEquip(grp.key,it.id)}

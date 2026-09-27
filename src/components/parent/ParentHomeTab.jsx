@@ -32,6 +32,7 @@ import { TODAY, addDays } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan } from "../../data/sampleData.js";
 import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
+import EmojiIcon from "../EmojiIcon.jsx";
 import RegisteredAcademyList from "./RegisteredAcademyList.jsx";
 import { RowAct } from "./AcademyTab.jsx";
 
@@ -452,7 +453,8 @@ export default function ParentHomeTab({
                 <p style={{flex:1,minWidth:0,margin:0,display:"flex",alignItems:"baseline",gap:5}}>
                   <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
                     overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                    {getAcademyTheme(ac.name,kidSkin,ac.kind).icon} {ac.name}
+                    <EmojiIcon emoji={getAcademyTheme(ac.name,kidSkin,ac.kind).icon} size={FS.cardTitle}
+                      style={{verticalAlign:"-0.18em",marginRight:4}}/>{ac.name}
                   </span>
                   {sc?.duration&&<span style={{flexShrink:0,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,whiteSpace:"nowrap"}}>
                     · {sc.duration}분 수업</span>}

@@ -3,7 +3,7 @@
    ────────────────────────────────────────────────────────────────────────
    [사용자 확정 2026-08-17] 같은 🍪 라도 삼성·애플·안드로이드 버전마다 모양이 달라
    엄마 폰과 아이 폰에서 다른 그림이 나왔다 → 그림(Twemoji SVG)을 앱이 들고 간다.
-   public/assets/emoji/ 에 44장, 다 합쳐 69KB. 저작자 표기는 그 폴더의 NOTICE.txt.
+   public/assets/emoji/ 에 79장, 다 합쳐 124KB. 저작자 표기는 그 폴더의 NOTICE.txt.
 
    여기 없는 이모지도 그대로 쓸 수 있다 — EmojiIcon 이 파일을 못 찾으면 예전처럼
    운영체제 이모지로 돌아간다 (기존 사용자가 적어 둔 보상이 빈칸이 되지 않는다).
@@ -31,6 +31,20 @@ export const REWARD_EMOJI = [
   "🎁","🧸","🎟️","🏆","💎","⭐","💰","💵","💸","🤑","✏️",
 ];
 
+/* 보상 말고 화면 곳곳에서 쓰는 이모지 — 그림만 갖고 있고 고르기 격자에는 안 나온다.
+   [사용자 확정 2026-09-27] "엄마용에서 이모지를 바꿀 때 쓴 방법 그대로 나머지도" —
+   같은 방식(Twemoji SVG + EmojiIcon)을 보상 밖으로 넓힌다. 여기에 이모지를 적고
+   public/assets/emoji/ 에 같은 이름의 SVG 를 넣으면 EmojiIcon 이 자동으로 그림을 쓴다. */
+export const APP_EMOJI = [
+  // 학원 종류 36종 (ACADEMY_KINDS) — 분류가 안 되면 🏫
+  "📖","🔢","✍️","📝","📚","🀄","🇨🇳","🇯🇵","🔬","💻","🤖",
+  "🎹","🎻","🎼","🎸","🥁","🎤","🎨","🖍️","🖌️",
+  "🥋","⚔️","🤼","🩰","💃","🏊","⚽","🏀","🏸","🤸",
+  "🍳","⚫","♟️","📣","📋","🏫",
+  // 재화·상자 (TERMS) 와 할일
+  "🎀","🎯","🏡",
+];
+
 /* 앱이 그림을 갖고 있는가 (없으면 운영체제 이모지로 그린다) */
-const OWNED = new Set(REWARD_EMOJI.map(emojiFileName));
+const OWNED = new Set([...REWARD_EMOJI, ...APP_EMOJI].map(emojiFileName));
 export const hasEmojiArt = (emoji) => OWNED.has(emojiFileName(emoji));

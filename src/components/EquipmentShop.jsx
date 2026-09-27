@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { C, CAMP_SHEET } from "../data/tokens.js";
 import AvatarViewer from "./AvatarViewer.jsx";
+import EmojiIcon from "./EmojiIcon.jsx";
 import {
   AVATAR_RARITY, SHOP_TABS, getItemsByTab, getSlot,
 } from "../data/avatarEquipment.js";
@@ -309,7 +310,7 @@ export default function EquipmentShop({
             padding: "6px 12px", borderRadius: 999, fontWeight: 900, fontSize: 14, flexShrink: 0,
             animation: coinFlash ? "esCoinFlash .55s ease-out" : undefined,
           }}>
-            {coinEmoji} {coins.toLocaleString()}
+            <EmojiIcon emoji={coinEmoji} size={14}/> {coins.toLocaleString()}
           </div>
           {/* 닫기 — 그림은 작아도 누르는 자리는 48×48 로 남긴다 (안드로이드 권장) */}
           <button

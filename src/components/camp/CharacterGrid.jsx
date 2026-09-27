@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import EmojiIcon from "../EmojiIcon.jsx";
 import {
   gridSizes, CARD_PANEL, PAPER, INK, INK_SUB, BAR_FILL, BAR_TRACK,
 } from "./gridLayout.js";
@@ -152,12 +153,12 @@ export default function CharacterGrid({
             gap: 5, fontSize: moneyF, fontWeight: 900, color: INK }}>
             <span style={{ flex: "0 1 auto", minWidth: 0, whiteSpace: "nowrap",
               overflow: "hidden", textOverflow: "ellipsis" }}>
-              {labels.coinEmoji} {coin.toLocaleString()}
+              <EmojiIcon emoji={labels.coinEmoji} size={moneyF} style={{verticalAlign:"-0.18em",marginRight:3}}/> {coin.toLocaleString()}
             </span>
             <span style={{ color: INK_SUB, fontWeight: 700, flexShrink: 0 }}>|</span>
             <span style={{ flex: "0 1 auto", minWidth: 0, whiteSpace: "nowrap",
               overflow: "hidden", textOverflow: "ellipsis" }}>
-              {labels.xpEmoji} {xp.toLocaleString()}
+              <EmojiIcon emoji={labels.xpEmoji} size={moneyF} style={{verticalAlign:"-0.18em",marginRight:3}}/> {xp.toLocaleString()}
             </span>
           </div>
 

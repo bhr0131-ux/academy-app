@@ -33,6 +33,7 @@
                                                   안 그린다 (사용자가 그림 주면 심을 것)
    ════════════════════════════════════════════════════════════════════════ */
 import { useEffect, useMemo, useRef, useState } from "react";
+import EmojiIcon from "./EmojiIcon.jsx";
 
 // 지도 2종 (v5 파스텔 원화 — 이미 저채도라 배경 보정 없이 원본 사용): 0~3곳=짧은 지도 / 4곳 이상=긴 지도
 // 학원 건물 아이콘 4종 (정글 세트) — 배치 순서대로 순환 사용 (원화 무수정, 위치·크기만 조정)
@@ -708,7 +709,7 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
                   (사용자 확정). 완료 표시는 지붕 깃발 + 골드 글로우로 충분하다. */}
               {/* 구멍 뒤 크림 원판 + 학원 이모지 — 아이 학원카드와 같은 이모지를 항상 유지 (완료 표시는 이름표 ✅) */}
               <span style={{ position: "absolute", left: `${B.cx}%`, top: `${B.cy}%`, width: `${B.d + 5}%`, aspectRatio: "1/1", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "#FFF9EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(M.fs * (B.es || 1)), lineHeight: 1, zIndex: 0 }}>
-                {ac.icon}
+                <EmojiIcon emoji={ac.icon} size={Math.round(M.fs * (B.es || 1))}/>
               </span>
               <img src={B.src} alt="" draggable={false}
                 style={{ position: "relative", zIndex: 1, width: "100%", height: "auto", display: "block", transition: "filter .4s ease", filter: (d ? "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 8px rgba(255,224,130,0.85)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))" : "drop-shadow(0 0 2px rgba(255,249,236,0.9)) drop-shadow(0 0 1px rgba(255,249,236,0.8)) drop-shadow(0 5px 6px rgba(60,80,40,0.42))") }} />
