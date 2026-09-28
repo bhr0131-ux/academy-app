@@ -6935,28 +6935,6 @@ export default function App() {
               })()}
             </>)}
 
-            {/* [사용자 확정 2026-09-28] 보호자 호칭(엄마/아빠) — 온보딩에서만 고르던 값을
-                여기서도 다시 고를 수 있게 뒀다. 아이별 값이 아니라 앱 전체 값(parentGender)
-                이라, 어느 아이 카드에서 바꾸든 같은 값 하나를 공유한다.
-                디자인은 위 '성별' 고르기와 통일 — 같은 자리·크기, 파랑/분홍도 그대로 재활용
-                (아빠=파랑, 엄마=분홍). */}
-            <label style={lbl}>보호자 선택 *</label>
-            <div style={{display:"flex",gap:12,marginBottom:20}}>
-              {[{key:"mom",label:"👩 엄마"},{key:"dad",label:"👨 아빠"}].map(p=>{
-                const gtheme=GENDER_THEME[p.key==="mom"?"girl":"boy"];
-                const on=parentGender===p.key;
-                return (
-                  <button key={p.key} onClick={()=>setParentGender(p.key)}
-                    style={{flex:1,padding:"14px",borderRadius:14,border:`2px solid ${on?gtheme.main:C.border}`,
-                      background:on?`${gtheme.main}12`:CT.faint,
-                      color:on?gtheme.main:C.sub,
-                      fontSize:17,fontWeight:700,cursor:"pointer"}}>
-                    {p.label}
-                  </button>
-                );
-              })}
-            </div>
-
             <button onClick={saveChild} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:`linear-gradient(165deg, ${headerTone(childForm.theme?.main||GENDER_THEME[childForm.gender].main,0.42)} 0%, ${headerTone(childForm.theme?.main||GENDER_THEME[childForm.gender].main,0.64)} 100%)`,color:mixBlack(childForm.theme?.main||GENDER_THEME[childForm.gender].main,0.45),fontSize:17,fontWeight:800,cursor:"pointer",boxShadow:`0 4px 16px ${(childForm.theme?.main||GENDER_THEME[childForm.gender].main)}40`}}>
               {editingChild?"수정 완료 ✓":"추가하기"}
             </button>
