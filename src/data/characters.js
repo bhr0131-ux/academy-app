@@ -687,6 +687,19 @@ export const TERMS = {
   },
 };
 export const getTerms = (skin) => TERMS[skin] || TERMS.dungeon;
+
+/* ── 보호자 호칭 (엄마/아빠) ─────────────────────────────────────────
+   [사용자 확정 2026-09-28] 처음 시작할 때(온보딩) 엄마/아빠를 고르게 하고,
+   고른 쪽으로 엄마용 화면 곳곳의 '엄마' 글자를 바꾼다. 저장 키는 v6_parent_gender
+   (새 키 — 기존 저장에는 없던 값이라 안 읽히면 기본값 mom 으로 시작한다).
+   그림에 글자가 박힌 뱃지(assets/btn-parent.webp, '엄마모드')는 아빠용 그림이
+   따로 없어 그 자리만 그림 대신 글자 뱃지로 대신한다 — App.jsx 헤더 버튼 참고. */
+export const PARENT_TERMS = {
+  mom: { role:"엄마", roleMode:"엄마모드", chip:"엄마용", emoji:"👩" },
+  dad: { role:"아빠", roleMode:"아빠모드", chip:"아빠용", emoji:"👨" },
+};
+export const getParentTerms = (role) => PARENT_TERMS[role] || PARENT_TERMS.mom;
+
 /* 공휴일 표는 src/data/holidays.js 로 옮겼다 (2025~2036, 12년치).
    여기서 다시 내보내는 이유 — 이미 여러 화면이 characters.js 에서 가져다 쓰고 있어서
    불러오는 쪽을 안 건드리려고. 새 코드는 holidays.js 에서 바로 가져다 쓰면 된다. */

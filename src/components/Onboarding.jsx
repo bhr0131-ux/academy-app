@@ -54,7 +54,7 @@ export function ModeSelect({ onPick }){
   );
 }
 
-export function CoachmarkOverlay({ th, onFinish }){
+export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
   const TH=th||{ main:"#3B7ECD", grad:"linear-gradient(135deg,#3B7ECD,#80A9DA)" };
   /* [2026-08-09] 하단 고정 메뉴 5칸으로 개편 — 안내도 같은 순서·같은 이름으로 맞췄다.
      [2026-08-16] 학원 칸이 빠져 하단은 네 칸, 안내는 여섯 장이 됐다.
@@ -75,7 +75,7 @@ export function CoachmarkOverlay({ th, onFinish }){
     { icon:NAV_ICONS.reward,   name:"보상", desc:"코인으로 바꿀 보상을 정하고, 아이가 신청하면 승인해요." },
     { icon:NAV_ICONS.more,     name:"더보기", desc:"달력 · 학원비 · 결석·보충 · 기타가 여기 있어요." },
     { icon:<CareIcon name="lock" size={23}/>, name:"미션·보상은 잠금",
-      desc:"이곳은 엄마 권한이라서\n비밀번호를 한번 물어봐요.\n(초기 비밀번호 1234)." },
+      desc:`이곳은 ${parentRole} 권한이라서\n비밀번호를 한번 물어봐요.\n(초기 비밀번호 1234).` },
     { icon:<CareIcon name="bag" size={23}/>, name:"아이용", desc:"오른쪽 위 '🎒 아이용' 버튼을 누르면 아이 화면으로 바뀌어요." },
   ];
   const [i,setI]=useState(0);
@@ -125,6 +125,9 @@ export function OnboardingFlow({ onFinish }){
   const DAYS=["월","화","수","목","금","토","일"];
   const [step,setStep]=useState(0);
   const [celebrating,setCelebrating]=useState(false);   // 마지막 '준비 완료' 잠깐 보여 주기
+  /* [사용자 확정 2026-09-28] 아이 이름 넣기 전에 보호자가 엄마인지 아빠인지 먼저 고른다.
+     고른 쪽으로 엄마용 화면 곳곳의 '엄마' 글자가 바뀐다 (App.jsx PT 참고). */
+  const [parentGender,setParentGender]=useState("mom");   // mom | dad
   const [childName,setChildName]=useState("");
   const [gender,setGender]=useState("boy");
   const [age,setAge]=useState("");  // kid | elem | teen
@@ -160,6 +163,9 @@ export function OnboardingFlow({ onFinish }){
      · 마지막에 '이제 어디서 무엇을 하면 되는지' 한 장을 둔다. */
   const steps=[
     { kind:"welcome" },
+    /* [사용자 확정 2026-09-28] 기본값 mom 이 이미 골라져 있어 그냥 넘어가도 되고,
+       아빠면 눌러서 바꾸면 된다 — 강제로 고르게 하지 않는다. */
+    { kind:"parent", title:"보호자는 누구인가요?", sub:"고른 쪽으로 화면 곳곳의 '엄마' 표현이 바뀌어요.", canNext:()=>true },
     { kind:"input", title:"아이의 이름이 무엇인가요?", sub:"아이 화면과 미션에 표시돼요.", canNext:()=>childName.trim().length>0 },
     { kind:"age", title:"아이의 연령대를 골라주세요", sub:"연령대에 맞는 보상 목록을 자동으로 준비해드려요. 나중에 바꿀 수 있어요.", canNext:()=>age!=="" },
     /* [사용자 지적 2026-08-11] 앱의 학원 등록은 '종류'가 필수고 '이름'이 선택이다.
@@ -185,7 +191,7 @@ export function OnboardingFlow({ onFinish }){
     else setStep(s=>s+1);
   };
   const prev=()=>setStep(s=>Math.max(0,s-1));
-  const finish=()=>onFinish({ childName, gender, age, acKind, acKindLabel, acName, acDays, acTime,
+  const finish=()=>onFinish({ childName, gender, parentGender, age, acKind, acKindLabel, acName, acDays, acTime,
     acDuration:Number(acDuration)||40, supply, baseHw, mission, missionKind });
 
   if(celebrating) return (
@@ -215,13 +221,30 @@ export function OnboardingFlow({ onFinish }){
             <p style={{fontSize:12,fontWeight:800,letterSpacing:3,color:TH.main,margin:"0 0 8px"}}>오늘의 미션</p>
             <h2 style={{fontSize:25,fontWeight:900,color:"#1A1A35",margin:"0 0 32px",lineHeight:1.3}}>미션팡에<br/>오신 걸 환영해요</h2>
             <p style={{fontSize:15,fontWeight:600,color:"#8890B0",lineHeight:1.8,margin:0}}>
-              동기부여가 고민이었던 엄마도,<br/>
+              동기부여가 고민이었던 부모님도,<br/>
               숙제가 재미없던 아이도,<br/>
               미션팡과 함께해요.<br/><br/>
               미션(숙제)을 완료하면 코인을 얻고,<br/>
               원하는 보상으로 바꾸며 즐겁게 성장해봐요.<br/><br/>
               작은 미션이 쌓여 아이의 큰 성장을 만들어요.
             </p>
+          </div>
+        )}
+
+        {cur.kind==="parent"&&(
+          <div>
+            <p style={lbl}>{cur.title}</p>
+            <p style={sub}>{cur.sub}</p>
+            <div style={{display:"flex",gap:10}}>
+              {[{k:"mom",e:"👩",t:"엄마"},{k:"dad",e:"👨",t:"아빠"}].map(p=>(
+                <button key={p.k} onClick={()=>setParentGender(p.k)}
+                  style={{flex:1,padding:"22px 14px",borderRadius:16,border:`2px solid ${parentGender===p.k?TH.main:"#E3E8F0"}`,
+                    background:parentGender===p.k?`${TH.main}12`:"#fff",cursor:"pointer",textAlign:"center"}}>
+                  <div style={{fontSize:34,marginBottom:8,lineHeight:1}}>{p.e}</div>
+                  <div style={{fontSize:16,fontWeight:900,color:parentGender===p.k?TH.main:"#1A1A35"}}>{p.t}</div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

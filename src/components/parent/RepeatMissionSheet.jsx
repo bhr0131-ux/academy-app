@@ -30,7 +30,7 @@ const KINDS = [{ k: "todo", l: "할 일" }, { k: "hw", l: "숙제" }];
 
 export default function RepeatMissionSheet({
   open, list = [], canScore = false, defaultPoint = 10,
-  onAdd, onEdit, onRemove, onClose, tone,
+  onAdd, onEdit, onRemove, onClose, tone, parentRole = "엄마",
 }) {
   const [text, setText] = useState("");
   const [point, setPoint] = useState(String(defaultPoint));
@@ -99,7 +99,7 @@ export default function RepeatMissionSheet({
             <span style={{ width: 62, textAlign: "right", flexShrink: 0, fontSize: 12, fontWeight: 700, color: tone.sub }}>보상</span>
             <input type="number" min="1" value={canScore ? point : defaultPoint}
               onChange={e => setPoint(e.target.value)} disabled={!canScore}
-              title={canScore ? "" : "점수는 엄마 권한을 열면 바꿀 수 있어요"} aria-label="보상 점수"
+              title={canScore ? "" : `점수는 ${parentRole} 권한을 열면 바꿀 수 있어요`} aria-label="보상 점수"
               style={{ ...inp, width: 56, flex: "0 0 auto", textAlign: "center", padding: "8px 6px", fontSize: 14,
                 background: canScore ? "#fff" : tone.faint, color: canScore ? tone.text : tone.sub,
                 cursor: canScore ? "text" : "not-allowed" }} />
