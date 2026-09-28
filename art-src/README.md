@@ -447,7 +447,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | expedition/ride/reindeersled-src.webp | 탑승 원화 30 순록 썰매 — 설원 대표 | expedition/ride/reindeersled.webp |
 | expedition/ride/iceslide-src.webp | 탑승 원화 29 얼음 미끄럼틀 — 설원 변형 | expedition/ride/iceslide.webp |
 | expedition/ride/rocket-src.webp | 탑승 원화 16 로켓 — 하늘섬 변형 (우주 챕터 기본 예정) | expedition/ride/rocket.webp |
-| expedition/ride/meteor-src.webp | 탑승 원화 26 유성 — 우주 대표 | expedition/ride/meteor.webp |
+| expedition/ride/meteor-v2-src.webp / meteor-girl-v2-src.webp | 탑승 원화 26 유성 v2 — 우주 대표, 남녀 디자인 소폭 수정(사용자 재작업, 2026-09-28 탑재). 받은 PNG 에 약알파(1~19) 픽셀이 21,000~23,000개 깔려 있어 20 미만을 0 으로 눌러 자른 뒤 기존과 같은 높이(510px)로 맞췄다. 꼬리의 작은 반짝임 조각 몇 개가 몸통과 안 이어져 연결 조각이 2~3개로 나오는데, 원화에 흩어져 그려진 별똥·반짝이라 의도된 것 — 지우지 않는다 | expedition/ride/meteor(-girl).webp |
 | expedition/ride/motorbike-src.webp | 탑승 원화 27 오토바이 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/motorbike.webp |
 | expedition/ride/sandboard-src.webp | 탑승 원화 28 모래 보드 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/sandboard.webp |
 | expedition/ride/submarine-src.webp | 탑승 원화 32 잠수정 — 바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/submarine.webp |
