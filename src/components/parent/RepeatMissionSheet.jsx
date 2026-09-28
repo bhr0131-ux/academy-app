@@ -13,8 +13,8 @@
 
    [사용자 확정 2026-09-28] 학원에 등록해 둔 '반복 숙제'(baseHomeworks)도 이 목록에
    함께 보여, 어디서 만든 숙제든 여기 한 곳에서 알아볼 수 있게 한다. 숙제(kind:"hw")를
-   고르면 학원 선택 콤보가 열리고, 고른 학원 이름이 "숙제" 자리를 대신한다 —
-   "(영어) 문제집 2장 풀기"처럼.
+   고르면 학원 선택 콤보가 열리고, 고른 학원의 과목 이름(ac.kindLabel — 학원 이름은
+   길 수 있어 짧은 과목 쪽을 쓴다)이 "숙제" 자리를 대신한다 — "(영어) 문제집 2장 풀기"처럼.
 
    [사용자 확정 2026-09-28] 학원 숙제도 여기서 바로 고치고 지울 수 있다(onEditBase·
    onRemoveBase — 실제로는 그 학원의 baseHomeworks를 고친다). 목록 각 줄에는 '추가'
@@ -90,10 +90,12 @@ export default function RepeatMissionSheet({
     baseIndex: i, fromAcademy: true,
   })));
   const displayList = [...list, ...baseItems];
+  /* [사용자 확정 2026-09-28] 학원 이름(길 수 있음) 대신 과목 이름(짧다, ac.kindLabel)을
+     태그로 쓴다 — "수학 학원 (예시)"가 아니라 "수학"처럼. */
   const tagLabel = (it) => {
     if (it.kind !== "hw") return "할 일";
     const ac = it.academyId ? acById.get(String(it.academyId)) : null;
-    return ac ? ac.name : "숙제";
+    return ac ? (ac.kindLabel || ac.name) : "숙제";
   };
 
   return (
@@ -113,7 +115,6 @@ export default function RepeatMissionSheet({
         </div>
         <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 15px", lineHeight: 1.5 }}>
           자주 쓰는 미션을 저장해 두면, 미션을 넣을 때 눌러서 바로 넣을 수 있어요.
-          학원이든 생활·일반이든 <b style={{ color: tone.text }}>넣을 곳은 그때 고르면 돼요.</b>
         </p>
 
         {/* ── 새로 만들기 ── */}
@@ -224,13 +225,12 @@ export default function RepeatMissionSheet({
                         cursor: "pointer", fontFamily: F, whiteSpace: "nowrap" }}>+ 추가</button>
                     {/* [사용자 확정 2026-09-28] 학원에 등록한 반복 숙제도 여기서 바로 고치고
                         지울 수 있게 — 실제로는 그 학원 기록(baseHomeworks)을 고친다. */}
+                    {/* [사용자 확정 2026-09-28] 고치기를 누르면 그 안에 삭제 버튼이 있으니
+                        여기 따로 ✕를 둘 필요가 없다 — 자리만 차지해서 뺀다. */}
                     <button onClick={() => { setEditId(it.id); setEditText(it.text); setEditPoint(String(it.point)); }}
                       aria-label="고치기" className="jelly-tap"
                       style={{ flexShrink: 0, background: "none", border: "none", color: tone.sub, cursor: "pointer",
                         padding: "2px 5px", fontSize: 13, fontFamily: F }}>✎</button>
-                    <button onClick={() => setAskRemove(it.id)} aria-label="지우기" className="jelly-tap"
-                      style={{ flexShrink: 0, background: "none", border: "none", color: tone.red || "#DC2626",
-                        cursor: "pointer", padding: "2px 5px", fontSize: 13, fontFamily: F }}>✕</button>
                   </>
                 )}
               </div>
