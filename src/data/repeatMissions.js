@@ -13,8 +13,11 @@
      같은 "이 닦기"를 어제는 생활·일반에, 오늘은 공부방에 넣을 수 있다.
 
    [저장] 새 키 하나만 쓴다 (CLAUDE.md 9). 기존 키·저장 로직은 안 건드린다.
-     v6_repeat_missions = { [childId]: [ {id, text, point, kind} ] }
-       kind : "todo"(할 일) | "hw"(숙제)
+     v6_repeat_missions = { [childId]: [ {id, text, point, kind, academyId} ] }
+       kind      : "todo"(할 일) | "hw"(숙제)
+       academyId : kind가 "hw"일 때만 의미 있음 — 어느 학원 숙제인지(선택, 없으면 null)
+                   [사용자 확정 2026-09-28] 학원 숙제를 저장해 둘 때 그 학원을 골라 두면,
+                   목록에서 "(영어) 문제집 2장 풀기"처럼 학원 이름으로 바로 알아볼 수 있다.
      아이별로 둔다 — 점수·미션이 전부 아이별이라 여기만 공용이면 헷갈린다.
 
    [점수] 점수를 바꾸는 건 원래 '엄마 권한'(PIN)이 있어야 한다. 반복 미션도 같다 —
@@ -48,6 +51,7 @@ export const normalizeRepeat = (raw, defaultPoint) => {
         text: String(it.text).trim().slice(0, REPEAT_TEXT_MAX),
         point: clampPoint(it.point, defaultPoint),
         kind: it.kind === "hw" ? "hw" : "todo",
+        academyId: it.kind === "hw" && it.academyId ? String(it.academyId) : null,
       }))
       .filter(it => {
         if (!it.id || seen.has(it.id)) return false;
@@ -67,14 +71,16 @@ export const clampPoint = (v, defaultPoint) => {
 
 /* ── 추가 ─────────────────────────────────────────────────────────────
    id 는 부르는 쪽에서 준다 (App 의 newId) — 이 파일은 순수하게 둔다. */
-export const addRepeatMission = (data, cid, { id, text, point, kind }, defaultPoint) => {
+export const addRepeatMission = (data, cid, { id, text, point, kind, academyId }, defaultPoint) => {
   const list = getRepeatList(data, cid);
   const t = String(text || "").trim().slice(0, REPEAT_TEXT_MAX);
   if (!t) return { ok: false, reason: "empty", next: data };
   if (list.length >= REPEAT_MISSION_MAX) return { ok: false, reason: "full", next: data };
   /* 같은 글자를 두 번 저장하면 칩 줄에서 어느 쪽인지 구분이 안 된다 */
   if (list.some(it => it.text === t)) return { ok: false, reason: "duplicate", next: data };
-  const item = { id: String(id), text: t, point: clampPoint(point, defaultPoint), kind: kind === "hw" ? "hw" : "todo" };
+  const k = kind === "hw" ? "hw" : "todo";
+  const item = { id: String(id), text: t, point: clampPoint(point, defaultPoint), kind: k,
+    academyId: k === "hw" && academyId ? String(academyId) : null };
   return { ok: true, reason: null, item, next: { ...data, [cid]: [...list, item] } };
 };
 
@@ -88,11 +94,17 @@ export const editRepeatMission = (data, cid, id, patch, defaultPoint) => {
     ok: true, reason: null,
     next: {
       ...data,
-      [cid]: list.map(it => it.id !== id ? it : {
-        ...it,
-        ...(t !== undefined ? { text: t } : null),
-        ...(patch.point !== undefined ? { point: clampPoint(patch.point, defaultPoint) } : null),
-        ...(patch.kind !== undefined ? { kind: patch.kind === "hw" ? "hw" : "todo" } : null),
+      [cid]: list.map(it => {
+        if (it.id !== id) return it;
+        const nextKind = patch.kind !== undefined ? (patch.kind === "hw" ? "hw" : "todo") : it.kind;
+        const nextAcademyId = patch.academyId !== undefined ? patch.academyId : it.academyId;
+        return {
+          ...it,
+          ...(t !== undefined ? { text: t } : null),
+          ...(patch.point !== undefined ? { point: clampPoint(patch.point, defaultPoint) } : null),
+          kind: nextKind,
+          academyId: nextKind === "hw" && nextAcademyId ? String(nextAcademyId) : null,
+        };
       }),
     },
   };
