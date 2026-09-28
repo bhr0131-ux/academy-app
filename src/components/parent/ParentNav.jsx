@@ -108,10 +108,10 @@ export const PARENT_NAV_H = 58;
 /* menu — '더보기'를 누르면 바 바로 위로 올라오는 선택 목록 (사용자 확정 2026-08-09).
    안드로이드 오버플로 메뉴처럼 같은 칸 디자인(선형 아이콘 + 글자)으로 위에 쌓아 보여 준다.
    바깥을 누르면 닫힌다. props: {open, items:[{key,label,icon,active,onPress}], onClose} */
-export default function ParentNav({ items = [], accent = "#F58BB0", dim = "#9AA0A6", maxWidth = 430, menu = null }) {
+export default function ParentNav({ items = [], accent = "#F58BB0", dim = "#9AA0A6", maxWidth = 430, menu = null, parentRole = "엄마" }) {
   const open = !!(menu && menu.open);
   return (
-    <nav aria-label="엄마 관리 메뉴"
+    <nav aria-label={`${parentRole} 관리 메뉴`}
       style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 900, pointerEvents: "none" }}>
 
       {/* 바깥 어둡게 — 메뉴가 열렸을 때만. 화면 전체를 덮어 아무 데나 누르면 닫힌다 */}

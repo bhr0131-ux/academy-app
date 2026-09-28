@@ -41,7 +41,8 @@ import { getRewardGrade, UI_TEXT } from "../../data/characters.js";
    ════════════════════════════════════════════════════════════════════════ */
 export default function ItemShopSheet({ open, onClose, dark, skin = "dungeon", coin = 0,
   rewards = [], hasPending, onRequest, themeMain = "#60A8FF",
-  coinName = "코인", coinEmoji = "💎", goldDark = "#5A4A2A", gold = "#F5B942", approvedCount = 0 }) {
+  coinName = "코인", coinEmoji = "💎", goldDark = "#5A4A2A", gold = "#F5B942", approvedCount = 0,
+  parentLabel = "엄마" }) {
   /* 행 펼침 — 아코디언 시절 App의 openRewardId 였던 것. 시트 전용 상태로 옮김 */
   const [openId, setOpenId] = useState(null);
   if (!open) return null;
@@ -163,7 +164,7 @@ export default function ItemShopSheet({ open, onClose, dark, skin = "dungeon", c
                         <p style={{ fontSize: 13, fontWeight: 800,
                           color: cute ? (pending ? C.purple : canGet ? C.green : C.orange) : (pending ? "#6B4FCB" : canGet ? "#1E7D4A" : CAMP_SHEET.textSub),
                           margin: "0 0 10px" }}>
-                          {pending ? UI_TEXT.message.waitingApproval : canGet ? "지금 살 수 있어요!" : `${remain} ${coinEmoji} ${coinName} 더 모으면 살 수 있어요`}
+                          {pending ? `${parentLabel}가 확인하고 있어요!` : canGet ? "지금 살 수 있어요!" : `${remain} ${coinEmoji} ${coinName} 더 모으면 살 수 있어요`}
                         </p>
                         <button onClick={() => onRequest(reward)} disabled={!canGet || pending}
                           style={!cute

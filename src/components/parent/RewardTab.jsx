@@ -15,7 +15,7 @@ import SectionHead from "./SectionHead.jsx";
    ════════════════════════════════════════════════════════════════════════ */
 export default function RewardTab({ D }) {
   const {
-    CT, TM,
+    CT, TM, PT = { role:"엄마" },
     approveRewardRequest, childId, children, curChild, deleteReward,
     getChildRewardRequests, getChildRewards, openEditReward,
     rewardAgeGroup,
@@ -106,7 +106,7 @@ export default function RewardTab({ D }) {
               style={{width:"100%",marginTop:10,padding:"9px 12px",borderRadius:RAD.md,background:`${th.main}0E`,border:`1px solid ${th.main}33`,cursor:"pointer",fontFamily:"inherit",textAlign:"left",display:"flex",alignItems:"flex-start",gap:7}}>
               <span style={{color:th.main,display:"flex",flexShrink:0,marginTop:1}}><CareIcon name="lock" size={14}/></span>
               <span style={{minWidth:0}}>
-                <span style={{display:"block",fontSize:FS.sub,fontWeight:FW.semi,color:mixBlack(th.main,0.25)}}>엄마 권한 잠금</span>
+                <span style={{display:"block",fontSize:FS.sub,fontWeight:FW.semi,color:mixBlack(th.main,0.25)}}>{PT.role} 권한 잠금</span>
                 <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>보상 추가·수정·삭제</span>
               </span>
             </button>
