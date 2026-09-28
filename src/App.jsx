@@ -5384,10 +5384,10 @@ export default function App() {
                 {(()=>{const d=parseLocal(pastQuestBlockModal.date);return `${d.getMonth()+1}월 ${d.getDate()}일`;})()} · {pastQuestBlockModal.label}
               </p>
               <p style={{fontSize:14,fontWeight:800,color:C.sub,margin:"0 0 16px",lineHeight:1.5}}>
-                지난 미션은 여기서 완료할 수 없어요.<br/>보호자가 대신 처리할 수 있어요 🙆
+                보호자가 대신 처리할 수 있어요 🙆
               </p>
               <div style={{background:CT.faint,borderRadius:14,padding:"12px 14px",fontSize:13,fontWeight:800,color:C.sub,lineHeight:1.5}}>
-                <span style={{color:C.orange,fontWeight:900}}>엄마용 → 보상 탭(🔒 비밀번호)</span>에서 엄마가 완료/실패를 처리해 줄 수 있어요.
+                <span style={{color:C.orange,fontWeight:900}}>엄마용 → 미션 → 지난 미션 관리(🔒 비밀번호)</span>에서 엄마가 완료/실패를 처리해 줄 수 있어요.
               </div>
               <button onClick={()=>setPastQuestBlockModal(null)}
                 style={{marginTop:16,width:"100%",padding:"12px",borderRadius:14,border:"none",background:`linear-gradient(135deg, ${C.orange}, #FFC36B)`,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer"}}>
