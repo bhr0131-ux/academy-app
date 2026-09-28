@@ -1,11 +1,14 @@
 /* ════════════════════════════════════════════════════════════════════════
-   RegisteredAcademyList — 엄마용 홈 '등록 학원' 목록
+   RegisteredAcademyList — 엄마용 홈 '전체 학원' 목록
    ────────────────────────────────────────────────────────────────────────
-   [사용자 확정 2026-08-16] 홈의 '오늘의 학원' 자리에서 토글로 바꿔 보는 목록.
-   생김새를 '오늘의 학원'과 최대한 같게 맞춘다 — 접힌 줄도, 펼친 속도.
+   [사용자 확정 2026-08-16] 홈의 '오늘 가는 학원' 자리에서 토글로 바꿔 보는 목록.
+   생김새를 그쪽과 최대한 같게 맞춘다 — 접힌 줄도, 펼친 속도.
+   [사용자 확정 2026-09-28] '등록 학원' → '전체 학원' 으로 이름이 바뀌었다.
+   todayAcIds(그날 실제로 가는 학원 id 집합) · todayTag(짧은 날짜 표, 예: '오늘'·'9/30')를
+   받으면 접힌 줄에 같은 표를 붙여 '오늘 가는 학원'과의 관계를 여기서도 보여 준다.
 
-   접힌 줄  [종류(학원색)] [요일 시간범위]                      ⌄
-            '오늘의 학원'은 [종류][시간범위]인데, 여기는 날짜에 매이지 않으므로
+   접힌 줄  [종류(학원색)] [요일 시간범위] [오늘]                 ⌄
+            '오늘 가는 학원'은 [종류][시간범위]인데, 여기는 날짜에 매이지 않으므로
             시간 앞에 요일을 붙인다 (매일 / 평일 / 주말 / 월·수·금).
 
    펼친 속  '오늘의 학원'과 같은 3단 + 나머지 등록 정보
@@ -127,6 +130,7 @@ function whenLabel(ac) {
 export default function RegisteredAcademyList({
   th, CT, curAc = [], acKindLabel, getAcademyTheme, kidSkin,
   open = {}, setOpen, onEdit, onSms, onCopyAccount, onOpenMap,
+  todayAcIds, todayTag,
 }) {
   if (curAc.length === 0) {
     return (
@@ -182,6 +186,11 @@ export default function RegisteredAcademyList({
                   <span style={{ fontSize: FS.title, fontWeight: FW.bold, color: ac.color, minWidth: 0,
                     overflow: "hidden", textOverflow: "ellipsis" }}>{acKindLabel(ac)}</span>
                   <span style={{ fontSize: FS.cardTitle, fontWeight: FW.normal, flexShrink: 0, color: SUBD }}>{whenLabel(ac)}</span>
+                  {/* [사용자 확정 2026-09-28] 지금 보고 있는 날짜에 가는 학원임을 여기서도
+                      바로 알 수 있게 — '오늘 가는 학원' 쪽과 같은 짧은 날짜 표(todayTag)를 붙인다. */}
+                  {todayAcIds?.has(String(ac.id)) && todayTag && (
+                    <span style={{ ...chip, flexShrink: 0, background: `${th.main}16`, color: th.main, fontWeight: FW.bold }}>{todayTag}</span>
+                  )}
                 </span>
                 {/* 화살표는 카드 오른쪽 끝에서 안쪽으로 들여 놓는다 — 가장자리 제스처 구역과
                     겹치면 눌림 표시만 나고 클릭이 취소된다 (실기기에서 재현·해결 확인).

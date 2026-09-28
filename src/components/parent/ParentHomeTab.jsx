@@ -65,6 +65,9 @@ export default function ParentHomeTab({
   const isYesterday=homeDate===addDays(TODAY,-1);
   const dayTag=isToday?"오늘":isTomorrow?"내일":isYesterday?"어제":null;
   const fullLabel=`${hd.getMonth()+1}월 ${hd.getDate()}일 ${hDN}요일`;
+  /* [사용자 확정 2026-09-28] '오늘의 학원' 토글 이름에 쓰는 짧은 날짜 —
+     오늘/내일/어제가 아니면 'N/N' 로. 날짜를 옮겨도 무슨 날인지 헷갈리지 않게. */
+  const shortDayLabel=dayTag||`${hd.getMonth()+1}/${hd.getDate()}`;
   const holidayName=getHolidayName(homeDate);
   /* [사용자 확정 2026-08-13] 아이용 탐험지도와 같은 목록을 본다 (getDayPlan).
      결석한 학원도 카드는 남기고 시간 자리에만 '결석'을 쓴다 — 아이용 지도에서는 아예 뺀다.
@@ -72,6 +75,9 @@ export default function ParentHomeTab({
      아래 결석·보충 요약 줄은 그대로 둔다 — 사유·보충 날짜는 거기서만 볼 수 있다. */
   const homeAc=getDayPlan(curAc,curAbs,homeDate,hDN,(acId)=>isVacationDay(childId,acId,homeDate));
   const vacAcToday=curAc.filter(a=>hasClassOnDay(a,hDN)&&isVacationDay(childId,a.id,homeDate));
+  /* [사용자 확정 2026-09-28] '전체 학원'에서도 이 날 가는 곳을 바로 알 수 있게 — homeAc(그날
+     실제로 가는 곳, 결석 제외)와 같은 학원을 표시한다. RegisteredAcademyList 로 넘긴다. */
+  const todayAcIds=new Set(homeAc.filter(a=>!a._absent).map(a=>String(a.id)));
   const absOnHome=curAbs.filter(a=>a.date===homeDate);
   const makeupOnHome=curAbs.filter(a=>a.makeupDate===homeDate);
   // [사용자 확정 2026-08-07] 숙제와 미션을 나누지 않고 '미완료 미션' 하나로 센다.
@@ -257,31 +263,37 @@ export default function ParentHomeTab({
         </div>
       )}
 
-      {/* ── 학원 칸 머리 — '오늘의 학원 / 등록 학원' 토글 (사용자 확정 2026-08-16) ──
+      {/* ── 학원 칸 머리 — '오늘 가는 학원 / 전체 학원' 토글 (사용자 확정 2026-09-28 개편) ──
              학원 탭을 따로 두지 않고 이 자리에서 바꿔 본다. 위(날짜·오늘 챙길 일)와
              아래(결석·보충)는 그대로 두고 '이 칸의 내용만' 갈아 끼운다.
              [중요] 학원이 없는 날에도 머리는 늘 나온다 — 예전엔 homeAc.length>0 일 때만
-             제목이 나와서, 학원이 없는 날엔 등록하러 들어갈 길이 아예 없었다. */}
+             제목이 나와서, 학원이 없는 날엔 등록하러 들어갈 길이 아예 없었다.
+             [사용자 확정 2026-09-28] ChatGPT 검토 의견 중 화면에 맞는 것만 반영했다(똑같이
+             베끼지 않음) — ① 두 알약을 한 박스 안에 넣어 '같은 목록의 보기 방식'으로 보이게
+             ② 개수는 항상 둘 다 보이게(예전엔 고른 쪽에만 붙었다) ③ 이름을 '오늘의 학원' →
+             '{날짜} 가는 학원'(날짜를 옮기면 '내일 가는 학원'·'9/30 가는 학원'처럼 따라간다),
+             '등록 학원' → '전체 학원'. ④ 전체 학원 목록 쪽에도 그날 가는 곳에 같은 날짜 표를
+             붙였다(아래 RegisteredAcademyList 의 todayTag). */}
       <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 15px"}}>
-        <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
-          {[{k:"today",l:"오늘의 학원",n:homeAc.length},{k:"all",l:"등록 학원",n:curAc.length}].map(t=>{
+        <div style={{display:"flex",alignItems:"center",gap:2,padding:3,borderRadius:RAD.md+2,
+          background:CT.faint,flexShrink:0}}>
+          {[{k:"today",l:`${shortDayLabel} 가는 학원`,n:homeAc.length},{k:"all",l:"전체 학원",n:curAc.length}].map(t=>{
             const on=acView===t.k;
             return (
               <button key={t.k} onClick={()=>setAcView(t.k)} className="jelly-tap"
                 aria-pressed={on}
                 style={{border:"none",cursor:"pointer",fontFamily:"inherit",
-                  padding:"5px 10px",borderRadius:RAD.sm,
-                  fontSize:FS.cardTitle,fontWeight:FW.bold,letterSpacing:0.2,
-                  background:on?mixWhite(th.main,0.88):"transparent",
+                  padding:"6px 11px",borderRadius:RAD.sm,
+                  fontSize:FS.cardTitle,fontWeight:FW.bold,letterSpacing:0.2,whiteSpace:"nowrap",
+                  background:on?"#fff":"transparent",
                   color:on?mixBlack(th.main,0.35):"#A8AEC0",
+                  boxShadow:on?"0 1px 4px rgba(90,70,60,0.14)":"none",
                   display:"inline-flex",alignItems:"center",gap:5}}>
                 {on&&<span style={{color:th.main,display:"flex"}}><CareIcon name="school" size={14}/></span>}
                 {t.l}
-                {/* 학원 탭 머리에 있던 'N곳'을 여기로 — 고른 쪽에만 붙여 접힌 알약이 길어지지 않게 한다.
-                    오늘의 학원은 '그날 가는 곳', 등록 학원은 '등록한 곳' 수를 센다. */}
-                {on&&t.n>0&&(
-                  <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub}}>{t.n}곳</span>
-                )}
+                {/* 학원 탭 머리에 있던 'N곳'을 여기로 — 이제 두 쪽 다 늘 보인다(사용자 확정) —
+                    선택 안 된 쪽도 미리 몇 곳인지 알아야 눌러볼지 정할 수 있다. */}
+                <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:on?C.sub:"#B9BEC9"}}>{t.n}곳</span>
               </button>
             );
           })}
@@ -289,11 +301,12 @@ export default function ParentHomeTab({
         <div style={{flex:1,height:1,background:C.border}}/>
       </div>
 
-      {/* ── '등록 학원' — 날짜와 무관한 목록. 아래 결석·보충 칸은 그대로 둔다 ── */}
+      {/* ── '전체 학원' — 날짜와 무관한 목록. 아래 결석·보충 칸은 그대로 둔다 ── */}
       {acView==="all"&&(
         <div style={{marginBottom:26}}>
           <RegisteredAcademyList
             th={th} CT={CT} curAc={curAc} acKindLabel={acKindLabel}
+            todayAcIds={todayAcIds} todayTag={shortDayLabel}
             getAcademyTheme={getAcademyTheme} kidSkin={kidSkin}
             open={regAcOpen} setOpen={setRegAcOpen}
             onEdit={onEditAcademy} onSms={onSms}
