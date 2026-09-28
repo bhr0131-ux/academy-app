@@ -379,6 +379,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | back-sky-straps.webp | 하늘 배낭 원화 (파랑 롤 + 갈색 가죽끈) | avatar/back/sky-straps.webp |
 | back-cream-straps.webp | 크림 배낭 원화 (크림 롤 + 캔버스끈, 체커보드 배경 제거) | avatar/back/cream-straps.webp |
 | btn-parent-badge-v4.webp | '엄마모드' 원형 뱃지 v4 — 디자인 소폭 수정(엄마 얼굴 + '엄마모드', 현행). v3 는 글자가 '엄마용'이었다 | btn-parent.webp |
+| btn-parent-dad-badge-v1.webp | '아빠모드' 원형 뱃지 (사용자 원화 2026-09-28, 남아/아빠 온보딩 선택 시 노출) — 위 엄마모드와 같은 구도(원형 액자·같은 글자 위치)로, 얼굴만 아빠. 받은 PNG 에 약알파(1~19) 픽셀이 19,168개 깔려 있어 0 으로 눌러 자른 뒤 가로 160px webp q90 으로 탑재. App.jsx 헤더 버튼이 parentGender==="dad" 일 때 이 그림으로 갈아 끼운다(엄마모드와 같은 자리·크기) | btn-parent-dad.webp |
 | btn-child-switch-badge-v4.webp | 아이 선택 원형 뱃지 v4 — 디자인 소폭 수정(남매 + '아이선택', 2명 이상일 때만 노출, 현행) | btn-child-switch.webp |
 | btn-my-avatar-badge-v4.webp | '내아바타' 원형 뱃지 v4 — 디자인 소폭 수정(초록 실루엣 + '내아바타', 현행). v3 는 글자가 '꾸미기'였다 | btn-my-avatar.webp |
 | btn-growth-character-badge-v4.webp | '성장' 원형 뱃지 v4 — 디자인 소폭 수정(새싹 + '성장', 현행) | btn-growth-character.webp |
