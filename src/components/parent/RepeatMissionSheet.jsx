@@ -11,12 +11,19 @@
    저장은 App이 한다. 여기는 입력만 받아 onAdd/onEdit/onRemove 로 넘긴다.
    규칙(빈 글자·중복·최대 개수·점수 다듬기)은 data/repeatMissions.js 가 갖는다.
 
+   [사용자 확정 2026-09-28] 학원에 등록해 둔 '반복 숙제'(baseHomeworks)도 이 목록에
+   함께 보여, 어디서 만든 숙제든 여기 한 곳에서 알아볼 수 있게 한다. 학원 숙제는
+   학원 등록 화면(공부방 관리)에서만 고치므로 여기서는 읽기 전용으로만 보여 준다.
+   숙제(kind:"hw")를 고르면 학원 선택 콤보가 열리고, 고른 학원 이름이 "숙제" 자리를
+   대신한다 — "(영어) 문제집 2장 풀기"처럼.
+
    props
      open      : boolean
-     list      : [{id,text,point,kind}]
+     list      : [{id,text,point,kind,academyId}]
+     academies : [{id,name,color,baseHomeworks}]   숙제 학원 선택 콤보 + 학원 반복 숙제 병합용
      canScore  : boolean   엄마 권한(PIN)이 열렸나 — 점수 칸을 열지 말지
      defaultPoint : number
-     onAdd({text,point,kind}) · onEdit(id,{text,point,kind}) · onRemove(id)
+     onAdd({text,point,kind,academyId}) · onEdit(id,{text,point,kind}) · onRemove(id)
      onClose   : ()=>void
      tone      : {text,sub,border,faint,main,grad,red}
    ════════════════════════════════════════════════════════════════════════ */
@@ -29,12 +36,13 @@ const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 const KINDS = [{ k: "todo", l: "할 일" }, { k: "hw", l: "숙제" }];
 
 export default function RepeatMissionSheet({
-  open, list = [], canScore = false, defaultPoint = 10,
+  open, list = [], academies = [], canScore = false, defaultPoint = 10,
   onAdd, onEdit, onRemove, onClose, tone, parentRole = "엄마",
 }) {
   const [text, setText] = useState("");
   const [point, setPoint] = useState(String(defaultPoint));
   const [kind, setKind] = useState("todo");
+  const [academyId, setAcademyId] = useState("");
   const [editId, setEditId] = useState(null);
   const [editText, setEditText] = useState("");
   const [editPoint, setEditPoint] = useState("");
@@ -49,13 +57,26 @@ export default function RepeatMissionSheet({
   };
   const submit = () => {
     const v = text.trim(); if (!v) return;
-    onAdd && onAdd({ text: v, point: canScore ? point : defaultPoint, kind });
-    setText(""); setPoint(String(defaultPoint));
+    onAdd && onAdd({ text: v, point: canScore ? point : defaultPoint, kind, academyId: kind === "hw" ? academyId : "" });
+    setText(""); setPoint(String(defaultPoint)); setAcademyId("");
   };
   const saveEdit = () => {
     const v = editText.trim(); if (!v) { setEditId(null); return; }
     onEdit && onEdit(editId, { text: v, ...(canScore ? { point: editPoint } : null) });
     setEditId(null);
+  };
+
+  /* 학원에 등록해 둔 '반복 숙제'는 여기서 만든 게 아니라 읽기 전용으로 섞어 보여 준다.
+     id가 없어 새로 만들어 준다(학원 안에서 순서만 있으면 되므로 인덱스로 충분). */
+  const acById = new Map(academies.map(ac => [String(ac.id), ac]));
+  const baseItems = academies.flatMap(ac => (ac.baseHomeworks || []).map((t, i) => ({
+    id: `bh:${ac.id}:${i}`, text: t, point: defaultPoint, kind: "hw", academyId: String(ac.id), fromAcademy: true,
+  })));
+  const displayList = [...list, ...baseItems];
+  const tagLabel = (it) => {
+    if (it.kind !== "hw") return "할 일";
+    const ac = it.academyId ? acById.get(String(it.academyId)) : null;
+    return ac ? ac.name : "숙제";
   };
 
   return (
@@ -83,7 +104,8 @@ export default function RepeatMissionSheet({
           <div style={{ display: "flex", alignItems: "stretch", gap: 8, marginBottom: 8 }}>
             <div style={{ flexShrink: 0, width: 62, display: "flex", flexDirection: "column", gap: 5 }}>
               {KINDS.map(o => (
-                <button key={o.k} onClick={() => setKind(o.k)} className="jelly-tap" aria-pressed={kind === o.k}
+                <button key={o.k} onClick={() => { setKind(o.k); if (o.k !== "hw") setAcademyId(""); }}
+                  className="jelly-tap" aria-pressed={kind === o.k}
                   style={{ width: "100%", cursor: "pointer", borderRadius: 9, padding: "4px 0", fontFamily: F, fontSize: 12,
                     border: `1.5px solid ${kind === o.k ? tone.main : tone.border}`,
                     fontWeight: kind === o.k ? 900 : 700,
@@ -95,6 +117,18 @@ export default function RepeatMissionSheet({
               placeholder={full ? `최대 ${REPEAT_MISSION_MAX}개까지예요` : "예) 이 닦기"} aria-label="반복 미션 내용"
               style={{ ...inp, flex: 1, minWidth: 0, background: full ? tone.faint : "#fff" }} />
           </div>
+          {/* [사용자 확정 2026-09-28] 숙제를 고르면 어느 학원 숙제인지 바로 골라 둔다 —
+              목록에서 "숙제" 대신 학원 이름으로 알아볼 수 있게. 학원이 없으면 안 보인다. */}
+          {kind === "hw" && academies.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <span style={{ width: 62, textAlign: "right", flexShrink: 0, fontSize: 12, fontWeight: 700, color: tone.sub }}>학원</span>
+              <select value={academyId} onChange={e => setAcademyId(e.target.value)} aria-label="학원 선택"
+                style={{ ...inp, flex: 1, minWidth: 0, padding: "8px 10px", fontSize: 14, cursor: "pointer" }}>
+                <option value="">선택 안 함</option>
+                {academies.map(ac => <option key={ac.id} value={ac.id}>{ac.name}</option>)}
+              </select>
+            </div>
+          )}
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ width: 62, textAlign: "right", flexShrink: 0, fontSize: 12, fontWeight: 700, color: tone.sub }}>보상</span>
             <input type="number" min="1" value={canScore ? point : defaultPoint}
@@ -121,7 +155,7 @@ export default function RepeatMissionSheet({
           <div style={{ flex: 1, height: 1, background: tone.border }} />
         </div>
 
-        {list.length === 0 ? (
+        {displayList.length === 0 ? (
           <p style={{ textAlign: "center", color: tone.sub, fontSize: 13, fontWeight: 700,
             padding: "22px 10px", margin: 0, lineHeight: 1.6 }}>
             아직 없어요<br />
@@ -129,7 +163,7 @@ export default function RepeatMissionSheet({
           </p>
         ) : (
           <div>
-            {list.map((it, i) => (
+            {displayList.map((it, i) => (
               <div key={it.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 2px",
                 borderTop: i ? `1px solid ${tone.border}` : "none" }}>
                 {editId === it.id ? (
@@ -151,18 +185,24 @@ export default function RepeatMissionSheet({
                     <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 900, borderRadius: 7, padding: "2px 7px",
                       background: it.kind === "hw" ? `${tone.main}18` : tone.faint,
                       color: it.kind === "hw" ? tone.main : tone.sub }}>
-                      {it.kind === "hw" ? "숙제" : "할 일"}
+                      {tagLabel(it)}
                     </span>
                     <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 800, color: tone.text,
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.text}</span>
                     <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 800, color: tone.sub }}>{it.point}점</span>
-                    <button onClick={() => { setEditId(it.id); setEditText(it.text); setEditPoint(String(it.point)); }}
-                      aria-label="고치기" className="jelly-tap"
-                      style={{ flexShrink: 0, background: "none", border: "none", color: tone.sub, cursor: "pointer",
-                        padding: "2px 5px", fontSize: 13, fontFamily: F }}>✎</button>
-                    <button onClick={() => setAskRemove(it.id)} aria-label="지우기" className="jelly-tap"
-                      style={{ flexShrink: 0, background: "none", border: "none", color: tone.red || "#DC2626",
-                        cursor: "pointer", padding: "2px 5px", fontSize: 13, fontFamily: F }}>✕</button>
+                    {/* 학원에서 등록한 반복 숙제는 여기서 만든 게 아니라 고치기·지우기가 없다 —
+                        학원 등록 화면(공부방 관리)에서만 바꾼다. */}
+                    {!it.fromAcademy && (
+                      <>
+                        <button onClick={() => { setEditId(it.id); setEditText(it.text); setEditPoint(String(it.point)); }}
+                          aria-label="고치기" className="jelly-tap"
+                          style={{ flexShrink: 0, background: "none", border: "none", color: tone.sub, cursor: "pointer",
+                            padding: "2px 5px", fontSize: 13, fontFamily: F }}>✎</button>
+                        <button onClick={() => setAskRemove(it.id)} aria-label="지우기" className="jelly-tap"
+                          style={{ flexShrink: 0, background: "none", border: "none", color: tone.red || "#DC2626",
+                            cursor: "pointer", padding: "2px 5px", fontSize: 13, fontFamily: F }}>✕</button>
+                      </>
+                    )}
                   </>
                 )}
               </div>

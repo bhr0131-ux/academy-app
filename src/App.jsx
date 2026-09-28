@@ -3529,8 +3529,8 @@ export default function App() {
      자주 쓰는 미션을 저장해 두고, 미션 추가 팝업에서 눌러 바로 넣는다.
      규칙(빈 글자·중복·최대 개수·점수 다듬기)은 data/repeatMissions.js 가 갖는다. */
   const getRepeatMissions=(cid)=>getRepeatList(repeatMissions,cid);
-  const addRepeat=({text,point,kind})=>{
-    const r=addRepeatMission(repeatMissions,childId,{id:newId(),text,point,kind},DEFAULT_HOMEWORK_SCORE);
+  const addRepeat=({text,point,kind,academyId})=>{
+    const r=addRepeatMission(repeatMissions,childId,{id:newId(),text,point,kind,academyId},DEFAULT_HOMEWORK_SCORE);
     if(!r.ok){
       showToast(r.reason==="duplicate"?"같은 반복 미션이 이미 있어요"
                :r.reason==="full"?`반복 미션은 ${REPEAT_MISSION_MAX}개까지예요`:"내용을 입력해 주세요");
@@ -6076,13 +6076,38 @@ export default function App() {
                               어디에 미션을 추가할까요?
                             </p>
 
+                            {/* [사용자 확정 2026-09-28] 반복 미션 — 학원을 안 다니는 아이도 반복 할 일을
+                                쓸 수 있게. 여기서 만들어 두면 아래 어느 줄로 들어가든(학원·일반)
+                                그 팝업 안에서 눌러 바로 넣는다. 가장 자주 쓰는 자리라 맨 위로 올리고,
+                                새로 만드는 줄임을 알 수 있게 표식을 ＋ 대신 작은 별로 둔다. */}
+                            <button onClick={()=>setShowRepeatSheet(true)}
+                              className="jelly-tap"
+                              style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
+                                border:"none",background:"transparent",
+                                cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
+                              <span aria-hidden="true" style={{width:9,height:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                                <EmojiIcon emoji="⭐" size={13}/>
+                              </span>
+                              <span style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5}}>
+                                <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
+                                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>반복 미션 추가</span>
+                                <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({getRepeatMissions(childId).length})</span>
+                              </span>
+                              <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
+                            </button>
+                            {getRepeatMissions(childId).length===0&&(
+                              <p style={{margin:"2px 0 10px 19px",fontSize:11.5,fontWeight:700,color:C.sub,lineHeight:1.45}}>
+                                자주 쓰는 미션을 저장해 두면 아래 어디에든 눌러서 바로 넣을 수 있어요
+                              </p>
+                            )}
+
                             {curAc.length>0&&(
                               <div>
-                                {curAc.map((ac,i)=>(
+                                {curAc.map((ac)=>(
                                   <button key={ac.id} onClick={()=>openEdit(ac.id,ac.name,ac.color,ac.baseSupplies)}
                                     className="jelly-tap"
                                     style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
-                                      border:"none",borderTop:i?`1px solid ${C.border}`:"none",background:"transparent",
+                                      border:"none",borderTop:`1px solid ${C.border}`,background:"transparent",
                                       cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
                                     <span style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
                                     {/* [사용자 확정 2026-08-17] '등록된 미션 N개'를 아랫줄에 두니
@@ -6098,7 +6123,7 @@ export default function App() {
                               </div>
                             )}
                             {curAc.length===0&&(
-                              <p style={{textAlign:"center",color:C.sub,fontSize:13,padding:"10px 0",margin:0}}>등록된 학원이 없어요</p>
+                              <p style={{textAlign:"center",color:C.sub,fontSize:13,padding:"10px 0",margin:0,borderTop:`1px solid ${C.border}`}}>등록된 학원이 없어요</p>
                             )}
 
                             {/* 일반 미션 — 학원 목록과 성격이 다르다. '학원과 관계없는'이라는
@@ -6106,11 +6131,12 @@ export default function App() {
                                 '일반 미션'이라는 독립 이름을 쓴다 (사용자 확정).
                                 [사용자 확정 2026-08-16] 점선 상자로 따로 떼어 놓으니 줄이 어긋나
                                 보였다 → 학원 줄과 같은 색·같은 크기·같은 위치로 맞춘다.
-                                고르는 자리는 하나로 읽혀야 한다. */}
+                                고르는 자리는 하나로 읽혀야 한다.
+                                [사용자 확정 2026-09-28] 이름에서 '생활·' 를 떼고 '일반 미션'만 쓴다. */}
                             <button onClick={()=>openEdit(EXTRA_QUEST_ID,"일반 미션",th.main,[])}
                               className="jelly-tap"
                               style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
-                                border:"none",borderTop:curAc.length>0?`1px solid ${C.border}`:"none",background:"transparent",
+                                border:"none",borderTop:`1px solid ${C.border}`,background:"transparent",
                                 cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
                               {/* [사용자 확정 2026-08-16] 학원 줄과 자리·크기는 같게 두되 표식만
                                   점 대신 ＋ 로 — 학원을 고르는 줄이 아니라 새로 만드는 줄이다.
@@ -6119,34 +6145,11 @@ export default function App() {
                               {/* 학원 줄과 같은 모양으로 — 이름 옆 (N) 하나 */}
                               <span style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5}}>
                                 <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
-                                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>생활·일반 미션 추가</span>
+                                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>일반 미션</span>
                                 <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({cnt(EXTRA_QUEST_ID)})</span>
                               </span>
                               <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
                             </button>
-
-                            {/* [사용자 확정 2026-09-26] 반복 미션 — 학원을 안 다니는 아이도 반복 할 일을
-                                쓸 수 있게. 여기서 만들어 두면 위의 어느 줄로 들어가든(학원·생활·일반)
-                                그 팝업 안에서 눌러 바로 넣는다. 만드는 자리라 학원 줄과 같은 모양에
-                                표식만 ＋ 로 (생활·일반 줄과 같은 규칙). */}
-                            <button onClick={()=>setShowRepeatSheet(true)}
-                              className="jelly-tap"
-                              style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
-                                border:"none",borderTop:`1px solid ${C.border}`,background:"transparent",
-                                cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
-                              <span aria-hidden="true" style={{width:9,height:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",color:th.main,fontSize:15,fontWeight:900,lineHeight:1}}>+</span>
-                              <span style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5}}>
-                                <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
-                                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>반복 미션 추가</span>
-                                <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({getRepeatMissions(childId).length})</span>
-                              </span>
-                              <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
-                            </button>
-                            {getRepeatMissions(childId).length===0&&(
-                              <p style={{margin:"2px 0 0 19px",fontSize:11.5,fontWeight:700,color:C.sub,lineHeight:1.45}}>
-                                자주 쓰는 미션을 저장해 두면 위 어디에든 눌러서 바로 넣을 수 있어요
-                              </p>
-                            )}
                           </div>
                           );
                         })()}
@@ -7472,7 +7475,7 @@ export default function App() {
       {/* ── 반복 미션 시트 (엄마용 미션탭 → 반복 미션 추가) ── */}
       <RepeatMissionSheet
         open={showRepeatSheet} onClose={()=>setShowRepeatSheet(false)}
-        list={getRepeatMissions(childId)}
+        list={getRepeatMissions(childId)} academies={curAc}
         canScore={rewardUnlocked} defaultPoint={DEFAULT_HOMEWORK_SCORE}
         onAdd={addRepeat} onEdit={editRepeat} onRemove={removeRepeat} parentRole={PT.role}
         tone={{text:C.text,sub:C.sub,border:C.border,faint:C.faint,main:th.main,grad:th.grad,red:C.red}}/>
