@@ -4435,10 +4435,9 @@ export default function App() {
             })()}
             <div style={{display:"flex",flexDirection:"column",gap:kidSkin==="cute"?7:9,alignItems:kidSkin==="cute"?"stretch":"flex-end"}}>
               {/* [탐험] 사용자 원화 원형 뱃지 버튼 2종 위아래 배치 (엄마용 / 아이 전환) — 베이커리는 기존 칩·셀렉트 유지
-                  [사용자 확정 2026-09-28] 보호자 호칭(엄마/아빠)에 맞춰 바뀐다. 그림(btn-parent.webp)에는
-                  '엄마모드' 글자가 박혀 있어 아빠용 그림이 없다 — 아빠를 고르면 그림 대신
-                  같은 크기의 글자 뱃지로 대신한다(아래 parentGender==="dad" 분기). 나중에
-                  '아빠모드' 원화를 받으면 이 분기를 지우고 그림 하나로 되돌리면 된다. */}
+                  [사용자 확정 2026-09-28] 보호자 호칭(엄마/아빠)에 맞춰 뱃지 그림 자체가 바뀐다 —
+                  btn-parent.webp(엄마모드) / btn-parent-dad.webp(아빠모드), 둘 다 그림 안에 글자가
+                  박혀 있다. */}
               {kidSkin==="cute"?(
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
                 <button onClick={()=>{ setAppMode("parent"); setTab("home"); }}
@@ -4446,19 +4445,10 @@ export default function App() {
                   <EmojiIcon emoji={PT.emoji} size={13} style={{verticalAlign:"-0.15em",marginRight:4}}/>{PT.chip}
                 </button>
               </div>
-              ):parentGender==="dad"?(
-              <button onClick={()=>{ setAppMode("parent"); setTab("home"); }} className="jelly-tap"
-                aria-label={PT.roleMode}
-                style={{background:"linear-gradient(160deg,#FDF6E8,#F1E0BE)",border:"3px solid #B9863F",borderRadius:"50%",
-                  width:52,height:52,padding:0,cursor:"pointer",display:"flex",flexDirection:"column",
-                  alignItems:"center",justifyContent:"center",boxShadow:"0 3px 9px rgba(155,114,74,0.30)"}}>
-                <EmojiIcon emoji={PT.emoji} size={20}/>
-                <span style={{fontSize:8,fontWeight:900,color:"#6B4A1E",marginTop:1,letterSpacing:-0.2}}>{PT.roleMode}</span>
-              </button>
               ):(
               <button onClick={()=>{ setAppMode("parent"); setTab("home"); }} className="jelly-tap"
                 style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
-                <img src="assets/btn-parent.webp" alt={PT.roleMode}
+                <img src={parentGender==="dad"?"assets/btn-parent-dad.webp":"assets/btn-parent.webp"} alt={PT.roleMode}
                   style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
               </button>
               )}
