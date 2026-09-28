@@ -280,20 +280,24 @@ export default function ParentHomeTab({
           {[{k:"today",l:`${shortDayLabel} 가는 학원`,n:homeAc.length},{k:"all",l:"전체 학원",n:curAc.length}].map(t=>{
             const on=acView===t.k;
             return (
+              /* [사용자 확정 2026-09-28] 두 알약 너비를 맞춘다 — 글자 길이가 달라(예: '전체 학원'
+                 보다 '9/30 가는 학원'이 길다) minWidth 를 같이 주고 가운데 정렬한다.
+                 고른 쪽 색은 위 아이 선택 줄과 같은 규칙(연한 그라데이션 + 흰 글자 + 그림자,
+                 t.main 자리에 th.main) 으로 통일 — 흰 배경이면 '선택됨'이 약해 보였다. */
               <button key={t.k} onClick={()=>setAcView(t.k)} className="jelly-tap"
                 aria-pressed={on}
                 style={{border:"none",cursor:"pointer",fontFamily:"inherit",
-                  padding:"6px 11px",borderRadius:RAD.sm,
+                  padding:"6px 11px",borderRadius:RAD.sm,minWidth:156,justifyContent:"center",
                   fontSize:FS.cardTitle,fontWeight:FW.bold,letterSpacing:0.2,whiteSpace:"nowrap",
-                  background:on?"#fff":"transparent",
-                  color:on?mixBlack(th.main,0.35):"#A8AEC0",
-                  boxShadow:on?"0 1px 4px rgba(90,70,60,0.14)":"none",
+                  background:on?`linear-gradient(135deg, ${mixWhite(th.main,0.10)}, ${mixWhite(th.main,0.30)})`:"transparent",
+                  color:on?"#fff":"#A8AEC0",
+                  boxShadow:on?`0 3px 10px ${th.main}3A`:"none",
                   display:"inline-flex",alignItems:"center",gap:5}}>
-                {on&&<span style={{color:th.main,display:"flex"}}><CareIcon name="school" size={14}/></span>}
+                {on&&<span style={{color:"#fff",display:"flex"}}><CareIcon name="school" size={14}/></span>}
                 {t.l}
                 {/* 학원 탭 머리에 있던 'N곳'을 여기로 — 이제 두 쪽 다 늘 보인다(사용자 확정) —
                     선택 안 된 쪽도 미리 몇 곳인지 알아야 눌러볼지 정할 수 있다. */}
-                <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:on?C.sub:"#B9BEC9"}}>{t.n}곳</span>
+                <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:on?"#ffffffcc":"#B9BEC9"}}>{t.n}곳</span>
               </button>
             );
           })}
