@@ -6855,10 +6855,10 @@ export default function App() {
             </div>
 
             <label style={lbl}>이름 *</label>
-            <input value={childForm.name} onChange={e=>setChildForm(p=>({...p,name:e.target.value}))} placeholder="예: 이연우" style={{...inp,marginBottom:16}}/>
+            <input value={childForm.name} onChange={e=>setChildForm(p=>({...p,name:e.target.value}))} placeholder="예: 이연우" style={{...inp,marginBottom:20}}/>
 
             <label style={lbl}>성별 *</label>
-            <div style={{display:"flex",gap:12,marginBottom:16}}>
+            <div style={{display:"flex",gap:12,marginBottom:20}}>
               {[{key:"boy",label:"👦 남자아이"},{key:"girl",label:"👧 여자아이"}].map(g=>(
                 <button key={g.key} onClick={()=>setChildForm(p=>({...p,gender:g.key}))}
                   style={{flex:1,padding:"14px",borderRadius:14,border:`2px solid ${childForm.gender===g.key?GENDER_THEME[g.key].main:C.border}`,
@@ -6896,7 +6896,7 @@ export default function App() {
             {/* [사용자 확정 2026-08-17] 보상은 아이별이라 여기서 나이에 맞는 목록을 고른다.
                 수정할 때도 바꿀 수 있다 — 다만 목록이 통째로 갈리므로 저장할 때 한 번 묻는다.
                 (기타 탭에 있던 '보상 연령대'는 같은 일을 두 군데서 하게 되어 없앴다) */}
-            {(<>
+            {(<div style={{marginBottom:20}}>
               <label style={lbl}>보상 연령대 *</label>
               {(()=>{
                 const OPTS=[...Object.entries(REWARD_SETS_BY_AGE).map(([k,v])=>({k,label:v.label,emoji:v.emoji})),
@@ -6933,7 +6933,7 @@ export default function App() {
                   )}
                 </>);
               })()}
-            </>)}
+            </div>)}
 
             <button onClick={saveChild} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:`linear-gradient(165deg, ${headerTone(childForm.theme?.main||GENDER_THEME[childForm.gender].main,0.42)} 0%, ${headerTone(childForm.theme?.main||GENDER_THEME[childForm.gender].main,0.64)} 100%)`,color:mixBlack(childForm.theme?.main||GENDER_THEME[childForm.gender].main,0.45),fontSize:17,fontWeight:800,cursor:"pointer",boxShadow:`0 4px 16px ${(childForm.theme?.main||GENDER_THEME[childForm.gender].main)}40`}}>
               {editingChild?"수정 완료 ✓":"추가하기"}
