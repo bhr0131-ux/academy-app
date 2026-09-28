@@ -12,10 +12,14 @@
    규칙(빈 글자·중복·최대 개수·점수 다듬기)은 data/repeatMissions.js 가 갖는다.
 
    [사용자 확정 2026-09-28] 학원에 등록해 둔 '반복 숙제'(baseHomeworks)도 이 목록에
-   함께 보여, 어디서 만든 숙제든 여기 한 곳에서 알아볼 수 있게 한다. 학원 숙제는
-   학원 등록 화면(공부방 관리)에서만 고치므로 여기서는 읽기 전용으로만 보여 준다.
-   숙제(kind:"hw")를 고르면 학원 선택 콤보가 열리고, 고른 학원 이름이 "숙제" 자리를
-   대신한다 — "(영어) 문제집 2장 풀기"처럼.
+   함께 보여, 어디서 만든 숙제든 여기 한 곳에서 알아볼 수 있게 한다. 숙제(kind:"hw")를
+   고르면 학원 선택 콤보가 열리고, 고른 학원 이름이 "숙제" 자리를 대신한다 —
+   "(영어) 문제집 2장 풀기"처럼.
+
+   [사용자 확정 2026-09-28] 학원 숙제도 여기서 바로 고치고 지울 수 있다(onEditBase·
+   onRemoveBase — 실제로는 그 학원의 baseHomeworks를 고친다). 목록 각 줄에는 '추가'
+   버튼을 둬서, 시트를 닫지 않고도 오늘 미션에 바로 넣을 수 있게 한다(onQuickAdd) —
+   숙제이면서 학원이 있으면 그 학원 칸에, 그 외는 일반 미션 칸에 들어간다.
 
    props
      open      : boolean
@@ -24,6 +28,8 @@
      canScore  : boolean   엄마 권한(PIN)이 열렸나 — 점수 칸을 열지 말지
      defaultPoint : number
      onAdd({text,point,kind,academyId}) · onEdit(id,{text,point,kind}) · onRemove(id)
+     onEditBase(academyId,baseIndex,text) · onRemoveBase(academyId,baseIndex)
+     onQuickAdd(item)   오늘 미션에 바로 추가
      onClose   : ()=>void
      tone      : {text,sub,border,faint,main,grad,red}
    ════════════════════════════════════════════════════════════════════════ */
@@ -37,7 +43,7 @@ const KINDS = [{ k: "todo", l: "할 일" }, { k: "hw", l: "숙제" }];
 
 export default function RepeatMissionSheet({
   open, list = [], academies = [], canScore = false, defaultPoint = 10,
-  onAdd, onEdit, onRemove, onClose, tone, parentRole = "엄마",
+  onAdd, onEdit, onRemove, onEditBase, onRemoveBase, onQuickAdd, onClose, tone, parentRole = "엄마",
 }) {
   const [text, setText] = useState("");
   const [point, setPoint] = useState(String(defaultPoint));
@@ -60,17 +66,28 @@ export default function RepeatMissionSheet({
     onAdd && onAdd({ text: v, point: canScore ? point : defaultPoint, kind, academyId: kind === "hw" ? academyId : "" });
     setText(""); setPoint(String(defaultPoint)); setAcademyId("");
   };
+  /* [사용자 확정 2026-09-28] 학원의 반복 숙제(baseItems)도 이 화면에서 고치고 지울 수 있어야
+     한다 — v6_repeat_missions가 아니라 학원 기록(baseHomeworks) 쪽이라 onEdit/onRemove 대신
+     onEditBase/onRemoveBase로 보낸다. 어느 쪽인지는 fromAcademy로 가른다. */
   const saveEdit = () => {
     const v = editText.trim(); if (!v) { setEditId(null); return; }
-    onEdit && onEdit(editId, { text: v, ...(canScore ? { point: editPoint } : null) });
+    const target = displayList.find(x => x.id === editId);
+    if (target?.fromAcademy) onEditBase && onEditBase(target.academyId, target.baseIndex, v);
+    else onEdit && onEdit(editId, { text: v, ...(canScore ? { point: editPoint } : null) });
     setEditId(null);
   };
+  const doRemove = (id) => {
+    const target = displayList.find(x => x.id === id);
+    if (target?.fromAcademy) onRemoveBase && onRemoveBase(target.academyId, target.baseIndex);
+    else onRemove && onRemove(id);
+  };
 
-  /* 학원에 등록해 둔 '반복 숙제'는 여기서 만든 게 아니라 읽기 전용으로 섞어 보여 준다.
-     id가 없어 새로 만들어 준다(학원 안에서 순서만 있으면 되므로 인덱스로 충분). */
+  /* 학원에 등록해 둔 '반복 숙제'도 여기서 함께 고치고 지울 수 있다. id가 없어 새로 만들어 준다
+     (학원 안에서 baseIndex 순서만 있으면 되므로 인덱스로 충분). */
   const acById = new Map(academies.map(ac => [String(ac.id), ac]));
   const baseItems = academies.flatMap(ac => (ac.baseHomeworks || []).map((t, i) => ({
-    id: `bh:${ac.id}:${i}`, text: t, point: defaultPoint, kind: "hw", academyId: String(ac.id), fromAcademy: true,
+    id: `bh:${ac.id}:${i}`, text: t, point: defaultPoint, kind: "hw", academyId: String(ac.id),
+    baseIndex: i, fromAcademy: true,
   })));
   const displayList = [...list, ...baseItems];
   const tagLabel = (it) => {
@@ -171,7 +188,9 @@ export default function RepeatMissionSheet({
                     <input value={editText} onChange={e => setEditText(e.target.value.slice(0, REPEAT_TEXT_MAX))}
                       onKeyDown={e => e.key === "Enter" && saveEdit()} autoFocus aria-label="반복 미션 고치기"
                       style={{ ...inp, flex: 1, minWidth: 0, padding: "8px 10px", fontSize: 14 }} />
-                    {canScore && (
+                    {/* 학원 반복 숙제(baseHomeworks)는 점수 칸이 따로 없어 늘 기본 점수를 쓴다 —
+                        고칠 수 있는 척하지 않게 점수 입력칸 자체를 안 보여 준다. */}
+                    {canScore && !it.fromAcademy && (
                       <input type="number" min="1" value={editPoint} onChange={e => setEditPoint(e.target.value)}
                         aria-label="보상 점수"
                         style={{ ...inp, width: 50, flex: "0 0 auto", textAlign: "center", padding: "8px 4px", fontSize: 13 }} />
@@ -179,6 +198,12 @@ export default function RepeatMissionSheet({
                     <button onClick={saveEdit} className="jelly-tap"
                       style={{ flexShrink: 0, border: "none", background: tone.grad, color: "#fff", borderRadius: 9,
                         padding: "8px 12px", fontWeight: 900, fontSize: 13, cursor: "pointer", fontFamily: F }}>확인</button>
+                    {/* [사용자 확정 2026-09-28] 고치는 중에 지우기로 바로 이어갈 수 있게
+                        확인 버튼 옆에 삭제 버튼을 둔다. */}
+                    <button onClick={() => setAskRemove(it.id)} aria-label="지우기" className="jelly-tap"
+                      style={{ flexShrink: 0, border: `1px solid ${tone.red || "#DC2626"}55`, background: "#fff",
+                        color: tone.red || "#DC2626", borderRadius: 9, padding: "8px 10px", fontWeight: 900,
+                        fontSize: 13, cursor: "pointer", fontFamily: F }}>삭제</button>
                   </>
                 ) : (
                   <>
@@ -190,19 +215,22 @@ export default function RepeatMissionSheet({
                     <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 800, color: tone.text,
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.text}</span>
                     <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 800, color: tone.sub }}>{it.point}점</span>
-                    {/* 학원에서 등록한 반복 숙제는 여기서 만든 게 아니라 고치기·지우기가 없다 —
-                        학원 등록 화면(공부방 관리)에서만 바꾼다. */}
-                    {!it.fromAcademy && (
-                      <>
-                        <button onClick={() => { setEditId(it.id); setEditText(it.text); setEditPoint(String(it.point)); }}
-                          aria-label="고치기" className="jelly-tap"
-                          style={{ flexShrink: 0, background: "none", border: "none", color: tone.sub, cursor: "pointer",
-                            padding: "2px 5px", fontSize: 13, fontFamily: F }}>✎</button>
-                        <button onClick={() => setAskRemove(it.id)} aria-label="지우기" className="jelly-tap"
-                          style={{ flexShrink: 0, background: "none", border: "none", color: tone.red || "#DC2626",
-                            cursor: "pointer", padding: "2px 5px", fontSize: 13, fontFamily: F }}>✕</button>
-                      </>
-                    )}
+                    {/* [사용자 확정 2026-09-28] 여기서 바로 오늘 미션에 넣을 수 있어야 편하다 —
+                        학원이 달린 숙제면 그 학원 칸에, 그 외는 일반 미션 칸에 들어간다. */}
+                    <button onClick={() => onQuickAdd && onQuickAdd(it)} aria-label={`${it.text} 오늘 미션에 추가`}
+                      className="jelly-tap"
+                      style={{ flexShrink: 0, border: "none", borderRadius: 8, padding: "4px 9px",
+                        background: `${tone.main}15`, color: tone.main, fontWeight: 900, fontSize: 11.5,
+                        cursor: "pointer", fontFamily: F, whiteSpace: "nowrap" }}>+ 추가</button>
+                    {/* [사용자 확정 2026-09-28] 학원에 등록한 반복 숙제도 여기서 바로 고치고
+                        지울 수 있게 — 실제로는 그 학원 기록(baseHomeworks)을 고친다. */}
+                    <button onClick={() => { setEditId(it.id); setEditText(it.text); setEditPoint(String(it.point)); }}
+                      aria-label="고치기" className="jelly-tap"
+                      style={{ flexShrink: 0, background: "none", border: "none", color: tone.sub, cursor: "pointer",
+                        padding: "2px 5px", fontSize: 13, fontFamily: F }}>✎</button>
+                    <button onClick={() => setAskRemove(it.id)} aria-label="지우기" className="jelly-tap"
+                      style={{ flexShrink: 0, background: "none", border: "none", color: tone.red || "#DC2626",
+                        cursor: "pointer", padding: "2px 5px", fontSize: 13, fontFamily: F }}>✕</button>
                   </>
                 )}
               </div>
@@ -213,7 +241,7 @@ export default function RepeatMissionSheet({
         {/* 지우기 확인 — 저장된 것을 없애는 일이라 한 번 더 묻는다.
             (이미 오늘 미션에 넣어 둔 것은 그대로 남는다 — 복사해서 넣기 때문) */}
         {askRemove && (() => {
-          const target = list.find(x => x.id === askRemove);
+          const target = displayList.find(x => x.id === askRemove);
           return (
             <div onClick={() => setAskRemove(null)}
               style={{ position: "fixed", inset: 0, background: "rgba(20,20,40,0.5)", zIndex: 1100,
@@ -224,13 +252,15 @@ export default function RepeatMissionSheet({
                   「{target?.text}」를 지울까요?
                 </p>
                 <p style={{ margin: "0 0 14px", fontSize: 12, fontWeight: 600, color: tone.sub, lineHeight: 1.5 }}>
-                  이미 오늘 미션에 넣어 둔 건 그대로 남아요.
+                  {target?.fromAcademy
+                    ? "학원에 넣어 둔 반복 숙제 기록에서 지워져요."
+                    : "이미 오늘 미션에 넣어 둔 건 그대로 남아요."}
                 </p>
                 <div style={{ display: "flex", gap: 8 }}>
                   <button onClick={() => setAskRemove(null)} className="jelly-tap"
                     style={{ flex: 1, border: `1px solid ${tone.border}`, background: "#fff", color: tone.sub,
                       borderRadius: 11, padding: "10px", fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: F }}>그대로 두기</button>
-                  <button onClick={() => { onRemove && onRemove(askRemove); setAskRemove(null); }} className="jelly-tap"
+                  <button onClick={() => { doRemove(askRemove); setAskRemove(null); setEditId(null); }} className="jelly-tap"
                     style={{ flex: 1, border: "none", background: tone.red || "#DC2626", color: "#fff",
                       borderRadius: 11, padding: "10px", fontWeight: 900, fontSize: 14, cursor: "pointer", fontFamily: F }}>지우기</button>
                 </div>

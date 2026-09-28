@@ -3544,6 +3544,29 @@ export default function App() {
     setRepeatMissions(r.next);
   };
   const removeRepeat=(id)=>setRepeatMissions(removeRepeatMission(repeatMissions,childId,id));
+  /* [사용자 확정 2026-09-28] 반복 미션 시트 안에서 '학원에 이미 넣어 둔 반복 숙제'도 바로
+     고치고 지울 수 있어야 한다는 요청 — 그 숙제는 v6_repeat_missions가 아니라 학원 기록의
+     baseHomeworks(문자열 배열)라 여기서는 그 배열을 직접 고친다. */
+  const editAcademyBaseHomework=(acId,idx,text)=>{
+    const t=String(text||"").trim(); if(!t) return;
+    setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(a=>
+      a.id!==acId?a:{...a,baseHomeworks:(a.baseHomeworks||[]).map((s,i)=>i===idx?t:s)})}));
+  };
+  const removeAcademyBaseHomework=(acId,idx)=>{
+    setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(a=>
+      a.id!==acId?a:{...a,baseHomeworks:(a.baseHomeworks||[]).filter((_,i)=>i!==idx)})}));
+  };
+  /* 반복 미션 시트의 '추가' — 지금 보는 날짜(rewardDate) 기준으로 바로 넣는다.
+     학원이 달린 숙제면 그 학원 칸에, 그 외(학원 없는 숙제·할 일)는 일반 미션 칸에 넣는다. */
+  const quickAddRepeat=(item)=>{
+    const targetAcId=(item.kind==="hw"&&item.academyId)?item.academyId:EXTRA_QUEST_ID;
+    const isExtraTarget=String(targetAcId)===String(EXTRA_QUEST_ID);
+    const entry=getDailyEntry(childId,targetAcId,rewardDate);
+    const r=applyRepeatToEntry(entry,item,{id:newId(),isExtra:isExtraTarget});
+    if(!r.ok){ showToast("이미 오늘 미션에 있어요"); return; }
+    setDailyEntry(childId,targetAcId,rewardDate,r.next);
+    showToast(`${item.text} 추가! ${r.kind==="hw"?"📘":"✅"}`);
+  };
 
   const isMaxPet=(cid)=>getPetStage(cid)>=PET_STAGES.length-1;
 
@@ -7477,7 +7500,9 @@ export default function App() {
         open={showRepeatSheet} onClose={()=>setShowRepeatSheet(false)}
         list={getRepeatMissions(childId)} academies={curAc}
         canScore={rewardUnlocked} defaultPoint={DEFAULT_HOMEWORK_SCORE}
-        onAdd={addRepeat} onEdit={editRepeat} onRemove={removeRepeat} parentRole={PT.role}
+        onAdd={addRepeat} onEdit={editRepeat} onRemove={removeRepeat}
+        onEditBase={editAcademyBaseHomework} onRemoveBase={removeAcademyBaseHomework}
+        onQuickAdd={quickAddRepeat} parentRole={PT.role}
         tone={{text:C.text,sub:C.sub,border:C.border,faint:C.faint,main:th.main,grad:th.grad,red:C.red}}/>
 
       {/* ── 날짜별 숙제/준비물 모달 ── */}
@@ -7657,9 +7682,12 @@ export default function App() {
                 const add =kind==="hw"?addHw:addTodo;
                 return (
                   <div style={{marginBottom:20,background:CT.faint,borderRadius:RAD.md,padding:"12px 12px 13px"}}>
-                    {/* 반복 미션에서 고르기 — 저장된 게 없으면 아무것도 안 그린다 */}
+                    {/* [사용자 확정 2026-09-28] 학원 화면(isExtra 아님)에서는 숙제(hw) 반복 미션이
+                        아래 '반복 숙제' 목록에도 나와 여기 칩과 겹쳐 보였다 → 여기는 '할 일'만 남기고
+                        숙제는 아래 한 곳에서만 고르게 한다. 일반 미션(isExtra)은 '반복 숙제' 구역
+                        자체가 없으므로 그대로 전부(숙제+할 일) 보여 준다. */}
                     <RepeatMissionChips
-                      list={getRepeatMissions(childId)} isExtra={isExtra}
+                      list={isExtra?getRepeatMissions(childId):getRepeatMissions(childId).filter(it=>it.kind==="todo")} isExtra={isExtra}
                       isInEntry={(it)=>isRepeatInEntry(entry,it,isExtra)}
                       onPick={pickRepeat}
                       tone={{text:C.text,sub:C.sub,border:CT.faintB,faint:"#fff",main:th.main}}/>
@@ -7711,12 +7739,21 @@ export default function App() {
               {(()=>{
                 if(isExtra) return null;
                 const acObj=getAcademyById(childId,academyId);
-                const base=acObj?.baseHomeworks||[];
-                if(base.length===0) return null;
+                /* [사용자 확정 2026-09-28] 위 '반복 미션에서 고르기' 칩과 이 목록이 숙제 기준으로
+                   똑같은 일을 해서 겹쳐 보였다 → 숙제는 여기 한 곳에만 모은다. 학원에 바로 넣어 둔
+                   숙제(baseHomeworks)와, 반복 미션으로 저장해 둔 숙제를 함께 보여 준다.
+                   같은 글자면 학원에 넣어 둔 쪽을 남기고 반복 미션 쪽은 뺀다(같은 줄이 두 번 뜨지 않게). */
+                const baseList=(acObj?.baseHomeworks||[]).map(s=>({key:`base:${s}`,text:s,source:"base"}));
+                const baseTexts=new Set(baseList.map(b=>b.text));
+                const repeatList=getRepeatMissions(childId).filter(it=>it.kind==="hw"&&!baseTexts.has(it.text))
+                  .map(it=>({key:`rep:${it.id}`,text:it.text,source:"repeat",item:it}));
+                const merged=[...baseList,...repeatList];
+                if(merged.length===0) return null;
                 const existing=hw.map(h=>h.text);
-                const addOne=(t)=>{
-                  if(existing.includes(t)){ showToast("이미 추가된 숙제예요"); return; }
-                  upd({...entry,homeworks:[...hw,{id:newId(),text:t,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
+                const addOne=(m)=>{
+                  if(existing.includes(m.text)){ showToast("이미 추가된 숙제예요"); return; }
+                  if(m.source==="repeat"){ pickRepeat(m.item); return; }
+                  upd({...entry,homeworks:[...hw,{id:newId(),text:m.text,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
                   showToast("반복 숙제를 추가했어요 📚");
                 };
                 return (
@@ -7731,17 +7768,17 @@ export default function App() {
                       <CareIcon name="repeat" size={15}/>반복 숙제
                     </p>
                     <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
-                      학원에 등록한 숙제를 빠르게 불러올 수 있어요.
+                      학원에 등록한 숙제와, 반복 미션으로 저장해 둔 숙제를 빠르게 불러올 수 있어요.
                     </p>
                     <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                      {base.map((s,i)=>{
-                        const added=existing.includes(s);
+                      {merged.map((m)=>{
+                        const added=existing.includes(m.text);
                         return (
-                          <div key={i} style={{display:"flex",gap:6,alignItems:"center"}}>
+                          <div key={m.key} style={{display:"flex",gap:6,alignItems:"center"}}>
                             <div style={{...inp,flex:3,width:"auto",fontSize:FS.cardTitle,padding:"9px 10px",minHeight:CTRL_H,boxSizing:"border-box",display:"flex",alignItems:"center",color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
-                              {added&&<span style={{color:C.green,marginRight:5,fontWeight:FW.bold}}>✓</span>}{s}
+                              {added&&<span style={{color:C.green,marginRight:5,fontWeight:FW.bold}}>✓</span>}{m.text}
                             </div>
-                            <button onClick={()=>addOne(s)} disabled={added} style={{padding:"0 13px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:added?`${C.green}18`:acColor,color:added?mixBlack(C.green,0.3):"#fff",fontWeight:FW.semi,fontSize:FS.body,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
+                            <button onClick={()=>addOne(m)} disabled={added} style={{padding:"0 13px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:added?`${C.green}18`:acColor,color:added?mixBlack(C.green,0.3):"#fff",fontWeight:FW.semi,fontSize:FS.body,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
                               {added?"추가됨 ✓":"추가"}
                             </button>
                           </div>
