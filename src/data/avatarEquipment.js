@@ -222,16 +222,16 @@ export const AVATAR_CATALOG = [
      베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
      바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나.
      [2026-09-25] 남아 원화가 들어와 남녀 공용이 됐다 (사파리·해적 옷에 이어 세 번째).
-       남아: 크림 우주복 + 남색 깃·벨트·소맷부리 + 금단추 + 별 패치 · 여아: 연보라 배색
-     남아 원화도 해적 옷과 같이 **알파에 옷만 담겨 있어** 색으로 옷을 골라낼 필요가 없었다
-     (RGB 엔 손·목·발목 살까지 다 있지만 그 자리의 알파가 0 이다).
-     다만 원화의 몸이 베이스 v7 보다 팔다리가 길고 가늘어 한 배율로는 안 맞았다 —
-     가슴·허리 폭으로 맞추면(0.62) 바지가 발등을 덮고, 키로 맞추면(0.55) 옷이 몸보다 좁았다.
-     그래서 가로 0.62 · 세로 0.555 로 따로 줬다(세로 11% 눌림). 베이스가 통통한 치비라
-     눌린 쪽이 오히려 몸에 맞는다. 깃 위끝 y400 → 탑재 상자 (349,398)-(676,888).
-     실측: 소매부리 y638(손목 y625 바로 아래) · 바지밑단 y888(발목 y885 바로 아래, 맨발 노출).
-     ※ 깃이 머리 장(y403~405)을 170px 덮는데 그 자리는 턱이 아니라 목(폭 58~62)이라 맞다.
-       상의는 z35 로 베이스(z20) 위에 그려지므로 깃이 목을 감싼다. */
+     [2026-09-29 남아 원화 교체] 사용자가 헬멧·가방·신발까지 갖춘 '우주 세트'로 새로 그려
+     보내 왔다 — 남아 우주복만 이 그림으로 갈아 끼웠다(그림 교체, CLAUDE.md 6). id·가격은
+     그대로라 이미 산 아이는 그대로 입고 있다. 새 그림: 흰 우주복 + 남색 어깨·벨트·무릎보호대 +
+     제어판·토성 패치 + 주황 포인트. 손·발은 알파 0(투명)으로 비워 베이스 맨손·맨발이 비친다
+     (해적 옷과 같은 방식, 다만 이번엔 색이 아니라 손·발 상자를 직접 지워 골라냈다).
+     탑재: 여러 장(옷만·헬멧만·헬멧+신발·헬멧+가방+신발)을 받아 목깃 높이(y640)·벨트 폭을
+     기준으로 배율 0.638 균등 산출 → 목깃 위끝 y640, 발목깃 y1425(맨발 시작 전) 잘라
+     탑재 상자 대략 (224,-3)~(608+224,1053-3). 우주 헬멧(hat_astronaut)·로켓 가방
+     (back_rocket)·우주 부츠(shoes_astronaut)도 같은 배율·목깃선으로 맞춰 세트가 어긋나지
+     않는다(art-src/README '우주 세트' 참고). */
   /* 해적 옷 — 이 원화도 '옷만 오려 낸 그림'이라 상체를 눈으로 맞췄다(하늘 나들이 옷과 같은 방식).
      긴소매라 소맷부리가 손목에 닿는 배율을 골랐다 — 0.72는 팔뚝이 남고 0.76부터는 손을 덮는다.
      배율 0.74 · 깃 위끝 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (350,372)-(674,754). */
@@ -268,7 +268,21 @@ export const AVATAR_CATALOG = [
      망토 깃 안쪽 목·가슴 살은 남겼다 — 깃 구멍(폭 39)이 베이스 목(폭 67)보다
      좁아서 살을 지우면 깃 사이로 구멍이 보인다(민트 후드와 같은 이유). */
   { id: "top_acorn",      slot: "top",   label: "도토리 탐험복", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", coversBottom: true, img: "assets/avatar/top/acorn-outfit-boy.webp", thumb: "assets/avatar/thumb/top_acorn.webp" },
-  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=2", imgGirl: "assets/avatar/top/space-suit-girl.webp", thumb: "assets/avatar/thumb/top_space.webp", thumbGirl: "assets/avatar/thumb/top_space-girl.webp" },
+  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp", thumb: "assets/avatar/thumb/top_space.webp?v=3", thumbGirl: "assets/avatar/thumb/top_space-girl.webp" },
+
+  /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
+     우주복(top_space)과 같은 원화 세트에서 나온 헬멧·가방·신발. 셋 다 남아 전용 첫
+     세트 아이템이고(hat·back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
+     같은 배율(0.638)·목깃선(y640)으로 탑재해 우주복과 갈아입어도 자리가 안 어긋난다. */
+  /* 우주 헬멧 — 얼굴째 덮는 그림이라 hidesHead. 원화가 이미 '쓰고 있는 머리 그림'이라
+     얼굴 위치를 눈으로 맞출 필요 없이 우주복과 같은 목깃선(y640)에 밑단을 맞췄다. */
+  { id: "hat_astronaut",  slot: "hat",   label: "우주 헬멧",    emoji: "👨‍🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/astronaut-helmet-boy.webp", thumb: "assets/avatar/thumb/hat_astronaut.webp" },
+  /* 로켓 가방 — 원화가 어깨 너머로 들여다본 모습이라, 몸통에 가려지는 부분은 버리고
+     실루엣 밖으로 삐져나온 로켓 덩어리만 오려 냈다(등 슬롯 기본 z15 그대로 — 몸통 뒤에서
+     튀어나온 부분만 보이면 되므로 앞으로 끌어올 필요가 없었다). */
+  { id: "back_rocket",    slot: "back",  label: "로켓 가방",    emoji: "🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", img: "assets/avatar/back/rocket-pack-boy.webp", thumb: "assets/avatar/thumb/back_rocket.webp" },
+  /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
+  { id: "shoes_astronaut",slot: "shoes", label: "우주 부츠",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "boy", img: "assets/avatar/shoes/astronaut-boots-boy.webp", thumb: "assets/avatar/thumb/shoes_astronaut.webp" },
 
 ];
 
