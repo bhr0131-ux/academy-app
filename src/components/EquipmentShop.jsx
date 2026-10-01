@@ -220,14 +220,24 @@ export default function EquipmentShop({
   const selAfford = !!sel && coins >= sel.price;
   const selNeed = sel ? Math.max(0, sel.price - coins) : 0;
 
-  /* 카드를 누르면 = 입어만 본다. 사거나 입는 건 하단 바에서 한 번 더 누른다. */
+  /* 카드를 누르면 = 입어만 본다. 사거나 입는 건 하단 바에서 한 번 더 누른다.
+     [사용자 확정 2026-10-01] 미리보기로 입은 카드를 한 번 더 누르면 벗는다 —
+     안 사고 '되돌리기'까지 누르러 가지 않아도 그 자리에서 바로 벗을 수 있어야 한다.
+     (실제로 장착된 것을 벗는 건 하단 바의 '벗기' 버튼이 따로 맡는다 — 여긴 미리보기만) */
   const pick = (item) => {
-    setSelectedId(item.id);
     /* 이미 입고 있는 걸 누르면 무대는 그대로 — 입어보기를 걸 필요가 없다 */
     if (equipped[item.slot] === item.id) {
+      setSelectedId(item.id);
       setPreview((p) => { if (!(item.slot in p)) return p; const n = { ...p }; delete n[item.slot]; return n; });
       return;
     }
+    /* 이미 이 아이템을 미리보기로 입은 채라면 — 다시 누른 건 벗겨 달라는 뜻 */
+    if (preview[item.slot] === item.id) {
+      setPreview((p) => { const n = { ...p }; delete n[item.slot]; return n; });
+      setSelectedId((cur) => (cur === item.id ? "" : cur));
+      return;
+    }
+    setSelectedId(item.id);
     setPreview((p) => ({ ...p, [item.slot]: item.id }));
   };
 
