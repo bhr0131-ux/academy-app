@@ -283,6 +283,13 @@ export const AVATAR_CATALOG = [
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   { id: "shoes_astronaut",slot: "shoes", label: "우주 부츠",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "boy", img: "assets/avatar/shoes/astronaut-boots-boy.webp", thumb: "assets/avatar/thumb/shoes_astronaut.webp" },
 
+  /* 해적 신발 — 남아 신발 원화(사용자 원화 2026-10-01). 해적 옷(top_pirate)과 같은
+     테마라 같은 이름을 썼다. 원화 두 짝의 간격이 베이스 다리 간격보다 넓어서
+     가로만 0.300 · 세로 0.3404 로 따로 줬다(가로 12% 눌림) — 균등 배율로는 발이
+     신발 안쪽으로 치우쳐 보였다. 밑단 위끝 y865(우주 부츠와 같은 자리) · 좌우
+     중심을 다리 중심(왼 440 · 오른 580)에 맞춘 평균으로 가로 배치 */
+  { id: "shoes_pirate",   slot: "shoes", label: "해적 신발",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-boy.webp", thumb: "assets/avatar/thumb/shoes_pirate.webp" },
+
 ];
 
 /* ── 조회 헬퍼 ─────────────────────────────────────────────────────── */
