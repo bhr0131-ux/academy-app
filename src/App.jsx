@@ -51,6 +51,7 @@ import ItemShopSheet from "./components/camp/ItemShopSheet.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
+import DiscoveryMemo from "./components/DiscoveryMemo.jsx";
 import PageFlip from "./components/PageFlip.jsx";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
@@ -4762,9 +4763,17 @@ export default function App() {
                   />
                 );
               })()}
-              {/* [사용자 확정 2026-08-24] 탐험일지 수첩 "위"로 다시 올렸다 —
-                  발견은 지도를 지나오며 이미 얻은 것이라 수첩을 펴기 전에 먼저 보인다. */}
-              {/* 오늘의 발견 한 줄 — 발견 지점을 지나갔으면 무엇을 찾았는지, 아직이면 펫이 흘리는 힌트.
+              {/* 섹션 구분 — 탐험일지 (탐험 스킨 전용, 지도 아래·학원카드 위, 갈색톤 — 사용자 확정) */}
+              {kidSkin!=="cute"&&(
+                <div style={{display:"flex",alignItems:"center",gap:12,margin:"21px 2px 11px"}}>
+                  <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.32))"}}/>
+                  <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>탐험일지</span>
+                  <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.32), rgba(138,107,71,0) 90%)"}}/>
+                </div>
+              )}
+              {/* [사용자 확정 2026-08-24] 탐험일지 수첩 "위" — 발견은 지도를 지나오며 이미 얻은 것이라
+                  수첩을 펴기 전에 먼저 보인다. [2026-10-01] '탐험일지' 머리말 아래 수첩에 붙인 메모지로. */}
+              {/* 오늘의 발견 — 발견 지점을 지나갔으면 무엇을 찾았는지, 아직이면 펫이 흘리는 힌트.
                   힌트는 오늘 발견의 hint라 "오늘은 반짝이는 걸 찾을 것 같아!" → 기대하며 시작하게 된다. */}
               {kidSkin!=="cute"&&(()=>{
                 const _dd=childDate||TODAY;
@@ -4779,41 +4788,12 @@ export default function App() {
                    힌트를 띄우면 지나가도 아무 일이 없어 아이가 헛기다린다. */
                 if(!canDiscoverOn(childId,_dd)&&!_d) return null;
                 return (
-                  /* [사용자 확정 2026-08-11] '오늘의 발견'·'새싹'·'도감 16'이 비슷한 무게라
-                     정작 무엇을 찾았는지가 안 도드라졌다 → 찾은 것(새싹)을 한 단계 키우고
-                     머리말은 더 작고 연하게. '도감 16'은 개수인지 번호인지 몰라 '도감 16개'로.
-                     카드 안에 또 테두리 상자가 있어 카드 속 카드처럼 보이던 것도 글자 버튼으로. */
-                  <div style={{display:"flex",alignItems:"center",gap:9,margin:"0 2px 11px",padding:"8px 12px",borderRadius:14,
-                    background:_d?"rgba(255,255,255,0.72)":"rgba(138,107,71,0.07)",
-                    border:_d?"1.5px solid rgba(138,107,71,0.32)":"1.5px dashed rgba(138,107,71,0.3)"}}>
-                    <span style={{fontSize:22,flexShrink:0}}>{_d?_d.emoji:"🐾"}</span>
-                    <div style={{flex:1,minWidth:0}}>
-                      <p style={{margin:0,fontSize:10,fontWeight:800,color:"#B3A493",letterSpacing:0.3}}>오늘의 발견</p>
-                      {/* 힌트가 길면 한 줄로는 잘린다 (사용자 지적) → 두 줄까지 접어서 보여 준다 */}
-                      <p style={{margin:"1px 0 0",fontSize:14.5,fontWeight:900,color:_d?"#5A4430":"#8C7E6B",
-                        lineHeight:1.3,wordBreak:"keep-all",overflow:"hidden",
-                        display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>
-                        {_d?_d.name:getTodayHint(childId,_dd)}
-                      </p>
-                    </div>
-                    <button onClick={()=>setOpenDiscoveryBook(true)}
-                      style={{flexShrink:0,border:"none",background:"none",color:"#8A6B47",
-                        padding:"6px 2px",fontSize:11.5,fontWeight:900,cursor:"pointer",
-                        textDecoration:"underline",textUnderlineOffset:3,
-                        fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif"}}>
-                      도감 {getCollectedCount(discoveryData,childId)}개
-                    </button>
-                  </div>
+                  <DiscoveryMemo found={!!_d} emoji={_d?.emoji}
+                    text={_d?_d.name:getTodayHint(childId,_dd)}
+                    count={getCollectedCount(discoveryData,childId)}
+                    onOpenBook={()=>setOpenDiscoveryBook(true)}/>
                 );
               })()}
-              {/* 섹션 구분 — 탐험일지 (탐험 스킨 전용, 지도 아래·학원카드 위, 갈색톤 — 사용자 확정) */}
-              {kidSkin!=="cute"&&(
-                <div style={{display:"flex",alignItems:"center",gap:12,margin:"21px 2px 11px"}}>
-                  <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.32))"}}/>
-                  <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>탐험일지</span>
-                  <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.32), rgba(138,107,71,0) 90%)"}}/>
-                </div>
-              )}
               {/* 오늘 학원 일정 섹션 */}
               <div style={{marginTop:2,marginBottom:14}}>
                 {childTodayAc.length===0?(
