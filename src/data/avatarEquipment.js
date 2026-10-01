@@ -271,12 +271,11 @@ export const AVATAR_CATALOG = [
   { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp", thumb: "assets/avatar/thumb/top_space.webp?v=3", thumbGirl: "assets/avatar/thumb/top_space-girl.webp" },
 
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
-     우주복(top_space)과 같은 원화 세트에서 나온 헬멧·가방·신발. 셋 다 남아 전용 첫
-     세트 아이템이고(hat·back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
-     같은 배율(0.638)·목깃선(y640)으로 탑재해 우주복과 갈아입어도 자리가 안 어긋난다. */
-  /* 우주 헬멧 — 얼굴째 덮는 그림이라 hidesHead. 원화가 이미 '쓰고 있는 머리 그림'이라
-     얼굴 위치를 눈으로 맞출 필요 없이 우주복과 같은 목깃선(y640)에 밑단을 맞췄다. */
-  { id: "hat_astronaut",  slot: "hat",   label: "우주 헬멧",    emoji: "👨‍🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/astronaut-helmet-boy.webp", thumb: "assets/avatar/thumb/hat_astronaut.webp" },
+     우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
+     세트 아이템이고(back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
+     같은 배율(0.638)·목깃선(y640)으로 탑재해 우주복과 갈아입어도 자리가 안 어긋난다.
+     [2026-09-30] 우주 헬멧(hat_astronaut)은 사용자가 미리보기를 보고 바로
+     빼 달라고 해서 뺐다 — 아래 RETIRED_ITEM_INFO 참고, 그림 파일은 남겨 둔다. */
   /* 로켓 가방 — 원화가 어깨 너머로 들여다본 모습이라, 몸통에 가려지는 부분은 버리고
      실루엣 밖으로 삐져나온 로켓 덩어리만 오려 냈다(등 슬롯 기본 z15 그대로 — 몸통 뒤에서
      튀어나온 부분만 보이면 되므로 앞으로 끌어올 필요가 없었다). */
@@ -350,6 +349,7 @@ export const RETIRED_ITEM_INFO = {
   shoes_picnic:       { label: "딸기 구두",   price: 180 },   // [2026-08-20] 넣었다가 사용자 확정으로 뺐다 (그림은 남아 있다)
   back_backpack_sky:  { label: "하늘 배낭",   price: 270 },
   back_backpack_cream:{ label: "크림 배낭",   price: 290 },
+  hat_astronaut:      { label: "우주 헬멧",   price: 350 },   // [2026-09-30] 사용자가 미리보기 보고 바로 빼 달라고 해서 뺐다 (그림은 남아 있다)
   /* 더 예전에 은퇴한 것들 — 이미 환불됐을 수 있지만 남아 있으면 여기서 처리된다 */
   shoes_boots_desert: { label: "사막 부츠",   price: 140 },
   shoes_boots_ribbon: { label: "리본 부츠",   price: 150 },
