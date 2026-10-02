@@ -174,7 +174,7 @@ export function OnboardingFlow({ onFinish }){
        첫 등록만 이름을 필수로 받고 있어 규칙이 어긋났다 → 같은 순서·같은 규칙으로 맞춘다.
        이름을 비우면 종류 이름을 그대로 학원 이름으로 쓴다(앱의 saveAcademy 와 같은 규칙). */
     { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 학원 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind },
-    { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 보여요.\n비워 둬도 괜찮아요." },
+    { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 보여요." },
     /* [사용자 확정 2026-08-11] 반복 숙제를 준비물과 떼어 미션 단계로 옮겼다 — 둘 다 '숙제'라
        미션 이야기를 할 때 같이 보는 게 자연스럽다.
        [2026-08-11] 필수는 '오늘 미션' 하나로 정했다(사용자 확정) — 아무 미션도 없이 시작하면
@@ -343,11 +343,11 @@ export function OnboardingFlow({ onFinish }){
           <div>
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 8px"}}>항상 챙길 준비물</p>
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 8px"}}>항상 챙길 준비물 <span style={tagOpt}>선택</span></p>
             <input autoFocus value={supply} onChange={e=>setSupply(e.target.value)} placeholder="예: 교재, 악보" style={inp}
               onKeyDown={e=>e.key==="Enter"&&next()}/>
             <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"10px 2px 0",lineHeight:1.6}}>
-              학원 카드와 홈 화면에 그날 챙길 것으로 나와요.
+              학원 카드와 홈 화면에 그날 준비물로 나와요.
             </p>
           </div>
         )}
