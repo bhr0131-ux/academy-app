@@ -558,3 +558,10 @@ bbox로 여백만 잘라내고 배포본은 높이 480px로 축소했다(전부 
 | petskin/butterfly-src.webp | 펫 스킨 '신비한 나비' (1350×1165 → bbox 크롭 1312×1114) | petskin/butterfly.webp |
 | petskin/lion-src.webp | 펫 스킨 '용맹한 사자' (1254×1254 → bbox 크롭 1193×1219) | petskin/lion.webp |
 | petskin/unicorn-src.webp | 펫 스킨 '전설의 유니콘' (1254×1254 → bbox 크롭 1127×1248) | petskin/unicorn.webp |
+| thumb-src-top_space.webp | **상점 목록 그림 남아 우주 탐험대 (top_space, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 296×326 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=4). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_space.webp |
+| thumb-src-top_acorn.webp | **상점 목록 그림 남아 도토리 숲지기 (top_acorn, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 286×307 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=5). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_acorn.webp |
+| thumb-src-top_board_boy.webp | **상점 목록 그림 남아 번개 스케이터 (top_board_boy, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 301×309 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=2). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_board.webp |
+| thumb-src-top_beach_boy.webp | **상점 목록 그림 남아 썸머 웨이브 (top_beach_boy, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 258×278 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=3). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_beach.webp |
+| thumb-src-top_hoodie_mint.webp | **상점 목록 그림 남아 바다 탐험대 (top_hoodie_mint, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 270×298 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=3). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_hoodie.webp |
+| thumb-src-top_pirate.webp | **상점 목록 그림 남아 꼬마 해적단 (top_pirate, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 261×281 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=2). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_pirate.webp |
+| thumb-src-top_vest.webp | **상점 목록 그림 남아 정글 탐험대 (top_vest, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 262×283 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=6). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_vest.webp |
