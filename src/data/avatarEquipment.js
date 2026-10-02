@@ -365,6 +365,11 @@ export const AVATAR_CATALOG = [
      원화처럼 다리 길이 39% 지점(y827)에서 시작해 발바닥 y939 에서 끝나게 높이를 112 로
      줄였고, 두 짝을 따로 배치한다 — 왼짝 (401,827) 114×112 · 오른짝 (515,827) 109×112 */
   { id: "shoes_pirate",   slot: "shoes", label: "해적 신발",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-boy.webp?v=2", thumb: "assets/avatar/thumb/shoes_pirate.webp" },
+  /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
+     두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
+     밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
+     탑재 상자 (416,820,590,942). 들꽃 탐험가 옷과 같은 테마(adventure). */
+  { id: "shoes_wildflower", slot: "shoes", label: "들꽃 신발",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/wildflower-boots-girl.webp", thumb: "assets/avatar/thumb/shoes_wildflower.webp" },
 
 ];
 
