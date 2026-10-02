@@ -303,7 +303,10 @@ export const AVATAR_CATALOG = [
      같은 종류의 옷이라 자리가 어긋나면 갈아입을 때 튄다.
      망토 깃 안쪽 목·가슴 살은 남겼다 — 깃 구멍(폭 39)이 베이스 목(폭 67)보다
      좁아서 살을 지우면 깃 사이로 구멍이 보인다(민트 후드와 같은 이유). */
-  { id: "top_acorn",      slot: "top",   label: "도토리 탐험복", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", coversBottom: true, img: "assets/avatar/top/acorn-outfit-boy.webp", thumb: "assets/avatar/thumb/top_acorn.webp" },
+  /* [2026-10-02] 새 원화로 교체 (잎사귀 망토 + 크림 셔츠 + 갈색 반바지 한 벌, 사용자 원화) — 위 탑재값은 옛 판 기록.
+     비치룩·보드룩과 같은 방식: 원화 목 중심(x227.43)을 x516 에, 턱선 y14 를 y399 에 고정하고 어깨·속옷이 다 가려지는
+     가장 작은 배율 0.71. 턱은 지우고, 목 살(크림 깃과 R−B 로 구분)만 페이드로 베이스 목과 섞었다. 탑재 상자 (355,391)-(671,782). */
+  { id: "top_acorn",      slot: "top",   label: "도토리 탐험복", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", coversBottom: true, img: "assets/avatar/top/acorn-outfit-boy.webp?v=2", thumb: "assets/avatar/thumb/top_acorn.webp?v=2" },
   { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp", thumb: "assets/avatar/thumb/top_space.webp?v=3", thumbGirl: "assets/avatar/thumb/top_space-girl.webp" },
 
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
