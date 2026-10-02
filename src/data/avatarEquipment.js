@@ -189,7 +189,7 @@ export const AVATAR_CATALOG = [
   { id: "bottom_shorts_green", slot: "bottom", label: "기본 반바지", emoji: "🩳", price: 0, rarity: "common", theme: "common", starter: true, img: "assets/avatar/bottom/starter-shorts.webp", imgGirl: "assets/avatar/bottom/starter-shorts-girl.webp", thumb: "assets/avatar/thumb/bottom_shorts_green.webp" },
 
   /* 머리띠 — 머리를 덮는 물건이 아니라 hidesHead 를 안 쓴다.
-     (얼굴째 덮던 남아 사파리 모자 그림은 v7 몸에 안 맞아 카탈로그에서 뺐다 — 파일은 남아 있다)
+     (얼굴째 덮는 남아 사파리 모자는 아래 hat_safari_boy — 2026-10-02 새 원화로 다시 넣었다)
      [2026-08-20] '베이스가 쓰고 있는 머리 그림'을 새로 받아 다시 탑재했다(?v=3).
      예전엔 머리띠만 오려 낸 그림을 눈으로 맞춰서 머리보다 크게 얹혀 있었다
      (탑재 상자 362~659 → 391~640, 머리 폭 안으로 들어옴). art-src/README 참고. */
@@ -203,6 +203,10 @@ export const AVATAR_CATALOG = [
      그래도 남는 얇은 머리 가닥은 열기 연산(침식→팽창)으로 잘라 냈다. */
   { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/hat/picnic-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_picnic.webp" },
   { id: "hat_pirate",     slot: "hat",   label: "해적 모자",   emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "girl", img: "assets/avatar/hat/pirate-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_pirate.webp" },
+  /* 남아 사파리 모자 [2026-10-02] — 모자+얼굴 한 장(사용자 원화)이라 hidesHead: 쓰면 머리카락 머리 장이 빠지고
+     민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
+     원화에 달린 목은 z50 이라 높은 깃(우주복·후드·도토리)을 덮어서 기본 머리 장처럼 y404 에서 잘랐다. */
+  { id: "hat_safari_boy", slot: "hat",   label: "사파리 모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/safari-brown.webp?v=2", thumb: "assets/avatar/thumb/hat_safari_boy.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
