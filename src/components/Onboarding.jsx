@@ -218,14 +218,11 @@ export function OnboardingFlow({ onFinish }){
         {cur.kind==="welcome"&&(
           <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",textAlign:"center"}}>
             <div style={{fontSize:64,marginBottom:18}}>🌱</div>
-            <p style={{fontSize:12,fontWeight:800,letterSpacing:3,color:TH.main,margin:"0 0 8px"}}>오늘의 미션</p>
             <h2 style={{fontSize:25,fontWeight:900,color:"#1A1A35",margin:"0 0 32px",lineHeight:1.3}}>미션팡에<br/>오신 걸 환영해요</h2>
             <p style={{fontSize:15,fontWeight:600,color:"#8890B0",lineHeight:1.8,margin:0}}>
               동기부여가 고민이었던 부모님도,<br/>
               숙제가 재미없던 아이도,<br/>
               미션팡과 함께해요.<br/><br/>
-              미션(숙제)을 완료하면 코인을 얻고,<br/>
-              원하는 보상으로 바꾸며 즐겁게 성장해봐요.<br/><br/>
               작은 미션이 쌓여 아이의 큰 성장을 만들어요.
             </p>
           </div>
