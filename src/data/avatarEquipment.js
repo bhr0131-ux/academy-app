@@ -258,8 +258,9 @@ export const AVATAR_CATALOG = [
   { id: "top_bakery_girl", slot: "top",   label: "베이커리룩",   emoji: "🥐", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/bakery-outfit-girl.webp", thumb: "assets/avatar/thumb/top_bakery.webp" },
   /* 노란 우비 [2026-10-02] — 노란 우비(흰 둥근 깃·구름 주머니) + 청록 반바지 한 벌(사용자 원화). 베이커리룩과 같은 방식:
      원화 목 외곽선 중심(x226.5)을 여아 목 중심 x512.5 에, 곧은 목선이 끝나는 원화 y19 를 y372 에 맞추고
-     배율 0.69(원화 목 폭 64 → 여아 목 44, 소매가 손목에서 끝난다). 원화 목은 페이드. */
-  { id: "top_raincoat_girl", slot: "top", label: "노란 우비",    emoji: "☔", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/raincoat-girl.webp", thumb: "assets/avatar/thumb/top_raincoat.webp" },
+     배율 0.69(원화 목 폭 64 → 여아 목 44, 소매가 손목에서 끝난다). 원화 목은 페이드.
+     [2026-10-02] 사용자 요청으로 우비 밑단 아래 청록 반바지만 5% 키웠다(허리 가운데 기준, 우비는 그대로). ?v=2 */
+  { id: "top_raincoat_girl", slot: "top", label: "노란 우비",    emoji: "☔", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/raincoat-girl.webp?v=2", thumb: "assets/avatar/thumb/top_raincoat.webp?v=2" },
   /* 우주복 — 옷이 흰색이라 '베이스와 색이 다른 픽셀' 규칙만으로는 안 떼어졌다.
      베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
      바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나.
