@@ -41,7 +41,7 @@ export const DEFAULT_CHAR_DISPLAY_MODE = CHAR_DISPLAY_GROWTH;
    꾸미기 전용 캐릭터 1장. 모자·안경·손지물 없이 맨몸(기본옷)으로 제작된
    1024×1024 이미지. 모든 장비는 이 위에 덧씌워진다.
    아트가 아직 없으면 뷰어가 성장 3단계 캐릭터 → 이모지 순으로 폴백한다. */
-export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=10";        // 남아(머리+몸통 합본 — 폴백용)
+export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=11";        // 남아(머리+몸통 합본 — 폴백용)
 export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; // 여아(합본 — 폴백용)
 /* 베이스를 '몸통'과 '머리' 두 장으로 나눠 둔다 (사용자 확정).
    모자처럼 얼굴째 덮는 장비(hidesHead)를 쓰면 머리 장을 아예 안 그리고 그 자리에 장비 그림만 얹는다.
@@ -68,9 +68,11 @@ export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; 
      · 얼굴째 덮는 모자(hidesHead)를 쓰면 head.webp 만 빠지고 민머리 위에 모자 그림이 얹힌다
        → 남아 모자는 앞으로 얼굴까지 통째로 그려 hidesHead 를 붙인다.
      · 속옷은 기본 반팔티·반바지(starter, 벗을 수 없음)가 늘 가린다.
-   보일 모습(민머리+머리카락)이 v9 와 98.9% 겹쳐 기존 옷·장비는 그대로 맞는다. */
+   보일 모습(민머리+머리카락)이 v9 와 98.9% 겹쳐 기존 옷·장비는 그대로 맞는다.
+   [2026-10-02] head.webp 가 턱선 아래로 3px(y399~401) 더 내려와 목보다 진한 주황 띠가 보였다(사용자 지적)
+   → 열마다 턱선(진한 선) 바로 아래부터 알파를 지웠다(432px). 경로 head·default ?v=11. */
 export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=10";
-export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=10";
+export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=11";
 export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=8";
 export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp?v=8";
 export const AVATAR_BASE_EMOJI = "🧒";
