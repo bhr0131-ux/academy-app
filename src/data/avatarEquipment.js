@@ -524,10 +524,24 @@ export const isItemInShop = (it) => !it.starter;
 
 /* 상점 탭 하나가 보여 줄 목록 — 탭이 여러 슬롯을 묶으면(옷 = 상의+하의) 적힌
    순서대로 이어 붙인다. */
+/* ── 상점 진열 순서 (사용자 확정 2026-10-02) ─────────────────────────────
+   남녀 공용 id(해적·우주·사파리)가 성별마다 다른 자리에 오므로 순서표를 따로 둔다.
+   표에 없는 아이템은 기본 지급(starter)이면 맨 앞, 아니면 카탈로그 순서대로 맨 뒤. */
+export const SHOP_ORDER = {
+  boy:  ["top_vest", "top_hoodie_mint", "top_pirate", "top_board_boy", "top_acorn", "top_space", "top_beach_boy"],
+  girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic"],
+};
+const shopRank = (it, gender) => {
+  const i = (SHOP_ORDER[gender === "girl" ? "girl" : "boy"] || []).indexOf(it.id);
+  return i >= 0 ? i : (it.starter ? -1 : 1e6);
+};
 export const getItemsByTab = (tabKey, gender) => {
   const tab = getShopTab(tabKey);
   if (!tab) return [];
-  return tab.slots.flatMap(slotKey => getItemsBySlot(slotKey, gender)).filter(isItemInShop);
+  return tab.slots.flatMap(slotKey => getItemsBySlot(slotKey, gender)).filter(isItemInShop)
+    .map((it, k) => ({ it, k }))
+    .sort((a, b) => (shopRank(a.it, gender) - shopRank(b.it, gender)) || (a.k - b.k))
+    .map(x => x.it);
 };
 export const STARTER_ITEM_IDS = AVATAR_CATALOG.filter(it => it.starter).map(it => it.id);
 
