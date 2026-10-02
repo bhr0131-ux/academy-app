@@ -3,7 +3,7 @@ import { C, CAMP_SHEET } from "../data/tokens.js";
 import AvatarViewer from "./AvatarViewer.jsx";
 import EmojiIcon, { EmojiText } from "./EmojiIcon.jsx";
 import {
-  AVATAR_RARITY, SHOP_TABS, getItemsByTab, getSlot,
+  AVATAR_RARITY, SHOP_TABS, getItemsByTab, getSlot, itemLabel, itemEmoji,
 } from "../data/avatarEquipment.js";
 
 /* 탭 목록·순서는 데이터(SHOP_TABS)에서만 관리한다 — 배경·효과는 거기서 이미 빠져
@@ -33,7 +33,7 @@ function ItemThumb({ item, gender }) {
       <div style={{ height: BOX, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img
           src={"/" + thumbSrc.replace(/^\/+/, "")}
-          alt={item.label}
+          alt={itemLabel(item, gender)}
           onError={() => setFailed(true)}
           draggable={false}
           style={{ height: "100%", width: "auto", objectFit: "contain", pointerEvents: "none" }}
@@ -41,7 +41,7 @@ function ItemThumb({ item, gender }) {
       </div>
     );
   }
-  return <div style={{ height: BOX, fontSize: 32, lineHeight: `${BOX}px` }}>{item.emoji}</div>;
+  return <div style={{ height: BOX, fontSize: 32, lineHeight: `${BOX}px` }}>{itemEmoji(item, gender)}</div>;
 }
 
 /* ── 무대 크기 ─────────────────────────────────────────────────────────
@@ -272,7 +272,7 @@ export default function EquipmentShop({
     /* 기본 지급 옷(starter)은 벗으면 속옷만 남아서 벗기를 막는다 */
     bar = { label: "✓ 지금 입는 중", tone: "mute", onPress: null };
   } else {
-    bar = { label: `${sel.label} 벗기`, tone: "off", onPress: () => onToggle && onToggle(sel.id) };
+    bar = { label: `${itemLabel(sel, gender)} 벗기`, tone: "off", onPress: () => onToggle && onToggle(sel.id) };
   }
 
   const barStyle = {
@@ -455,7 +455,7 @@ export default function EquipmentShop({
                 <ItemThumb item={item} gender={gender} />
 
                 <span style={{ fontSize: 11.5, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>
-                  {item.label}
+                  {itemLabel(item, gender)}
                 </span>
                 <span style={{ fontSize: 11.5, fontWeight: 900, color: status.color, lineHeight: 1.1 }}>
                   <EmojiText>{status.text}</EmojiText>
