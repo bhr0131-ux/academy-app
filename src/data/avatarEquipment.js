@@ -284,11 +284,11 @@ export const AVATAR_CATALOG = [
   { id: "shoes_astronaut",slot: "shoes", label: "우주 부츠",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "boy", img: "assets/avatar/shoes/astronaut-boots-boy.webp", thumb: "assets/avatar/thumb/shoes_astronaut.webp" },
 
   /* 해적 신발 — 남아 신발 원화(사용자 원화 2026-10-01). 해적 옷(top_pirate)과 같은
-     테마라 같은 이름을 썼다. 원화 두 짝의 간격이 베이스 다리 간격보다 넓어서
-     가로만 0.300 · 세로 0.3404 로 따로 줬다(가로 12% 눌림) — 균등 배율로는 발이
-     신발 안쪽으로 치우쳐 보였다. 밑단 위끝 y865(우주 부츠와 같은 자리) · 좌우
-     중심을 다리 중심(왼 440 · 오른 580)에 맞춘 평균으로 가로 배치 */
-  { id: "shoes_pirate",   slot: "shoes", label: "해적 신발",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-boy.webp", thumb: "assets/avatar/thumb/shoes_pirate.webp" },
+     테마라 같은 이름을 썼다. [2026-10-01 재조정] 해적 남아 원화와 비교하니 베이스가
+     다리가 짧고(약 6%) 가늘어서(약 15%) 처음 크기로는 정강이까지 덮어 길쭉해 보였다.
+     원화처럼 다리 길이 39% 지점(y827)에서 시작해 발바닥 y939 에서 끝나게 높이를 112 로
+     줄였고, 두 짝을 따로 배치한다 — 왼짝 (401,827) 114×112 · 오른짝 (515,827) 109×112 */
+  { id: "shoes_pirate",   slot: "shoes", label: "해적 신발",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-boy.webp?v=2", thumb: "assets/avatar/thumb/shoes_pirate.webp" },
 
 ];
 
