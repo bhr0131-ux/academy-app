@@ -42,7 +42,7 @@ export const DEFAULT_CHAR_DISPLAY_MODE = CHAR_DISPLAY_GROWTH;
    1024×1024 이미지. 모든 장비는 이 위에 덧씌워진다.
    아트가 아직 없으면 뷰어가 성장 3단계 캐릭터 → 이모지 순으로 폴백한다. */
 export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=11";        // 남아(머리+몸통 합본 — 폴백용)
-export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; // 여아(합본 — 폴백용)
+export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=10"; // 여아(합본 — 폴백용)
 /* 베이스를 '몸통'과 '머리' 두 장으로 나눠 둔다 (사용자 확정).
    모자처럼 얼굴째 덮는 장비(hidesHead)를 쓰면 머리 장을 아예 안 그리고 그 자리에 장비 그림만 얹는다.
    → 예전처럼 베이스 머리 위에 덮어 씌우면 크기가 조금만 안 맞아도 턱선·귀선이 겹쳐 보였는데,
@@ -70,11 +70,15 @@ export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; 
      · 속옷은 기본 반팔티·반바지(starter, 벗을 수 없음)가 늘 가린다.
    보일 모습(민머리+머리카락)이 v9 와 98.9% 겹쳐 기존 옷·장비는 그대로 맞는다.
    [2026-10-02] head.webp 가 턱선 아래로 3px(y399~401) 더 내려와 목보다 진한 주황 띠가 보였다(사용자 지적)
-   → 열마다 턱선(진한 선) 바로 아래부터 알파를 지웠다(432px). 경로 head·default ?v=11. */
+   → 열마다 턱선(진한 선) 바로 아래부터 알파를 지웠다(432px). 경로 head·default ?v=11.
+   [2026-10-02] 여아 베이스 v10 — 남아와 같은 **민머리 + 머리카락 머리** 구조 (사용자 원화).
+     머리카락 머리를 민머리 얼굴(눈~입)에 템플릿 매칭(배율 0.996 · 일치 0.906)으로 얹은 합본을 v8 실루엣에 맞췄다
+     (배율 0.6957, IoU 0.991) → 기존 여아 옷·모자를 다시 맞출 필요가 없다. 갈래머리는 머리 장에 들어 있다.
+     머리 장이 턱선 아래로 2~5px 내려온 살색은 얼굴 폭(x430~600) 안에서만 지웠다(147px). 경로 ?v=10. */
 export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=10";
 export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=11";
-export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=8";
-export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp?v=8";
+export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=10";
+export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp?v=10";
 export const AVATAR_BASE_EMOJI = "🧒";
 
 /* ── 기본 배경 (아이템 아님) ────────────────────────────────────────── */
