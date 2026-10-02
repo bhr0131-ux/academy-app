@@ -245,7 +245,10 @@ export const AVATAR_CATALOG = [
      베이스와 다른 픽셀만 남기면 그게 곧 제자리에 놓인 옷이다(맨살·머리 부분은 저절로 빠진다).
      앞으로 옷 원화는 이 방식으로 받는 게 제일 정확하다.
      둘 다 상·하의가 한 장이라 사파리 옷과 같이 상의 슬롯 하나로 넣는다. */
-  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp?v=3", thumb: "assets/avatar/thumb/top_picnic.webp" },
+  /* [2026-10-02] 딸기 소풍 옷 새 원화로 교체 — 분홍 깅엄 짧은 재킷 + 흰 둥근 깃 블라우스·분홍 리본 + 분홍 반바지(사용자 원화, 옷만 오려 낸 그림).
+     위의 '입은 전신 그림' 방식은 옛 판 기록. 원화 목 외곽선 중심(x198.5)을 여아 목 중심 x512.5 에, 원화 y14(목이 깃으로 들어가기 직전)를 y370 에 맞췄다.
+     원화 목 폭 64px 를 베이스 목 폭 45px 에 맞춘 배율 0.70 — 흰 수영복 비침 0. 원화 목 위쪽은 페이드로 베이스 목과 섞었다. 탑재 상자 (374,360,646,673). img ?v=4 · thumb ?v=2. */
+  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_picnic.webp?v=2" },
   /* [2026-10-02] 여아 별빛 마법사 옷 새 원화로 교체 — 보라 후드 망토(별 브로치) + 연보라 원피스·별 무늬 치마, 소매 끝에 치마를 잡은 손까지 그려져 있다(사용자 원화).
      원화 맨 위의 턱 곡선을 지우고, 후드 사이 목 중심(x255.5)을 여아 목 중심 x512.5 에, 원화 턱선 y14 를 여아 턱선 y361 에 맞췄다.
      배율 0.62 — 원화 손이 아바타 손 자리(x357~417·y560~658)를 덮어 손이 두 쌍으로 안 보인다(흰 수영복 비침 0). 원화 목은 페이드. img ?v=4 · thumb ?v=2.
@@ -344,9 +347,10 @@ export const AVATAR_CATALOG = [
   { id: "top_acorn",      slot: "top",   label: "도토리 탐험복", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", coversBottom: true, img: "assets/avatar/top/acorn-outfit-boy.webp?v=4", thumb: "assets/avatar/thumb/top_acorn.webp?v=4" },
   /* [2026-10-02] 여아 우주복 새 원화로 교체 — 흰 우주복(보라 목둘레·어깨·무릎 패드, 금 버클), 발목까지 오는 한 벌(사용자 원화).
      원화 맨 위의 턱선과 목둘레 안쪽 목 살을 지워 베이스 목이 그대로 보이게 하고, 목둘레 안 목 중심(x214)을 여아 목 중심 x512.5 에,
-     원화 턱 자리 y2 를 여아 턱선 y361 에 맞췄다. 배율 0.70 — 흰 수영복·다리가 다 가려지고 발목·손목에서 끝난다. imgGirl ?v=2. */
-  /* 배율 0.70→0.714, 위치 x512.5→511.5·y361→356. 여아 목 중심·턱선 맞춤. imgGirl ?v=3. */
-  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=3", thumb: "assets/avatar/thumb/top_space.webp?v=3", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=3" },
+     원화 턱 자리 y2 를 여아 턱선 y361 에 맞췄다. 배율 0.70 — 흰 수영복·다리가 다 가려지고 발목·손목에서 끝난다. imgGirl ?v=2.
+     [2026-10-02] 사용자 조정 — 위로 5·왼쪽 1·2% 크게: 배율 0.714, 목 중심 x511.5, 턱 자리 y356. 탑재 상자 (359,355,662,891). imgGirl ?v=4.
+     (?v=3 은 조정값이 안 먹고 0.68배로 잘못 들어갔던 판) */
+  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_space.webp?v=3", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=4" },
 
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
