@@ -341,7 +341,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | shoe-cream-L/R.webp | 크림 부츠 원화 한 짝씩 (현행, 고해상도 원본) | avatar/shoes/cream-boots(-girl).webp |
 | hat-explorer-v3.webp | 탐험 헬멧 원화 남아 v3 (현행, hidesHead) | avatar/hat/explorer-helmet.webp |
 | hat-explorer-helmet-girl.webp | 탐험 헬멧 원화 여아 (현행, imgGirl) | avatar/hat/explorer-helmet-girl.webp |
-| hat-safari-brown.webp | 사파리 모자 원화 남아 (현행, hidesHead — 여아는 사파리 머리띠로 교체) | avatar/hat/safari-brown.webp |
+| hat-safari-brown.webp | **사파리 모자 원화 남아 — 모자+얼굴 한 장 (사용자 원화 2026-10-02, 이전 판 교체)**. 941×1672 투명 배경. hat_safari_boy(hidesHead) — 베이스 v10 민머리 위에 얹힌다. 베이스 합본(default.webp) 얼굴에 눈~입(원화 y905~1115 · x215~735) 템플릿 매칭: 배율 0.4065 · 왼쪽 위 (328.6,-82.9) · 일치 0.970. 원화의 목이 z50 이라 높은 깃을 덮어 y404 아래를 잘랐다(목은 민머리 몸에 있음). 탑재 상자 (329,64)-(712,403) | avatar/hat/safari-brown.webp · thumb/hat_safari_boy.webp |
 | hat-aviator-cap.webp | 비행사 모자 원화 남아 (**겨울 시즌 보관** — season:"winter", 상점 미노출) | avatar/hat/aviator-cap.webp |
 | hat-aviator-cap-girl.webp | 비행사 모자 원화 여아 (**겨울 시즌 보관**) | avatar/hat/aviator-cap-girl.webp |
 | hat-blossom.webp | 꽃 헬멧 원화 남아 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
