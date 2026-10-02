@@ -231,7 +231,10 @@ export const AVATAR_CATALOG = [
      보내 주신 손질본을 (369,404) 에 1% 확대해서 얹었다(safari-boy-outfit-edit-src).
      배율 0.663 · 가로 1.02배 · 중심 x516. 가랑이 V 메움은 하지 않는다 — 사용자가
      기본 아바타를 바꿀 예정이라. 새 베이스 올 때 다시 맞춘다 (사용자 확정). */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=9", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_vest.webp?v=5", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
+  /* [2026-10-02] 여아 사파리 옷 새 원화로 교체 — 크림 블라우스(데이지 자수 깃) + 벨트 초록 반바지(사용자 원화).
+     베이커리룩과 같은 방식: 원화 목 외곽선 중심(x181)을 여아 목 중심 x512.5 에, 목이 어깨로 넓어지는 원화 y15 를 y372 에 맞추고
+     배율 0.70(원화 목 폭 63 → 여아 목 44 와 같아지는 값, 수영복 비침 1px). 원화 목은 페이드. imgGirl ?v=5 · thumbGirl ?v=2. */
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=9", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_vest.webp?v=5", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp?v=2" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
