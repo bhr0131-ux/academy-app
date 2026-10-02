@@ -285,10 +285,8 @@ export const AVATAR_CATALOG = [
      원화 목 중심을 베이스 목 중심(x516)에, 턱선(원화 y28)을 y402 에 맞추고 어깨가 다 가려지는 배율 0.72 로 얹었다.
      턱은 지우고, 원화 턱선이 베이스 턱보다 ~7px 낮아 목 위쪽(원화 y30~52)을 서서히 투명하게 해서 베이스 목과 섞었다.
      [2026-10-02 격자 확정] 턱을 지울 때 깃 끝 윤곽선까지 지워져 잘려 보였다 → 턱 살과 그 둘레만 지우게 고쳐 되살림.
-     사용자가 격자로 보고 배율 2% 줄이고(0.7056) 위로 3(원화 y28 → y399) 확정. 탑재 상자 (359,393)-(665,737).
-     깃 안쪽 끝은 원화에서 턱 뒤에 가려 윗면이 평평하게 끊겨 있어, 베이스 턱선과 0~3px 틈이 잘린 것처럼 보였다
-     → 평평한 칸(x483~489 · x544~547)만 베이스 머리 알파에 닿을 때까지 위로 이어 그렸다(16px). */
-  { id: "top_beach_boy",  slot: "top",   label: "비치룩",       emoji: "🌺", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/beach-outfit-boy.webp?v=3", thumb: "assets/avatar/thumb/top_beach.webp?v=3" },
+     사용자가 격자로 보고 배율 2% 줄이고(0.7056) 위로 3(원화 y28 → y399) 확정. 탑재 상자 (359,393)-(665,737). */
+  { id: "top_beach_boy",  slot: "top",   label: "비치룩",       emoji: "🌺", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/beach-outfit-boy.webp?v=2", thumb: "assets/avatar/thumb/top_beach.webp?v=2" },
   /* 도토리 탐험복 — 남아 (사용자 원화 2026-09-26). 크림 셔츠 + 나뭇잎 망토 +
      도토리 금브로치 + 가죽 벨트 + 갈색 카고 반바지.
      원화가 '옷만 오려 낸 깨끗한 그림'이라(연결 조각 1개·안쪽 구멍 0) 색으로
