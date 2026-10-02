@@ -206,8 +206,10 @@ export const AVATAR_CATALOG = [
      어깨 위에 맨살 띠가 남는다. 세로를 올려야 없어진다.
      [2026-10-02] 남아 그림 교체 (사용자 원화 v2 — 초록 긴소매 + 카키 조끼 + 카키 반바지).
      베이스 v9 남아에 맞춰 배율 0.65 · 가로 1.02배 · 위끝 y402 · 중심 515 로 넣은 뒤, 사용자가 격자로 보며
-     2% 키우고 2px 내려 확정 — 배율 0.663 · 가로 1.02배 · 위끝 y404 · 중심 515 (art-src/README 참고). */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=6", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_vest.webp?v=2", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
+     2% 키우고 2px 내려 확정 — 배율 0.663 · 가로 1.02배 · 위끝 y404 · 중심 515 (art-src/README 참고).
+     [2026-10-02] 다시 1% 줄이고 왼쪽 1px(배율 0.6564 · 중심 514) → 사용자가 그 판의 어깨를 직접 늘려
+     보내 준 그림을 그대로 (370,404) 에 얹었다(safari-boy-outfit-edit-src). */
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=7", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_vest.webp?v=3", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
