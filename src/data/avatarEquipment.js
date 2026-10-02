@@ -41,7 +41,7 @@ export const DEFAULT_CHAR_DISPLAY_MODE = CHAR_DISPLAY_GROWTH;
    꾸미기 전용 캐릭터 1장. 모자·안경·손지물 없이 맨몸(기본옷)으로 제작된
    1024×1024 이미지. 모든 장비는 이 위에 덧씌워진다.
    아트가 아직 없으면 뷰어가 성장 3단계 캐릭터 → 이모지 순으로 폴백한다. */
-export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=8";        // 남아(머리+몸통 합본 — 폴백용)
+export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=9";        // 남아(머리+몸통 합본 — 폴백용)
 export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; // 여아(합본 — 폴백용)
 /* 베이스를 '몸통'과 '머리' 두 장으로 나눠 둔다 (사용자 확정).
    모자처럼 얼굴째 덮는 장비(hidesHead)를 쓰면 머리 장을 아예 안 그리고 그 자리에 장비 그림만 얹는다.
@@ -58,9 +58,11 @@ export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; 
    [2026-09-27] 베이스 v8 로 교체 (사용자가 디자인만 다듬어 다시 그려 줌 — 남아 앞머리·
    여아 갈래머리 모양이 달라졌다). 원화 캔버스·알파 상자·목선 y가 v7과 거의 같아
    (남 630 · 여 578 그대로 맞았다 — 겹쳐서 확인함) 위 탑재 공식을 그대로 재사용했다.
-   파일명은 그대로 덮어썼고 경로에 ?v=8 을 붙여 기존 기기의 캐시를 끊는다. */
-export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=8";
-export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=8";
+   파일명은 그대로 덮어썼고 경로에 ?v=8 을 붙여 기존 기기의 캐시를 끊는다.
+   [2026-10-02] 남아만 베이스 v9 (사용자 원화 — v8 을 다듬은 판). v8 과 같은 자리·높이에 맞추면
+   실루엣이 97.6% 겹쳐 장비를 다시 맞출 필요가 없다. 머리/몸통은 v8 과 같은 y405 에서 잘랐다. */
+export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=9";
+export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=9";
 export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=8";
 export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp?v=8";
 export const AVATAR_BASE_EMOJI = "🧒";
@@ -201,8 +203,10 @@ export const AVATAR_CATALOG = [
      남아 탑재값은 배율 0.58 · 가로만 1.06배 · 깃 위끝 y382 (art-src/README 참고).
      [2026-08-21] 가랑이 V 틈으로 베이스 흰 속옷이 비쳐서 그 자리만 반바지 색으로 메웠다.
      옷걸이에 건 모양이라 어깨선이 처져 있어서, 깃을 기본 반팔티 자리(y411)에 맞추면
-     어깨 위에 맨살 띠가 남는다. 세로를 올려야 없어진다. */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=4", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_vest.webp", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
+     어깨 위에 맨살 띠가 남는다. 세로를 올려야 없어진다.
+     [2026-10-02] 남아 그림 교체 (사용자 원화 v2 — 초록 긴소매 + 카키 조끼 + 카키 반바지).
+     베이스 v9 남아에 맞춰 배율 0.65 · 가로 1.02배 · 위끝 y402 · 중심 515 (art-src/README 참고). */
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=5", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_vest.webp?v=2", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
