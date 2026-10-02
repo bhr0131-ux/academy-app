@@ -247,6 +247,10 @@ export const AVATAR_CATALOG = [
      그래서 타이츠 없는 판을 골라 상체만 맞췄다 — 다리 길이 차이가 상관없어진다.
      배율 0.74 · 깃 위끝을 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (356,372)-(666,751). */
   { id: "top_sky",        slot: "top",   label: "하늘 나들이 옷", emoji: "☁️", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/sky-outing-girl.webp", thumb: "assets/avatar/thumb/top_sky.webp" },
+  /* 베이커리룩 [2026-10-02] — 크림 셔츠 + 분홍 깃·앞치마·주름치마 원피스(사용자 원화). 원화 목 외곽선 중심(x174.75)을 여아 목 중심 x512.5 에,
+     목이 어깨로 넓어지는 원화 y18 을 여아 같은 지점 y372 에 맞추고 흰 수영복이 다 가려지는 가장 작은 배율 0.71.
+     원화 목 살·목 옆선은 위에서 아래로 페이드해 베이스 목과 섞었다. */
+  { id: "top_bakery_girl", slot: "top",   label: "베이커리룩",   emoji: "🥐", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/bakery-outfit-girl.webp", thumb: "assets/avatar/thumb/top_bakery.webp" },
   /* 우주복 — 옷이 흰색이라 '베이스와 색이 다른 픽셀' 규칙만으로는 안 떼어졌다.
      베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
      바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나.
