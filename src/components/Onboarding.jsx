@@ -147,6 +147,7 @@ export function OnboardingFlow({ onFinish }){
   const lbl={fontSize:22,fontWeight:900,color:"#1A1A35",margin:"0 0 6px",lineHeight:1.3};
   /* whiteSpace:pre-line — 안내 문장에 \n 을 넣어 문장 단위로 줄을 나눈다 (사용자 확정 2026-08-11) */
   const MISSION_GAP=40;
+  const ACADEMY_GAP=32;
   const sub={fontSize:14,color:"#8890B0",margin:"0 0 24px",fontWeight:600,lineHeight:1.5,whiteSpace:"pre-line"};
   /* '(선택)'과 '필수' 가 괄호 유무·굵기까지 달라 서로 다른 것처럼 보였다 →
      모양은 하나로 두고 색만 다르게 (사용자 확정 2026-08-11) */
@@ -287,7 +288,8 @@ export function OnboardingFlow({ onFinish }){
         {cur.kind==="academy"&&(
           <div>
             <p style={lbl}>{cur.title}</p>
-            <p style={sub}>{cur.sub}</p>
+            {/* [사용자 확정 2026-10-02] 안내문·항목 사이 간격을 같은 값(ACADEMY_GAP)으로 조금 넓혔다 */}
+            <p style={{...sub,marginBottom:ACADEMY_GAP}}>{cur.sub}</p>
             {/* '*' 하나로만 필수를 표시하던 자리 — 미션 단계의 '필수' 배지와 같은 모양으로 (사용자 확정) */}
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>학원 종류 <span style={tagReq}>필수</span></p>
             {(()=>{
@@ -307,19 +309,19 @@ export function OnboardingFlow({ onFinish }){
                 </button>
               );
             })()}
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"22px 0 10px"}}>
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:`${ACADEMY_GAP}px 0 10px`}}>
               학원 이름 <span style={tagOpt}>선택</span>
             </p>
             <input value={acName} onChange={e=>setAcName(e.target.value)}
               placeholder={acKindLabel?`비우면 '${acKindLabel}'${withRo(acKindLabel).slice(acKindLabel.length)} 저장돼요`:"예: 노아피아노"} style={inp}/>
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"22px 0 10px"}}>수업 요일</p>
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:`${ACADEMY_GAP}px 0 10px`}}>수업 요일</p>
             {/* 일곱 칸이 한 줄에 들어가게 폭을 나눠 갖는다 — 고정 폭이면 좁은 기기에서 두 줄로 접혔다 */}
             <div style={{display:"flex",gap:5}}>
               {DAYS.map(d=>(
                 <button key={d} onClick={()=>toggleDay(d)} style={{flex:1,minWidth:0,height:42,borderRadius:12,border:`2px solid ${acDays.includes(d)?TH.main:"#E3E8F0"}`,background:acDays.includes(d)?TH.main:"#fff",color:acDays.includes(d)?"#fff":"#8890B0",fontSize:15,fontWeight:800,cursor:"pointer",padding:0}}>{d}</button>
               ))}
             </div>
-            <div style={{display:"flex",gap:10,marginTop:22}}>
+            <div style={{display:"flex",gap:10,marginTop:ACADEMY_GAP}}>
               <div style={{flex:1,minWidth:0}}>
                 <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>시작 시간</p>
                 <input type="time" value={acTime} onChange={e=>setAcTime(e.target.value)} style={{...inp,minWidth:0}}/>
