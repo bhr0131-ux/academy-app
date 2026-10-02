@@ -165,13 +165,13 @@ export function OnboardingFlow({ onFinish }){
     { kind:"welcome" },
     /* [사용자 확정 2026-09-28] 기본값 mom 이 이미 골라져 있어 그냥 넘어가도 되고,
        아빠면 눌러서 바꾸면 된다 — 강제로 고르게 하지 않는다. */
-    { kind:"parent", title:"보호자는 누구인가요?", sub:"고른 쪽으로 화면 곳곳의 '엄마' 표현이 바뀌어요.", canNext:()=>true },
+    { kind:"parent", title:"보호자는 누구인가요?", canNext:()=>true },
     { kind:"input", title:"아이의 이름이 무엇인가요?", sub:"아이 화면과 미션에 표시돼요.", canNext:()=>childName.trim().length>0 },
     { kind:"age", title:"아이의 연령대를 골라주세요", sub:"연령대에 맞는 보상 목록을 자동으로 준비해드려요. 나중에 바꿀 수 있어요.", canNext:()=>age!=="" },
     /* [사용자 지적 2026-08-11] 앱의 학원 등록은 '종류'가 필수고 '이름'이 선택이다.
        첫 등록만 이름을 필수로 받고 있어 규칙이 어긋났다 → 같은 순서·같은 규칙으로 맞춘다.
        이름을 비우면 종류 이름을 그대로 학원 이름으로 쓴다(앱의 saveAcademy 와 같은 규칙). */
-    { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind },
+    { kind:"academy", title:"어떤 학원에 다니나요?", sub:"우선 학원 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind },
     { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 보여요.\n비워 둬도 괜찮아요." },
     /* [사용자 확정 2026-08-11] 반복 숙제를 준비물과 떼어 미션 단계로 옮겼다 — 둘 다 '숙제'라
        미션 이야기를 할 때 같이 보는 게 자연스럽다.
@@ -231,7 +231,7 @@ export function OnboardingFlow({ onFinish }){
         {cur.kind==="parent"&&(
           <div>
             <p style={lbl}>{cur.title}</p>
-            <p style={sub}>{cur.sub}</p>
+            {cur.sub?<p style={sub}>{cur.sub}</p>:<div style={{height:24}}/>}
             <div style={{display:"flex",gap:10}}>
               {[{k:"mom",e:"👩",t:"엄마"},{k:"dad",e:"👨",t:"아빠"}].map(p=>(
                 <button key={p.k} onClick={()=>setParentGender(p.k)}
@@ -353,13 +353,8 @@ export function OnboardingFlow({ onFinish }){
           <div>
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
+            {/* [사용자 확정 2026-10-02] 오늘 미션(필수)을 위로, 반복 숙제(선택)를 아래로 */}
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 4px"}}>
-              반복 숙제 <span style={tagOpt}>선택</span>
-            </p>
-            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>학원에 갈 때마다 하는 숙제예요.</p>
-            <input value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 단어 5개 암기" style={inp}/>
-
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"24px 0 4px"}}>
               오늘 미션 <span style={tagReq}>필수</span>
             </p>
             <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>오늘 하루만 하는 일이에요.</p>
@@ -376,6 +371,12 @@ export function OnboardingFlow({ onFinish }){
             <input autoFocus value={mission} onChange={e=>setMission(e.target.value)}
               placeholder={missionKind==="hw"?"예: 문제집 5쪽":"예: 책가방 스스로 챙기기"} style={inp}
               onKeyDown={e=>e.key==="Enter"&&cur.canNext()&&next()}/>
+
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"24px 0 4px"}}>
+              반복 숙제 <span style={tagOpt}>선택</span>
+            </p>
+            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>학원에 갈 때마다 하는 숙제예요.</p>
+            <input value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 단어 5개 암기" style={inp}/>
           </div>
         )}
       </div>
