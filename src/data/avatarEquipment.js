@@ -250,8 +250,9 @@ export const AVATAR_CATALOG = [
      원화 맨 위의 턱 곡선을 지우고, 후드 사이 목 중심(x255.5)을 여아 목 중심 x512.5 에, 원화 턱선 y14 를 여아 턱선 y361 에 맞췄다.
      배율 0.62 — 원화 손이 아바타 손 자리(x357~417·y560~658)를 덮어 손이 두 쌍으로 안 보인다(흰 수영복 비침 0). 원화 목은 페이드. img ?v=4 · thumb ?v=2.
      [2026-10-02] 사용자 요청 — 옷에 그려진 손만 보이게, 입었을 때 손을 뺀 몸(bodyImgGirl)을 쓴다.
-     [2026-10-02] 사용자 조정 — 위치(턱선 y361)는 그대로 두고 0.62 → 0.6577(약 6% 키움). 손을 뺀 몸도 새 소매 자리에 맞춰 다시 만들었다. img ?v=5 · body ?v=2. */
-  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, bodyImgGirl: "assets/avatar/base/body-girl-nohands.webp?v=2", img: "assets/avatar/top/magic-outfit-girl.webp?v=5",  thumb: "assets/avatar/thumb/top_magic.webp?v=3" },
+     [2026-10-02] 사용자 조정 — 위치(턱선 y361)는 그대로 두고 0.62 → 0.6577(약 6% 키움). 손을 뺀 몸도 새 소매 자리에 맞춰 다시 만들었다. img ?v=5 · body ?v=2.
+     [2026-10-02] 다시 키움 0.6577 → 0.698(×1.02×1.02×1.01×1.01), 위치 그대로. 목 양옆 어깨 노출 2px. img ?v=6 · body ?v=3. */
+  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, bodyImgGirl: "assets/avatar/base/body-girl-nohands.webp?v=3", img: "assets/avatar/top/magic-outfit-girl.webp?v=6",  thumb: "assets/avatar/thumb/top_magic.webp?v=4" },
   /* 하늘 나들이 옷 — 이 원화만 '입은 전신 그림'이 아니라 '옷만 오려 낸 그림'으로 왔다.
      게다가 그린 몸이 베이스 v7 보다 다리가 길어서, 같이 온 '타이츠 있는 판'은
      어깨에 맞추면 타이츠가 발등까지 내려오고 발목에 맞추면 소매가 팔보다 좁았다.
