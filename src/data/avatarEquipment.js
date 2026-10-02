@@ -248,8 +248,9 @@ export const AVATAR_CATALOG = [
   { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp?v=3", thumb: "assets/avatar/thumb/top_picnic.webp" },
   /* [2026-10-02] 여아 별빛 마법사 옷 새 원화로 교체 — 보라 후드 망토(별 브로치) + 연보라 원피스·별 무늬 치마, 소매 끝에 치마를 잡은 손까지 그려져 있다(사용자 원화).
      원화 맨 위의 턱 곡선을 지우고, 후드 사이 목 중심(x255.5)을 여아 목 중심 x512.5 에, 원화 턱선 y14 를 여아 턱선 y361 에 맞췄다.
-     배율 0.62 — 원화 손이 아바타 손 자리(x357~417·y560~658)를 덮어 손이 두 쌍으로 안 보인다(흰 수영복 비침 0). 원화 목은 페이드. img ?v=4 · thumb ?v=2. */
-  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, img: "assets/avatar/top/magic-outfit-girl.webp?v=4",  thumb: "assets/avatar/thumb/top_magic.webp?v=2" },
+     배율 0.62 — 원화 손이 아바타 손 자리(x357~417·y560~658)를 덮어 손이 두 쌍으로 안 보인다(흰 수영복 비침 0). 원화 목은 페이드. img ?v=4 · thumb ?v=2.
+     [2026-10-02] 사용자 요청 — 옷에 그려진 손만 보이게, 입었을 때 손을 뺀 몸(bodyImgGirl)을 쓴다. */
+  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, bodyImgGirl: "assets/avatar/base/body-girl-nohands.webp", img: "assets/avatar/top/magic-outfit-girl.webp?v=4",  thumb: "assets/avatar/thumb/top_magic.webp?v=2" },
   /* 하늘 나들이 옷 — 이 원화만 '입은 전신 그림'이 아니라 '옷만 오려 낸 그림'으로 왔다.
      게다가 그린 몸이 베이스 v7 보다 다리가 길어서, 같이 온 '타이츠 있는 판'은
      어깨에 맞추면 타이츠가 발등까지 내려오고 발목에 맞추면 소매가 팔보다 좁았다.
@@ -475,6 +476,12 @@ export const isItemForGender = (it, gender) => !it.forGender || !gender || it.fo
    여아일 때만 다르게 두고 싶으면 hidesHeadGirl 을 붙인다. 없으면 hidesHead 그대로. */
 export const itemHidesHead = (it, gender) =>
   (gender === "girl" && it && it.hidesHeadGirl !== undefined) ? !!it.hidesHeadGirl : !!(it && it.hidesHead);
+
+/* ── 몸 그림을 바꾸는 장비 ───────────────────────────────────────────────
+   옷 원화에 손까지 그려져 있으면 베이스 손과 두 쌍으로 겹친다. 그런 옷은 손을 뺀 몸 그림을
+   bodyImg(남아) / bodyImgGirl(여아) 로 달아 두고, 입었을 때만 베이스 몸 대신 그걸 그린다. */
+export const itemBodySrc = (it, gender) =>
+  !it ? null : (gender === "girl" ? (it.bodyImgGirl || null) : (it.bodyImg || null));
 
 /* ── 그림 대기 아이템 ────────────────────────────────────────────────────
    [버그 2026-08-15] 카탈로그에는 있는데 img 파일이 없는 아이템이 3종 있었다
