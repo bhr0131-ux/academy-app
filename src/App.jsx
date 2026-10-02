@@ -157,7 +157,8 @@ const initOnboarding = {
 /* [사용자 확정 2026-08-19] 달력을 '더보기' 밖으로 꺼내 미션 옆 칸으로 올렸다.
    학원 칸이 빠지면서 아래 바에 자리가 하나 남아 있었다.
    남은 셋은 학원비 → 결석·보충 → 기타 순서 그대로 둔다. */
-const MORE_TABS = [{ k:"fee", l:"학원비" }, { k:"absence", l:"결석·보충" }, { k:"etc", l:"기타" }];
+/* [사용자 확정 2026-10-02] 기타를 하단 칸으로 꺼내고 달력을 더보기 안으로 넣었다 */
+const MORE_TABS = [{ k:"calendar", l:"달력" }, { k:"fee", l:"학원비" }, { k:"absence", l:"결석·보충" }];
 const isMoreTab = (t) => MORE_TABS.some(m => m.k === t);
 
 /* 엄마용을 되살려 주는 시간 (사용자 요청: '잠깐' 다른 앱 갔다 온 경우).
@@ -5274,7 +5275,7 @@ export default function App() {
                 style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
               {parentPin==="1234"&&!pinHintSeen&&(
                 <p style={{fontSize:13,fontWeight:700,color:th.main,background:`${th.main}12`,borderRadius:10,padding:"9px 12px",margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
-                  💡 처음 비밀번호는 <b>1234</b> 예요.<br/>더보기 &gt; 기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
+                  💡 처음 비밀번호는 <b>1234</b> 예요.<br/>기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
                 </p>
               )}
               <button onClick={submitGatePin}
@@ -5580,7 +5581,7 @@ export default function App() {
               style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
             {parentPin==="1234"&&!pinHintSeen&&(
               <p style={{fontSize:13,fontWeight:700,color:th.main,background:`${th.main}12`,borderRadius:10,padding:"9px 12px",margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
-                💡 처음 비밀번호는 <b>1234</b> 예요.<br/>더보기 &gt; 기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
+                💡 처음 비밀번호는 <b>1234</b> 예요.<br/>기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
               </p>
             )}
             <button onClick={submitGatePin}
@@ -6291,7 +6292,7 @@ export default function App() {
       {/* ── 하단 고정 메뉴 (사용자 확정 2026-08-09) ──
            위쪽에 몰려 있던 여섯 칸 탭을 화면 맨 아래 다섯 칸으로 옮겼다.
            스크롤과 상관없이 늘 같은 자리에 있고, 기기 안전영역만큼 아래를 더 띄운다.
-           '더보기'는 학원비·결석·기타를 묶은 칸이라 그 셋 중 어디에 있어도 켜져 보인다. */}
+           '더보기'는 달력·학원비·결석을 묶은 칸이라 그 셋 중 어디에 있어도 켜져 보인다. */}
       {(()=>{
         /* [사용자 확정 2026-08-10] 팝업이 떠 있는 동안엔 하단 메뉴를 감춘다.
            예전엔 학원 수정 중에 아래 '홈'을 눌러도 팝업에 가려 화면이 안 바뀌어
@@ -6299,7 +6300,7 @@ export default function App() {
         if(anyModalOpen) return null;
         // 다른 칸으로 갈 땐 열려 있던 '더보기' 메뉴를 먼저 닫는다
         const go=(k)=>()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab(k); };   // 미션·보상 밖으로 나가면 잠금이 다시 걸린다
-        const MORE_ICON={fee:"fee",absence:"absence",etc:"settings"};
+        const MORE_ICON={calendar:"calendar",fee:"fee",absence:"absence"};
         // 비활성 색은 따뜻한 갈회색 대신 중성 회청색 — 화면의 파랑 계열과 겉돌지 않게 (사용자 확정 2026-08-10)
         return (
           <ParentNav accent={th.main} dim="#8A93A0" maxWidth={430} parentRole={PT.role}
@@ -6321,9 +6322,8 @@ export default function App() {
               // 보상은 누를 때마다 PIN을 다시 받는다 (goRewardTab이 그 규칙을 갖고 있다)
               { key:"reward",   label:"보상",   icon:"reward",   active:tab==="reward",
                 onPress:()=>{ setMoreMenuOpen(false); goRewardTab(); } },
-              /* [사용자 확정 2026-08-20] 달력을 '더보기' 안에서 꺼내 보상과 더보기 사이에 뒀다
-                 ('학원' 칸이 빠지면서 남은 자리). 두 번 눌러야 열리던 화면이 한 번이 된다. */
-              { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar", onPress:go("calendar") },
+              /* [사용자 확정 2026-10-02] 이 자리에 있던 달력은 '더보기' 안으로 넣고, 기타를 꺼냈다. */
+              { key:"etc",      label:"기타",   icon:"settings", active:tab==="etc",      onPress:go("etc") },
               // 더보기는 화면을 바꾸지 않고 '위로 열리는 메뉴'만 띄운다 (사용자 확정 2026-08-09)
               { key:"more",     label:"더보기", icon:"more",     active:isMoreTab(tab)||moreMenuOpen,
                 onPress:()=>setMoreMenuOpen(v=>!v) },
