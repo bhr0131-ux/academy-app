@@ -49,7 +49,10 @@ export default function PageFlip({ flipKey, order = 0, total = 0, duration = 620
   const dir = prev ? prev.dir : 1;
   const ease = "cubic-bezier(.35,.08,.28,1)";
   return (
-    <div style={{ position: "relative", perspective: 1400 }}>
+    /* [버그 수정 2026-10-02] 원근(perspective)을 늘 켜 두면 안쪽 수첩 그림의 drop-shadow 가
+       휴대폰 크롬에서 3D 합성층으로 다시 그려지며 수첩 둘레가 어둡게 깜빡였다(사용자 지적).
+       넘기는 동안에만 켠다. */
+    <div style={{ position: "relative", perspective: prev ? 1400 : "none" }}>
       <style>{`
         @keyframes pfOut{0%{transform:rotateY(0);filter:brightness(1);opacity:1}55%{opacity:1;filter:brightness(.86)}100%{transform:rotateY(-132deg);filter:brightness(.7);opacity:0}}
         @keyframes pfIn{0%{transform:rotateY(-132deg);opacity:0;filter:brightness(.7)}38%{opacity:1;filter:brightness(.86)}100%{transform:rotateY(0);filter:brightness(1);opacity:1}}
