@@ -146,6 +146,7 @@ export function OnboardingFlow({ onFinish }){
   const inp={width:"100%",padding:"15px 16px",borderRadius:14,border:"1.5px solid #E3E8F0",fontSize:17,boxSizing:"border-box",outline:"none",fontWeight:600};
   const lbl={fontSize:22,fontWeight:900,color:"#1A1A35",margin:"0 0 6px",lineHeight:1.3};
   /* whiteSpace:pre-line — 안내 문장에 \n 을 넣어 문장 단위로 줄을 나눈다 (사용자 확정 2026-08-11) */
+  const MISSION_GAP=40;
   const sub={fontSize:14,color:"#8890B0",margin:"0 0 24px",fontWeight:600,lineHeight:1.5,whiteSpace:"pre-line"};
   /* '(선택)'과 '필수' 가 괄호 유무·굵기까지 달라 서로 다른 것처럼 보였다 →
      모양은 하나로 두고 색만 다르게 (사용자 확정 2026-08-11) */
@@ -352,8 +353,9 @@ export function OnboardingFlow({ onFinish }){
         {cur.kind==="mission"&&(
           <div>
             <p style={lbl}>{cur.title}</p>
-            <p style={sub}>{cur.sub}</p>
-            {/* [사용자 확정 2026-10-02] 오늘 미션(필수)을 위로, 반복 숙제(선택)를 아래로 */}
+            <p style={{...sub,marginBottom:MISSION_GAP}}>{cur.sub}</p>
+            {/* [사용자 확정 2026-10-02] 오늘 미션(필수)을 위로, 반복 숙제(선택)를 아래로.
+                안내문↔오늘 미션, 오늘 미션↔반복 숙제 간격을 같은 값(MISSION_GAP)으로 넓혔다. */}
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 4px"}}>
               오늘 미션 <span style={tagReq}>필수</span>
             </p>
@@ -372,7 +374,7 @@ export function OnboardingFlow({ onFinish }){
               placeholder={missionKind==="hw"?"예: 문제집 5쪽":"예: 책가방 스스로 챙기기"} style={inp}
               onKeyDown={e=>e.key==="Enter"&&cur.canNext()&&next()}/>
 
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"24px 0 4px"}}>
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:`${MISSION_GAP}px 0 4px`}}>
               반복 숙제 <span style={tagOpt}>선택</span>
             </p>
             <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>학원에 갈 때마다 하는 숙제예요.</p>
