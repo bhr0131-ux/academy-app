@@ -565,3 +565,11 @@ bbox로 여백만 잘라내고 배포본은 높이 480px로 축소했다(전부 
 | thumb-src-top_hoodie_mint.webp | **상점 목록 그림 남아 바다 탐험대 (top_hoodie_mint, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 270×298 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=3). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_hoodie.webp |
 | thumb-src-top_pirate.webp | **상점 목록 그림 남아 꼬마 해적단 (top_pirate, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 261×281 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=2). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_pirate.webp |
 | thumb-src-top_vest.webp | **상점 목록 그림 남아 정글 탐험대 (top_vest, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 262×283 투명 배경, 세로 160px 로 줄여 탑재(남아 thumb ?v=6). 원본 PNG 의 eXIf 조각 CRC 가 깨져 있어 OpenCV 로 읽었다 | avatar/thumb/top_vest.webp |
+| thumb-src-top_vest-girl.webp | **상점 목록 그림 여아 들꽃 탐험가 (top_vest, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 259×265 투명 배경, 세로 160px 로 줄여 탑재(thumbGirl ?v=3) | avatar/thumb/top_vest-girl.webp |
+| thumb-src-top_picnic.webp | **상점 목록 그림 여아 딸기 소풍룩 (top_picnic, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 272×252 투명 배경, 세로 160px 로 줄여 탑재(thumb ?v=3) | avatar/thumb/top_picnic.webp |
+| thumb-src-top_magic.webp | **상점 목록 그림 여아 달빛 마법사 (top_magic, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 285×280 투명 배경, 세로 160px 로 줄여 탑재(thumb ?v=5) | avatar/thumb/top_magic.webp |
+| thumb-src-top_bakery_girl.webp | **상점 목록 그림 여아 핑크 파티시에 (top_bakery_girl, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 268×266 투명 배경, 세로 160px 로 줄여 탑재(thumb ?v=2) | avatar/thumb/top_bakery.webp |
+| thumb-src-top_raincoat_girl.webp | **상점 목록 그림 여아 노란 우비룩 (top_raincoat_girl, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 299×274 투명 배경, 세로 160px 로 줄여 탑재(thumb ?v=3) | avatar/thumb/top_raincoat.webp |
+| thumb-src-top_delivery_girl.webp | **상점 목록 그림 여아 파랑 우편부 (top_delivery_girl, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 283×278 투명 배경, 세로 160px 로 줄여 탑재(thumb ?v=2) | avatar/thumb/top_delivery.webp |
+| thumb-src-top_pirate-girl.webp | **상점 목록 그림 여아 꼬마 해적단 (top_pirate, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 292×286 투명 배경, 세로 160px 로 줄여 탑재(thumbGirl ?v=4) | avatar/thumb/top_pirate-girl.webp |
+| thumb-src-top_space-girl.webp | **상점 목록 그림 여아 별빛 우주인 (top_space, 사용자 원화 2026-10-02)** — 입히는 옷이 아니라 상점 카드에만 보이는 그림. 292×309 투명 배경, 세로 160px 로 줄여 탑재(thumbGirl ?v=5) | avatar/thumb/top_space-girl.webp |
