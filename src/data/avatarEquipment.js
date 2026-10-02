@@ -59,7 +59,7 @@ export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; 
    여아 갈래머리 모양이 달라졌다). 원화 캔버스·알파 상자·목선 y가 v7과 거의 같아
    (남 630 · 여 578 그대로 맞았다 — 겹쳐서 확인함) 위 탑재 공식을 그대로 재사용했다.
    파일명은 그대로 덮어썼고 경로에 ?v=8 을 붙여 기존 기기의 캐시를 끊는다. */
-export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=8";
+export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=9";
 export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=8";
 export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=8";
 export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp?v=8";
