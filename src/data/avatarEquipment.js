@@ -203,8 +203,10 @@ export const AVATAR_CATALOG = [
      남아 탑재값은 배율 0.58 · 가로만 1.06배 · 깃 위끝 y382 (art-src/README 참고).
      [2026-08-21] 가랑이 V 틈으로 베이스 흰 속옷이 비쳐서 그 자리만 반바지 색으로 메웠다.
      옷걸이에 건 모양이라 어깨선이 처져 있어서, 깃을 기본 반팔티 자리(y411)에 맞추면
-     어깨 위에 맨살 띠가 남는다. 세로를 올려야 없어진다. */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=4", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_vest.webp", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
+     어깨 위에 맨살 띠가 남는다. 세로를 올려야 없어진다.
+     [2026-10-02] 남아 그림 교체 (사용자 원화 v2 — 초록 긴소매 + 카키 조끼 + 카키 반바지).
+     베이스 v9 남아에 맞춰 배율 0.65 · 가로 1.02배 · 위끝 y402 · 중심 515 (art-src/README 참고). */
+  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=5", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_vest.webp?v=2", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
