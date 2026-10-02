@@ -72,7 +72,7 @@ export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
   const items=[
     { icon:NAV_ICONS.home,     name:"홈", desc:"오늘 챙길 일과 학원 일정을 한눈에 보고, 학원도 여기서 등록해요." },
     { icon:NAV_ICONS.mission,  name:"미션", desc:"날짜별 미션과 점수를 관리해요." },
-    { icon:NAV_ICONS.reward,   name:"보상", desc:"코인으로 바꿀 보상을 정하고, 아이가 신청하면 승인해요." },
+    { icon:NAV_ICONS.reward,   name:"보상", desc:"보상 목록을 수정하고,\n아이가 보상을 신청하면 승인해요." },
     { icon:NAV_ICONS.more,     name:"더보기", desc:"달력 · 학원비 · 결석·보충 · 기타가 여기 있어요." },
     { icon:<CareIcon name="lock" size={23}/>, name:"미션·보상은 잠금",
       desc:`이곳은 ${parentRole} 권한이라서\n비밀번호를 한번 물어봐요.\n(초기 비밀번호 1234).` },
@@ -342,11 +342,12 @@ export function OnboardingFlow({ onFinish }){
         {cur.kind==="routine"&&(
           <div>
             <p style={lbl}>{cur.title}</p>
-            <p style={sub}>{cur.sub}</p>
+            {/* [사용자 확정 2026-10-02] 미션 화면과 같은 간격(MISSION_GAP)으로 넓혔다 */}
+            <p style={{...sub,marginBottom:MISSION_GAP}}>{cur.sub}</p>
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 8px"}}>항상 챙길 준비물 <span style={tagOpt}>선택</span></p>
             <input autoFocus value={supply} onChange={e=>setSupply(e.target.value)} placeholder="예: 교재, 악보" style={inp}
               onKeyDown={e=>e.key==="Enter"&&next()}/>
-            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"10px 2px 0",lineHeight:1.6}}>
+            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"14px 2px 0",lineHeight:1.6}}>
               학원 카드와 홈 화면에 그날 준비물로 나와요.
             </p>
           </div>
