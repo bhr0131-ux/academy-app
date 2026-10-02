@@ -287,6 +287,10 @@ export const AVATAR_CATALOG = [
      [2026-10-02 격자 확정] 턱을 지울 때 깃 끝 윤곽선까지 지워져 잘려 보였다 → 턱 살과 그 둘레만 지우게 고쳐 되살림.
      사용자가 격자로 보고 배율 2% 줄이고(0.7056) 위로 3(원화 y28 → y399) 확정. 탑재 상자 (359,393)-(665,737). */
   { id: "top_beach_boy",  slot: "top",   label: "비치룩",       emoji: "🌺", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/beach-outfit-boy.webp?v=2", thumb: "assets/avatar/thumb/top_beach.webp?v=2" },
+  /* 보드룩 [2026-10-02] — 크림 후드(남색·청록 소매) + 남색 카고 반바지 한 벌(사용자 원화). 비치룩과 같은 방식:
+     원화 목 중심(x228.95)을 x516 에, 원화 턱선 y25 를 y399 에 고정하고 어깨가 다 가려지는 가장 작은 배율 0.71.
+     턱(위 가장자리에 닿는 살 덩어리 + 둘레 갈색 선)을 지우고 목 위쪽(원화 y26~48)은 페이드로 베이스 목과 섞었다. */
+  { id: "top_board_boy",  slot: "top",   label: "보드룩",       emoji: "🛹", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/board-outfit-boy.webp", thumb: "assets/avatar/thumb/top_board.webp" },
   /* 도토리 탐험복 — 남아 (사용자 원화 2026-09-26). 크림 셔츠 + 나뭇잎 망토 +
      도토리 금브로치 + 가죽 벨트 + 갈색 카고 반바지.
      원화가 '옷만 오려 낸 깨끗한 그림'이라(연결 조각 1개·안쪽 구멍 0) 색으로
