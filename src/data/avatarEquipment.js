@@ -277,7 +277,10 @@ export const AVATAR_CATALOG = [
   /* [사용자 확정 2026-09-26] 이름을 '민트꽃 후드' → '민트 후드' 로 줄였다.
      id(top_hoodie_mint)는 그대로 둔다 — 보유·착용 기록이 id 로 저장돼 있어서
      바꾸면 이미 산 아이가 옷을 잃는다. */
-  { id: "top_hoodie_mint", slot: "top",  label: "민트 후드",    emoji: "🧥", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/hoodie-boy.webp", thumb: "assets/avatar/thumb/top_hoodie.webp" },
+  /* [2026-10-02] 새 원화로 교체 (민트 집업 후드 + 흰 티 + 남색 카고 긴바지 한 벌, 사용자 원화).
+     원화 위쪽에 함께 그려진 턱으로 위치를 잡았다(배율 0.695 · 왼쪽 위 (355,365)) — 턱이 베이스 턱과 겹친다.
+     턱은 지우고 목 살은 턱선 아래(원화 y53~)부터 남겼다 — 다 지우면 구멍으로 베이스 민소매 끈이 비친다. */
+  { id: "top_hoodie_mint", slot: "top",  label: "민트 후드",    emoji: "🧥", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/hoodie-boy.webp?v=2", thumb: "assets/avatar/thumb/top_hoodie.webp?v=2" },
   /* 도토리 탐험복 — 남아 (사용자 원화 2026-09-26). 크림 셔츠 + 나뭇잎 망토 +
      도토리 금브로치 + 가죽 벨트 + 갈색 카고 반바지.
      원화가 '옷만 오려 낸 깨끗한 그림'이라(연결 조각 1개·안쪽 구멍 0) 색으로
