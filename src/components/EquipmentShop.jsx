@@ -223,10 +223,15 @@ export default function EquipmentShop({
   /* 카드를 누르면 = 입어만 본다. 사거나 입는 건 하단 바에서 한 번 더 누른다.
      [사용자 확정 2026-10-01] 미리보기로 입은 카드를 한 번 더 누르면 벗는다 —
      안 사고 '되돌리기'까지 누르러 가지 않아도 그 자리에서 바로 벗을 수 있어야 한다.
-     (실제로 장착된 것을 벗는 건 하단 바의 '벗기' 버튼이 따로 맡는다 — 여긴 미리보기만) */
+     [버그 수정 2026-10-02] 실제로 입은 카드는 다시 눌러도 선택만 돼서, 입어보기처럼
+     한 번 더 눌러 벗으려던 아이에게 고장으로 보였다(사용자 지적). 이미 고른 상태에서
+     한 번 더 누르면 벗는다 — 처음 누를 때는 선택만 해서 실수로 벗겨지지 않게 한다. */
   const pick = (item) => {
-    /* 이미 입고 있는 걸 누르면 무대는 그대로 — 입어보기를 걸 필요가 없다 */
     if (equipped[item.slot] === item.id) {
+      if (sel && sel.id === item.id && !item.starter && getSlot(item.slot)?.removable) {
+        onToggle && onToggle(item.id);
+        return;
+      }
       setSelectedId(item.id);
       setPreview((p) => { if (!(item.slot in p)) return p; const n = { ...p }; delete n[item.slot]; return n; });
       return;
