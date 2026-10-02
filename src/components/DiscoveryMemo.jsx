@@ -14,13 +14,14 @@ export default function DiscoveryMemo({ found, emoji, text, count, onOpenBook })
   return (
     <div style={{ position: "relative", margin: "10px 10px 16px",
       filter: "drop-shadow(0 2px 3px rgba(110,84,50,0.16)) drop-shadow(0 6px 10px rgba(110,84,50,0.08))" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px 11px 16px",
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: found ? "12px 14px 11px 16px" : "12px 14px 11px 22px",
         clipPath: TORN_EDGE,
         background: "radial-gradient(120% 140% at 20% 0%, #FFFBEE 0%, #FBF3DD 55%, #F6EBCF 100%)," +
           "repeating-linear-gradient(8deg, rgba(160,130,80,0.035) 0 2px, transparent 2px 7px)",
         backgroundBlendMode: "multiply" }}>
-        <span style={{ fontSize: 25, lineHeight: 1, flexShrink: 0, width: 32, textAlign: "center",
-          opacity: found ? 1 : 0.85 }}>{found ? emoji : "🐾"}</span>
+        {/* [사용자 확정 2026-10-02] 힌트 날의 🐾는 뺐다 — 그 자리만큼 힌트가 한 줄에 더 들어간다.
+            찾은 날은 무엇을 찾았는지가 중요해 그 발견 이모지는 남긴다 */}
+        {found && <span style={{ fontSize: 25, lineHeight: 1, flexShrink: 0, width: 32, textAlign: "center" }}>{emoji}</span>}
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ margin: 0, fontFamily: FONT, fontSize: 10.5, fontWeight: 400, color: "#9C8A6E", letterSpacing: 0.3 }}>
             오늘의 발견
