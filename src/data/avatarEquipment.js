@@ -256,12 +256,6 @@ export const AVATAR_CATALOG = [
      [2026-10-02] 사용자 조정 — 위치(턱선 y361)는 그대로 두고 0.62 → 0.6577(약 6% 키움). 손을 뺀 몸도 새 소매 자리에 맞춰 다시 만들었다. img ?v=5 · body ?v=2.
      [2026-10-02] 다시 키움 0.6577 → 0.698(×1.02×1.02×1.01×1.01), 위치 그대로. 목 양옆 어깨 노출 2px. img ?v=6 · body ?v=3. */
   { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, bodyImgGirl: "assets/avatar/base/body-girl-nohands.webp?v=3", img: "assets/avatar/top/magic-outfit-girl.webp?v=6",  thumb: "assets/avatar/thumb/top_magic.webp?v=4" },
-  /* 하늘 나들이 옷 — 이 원화만 '입은 전신 그림'이 아니라 '옷만 오려 낸 그림'으로 왔다.
-     게다가 그린 몸이 베이스 v7 보다 다리가 길어서, 같이 온 '타이츠 있는 판'은
-     어깨에 맞추면 타이츠가 발등까지 내려오고 발목에 맞추면 소매가 팔보다 좁았다.
-     그래서 타이츠 없는 판을 골라 상체만 맞췄다 — 다리 길이 차이가 상관없어진다.
-     배율 0.74 · 깃 위끝을 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (356,372)-(666,751). */
-  { id: "top_sky",        slot: "top",   label: "하늘 나들이 옷", emoji: "☁️", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/sky-outing-girl.webp", thumb: "assets/avatar/thumb/top_sky.webp" },
   /* 베이커리룩 [2026-10-02] — 크림 셔츠 + 분홍 깃·앞치마·주름치마 원피스(사용자 원화). 원화 목 외곽선 중심(x174.75)을 여아 목 중심 x512.5 에,
      목이 어깨로 넓어지는 원화 y18 을 여아 같은 지점 y372 에 맞추고 흰 수영복이 다 가려지는 가장 작은 배율 0.71.
      원화 목 살·목 옆선은 위에서 아래로 페이드해 베이스 목과 섞었다. */
@@ -439,6 +433,7 @@ export const RETIRED_ITEM_INFO = {
   back_backpack_sky:  { label: "하늘 배낭",   price: 270 },
   back_backpack_cream:{ label: "크림 배낭",   price: 290 },
   hat_astronaut:      { label: "우주 헬멧",   price: 350 },   // [2026-09-30] 사용자가 미리보기 보고 바로 빼 달라고 해서 뺐다 (그림은 남아 있다)
+  top_sky:            { label: "하늘 나들이 옷", price: 350 },   // [2026-10-02] 사용자 요청으로 뺐다 — 산 아이에게 환불 (그림은 남아 있다)
   /* 더 예전에 은퇴한 것들 — 이미 환불됐을 수 있지만 남아 있으면 여기서 처리된다 */
   shoes_boots_desert: { label: "사막 부츠",   price: 140 },
   shoes_boots_ribbon: { label: "리본 부츠",   price: 150 },
