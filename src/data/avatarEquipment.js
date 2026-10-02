@@ -342,7 +342,10 @@ export const AVATAR_CATALOG = [
      비치룩·보드룩과 같은 방식: 원화 목 중심(x227.43)을 x516 에, 턱선 y14 를 y399 에 고정하고 어깨·속옷이 다 가려지는
      가장 작은 배율 0.71. 턱은 지우고, 목 살(크림 깃과 R−B 로 구분)만 페이드로 베이스 목과 섞었다. 탑재 상자 (355,391)-(671,782). */
   { id: "top_acorn",      slot: "top",   label: "도토리 탐험복", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", coversBottom: true, img: "assets/avatar/top/acorn-outfit-boy.webp?v=4", thumb: "assets/avatar/thumb/top_acorn.webp?v=4" },
-  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp", thumb: "assets/avatar/thumb/top_space.webp?v=3", thumbGirl: "assets/avatar/thumb/top_space-girl.webp" },
+  /* [2026-10-02] 여아 우주복 새 원화로 교체 — 흰 우주복(보라 목둘레·어깨·무릎 패드, 금 버클), 발목까지 오는 한 벌(사용자 원화).
+     원화 맨 위의 턱선과 목둘레 안쪽 목 살을 지워 베이스 목이 그대로 보이게 하고, 목둘레 안 목 중심(x214)을 여아 목 중심 x512.5 에,
+     원화 턱 자리 y2 를 여아 턱선 y361 에 맞췄다. 배율 0.70 — 흰 수영복·다리가 다 가려지고 발목·손목에서 끝난다. imgGirl ?v=2. */
+  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=2", thumb: "assets/avatar/thumb/top_space.webp?v=3", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=2" },
 
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
