@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   getAvatarLayers, DEFAULT_AVATAR_BG, AVATAR_BASE_IMG, AVATAR_BASE_IMG_GIRL, AVATAR_BASE_EMOJI, AVATAR_BASE_Z,
   AVATAR_BASE_BODY_IMG, AVATAR_BASE_HEAD_IMG, AVATAR_BASE_BODY_IMG_GIRL, AVATAR_BASE_HEAD_IMG_GIRL,
-  itemHidesHead, itemBodySrc,
+  itemHidesHead, itemBodySrc, itemLabel, itemEmoji,
 } from "../data/avatarEquipment.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -68,7 +68,7 @@ function AvatarLayer({ item, emojiPos, size, gender = "boy" }) {
       <img
         key={src}
         src={"/" + src.replace(/^\/+/, "")}
-        alt={item.label}
+        alt={itemLabel(item, gender)}
         onError={() => (useGirl ? setGirlFailed(true) : setImgFailed(true))}
         draggable={false}
         style={{
@@ -94,7 +94,7 @@ function AvatarLayer({ item, emojiPos, size, gender = "boy" }) {
         userSelect: "none", pointerEvents: "none",
       }}
     >
-      {item.emoji}
+      {itemEmoji(item, gender)}
     </span>
   );
 }

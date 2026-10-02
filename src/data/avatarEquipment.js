@@ -237,7 +237,7 @@ export const AVATAR_CATALOG = [
   /* [2026-10-02] 여아 사파리 옷 새 원화로 교체 — 크림 블라우스(데이지 자수 깃) + 벨트 초록 반바지(사용자 원화).
      베이커리룩과 같은 방식: 원화 목 외곽선 중심(x181)을 여아 목 중심 x512.5 에, 목이 어깨로 넓어지는 원화 y15 를 y372 에 맞추고
      배율 0.70(원화 목 폭 63 → 여아 목 44 와 같아지는 값, 수영복 비침 1px). 원화 목은 페이드. imgGirl ?v=5 · thumbGirl ?v=2. */
-  { id: "top_vest",       slot: "top",   label: "사파리 옷",   emoji: "🦺", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=9", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_vest.webp?v=5", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp?v=2" },
+  { id: "top_vest",       slot: "top",   label: "정글 탐험대",   emoji: "🌿", labelGirl: "들꽃 탐험가", emojiGirl: "🌼", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=9", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_vest.webp?v=5", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp?v=2" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
@@ -248,27 +248,27 @@ export const AVATAR_CATALOG = [
   /* [2026-10-02] 딸기 소풍 옷 새 원화로 교체 — 분홍 깅엄 짧은 재킷 + 흰 둥근 깃 블라우스·분홍 리본 + 분홍 반바지(사용자 원화, 옷만 오려 낸 그림).
      위의 '입은 전신 그림' 방식은 옛 판 기록. 원화 목 외곽선 중심(x198.5)을 여아 목 중심 x512.5 에, 원화 y14(목이 깃으로 들어가기 직전)를 y370 에 맞췄다.
      원화 목 폭 64px 를 베이스 목 폭 45px 에 맞춘 배율 0.70 — 흰 수영복 비침 0. 원화 목 위쪽은 페이드로 베이스 목과 섞었다. 탑재 상자 (374,360,646,673). img ?v=4 · thumb ?v=2. */
-  { id: "top_picnic",     slot: "top",   label: "딸기 소풍 옷", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_picnic.webp?v=2" },
+  { id: "top_picnic",     slot: "top",   label: "딸기 소풍룩", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", coversBottom: true, img: "assets/avatar/top/picnic-outfit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_picnic.webp?v=2" },
   /* [2026-10-02] 여아 별빛 마법사 옷 새 원화로 교체 — 보라 후드 망토(별 브로치) + 연보라 원피스·별 무늬 치마, 소매 끝에 치마를 잡은 손까지 그려져 있다(사용자 원화).
      원화 맨 위의 턱 곡선을 지우고, 후드 사이 목 중심(x255.5)을 여아 목 중심 x512.5 에, 원화 턱선 y14 를 여아 턱선 y361 에 맞췄다.
      배율 0.62 — 원화 손이 아바타 손 자리(x357~417·y560~658)를 덮어 손이 두 쌍으로 안 보인다(흰 수영복 비침 0). 원화 목은 페이드. img ?v=4 · thumb ?v=2.
      [2026-10-02] 사용자 요청 — 옷에 그려진 손만 보이게, 입었을 때 손을 뺀 몸(bodyImgGirl)을 쓴다.
      [2026-10-02] 사용자 조정 — 위치(턱선 y361)는 그대로 두고 0.62 → 0.6577(약 6% 키움). 손을 뺀 몸도 새 소매 자리에 맞춰 다시 만들었다. img ?v=5 · body ?v=2.
      [2026-10-02] 다시 키움 0.6577 → 0.698(×1.02×1.02×1.01×1.01), 위치 그대로. 목 양옆 어깨 노출 2px. img ?v=6 · body ?v=3. */
-  { id: "top_magic",      slot: "top",   label: "별빛 마법사 옷", emoji: "🌟", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, bodyImgGirl: "assets/avatar/base/body-girl-nohands.webp?v=3", img: "assets/avatar/top/magic-outfit-girl.webp?v=6",  thumb: "assets/avatar/thumb/top_magic.webp?v=4" },
+  { id: "top_magic",      slot: "top",   label: "달빛 마법사", emoji: "🌙", price:DECOR_PRICE.epic, rarity: "epic", theme: "magic",  forGender: "girl", coversBottom: true, bodyImgGirl: "assets/avatar/base/body-girl-nohands.webp?v=3", img: "assets/avatar/top/magic-outfit-girl.webp?v=6",  thumb: "assets/avatar/thumb/top_magic.webp?v=4" },
   /* 베이커리룩 [2026-10-02] — 크림 셔츠 + 분홍 깃·앞치마·주름치마 원피스(사용자 원화). 원화 목 외곽선 중심(x174.75)을 여아 목 중심 x512.5 에,
      목이 어깨로 넓어지는 원화 y18 을 여아 같은 지점 y372 에 맞추고 흰 수영복이 다 가려지는 가장 작은 배율 0.71.
      원화 목 살·목 옆선은 위에서 아래로 페이드해 베이스 목과 섞었다. */
-  { id: "top_bakery_girl", slot: "top",   label: "베이커리룩",   emoji: "🥐", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/bakery-outfit-girl.webp", thumb: "assets/avatar/thumb/top_bakery.webp" },
+  { id: "top_bakery_girl", slot: "top",   label: "핑크 파티시에",   emoji: "🥐", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/bakery-outfit-girl.webp", thumb: "assets/avatar/thumb/top_bakery.webp" },
   /* 노란 우비 [2026-10-02] — 노란 우비(흰 둥근 깃·구름 주머니) + 청록 반바지 한 벌(사용자 원화). 베이커리룩과 같은 방식:
      원화 목 외곽선 중심(x226.5)을 여아 목 중심 x512.5 에, 곧은 목선이 끝나는 원화 y19 를 y372 에 맞추고
      배율 0.69(원화 목 폭 64 → 여아 목 44, 소매가 손목에서 끝난다). 원화 목은 페이드.
      [2026-10-02] 사용자 요청으로 우비 밑단 아래 청록 반바지만 5% 키웠다(허리 가운데 기준, 우비는 그대로). ?v=2 */
-  { id: "top_raincoat_girl", slot: "top", label: "노란 우비",    emoji: "☔", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/raincoat-girl.webp?v=2", thumb: "assets/avatar/thumb/top_raincoat.webp?v=2" },
+  { id: "top_raincoat_girl", slot: "top", label: "노란 우비룩",    emoji: "🌈", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/raincoat-girl.webp?v=2", thumb: "assets/avatar/thumb/top_raincoat.webp?v=2" },
   /* 배달부룩 [2026-10-02] — 하늘색 세일러 블라우스(크림 깃·파란 리본) + 파란 주름치마 원피스(사용자 원화, 검은 배경으로 받음).
      베이커리룩과 같은 방식: 원화 목 외곽선 중심(x241.25)을 여아 목 중심 x512.5 에, 곧은 목선이 끝나는 원화 y15 를 y372 에 맞추고
      흰 수영복이 다 가려지는 배율 0.60(목 폭 기준 0.58 과 거의 같다). 원화 목은 페이드. */
-  { id: "top_delivery_girl", slot: "top", label: "배달부룩",     emoji: "📦", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/delivery-outfit-girl.webp", thumb: "assets/avatar/thumb/top_delivery.webp" },
+  { id: "top_delivery_girl", slot: "top", label: "파랑 우편부",     emoji: "💌", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", coversBottom: true, img: "assets/avatar/top/delivery-outfit-girl.webp", thumb: "assets/avatar/thumb/top_delivery.webp" },
   /* 우주복 — 옷이 흰색이라 '베이스와 색이 다른 픽셀' 규칙만으로는 안 떼어졌다.
      베이스 속옷도 희고 살색과도 가까워서다. 그래서 '베이스가 살색인 자리에서만 색차를 본다'로
      바꿔서 떼어냈다(art-src/README 참고). 팔·다리까지 다 덮는 한 벌이라 상의 슬롯 하나.
@@ -296,7 +296,7 @@ export const AVATAR_CATALOG = [
      베이커리룩과 같은 방식: 원화 목 외곽선 중심(x209)을 여아 목 중심 x512.5 에, 곧은 목선이 끝나는 원화 y15 를 y372 에 맞추고
      배율 0.70(원화 목 폭 63 → 여아 목 44, 흰 수영복도 이 값부터 다 가려진다). 원화 목은 페이드. imgGirl ?v=4 · thumbGirl ?v=2.
      [2026-10-02] 사용자 수정판으로 교체 — 반바지 밑단 아래가 조금 늘었다. 같은 탑재값. imgGirl ?v=5 · thumbGirl ?v=3. */
-  { id: "top_pirate",     slot: "top",   label: "해적 옷",     emoji: "⚓", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_pirate.webp", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp?v=3" },
+  { id: "top_pirate",     slot: "top",   label: "꼬마 해적단",     emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_pirate.webp", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp?v=3" },
   /* 민트 후드 — 남아 전용 첫 아이템(forGender:"boy"). 크림 후드 + 왼팔만 보라 소매 +
      민트 후드 안감·꽃 패치 + 짙은 카고 반바지. 상·하의가 한 장이라 상의 슬롯 하나.
      원화는 옷만 오려 낸 깨끗한 그림인데 **후드 안쪽 목·가슴 살은 일부러 남겼다** —
@@ -314,17 +314,17 @@ export const AVATAR_CATALOG = [
   /* [2026-10-02] 새 원화로 교체 (민트 집업 후드 + 흰 티 + 남색 카고 긴바지 한 벌, 사용자 원화).
      원화 위쪽에 함께 그려진 턱으로 위치를 잡았다(배율 0.695 · 왼쪽 위 (355,365)) — 턱이 베이스 턱과 겹친다.
      턱은 지우고 목 살은 턱선 아래(원화 y53~)부터 남겼다 — 다 지우면 구멍으로 베이스 민소매 끈이 비친다. */
-  { id: "top_hoodie_mint", slot: "top",  label: "민트 후드",    emoji: "🧥", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/hoodie-boy.webp?v=2", thumb: "assets/avatar/thumb/top_hoodie.webp?v=2" },
+  { id: "top_hoodie_mint", slot: "top",  label: "바다 탐험대",    emoji: "🌊", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/hoodie-boy.webp?v=2", thumb: "assets/avatar/thumb/top_hoodie.webp?v=2" },
   /* 비치룩 [2026-10-02] — 꽃무늬 오렌지 셔츠 + 흰 티 + 청록 수영 반바지 한 벌(사용자 원화). 비치 테마가 없어 공용(common).
      원화 목 중심을 베이스 목 중심(x516)에, 턱선(원화 y28)을 y402 에 맞추고 어깨가 다 가려지는 배율 0.72 로 얹었다.
      턱은 지우고, 원화 턱선이 베이스 턱보다 ~7px 낮아 목 위쪽(원화 y30~52)을 서서히 투명하게 해서 베이스 목과 섞었다.
      [2026-10-02 격자 확정] 턱을 지울 때 깃 끝 윤곽선까지 지워져 잘려 보였다 → 턱 살과 그 둘레만 지우게 고쳐 되살림.
      사용자가 격자로 보고 배율 2% 줄이고(0.7056) 위로 3(원화 y28 → y399) 확정. 탑재 상자 (359,393)-(665,737). */
-  { id: "top_beach_boy",  slot: "top",   label: "비치룩",       emoji: "🌺", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/beach-outfit-boy.webp?v=2", thumb: "assets/avatar/thumb/top_beach.webp?v=2" },
+  { id: "top_beach_boy",  slot: "top",   label: "썸머 웨이브",       emoji: "🏝️", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/beach-outfit-boy.webp?v=2", thumb: "assets/avatar/thumb/top_beach.webp?v=2" },
   /* 보드룩 [2026-10-02] — 크림 후드(남색·청록 소매) + 남색 카고 반바지 한 벌(사용자 원화). 비치룩과 같은 방식:
      원화 목 중심(x228.95)을 x516 에, 원화 턱선 y25 를 y399 에 고정하고 어깨가 다 가려지는 가장 작은 배율 0.71.
      턱(위 가장자리에 닿는 살 덩어리 + 둘레 갈색 선)을 지우고 목 위쪽(원화 y26~48)은 페이드로 베이스 목과 섞었다. */
-  { id: "top_board_boy",  slot: "top",   label: "보드룩",       emoji: "🛹", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/board-outfit-boy.webp", thumb: "assets/avatar/thumb/top_board.webp" },
+  { id: "top_board_boy",  slot: "top",   label: "번개 스케이터",       emoji: "⚡", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", coversBottom: true, img: "assets/avatar/top/board-outfit-boy.webp", thumb: "assets/avatar/thumb/top_board.webp" },
   /* 도토리 탐험복 — 남아 (사용자 원화 2026-09-26). 크림 셔츠 + 나뭇잎 망토 +
      도토리 금브로치 + 가죽 벨트 + 갈색 카고 반바지.
      원화가 '옷만 오려 낸 깨끗한 그림'이라(연결 조각 1개·안쪽 구멍 0) 색으로
@@ -338,13 +338,13 @@ export const AVATAR_CATALOG = [
   /* [2026-10-02] 새 원화로 교체 (잎사귀 망토 + 크림 셔츠 + 갈색 반바지 한 벌, 사용자 원화) — 위 탑재값은 옛 판 기록.
      비치룩·보드룩과 같은 방식: 원화 목 중심(x227.43)을 x516 에, 턱선 y14 를 y399 에 고정하고 어깨·속옷이 다 가려지는
      가장 작은 배율 0.71. 턱은 지우고, 목 살(크림 깃과 R−B 로 구분)만 페이드로 베이스 목과 섞었다. 탑재 상자 (355,391)-(671,782). */
-  { id: "top_acorn",      slot: "top",   label: "도토리 탐험복", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", coversBottom: true, img: "assets/avatar/top/acorn-outfit-boy.webp?v=4", thumb: "assets/avatar/thumb/top_acorn.webp?v=4" },
+  { id: "top_acorn",      slot: "top",   label: "도토리 숲지기", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", coversBottom: true, img: "assets/avatar/top/acorn-outfit-boy.webp?v=4", thumb: "assets/avatar/thumb/top_acorn.webp?v=4" },
   /* [2026-10-02] 여아 우주복 새 원화로 교체 — 흰 우주복(보라 목둘레·어깨·무릎 패드, 금 버클), 발목까지 오는 한 벌(사용자 원화).
      원화 맨 위의 턱선과 목둘레 안쪽 목 살을 지워 베이스 목이 그대로 보이게 하고, 목둘레 안 목 중심(x214)을 여아 목 중심 x512.5 에,
      원화 턱 자리 y2 를 여아 턱선 y361 에 맞췄다. 배율 0.70 — 흰 수영복·다리가 다 가려지고 발목·손목에서 끝난다. imgGirl ?v=2.
      [2026-10-02] 사용자 조정 — 위로 5·왼쪽 1·2% 크게: 배율 0.714, 목 중심 x511.5, 턱 자리 y356. 탑재 상자 (359,355,662,891). imgGirl ?v=4.
      (?v=3 은 조정값이 안 먹고 0.68배로 잘못 들어갔던 판) */
-  { id: "top_space",      slot: "top",   label: "우주복",       emoji: "🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_space.webp?v=3", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=4" },
+  { id: "top_space",      slot: "top",   label: "우주 탐험대",       emoji: "🚀", labelGirl: "별빛 우주인", emojiGirl: "🪐", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_space.webp?v=3", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=4" },
 
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
@@ -475,6 +475,12 @@ export const isItemInSeason = (it) => !it.season || ACTIVE_SEASONS.includes(it.s
    시즌과 같은 방식이라 getAvatarItem/레이어 조회는 성별과 무관하게 동작한다
    → 이미 산·입은 아이템은 성별을 바꿔도 그대로 유지된다(데이터 안 깨짐).      */
 export const isItemForGender = (it, gender) => !it.forGender || !gender || it.forGender === gender;
+
+/* ── 성별마다 다른 이름 ──────────────────────────────────────────────────
+   남녀가 같은 id 를 쓰는데 그림이 다른 옷(사파리·우주복)은 여아 이름·이모지를
+   labelGirl / emojiGirl 로 따로 둔다. 화면에 이름을 보일 때는 이 두 함수를 쓴다. */
+export const itemLabel = (it, gender) => (it ? ((gender === "girl" && it.labelGirl) || it.label) : "");
+export const itemEmoji = (it, gender) => (it ? ((gender === "girl" && it.emojiGirl) || it.emoji) : "");
 
 /* ── 머리를 덮는 장비 ───────────────────────────────────────────────────
    모자처럼 얼굴째 덮는 그림은 베이스 '머리' 장을 안 그린다(hidesHead).

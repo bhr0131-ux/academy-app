@@ -59,7 +59,7 @@ import {
   CHAR_DISPLAY_GROWTH, CHAR_DISPLAY_AVATAR, DEFAULT_CHAR_DISPLAY_MODE,
   getDefaultEquipped, computeAvatarPurchase, computeAvatarEquipToggle,
   computeCharDisplayToggle, normalizeOwned, normalizeEquipped, getAvatarItem,
-  AVATAR_RESET_KEY, computeAvatarRefund, getRefundInfo,
+  AVATAR_RESET_KEY, computeAvatarRefund, getRefundInfo, itemLabel,
 } from "./data/avatarEquipment.js";
 
 import { Fragment, useState, useEffect, useRef } from "react";
@@ -2980,10 +2980,11 @@ export default function App() {
       }
       return;
     }
-    spendCoin(cid,res.cost,`${item.label} 꾸미기 파츠 구매`);
+    const itemName=itemLabel(item,(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy");
+    spendCoin(cid,res.cost,`${itemName} 꾸미기 파츠 구매`);
     setAvatarOwned(prev=>({...prev,[cid]:res.nextOwned}));
     setAvatarEquipped(prev=>({...prev,[cid]:res.nextEquipped}));
-    showToast(`${item.label} 획득! 🎉`);
+    showToast(`${itemName} 획득! 🎉`);
   };
 
   /* 아바타 파츠 장착/벗기 토글 */
