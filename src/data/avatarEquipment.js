@@ -41,7 +41,7 @@ export const DEFAULT_CHAR_DISPLAY_MODE = CHAR_DISPLAY_GROWTH;
    꾸미기 전용 캐릭터 1장. 모자·안경·손지물 없이 맨몸(기본옷)으로 제작된
    1024×1024 이미지. 모든 장비는 이 위에 덧씌워진다.
    아트가 아직 없으면 뷰어가 성장 3단계 캐릭터 → 이모지 순으로 폴백한다. */
-export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=9";        // 남아(머리+몸통 합본 — 폴백용)
+export const AVATAR_BASE_IMG   = "assets/avatar/base/default.webp?v=10";        // 남아(머리+몸통 합본 — 폴백용)
 export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; // 여아(합본 — 폴백용)
 /* 베이스를 '몸통'과 '머리' 두 장으로 나눠 둔다 (사용자 확정).
    모자처럼 얼굴째 덮는 장비(hidesHead)를 쓰면 머리 장을 아예 안 그리고 그 자리에 장비 그림만 얹는다.
@@ -60,9 +60,17 @@ export const AVATAR_BASE_IMG_GIRL = "assets/avatar/base/default-girl.webp?v=8"; 
    (남 630 · 여 578 그대로 맞았다 — 겹쳐서 확인함) 위 탑재 공식을 그대로 재사용했다.
    파일명은 그대로 덮어썼고 경로에 ?v=8 을 붙여 기존 기기의 캐시를 끊는다.
    [2026-10-02] 남아만 베이스 v9 (사용자 원화 — v8 을 다듬은 판). v8 과 같은 자리·높이에 맞추면
-   실루엣이 97.6% 겹쳐 장비를 다시 맞출 필요가 없다. 머리/몸통은 v8 과 같은 y405 에서 잘랐다. */
-export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=9";
-export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=9";
+   실루엣이 97.6% 겹쳐 장비를 다시 맞출 필요가 없다. 머리/몸통은 v8 과 같은 y405 에서 잘랐다.
+   [2026-10-02] 남아 베이스 v10 — **민머리 + 머리카락 머리** (사용자 확정). 모자를 쓸 때 머리카락이
+   모자 밖으로 삐져나오지 않게 하려는 구조다.
+     · body.webp = 민머리 몸 전체(머리째, 속옷 차림). 목에서 자르지 않고 맨 아래에 깐다.
+     · head.webp = 머리카락 머리. 평소에는 민머리 위에 얹혀 이 모습만 보인다.
+     · 얼굴째 덮는 모자(hidesHead)를 쓰면 head.webp 만 빠지고 민머리 위에 모자 그림이 얹힌다
+       → 남아 모자는 앞으로 얼굴까지 통째로 그려 hidesHead 를 붙인다.
+     · 속옷은 기본 반팔티·반바지(starter, 벗을 수 없음)가 늘 가린다.
+   보일 모습(민머리+머리카락)이 v9 와 98.9% 겹쳐 기존 옷·장비는 그대로 맞는다. */
+export const AVATAR_BASE_BODY_IMG      = "assets/avatar/base/body.webp?v=10";
+export const AVATAR_BASE_HEAD_IMG      = "assets/avatar/base/head.webp?v=10";
 export const AVATAR_BASE_BODY_IMG_GIRL = "assets/avatar/base/body-girl.webp?v=8";
 export const AVATAR_BASE_HEAD_IMG_GIRL = "assets/avatar/base/head-girl.webp?v=8";
 export const AVATAR_BASE_EMOJI = "🧒";
