@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   getAvatarLayers, DEFAULT_AVATAR_BG, AVATAR_BASE_IMG, AVATAR_BASE_IMG_GIRL, AVATAR_BASE_EMOJI, AVATAR_BASE_Z,
   AVATAR_BASE_BODY_IMG, AVATAR_BASE_HEAD_IMG, AVATAR_BASE_BODY_IMG_GIRL, AVATAR_BASE_HEAD_IMG_GIRL,
-  itemHidesHead,
+  itemHidesHead, itemBodySrc,
 } from "../data/avatarEquipment.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -100,12 +100,12 @@ function AvatarLayer({ item, emojiPos, size, gender = "boy" }) {
 }
 
 /* 베이스 캐릭터 — 몸통+머리 2장 → 합본 1장 → 성장 캐릭터 → 이모지 폴백 */
-function BaseCharacter({ baseCharImg, size, gender = "boy", hideHead = false }) {
+function BaseCharacter({ baseCharImg, size, gender = "boy", hideHead = false, bodyOverride = null }) {
   const [baseFailed, setBaseFailed] = useState(false);   // 합본까지 실패
   const [splitFailed, setSplitFailed] = useState(false); // 분리본만 실패 → 합본으로
   const girl = gender === "girl";
   const baseSrc = girl ? AVATAR_BASE_IMG_GIRL : AVATAR_BASE_IMG;
-  const bodySrc = girl ? AVATAR_BASE_BODY_IMG_GIRL : AVATAR_BASE_BODY_IMG;
+  const bodySrc = bodyOverride || (girl ? AVATAR_BASE_BODY_IMG_GIRL : AVATAR_BASE_BODY_IMG);
   const headSrc = girl ? AVATAR_BASE_HEAD_IMG_GIRL : AVATAR_BASE_HEAD_IMG;
   const imgStyle = { position: "absolute", inset: 0, width: "100%", height: "100%",
     objectFit: "contain", pointerEvents: "none" };
@@ -222,6 +222,7 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
     return () => { alive = false; };
   }, [hidesHeadSrc]);
   const hideHead = !!hidesHeadSrc && readySrc === hidesHeadSrc;
+  const bodyOverride = layers.map((l) => itemBodySrc(l.item, gender)).find(Boolean) || null;
 
   /* ── 속옷 가림: 상의·하의 그림이 다 준비될 때까지 캐릭터를 감춘다 ──
      베이스 몸통이 속옷 차림이라, 옷보다 몸통이 먼저 그려지면 그 사이가 보인다.
@@ -285,7 +286,7 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
         </div>
       ))}
       <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z, ...charVis }}>
-        <BaseCharacter baseCharImg={baseCharImg} size={size} gender={gender} hideHead={hideHead} />
+        <BaseCharacter baseCharImg={baseCharImg} size={size} gender={gender} hideHead={hideHead} bodyOverride={bodyOverride} />
       </div>
     </div>
   );
