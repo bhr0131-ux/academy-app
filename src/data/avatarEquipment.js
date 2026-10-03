@@ -404,8 +404,9 @@ export const AVATAR_CATALOG = [
      두 짝을 따로 잘라 원화 양말 가운데(왼짝 x82 · 오른짝 x56)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.72, 왼짝 +4·오른짝 −2,
      밑창 아래끝 y952(발 안쪽이 밑창 아래로 비치지 않게). 맨발 2px. 탑재 상자 (395,805,628,952).
      [2026-10-03] 사용자 조정 — 이름 정글 부츠 → 도토리 부츠, 두 짝 2% 크게(배율 0.7344, 밑창·양말 가운데 고정). 탑재 상자 (394,802,629,952). img ?v=2.
-     [2026-10-03] 두 짝 2% 더 크게(배율 0.7491). 탑재 상자 (393,799,631,952). img ?v=3. */
-  { id: "shoes_jungle_leaf", slot: "shoes", label: "도토리 부츠",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-leaf-boy.webp?v=3", thumb: "assets/avatar/thumb/shoes_jungle_leaf.webp" },
+     [2026-10-03] 두 짝 2% 더 크게(배율 0.7491). 탑재 상자 (393,799,631,952). img ?v=3.
+     [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 5(+4 → −1). 탑재 상자 (388,799,631,952). img ?v=4. */
+  { id: "shoes_jungle_leaf", slot: "shoes", label: "도토리 부츠",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-leaf-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_jungle_leaf.webp" },
   /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
      두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
