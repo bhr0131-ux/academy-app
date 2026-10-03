@@ -377,8 +377,9 @@ export const AVATAR_CATALOG = [
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
      배율 0.72, 밑창 아래끝 y949(밑창 홈 사이로 발가락이 비치지 않게 발바닥 y939 보다 10 아래), 왼짝 +2·오른짝 −2. 맨발 9px(밑창 홈 끝, 눈에 안 띔).
-     여아 우주 부츠처럼 옷 위로 그린다(z37, 사용자 확정 "우주 부츠는 옷 위로"). 탑재 상자 (391,824,632,949). img·thumb ?v=2. */
-  { id: "shoes_astronaut",slot: "shoes", label: "우주 부츠",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "boy", z: 37, img: "assets/avatar/shoes/astronaut-boots-boy.webp?v=2", thumb: "assets/avatar/thumb/shoes_astronaut.webp?v=2" },
+     여아 우주 부츠처럼 옷 위로 그린다(z37, 사용자 확정 "우주 부츠는 옷 위로"). 탑재 상자 (391,824,632,949). img·thumb ?v=2.
+     [2026-10-03] 사용자 조정 — 두 짝 1% 크게(배율 0.7272, 밑창·부츠목 가운데 고정). 탑재 상자 (391,823,632,949). img ?v=3. */
+  { id: "shoes_astronaut",slot: "shoes", label: "우주 부츠",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "boy", z: 37, img: "assets/avatar/shoes/astronaut-boots-boy.webp?v=3", thumb: "assets/avatar/thumb/shoes_astronaut.webp?v=2" },
 
   /* 해적 신발 — 남아 신발 원화(사용자 원화 2026-10-01). 해적 옷(top_pirate)과 같은
      테마라 같은 이름을 썼다. [2026-10-01 재조정] 해적 남아 원화와 비교하니 베이스가
