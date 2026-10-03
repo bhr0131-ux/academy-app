@@ -382,12 +382,6 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 2(왼짝 +2 → 0). 탑재 상자 (389,823,632,949). img ?v=4. */
   { id: "shoes_astronaut",slot: "shoes", label: "우주 부츠",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "boy", z: 37, img: "assets/avatar/shoes/astronaut-boots-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_astronaut.webp?v=2" },
 
-  /* 해적 신발 — 남아 신발 원화(사용자 원화 2026-10-01). 해적 옷(top_pirate)과 같은
-     테마라 같은 이름을 썼다. [2026-10-01 재조정] 해적 남아 원화와 비교하니 베이스가
-     다리가 짧고(약 6%) 가늘어서(약 15%) 처음 크기로는 정강이까지 덮어 길쭉해 보였다.
-     원화처럼 다리 길이 39% 지점(y827)에서 시작해 발바닥 y939 에서 끝나게 높이를 112 로
-     줄였고, 두 짝을 따로 배치한다 — 왼짝 (401,827) 114×112 · 오른짝 (515,827) 109×112 */
-  { id: "shoes_pirate",   slot: "shoes", label: "해적 신발",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-boy.webp?v=2", thumb: "assets/avatar/thumb/shoes_pirate.webp" },
   /* 라이트 부츠(처음 이름 정글 부츠, 2026-10-03 사용자 요청으로 바꿈) [2026-10-03] — 남아. 카키 하이탑 + 회색 양말, 불 들어오는 밑창 두 짝, 사용자 원화 369×235. 정글 탐험대 옷과 짝.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 양말 가운데(왼짝 x100.5 · 오른짝 x64)를 남아 다리 가운데(x450.5 · x574.5)에,
      배율 0.68, 왼짝 +3. 밑창이 안쪽으로 비스듬히 올라가 그 아래로 발가락이 비쳐서, 밑창 아래끝을 y956(발바닥 y939 보다 17 아래)까지 내려
@@ -533,6 +527,7 @@ export const RETIRED_ITEM_INFO = {
   back_backpack_cream:{ label: "크림 배낭",   price: 290 },
   hat_astronaut:      { label: "우주 헬멧",   price: 350 },   // [2026-09-30] 사용자가 미리보기 보고 바로 빼 달라고 해서 뺐다 (그림은 남아 있다)
   top_sky:            { label: "하늘 나들이 옷", price: 350 },   // [2026-10-02] 사용자 요청으로 뺐다 — 산 아이에게 환불 (그림은 남아 있다)
+  shoes_pirate:       { label: "해적 신발",   price: 200 },   // [2026-10-03] 남아 옛 해적 신발 — 꼬마해적 신발이 들어와 사용자 요청으로 뺐다, 산 아이에게 환불 (그림은 남아 있다)
   /* 더 예전에 은퇴한 것들 — 이미 환불됐을 수 있지만 남아 있으면 여기서 처리된다 */
   shoes_boots_desert: { label: "사막 부츠",   price: 140 },
   shoes_boots_ribbon: { label: "리본 부츠",   price: 150 },
