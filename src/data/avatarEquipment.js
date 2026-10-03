@@ -385,8 +385,9 @@ export const AVATAR_CATALOG = [
      배율 0.61, 밑창 아래끝 y942, 오른짝 +1. 맨발 0px 가 되는 가장 작은 배율. 탑재 상자 (416,807,591,942).
      [2026-10-03] 사용자 조정 — 두 짝 모두 4% 크게(배율 0.6344, 밑창·발목 가운데 고정). 탑재 상자 (415,802,592,942). img ?v=2.
      [2026-10-03] 두 짝 4% 더 크게(배율 0.6598). 탑재 상자 (413,796,594,942). img ?v=3.
-     [2026-10-03] 두 짝 4% 더 크게(배율 0.6862). 탑재 상자 (411,790,595,942). img ?v=4. */
-  { id: "shoes_pirate_girl", slot: "shoes", label: "꼬마해적 신발", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "girl", img: "assets/avatar/shoes/pirate-boots-girl.webp?v=4", thumb: "assets/avatar/thumb/shoes_pirate_girl.webp" },
+     [2026-10-03] 두 짝 4% 더 크게(배율 0.6862). 탑재 상자 (411,790,595,942). img ?v=4.
+     [2026-10-03] 두 짝 4% 더 크게(배율 0.7136). 탑재 상자 (410,784,597,942). img ?v=5. */
+  { id: "shoes_pirate_girl", slot: "shoes", label: "꼬마해적 신발", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "girl", img: "assets/avatar/shoes/pirate-boots-girl.webp?v=5", thumb: "assets/avatar/thumb/shoes_pirate_girl.webp" },
 
 ];
 
