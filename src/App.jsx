@@ -610,8 +610,8 @@ export default function App() {
       /* [2026-08-20] 사파리 부츠·가방·딸기 구두를 뺐다(사용자 확정) — 산 아이에게 값만큼 돌려준다.
          그림은 지우지 않아서(비행사 모자와 같은 방식) 다시 넣을 때 그대로 쓴다.
          [2026-10-02] 여아 하늘 나들이 옷(top_sky)도 사용자 요청으로 뺐다 — 같은 방식으로 350코인 환불.
-         [2026-10-03] 남아 꼬마해적 신발(shoes_pirate_kid)도 사용자 요청으로 뺐다 — 200코인 환불. */
-      const RETIRED_AVATAR_ITEMS={ shoes_boots_desert:140, shoes_boots_ribbon:150, background_forest:120, background_galaxy:300, shoes_boots_green:100, back_backpack:250, shoes_picnic:180, top_sky:350, shoes_pirate_kid:200 }; // { 은퇴 아이템 id: 환불 코인 } (배경은 아바타 꾸미기에서 제거됨 — 구 꾸미기 상점 배경과 중복. background_sky는 무료라 환불 없이 normalize에서 정리)
+         [2026-10-03] 남아 꼬마해적 신발(shoes_pirate_kid)을 잠깐 뺐다가 같은 날 되살려 목록에서 다시 지웠다. */
+      const RETIRED_AVATAR_ITEMS={ shoes_boots_desert:140, shoes_boots_ribbon:150, background_forest:120, background_galaxy:300, shoes_boots_green:100, back_backpack:250, shoes_picnic:180, top_sky:350 }; // { 은퇴 아이템 id: 환불 코인 } (배경은 아바타 꾸미기에서 제거됨 — 구 꾸미기 상점 배경과 중복. background_sky는 무료라 환불 없이 normalize에서 정리)
       let retiredRows=null;
       if(avOwnedMerged && typeof avOwnedMerged==="object"){
         let retiredTouched=false;

@@ -395,6 +395,16 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 사용자 조정 — 화면 왼쪽 짝만 1% 크게(0.6868, 밑창·양말 가운데 고정)·왼쪽으로 2(왼짝 +3 → +1). 탑재 상자 (382,795,637,956). img ?v=2.
      [2026-10-03] 화면 왼쪽 짝만 1% 더 크게(0.6937). 탑재 상자 (382,793,637,956). img ?v=3. */
   { id: "shoes_jungle", slot: "shoes", label: "라이트 부츠",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-boy.webp?v=3", thumb: "assets/avatar/thumb/shoes_jungle.webp" },
+  /* 꼬마해적 신발 [2026-10-03] — 남아. 갈색 버클 부츠(접힌 목) 두 짝, 사용자 원화 340×177. 꼬마 해적단 옷과 짝.
+     기존 남아 "해적 신발"(shoes_pirate)은 그대로 두고 따로 추가했다(사용자 요청 "추가").
+     [2026-10-03] 한 번 뺐다가(판매 중단·환불 목록에 올렸음) 같은 날 사용자 요청으로 마지막 조정값 그대로 되살렸다.
+     두 짝의 원화 밑창 높이가 달라(왼짝 y175 · 오른짝 y167) 짝마다 위아래를 딱 맞게 잘라 둘 다 같은 바닥에 서게 했다.
+     원화 부츠목 가운데(왼짝 x84 · 오른짝 x55)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.72, 왼짝 +4·오른짝 −3,
+     밑창 아래끝 y955(발 안쪽 발가락이 밑창 안쪽 끝 아래로 비치지 않게). 맨발 9px(안쪽 끝, 눈에 안 띔). 탑재 상자 (394,836,628,955).
+     [2026-10-03] 사용자 조정 — 두 짝 1% 크게(0.7272, 밑창·부츠목 가운데 고정), 화면 왼쪽 짝 왼쪽으로 1(+3)·오른쪽 짝 오른쪽으로 1(−2). 탑재 상자 (392,835,630,955). img ?v=2.
+     [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 1 더(+2). 탑재 상자 (391,835,630,955). img ?v=3.
+     [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 1 더(+1). 탑재 상자 (390,835,630,955). img ?v=4. */
+  { id: "shoes_pirate_kid", slot: "shoes", label: "꼬마해적 신발", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-kid-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_pirate_kid.webp" },
   /* 정글 부츠 [2026-10-03] — 남아. 초록 끈 부츠(나뭇잎 무늬) + 니트 양말 두 짝, 사용자 원화 339×204. 정글 탐험대 옷과 짝.
      처음 "정글 부츠"로 넣었던 shoes_jungle 은 이름을 라이트 부츠로 바꿔 그대로 두고, 이 신발은 새 id 로 넣었다.
      두 짝을 따로 잘라 원화 양말 가운데(왼짝 x82 · 오른짝 x56)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.72, 왼짝 +4·오른짝 −2,
@@ -523,7 +533,6 @@ export const RETIRED_ITEM_INFO = {
   back_backpack_cream:{ label: "크림 배낭",   price: 290 },
   hat_astronaut:      { label: "우주 헬멧",   price: 350 },   // [2026-09-30] 사용자가 미리보기 보고 바로 빼 달라고 해서 뺐다 (그림은 남아 있다)
   top_sky:            { label: "하늘 나들이 옷", price: 350 },   // [2026-10-02] 사용자 요청으로 뺐다 — 산 아이에게 환불 (그림은 남아 있다)
-  shoes_pirate_kid:   { label: "꼬마해적 신발", price: 200 },   // [2026-10-03] 남아 꼬마해적 신발 — 넣은 날 사용자 요청으로 뺐다, 산 아이에게 환불 (그림은 남아 있다)
   /* 더 예전에 은퇴한 것들 — 이미 환불됐을 수 있지만 남아 있으면 여기서 처리된다 */
   shoes_boots_desert: { label: "사막 부츠",   price: 140 },
   shoes_boots_ribbon: { label: "리본 부츠",   price: 150 },
