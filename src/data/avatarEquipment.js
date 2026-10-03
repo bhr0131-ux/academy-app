@@ -391,8 +391,9 @@ export const AVATAR_CATALOG = [
   /* 정글 부츠 [2026-10-03] — 남아. 카키 하이탑 + 회색 양말, 불 들어오는 밑창 두 짝, 사용자 원화 369×235. 정글 탐험대 옷과 짝.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 양말 가운데(왼짝 x100.5 · 오른짝 x64)를 남아 다리 가운데(x450.5 · x574.5)에,
      배율 0.68, 왼짝 +3. 밑창이 안쪽으로 비스듬히 올라가 그 아래로 발가락이 비쳐서, 밑창 아래끝을 y956(발바닥 y939 보다 17 아래)까지 내려
-     맨발 0px. 탑재 상자 (385,796,637,956). */
-  { id: "shoes_jungle", slot: "shoes", label: "정글 부츠",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-boy.webp", thumb: "assets/avatar/thumb/shoes_jungle.webp" },
+     맨발 0px. 탑재 상자 (385,796,637,956).
+     [2026-10-03] 사용자 조정 — 화면 왼쪽 짝만 1% 크게(0.6868, 밑창·양말 가운데 고정)·왼쪽으로 2(왼짝 +3 → +1). 탑재 상자 (382,795,637,956). img ?v=2. */
+  { id: "shoes_jungle", slot: "shoes", label: "정글 부츠",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-boy.webp?v=2", thumb: "assets/avatar/thumb/shoes_jungle.webp" },
   /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
      두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
