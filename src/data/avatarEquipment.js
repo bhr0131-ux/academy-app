@@ -370,8 +370,9 @@ export const AVATAR_CATALOG = [
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
      탑재 상자 (416,820,590,942). 들꽃 탐험가 옷과 같은 테마(adventure).
      [2026-10-03] 사용자 조정 — 화면 오른쪽 짝만 오른쪽으로 2, 2% 크게(배율 0.6528, 밑창·발목 가운데 고정). 탑재 상자 (416,817,593,942). img ?v=2.
-     [2026-10-03] 오른쪽 짝만 2% 더 크게(배율 0.6659). 탑재 상자 (416,815,594,942). img ?v=3. */
-  { id: "shoes_wildflower", slot: "shoes", label: "들꽃 신발",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/wildflower-boots-girl.webp?v=3", thumb: "assets/avatar/thumb/shoes_wildflower.webp" },
+     [2026-10-03] 오른쪽 짝만 2% 더 크게(배율 0.6659). 탑재 상자 (416,815,594,942). img ?v=3.
+     [2026-10-03] 오른쪽 짝만 1% 더 크게(배율 0.6725). 탑재 상자 (416,814,594,942). img ?v=4. */
+  { id: "shoes_wildflower", slot: "shoes", label: "들꽃 신발",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/wildflower-boots-girl.webp?v=4", thumb: "assets/avatar/thumb/shoes_wildflower.webp" },
 
 ];
 
