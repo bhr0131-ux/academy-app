@@ -422,6 +422,10 @@ export const AVATAR_CATALOG = [
      원화 뒤끈 가운데(왼짝 x90.5 · 오른짝 x58.5)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.74, 왼짝 +2·오른짝 −2,
      밑창 아래끝 y946. 맨발 0px. 탑재 상자 (386,842,638,946). */
   { id: "shoes_sandal", slot: "shoes", label: "썸머 샌들",   emoji: "🩴", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/summer-sandals-boy.webp", thumb: "assets/avatar/thumb/shoes_sandal.webp" },
+  /* 바다 오리발 [2026-10-03] — 남아. 하늘색 오리발(남색 띠·금 버클) 두 짝, 사용자 원화 431×185. 바다 탐험대 옷과 짝.
+     두 짝을 따로 잘라(짝마다 위아래 딱 맞게) 원화 발목 입구 가운데(왼짝 x131.5 · 오른짝 x62.5)를 남아 다리 가운데(x450.5 · x574.5)에,
+     배율 0.72, 왼짝 +6·오른짝 −6, 밑창 아래끝 y955. 날개가 바깥으로 넓게 퍼져 상자가 넓다. 맨발 0px. 탑재 상자 (362,827,656,955). */
+  { id: "shoes_fins", slot: "shoes", label: "바다 오리발",   emoji: "🤿", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/sea-fins-boy.webp", thumb: "assets/avatar/thumb/shoes_fins.webp" },
   /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
      두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
