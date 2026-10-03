@@ -373,6 +373,12 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 오른쪽 짝만 2% 더 크게(배율 0.6659). 탑재 상자 (416,815,594,942). img ?v=3.
      [2026-10-03] 오른쪽 짝만 1% 더 크게(배율 0.6725). 탑재 상자 (416,814,594,942). img ?v=4. */
   { id: "shoes_wildflower", slot: "shoes", label: "들꽃 신발",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "girl", img: "assets/avatar/shoes/wildflower-boots-girl.webp?v=4", thumb: "assets/avatar/thumb/shoes_wildflower.webp" },
+  /* 딸기 신발 [2026-10-03] — 여아. 빨간 메리제인 + 흰 프릴 양말 두 짝, 사용자 원화 253×156.
+     예전에 뺀 "딸기 구두"(shoes_picnic, 환불 처리됨)와 섞이지 않게 새 id 를 쓴다.
+     들꽃 신발과 같은 방식 — 두 짝을 따로 잘라 원화 양말 가운데(왼짝 x53.5 · 오른짝 x47.5)를 다리 가운데(x455 · x556)에 두고
+     배율 0.66, 밑창 아래끝 y944. 여아 발이 발바닥 쪽에서 바깥으로 벌어져 왼짝 -3 · 오른짝 +1 옮겨 맨발 0px.
+     탑재 상자 (417,841,590,944). */
+  { id: "shoes_strawberry", slot: "shoes", label: "딸기 신발",   emoji: "🍓", price:DECOR_PRICE.common, rarity: "common", theme: "picnic", forGender: "girl", img: "assets/avatar/shoes/strawberry-shoes-girl.webp", thumb: "assets/avatar/thumb/shoes_strawberry.webp" },
 
 ];
 
