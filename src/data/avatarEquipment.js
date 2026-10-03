@@ -419,8 +419,9 @@ export const AVATAR_CATALOG = [
      남아 우주 부츠(shoes_astronaut)는 그대로 두고 여아용 id 를 따로 둔다(꼬마해적 신발과 같은 방식).
      들꽃 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x62.5 · 오른짝 x52)를 다리 가운데(x455 · x556)에,
      배율 0.71, 밑창 아래끝 y944, 오른짝 +3(보라 부츠·꼬마해적 신발과 같은 크기). 맨발 0px. 탑재 상자 (411,803,596,944).
-     우주복을 입으면 바지 끝(y887)이 부츠목을 덮는다(상의 z35 > 신발 z25, 남아 우주 부츠와 같은 겹침). */
-  { id: "shoes_space_girl", slot: "shoes", label: "보라 우주 부츠", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "girl", img: "assets/avatar/shoes/space-boots-girl.webp", thumb: "assets/avatar/thumb/shoes_space_girl.webp" },
+     [2026-10-03 사용자 확정] 우주 부츠는 옷 위로 보여야 한다 — z37 로 상의(z35) 위·목 장식(z40) 아래에 그린다.
+     그래서 우주복을 입으면 부츠목이 바지 끝(y887)을 덮는다. */
+  { id: "shoes_space_girl", slot: "shoes", label: "보라 우주 부츠", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "girl", z: 37, img: "assets/avatar/shoes/space-boots-girl.webp", thumb: "assets/avatar/thumb/shoes_space_girl.webp" },
 
 ];
 
