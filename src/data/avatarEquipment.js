@@ -379,6 +379,11 @@ export const AVATAR_CATALOG = [
      배율 0.66, 밑창 아래끝 y944. 여아 발이 발바닥 쪽에서 바깥으로 벌어져 왼짝 -3 · 오른짝 +1 옮겨 맨발 0px.
      탑재 상자 (417,841,590,944). */
   { id: "shoes_strawberry", slot: "shoes", label: "딸기 신발",   emoji: "🍓", price:DECOR_PRICE.common, rarity: "common", theme: "picnic", forGender: "girl", img: "assets/avatar/shoes/strawberry-shoes-girl.webp", thumb: "assets/avatar/thumb/shoes_strawberry.webp" },
+  /* 꼬마해적 신발 [2026-10-03] — 여아. 갈색 끈 부츠 + 흰 양말 두 짝, 사용자 원화 268×221.
+     남아 해적 신발(shoes_pirate)은 그대로 두고 여아용 id 를 따로 둔다(꼬마해적 모자처럼).
+     들꽃 신발과 같은 방식 — 두 짝을 따로 잘라 원화 발목 가운데(왼짝 x63.5 · 오른짝 x50.5)를 다리 가운데(x455 · x556)에,
+     배율 0.61, 밑창 아래끝 y942, 오른짝 +1. 맨발 0px 가 되는 가장 작은 배율. 탑재 상자 (416,807,591,942). */
+  { id: "shoes_pirate_girl", slot: "shoes", label: "꼬마해적 신발", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "girl", img: "assets/avatar/shoes/pirate-boots-girl.webp", thumb: "assets/avatar/thumb/shoes_pirate_girl.webp" },
 
 ];
 
