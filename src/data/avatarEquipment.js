@@ -392,8 +392,9 @@ export const AVATAR_CATALOG = [
      들꽃 신발과 같은 방식 — 두 짝을 따로 잘라 원화 양말 가운데(왼짝 x72 · 오른짝 x53.5)를 다리 가운데(x455 · x556)에,
      배율 0.62(양말 폭이 다리 폭과 맞는 크기), 밑창 아래끝 y944. 맨발 0px. 탑재 상자 (410,826,596,944).
      [2026-10-03] 사용자 조정 — 두 짝 6% 크게(배율 0.6572, 밑창·양말 가운데 고정). 탑재 상자 (408,818,598,944). img ?v=2.
-     [2026-10-03] 두 짝 4% 더 크게(배율 0.6835). 탑재 상자 (406,813,599,944). img ?v=3. */
-  { id: "shoes_blue", slot: "shoes", label: "파랑 신발",   emoji: "👟", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "girl", img: "assets/avatar/shoes/blue-sneakers-girl.webp?v=3", thumb: "assets/avatar/thumb/shoes_blue.webp" },
+     [2026-10-03] 두 짝 4% 더 크게(배율 0.6835). 탑재 상자 (406,813,599,944). img ?v=3.
+     [2026-10-03] 화면 오른쪽 짝만 오른쪽으로 3. 탑재 상자 (406,813,602,944). img ?v=4. */
+  { id: "shoes_blue", slot: "shoes", label: "파랑 신발",   emoji: "👟", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "girl", img: "assets/avatar/shoes/blue-sneakers-girl.webp?v=4", thumb: "assets/avatar/thumb/shoes_blue.webp" },
 
 ];
 
