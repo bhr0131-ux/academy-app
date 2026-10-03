@@ -415,8 +415,9 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 양쪽 양말 10% 더 크게(원화 대비 1.133배, 원화에서 다시 만듦). 탑재 상자 (389,798,639,952). img ?v=3.
      [2026-10-03] 양말 위쪽 양옆에 원래 양말 테두리(검은 선)가 남던 것을 정리 — 양말 폭을 줄마다 따로 잡아 떼어냈다. img ?v=4.
      [2026-10-03] 화면 왼쪽 짝 왼쪽으로 2(+2)·오른쪽 짝 오른쪽으로 2(−2). img ?v=5.
-     [2026-10-03] 운동화만 1% 크게(배율 0.707), 양말은 크기 그대로 두려고 원화 대비 양말 배율을 1.133/1.01=1.1218 로 다시 만들었다. img ?v=6. */
-  { id: "shoes_lightning", slot: "shoes", label: "번개 운동화",   emoji: "⚡", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/lightning-sneakers-boy.webp?v=6", thumb: "assets/avatar/thumb/shoes_lightning.webp" },
+     [2026-10-03] 운동화만 1% 크게(배율 0.707), 양말은 크기 그대로 두려고 원화 대비 양말 배율을 1.133/1.01=1.1218 로 다시 만들었다. img ?v=6.
+     [2026-10-03] 운동화만 1% 더 크게(배율 0.7141), 양말 배율은 1.133/1.0201=1.1107 로 맞춰 화면 크기 유지. img ?v=7. */
+  { id: "shoes_lightning", slot: "shoes", label: "번개 운동화",   emoji: "⚡", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/lightning-sneakers-boy.webp?v=7", thumb: "assets/avatar/thumb/shoes_lightning.webp" },
   /* 썸머 샌들 [2026-10-03] — 남아. 주황 띠 샌들(청록 밑창), 발까지 그려진 원화 352×148. 썸머 웨이브 옷과 짝.
      원화에 발이 그려져 있어 아바타 맨발을 샌들 속 발로 다 덮게 맞췄다. 두 짝을 따로 잘라(짝마다 위아래 딱 맞게)
      원화 뒤끈 가운데(왼짝 x90.5 · 오른짝 x58.5)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.74, 왼짝 +2·오른짝 −2,
