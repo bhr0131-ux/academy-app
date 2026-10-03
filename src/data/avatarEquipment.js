@@ -421,8 +421,9 @@ export const AVATAR_CATALOG = [
      배율 0.71, 밑창 아래끝 y944, 오른짝 +3(보라 부츠·꼬마해적 신발과 같은 크기). 맨발 0px. 탑재 상자 (411,803,596,944).
      [2026-10-03 사용자 확정] 우주 부츠는 옷 위로 보여야 한다 — z37 로 상의(z35) 위·목 장식(z40) 아래에 그린다.
      그래서 우주복을 입으면 부츠목이 바지 끝(y887)을 덮는다.
-     [2026-10-03] 사용자 조정 — 두 짝 8% 크게(배율 0.7668, 밑창·부츠목 가운데 고정). 탑재 상자 (407,792,599,944). img ?v=2. */
-  { id: "shoes_space_girl", slot: "shoes", label: "보라 우주 부츠", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "girl", z: 37, img: "assets/avatar/shoes/space-boots-girl.webp?v=2", thumb: "assets/avatar/thumb/shoes_space_girl.webp" },
+     [2026-10-03] 사용자 조정 — 두 짝 8% 크게(배율 0.7668, 밑창·부츠목 가운데 고정). 탑재 상자 (407,792,599,944). img ?v=2.
+     [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 5. 탑재 상자 (402,792,599,944). img ?v=3. */
+  { id: "shoes_space_girl", slot: "shoes", label: "보라 우주 부츠", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "girl", z: 37, img: "assets/avatar/shoes/space-boots-girl.webp?v=3", thumb: "assets/avatar/thumb/shoes_space_girl.webp" },
 
 ];
 
