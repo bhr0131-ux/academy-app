@@ -412,8 +412,9 @@ export const AVATAR_CATALOG = [
      밑창 아래끝 y952(발 안쪽이 밑창 아래로 비치지 않게). 맨발 13px(밑창 안쪽 끝, 눈에 안 띔). 탑재 상자 (389,804,639,952).
      [2026-10-03] 사용자 조정 — 양말만 3% 크게. 원화에서 신발(청록·형광) 위쪽 양말 부분만 떼어 양말 아래끝·가운데를 고정해 1.03배 하고
      신발 밑에 다시 끼웠다(신발 목 흰 테두리는 제외). 신발 크기·위치는 그대로. 탑재 상자 (389,801,639,952). img ?v=2.
-     [2026-10-03] 양쪽 양말 10% 더 크게(원화 대비 1.133배, 원화에서 다시 만듦). 탑재 상자 (389,798,639,952). img ?v=3. */
-  { id: "shoes_lightning", slot: "shoes", label: "번개 운동화",   emoji: "⚡", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/lightning-sneakers-boy.webp?v=3", thumb: "assets/avatar/thumb/shoes_lightning.webp" },
+     [2026-10-03] 양쪽 양말 10% 더 크게(원화 대비 1.133배, 원화에서 다시 만듦). 탑재 상자 (389,798,639,952). img ?v=3.
+     [2026-10-03] 양말 위쪽 양옆에 원래 양말 테두리(검은 선)가 남던 것을 정리 — 양말 폭을 줄마다 따로 잡아 떼어냈다. img ?v=4. */
+  { id: "shoes_lightning", slot: "shoes", label: "번개 운동화",   emoji: "⚡", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/lightning-sneakers-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_lightning.webp" },
   /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
      두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
