@@ -343,8 +343,12 @@ export const AVATAR_CATALOG = [
      원화 맨 위의 턱선과 목둘레 안쪽 목 살을 지워 베이스 목이 그대로 보이게 하고, 목둘레 안 목 중심(x214)을 여아 목 중심 x512.5 에,
      원화 턱 자리 y2 를 여아 턱선 y361 에 맞췄다. 배율 0.70 — 흰 수영복·다리가 다 가려지고 발목·손목에서 끝난다. imgGirl ?v=2.
      [2026-10-02] 사용자 조정 — 위로 5·왼쪽 1·2% 크게: 배율 0.714, 목 중심 x511.5, 턱 자리 y356. 탑재 상자 (359,355,662,891). imgGirl ?v=4.
-     (?v=3 은 조정값이 안 먹고 0.68배로 잘못 들어갔던 판) */
-  { id: "top_space",      slot: "top",   label: "우주 탐험대",       emoji: "🚀", labelGirl: "별빛 우주인", emojiGirl: "🪐", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=4", thumb: "assets/avatar/thumb/top_space.webp?v=4", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=5" },
+     (?v=3 은 조정값이 안 먹고 0.68배로 잘못 들어갔던 판)
+     [2026-10-03] 여아 우주복 원화 다시 교체(같은 디자인, 팔·다리가 조금 날씬한 판, 423×747). 사용자가 맞춘 자리를 잇도록
+     새 원화를 옛 원화에 템플릿 매칭(상관 0.88)해 옛 원화 좌표 = 0.995×새 좌표 + (3,2) 를 얻고 같은 탑재값으로 옮겼다 —
+     배율 0.7104, 목 중심 새 원화 x212.06 → x511.5, 턱 자리 y0 → y356. 목둘레 안(y0~23, x173~255)과 맨 위(y0~5)의 보라 아닌 픽셀을 지웠다.
+     옛 판과 겹침 IoU 0.956. 탑재 상자 (361,356,662,887). imgGirl ?v=5. */
+  { id: "top_space",      slot: "top",   label: "우주 탐험대",       emoji: "🚀", labelGirl: "별빛 우주인", emojiGirl: "🪐", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=3", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_space.webp?v=4", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=5" },
 
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
