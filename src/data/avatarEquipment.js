@@ -401,6 +401,10 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 사용자 조정 — 두 짝 4% 크게(배율 0.6864, 밑창·장화목 가운데 고정). 탑재 상자 (414,809,593,944). img ?v=2.
      [2026-10-03] 화면 오른쪽 짝만 오른쪽으로 3. 탑재 상자 (414,809,596,944). img ?v=3. */
   { id: "shoes_rain", slot: "shoes", label: "노랑 장화",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "girl", img: "assets/avatar/shoes/rain-boots-girl.webp?v=3", thumb: "assets/avatar/thumb/shoes_rain.webp" },
+  /* 핑크 구두 [2026-10-03] — 여아. 분홍 메리제인 + 흰 프릴 양말 두 짝, 사용자 원화 264×166. 핑크 파티시에 옷과 짝.
+     들꽃 신발과 같은 방식 — 두 짝을 따로 잘라 원화 양말 가운데(왼짝 x60.5 · 오른짝 x50.5)를 다리 가운데(x455 · x556)에,
+     배율 0.69, 밑창 아래끝 y944, 오른짝 +3(사용자가 장화·파랑 신발에서 맞춘 크기·위치와 같게). 맨발 0px. 탑재 상자 (413,829,597,944). */
+  { id: "shoes_pink", slot: "shoes", label: "핑크 구두",   emoji: "👞", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "girl", img: "assets/avatar/shoes/pink-shoes-girl.webp", thumb: "assets/avatar/thumb/shoes_pink.webp" },
 
 ];
 
