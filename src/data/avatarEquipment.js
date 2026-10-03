@@ -397,8 +397,9 @@ export const AVATAR_CATALOG = [
   { id: "shoes_blue", slot: "shoes", label: "파랑 신발",   emoji: "👟", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "girl", img: "assets/avatar/shoes/blue-sneakers-girl.webp?v=4", thumb: "assets/avatar/thumb/shoes_blue.webp" },
   /* 노랑 장화 [2026-10-03] — 여아. 노란 장화(청록 테두리·구름 무늬) 두 짝, 사용자 원화 261×197. 노란 우비룩과 짝.
      들꽃 신발과 같은 방식 — 두 짝을 따로 잘라 원화 장화목 가운데(왼짝 x59.5 · 오른짝 x52)를 다리 가운데(x455 · x556)에,
-     배율 0.66, 밑창 아래끝 y944. 맨발 0px. 탑재 상자 (416,814,592,944). */
-  { id: "shoes_rain", slot: "shoes", label: "노랑 장화",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "girl", img: "assets/avatar/shoes/rain-boots-girl.webp", thumb: "assets/avatar/thumb/shoes_rain.webp" },
+     배율 0.66, 밑창 아래끝 y944. 맨발 0px. 탑재 상자 (416,814,592,944).
+     [2026-10-03] 사용자 조정 — 두 짝 4% 크게(배율 0.6864, 밑창·장화목 가운데 고정). 탑재 상자 (414,809,593,944). img ?v=2. */
+  { id: "shoes_rain", slot: "shoes", label: "노랑 장화",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "girl", img: "assets/avatar/shoes/rain-boots-girl.webp?v=2", thumb: "assets/avatar/thumb/shoes_rain.webp" },
 
 ];
 
