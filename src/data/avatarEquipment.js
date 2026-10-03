@@ -405,6 +405,11 @@ export const AVATAR_CATALOG = [
      들꽃 신발과 같은 방식 — 두 짝을 따로 잘라 원화 양말 가운데(왼짝 x60.5 · 오른짝 x50.5)를 다리 가운데(x455 · x556)에,
      배율 0.69, 밑창 아래끝 y944, 오른짝 +3(사용자가 장화·파랑 신발에서 맞춘 크기·위치와 같게). 맨발 0px. 탑재 상자 (413,829,597,944). */
   { id: "shoes_pink", slot: "shoes", label: "핑크 구두",   emoji: "👞", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "girl", img: "assets/avatar/shoes/pink-shoes-girl.webp", thumb: "assets/avatar/thumb/shoes_pink.webp" },
+  /* 보라 부츠 [2026-10-03] — 여아. 보라 끈 부츠(금색 밑창·달 무늬) + 흰 프릴 양말 두 짝, 사용자 원화 262×228. 달빛 마법사 옷과 짝.
+     원화가 흰 불투명 배경이라 테두리에서 이어진 흰 영역만 지웠다(부츠 외곽선 안쪽의 흰 프릴은 그대로).
+     들꽃 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x57.5 · 오른짝 x55)를 다리 가운데(x455 · x556)에,
+     배율 0.71, 밑창 아래끝 y944, 오른짝 +3(꼬마해적 신발과 같은 크기). 맨발 0px. 탑재 상자 (414,782,597,944). */
+  { id: "shoes_purple", slot: "shoes", label: "보라 부츠",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "magic", forGender: "girl", img: "assets/avatar/shoes/purple-boots-girl.webp", thumb: "assets/avatar/thumb/shoes_purple.webp" },
 
 ];
 
