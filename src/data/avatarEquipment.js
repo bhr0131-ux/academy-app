@@ -416,6 +416,11 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 양말 위쪽 양옆에 원래 양말 테두리(검은 선)가 남던 것을 정리 — 양말 폭을 줄마다 따로 잡아 떼어냈다. img ?v=4.
      [2026-10-03] 화면 왼쪽 짝 왼쪽으로 2(+2)·오른쪽 짝 오른쪽으로 2(−2). img ?v=5. */
   { id: "shoes_lightning", slot: "shoes", label: "번개 운동화",   emoji: "⚡", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/lightning-sneakers-boy.webp?v=5", thumb: "assets/avatar/thumb/shoes_lightning.webp" },
+  /* 썸머 샌들 [2026-10-03] — 남아. 주황 띠 샌들(청록 밑창), 발까지 그려진 원화 352×148. 썸머 웨이브 옷과 짝.
+     원화에 발이 그려져 있어 아바타 맨발을 샌들 속 발로 다 덮게 맞췄다. 두 짝을 따로 잘라(짝마다 위아래 딱 맞게)
+     원화 뒤끈 가운데(왼짝 x90.5 · 오른짝 x58.5)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.74, 왼짝 +2·오른짝 −2,
+     밑창 아래끝 y946. 맨발 0px. 탑재 상자 (386,842,638,946). */
+  { id: "shoes_sandal", slot: "shoes", label: "썸머 샌들",   emoji: "🩴", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/summer-sandals-boy.webp", thumb: "assets/avatar/thumb/shoes_sandal.webp" },
   /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
      두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
