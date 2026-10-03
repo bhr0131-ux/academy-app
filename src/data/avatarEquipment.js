@@ -409,8 +409,10 @@ export const AVATAR_CATALOG = [
   { id: "shoes_jungle_leaf", slot: "shoes", label: "도토리 부츠",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-leaf-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_jungle_leaf.webp" },
   /* 번개 운동화 [2026-10-03] — 남아. 청록 하이탑(형광 번개 무늬) + 흰 양말 두 짝, 사용자 원화 369×211. 번개 스케이터 옷과 짝.
      두 짝을 따로 잘라 원화 양말 가운데(왼짝 x94 · 오른짝 x61)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.70, 왼짝 +4·오른짝 −4,
-     밑창 아래끝 y952(발 안쪽이 밑창 아래로 비치지 않게). 맨발 13px(밑창 안쪽 끝, 눈에 안 띔). 탑재 상자 (389,804,639,952). */
-  { id: "shoes_lightning", slot: "shoes", label: "번개 운동화",   emoji: "⚡", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/lightning-sneakers-boy.webp", thumb: "assets/avatar/thumb/shoes_lightning.webp" },
+     밑창 아래끝 y952(발 안쪽이 밑창 아래로 비치지 않게). 맨발 13px(밑창 안쪽 끝, 눈에 안 띔). 탑재 상자 (389,804,639,952).
+     [2026-10-03] 사용자 조정 — 양말만 3% 크게. 원화에서 신발(청록·형광) 위쪽 양말 부분만 떼어 양말 아래끝·가운데를 고정해 1.03배 하고
+     신발 밑에 다시 끼웠다(신발 목 흰 테두리는 제외). 신발 크기·위치는 그대로. 탑재 상자 (389,801,639,952). img ?v=2. */
+  { id: "shoes_lightning", slot: "shoes", label: "번개 운동화",   emoji: "⚡", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/lightning-sneakers-boy.webp?v=2", thumb: "assets/avatar/thumb/shoes_lightning.webp" },
   /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
      두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
