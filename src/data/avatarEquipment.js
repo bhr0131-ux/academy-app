@@ -400,8 +400,9 @@ export const AVATAR_CATALOG = [
      두 짝의 원화 밑창 높이가 달라(왼짝 y175 · 오른짝 y167) 짝마다 위아래를 딱 맞게 잘라 둘 다 같은 바닥에 서게 했다.
      원화 부츠목 가운데(왼짝 x84 · 오른짝 x55)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.72, 왼짝 +4·오른짝 −3,
      밑창 아래끝 y955(발 안쪽 발가락이 밑창 안쪽 끝 아래로 비치지 않게). 맨발 9px(안쪽 끝, 눈에 안 띔). 탑재 상자 (394,836,628,955).
-     [2026-10-03] 사용자 조정 — 두 짝 1% 크게(0.7272, 밑창·부츠목 가운데 고정), 화면 왼쪽 짝 왼쪽으로 1(+3)·오른쪽 짝 오른쪽으로 1(−2). 탑재 상자 (392,835,630,955). img ?v=2. */
-  { id: "shoes_pirate_kid", slot: "shoes", label: "꼬마해적 신발", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-kid-boy.webp?v=2", thumb: "assets/avatar/thumb/shoes_pirate_kid.webp" },
+     [2026-10-03] 사용자 조정 — 두 짝 1% 크게(0.7272, 밑창·부츠목 가운데 고정), 화면 왼쪽 짝 왼쪽으로 1(+3)·오른쪽 짝 오른쪽으로 1(−2). 탑재 상자 (392,835,630,955). img ?v=2.
+     [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 1 더(+2). 탑재 상자 (391,835,630,955). img ?v=3. */
+  { id: "shoes_pirate_kid", slot: "shoes", label: "꼬마해적 신발", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-kid-boy.webp?v=3", thumb: "assets/avatar/thumb/shoes_pirate_kid.webp" },
   /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
      두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
