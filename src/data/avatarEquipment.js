@@ -290,7 +290,8 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 사용자 조정 — 8% 작게(배율 0.6974, 목깃 가운데 x516·위끝 y394 고정). 탑재 상자 (355,394,677,891). img ?v=5.
      [2026-10-03] 사용자 조정 — 위로 3(목깃 위끝 y391). 탑재 상자 (355,391,677,888). img ?v=6.
      [2026-10-03] 사용자 조정 — 왼쪽으로 3·위로 2(목깃 가운데 x513, 위끝 y389). 탑재 상자 (352,389,674,886). img ?v=7.
-     [2026-10-03] 사용자 조정 — 오른쪽으로 1(목깃 가운데 x514). 탑재 상자 (353,389,675,886). img ?v=8. */
+     [2026-10-03] 사용자 조정 — 오른쪽으로 1(목깃 가운데 x514). 탑재 상자 (353,389,675,886). img ?v=8.
+     [2026-10-03] 사용자 조정 — 1% 작게(배율 0.6904)·위로 1(목깃 가운데 x514 고정, 위끝 y388). 탑재 상자 (355,388,673,880). img ?v=9. */
   /* 해적 옷 — 이 원화도 '옷만 오려 낸 그림'이라 상체를 눈으로 맞췄다(하늘 나들이 옷과 같은 방식).
      긴소매라 소맷부리가 손목에 닿는 배율을 골랐다 — 0.72는 팔뚝이 남고 0.76부터는 손을 덮는다.
      배율 0.74 · 깃 위끝 y372(기본 반팔티 깃과 같은 자리) → 탑재 상자 (350,372)-(674,754). */
@@ -357,7 +358,7 @@ export const AVATAR_CATALOG = [
      배율 0.7104, 목 중심 새 원화 x212.06 → x511.5, 턱 자리 y0 → y356. 목둘레 안(y0~23, x173~255)과 맨 위(y0~5)의 보라 아닌 픽셀을 지웠다.
      옛 판과 겹침 IoU 0.956. 탑재 상자 (361,356,662,887). imgGirl ?v=5.
      [2026-10-03] 사용자 조정 — 왼쪽으로 2(목 중심 x509.5). 탑재 상자 (359,356,660,887). imgGirl ?v=6. */
-  { id: "top_space",      slot: "top",   label: "우주 탐험대",       emoji: "🚀", labelGirl: "별빛 우주인", emojiGirl: "🪐", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=8", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=6", thumb: "assets/avatar/thumb/top_space.webp?v=4", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=5" },
+  { id: "top_space",      slot: "top",   label: "우주 탐험대",       emoji: "🚀", labelGirl: "별빛 우주인", emojiGirl: "🪐", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=9", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=6", thumb: "assets/avatar/thumb/top_space.webp?v=4", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=5" },
 
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
