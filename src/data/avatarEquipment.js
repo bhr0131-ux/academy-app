@@ -215,7 +215,10 @@ export const AVATAR_CATALOG = [
   /* 딸기 밀짚모자 — 해적 모자와 같은 방식(쓰고 있는 머리 그림 → 얼굴 상자로 맞춤).
      챙이 이마를 덮어 앞머리가 딸려 오므로 머리카락색·살색을 걸러 냈고,
      그래도 남는 얇은 머리 가닥은 열기 연산(침식→팽창)으로 잘라 냈다. */
-  { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", img: "assets/avatar/hat/picnic-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_picnic.webp" },
+  /* [2026-10-04] 딸기 밀짚모자 새 원화로 교체 — 밀짚모자(딸기 리본) + 얼굴·양갈래 머리 한 장(사용자 원화 541×526). 위 설명은 옛 판 기록.
+     들꽃 머리띠와 같은 방식(hidesHead) — 얼굴(눈~입) 템플릿 매칭(일치 0.920)으로 배율 0.6800000000000002, 원점 (329,68). 아래는 자르지 않음.
+     탑재 상자 (329,68,697,426). img ?v=4. */
+  { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/picnic-hat-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_picnic.webp" },
   { id: "hat_pirate",     slot: "hat",   label: "꼬마해적 모자",   emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "girl", img: "assets/avatar/hat/pirate-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_pirate.webp" },
   /* 남아 사파리 모자 [2026-10-02] — 모자+얼굴 한 장(사용자 원화)이라 hidesHead: 쓰면 머리카락 머리 장이 빠지고
      민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
