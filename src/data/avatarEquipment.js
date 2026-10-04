@@ -207,7 +207,7 @@ export const AVATAR_CATALOG = [
   /* [2026-10-04] 들꽃 머리띠 새 원화로 교체 — 머리띠 + 얼굴·양갈래 머리 한 장(사용자 원화 488×486). 위 탑재값은 옛 판 기록.
      남아 캡모자들처럼 hidesHead 로 여아 기본 머리 장을 빼고 이 그림이 머리를 대신한다. 얼굴(눈~입) 템플릿 매칭(일치 0.976)으로
      배율 0.688, 원점 (346,87). 양갈래가 목 아래로 내려와 여아 기본 머리처럼 아래를 자르지 않았다(목 이음매 없음). 탑재 상자 (346,87,682,421). img ?v=4. */
-  { id: "hat_safari",     slot: "hat",   label: "들꽃 머리띠", emoji: "🌼", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/safari-band-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_safari.webp" },
+  { id: "hat_safari",     slot: "hat",   label: "들꽃 머리띠", emoji: "🌼", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/safari-band-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_safari.webp?v=2" },
   /* 해적 모자 — 머리띠와 같은 방식('베이스가 쓰고 있는 머리 그림' → 얼굴 상자로 맞춤).
      챙이 이마를 덮지만 얼굴은 그대로 보이므로 hidesHead 는 안 쓴다.
      떼어낼 때 가장 큰 덩어리에 앞머리·눈까지 딸려 와서(모자를 쓰면 앞머리가 다르게 그려진다)
@@ -218,19 +218,19 @@ export const AVATAR_CATALOG = [
   /* [2026-10-04] 딸기 밀짚모자 새 원화로 교체 — 밀짚모자(딸기 리본) + 얼굴·양갈래 머리 한 장(사용자 원화 541×526). 위 설명은 옛 판 기록.
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴(눈~입) 템플릿 매칭(일치 0.920)으로 배율 0.6800000000000002, 원점 (329,68). 아래는 자르지 않음.
      탑재 상자 (329,68,697,426). img ?v=4. */
-  { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/picnic-hat-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_picnic.webp" },
+  { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/picnic-hat-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_picnic.webp?v=2" },
   /* [2026-10-04] 꼬마해적 모자 새 원화로 교체 — 남색 삼각 해적모(주황 테두리·불가사리) + 얼굴·양갈래 머리 한 장(사용자 원화 521×517).
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.948)으로 배율 0.700, 원점 (337,57). 아래는 자르지 않음.
      탑재 상자 (337,57,702,419). img ?v=4.
      [2026-10-04] 사용자 조정 — 아래로 1·왼쪽으로 1(원점 (336,58)). 탑재 상자 (336,58,701,420). img ?v=5. */
-  { id: "hat_pirate",     slot: "hat",   label: "꼬마해적 모자",   emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/pirate-hat-girl.webp?v=5", thumb: "assets/avatar/thumb/hat_pirate.webp" },
+  { id: "hat_pirate",     slot: "hat",   label: "꼬마해적 모자",   emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/pirate-hat-girl.webp?v=5", thumb: "assets/avatar/thumb/hat_pirate.webp?v=2" },
   /* 우편부 모자 [2026-10-04] — 여아. 파란 우편모(날개 편지 배지) + 얼굴·양갈래 머리 한 장(사용자 원화 490×524). 파랑 우편부 옷과 짝.
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.916)으로 배율 0.668, 원점 (351,68). 아래는 자르지 않음.
      탑재 상자 (351,68,678,418).
      [2026-10-04] 사용자 조정 — 3% 크게(배율 0.688, 턱 y345·얼굴 가운데 고정) 후 오른쪽으로 1, 원점 (347,60). 탑재 상자 (347,60,684,421). img ?v=2.
      [2026-10-04] 아래로 1(원점 (347,61)). 탑재 상자 (347,61,684,422). img ?v=3.
      [2026-10-04] 1% 크게(배율 0.6949, 턱·얼굴 가운데 고정, 원점 (345,58)). 탑재 상자 (345,58,686,422). img ?v=4. */
-  { id: "hat_post_girl",  slot: "hat",   label: "우편부 모자", emoji: "💌", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/post-cap-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_post_girl.webp" },
+  { id: "hat_post_girl",  slot: "hat",   label: "우편부 모자", emoji: "💌", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/post-cap-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_post_girl.webp?v=2" },
   /* 요리사 모자 [2026-10-04] — 여아. 흰 요리사 모자(분홍 띠·크루아상 장식) + 얼굴·양갈래 머리 한 장(사용자 원화 520×584). 핑크 파티시에 옷과 짝.
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.924)으로 배율 0.660, 원점 (348,28). 아래는 자르지 않음.
      탑재 상자 (349,28,691,413).
@@ -238,19 +238,19 @@ export const AVATAR_CATALOG = [
      [2026-10-04] 1% 더 크게(배율 0.6866, 원점 (341,15)). 탑재 상자 (342,15,698,416). img ?v=3.
      [2026-10-04] 아래로 3(원점 (341,18)). 탑재 상자 (342,18,698,419). img ?v=4.
      [2026-10-04] 아래로 1 더(원점 (341,19)). 탑재 상자 (342,19,698,420). img ?v=5. */
-  { id: "hat_chef_girl",  slot: "hat",   label: "요리사 모자", emoji: "👩‍🍳", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/chef-hat-girl.webp?v=5", thumb: "assets/avatar/thumb/hat_chef_girl.webp" },
+  { id: "hat_chef_girl",  slot: "hat",   label: "요리사 모자", emoji: "👩‍🍳", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/chef-hat-girl.webp?v=5", thumb: "assets/avatar/thumb/hat_chef_girl.webp?v=2" },
   /* 구름 모자 [2026-10-04] — 여아. 노란 벙거지(청록 띠·무지개 구름 장식) + 얼굴·양갈래 머리 한 장(사용자 원화 535×505). 노란 우비룩과 짝.
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.959)으로 배율 0.676, 원점 (333,74). 아래는 자르지 않음.
      탑재 상자 (333,74,695,415).
      [2026-10-04] 사용자 조정 — 3% 크게(배율 0.6963, 턱·얼굴 가운데 고정, 원점 (328,66)). 탑재 상자 (328,66,701,418). img ?v=2.
      [2026-10-04] 아래로 2(원점 (328,68)). 탑재 상자 (328,68,701,420). img ?v=3. */
-  { id: "hat_cloud_girl", slot: "hat",   label: "구름 모자", emoji: "☁️", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/cloud-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_cloud_girl.webp" },
+  { id: "hat_cloud_girl", slot: "hat",   label: "구름 모자", emoji: "☁️", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/cloud-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_cloud_girl.webp?v=2" },
   /* 마법사 모자 [2026-10-04] — 여아. 보라 마법사 모자(금 초승달·별 장식) + 얼굴·양갈래 머리 한 장(사용자 원화 657×574). 달빛 마법사 옷과 짝.
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.943)으로 배율 0.696, 원점 (295,20). 아래는 자르지 않음.
      탑재 상자 (295,20,752,420).
      [2026-10-04] 사용자 조정 — 아래로 2·왼쪽으로 1(원점 (294,22)). 탑재 상자 (294,22,751,422). img ?v=2.
      [2026-10-04] 다시 아래로 2·왼쪽으로 1(원점 (293,24)). 탑재 상자 (293,24,750,424). img ?v=3. */
-  { id: "hat_wizard_girl", slot: "hat",  label: "마법사 모자", emoji: "🧙‍♀️", price:DECOR_PRICE.epic, rarity: "epic", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/wizard-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_wizard_girl.webp" },
+  { id: "hat_wizard_girl", slot: "hat",  label: "마법사 모자", emoji: "🧙‍♀️", price:DECOR_PRICE.epic, rarity: "epic", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/wizard-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_wizard_girl.webp?v=2" },
   /* 우주 헬멧 [2026-10-04] — 여아. 흰 우주 헬멧(보라 귀덮개·토성 장식·보라 목깃) + 얼굴·양갈래 머리 한 장(사용자 원화 492×514). 별빛 우주인 옷과 짝.
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.881, 헬멧 유리 반사로 조금 낮음)으로 배율 0.692, 원점 (345,68).
      아래는 자르지 않음 — 보라 목깃이 목에 걸쳐 우주복 깃 위로 자연스럽게 이어진다. 탑재 상자 (345,68,685,424).
@@ -258,7 +258,7 @@ export const AVATAR_CATALOG = [
      [2026-10-04] 오른쪽으로 4(원점 (349,63)). 탑재 상자 (349,63,689,419). img ?v=3.
      [2026-10-04] 왼쪽으로 5(원점 (344,63)). 탑재 상자 (344,63,684,419). img ?v=4.
      [2026-10-04] 왼쪽으로 3 더(원점 (341,63)). 탑재 상자 (341,63,681,419). img ?v=5. */
-  { id: "hat_helmet_girl", slot: "hat",  label: "우주 헬멧", emoji: "🧑‍🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/space-helmet-girl.webp?v=5", thumb: "assets/avatar/thumb/hat_helmet_girl.webp" },
+  { id: "hat_helmet_girl", slot: "hat",  label: "우주 헬멧", emoji: "🧑‍🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/space-helmet-girl.webp?v=5", thumb: "assets/avatar/thumb/hat_helmet_girl.webp?v=2" },
   /* 남아 사파리 모자 [2026-10-02] — 모자+얼굴 한 장(사용자 원화)이라 hidesHead: 쓰면 머리카락 머리 장이 빠지고
      민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
      원화에 달린 목은 z50 이라 높은 깃(우주복·후드·도토리)을 덮어서 기본 머리 장처럼 y404 에서 잘랐다. */
@@ -666,7 +666,8 @@ export const isItemForGender = (it, gender) => !it.forGender || !gender || it.fo
    입히는 그림(img)은 그대로다. 원본은 art-src/thumb-src-<id>.webp.
    여아 옷 8벌도 같은 날 같은 방식으로 바꿨다(공용 id 는 thumbGirl, 원본 thumb-src-<id>-girl.webp).
    [2026-10-03] 여아 신발 8켤레도 상점 목록 그림만 한 짝 옆모습 아이콘으로 바꿨다(원본 thumb-src-<id>.webp).
-   [2026-10-04] 남아 신발 7켤레도 같은 방식으로 바꿨다. */
+   [2026-10-04] 남아 신발 7켤레도 같은 방식으로 바꿨다.
+   [2026-10-04] 여아 모자 8개도 상점 목록 그림만 모자 아이콘으로 바꿨다. */
 /* ── 성별마다 다른 이름 ──────────────────────────────────────────────────
    남녀가 같은 id 를 쓰는데 그림이 다른 옷(사파리·우주복)은 여아 이름·이모지를
    labelGirl / emojiGirl 로 따로 둔다. 화면에 이름을 보일 때는 이 두 함수를 쓴다. */
