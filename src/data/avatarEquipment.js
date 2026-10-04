@@ -247,8 +247,9 @@ export const AVATAR_CATALOG = [
   { id: "hat_cloud_girl", slot: "hat",   label: "구름 모자", emoji: "☁️", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/cloud-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_cloud_girl.webp" },
   /* 마법사 모자 [2026-10-04] — 여아. 보라 마법사 모자(금 초승달·별 장식) + 얼굴·양갈래 머리 한 장(사용자 원화 657×574). 달빛 마법사 옷과 짝.
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.943)으로 배율 0.696, 원점 (295,20). 아래는 자르지 않음.
-     탑재 상자 (295,20,752,420). */
-  { id: "hat_wizard_girl", slot: "hat",  label: "마법사 모자", emoji: "🧙‍♀️", price:DECOR_PRICE.epic, rarity: "epic", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/wizard-hat-girl.webp", thumb: "assets/avatar/thumb/hat_wizard_girl.webp" },
+     탑재 상자 (295,20,752,420).
+     [2026-10-04] 사용자 조정 — 아래로 2·왼쪽으로 1(원점 (294,22)). 탑재 상자 (294,22,751,422). img ?v=2. */
+  { id: "hat_wizard_girl", slot: "hat",  label: "마법사 모자", emoji: "🧙‍♀️", price:DECOR_PRICE.epic, rarity: "epic", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/wizard-hat-girl.webp?v=2", thumb: "assets/avatar/thumb/hat_wizard_girl.webp" },
   /* 남아 사파리 모자 [2026-10-02] — 모자+얼굴 한 장(사용자 원화)이라 hidesHead: 쓰면 머리카락 머리 장이 빠지고
      민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
      원화에 달린 목은 z50 이라 높은 깃(우주복·후드·도토리)을 덮어서 기본 머리 장처럼 y404 에서 잘랐다. */
