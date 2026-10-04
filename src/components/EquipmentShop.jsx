@@ -20,23 +20,24 @@ const G = {
 };
 
 /* 카드 그림 — item.thumb 이 있으면 그림, 없거나 로드 실패면 기존 이모지로 폴백.
-   높이만 고정하고 폭은 그림 비율대로 두어(모자는 가로로 넓고 부츠는 세로로 길다)
-   카드마다 크기가 들쭉날쭉해 보이지 않게 한다. */
+   [2026-10-04 사용자 확정] 모든 그림을 같은 상자(BOX_W×BOX) 안에 비율대로 맞춘다 — 전에는 높이만
+   고정해서 가로로 넓은 모자 그림이 칸을 밀어내 모자 목록만 칸 크기가 달랐다. */
 /* [2026-08-20] 남녀 그림이 다른 아이템(사파리 옷)이 생겨서 thumbGirl 을 본다 —
    남아에게 여아 블라우스 그림을 보여 주면 무슨 옷인지 헷갈린다. */
 function ItemThumb({ item, gender }) {
   const [failed, setFailed] = useState(false);
   const BOX = 52;
+  const BOX_W = 72;
   const thumbSrc = (gender === "girl" && item.thumbGirl) || item.thumb;
   if (thumbSrc && !failed) {
     return (
-      <div style={{ height: BOX, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: BOX_W, maxWidth: "100%", height: BOX, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img
           src={"/" + thumbSrc.replace(/^\/+/, "")}
           alt={itemLabel(item, gender)}
           onError={() => setFailed(true)}
           draggable={false}
-          style={{ height: "100%", width: "auto", objectFit: "contain", pointerEvents: "none" }}
+          style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }}
         />
       </div>
     );
@@ -410,7 +411,7 @@ export default function EquipmentShop({
              좁은 화면에서 무대가 대신 min 까지 줄어든다. */
           flex: "1 1 auto", minHeight: 150, overflowY: "auto",
           padding: "14px 16px 16px", background: "#fff",
-          display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 9, alignContent: "start",
+          display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 9, alignContent: "start",
         }}>
           {items.length === 0 && (
             <div style={{
