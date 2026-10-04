@@ -222,8 +222,9 @@ export const AVATAR_CATALOG = [
      사파리 모자와 같은 방식 — hidesHead 로 기본 머리 장을 빼고 이 그림이 머리를 대신한다. 얼굴(눈~입) 템플릿 매칭(일치 0.956)으로
      배율 0.644, 원점 (336,76). 기본 머리 장처럼 y404 아래는 잘랐다. 탑재 상자 (336,76,715,398).
      [2026-10-04] 사용자 조정 — 아래로 1(원점 (336,77)). 탑재 상자 (336,77,715,399). img ?v=2.
-     [2026-10-04] 아래로 1 더(원점 (336,78)). 탑재 상자 (336,78,715,400). img ?v=3. */
-  { id: "hat_cap_boy",    slot: "hat",   label: "번개 캡모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/lightning-cap-boy.webp?v=3", thumb: "assets/avatar/thumb/hat_cap_boy.webp" },
+     [2026-10-04] 아래로 1 더(원점 (336,78)). 탑재 상자 (336,78,715,400). img ?v=3.
+     [2026-10-04] 머리 3% 크게(배율 0.6633, 턱 아래끝·얼굴 가운데 x516 고정, 원점 (331,68)). 탑재 상자 (331,68,722,400). img ?v=4. */
+  { id: "hat_cap_boy",    slot: "hat",   label: "번개 캡모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/lightning-cap-boy.webp?v=4", thumb: "assets/avatar/thumb/hat_cap_boy.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
