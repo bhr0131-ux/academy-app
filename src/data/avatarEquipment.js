@@ -235,8 +235,9 @@ export const AVATAR_CATALOG = [
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.924)으로 배율 0.660, 원점 (348,28). 아래는 자르지 않음.
      탑재 상자 (349,28,691,413).
      [2026-10-04] 사용자 조정 — 3% 크게(배율 0.6798, 턱·얼굴 가운데 고정, 원점 (343,18)). 탑재 상자 (344,18,696,415). img ?v=2.
-     [2026-10-04] 1% 더 크게(배율 0.6866, 원점 (341,15)). 탑재 상자 (342,15,698,416). img ?v=3. */
-  { id: "hat_chef_girl",  slot: "hat",   label: "요리사 모자", emoji: "👩‍🍳", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/chef-hat-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_chef_girl.webp" },
+     [2026-10-04] 1% 더 크게(배율 0.6866, 원점 (341,15)). 탑재 상자 (342,15,698,416). img ?v=3.
+     [2026-10-04] 아래로 3(원점 (341,18)). 탑재 상자 (342,18,698,419). img ?v=4. */
+  { id: "hat_chef_girl",  slot: "hat",   label: "요리사 모자", emoji: "👩‍🍳", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/chef-hat-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_chef_girl.webp" },
   /* 남아 사파리 모자 [2026-10-02] — 모자+얼굴 한 장(사용자 원화)이라 hidesHead: 쓰면 머리카락 머리 장이 빠지고
      민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
      원화에 달린 목은 z50 이라 높은 깃(우주복·후드·도토리)을 덮어서 기본 머리 장처럼 y404 에서 잘랐다. */
