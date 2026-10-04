@@ -231,6 +231,10 @@ export const AVATAR_CATALOG = [
      [2026-10-04] 아래로 1(원점 (347,61)). 탑재 상자 (347,61,684,422). img ?v=3.
      [2026-10-04] 1% 크게(배율 0.6949, 턱·얼굴 가운데 고정, 원점 (345,58)). 탑재 상자 (345,58,686,422). img ?v=4. */
   { id: "hat_post_girl",  slot: "hat",   label: "우편부 모자", emoji: "💌", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/post-cap-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_post_girl.webp" },
+  /* 요리사 모자 [2026-10-04] — 여아. 흰 요리사 모자(분홍 띠·크루아상 장식) + 얼굴·양갈래 머리 한 장(사용자 원화 520×584). 핑크 파티시에 옷과 짝.
+     들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.924)으로 배율 0.660, 원점 (348,28). 아래는 자르지 않음.
+     탑재 상자 (349,28,691,413). */
+  { id: "hat_chef_girl",  slot: "hat",   label: "요리사 모자", emoji: "👩‍🍳", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/chef-hat-girl.webp", thumb: "assets/avatar/thumb/hat_chef_girl.webp" },
   /* 남아 사파리 모자 [2026-10-02] — 모자+얼굴 한 장(사용자 원화)이라 hidesHead: 쓰면 머리카락 머리 장이 빠지고
      민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
      원화에 달린 목은 z50 이라 높은 깃(우주복·후드·도토리)을 덮어서 기본 머리 장처럼 y404 에서 잘랐다. */
