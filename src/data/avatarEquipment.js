@@ -204,7 +204,10 @@ export const AVATAR_CATALOG = [
      [2026-08-20] '베이스가 쓰고 있는 머리 그림'을 새로 받아 다시 탑재했다(?v=3).
      예전엔 머리띠만 오려 낸 그림을 눈으로 맞춰서 머리보다 크게 얹혀 있었다
      (탑재 상자 362~659 → 391~640, 머리 폭 안으로 들어옴). art-src/README 참고. */
-  { id: "hat_safari",     slot: "hat",   label: "들꽃 머리띠", emoji: "🌼", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", forGender: "girl", img: "assets/avatar/hat/safari-band-girl.webp?v=3", thumb: "assets/avatar/thumb/hat_safari.webp" },
+  /* [2026-10-04] 들꽃 머리띠 새 원화로 교체 — 머리띠 + 얼굴·양갈래 머리 한 장(사용자 원화 488×486). 위 탑재값은 옛 판 기록.
+     남아 캡모자들처럼 hidesHead 로 여아 기본 머리 장을 빼고 이 그림이 머리를 대신한다. 얼굴(눈~입) 템플릿 매칭(일치 0.976)으로
+     배율 0.688, 원점 (346,87). 양갈래가 목 아래로 내려와 여아 기본 머리처럼 아래를 자르지 않았다(목 이음매 없음). 탑재 상자 (346,87,682,421). img ?v=4. */
+  { id: "hat_safari",     slot: "hat",   label: "들꽃 머리띠", emoji: "🌼", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/safari-band-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_safari.webp" },
   /* 해적 모자 — 머리띠와 같은 방식('베이스가 쓰고 있는 머리 그림' → 얼굴 상자로 맞춤).
      챙이 이마를 덮지만 얼굴은 그대로 보이므로 hidesHead 는 안 쓴다.
      떼어낼 때 가장 큰 덩어리에 앞머리·눈까지 딸려 와서(모자를 쓰면 앞머리가 다르게 그려진다)
