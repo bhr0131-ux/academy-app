@@ -262,7 +262,9 @@ export const AVATAR_CATALOG = [
   /* 남아 사파리 모자 [2026-10-02] — 모자+얼굴 한 장(사용자 원화)이라 hidesHead: 쓰면 머리카락 머리 장이 빠지고
      민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
      원화에 달린 목은 z50 이라 높은 깃(우주복·후드·도토리)을 덮어서 기본 머리 장처럼 y404 에서 잘랐다. */
-  { id: "hat_safari_boy", slot: "hat",   label: "사파리 모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/safari-brown.webp?v=2", thumb: "assets/avatar/thumb/hat_safari_boy.webp" },
+  /* [2026-10-04] 새 원화로 교체·이름 사파리 모자 → 정글 모자 — 베이지 정글 모자(초록 띠·헤드램프) + 얼굴 한 장(사용자 원화 593×496).
+     위 탑재값은 옛 판 기록. 얼굴(눈~입) 템플릿 매칭(일치 0.955)으로 배율 0.664, 원점 (317,67), y404 아래 자름. 탑재 상자 (317,67,711,396). img ?v=3. */
+  { id: "hat_safari_boy", slot: "hat",   label: "정글 모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/safari-brown.webp?v=3", thumb: "assets/avatar/thumb/hat_safari_boy.webp" },
   /* 번개 캡모자 [2026-10-04] — 남아. 청록 캡(뒤로 쓴 챙·형광 번개) + 얼굴 한 장(사용자 원화 589×500). 번개 스케이터 옷과 짝.
      사파리 모자와 같은 방식 — hidesHead 로 기본 머리 장을 빼고 이 그림이 머리를 대신한다. 얼굴(눈~입) 템플릿 매칭(일치 0.956)으로
      배율 0.644, 원점 (336,76). 기본 머리 장처럼 y404 아래는 잘랐다. 탑재 상자 (336,76,715,398).
