@@ -221,8 +221,9 @@ export const AVATAR_CATALOG = [
   { id: "hat_picnic",     slot: "hat",   label: "딸기 밀짚모자", emoji: "👒", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/picnic-hat-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_picnic.webp" },
   /* [2026-10-04] 꼬마해적 모자 새 원화로 교체 — 남색 삼각 해적모(주황 테두리·불가사리) + 얼굴·양갈래 머리 한 장(사용자 원화 521×517).
      들꽃 머리띠와 같은 방식(hidesHead) — 얼굴 템플릿 매칭(일치 0.948)으로 배율 0.700, 원점 (337,57). 아래는 자르지 않음.
-     탑재 상자 (337,57,702,419). img ?v=4. */
-  { id: "hat_pirate",     slot: "hat",   label: "꼬마해적 모자",   emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/pirate-hat-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_pirate.webp" },
+     탑재 상자 (337,57,702,419). img ?v=4.
+     [2026-10-04] 사용자 조정 — 아래로 1·왼쪽으로 1(원점 (336,58)). 탑재 상자 (336,58,701,420). img ?v=5. */
+  { id: "hat_pirate",     slot: "hat",   label: "꼬마해적 모자",   emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/pirate-hat-girl.webp?v=5", thumb: "assets/avatar/thumb/hat_pirate.webp" },
   /* 남아 사파리 모자 [2026-10-02] — 모자+얼굴 한 장(사용자 원화)이라 hidesHead: 쓰면 머리카락 머리 장이 빠지고
      민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
      원화에 달린 목은 z50 이라 높은 깃(우주복·후드·도토리)을 덮어서 기본 머리 장처럼 y404 에서 잘랐다. */
