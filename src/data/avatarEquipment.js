@@ -380,7 +380,7 @@ export const AVATAR_CATALOG = [
      여아 우주 부츠처럼 옷 위로 그린다(z37, 사용자 확정 "우주 부츠는 옷 위로"). 탑재 상자 (391,824,632,949). img·thumb ?v=2.
      [2026-10-03] 사용자 조정 — 두 짝 1% 크게(배율 0.7272, 밑창·부츠목 가운데 고정). 탑재 상자 (391,823,632,949). img ?v=3.
      [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 2(왼짝 +2 → 0). 탑재 상자 (389,823,632,949). img ?v=4. */
-  { id: "shoes_astronaut",slot: "shoes", label: "우주 부츠",    emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "boy", z: 37, img: "assets/avatar/shoes/astronaut-boots-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_astronaut.webp?v=2" },
+  { id: "shoes_astronaut",slot: "shoes", label: "우주 부츠",    emoji: "🚀", price:DECOR_PRICE.common, rarity: "common", theme: "space", forGender: "boy", z: 37, img: "assets/avatar/shoes/astronaut-boots-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_astronaut.webp?v=2" },
 
   /* 라이트 부츠(처음 이름 정글 부츠, 2026-10-03 사용자 요청으로 바꿈) [2026-10-03] — 남아. 카키 하이탑 + 회색 양말, 불 들어오는 밑창 두 짝, 사용자 원화 369×235. 정글 탐험대 옷과 짝.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 양말 가운데(왼짝 x100.5 · 오른짝 x64)를 남아 다리 가운데(x450.5 · x574.5)에,
@@ -388,7 +388,7 @@ export const AVATAR_CATALOG = [
      맨발 0px. 탑재 상자 (385,796,637,956).
      [2026-10-03] 사용자 조정 — 화면 왼쪽 짝만 1% 크게(0.6868, 밑창·양말 가운데 고정)·왼쪽으로 2(왼짝 +3 → +1). 탑재 상자 (382,795,637,956). img ?v=2.
      [2026-10-03] 화면 왼쪽 짝만 1% 더 크게(0.6937). 탑재 상자 (382,793,637,956). img ?v=3. */
-  { id: "shoes_jungle", slot: "shoes", label: "라이트 부츠",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-boy.webp?v=3", thumb: "assets/avatar/thumb/shoes_jungle.webp" },
+  { id: "shoes_jungle", slot: "shoes", label: "정글 등산화",   emoji: "💡", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-boy.webp?v=3", thumb: "assets/avatar/thumb/shoes_jungle.webp" },
   /* 꼬마해적 신발 [2026-10-03] — 남아. 갈색 버클 부츠(접힌 목) 두 짝, 사용자 원화 340×177. 꼬마 해적단 옷과 짝.
      기존 남아 "해적 신발"(shoes_pirate)은 그대로 두고 따로 추가했다(사용자 요청 "추가").
      [2026-10-03] 한 번 뺐다가(판매 중단·환불 목록에 올렸음) 같은 날 사용자 요청으로 마지막 조정값 그대로 되살렸다.
@@ -398,7 +398,7 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 사용자 조정 — 두 짝 1% 크게(0.7272, 밑창·부츠목 가운데 고정), 화면 왼쪽 짝 왼쪽으로 1(+3)·오른쪽 짝 오른쪽으로 1(−2). 탑재 상자 (392,835,630,955). img ?v=2.
      [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 1 더(+2). 탑재 상자 (391,835,630,955). img ?v=3.
      [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 1 더(+1). 탑재 상자 (390,835,630,955). img ?v=4. */
-  { id: "shoes_pirate_kid", slot: "shoes", label: "꼬마해적 신발", emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-kid-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_pirate_kid.webp" },
+  { id: "shoes_pirate_kid", slot: "shoes", label: "해적 부츠", emoji: "🏴‍☠️", price:DECOR_PRICE.common, rarity: "common", theme: "pirate", forGender: "boy", img: "assets/avatar/shoes/pirate-boots-kid-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_pirate_kid.webp" },
   /* 도토리 부츠(처음 이름 정글 부츠) [2026-10-03] — 남아. 초록 끈 부츠(나뭇잎 무늬) + 니트 양말 두 짝, 사용자 원화 339×204. 정글 탐험대 옷과 짝.
      처음 "정글 부츠"로 넣었던 shoes_jungle 은 이름을 라이트 부츠로 바꿔 그대로 두고, 이 신발은 새 id 로 넣었다.
      두 짝을 따로 잘라 원화 양말 가운데(왼짝 x82 · 오른짝 x56)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.72, 왼짝 +4·오른짝 −2,
@@ -406,7 +406,7 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 사용자 조정 — 이름 정글 부츠 → 도토리 부츠, 두 짝 2% 크게(배율 0.7344, 밑창·양말 가운데 고정). 탑재 상자 (394,802,629,952). img ?v=2.
      [2026-10-03] 두 짝 2% 더 크게(배율 0.7491). 탑재 상자 (393,799,631,952). img ?v=3.
      [2026-10-03] 화면 왼쪽 짝만 왼쪽으로 5(+4 → −1). 탑재 상자 (388,799,631,952). img ?v=4. */
-  { id: "shoes_jungle_leaf", slot: "shoes", label: "도토리 부츠",   emoji: "🥾", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-leaf-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_jungle_leaf.webp" },
+  { id: "shoes_jungle_leaf", slot: "shoes", label: "도토리 부츠",   emoji: "🌿", price:DECOR_PRICE.common, rarity: "common", theme: "adventure", forGender: "boy", img: "assets/avatar/shoes/jungle-boots-leaf-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_jungle_leaf.webp" },
   /* 번개 운동화 [2026-10-03] — 남아. 청록 하이탑(형광 번개 무늬) + 흰 양말 두 짝, 사용자 원화 369×211. 번개 스케이터 옷과 짝.
      두 짝을 따로 잘라 원화 양말 가운데(왼짝 x94 · 오른짝 x61)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.70, 왼짝 +4·오른짝 −4,
      밑창 아래끝 y952(발 안쪽이 밑창 아래로 비치지 않게). 맨발 13px(밑창 안쪽 끝, 눈에 안 띔). 탑재 상자 (389,804,639,952).
@@ -423,14 +423,14 @@ export const AVATAR_CATALOG = [
      원화에 발이 그려져 있어 아바타 맨발을 샌들 속 발로 다 덮게 맞췄다. 두 짝을 따로 잘라(짝마다 위아래 딱 맞게)
      원화 뒤끈 가운데(왼짝 x90.5 · 오른짝 x58.5)를 남아 다리 가운데(x450.5 · x574.5)에, 배율 0.74, 왼짝 +2·오른짝 −2,
      밑창 아래끝 y946. 맨발 0px. 탑재 상자 (386,842,638,946). */
-  { id: "shoes_sandal", slot: "shoes", label: "썸머 샌들",   emoji: "🩴", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/summer-sandals-boy.webp", thumb: "assets/avatar/thumb/shoes_sandal.webp" },
+  { id: "shoes_sandal", slot: "shoes", label: "썸머 샌들",   emoji: "🏝️", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/summer-sandals-boy.webp", thumb: "assets/avatar/thumb/shoes_sandal.webp" },
   /* 바다 오리발 [2026-10-03] — 남아. 하늘색 오리발(남색 띠·금 버클) 두 짝, 사용자 원화 431×185. 바다 탐험대 옷과 짝.
      두 짝을 따로 잘라(짝마다 위아래 딱 맞게) 원화 발목 입구 가운데(왼짝 x131.5 · 오른짝 x62.5)를 남아 다리 가운데(x450.5 · x574.5)에,
      배율 0.72, 왼짝 +6·오른짝 −6, 밑창 아래끝 y955. 날개가 바깥으로 넓게 퍼져 상자가 넓다. 맨발 0px. 탑재 상자 (362,827,656,955).
      [2026-10-04] 사용자 조정 — 화면 왼쪽 짝 왼쪽으로 5(+6 → +1)·오른쪽 짝 오른쪽으로 3(−6 → −3). img ?v=2.
      [2026-10-04] 두 짝 3% 크게(배율 0.7416, 밑창·입구 가운데 고정), 오른쪽 짝 오른쪽으로 4(−3 → +1). img ?v=3.
      [2026-10-04] 두 짝 3% 더 크게(배율 0.7638). img ?v=4. */
-  { id: "shoes_fins", slot: "shoes", label: "바다 오리발",   emoji: "🤿", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/sea-fins-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_fins.webp" },
+  { id: "shoes_fins", slot: "shoes", label: "바다 오리발",   emoji: "🌊", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/sea-fins-boy.webp?v=4", thumb: "assets/avatar/thumb/shoes_fins.webp" },
   /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
      두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
