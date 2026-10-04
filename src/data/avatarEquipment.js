@@ -228,8 +228,9 @@ export const AVATAR_CATALOG = [
   /* 썸머 썬캡 [2026-10-04] — 남아. 주황 썬캡(조개 장식) + 얼굴 한 장(사용자 원화 520×456). 썸머 웨이브 옷과 짝.
      번개 캡모자와 같은 방식(hidesHead) — 얼굴(눈~입) 템플릿 매칭(일치 0.953)으로 배율 0.676, 원점 (339,83). y404 아래 자름.
      탑재 상자 (339,83,691,391).
-     [2026-10-04] 사용자 조정 — 2% 크게(배율 0.6895, 턱·얼굴 가운데 고정) 후 아래로 5, 원점 (335,82). 탑재 상자 (335,82,694,396). img ?v=2. */
-  { id: "hat_visor_boy",  slot: "hat",   label: "썸머 썬캡", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/summer-visor-boy.webp?v=2", thumb: "assets/avatar/thumb/hat_visor_boy.webp" },
+     [2026-10-04] 사용자 조정 — 2% 크게(배율 0.6895, 턱·얼굴 가운데 고정) 후 아래로 5, 원점 (335,82). 탑재 상자 (335,82,694,396). img ?v=2.
+     [2026-10-04] 아래로 3 더(원점 (335,85)). 탑재 상자 (335,85,694,399). img ?v=3. */
+  { id: "hat_visor_boy",  slot: "hat",   label: "썸머 썬캡", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/summer-visor-boy.webp?v=3", thumb: "assets/avatar/thumb/hat_visor_boy.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
