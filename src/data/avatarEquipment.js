@@ -427,8 +427,9 @@ export const AVATAR_CATALOG = [
   /* 바다 오리발 [2026-10-03] — 남아. 하늘색 오리발(남색 띠·금 버클) 두 짝, 사용자 원화 431×185. 바다 탐험대 옷과 짝.
      두 짝을 따로 잘라(짝마다 위아래 딱 맞게) 원화 발목 입구 가운데(왼짝 x131.5 · 오른짝 x62.5)를 남아 다리 가운데(x450.5 · x574.5)에,
      배율 0.72, 왼짝 +6·오른짝 −6, 밑창 아래끝 y955. 날개가 바깥으로 넓게 퍼져 상자가 넓다. 맨발 0px. 탑재 상자 (362,827,656,955).
-     [2026-10-04] 사용자 조정 — 화면 왼쪽 짝 왼쪽으로 5(+6 → +1)·오른쪽 짝 오른쪽으로 3(−6 → −3). img ?v=2. */
-  { id: "shoes_fins", slot: "shoes", label: "바다 오리발",   emoji: "🤿", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/sea-fins-boy.webp?v=2", thumb: "assets/avatar/thumb/shoes_fins.webp" },
+     [2026-10-04] 사용자 조정 — 화면 왼쪽 짝 왼쪽으로 5(+6 → +1)·오른쪽 짝 오른쪽으로 3(−6 → −3). img ?v=2.
+     [2026-10-04] 두 짝 3% 크게(배율 0.7416, 밑창·입구 가운데 고정), 오른쪽 짝 오른쪽으로 4(−3 → +1). img ?v=3. */
+  { id: "shoes_fins", slot: "shoes", label: "바다 오리발",   emoji: "🤿", price:DECOR_PRICE.common, rarity: "common", theme: "common", forGender: "boy", img: "assets/avatar/shoes/sea-fins-boy.webp?v=3", thumb: "assets/avatar/thumb/shoes_fins.webp" },
   /* 들꽃 신발 [2026-10-02] — 여아 신발 첫 아이템. 올리브 끈 부츠 두 짝(흰 양말 목, 주황 끈·밑창) 사용자 원화 264×191.
      두 짝을 따로 잘라 각각 다리 위에 얹었다 — 원화 발목 가운데(왼짝 x61 · 오른짝 x51.5)를 여아 다리 가운데(x455 · x556)에,
      밑창 아래끝을 y942(발바닥 y940 바로 아래)에 맞췄다. 배율 0.64 — 발등·발가락이 다 가려지고(맨발 0px) 부츠 목이 종아리 아래(y820)에서 끝난다.
