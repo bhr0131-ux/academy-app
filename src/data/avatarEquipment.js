@@ -218,6 +218,10 @@ export const AVATAR_CATALOG = [
      민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
      원화에 달린 목은 z50 이라 높은 깃(우주복·후드·도토리)을 덮어서 기본 머리 장처럼 y404 에서 잘랐다. */
   { id: "hat_safari_boy", slot: "hat",   label: "사파리 모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/safari-brown.webp?v=2", thumb: "assets/avatar/thumb/hat_safari_boy.webp" },
+  /* 번개 캡모자 [2026-10-04] — 남아. 청록 캡(뒤로 쓴 챙·형광 번개) + 얼굴 한 장(사용자 원화 589×500). 번개 스케이터 옷과 짝.
+     사파리 모자와 같은 방식 — hidesHead 로 기본 머리 장을 빼고 이 그림이 머리를 대신한다. 얼굴(눈~입) 템플릿 매칭(일치 0.956)으로
+     배율 0.644, 원점 (336,76). 기본 머리 장처럼 y404 아래는 잘랐다. 탑재 상자 (336,76,715,398). */
+  { id: "hat_cap_boy",    slot: "hat",   label: "번개 캡모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/lightning-cap-boy.webp", thumb: "assets/avatar/thumb/hat_cap_boy.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
