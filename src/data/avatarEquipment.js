@@ -256,8 +256,9 @@ export const AVATAR_CATALOG = [
      아래는 자르지 않음 — 보라 목깃이 목에 걸쳐 우주복 깃 위로 자연스럽게 이어진다. 탑재 상자 (345,68,685,424).
      [2026-10-04] 사용자 조정 — 위로 5(원점 (345,63)). 탑재 상자 (345,63,685,419). img ?v=2.
      [2026-10-04] 오른쪽으로 4(원점 (349,63)). 탑재 상자 (349,63,689,419). img ?v=3.
-     [2026-10-04] 왼쪽으로 5(원점 (344,63)). 탑재 상자 (344,63,684,419). img ?v=4. */
-  { id: "hat_helmet_girl", slot: "hat",  label: "우주 헬멧", emoji: "🧑‍🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/space-helmet-girl.webp?v=4", thumb: "assets/avatar/thumb/hat_helmet_girl.webp" },
+     [2026-10-04] 왼쪽으로 5(원점 (344,63)). 탑재 상자 (344,63,684,419). img ?v=4.
+     [2026-10-04] 왼쪽으로 3 더(원점 (341,63)). 탑재 상자 (341,63,681,419). img ?v=5. */
+  { id: "hat_helmet_girl", slot: "hat",  label: "우주 헬멧", emoji: "🧑‍🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space", forGender: "girl", hidesHead: true, img: "assets/avatar/hat/space-helmet-girl.webp?v=5", thumb: "assets/avatar/thumb/hat_helmet_girl.webp" },
   /* 남아 사파리 모자 [2026-10-02] — 모자+얼굴 한 장(사용자 원화)이라 hidesHead: 쓰면 머리카락 머리 장이 빠지고
      민머리 위에 얹힌다(베이스 v10 구조). 얼굴(눈~입) 템플릿 매칭으로 맞춤(배율 0.4065 · 일치 0.970).
      원화에 달린 목은 z50 이라 높은 깃(우주복·후드·도토리)을 덮어서 기본 머리 장처럼 y404 에서 잘랐다. */
