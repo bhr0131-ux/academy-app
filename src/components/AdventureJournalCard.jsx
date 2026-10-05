@@ -45,10 +45,12 @@ const COL_L = "31%";
 const COL_R = "7%";       // right 값 (= x 93%)
 
 // 아이콘 네 개의 중심 y (원화 실측)
-const Y_TIME    = "36.4%";
-const Y_SHUTTLE = "51.6%";
-const Y_SUPPLY  = "66.9%";
-const Y_MISSION = "83.8%";
+/* [사용자 요청 2026-10-05] 제목과 내용이 구분되게 네 줄 간격을 좁혀(약 15.8% → 13.5%) 아래로 모았다.
+   원화 속 아이콘도 같은 자리로 옮겨 그렸다(journal-card.webp ?v=3). */
+const Y_TIME    = "42.5%";
+const Y_SHUTTLE = "56%";
+const Y_SUPPLY  = "69.5%";
+const Y_MISSION = "83%";
 
 // onPrev/onNext: 좌우 스와이프로 시간순 이전/다음 학원 일지로 전환 (App이 순환 이동 전달)
 // 카드가 학원 전환으로 다시 마운트될 때(key=학원 id) 페이지 넘김 애니메이션 재생
@@ -81,7 +83,7 @@ export default function AdventureJournalCard({
       style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", marginBottom: 14, touchAction: "pan-y" }}>
 
       {/* v6 스프링 노트 원화 (1254×1254) — 왼쪽 아이콘 네 개만 있고 글자는 전부 앱이 얹는다 */}
-      <img src="assets/journal-card.webp?v=2" alt="" draggable={false}
+      <img src="assets/journal-card.webp?v=3" alt="" draggable={false}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block",
           filter: "drop-shadow(0 6px 14px rgba(74,90,37,0.22))" }} />
 
@@ -142,9 +144,9 @@ export default function AdventureJournalCard({
       </div>
 
       {/* 준비물 (배낭) — 체크 칩 (App이 토글 포함해 내려줌, 많으면 스크롤).
-          배낭 중심(66.9%)에 맞춰 가운데를 두되, 좁은 폰에서 칩이 두 줄로 접히므로
-          높이를 16%까지 준다 — 아래 과녁이 78.2%에서 시작하니 75%까지는 안 부딪친다. */}
-      <div style={{ position: "absolute", left: COL_L, right: COL_R, top: "59%", height: "16%",
+          배낭 중심(69.5%)에 맞춰 가운데를 두되, 좁은 폰에서 칩이 두 줄로 접히므로
+          높이를 15%까지 준다 — 아래 과녁이 77.5%쯤에서 시작하니 77%까지는 안 부딪친다. */}
+      <div style={{ position: "absolute", left: COL_L, right: COL_R, top: "62%", height: "15%",
         display: "flex", flexWrap: "wrap", gap: 5, alignContent: "center", justifyContent: "flex-start",
         overflowY: "auto" }}>
         {supplies}
