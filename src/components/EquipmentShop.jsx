@@ -191,7 +191,7 @@ export default function EquipmentShop({
     if (!open) return;
     const seen = new Set();
     for (const t of SHOP_TABS) for (const it of getItemsByTab(t.key, gender)) {
-      for (const p of [it.img, it.imgGirl, it.imgFront, it.imgFrontGirl, it.thumb, it.thumbGirl]) {
+      for (const p of [it.img, it.imgGirl, it.imgFront, it.imgFrontGirl, it.thumb, it.thumbGirl, ...Object.values(it.topVariant || {}).map(v => v.img)]) {
         if (!p || seen.has(p)) continue;
         seen.add(p);
         const img = new Image();
