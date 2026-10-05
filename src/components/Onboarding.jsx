@@ -138,7 +138,12 @@ export function OnboardingFlow({ onFinish }){
   const [acName,setAcName]=useState("");            // 학원 이름 (선택)
   const [acDays,setAcDays]=useState([]);
   const [acTime,setAcTime]=useState("16:00");
-  const [acDuration,setAcDuration]=useState("40");
+  /* [사용자 확정 2026-10-05] 학교·어린이집은 시간이 길어 '수업 시간(분)' 대신 종료 시간을 받는다.
+     저장은 예전처럼 분(acDuration)으로 — 종료 − 시작으로 바꿔 넘긴다. */
+  const [acEnd,setAcEnd]=useState("16:40");
+  const toMin=(hm)=>{ const [h,m]=String(hm||"").split(":").map(Number); return Number.isFinite(h)&&Number.isFinite(m)?h*60+m:NaN; };
+  const acDuration=toMin(acEnd)-toMin(acTime);
+  const acTimeOk=acDuration>0;
   const [supply,setSupply]=useState("");          // 항상 챙길 준비물 (선택)
   const [baseHw,setBaseHw]=useState("");          // 반복 숙제 (선택)
   const [mission,setMission]=useState("");        // 오늘 미션 하나 (선택)
@@ -162,7 +167,7 @@ export function OnboardingFlow({ onFinish }){
      · '오늘의 숙제'와 '오늘의 미션(할 일)'을 따로 물으면서 둘 다 필수라 건너뛸 수 없었다
        → 미션 화면과 같은 방식(종류 고르기 + 내용 하나)으로 합치고 선택으로 바꾼다.
      · 학원 카드가 '수업 40분 · 준비물 · 반복 숙제'까지 보여 주는데 첫 등록에는 없었다
-       → 수업 시간(분)과 준비물·반복 숙제를 넣는다. 둘 다 선택이다.
+       → 수업 시간(시작·종료)과 준비물·반복 숙제를 넣는다. 둘 다 선택이다.
      · 마지막에 '이제 어디서 무엇을 하면 되는지' 한 장을 둔다. */
   const steps=[
     { kind:"welcome" },
@@ -174,7 +179,7 @@ export function OnboardingFlow({ onFinish }){
     /* [사용자 지적 2026-08-11] 앱의 학원 등록은 '종류'가 필수고 '이름'이 선택이다.
        첫 등록만 이름을 필수로 받고 있어 규칙이 어긋났다 → 같은 순서·같은 규칙으로 맞춘다.
        이름을 비우면 종류 이름을 그대로 학원 이름으로 쓴다(앱의 saveAcademy 와 같은 규칙). */
-    { kind:"academy", title:"아이가 다니는 곳은 어디인가요?", sub:"예: 어린이집, 학교, 학원 등 — 우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind },
+    { kind:"academy", title:"아이가 다니는 곳은 어디인가요?", sub:"예: 어린이집, 학교, 학원 등 — 우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind&&acTimeOk },
     { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그곳에 가는 날마다 보여요." },
     /* [사용자 확정 2026-08-11] 반복 숙제를 준비물과 떼어 미션 단계로 옮겼다 — 둘 다 '숙제'라
        미션 이야기를 할 때 같이 보는 게 자연스럽다.
@@ -195,7 +200,7 @@ export function OnboardingFlow({ onFinish }){
   };
   const prev=()=>setStep(s=>Math.max(0,s-1));
   const finish=()=>onFinish({ childName, gender, parentGender, age, acKind, acKindLabel, acName, acDays, acTime,
-    acDuration:Number(acDuration)||40, supply, baseHw, mission, missionKind });
+    acDuration:acTimeOk?acDuration:40, supply, baseHw, mission, missionKind });
 
   if(celebrating) return (
     <div style={{position:"fixed",inset:0,zIndex:9999,background:"#fff",display:"flex",flexDirection:"column",
@@ -325,18 +330,22 @@ export function OnboardingFlow({ onFinish }){
             <div style={{display:"flex",gap:10,marginTop:ACADEMY_GAP}}>
               <div style={{flex:1,minWidth:0}}>
                 <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>시작 시간</p>
-                <input type="time" value={acTime} onChange={e=>setAcTime(e.target.value)} style={{...inp,minWidth:0}}/>
+                <input type="time" value={acTime} onChange={e=>{
+                  /* 시작을 옮기면 종료도 같은 간격만큼 따라간다 — 시작만 늦췄다가 '종료가 더 이르다'가 바로 뜨지 않게 */
+                  const v=e.target.value, d=toMin(v)-toMin(acTime), en=toMin(acEnd)+d;
+                  if(Number.isFinite(d)&&Number.isFinite(en)&&en>0&&en<24*60){
+                    const pad=n=>String(n).padStart(2,"0"); setAcEnd(`${pad(Math.floor(en/60))}:${pad(en%60)}`);
+                  }
+                  setAcTime(v);
+                }} style={{...inp,minWidth:0}}/>
               </div>
-              <div style={{width:112,flexShrink:0}}>
-                <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>수업 시간</p>
-                <div style={{position:"relative"}}>
-                  <input type="number" inputMode="numeric" min="10" value={acDuration}
-                    onChange={e=>setAcDuration(e.target.value.replace(/[^0-9]/g,""))} aria-label="수업 시간(분)"
-                    style={{...inp,minWidth:0,paddingRight:34,textAlign:"right"}}/>
-                  <span style={{position:"absolute",right:14,top:"50%",transform:"translateY(-50%)",fontSize:15,fontWeight:700,color:"#8890B0",pointerEvents:"none"}}>분</span>
-                </div>
+              <div style={{flex:1,minWidth:0}}>
+                <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>종료 시간</p>
+                <input type="time" value={acEnd} onChange={e=>setAcEnd(e.target.value)}
+                  style={{...inp,minWidth:0,...(acTimeOk?null:{border:"2px solid #FF6B6B"})}}/>
               </div>
             </div>
+            {!acTimeOk&&<p style={{fontSize:12.5,fontWeight:700,color:"#FF6B6B",margin:"8px 0 0"}}>종료 시간은 시작 시간보다 늦어야 해요.</p>}
           </div>
         )}
 
