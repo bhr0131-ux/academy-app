@@ -518,8 +518,9 @@ export const AVATAR_CATALOG = [
      [2026-10-05] 앞·뒤장 사용자 조정 — 5% 크게(배율 0.734, 앞장 끈 윗끝 (457,393) 고정)·위로 5. 앞 상자 (448,388,619,661), 뒤 상자 (575,533,598,565). img ?v=2.
      [2026-10-05] 앞·뒤장 위로 5 더. 앞 상자 (448,383,619,656), 뒤 상자 (575,528,598,560). img ?v=3.
      [2026-10-05] 앞·뒤장 위로 2 더. 앞 상자 (448,381,619,654), 뒤 상자 (575,526,598,558). img ?v=4.
-     [2026-10-05] 앞·뒤장 위로 2 더. 앞 상자 (448,379,619,652), 뒤 상자 (575,524,598,556). img ?v=5. */
-  { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 14, img: "assets/avatar/back/wildflower-crossbag-back-girl.webp?v=5", imgFront: "assets/avatar/back/wildflower-crossbag-front-girl.webp?v=5", zFront: 48, topVariant: { top_vest: { img: "assets/avatar/back/wildflower-crossbag-girl.webp?v=7", z: 38 } }, thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
+     [2026-10-05] 앞·뒤장 위로 2 더. 앞 상자 (448,379,619,652), 뒤 상자 (575,524,598,556). img ?v=5.
+     [2026-10-05] 앞·뒤장 왼쪽으로 2·위로 1. 앞 상자 (446,378,617,651), 뒤 상자 (573,523,596,555). img ?v=6. */
+  { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 14, img: "assets/avatar/back/wildflower-crossbag-back-girl.webp?v=6", imgFront: "assets/avatar/back/wildflower-crossbag-front-girl.webp?v=6", zFront: 48, topVariant: { top_vest: { img: "assets/avatar/back/wildflower-crossbag-girl.webp?v=7", z: 38 } }, thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
