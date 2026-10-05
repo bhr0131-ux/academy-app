@@ -60,7 +60,7 @@ export function KidCoachmark({ th, onFinish, skin="dungeon" }){
        그림은 네 장 모두 앱 이모지 그림(EmojiIcon — 기기마다 그림체가 달라지지 않게), 크기 50 (사용자 확정). */
     : [
         { icon:"🗺️", title:"오늘 갈 곳을 확인해요", desc:"탐험 탭에서 오늘 갈 곳과 시간,\n챙길 준비물을 볼 수 있어요." },
-        { icon:"🎯", title:"미션을 해내요", desc:"미션 탭에서 할 일을 눌러 완료하면\n코인과 점수(⭐)를 받아요." },
+        { icon:"🎯", title:"미션을 해내요", desc:"미션 탭에서 할 일을 눌러 완료하면\n코인(💎)과 점수(⭐)를 받아요." },
         { icon:"💎", title:"코인을 모아요!", desc:"간식 같은 보상을 받고\n내 아바타도 꾸밀 수 있어요." },
         { icon:"⭐", title:"점수를 모아요!", desc:"내 성장캐릭터와 펫이 진화해요.\n보물상자를 열어 보너스를 받아보세요." },
       ];
@@ -78,7 +78,11 @@ export function KidCoachmark({ th, onFinish, skin="dungeon" }){
           <p style={{fontSize:21,fontWeight:900,color:"#1A1A35",margin:0,lineHeight:1.3}}>{c.title}</p>
         </div>
         <div style={{minHeight:60,display:"flex",alignItems:"center",justifyContent:"center",margin:"10px 0 0"}}>
-          <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:0,whiteSpace:"pre-line"}}>{c.desc}</p>
+          <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:0,whiteSpace:"pre-line"}}>
+            {/* 문장 속 💎·⭐도 위 그림과 같은 앱 이모지 그림으로 — 폰 기본 이모지와 섞이면 튄다 (사용자 지적 2026-10-05) */}
+            {c.desc.split(/(💎|⭐)/).map((s,k)=>(s==="💎"||s==="⭐")
+              ?<EmojiIcon key={k} emoji={s} size={16} style={{verticalAlign:"-2px",margin:"0 1px"}}/>:s)}
+          </p>
         </div>
         <div style={{display:"flex",gap:6,justifyContent:"center",margin:"auto 0 20px"}}>
           {cards.map((_,idx)=>(<span key={idx} style={{width:idx===i?22:8,height:8,borderRadius:99,background:idx===i?TH.main:"#D9DEE8",transition:"all .25s"}}/>))}
