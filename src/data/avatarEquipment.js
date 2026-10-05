@@ -183,6 +183,7 @@ export const AVATAR_RARITY = {
              imgGirl(여아 전용 그림 — 얼굴째 덮는 모자처럼 성별 얼굴이 필요한 장비용,
                      없으면 img를 남녀 공용으로 쓴다) /
              forGender(그 성별 상점에만 노출) / hidesHead·hidesHeadGirl(베이스 머리 감춤) /
+             imgFront·zFront(몸 앞쪽에 따로 그리는 장 — 가방 어깨끈 등) /
              soleY·soleYGirl(신발 밑창 높이 — 접지 그림자가 따라간다) /
              thumb(상점 카드 그림 — 없으면 emoji로 폴백)                     */
 export const AVATAR_CATALOG = [
@@ -474,6 +475,11 @@ export const AVATAR_CATALOG = [
   /* 로켓 가방 — 원화가 어깨 너머로 들여다본 모습이라, 몸통에 가려지는 부분은 버리고
      실루엣 밖으로 삐져나온 로켓 덩어리만 오려 냈다(등 슬롯 기본 z15 그대로 — 몸통 뒤에서
      튀어나온 부분만 보이면 되므로 앞으로 끌어올 필요가 없었다). */
+  /* 탐험 가방 [2026-10-05] — 남아. 갈색 가죽 배낭 + 지도 두루마리(사용자 원화 290×373) · 어깨끈(사용자 원화 263×198).
+     한 아이템이 몸 앞뒤로 나뉜다 — 가방 몸통(img)은 등 장비 기본 z15 로 몸 뒤에, 어깨끈(imgFront)은 zFront 48 로
+     옷·목 장식 위(모자 50 아래)에 그린다. 끈은 배율 0.76·가운데 x516·위끝 y414(어깨 윗선), 가방은 배율 0.70·원점 (505,350)
+     으로 오른쪽 어깨 뒤에서 가방과 두루마리가 보이게 했다. 끈 상자 (416,414,616,564) · 가방 상자 (505,350,708,611). */
+  { id: "back_explorer",  slot: "back",  label: "탐험 가방",    emoji: "🎒", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", img: "assets/avatar/back/explorer-pack-boy.webp", imgFront: "assets/avatar/back/explorer-pack-straps-boy.webp", zFront: 48, thumb: "assets/avatar/thumb/back_explorer.webp" },
   { id: "back_rocket",    slot: "back",  label: "로켓 가방",    emoji: "🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", img: "assets/avatar/back/rocket-pack-boy.webp", thumb: "assets/avatar/thumb/back_rocket.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
@@ -872,8 +878,15 @@ export const getAvatarLayers = (equippedMap = {}) => {
       const item = id ? getAvatarItem(id) : null;
       /* 아이템에 z가 있으면 슬롯 기본 z보다 우선 — 원화가 '앞에서 본 모습'이라
          슬롯 기본 순서로는 몸통에 가려지는 장비(탐험 배낭의 어깨끈 등)를 위해. */
-      return item ? { slot: slot.key, item, zIndex: item.z ?? slot.zIndex, emojiPos: slot.emojiPos } : null;
+      if (!item) return null;
+      const main = { key: slot.key, slot: slot.key, item, zIndex: item.z ?? slot.zIndex, emojiPos: slot.emojiPos };
+      /* imgFront — 한 아이템이 몸 앞뒤로 나뉘는 경우(가방 몸통은 몸 뒤, 어깨끈은 옷 위).
+         앞쪽 장은 zFront 로 따로 그리고, 그림이 없으면 이모지를 또 띄우지 않는다. */
+      if (!item.imgFront) return [main];
+      const front = { ...item, img: item.imgFront, imgGirl: item.imgFrontGirl, imgFront: undefined };
+      return [main, { key: slot.key + "-front", slot: slot.key, item: front, zIndex: item.zFront ?? 48, emojiPos: null, front: true }];
     })
     .filter(Boolean)
+    .flat()
     .sort((a, b) => a.zIndex - b.zIndex);
 };
