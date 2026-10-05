@@ -4770,7 +4770,7 @@ export default function App() {
               })()}
               {/* 섹션 구분 — 탐험일지 (탐험 스킨 전용, 지도 아래·학원카드 위, 갈색톤 — 사용자 확정) */}
               {kidSkin!=="cute"&&(
-                <div style={{display:"flex",alignItems:"center",gap:12,margin:"21px 2px 11px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:12,margin:"32px 2px 11px"}}>{/* [사용자 요청 2026-10-05] 탐험장소와 구분되게 21 → 32 */}
                   <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0) 10%, rgba(138,107,71,0.32))"}}/>
                   <span style={{flexShrink:0,fontSize:13.5,fontWeight:900,letterSpacing:0.4,color:"#8A6B47"}}>탐험일지</span>
                   <div style={{flex:1,height:2,borderRadius:2,background:"linear-gradient(90deg, rgba(138,107,71,0.32), rgba(138,107,71,0) 90%)"}}/>
