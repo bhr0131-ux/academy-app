@@ -68,7 +68,7 @@ export default function AcademyKindPicker({ open, value = "", customLabel = "", 
 
         <div style={{ padding: "20px 18px 12px", flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: "#2E2A26" }}>학원 종류 고르기</h3>
+            <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: "#2E2A26" }}>다니는 곳 고르기</h3>
             <button onClick={onClose} aria-label="닫기"
               style={{ background: "#F5F1ED", border: "none", borderRadius: 10, width: 30, height: 30,
                 cursor: "pointer", color: "#8A8078", fontSize: 15, fontFamily: F }}>✕</button>
