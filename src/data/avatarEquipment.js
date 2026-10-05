@@ -504,6 +504,10 @@ export const AVATAR_CATALOG = [
      옷이 넓어진 만큼 가로도 따라가게(왼쪽 끈 왼쪽으로 3·오른쪽 끈 오른쪽으로 1). 끈 상자 (428,406,600,556). imgFront ?v=6. */
   { id: "back_explorer",  slot: "back",  label: "해적 가방",    emoji: "🏴‍☠️", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "boy", img: "assets/avatar/back/explorer-pack-boy.webp?v=3", imgFront: "assets/avatar/back/explorer-pack-straps-boy.webp?v=6", zFront: 48, thumb: "assets/avatar/thumb/back_explorer.webp" },
   { id: "back_rocket",    slot: "back",  label: "로켓 가방",    emoji: "🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", img: "assets/avatar/back/rocket-pack-boy.webp", thumb: "assets/avatar/thumb/back_rocket.webp" },
+  /* 들꽃 크로스백 [2026-10-05] — 여아. 갈색 가죽 크로스백(흰 들꽃 장식), 사용자 원화 230×343. 들꽃 탐험가 옷과 짝.
+     왼쪽 어깨에서 오른쪽 옆구리로 메게 — 끈 윗끝을 어깨(432,368), 끈·가방 이음매를 (552,538)에 두는 배율 0.947·10.2° 회전, 원점 (426,318).
+     y420 위에서 몸·옷 밖으로 나간 끈은 지워 어깨 너머로 넘어가 보이게. 옷(35) 위·목 장식(40) 아래 z 38. 탑재 상자 (436,375,693,654). */
+  { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 38, img: "assets/avatar/back/wildflower-crossbag-girl.webp", thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
@@ -791,7 +795,8 @@ export const SHOP_ORDER = {
          "back_explorer", "back_rocket"],
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
-         "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl"],
+         "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",
+         "back_crossbag_girl"],
 };
 const shopRank = (it, gender) => {
   const i = (SHOP_ORDER[gender === "girl" ? "girl" : "boy"] || []).indexOf(it.id);
