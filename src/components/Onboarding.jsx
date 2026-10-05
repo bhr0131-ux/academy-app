@@ -187,7 +187,7 @@ export function OnboardingFlow({ onFinish }){
        미션 이야기를 할 때 같이 보는 게 자연스럽다.
        [2026-08-11] 필수는 '오늘 미션' 하나로 정했다(사용자 확정) — 아무 미션도 없이 시작하면
        첫 화면이 텅 비어 무엇을 할지 모른다. 반복 숙제는 없는 학원도 많아 선택으로 둔다. */
-    { kind:"mission", title:"오늘 할 미션을 정해볼까요?", sub:"오늘 미션 하나만 넣으면 시작할 수 있어요.",
+    { kind:"mission", title:"오늘 할 미션을 정해볼까요?", sub:"거의 다 왔어요!",
       canNext:()=>mission.trim().length>0 },
   ];
   const cur=steps[step];
@@ -374,7 +374,7 @@ export function OnboardingFlow({ onFinish }){
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 4px"}}>
               오늘 미션 <span style={tagReq}>필수</span>
             </p>
-            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>오늘 하루만 하는 일이에요.</p>
+            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>오늘 하루만 하는 숙제/할 일이에요.</p>
             {/* 종류 고르기는 앱의 미션 편집 화면과 같은 모양으로 (사용자 확정) */}
             <div style={{display:"flex",gap:8,marginBottom:10}}>
               {/* 앱의 미션 편집 팝업은 '숙제' '할 일' 글자만 쓴다 — 여기만 이모지가 붙어 있었다 */}
@@ -392,7 +392,7 @@ export function OnboardingFlow({ onFinish }){
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:`${MISSION_GAP}px 0 4px`}}>
               반복 숙제 <span style={tagOpt}>선택</span>
             </p>
-            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>갈 때마다 하는 숙제예요.</p>
+            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>반복되는 숙제를 등록해두면 미션 추가할 때 편해요.</p>
             <input value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 단어 5개 암기" style={inp}/>
           </div>
         )}
