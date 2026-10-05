@@ -505,9 +505,10 @@ export const AVATAR_CATALOG = [
   { id: "back_explorer",  slot: "back",  label: "해적 가방",    emoji: "🏴‍☠️", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "boy", img: "assets/avatar/back/explorer-pack-boy.webp?v=3", imgFront: "assets/avatar/back/explorer-pack-straps-boy.webp?v=6", zFront: 48, thumb: "assets/avatar/thumb/back_explorer.webp" },
   { id: "back_rocket",    slot: "back",  label: "로켓 가방",    emoji: "🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", img: "assets/avatar/back/rocket-pack-boy.webp", thumb: "assets/avatar/thumb/back_rocket.webp" },
   /* 들꽃 크로스백 [2026-10-05] — 여아. 갈색 가죽 크로스백(흰 들꽃 장식), 사용자 원화 230×343. 들꽃 탐험가 옷과 짝.
-     왼쪽 어깨에서 오른쪽 옆구리로 메게 — 끈 윗끝을 어깨(432,368), 끈·가방 이음매를 (552,538)에 두는 배율 0.947·10.2° 회전, 원점 (426,318).
-     y420 위에서 몸·옷 밖으로 나간 끈은 지워 어깨 너머로 넘어가 보이게. 옷(35) 위·목 장식(40) 아래 z 38. 탑재 상자 (436,375,693,654). */
-  { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 38, img: "assets/avatar/back/wildflower-crossbag-girl.webp", thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
+     사용자 배치 참고 그림(얼굴 매칭 0.915)에 맞춤 — 가방 몸통 매칭(0.986) 배율 0.73·-1° 회전, 끈·가방 이음매 (526,568).
+     끈은 가방에서 떼어 옷깃 아래 끝(463,421)까지 늘이고(×0.998) y419 위는 지워 옷깃 밑으로 들어가 보이게.
+     옷(35) 위·목 장식(40) 아래 z 38. 탑재 상자 (462,420,622,665). img ?v=2. */
+  { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 38, img: "assets/avatar/back/wildflower-crossbag-girl.webp?v=2", thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
