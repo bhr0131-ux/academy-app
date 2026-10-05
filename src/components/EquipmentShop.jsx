@@ -393,7 +393,7 @@ export default function EquipmentShop({
                   transition: "background 0.15s, color 0.15s",
                 }}
               >
-                {s.emoji} {s.label}
+                {s.emojiBoy && gender === "boy" ? s.emojiBoy : s.emoji} {s.label}
               </button>
             );
           })}

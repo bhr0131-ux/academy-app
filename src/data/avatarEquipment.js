@@ -154,7 +154,7 @@ export const SHOP_TABS = [
   { key: "shoes",   label: "신발", emoji: "👟", slots: ["shoes"] },
   { key: "hat",     label: "모자", emoji: "🎩", slots: ["hat"] },
   { key: "back",    label: "가방", emoji: "🎒", slots: ["back"] },
-  { key: "props",   label: "소품", emoji: "🎀", slots: ["neck", "face", "hand"] },
+  { key: "props",   label: "소품", emoji: "🎀", emojiBoy: "✨", slots: ["neck", "face", "hand"] },
 ];
 export const getShopTab = (key) => SHOP_TABS.find(t => t.key === key) || null;
 
