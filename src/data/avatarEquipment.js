@@ -480,6 +480,11 @@ export const AVATAR_CATALOG = [
      배율 0.6269, 원점 (587,441). 탑재 상자 (587,441,731,857).
      손 장비 슬롯이지만 z 12 로 **가장 뒤**(배경 10 바로 위 — 등 장비 15·몸 20보다 뒤)에 그린다. */
   { id: "hand_board_boy", slot: "hand",  label: "번개 보드",   emoji: "🛹", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/lightning-board-boy.webp", thumb: "assets/avatar/thumb/hand_board_boy.webp" },
+  /* 바다 산소통 [2026-10-05] — 남아. 산소통(사용자 원화 196×433)은 등 뒤 맨 뒤(z 12), 어깨끈 두 줄(283×172)은 맨 앞(zFront 48).
+     사용자 배치 참고 그림을 얼굴 매칭(0.847, 물안경이 눈을 가려 코~입으로)으로 아바타 좌표에 올려 위치를 땄다.
+     산소통 배율 0.524·원점 (599,361) (참고 그림 쪽이 조금 홀쭉해서 높이·오른쪽 끝 기준), 끈 매칭 0.967 배율 0.700×0.658·원점 (420,431).
+     번개 보드와 같은 손 장비 칸. 산소통 상자 (599,361,702,588), 끈 상자 (420,431,618,544). */
+  { id: "hand_tank_boy", slot: "hand",  label: "바다 산소통", emoji: "🤿", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/sea-tank-boy.webp", imgFront: "assets/avatar/hand/sea-tank-straps-boy.webp", zFront: 48, thumb: "assets/avatar/thumb/hand_tank_boy.webp" },
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
      세트 아이템이고(back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
