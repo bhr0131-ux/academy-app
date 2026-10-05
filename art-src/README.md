@@ -341,7 +341,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | shoe-cream-L/R.webp | 크림 부츠 원화 한 짝씩 (현행, 고해상도 원본) | avatar/shoes/cream-boots(-girl).webp |
 | hat-explorer-v3.webp | 탐험 헬멧 원화 남아 v3 (현행, hidesHead) | avatar/hat/explorer-helmet.webp |
 | hat-explorer-helmet-girl.webp | 탐험 헬멧 원화 여아 (현행, imgGirl) | avatar/hat/explorer-helmet-girl.webp |
-| hat-safari-brown.webp | **정글 모자 원화 남아(옛 이름 사파리 모자) — 새 판 (사용자 원화 2026-10-04, 이전 판 교체)** — 593×496 투명 배경, 베이지 정글 모자(초록 띠·헤드램프) + 얼굴 한 장. hidesHead 로 기본 머리를 대신한다. 얼굴 템플릿 매칭(일치 0.955)으로 배율 0.664·원점 (317,67), y404 아래 자름. 탑재 상자 (317,67,711,396) · img ?v=3 **[2026-10-05 조정]** 3% 크게(0.6839)·왼쪽 2, 원점 (309,57) · img ?v=4. 아래로 3·왼쪽 1(원점 (308,60)) · img ?v=5 | avatar/hat/safari-brown.webp |
+| hat-safari-brown.webp | **정글 모자 원화 남아(옛 이름 사파리 모자) — 새 판 (사용자 원화 2026-10-04, 이전 판 교체)** — 593×496 투명 배경, 베이지 정글 모자(초록 띠·헤드램프) + 얼굴 한 장. hidesHead 로 기본 머리를 대신한다. 얼굴 템플릿 매칭(일치 0.955)으로 배율 0.664·원점 (317,67), y404 아래 자름. 탑재 상자 (317,67,711,396) · img ?v=3 **[2026-10-05 조정]** 3% 크게(0.6839)·왼쪽 2, 원점 (309,57) · img ?v=4. 아래로 3·왼쪽 1(원점 (308,60)) · img ?v=5. 아래로 1 더(원점 (308,61)) · img ?v=6 | avatar/hat/safari-brown.webp |
 | hat-aviator-cap.webp | 비행사 모자 원화 남아 (**겨울 시즌 보관** — season:"winter", 상점 미노출) | avatar/hat/aviator-cap.webp |
 | hat-aviator-cap-girl.webp | 비행사 모자 원화 여아 (**겨울 시즌 보관**) | avatar/hat/aviator-cap-girl.webp |
 | hat-blossom.webp | 꽃 헬멧 원화 남아 (현행, hidesHead) | avatar/hat/blossom-helmet.webp |
