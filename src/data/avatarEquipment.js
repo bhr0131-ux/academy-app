@@ -391,8 +391,9 @@ export const AVATAR_CATALOG = [
   /* [2026-10-02] 여아 해적 옷 새 원화로 교체 — 크림 퍼프 블라우스(둥근 깃·주황 리본) + 주황 허리띠 남색 반바지(사용자 원화).
      베이커리룩과 같은 방식: 원화 목 외곽선 중심(x209)을 여아 목 중심 x512.5 에, 곧은 목선이 끝나는 원화 y15 를 y372 에 맞추고
      배율 0.70(원화 목 폭 63 → 여아 목 44, 흰 수영복도 이 값부터 다 가려진다). 원화 목은 페이드. imgGirl ?v=4 · thumbGirl ?v=2.
-     [2026-10-02] 사용자 수정판으로 교체 — 반바지 밑단 아래가 조금 늘었다. 같은 탑재값. imgGirl ?v=5 · thumbGirl ?v=3. */
-  { id: "top_pirate",     slot: "top",   label: "꼬마 해적단",     emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_pirate.webp?v=2", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp?v=4" },
+     [2026-10-02] 사용자 수정판으로 교체 — 반바지 밑단 아래가 조금 늘었다. 같은 탑재값. imgGirl ?v=5 · thumbGirl ?v=3.
+     [2026-10-05] 사용자 조정 — 남아 그림만 아래로 3. 남아 탑재 상자 (356,398,673,769). img ?v=2. */
+  { id: "top_pirate",     slot: "top",   label: "꼬마 해적단",     emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", coversBottom: true, img: "assets/avatar/top/pirate-outfit-boy.webp?v=2", imgGirl: "assets/avatar/top/pirate-outfit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_pirate.webp?v=2", thumbGirl: "assets/avatar/thumb/top_pirate-girl.webp?v=4" },
   /* 민트 후드 — 남아 전용 첫 아이템(forGender:"boy"). 크림 후드 + 왼팔만 보라 소매 +
      민트 후드 안감·꽃 패치 + 짙은 카고 반바지. 상·하의가 한 장이라 상의 슬롯 하나.
      원화는 옷만 오려 낸 깨끗한 그림인데 **후드 안쪽 목·가슴 살은 일부러 남겼다** —
