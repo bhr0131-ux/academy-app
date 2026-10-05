@@ -484,8 +484,9 @@ export const AVATAR_CATALOG = [
      사용자 배치 참고 그림을 얼굴 매칭(0.847, 물안경이 눈을 가려 코~입으로)으로 아바타 좌표에 올려 위치를 땄다.
      산소통 배율 0.524·원점 (599,361) (참고 그림 쪽이 조금 홀쭉해서 높이·오른쪽 끝 기준), 끈 매칭 0.967 배율 0.700×0.658·원점 (420,431).
      번개 보드와 같은 손 장비 칸. 산소통 상자 (599,361,702,588), 끈 상자 (420,431,618,544).
-     [2026-10-05] 사용자 조정 — 산소통만 왼쪽으로 4(원점 (595,361)). 산소통 상자 (595,361,698,588). img ?v=2. */
-  { id: "hand_tank_boy", slot: "hand",  label: "바다 산소통", emoji: "🤿", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/sea-tank-boy.webp?v=2", imgFront: "assets/avatar/hand/sea-tank-straps-boy.webp", zFront: 48, thumb: "assets/avatar/thumb/hand_tank_boy.webp" },
+     [2026-10-05] 사용자 조정 — 산소통만 왼쪽으로 4(원점 (595,361)). 산소통 상자 (595,361,698,588). img ?v=2.
+     [2026-10-05] 어깨끈 — 둘 다 위로 10 올린 뒤 바다 탐험대 후드 맨 아래 라인 위쪽은 지워 끈 윗끝을 후드 선에 맞춤, 오른쪽 끈은 왼쪽으로 5. 끈 상자 (420,427,613,534). imgFront ?v=2. */
+  { id: "hand_tank_boy", slot: "hand",  label: "바다 산소통", emoji: "🤿", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/sea-tank-boy.webp?v=2", imgFront: "assets/avatar/hand/sea-tank-straps-boy.webp?v=2", zFront: 48, thumb: "assets/avatar/thumb/hand_tank_boy.webp" },
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
      세트 아이템이고(back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
