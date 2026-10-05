@@ -488,8 +488,10 @@ export const AVATAR_CATALOG = [
      오게 왼쪽 끈 오른쪽으로 15·오른쪽 끈 왼쪽으로 17(크기 그대로). 끈 상자 (431,414,599,564). imgFront ?v=3.
      [2026-10-05] 그 상태에서 끈 윗선을 어깨선에 맞춰 왼쪽 끈 위로 7·오른쪽 끈 위로 6. 끈 상자 (431,407,599,557). imgFront ?v=4.
      [2026-10-05] 가방 몸통 아래로 10·왼쪽으로 7(원점 (508,340)). 가방 상자 (508,340,711,601). img ?v=3.
-     [2026-10-05] 끈 윗선을 꼬마 해적단 옷(top_pirate) 어깨선에 맞춰 양쪽 위로 4. 끈 상자 (431,403,599,553). imgFront ?v=5. */
-  { id: "back_explorer",  slot: "back",  label: "해적 가방",    emoji: "🏴‍☠️", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "boy", img: "assets/avatar/back/explorer-pack-boy.webp?v=3", imgFront: "assets/avatar/back/explorer-pack-straps-boy.webp?v=5", zFront: 48, thumb: "assets/avatar/thumb/back_explorer.webp" },
+     [2026-10-05] 끈 윗선을 꼬마 해적단 옷(top_pirate) 어깨선에 맞춰 양쪽 위로 4. 끈 상자 (431,403,599,553). imgFront ?v=5.
+     [2026-10-05] 남아 해적 옷을 2% 크게·아래로 4·왼쪽 1 고친 뒤 다시 맞춤 — 끈 윗선을 새 어깨선에(왼쪽 아래로 3·오른쪽 아래로 4),
+     옷이 넓어진 만큼 가로도 따라가게(왼쪽 끈 왼쪽으로 3·오른쪽 끈 오른쪽으로 1). 끈 상자 (428,406,600,556). imgFront ?v=6. */
+  { id: "back_explorer",  slot: "back",  label: "해적 가방",    emoji: "🏴‍☠️", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "boy", img: "assets/avatar/back/explorer-pack-boy.webp?v=3", imgFront: "assets/avatar/back/explorer-pack-straps-boy.webp?v=6", zFront: 48, thumb: "assets/avatar/thumb/back_explorer.webp" },
   { id: "back_rocket",    slot: "back",  label: "로켓 가방",    emoji: "🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", img: "assets/avatar/back/rocket-pack-boy.webp", thumb: "assets/avatar/thumb/back_rocket.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
