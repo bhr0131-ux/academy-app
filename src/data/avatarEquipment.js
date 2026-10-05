@@ -119,7 +119,7 @@ export const AVATAR_THEMES = {
 export const AVATAR_SLOTS = [
   { key: "background", label: "배경",     emoji: "🌈", zIndex: 10, removable: true, wearVerb: "깔기", emojiPos: null },
   { key: "back",       label: "등 장비",  emoji: "🎒", zIndex: 15, removable: true, wearVerb: "메기", emojiPos: { x: 0.30, y: 0.48, s: 0.34 } },
-  { key: "shoes",      label: "신발",     emoji: "👟", zIndex: 40, removable: true, wearVerb: "신기", emojiPos: { x: 0.50, y: 0.87, s: 0.24 } },
+  { key: "shoes",      label: "신발",     emoji: "👟", zIndex: 25, removable: true, wearVerb: "신기", emojiPos: { x: 0.50, y: 0.87, s: 0.24 } },
   { key: "bottom",     label: "하의",     emoji: "👖", zIndex: 30, removable: true, wearVerb: "입기", wearNoun: "옷", emojiPos: { x: 0.50, y: 0.70, s: 0.28 } },
   { key: "top",        label: "상의",     emoji: "👕", zIndex: 35, removable: true, wearVerb: "입기", wearNoun: "옷", emojiPos: { x: 0.50, y: 0.55, s: 0.32 } },
   { key: "neck",       label: "목 장식",  emoji: "🧣", zIndex: 40, removable: true, wearVerb: "하기", emojiPos: { x: 0.50, y: 0.47, s: 0.24 } },
