@@ -61,8 +61,8 @@ export function KidCoachmark({ th, onFinish, skin="dungeon" }){
     : [
         { img:"assets/camp/st-history.webp", title:"오늘 갈 곳을 확인해요", desc:"탐험 탭에서 오늘 갈 곳과 시간,\n챙길 준비물을 볼 수 있어요." },
         { img:"assets/coin-front.webp", title:"미션을 해내요", desc:"미션 탭에서 할 일을 눌러 완료하면\n코인과 점수(⭐)를 받아요." },
-        { img:"assets/chest-open.webp", title:"보물상자를 열어요", desc:"오늘 갈 곳을 모두 다녀오면\n지도 위 보물상자가 열려요!" },
-        { img:"assets/camp/st-deco.webp", title:"캐릭터를 꾸며요", desc:"모은 코인으로 옷을 사 입고\n캐릭터 탭에서 펫도 키울 수 있어요!" },
+        { img:"assets/camp/st-deco.webp", title:"보상을 받고 꾸며요", desc:"모은 코인으로 보상을 구매하고\n내 아바타도 꾸밀 수 있어요!" },
+        { img:"assets/chest-open.webp", title:"레벨이 오르고 진화해요", desc:"모은 점수(⭐)로 내 레벨과\n성장캐릭터가 진화해요.\n보물상자를 열어서 보너스를 받아보세요!" },
       ];
   const [i,setI]=useState(0);
   const last=i===cards.length-1;
@@ -76,7 +76,7 @@ export function KidCoachmark({ th, onFinish, skin="dungeon" }){
         <div style={{height:34,display:"flex",alignItems:"center",justifyContent:"center"}}>
           <p style={{fontSize:21,fontWeight:900,color:"#1A1A35",margin:0,lineHeight:1.3}}>{c.title}</p>
         </div>
-        <div style={{height:60,display:"flex",alignItems:"center",justifyContent:"center",margin:"10px 0 0"}}>
+        <div style={{minHeight:60,display:"flex",alignItems:"center",justifyContent:"center",margin:"10px 0 0"}}>
           <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:0,whiteSpace:"pre-line"}}>{c.desc}</p>
         </div>
         <div style={{display:"flex",gap:6,justifyContent:"center",margin:"auto 0 20px"}}>
