@@ -443,8 +443,9 @@ export const AVATAR_CATALOG = [
      [2026-10-05] 남아만 2% 더 크게(배율 0.6577). 남아 상자 (462,397,565,579). img ?v=4.
      [2026-10-05] 여아만 왼쪽으로 6·아래로 4(위끝 y360). 여아 상자 (459,360,556,531). imgGirl ?v=2.
      [2026-10-05] 여아만 2% 작게(배율 0.6076, 끈 위끝·가운데 고정). 여아 상자 (460,360,555,528). imgGirl ?v=3.
-     [2026-10-05] 여아만 오른쪽으로 2·아래로 3(위끝 y363). 여아 상자 (462,363,557,531). imgGirl ?v=4. */
-  { id: "neck_camera",    slot: "neck",  label: "탐험 카메라", emoji: "📷", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", img: "assets/avatar/neck/action-camera-boy.webp?v=4", imgGirl: "assets/avatar/neck/action-camera-girl.webp?v=4", thumb: "assets/avatar/thumb/neck_camera.webp" },
+     [2026-10-05] 여아만 오른쪽으로 2·아래로 3(위끝 y363). 여아 상자 (462,363,557,531). imgGirl ?v=4.
+     [2026-10-05] 여아만 오른쪽으로 1·아래로 4 더(위끝 y367). 여아 상자 (463,367,558,535). imgGirl ?v=5. */
+  { id: "neck_camera",    slot: "neck",  label: "탐험 카메라", emoji: "📷", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", img: "assets/avatar/neck/action-camera-boy.webp?v=4", imgGirl: "assets/avatar/neck/action-camera-girl.webp?v=5", thumb: "assets/avatar/thumb/neck_camera.webp" },
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
      세트 아이템이고(back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
