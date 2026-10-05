@@ -303,6 +303,10 @@ export const AVATAR_CATALOG = [
      [2026-10-05] 아래로 5·왼쪽으로 1(원점 (330,65)). 탑재 상자 (330,65,699,398). img ?v=3.
      [2026-10-05] 왼쪽으로 1·아래로 2 더(원점 (329,67)). 탑재 상자 (329,67,698,400). img ?v=4. */
   { id: "hat_captain_boy", slot: "hat",  label: "꼬마선장 모자", emoji: "⚓", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/captain-hat-boy.webp?v=4", thumb: "assets/avatar/thumb/hat_captain_boy.webp" },
+  /* 우주 헬멧 [2026-10-05] — 남아. 흰 우주 헬멧(파란 테·귀 장치) + 얼굴 한 장(사용자 원화 537×477).
+     번개 캡모자와 같은 방식(hidesHead) — 얼굴(눈~입) 템플릿 매칭(일치 0.923)으로 배율 0.684, 원점 (330,80).
+     헬멧 아래 테두리가 목 위끝을 살짝 덮어서(y406) 자르지 않았다. 탑재 상자 (330,80,697,406). */
+  { id: "hat_helmet_boy", slot: "hat",   label: "우주 헬멧", emoji: "🧑‍🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/space-helmet-boy.webp", thumb: "assets/avatar/thumb/hat_helmet_boy.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
