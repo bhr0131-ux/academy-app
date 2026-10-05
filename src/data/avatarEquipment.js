@@ -470,6 +470,12 @@ export const AVATAR_CATALOG = [
      [2026-10-05] 여아만 오른쪽으로 2·아래로 3(위끝 y363). 여아 상자 (462,363,557,531). imgGirl ?v=4.
      [2026-10-05] 여아만 오른쪽으로 1·아래로 4 더(위끝 y367). 여아 상자 (463,367,558,535). imgGirl ?v=5. */
   { id: "neck_camera",    slot: "neck",  label: "탐험 카메라", emoji: "📷", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", img: "assets/avatar/neck/action-camera-boy.webp?v=4", imgGirl: "assets/avatar/neck/action-camera-girl.webp?v=5", thumb: "assets/avatar/thumb/neck_camera.webp" },
+  /* 번개 보드 [2026-10-05] — 남아 소품. 검정 데크에 파란 번개, 형광 바퀴(사용자 원화 229×663, 투명 배경).
+     사용자가 준 배치 그림(번개 스케이터 차림 전신 1024×1536)대로 오른쪽 다리 옆에 세워 둔다 — 그 그림의 얼굴을
+     기본 머리에 템플릿 매칭(일치 0.966, 배율 0.665)해 보드 자리(데크 y689~1314·가운데 x691)를 옮겨 왔다.
+     배율 0.6269, 원점 (587,441). 탑재 상자 (587,441,731,857).
+     손 장비 슬롯이지만 z 12 로 **가장 뒤**(배경 10 바로 위 — 등 장비 15·몸 20보다 뒤)에 그린다. */
+  { id: "hand_board_boy", slot: "hand",  label: "번개 보드",   emoji: "🛹", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/lightning-board-boy.webp", thumb: "assets/avatar/thumb/hand_board_boy.webp" },
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
      세트 아이템이고(back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
