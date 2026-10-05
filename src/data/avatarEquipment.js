@@ -512,8 +512,10 @@ export const AVATAR_CATALOG = [
      [2026-10-05] 5% 더 작게(배율 0.659, 끈 윗끝 고정, 이음매 (520,554)). 탑재 상자 (462,420,606,641). img ?v=4.
      [2026-10-05] 4% 크게(배율 0.686, 끈 윗끝 고정)·왼쪽으로 2(끈 윗끝 (461,421)). 탑재 상자 (460,420,610,650). img ?v=5.
      [2026-10-05] 2% 크게(배율 0.699, 끈 윗끝 고정)·왼쪽으로 1(끈 윗끝 (460,421)). 탑재 상자 (459,420,612,655). img ?v=6.
-     [2026-10-05] 위로 2·왼쪽으로 2(끈 윗끝 (458,419)). 탑재 상자 (457,418,610,653). img ?v=7. */
-  { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 38, img: "assets/avatar/back/wildflower-crossbag-girl.webp?v=7", thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
+     [2026-10-05] 위로 2·왼쪽으로 2(끈 윗끝 (458,419)). 탑재 상자 (457,418,610,653). img ?v=7. [2026-10-05] 들꽃 탐험가 옷(top_vest)일 때만 위 그림(topVariant, z 38). 그 밖의 옷·맨몸은 사용자 원화 두 장으로 —
+     앞장(끈 긴 가방, 233×364, 원래 원화와 몸통 매칭 0.986·배율 0.985) zFront 48 맨 앞, 뒤장(오른쪽 뒤 끈 조각 32×43, 원래 원화 (169,170) 자리) z 14 맨 뒤.
+     가방 위치는 위 최종 배치와 같은 변환(배율 0.699·-1°·이음매 (518,560)). 앞 상자 (449,393,611,653), 뒤 상자 (570,532,591,562). */
+  { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 14, img: "assets/avatar/back/wildflower-crossbag-back-girl.webp", imgFront: "assets/avatar/back/wildflower-crossbag-front-girl.webp", zFront: 48, topVariant: { top_vest: { img: "assets/avatar/back/wildflower-crossbag-girl.webp?v=7", z: 38 } }, thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
@@ -917,6 +919,10 @@ export const getAvatarLayers = (equippedMap = {}, gender = "boy") => {
       /* 아이템에 z가 있으면 슬롯 기본 z보다 우선 — 원화가 '앞에서 본 모습'이라
          슬롯 기본 순서로는 몸통에 가려지는 장비(탐험 배낭의 어깨끈 등)를 위해. */
       if (!item) return null;
+      /* topVariant — 특정 옷과 짝일 때 그 옷에 맞춘 한 장으로 바꿔 그린다(앞장 없이). */
+      const variant = item.topVariant?.[equippedMap.top];
+      if (variant) return [{ key: slot.key, slot: slot.key, item: { ...item, ...variant, imgFront: undefined, topVariant: undefined },
+        zIndex: variant.z ?? item.z ?? slot.zIndex, emojiPos: slot.emojiPos }];
       const main = { key: slot.key, slot: slot.key, item, zIndex: item.z ?? slot.zIndex, emojiPos: slot.emojiPos };
       /* shoesOverBoy — 남아가 이 옷을 입으면 어떤 신발이든 옷 위로(바짓단이 신발을 덮지 않는 옷). */
       if (slot.key === "shoes" && gender === "boy") {
