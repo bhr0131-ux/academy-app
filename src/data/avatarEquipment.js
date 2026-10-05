@@ -475,11 +475,13 @@ export const AVATAR_CATALOG = [
   /* 로켓 가방 — 원화가 어깨 너머로 들여다본 모습이라, 몸통에 가려지는 부분은 버리고
      실루엣 밖으로 삐져나온 로켓 덩어리만 오려 냈다(등 슬롯 기본 z15 그대로 — 몸통 뒤에서
      튀어나온 부분만 보이면 되므로 앞으로 끌어올 필요가 없었다). */
-  /* 탐험 가방 [2026-10-05] — 남아. 갈색 가죽 배낭 + 지도 두루마리(사용자 원화 290×373) · 어깨끈(사용자 원화 263×198).
+  /* 해적 가방(처음 이름 탐험 가방) [2026-10-05] — 남아. 갈색 가죽 배낭 + 지도 두루마리(사용자 원화 290×373) · 어깨끈(사용자 원화 263×198).
      한 아이템이 몸 앞뒤로 나뉜다 — 가방 몸통(img)은 등 장비 기본 z15 로 몸 뒤에, 어깨끈(imgFront)은 zFront 48 로
      옷·목 장식 위(모자 50 아래)에 그린다. 끈은 배율 0.76·가운데 x516·위끝 y414(어깨 윗선), 가방은 배율 0.70·원점 (505,350)
-     으로 오른쪽 어깨 뒤에서 가방과 두루마리가 보이게 했다. 끈 상자 (416,414,616,564) · 가방 상자 (505,350,708,611). */
-  { id: "back_explorer",  slot: "back",  label: "탐험 가방",    emoji: "🎒", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", img: "assets/avatar/back/explorer-pack-boy.webp", imgFront: "assets/avatar/back/explorer-pack-straps-boy.webp", zFront: 48, thumb: "assets/avatar/thumb/back_explorer.webp" },
+     으로 오른쪽 어깨 뒤에서 가방과 두루마리가 보이게 했다. 끈 상자 (416,414,616,564) · 가방 상자 (505,350,708,611).
+     [2026-10-05] 이름 탐험 가방 → 해적 가방(id 그대로). 사용자 조정 — 왼쪽 끈 오른쪽으로 30·오른쪽 끈 왼쪽으로 30,
+     가방 위로 20·오른쪽으로 10(원점 (515,330)). 끈 상자 (446,414,586,564) · 가방 상자 (515,330,718,591). img·imgFront ?v=2. */
+  { id: "back_explorer",  slot: "back",  label: "해적 가방",    emoji: "🏴‍☠️", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "boy", img: "assets/avatar/back/explorer-pack-boy.webp?v=2", imgFront: "assets/avatar/back/explorer-pack-straps-boy.webp?v=2", zFront: 48, thumb: "assets/avatar/thumb/back_explorer.webp" },
   { id: "back_rocket",    slot: "back",  label: "로켓 가방",    emoji: "🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", img: "assets/avatar/back/rocket-pack-boy.webp", thumb: "assets/avatar/thumb/back_rocket.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
