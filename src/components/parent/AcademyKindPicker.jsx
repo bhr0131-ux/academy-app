@@ -43,7 +43,12 @@ export default function AcademyKindPicker({ open, value = "", customLabel = "", 
   /* [사용자 확정 2026-08-11] 목록이 서른 개가 넘는데 순서가 과목 묶음별이라
      찾는 종류가 어디쯤 있는지 짐작이 안 됐다 → 가나다순으로 늘어놓는다.
      (원본 ACADEMY_KINDS 순서는 그대로 두고 여기서만 정렬한다) */
-  const sorted = [...ACADEMY_KINDS].sort((a, b) => a.label.localeCompare(b.label, "ko"));
+  /* 어린이집·학교는 학원이 아닌 기관이라 가나다순과 따로 맨 위에 고정한다 (사용자 요청 2026-10-05) */
+  const PINNED = ["daycare", "school"];
+  const sorted = [
+    ...PINNED.map(k => ACADEMY_KINDS.find(x => x.key === k)).filter(Boolean),
+    ...ACADEMY_KINDS.filter(k => !PINNED.includes(k.key)).sort((a, b) => a.label.localeCompare(b.label, "ko")),
+  ];
   const key = q.trim().toLowerCase();
   const list = key
     ? sorted.filter(k => k.label.toLowerCase().includes(key) || (k.kw || "").toLowerCase().includes(key))
@@ -69,7 +74,7 @@ export default function AcademyKindPicker({ open, value = "", customLabel = "", 
                 cursor: "pointer", color: "#8A8078", fontSize: 15, fontFamily: F }}>✕</button>
           </div>
           <input value={q} onChange={e => setQ(e.target.value)} autoFocus
-            placeholder="검색 (예: 피아노, 영어, 태권도)" style={inp} />
+            placeholder="예: 어린이집, 학교, 학원 등" style={inp} />
         </div>
 
         <div ref={boxRef} style={{ flex: 1, overflowY: "auto", padding: "0 18px", WebkitOverflowScrolling: "touch" }}>
