@@ -437,8 +437,9 @@ export const AVATAR_CATALOG = [
      탐험 카메라 [2026-10-04] — 남녀 공용 첫 목 장식. 검은 액션 카메라 + 카키 끈(사용자 원화 156×276).
      배율 0.62, 끈 가운데를 목 가운데에 두고 끈 위끝을 목이 어깨와 만나는 높이에 맞췄다 —
      남아는 목이 낮아(y≈400) 위끝 y392, 여아는 목이 높아(y≈365) 위끝 y356 이라 그림을 성별마다 따로 둔다(imgGirl).
-     남아 상자 (467,392,564,563) · 여아 상자 (465,356,562,527). 목 장식 z40 이라 옷 위로 보인다. */
-  { id: "neck_camera",    slot: "neck",  label: "탐험 카메라", emoji: "📷", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", img: "assets/avatar/neck/action-camera-boy.webp", imgGirl: "assets/avatar/neck/action-camera-girl.webp", thumb: "assets/avatar/thumb/neck_camera.webp" },
+     남아 상자 (467,392,564,563) · 여아 상자 (465,356,562,527). 목 장식 z40 이라 옷 위로 보인다.
+     [2026-10-05] 사용자 조정 — 남아만 아래로 5·왼쪽으로 2(위끝 y397). 남아 상자 (465,397,562,568). img ?v=2. */
+  { id: "neck_camera",    slot: "neck",  label: "탐험 카메라", emoji: "📷", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", img: "assets/avatar/neck/action-camera-boy.webp?v=2", imgGirl: "assets/avatar/neck/action-camera-girl.webp", thumb: "assets/avatar/thumb/neck_camera.webp" },
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
      세트 아이템이고(back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
