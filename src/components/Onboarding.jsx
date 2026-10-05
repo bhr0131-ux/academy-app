@@ -77,7 +77,7 @@ export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
     { icon:NAV_ICONS.more,     name:"더보기", desc:"달력 / 학원비 / 결석·보충이\n여기 있어요." },
     { icon:<CareIcon name="lock" size={23}/>, name:`${parentRole} 권한은 잠금`,
       desc:"몇 곳은 비밀번호를 한번 물어봐요.\n(초기 비밀번호 1234)." },
-    { icon:<CareIcon name="bag" size={23}/>, name:"아이용", desc:"오른쪽 위 '🎒 아이용' 버튼을 누르면 아이 화면으로 바뀌어요." },
+    { icon:<CareIcon name="bag" size={23}/>, name:"아이용", desc:"이제 아이용 화면을 살펴볼까요?\n오른쪽 위 '🎒 아이용' 버튼을 눌러보세요!" },
   ];
   const [i,setI]=useState(0);
   const last=i===items.length-1;
