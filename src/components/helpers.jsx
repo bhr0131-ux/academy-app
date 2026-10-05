@@ -60,8 +60,8 @@ export function KidCoachmark({ th, onFinish, skin="dungeon" }){
        이모지 대신 화면에 실제로 나오는 원화를 보여 준다 — '이 그림을 찾으면 된다'가 바로 통한다. */
     : [
         { img:"assets/camp/st-history.webp", title:"오늘 갈 곳을 확인해요", desc:"탐험 탭에서 오늘 갈 곳과 시간,\n챙길 준비물을 볼 수 있어요." },
-        { img:"assets/coin-front.webp", title:"미션을 해내요", desc:"미션 탭에서 할 일을 눌러 완료하면\n코인과 점수(⭐)를 받아요." },
-        { img:"assets/camp/st-deco.webp", title:"코인을 모아요!", desc:"간식 같은 보상을 받고\n내 아바타도 꾸밀 수 있어요." },
+        { img:"assets/coin-front.webp", title:"미션을 해내요", desc:"미션 탭에서 할 일을 눌러 완료하면\n코인(💎)과 점수(⭐)를 받아요." },
+        { img:"assets/camp/st-deco.webp", title:"코인(💎)을 모아요!", desc:"간식 같은 보상을 받고\n내 아바타도 꾸밀 수 있어요." },
         { img:"assets/chest-open.webp", title:"점수(⭐)를 모아요!", desc:"내 성장캐릭터와 펫이 진화해요.\n보물상자를 열어 보너스를 받아보세요." },
       ];
   const [i,setI]=useState(0);
