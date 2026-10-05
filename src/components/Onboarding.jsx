@@ -150,6 +150,8 @@ export function OnboardingFlow({ onFinish }){
   const [missionKind,setMissionKind]=useState("hw");   // hw | todo
 
   const inp={width:"100%",padding:"15px 16px",borderRadius:14,border:"1.5px solid #E3E8F0",fontSize:17,boxSizing:"border-box",outline:"none",fontWeight:600};
+  /* 시간 칸은 반 폭이라 기기 표시("오후 04:00")가 잘렸다 — 글씨·좌우 여백을 줄여 다 보이게 (사용자 요청 2026-10-05) */
+  const timeInp={minWidth:0,fontSize:14,padding:"15px 10px"};
   const lbl={fontSize:22,fontWeight:900,color:"#1A1A35",margin:"0 0 6px",lineHeight:1.3};
   /* whiteSpace:pre-line — 안내 문장에 \n 을 넣어 문장 단위로 줄을 나눈다 (사용자 확정 2026-08-11) */
   const MISSION_GAP=40;
@@ -337,12 +339,12 @@ export function OnboardingFlow({ onFinish }){
                     const pad=n=>String(n).padStart(2,"0"); setAcEnd(`${pad(Math.floor(en/60))}:${pad(en%60)}`);
                   }
                   setAcTime(v);
-                }} style={{...inp,minWidth:0}}/>
+                }} style={{...inp,...timeInp}}/>
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>종료 시간</p>
                 <input type="time" value={acEnd} onChange={e=>setAcEnd(e.target.value)}
-                  style={{...inp,minWidth:0,...(acTimeOk?null:{border:"2px solid #FF6B6B"})}}/>
+                  style={{...inp,...timeInp,...(acTimeOk?null:{border:"2px solid #FF6B6B"})}}/>
               </div>
             </div>
             {!acTimeOk&&<p style={{fontSize:12.5,fontWeight:700,color:"#FF6B6B",margin:"8px 0 0"}}>종료 시간은 시작 시간보다 늦어야 해요.</p>}
