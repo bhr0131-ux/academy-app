@@ -290,8 +290,9 @@ export const AVATAR_CATALOG = [
   { id: "hat_pirate_boy", slot: "hat",   label: "해적 모자", emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/pirate-hat-boy.webp?v=2", thumb: "assets/avatar/thumb/hat_pirate_boy.webp" },
   /* 도토리 모자 [2026-10-05] — 남아. 갈색 도토리 비니(새싹 꼭지) + 얼굴 한 장(사용자 원화 520×522).
      번개 캡모자와 같은 방식(hidesHead) — 얼굴(눈~입) 템플릿 매칭(일치 0.893)으로 배율 0.672, 원점 (341,46). y404 아래 자름.
-     탑재 상자 (342,46,690,397). */
-  { id: "hat_acorn_boy",  slot: "hat",   label: "도토리 모자", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/acorn-hat-boy.webp", thumb: "assets/avatar/thumb/hat_acorn_boy.webp" },
+     탑재 상자 (342,46,690,397).
+     [2026-10-05] 사용자 조정 — 3% 크게(배율 0.6922, 턱·얼굴 가운데 고정, 원점 (336,36)). 탑재 상자 (337,36,696,397). img ?v=2. */
+  { id: "hat_acorn_boy",  slot: "hat",   label: "도토리 모자", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/acorn-hat-boy.webp?v=2", thumb: "assets/avatar/thumb/hat_acorn_boy.webp" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
