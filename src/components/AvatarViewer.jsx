@@ -52,7 +52,7 @@ import {
 export const equipSrc = (item, gender) =>
   (gender === "girl" && item?.imgGirl) ? item.imgGirl : item?.img;
 
-function AvatarLayer({ item, emojiPos, size, gender = "boy" }) {
+function AvatarLayer({ item, emojiPos, size, gender = "boy", noEmoji = false }) {
   const [imgFailed, setImgFailed] = useState(false);
   const [girlFailed, setGirlFailed] = useState(false);
   const useGirl = gender === "girl" && item.imgGirl && !girlFailed;
@@ -81,6 +81,7 @@ function AvatarLayer({ item, emojiPos, size, gender = "boy" }) {
     );
   }
 
+  if (noEmoji) return null;
   /* 이모지 폴백 — emojiPos {x,y,s} 는 0~1 비율 좌표 */
   const p = emojiPos || { x: 0.5, y: 0.5, s: 0.4 };
   return (
@@ -280,9 +281,9 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
       {/* 뒤쪽 레이어(배경·등 장비) → 베이스 캐릭터 → 앞쪽 레이어 순서로 z 배치 */}
       {layers.map((layer) => (
         /* 배경 슬롯은 몸을 가리는 것과 무관하므로 기다리지 않고 먼저 깔린다 */
-        <div key={layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex,
+        <div key={layer.key || layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex,
           ...(layer.slot === "background" ? null : charVis) }}>
-          <AvatarLayer item={layer.item} emojiPos={layer.emojiPos} size={size} gender={gender} />
+          <AvatarLayer item={layer.item} emojiPos={layer.emojiPos} size={size} gender={gender} noEmoji={!!layer.front} />
         </div>
       ))}
       <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z, ...charVis }}>
