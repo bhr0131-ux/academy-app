@@ -440,8 +440,9 @@ export const AVATAR_CATALOG = [
      남아 상자 (467,392,564,563) · 여아 상자 (465,356,562,527). 목 장식 z40 이라 옷 위로 보인다.
      [2026-10-05] 사용자 조정 — 남아만 아래로 5·왼쪽으로 2(위끝 y397). 남아 상자 (465,397,562,568). img ?v=2.
      [2026-10-05] 남아만 4% 크게(배율 0.6448, 끈 위끝 y397·가운데 고정). 남아 상자 (463,397,564,575). img ?v=3.
-     [2026-10-05] 남아만 2% 더 크게(배율 0.6577). 남아 상자 (462,397,565,579). img ?v=4. */
-  { id: "neck_camera",    slot: "neck",  label: "탐험 카메라", emoji: "📷", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", img: "assets/avatar/neck/action-camera-boy.webp?v=4", imgGirl: "assets/avatar/neck/action-camera-girl.webp", thumb: "assets/avatar/thumb/neck_camera.webp" },
+     [2026-10-05] 남아만 2% 더 크게(배율 0.6577). 남아 상자 (462,397,565,579). img ?v=4.
+     [2026-10-05] 여아만 왼쪽으로 6·아래로 4(위끝 y360). 여아 상자 (459,360,556,531). imgGirl ?v=2. */
+  { id: "neck_camera",    slot: "neck",  label: "탐험 카메라", emoji: "📷", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", img: "assets/avatar/neck/action-camera-boy.webp?v=4", imgGirl: "assets/avatar/neck/action-camera-girl.webp?v=2", thumb: "assets/avatar/thumb/neck_camera.webp" },
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
      세트 아이템이고(back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
