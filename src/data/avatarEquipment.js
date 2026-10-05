@@ -515,8 +515,9 @@ export const AVATAR_CATALOG = [
      [2026-10-05] 위로 2·왼쪽으로 2(끈 윗끝 (458,419)). 탑재 상자 (457,418,610,653). img ?v=7. [2026-10-05] 들꽃 탐험가 옷(top_vest)일 때만 위 그림(topVariant, z 38). 그 밖의 옷·맨몸은 사용자 원화 두 장으로 —
      앞장(끈 긴 가방, 233×364, 원래 원화와 몸통 매칭 0.986·배율 0.985) zFront 48 맨 앞, 뒤장(오른쪽 뒤 끈 조각 32×43, 원래 원화 (169,170) 자리) z 14 맨 뒤.
      가방 위치는 위 최종 배치와 같은 변환(배율 0.699·-1°·이음매 (518,560)). 앞 상자 (449,393,611,653), 뒤 상자 (570,532,591,562).
-     [2026-10-05] 앞·뒤장 사용자 조정 — 5% 크게(배율 0.734, 앞장 끈 윗끝 (457,393) 고정)·위로 5. 앞 상자 (448,388,619,661), 뒤 상자 (575,533,598,565). img ?v=2. */
-  { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 14, img: "assets/avatar/back/wildflower-crossbag-back-girl.webp?v=2", imgFront: "assets/avatar/back/wildflower-crossbag-front-girl.webp?v=2", zFront: 48, topVariant: { top_vest: { img: "assets/avatar/back/wildflower-crossbag-girl.webp?v=7", z: 38 } }, thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
+     [2026-10-05] 앞·뒤장 사용자 조정 — 5% 크게(배율 0.734, 앞장 끈 윗끝 (457,393) 고정)·위로 5. 앞 상자 (448,388,619,661), 뒤 상자 (575,533,598,565). img ?v=2.
+     [2026-10-05] 앞·뒤장 위로 5 더. 앞 상자 (448,383,619,656), 뒤 상자 (575,528,598,560). img ?v=3. */
+  { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 14, img: "assets/avatar/back/wildflower-crossbag-back-girl.webp?v=3", imgFront: "assets/avatar/back/wildflower-crossbag-front-girl.webp?v=3", zFront: 48, topVariant: { top_vest: { img: "assets/avatar/back/wildflower-crossbag-girl.webp?v=7", z: 38 } }, thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
