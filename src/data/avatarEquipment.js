@@ -134,7 +134,7 @@ export const AVATAR_BASE_Z = 20;
 
 /* 꾸미기 상점 탭 순서 (사용자 확정) — 위 AVATAR_SLOTS의 렌더 z 순서와는 별개다.
    '배경'은 구 꾸미기 상점과 중복되어 제외, '효과'도 제외(사용자 확정). */
-export const SHOP_SLOT_ORDER = ["hat", "shoes", "top", "bottom", "back", "neck", "face", "hand"];
+export const SHOP_SLOT_ORDER = ["top", "bottom", "shoes", "hat", "back", "neck", "face", "hand"];
 
 /* ── 상점 탭 ───────────────────────────────────────────────────────────
    [사용자 확정 2026-09-26] 상점에서는 '상의'·'하의'를 나누지 않고 **'옷' 한 탭**으로
@@ -146,14 +146,15 @@ export const SHOP_SLOT_ORDER = ["hat", "shoes", "top", "bottom", "back", "neck",
    전부 slot 을 쓴다. 여기서 슬롯을 합치면 기존 사용자 데이터가 깨진다.
 
    slots : 이 탭이 모아 보여 줄 슬롯들 (앞에 적힌 순서대로 목록에 쌓인다) */
+/* [사용자 확정 2026-10-05] 탭을 옷 · 신발 · 모자 · 가방 · 소품 다섯 개로 다시 나눴다(남녀 같음).
+   목 장식·얼굴 장식·손 장비는 '소품' 한 탭에 모은다 — '옷' 탭처럼 SHOP_ORDER 순서를 따르고,
+   거기 없는 아이템은 목 → 얼굴 → 손 순서로 뒤에 붙는다. slot 자체는 그대로다(위 [중요] 참고). */
 export const SHOP_TABS = [
-  { key: "hat",     label: "모자",      emoji: "🎩", slots: ["hat"] },
-  { key: "shoes",   label: "신발",      emoji: "👟", slots: ["shoes"] },
-  { key: "clothes", label: "옷",        emoji: "👕", slots: ["top", "bottom"] },
-  { key: "back",    label: "등 장비",   emoji: "🎒", slots: ["back"] },
-  { key: "neck",    label: "목 장식",   emoji: "🧣", slots: ["neck"] },
-  { key: "face",    label: "얼굴 장식", emoji: "🥽", slots: ["face"] },
-  { key: "hand",    label: "손 장비",   emoji: "🪄", slots: ["hand"] },
+  { key: "clothes", label: "옷",   emoji: "👕", slots: ["top", "bottom"] },
+  { key: "shoes",   label: "신발", emoji: "👟", slots: ["shoes"] },
+  { key: "hat",     label: "모자", emoji: "🎩", slots: ["hat"] },
+  { key: "back",    label: "가방", emoji: "🎒", slots: ["back"] },
+  { key: "props",   label: "소품", emoji: "🎀", slots: ["neck", "face", "hand"] },
 ];
 export const getShopTab = (key) => SHOP_TABS.find(t => t.key === key) || null;
 
