@@ -41,7 +41,8 @@ export default function AdventureSpotPicker({ items = [], selectedId, onSelect }
   // (깃발이 솟는 12px + 8px) 만큼만 정확히 주기 위해서.
   const rows = [items.slice(0, firstRow), items.slice(firstRow)].filter(r => r.length);
   return (
-    <div>
+    /* [사용자 요청 2026-10-05] 지도와 구분되게 위를 14 더 띄운다 — margin 은 바깥 여백과 겹쳐 사라져서 padding 으로 */
+    <div style={{ paddingTop: 14 }}>
       <style>{`
         @keyframes spNow{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
       `}</style>

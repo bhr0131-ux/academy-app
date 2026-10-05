@@ -44,8 +44,9 @@ export default function DiscoveryMemo({ found, emoji, text, count, onOpenBook })
         </button>
       </div>
       {/* 연두 마스킹테이프 — 메모 왼쪽 위 모서리에 대각선으로. 반투명이라 아래 종이가 살짝 비친다.
-          [사용자 지적 2026-10-02] 위쪽 가운데는 '탐험일지' 머리말 줄과 겹쳐 보였다 */}
-      <div aria-hidden style={{ position: "absolute", top: 1, left: -14, width: 60, height: 16,
+          [사용자 지적 2026-10-02] 위쪽 가운데는 '탐험일지' 머리말 줄과 겹쳐 보였다
+          [사용자 지적 2026-10-05] 너무 튀어 60×16 → 42×11 */}
+      <div aria-hidden style={{ position: "absolute", top: 0, left: -9, width: 42, height: 11,
         transform: "rotate(-38deg)",
         background: "radial-gradient(circle, rgba(255,255,255,0.55) 1px, transparent 1.6px) 0 0 / 7px 7px," +
           "rgba(150,176,96,0.72)",
