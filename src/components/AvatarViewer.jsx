@@ -198,7 +198,7 @@ function GroundShadow({ size, soleY = BARE_SOLE }) {
 
 export default function AvatarViewer({ equipped = {}, size = 200, showFrame = true, showBg = true, baseCharImg = null, gender = "boy", showShadow = true }) {
   /* showBg=false면 배경 슬롯 장비도 함께 생략 — 홈 무대 씬 위에 사각 배경이 겹치는 것 방지 */
-  const layers = getAvatarLayers(equipped).filter(
+  const layers = getAvatarLayers(equipped, gender).filter(
     (layer) => showBg || layer.item?.slot !== "background"
   );
   /* 얼굴째 덮는 장비(모자 등)를 쓰면 베이스 머리를 그리지 않는다.

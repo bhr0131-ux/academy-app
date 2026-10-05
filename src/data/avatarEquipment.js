@@ -453,7 +453,7 @@ export const AVATAR_CATALOG = [
      배율 0.7104, 목 중심 새 원화 x212.06 → x511.5, 턱 자리 y0 → y356. 목둘레 안(y0~23, x173~255)과 맨 위(y0~5)의 보라 아닌 픽셀을 지웠다.
      옛 판과 겹침 IoU 0.956. 탑재 상자 (361,356,662,887). imgGirl ?v=5.
      [2026-10-03] 사용자 조정 — 왼쪽으로 2(목 중심 x509.5). 탑재 상자 (359,356,660,887). imgGirl ?v=6. */
-  { id: "top_space",      slot: "top",   label: "우주 탐험대",       emoji: "🚀", labelGirl: "별빛 우주인", emojiGirl: "🪐", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=11", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=6", thumb: "assets/avatar/thumb/top_space.webp?v=4", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=5" },
+  { id: "top_space",      slot: "top",   label: "우주 탐험대",       emoji: "🚀", labelGirl: "별빛 우주인", emojiGirl: "🪐", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, shoesOverBoy: true, img: "assets/avatar/top/space-suit-boy.webp?v=11", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=6", thumb: "assets/avatar/thumb/top_space.webp?v=4", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=5" },
 
   /* ── 얼굴 장식 ─────────────────────────────────────────────────────────
      물안경 [2026-10-05] — 남아 첫 얼굴 장식. 하늘색 물안경 + 렌즈 안 눈 그림(사용자 원화 366×154).
@@ -890,7 +890,7 @@ export const computeCharDisplayToggle = (mode) =>
   mode === CHAR_DISPLAY_AVATAR ? CHAR_DISPLAY_GROWTH : CHAR_DISPLAY_AVATAR;
 
 /* ── 완성 아바타 레이어 목록 (뷰어가 map 렌더) ───────────────────────── */
-export const getAvatarLayers = (equippedMap = {}) => {
+export const getAvatarLayers = (equippedMap = {}, gender = "boy") => {
   /* 한 벌 옷을 입고 있으면 하의 장은 아예 안 그린다.
      상점 '입어보기'는 장착 로직을 안 거치고 화면만 겹쳐 보여 주므로 여기서도 막아야 한다. */
   const hideBottom = topCoversBottom(equippedMap);
@@ -903,6 +903,11 @@ export const getAvatarLayers = (equippedMap = {}) => {
          슬롯 기본 순서로는 몸통에 가려지는 장비(탐험 배낭의 어깨끈 등)를 위해. */
       if (!item) return null;
       const main = { key: slot.key, slot: slot.key, item, zIndex: item.z ?? slot.zIndex, emojiPos: slot.emojiPos };
+      /* shoesOverBoy — 남아가 이 옷을 입으면 어떤 신발이든 옷 위로(바짓단이 신발을 덮지 않는 옷). */
+      if (slot.key === "shoes" && gender === "boy") {
+        const top = equippedMap.top ? getAvatarItem(equippedMap.top) : null;
+        if (top?.shoesOverBoy) main.zIndex = Math.max(main.zIndex, (top.z ?? 35) + 2);
+      }
       /* imgFront — 한 아이템이 몸 앞뒤로 나뉘는 경우(가방 몸통은 몸 뒤, 어깨끈은 옷 위).
          앞쪽 장은 zFront 로 따로 그리고, 그림이 없으면 이모지를 또 띄우지 않는다. */
       if (!item.imgFront) return [main];
