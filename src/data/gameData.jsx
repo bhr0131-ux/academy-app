@@ -178,7 +178,7 @@ export const SKINS = {
       { kw:["스포츠","축구","농구","배드민턴","체육","운동"],           icon:"⚽", label:"바람의 경기장" },
       { kw:["바둑","장기","체스","보드"],                        icon:"♟️", label:"작전 본부" },
       { kw:["요리","쿠킹","베이킹"],                            icon:"🍳", label:"탐험가의 부엌" },
-      { kw:["어린이집","유치원"],                               icon:"🧸", label:"햇살 마을" },
+      { kw:["어린이집","유치원"],                               icon:"🏡", label:"배움의 놀이터" },
       { kw:["학교"],                                       icon:"🎒", label:"발견의 광장" },
       { kw:["보습","종합","공부방"],                            icon:"🏫", label:"지식의 숲" },
     ],
@@ -391,7 +391,7 @@ export const ACADEMY_DUNGEON_RULES = [
   { kw:["스포츠","축구","농구","배드민턴","체육","운동"],           icon:"⚽", label:"바람의 경기장" },
   { kw:["바둑","장기","체스","보드"],                        icon:"♟️", label:"작전 본부" },
   { kw:["요리","쿠킹","베이킹"],                            icon:"🍳", label:"탐험가의 부엌" },
-  { kw:["어린이집","유치원"],                               icon:"🧸", label:"햇살 마을" },
+  { kw:["어린이집","유치원"],                               icon:"🏡", label:"배움의 놀이터" },
   { kw:["학교"],                                       icon:"🎒", label:"발견의 광장" },
   { kw:["보습","종합","공부방"],                            icon:"🏫", label:"지식의 숲" },
 ];
@@ -406,7 +406,7 @@ export const ACADEMY_DUNGEON_RULES = [
      kw    : 던전 이름(선율의 신전 등)을 찾을 때 쓰는 대표 낱말 (ACADEMY_DUNGEON_RULES 기준) */
 export const ACADEMY_KINDS = [
   /* [사용자 요청 2026-10-05] 학원 말고 아이가 다니는 기관도 고를 수 있게 맨 앞에 */
-  { key:"daycare",    label:"어린이집",     icon:"🧸",  kw:"어린이집" },
+  { key:"daycare",    label:"어린이집",     icon:"🏡",  kw:"어린이집" },
   { key:"school",     label:"학교",        icon:"🎒",  kw:"학교" },
   { key:"english",    label:"영어",        icon:"📖",  kw:"영어" },
   { key:"math",       label:"수학",        icon:"🔢",  kw:"수학" },
