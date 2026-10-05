@@ -394,6 +394,9 @@ export const ACADEMY_DUNGEON_RULES = [
      icon  : 지도·일지·미션에 쓰는 이모지
      kw    : 던전 이름(선율의 신전 등)을 찾을 때 쓰는 대표 낱말 (ACADEMY_DUNGEON_RULES 기준) */
 export const ACADEMY_KINDS = [
+  /* [사용자 요청 2026-10-05] 학원 말고 아이가 다니는 기관도 고를 수 있게 맨 앞에 */
+  { key:"daycare",    label:"어린이집",     icon:"🧸",  kw:"어린이집" },
+  { key:"school",     label:"학교",        icon:"🎒",  kw:"학교" },
   { key:"english",    label:"영어",        icon:"📖",  kw:"영어" },
   { key:"math",       label:"수학",        icon:"🔢",  kw:"수학" },
   { key:"korean",     label:"국어",        icon:"✍️",  kw:"국어" },
