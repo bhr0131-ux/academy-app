@@ -74,7 +74,7 @@ export default function AcademyKindPicker({ open, value = "", customLabel = "", 
                 cursor: "pointer", color: "#8A8078", fontSize: 15, fontFamily: F }}>✕</button>
           </div>
           <input value={q} onChange={e => setQ(e.target.value)} autoFocus
-            placeholder="예: 어린이집, 학교, 학원 등" style={inp} />
+            placeholder="예: 어린이집, 학교, 학원 과목 등" style={inp} />
         </div>
 
         <div ref={boxRef} style={{ flex: 1, overflowY: "auto", padding: "0 18px", WebkitOverflowScrolling: "touch" }}>
