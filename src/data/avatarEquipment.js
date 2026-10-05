@@ -269,7 +269,7 @@ export const AVATAR_CATALOG = [
      [2026-10-05] 사용자 조정 — 3% 크게(배율 0.6839, 턱·얼굴 가운데 고정) 후 왼쪽으로 2, 원점 (309,57). 탑재 상자 (309,57,715,396). img ?v=4.
      [2026-10-05] 아래로 3·왼쪽으로 1(원점 (308,60)). 탑재 상자 (308,60,714,399). img ?v=5.
      [2026-10-05] 아래로 1 더(원점 (308,61)). 탑재 상자 (308,61,714,400). img ?v=6. */
-  { id: "hat_safari_boy", slot: "hat",   label: "정글 모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/safari-brown.webp?v=6", thumb: "assets/avatar/thumb/hat_safari_boy.webp" },
+  { id: "hat_safari_boy", slot: "hat",   label: "정글 모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/safari-brown.webp?v=6", thumb: "assets/avatar/thumb/hat_safari_boy.webp?v=2" },
   /* 번개 캡모자 [2026-10-04] — 남아. 청록 캡(뒤로 쓴 챙·형광 번개) + 얼굴 한 장(사용자 원화 589×500). 번개 스케이터 옷과 짝.
      사파리 모자와 같은 방식 — hidesHead 로 기본 머리 장을 빼고 이 그림이 머리를 대신한다. 얼굴(눈~입) 템플릿 매칭(일치 0.956)으로
      배율 0.644, 원점 (336,76). 기본 머리 장처럼 y404 아래는 잘랐다. 탑재 상자 (336,76,715,398).
@@ -278,35 +278,35 @@ export const AVATAR_CATALOG = [
      [2026-10-04] 머리 3% 크게(배율 0.6633, 턱 아래끝·얼굴 가운데 x516 고정, 원점 (331,68)). 탑재 상자 (331,68,722,400). img ?v=4.
      [2026-10-04] 2% 더 크게(배율 0.6766, 턱·가운데 고정, 원점 (327,61)). 탑재 상자 (327,61,726,399). img ?v=5.
      [2026-10-04] 왼쪽으로 2·아래로 1(원점 (325,62)). 탑재 상자 (325,62,724,400). img ?v=6. */
-  { id: "hat_cap_boy",    slot: "hat",   label: "번개 캡모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/lightning-cap-boy.webp?v=6", thumb: "assets/avatar/thumb/hat_cap_boy.webp" },
+  { id: "hat_cap_boy",    slot: "hat",   label: "번개 캡모자", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/lightning-cap-boy.webp?v=6", thumb: "assets/avatar/thumb/hat_cap_boy.webp?v=2" },
   /* 썸머 썬캡 [2026-10-04] — 남아. 주황 썬캡(조개 장식) + 얼굴 한 장(사용자 원화 520×456). 썸머 웨이브 옷과 짝.
      번개 캡모자와 같은 방식(hidesHead) — 얼굴(눈~입) 템플릿 매칭(일치 0.953)으로 배율 0.676, 원점 (339,83). y404 아래 자름.
      탑재 상자 (339,83,691,391).
      [2026-10-04] 사용자 조정 — 2% 크게(배율 0.6895, 턱·얼굴 가운데 고정) 후 아래로 5, 원점 (335,82). 탑재 상자 (335,82,694,396). img ?v=2.
      [2026-10-04] 아래로 3 더(원점 (335,85)). 탑재 상자 (335,85,694,399). img ?v=3. */
-  { id: "hat_visor_boy",  slot: "hat",   label: "썸머 썬캡", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/summer-visor-boy.webp?v=3", thumb: "assets/avatar/thumb/hat_visor_boy.webp" },
+  { id: "hat_visor_boy",  slot: "hat",   label: "썸머 썬캡", emoji: "🧢", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/summer-visor-boy.webp?v=3", thumb: "assets/avatar/thumb/hat_visor_boy.webp?v=2" },
   /* 해적 모자 남아 [2026-10-04] — 남색 삼각 해적모(금 테두리·해골) + 얼굴 한 장(사용자 원화 574×475). 꼬마 해적단 옷과 짝.
      여아 꼬마해적 모자(hat_pirate)는 그대로 두고 남아용 id 를 따로 둔다. 번개 캡모자와 같은 방식(hidesHead) —
      얼굴(눈~입) 템플릿 매칭(일치 0.972)으로 배율 0.712, 원점 (318,58). y404 아래 자름. 탑재 상자 (318,58,727,396).
      [2026-10-04] 사용자 조정 — 아래로 4·왼쪽으로 1(원점 (317,62)). 탑재 상자 (317,62,726,400). img ?v=2. */
-  { id: "hat_pirate_boy", slot: "hat",   label: "해적 모자", emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/pirate-hat-boy.webp?v=2", thumb: "assets/avatar/thumb/hat_pirate_boy.webp" },
+  { id: "hat_pirate_boy", slot: "hat",   label: "해적 모자", emoji: "🏴‍☠️", price:DECOR_PRICE.epic, rarity: "epic", theme: "pirate", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/pirate-hat-boy.webp?v=2", thumb: "assets/avatar/thumb/hat_pirate_boy.webp?v=2" },
   /* 도토리 모자 [2026-10-05] — 남아. 갈색 도토리 비니(새싹 꼭지) + 얼굴 한 장(사용자 원화 520×522).
      번개 캡모자와 같은 방식(hidesHead) — 얼굴(눈~입) 템플릿 매칭(일치 0.893)으로 배율 0.672, 원점 (341,46). y404 아래 자름.
      탑재 상자 (342,46,690,397).
      [2026-10-05] 사용자 조정 — 3% 크게(배율 0.6922, 턱·얼굴 가운데 고정, 원점 (336,36)). 탑재 상자 (337,36,696,397). img ?v=2.
      [2026-10-05] 아래로 2(원점 (336,38)). 탑재 상자 (337,38,696,399). img ?v=3. */
-  { id: "hat_acorn_boy",  slot: "hat",   label: "도토리 모자", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/acorn-hat-boy.webp?v=3", thumb: "assets/avatar/thumb/hat_acorn_boy.webp" },
+  { id: "hat_acorn_boy",  slot: "hat",   label: "도토리 모자", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/acorn-hat-boy.webp?v=3", thumb: "assets/avatar/thumb/hat_acorn_boy.webp?v=2" },
   /* 꼬마선장 모자 [2026-10-05] — 남아. 파란 선장 모자(흰 띠·닻 배지) + 얼굴 한 장(사용자 원화 524×473).
      번개 캡모자와 같은 방식(hidesHead) — 얼굴(눈~입) 템플릿 매칭(일치 0.907)으로 배율 0.684, 원점 (336,70). y404 아래 자름.
      탑재 상자 (336,70,694,394).
      [2026-10-05] 사용자 조정 — 3% 크게(배율 0.7045, 턱·얼굴 가운데 고정, 원점 (331,60)). 탑재 상자 (331,60,700,393). img ?v=2.
      [2026-10-05] 아래로 5·왼쪽으로 1(원점 (330,65)). 탑재 상자 (330,65,699,398). img ?v=3.
      [2026-10-05] 왼쪽으로 1·아래로 2 더(원점 (329,67)). 탑재 상자 (329,67,698,400). img ?v=4. */
-  { id: "hat_captain_boy", slot: "hat",  label: "꼬마선장 모자", emoji: "⚓", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/captain-hat-boy.webp?v=4", thumb: "assets/avatar/thumb/hat_captain_boy.webp" },
+  { id: "hat_captain_boy", slot: "hat",  label: "꼬마선장 모자", emoji: "⚓", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/captain-hat-boy.webp?v=4", thumb: "assets/avatar/thumb/hat_captain_boy.webp?v=2" },
   /* 우주 헬멧 [2026-10-05] — 남아. 흰 우주 헬멧(파란 테·귀 장치) + 얼굴 한 장(사용자 원화 537×477).
      번개 캡모자와 같은 방식(hidesHead) — 얼굴(눈~입) 템플릿 매칭(일치 0.923)으로 배율 0.684, 원점 (330,80).
      헬멧 아래 테두리가 목 위끝을 살짝 덮어서(y406) 자르지 않았다. 탑재 상자 (330,80,697,406). */
-  { id: "hat_helmet_boy", slot: "hat",   label: "우주 헬멧", emoji: "🧑‍🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/space-helmet-boy.webp", thumb: "assets/avatar/thumb/hat_helmet_boy.webp" },
+  { id: "hat_helmet_boy", slot: "hat",   label: "우주 헬멧", emoji: "🧑‍🚀", price:DECOR_PRICE.epic, rarity: "epic", theme: "space", forGender: "boy", hidesHead: true, img: "assets/avatar/hat/space-helmet-boy.webp", thumb: "assets/avatar/thumb/hat_helmet_boy.webp?v=2" },
   /* 사파리 옷 — 원화가 블라우스+반바지 한 장이라 상의 슬롯 하나로 넣는다(사용자 확정).
      상의(35)가 하의(30) 위라 하의를 같이 껴도 이 그림이 덮는다. */
   /* [2026-08-20] 남아 원화가 들어와 남녀 공용이 됐다 — 그림이 성별로 갈리는 첫 아이템.
@@ -785,9 +785,13 @@ export const isItemInShop = (it) => !it.starter;
 export const SHOP_ORDER = {
   boy:  ["top_vest", "top_hoodie_mint", "top_pirate", "top_board_boy", "top_acorn", "top_space", "top_beach_boy",
          /* [2026-10-04 사용자 확정] 신발도 짝이 되는 옷 순서대로 */
-         "shoes_jungle", "shoes_fins", "shoes_pirate_kid", "shoes_lightning", "shoes_jungle_leaf", "shoes_astronaut", "shoes_sandal"],
+         "shoes_jungle", "shoes_fins", "shoes_pirate_kid", "shoes_lightning", "shoes_jungle_leaf", "shoes_astronaut", "shoes_sandal",
+         /* [2026-10-05 사용자 확정] 모자·가방도 짝이 되는 옷 순서대로 */
+         "hat_safari_boy", "hat_captain_boy", "hat_pirate_boy", "hat_cap_boy", "hat_acorn_boy", "hat_helmet_boy", "hat_visor_boy",
+         "back_explorer", "back_rocket"],
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
-         "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple"],
+         "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
+         "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl"],
 };
 const shopRank = (it, gender) => {
   const i = (SHOP_ORDER[gender === "girl" ? "girl" : "boy"] || []).indexOf(it.id);
