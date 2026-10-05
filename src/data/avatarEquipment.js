@@ -433,6 +433,12 @@ export const AVATAR_CATALOG = [
      [2026-10-03] 사용자 조정 — 왼쪽으로 2(목 중심 x509.5). 탑재 상자 (359,356,660,887). imgGirl ?v=6. */
   { id: "top_space",      slot: "top",   label: "우주 탐험대",       emoji: "🚀", labelGirl: "별빛 우주인", emojiGirl: "🪐", price:DECOR_PRICE.epic, rarity: "epic", theme: "space",  coversBottom: true, img: "assets/avatar/top/space-suit-boy.webp?v=11", imgGirl: "assets/avatar/top/space-suit-girl.webp?v=6", thumb: "assets/avatar/thumb/top_space.webp?v=4", thumbGirl: "assets/avatar/thumb/top_space-girl.webp?v=5" },
 
+  /* ── 얼굴 장식 ─────────────────────────────────────────────────────────
+     물안경 [2026-10-05] — 남아 첫 얼굴 장식. 하늘색 물안경 + 렌즈 안 눈 그림(사용자 원화 366×154).
+     렌즈 속 눈을 기본 머리 눈에 템플릿 매칭(일치 0.915)해 배율 0.670, 원점 (392,255). z52 — 남아 모자는 전부 얼굴까지 그린
+     한 장(hidesHead)이라 기본 얼굴 장식 z45 면 모자에 가려진다. 모자(z50) 위·손 장비(z55) 아래로 올렸다. 탑재 상자 (392,255,637,358). 썸머 웨이브 옷과 짝. */
+  { id: "face_goggles_boy", slot: "face", label: "물안경", emoji: "🥽", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 52, img: "assets/avatar/face/swim-goggles-boy.webp", thumb: "assets/avatar/thumb/face_goggles_boy.webp" },
+
   /* ── 목 장식 ───────────────────────────────────────────────────────────
      탐험 카메라 [2026-10-04] — 남녀 공용 첫 목 장식. 검은 액션 카메라 + 카키 끈(사용자 원화 156×276).
      배율 0.62, 끈 가운데를 목 가운데에 두고 끈 위끝을 목이 어깨와 만나는 높이에 맞췄다 —
