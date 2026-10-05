@@ -174,8 +174,8 @@ export function OnboardingFlow({ onFinish }){
     /* [사용자 지적 2026-08-11] 앱의 학원 등록은 '종류'가 필수고 '이름'이 선택이다.
        첫 등록만 이름을 필수로 받고 있어 규칙이 어긋났다 → 같은 순서·같은 규칙으로 맞춘다.
        이름을 비우면 종류 이름을 그대로 학원 이름으로 쓴다(앱의 saveAcademy 와 같은 규칙). */
-    { kind:"academy", title:"어떤 학원에 다니나요?", sub:"예: 어린이집, 학교, 학원 등 — 우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind },
-    { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그 학원 가는 날마다 보여요." },
+    { kind:"academy", title:"아이가 다니는 곳은 어디인가요?", sub:"예: 어린이집, 학교, 학원 등 — 우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind },
+    { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그곳에 가는 날마다 보여요." },
     /* [사용자 확정 2026-08-11] 반복 숙제를 준비물과 떼어 미션 단계로 옮겼다 — 둘 다 '숙제'라
        미션 이야기를 할 때 같이 보는 게 자연스럽다.
        [2026-08-11] 필수는 '오늘 미션' 하나로 정했다(사용자 확정) — 아무 미션도 없이 시작하면
@@ -292,7 +292,7 @@ export function OnboardingFlow({ onFinish }){
             {/* [사용자 확정 2026-10-02] 안내문·항목 사이 간격을 같은 값(ACADEMY_GAP)으로 조금 넓혔다 */}
             <p style={{...sub,marginBottom:ACADEMY_GAP}}>{cur.sub}</p>
             {/* '*' 하나로만 필수를 표시하던 자리 — 미션 단계의 '필수' 배지와 같은 모양으로 (사용자 확정) */}
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>학원 종류 <span style={tagReq}>필수</span></p>
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 10px"}}>다니는 곳 종류 <span style={tagReq}>필수</span></p>
             {(()=>{
               const k=getAcademyKind(acKind);
               const lab=acKindLabel||k?.label||"";
@@ -311,7 +311,7 @@ export function OnboardingFlow({ onFinish }){
               );
             })()}
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:`${ACADEMY_GAP}px 0 10px`}}>
-              학원 이름 <span style={tagOpt}>선택</span>
+              이름 <span style={tagOpt}>선택</span>
             </p>
             <input value={acName} onChange={e=>setAcName(e.target.value)}
               placeholder={acKindLabel?`비우면 '${acKindLabel}'${withRo(acKindLabel).slice(acKindLabel.length)} 저장돼요`:"예: 노아피아노"} style={inp}/>
@@ -381,7 +381,7 @@ export function OnboardingFlow({ onFinish }){
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:`${MISSION_GAP}px 0 4px`}}>
               반복 숙제 <span style={tagOpt}>선택</span>
             </p>
-            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>학원에 갈 때마다 하는 숙제예요.</p>
+            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>갈 때마다 하는 숙제예요.</p>
             <input value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 단어 5개 암기" style={inp}/>
           </div>
         )}
