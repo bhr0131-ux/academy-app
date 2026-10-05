@@ -57,12 +57,12 @@ export function KidCoachmark({ th, onFinish, skin="dungeon" }){
         { emoji:"🧑‍🍳🦄", title:"파티시에와 펫이 자라요", desc:"내 캐릭터 탭에서 레벨이 오르고\n펫도 점점 자라나는 걸 볼 수 있어요!" },
       ]
     /* [사용자 요청 2026-10-05] 지금 아이 화면(탐험·미션·캐릭터 세 탭, 지도 보물상자, 꾸미기 상점)에 맞춰 다시 썼다.
-       이모지 대신 화면에 실제로 나오는 원화를 보여 준다 — '이 그림을 찾으면 된다'가 바로 통한다. */
+       1장은 화면 원화, 2~4장은 앱 이모지 그림(EmojiIcon — 기기마다 그림체가 달라지지 않게)으로 (사용자 확정). */
     : [
         { img:"assets/camp/st-history.webp", title:"오늘 갈 곳을 확인해요", desc:"탐험 탭에서 오늘 갈 곳과 시간,\n챙길 준비물을 볼 수 있어요." },
-        { img:"assets/coin-front.webp", title:"미션을 해내요", desc:"미션 탭에서 할 일을 눌러 완료하면\n코인(💎)과 점수(⭐)를 받아요." },
-        { img:"assets/camp/st-deco.webp", title:"코인(💎)을 모아요!", desc:"간식 같은 보상을 받고\n내 아바타도 꾸밀 수 있어요." },
-        { img:"assets/chest-open.webp", title:"점수(⭐)를 모아요!", desc:"내 성장캐릭터와 펫이 진화해요.\n보물상자를 열어 보너스를 받아보세요." },
+        { icon:"🎯", title:"미션을 해내요", desc:"미션 탭에서 할 일을 눌러 완료하면\n코인과 점수(⭐)를 받아요." },
+        { icon:"💎", title:"코인을 모아요!", desc:"간식 같은 보상을 받고\n내 아바타도 꾸밀 수 있어요." },
+        { icon:"⭐", title:"점수(⭐)를 모아요!", desc:"내 성장캐릭터와 펫이 진화해요.\n보물상자를 열어 보너스를 받아보세요." },
       ];
   const [i,setI]=useState(0);
   const last=i===cards.length-1;
@@ -70,8 +70,9 @@ export function KidCoachmark({ th, onFinish, skin="dungeon" }){
   return (
     <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.8)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px",wordBreak:"keep-all"}}>
       <div style={{background:"#fff",borderRadius:26,padding:"32px 24px 24px",width:"100%",maxWidth:340,minHeight:380,boxSizing:"border-box",textAlign:"center",boxShadow:"0 24px 70px rgba(0,0,0,0.32)",display:"flex",flexDirection:"column"}}>
-        <div style={{height:74,display:"flex",alignItems:"center",justifyContent:"center",fontSize:c.img?undefined:(c.emoji.length>3?46:64),letterSpacing:4,marginBottom:14}}>
-          {c.img?<img src={c.img} alt="" draggable={false} style={{height:74,maxWidth:120,objectFit:"contain"}}/>:c.emoji}
+        <div style={{height:74,display:"flex",alignItems:"center",justifyContent:"center",fontSize:(c.img||c.icon)?undefined:(c.emoji.length>3?46:64),letterSpacing:4,marginBottom:14}}>
+          {c.img?<img src={c.img} alt="" draggable={false} style={{height:74,maxWidth:120,objectFit:"contain"}}/>
+            :c.icon?<EmojiIcon emoji={c.icon} size={64}/>:c.emoji}
         </div>
         <div style={{height:34,display:"flex",alignItems:"center",justifyContent:"center"}}>
           <p style={{fontSize:21,fontWeight:900,color:"#1A1A35",margin:0,lineHeight:1.3}}>{c.title}</p>
