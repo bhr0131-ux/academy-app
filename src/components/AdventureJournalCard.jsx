@@ -81,7 +81,7 @@ export default function AdventureJournalCard({
       style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", marginBottom: 14, touchAction: "pan-y" }}>
 
       {/* v6 스프링 노트 원화 (1254×1254) — 왼쪽 아이콘 네 개만 있고 글자는 전부 앱이 얹는다 */}
-      <img src="assets/journal-card.webp" alt="" draggable={false}
+      <img src="assets/journal-card.webp?v=2" alt="" draggable={false}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block",
           filter: "drop-shadow(0 6px 14px rgba(74,90,37,0.22))" }} />
 
