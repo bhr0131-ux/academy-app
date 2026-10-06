@@ -22,6 +22,7 @@ import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscove
 import HomeSheet from "./components/HomeSheet.jsx";
 import ParentNav, { PARENT_NAV_H } from "./components/parent/ParentNav.jsx";
 import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
+import AcademyMissionPicker from "./components/parent/AcademyMissionPicker.jsx";
 import FeePaySheet, { payMethodLabel } from "./components/parent/FeePaySheet.jsx";
 import ChildFace from "./components/parent/ChildFace.jsx";
 import CareIcon from "./components/parent/CareIcons.jsx";
@@ -420,6 +421,7 @@ export default function App() {
      저장은 새 키(v6_repeat_missions)로만. 기존 미션 저장(일별 entry)은 안 건드린다. */
   const [repeatMissions,        setRepeatMissions]         = useState({});
   const [showRepeatSheet,       setShowRepeatSheet]        = useState(false);
+  const [showAcMissionPick,     setShowAcMissionPick]      = useState(false);   // 미션탭 → 학원별 미션 추가 (학원 고르기 시트)
   const [openDiscoveryBook,     setOpenDiscoveryBook]      = useState(false);
   /* (삭제됨) discoveryPop — 머리 위 말풍선 전용 상태였는데 말풍선을 빼며 같이 제거 (사용자 확정) */
   // 탐험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
@@ -6068,7 +6070,8 @@ export default function App() {
                                  (오늘 미션 카드의 학원 표시와 같은 규칙이라 색 연결은 유지)
                                · 줄마다 '등록된 미션 N개'를 보여 준다 — 들어가면 무엇을
                                  하는 자리인지 분명해진다
-                               · 일반 미션은 성격이 달라 목록 밖으로 분리 */
+                               · 일반 미션은 성격이 달라 목록 밖으로 분리
+                             [사용자 확정 2026-10-06] 다시 '반복 / 학원별 / 생활' 세 줄로 — 학원 목록은 시트로 뺐다. */
                           const cnt=(acId)=>{
                             const e=getDailyEntry(childId,acId,rewardDate);
                             return (e.homeworks||[]).length+(e.todos||[]).length;
@@ -6105,59 +6108,34 @@ export default function App() {
                             </button>
                             {getRepeatMissions(childId).length===0&&(
                               <p style={{margin:"2px 0 10px 19px",fontSize:11.5,fontWeight:700,color:C.sub,lineHeight:1.45}}>
-                                자주 쓰는 미션을 저장해 두면 아래 어디에든 눌러서 바로 넣을 수 있어요
+                                자주 쓰는 미션을 저장해 두면 학원별·생활 미션에서 눌러서 바로 넣을 수 있어요
                               </p>
                             )}
 
-                            {curAc.length>0&&(
-                              <div>
-                                {curAc.map((ac)=>(
-                                  <button key={ac.id} onClick={()=>openEdit(ac.id,ac.name,ac.color,ac.baseSupplies)}
-                                    className="jelly-tap"
-                                    style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
-                                      border:"none",borderTop:`1px solid ${C.border}`,background:"transparent",
-                                      cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
-                                    <span style={{width:9,height:9,borderRadius:"50%",background:ac.color,flexShrink:0}}/>
-                                    {/* [사용자 확정 2026-08-17] '등록된 미션 N개'를 아랫줄에 두니
-                                        줄마다 두 층이라 목록이 길어졌다 → 이름 옆에 (N) 하나로. */}
-                                    <span style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5}}>
-                                      <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
-                                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</span>
-                                      <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({cnt(ac.id)})</span>
-                                    </span>
-                                    <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                            {curAc.length===0&&(
-                              <p style={{textAlign:"center",color:C.sub,fontSize:13,padding:"10px 0",margin:0,borderTop:`1px solid ${C.border}`}}>등록된 학원이 없어요</p>
-                            )}
-
-                            {/* 일반 미션 — 학원 목록과 성격이 다르다. '학원과 관계없는'이라는
-                                부정형 분류는 앞으로 집안일·생활습관까지 넓어지면 애매해져서
-                                '일반 미션'이라는 독립 이름을 쓴다 (사용자 확정).
-                                [사용자 확정 2026-08-16] 점선 상자로 따로 떼어 놓으니 줄이 어긋나
-                                보였다 → 학원 줄과 같은 색·같은 크기·같은 위치로 맞춘다.
-                                고르는 자리는 하나로 읽혀야 한다.
-                                [사용자 확정 2026-09-28] 이름에서 '생활·' 를 떼고 '일반 미션'만 쓴다. */}
-                            <button onClick={()=>openEdit(EXTRA_QUEST_ID,"일반 미션",th.main,[])}
-                              className="jelly-tap"
-                              style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
-                                border:"none",borderTop:`1px solid ${C.border}`,background:"transparent",
-                                cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
-                              {/* [사용자 확정 2026-08-16] 학원 줄과 자리·크기는 같게 두되 표식만
-                                  점 대신 ＋ 로 — 학원을 고르는 줄이 아니라 새로 만드는 줄이다.
-                                  9px 자리를 그대로 써서 제목 시작 위치는 학원 줄과 어긋나지 않는다. */}
-                              <span aria-hidden="true" style={{width:9,height:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",color:th.main,fontSize:15,fontWeight:900,lineHeight:1}}>+</span>
-                              {/* 학원 줄과 같은 모양으로 — 이름 옆 (N) 하나 */}
-                              <span style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5}}>
-                                <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
-                                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>일반 미션</span>
-                                <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({cnt(EXTRA_QUEST_ID)})</span>
-                              </span>
-                              <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
-                            </button>
+                            {/* [사용자 확정 2026-10-06] 학원이 줄줄이 펼쳐져 복잡했다 → '반복 / 학원별 / 생활' 세 줄로 줄이고,
+                                학원은 '학원별 미션 추가'를 눌러 뜨는 시트(AcademyMissionPicker)에서 고른다. */}
+                            {[
+                              {key:"ac",icon:"🏫",label:"학원별 미션 추가",n:curAc.reduce((s,ac)=>s+cnt(ac.id),0),
+                                onClick:()=>setShowAcMissionPick(true)},
+                              /* 예전 '일반 미션' — 학원과 관계없는 집안일·생활습관 자리 (같은 EXTRA_QUEST_ID 저장) */
+                              {key:"life",icon:"🌱",label:"생활 미션 추가",n:cnt(EXTRA_QUEST_ID),
+                                onClick:()=>openEdit(EXTRA_QUEST_ID,"생활 미션",th.main,[])},
+                            ].map(r=>(
+                              <button key={r.key} onClick={r.onClick} className="jelly-tap"
+                                style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
+                                  border:"none",borderTop:`1px solid ${C.border}`,background:"transparent",
+                                  cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
+                                <span aria-hidden="true" style={{width:9,height:9,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                                  <EmojiIcon emoji={r.icon} size={13}/>
+                                </span>
+                                <span style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5}}>
+                                  <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
+                                    overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.label}</span>
+                                  <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({r.n})</span>
+                                </span>
+                                <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
+                              </button>
+                            ))}
                           </div>
                           );
                         })()}
@@ -7477,6 +7455,20 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── 학원별 미션 추가 — 학원 고르기 시트 (엄마용 미션탭). 고르면 그 학원의 미션 수정 팝업을 연다 ── */}
+      {showAcMissionPick&&(
+        <AcademyMissionPicker tone={careTone}
+          academies={curAc.map(ac=>{ const e=getDailyEntry(childId,ac.id,rewardDate);
+            return {id:ac.id,name:ac.name,color:ac.color,baseSupplies:ac.baseSupplies,count:(e.homeworks||[]).length+(e.todos||[]).length}; })}
+          onClose={()=>setShowAcMissionPick(false)}
+          onPick={(ac)=>{
+            setShowAcMissionPick(false);
+            setShowDailyModal({academyId:ac.id,date:rewardDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies||[],fromMission:true});
+            setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
+            setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+          }}/>
       )}
 
       {/* ── 반복 미션 시트 (엄마용 미션탭 → 반복 미션 추가) ── */}
