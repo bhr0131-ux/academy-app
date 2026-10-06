@@ -22,7 +22,6 @@ import { DISCOVERY_KEY, DISCOVERIES, recordDiscovery, getDiscoveryOn, getDiscove
 import HomeSheet from "./components/HomeSheet.jsx";
 import ParentNav, { PARENT_NAV_H } from "./components/parent/ParentNav.jsx";
 import AcademyKindPicker from "./components/parent/AcademyKindPicker.jsx";
-import AcademyMissionPicker from "./components/parent/AcademyMissionPicker.jsx";
 import FeePaySheet, { payMethodLabel } from "./components/parent/FeePaySheet.jsx";
 import ChildFace from "./components/parent/ChildFace.jsx";
 import CareIcon from "./components/parent/CareIcons.jsx";
@@ -421,7 +420,7 @@ export default function App() {
      저장은 새 키(v6_repeat_missions)로만. 기존 미션 저장(일별 entry)은 안 건드린다. */
   const [repeatMissions,        setRepeatMissions]         = useState({});
   const [showRepeatSheet,       setShowRepeatSheet]        = useState(false);
-  const [showAcMissionPick,     setShowAcMissionPick]      = useState(false);   // 미션탭 → 학원별 미션 추가 (학원 고르기 시트)
+  const [dailyAcListOpen,       setDailyAcListOpen]        = useState(false);   // 미션 팝업 제목에서 학원 목록 펼침 (학원별 미션 추가)
   const [openDiscoveryBook,     setOpenDiscoveryBook]      = useState(false);
   /* (삭제됨) discoveryPop — 머리 위 말풍선 전용 상태였는데 말풍선을 빼며 같이 제거 (사용자 확정) */
   // 탐험일지 자동 선택: 아직 안 끝난 첫 수업(진행 중 포함) = 이번에 갈 학원. 다 끝났으면 마지막, 오늘이 아니면 첫 학원.
@@ -6076,8 +6075,9 @@ export default function App() {
                             const e=getDailyEntry(childId,acId,rewardDate);
                             return (e.homeworks||[]).length+(e.todos||[]).length;
                           };
-                          const openEdit=(acId,acName,acColor,baseSupplies)=>{
-                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[],fromMission:true});
+                          const openEdit=(acId,acName,acColor,baseSupplies,acPick=false)=>{
+                            setDailyAcListOpen(false);
+                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[],fromMission:true,acPick});
                             setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
                             setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
                           };
@@ -6106,17 +6106,12 @@ export default function App() {
                               </span>
                               <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
                             </button>
-                            {getRepeatMissions(childId).length===0&&(
-                              <p style={{margin:"2px 0 10px 19px",fontSize:11.5,fontWeight:700,color:C.sub,lineHeight:1.45}}>
-                                자주 쓰는 미션을 저장해 두면 학원별·생활 미션에서 눌러서 바로 넣을 수 있어요
-                              </p>
-                            )}
-
                             {/* [사용자 확정 2026-10-06] 학원이 줄줄이 펼쳐져 복잡했다 → '반복 / 학원별 / 생활' 세 줄로 줄이고,
-                                학원은 '학원별 미션 추가'를 눌러 뜨는 시트(AcademyMissionPicker)에서 고른다. */}
+                                '학원별 미션 추가'는 첫 학원의 미션 팝업을 바로 열고, 팝업 제목(학원 이름)을 눌러 학원을 바꾼다. */}
                             {[
                               {key:"ac",icon:"🏫",label:"학원별 미션 추가",n:curAc.reduce((s,ac)=>s+cnt(ac.id),0),
-                                onClick:()=>setShowAcMissionPick(true)},
+                                onClick:()=>{ if(!curAc.length){ showToast("등록된 학원이 없어요"); return; }
+                                  const a=curAc[0]; openEdit(a.id,a.name,a.color,a.baseSupplies,true); }},
                               /* 예전 '일반 미션' — 학원과 관계없는 집안일·생활습관 자리 (같은 EXTRA_QUEST_ID 저장) */
                               {key:"life",icon:"🌱",label:"생활 미션 추가",n:cnt(EXTRA_QUEST_ID),
                                 onClick:()=>openEdit(EXTRA_QUEST_ID,"생활 미션",th.main,[])},
@@ -7457,20 +7452,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ── 학원별 미션 추가 — 학원 고르기 시트 (엄마용 미션탭). 고르면 그 학원의 미션 수정 팝업을 연다 ── */}
-      {showAcMissionPick&&(
-        <AcademyMissionPicker tone={careTone}
-          academies={curAc.map(ac=>{ const e=getDailyEntry(childId,ac.id,rewardDate);
-            return {id:ac.id,name:ac.name,color:ac.color,baseSupplies:ac.baseSupplies,count:(e.homeworks||[]).length+(e.todos||[]).length}; })}
-          onClose={()=>setShowAcMissionPick(false)}
-          onPick={(ac)=>{
-            setShowAcMissionPick(false);
-            setShowDailyModal({academyId:ac.id,date:rewardDate,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies||[],fromMission:true});
-            setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
-            setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
-          }}/>
-      )}
-
       {/* ── 반복 미션 시트 (엄마용 미션탭 → 반복 미션 추가) ── */}
       <RepeatMissionSheet
         open={showRepeatSheet} onClose={()=>setShowRepeatSheet(false)}
@@ -7483,7 +7464,7 @@ export default function App() {
 
       {/* ── 날짜별 숙제/준비물 모달 ── */}
       {showDailyModal&&(()=>{
-        const {academyId,date,acName,acColor,baseSupplies,fromMission}=showDailyModal;
+        const {academyId,date,acName,acColor,baseSupplies,fromMission,acPick}=showDailyModal;
         const isExtra=String(academyId)===String(EXTRA_QUEST_ID); // 기타 미션: 숙제·준비물 없이 미션만
         /* [사용자 확정 2026-08-16] 미션 탭에서 연 팝업에는 '오늘의 준비물'을 빼고 미션만 다룬다 —
            준비물은 홈탭 '준비물·미션 수정'에서 챙긴다. 같은 팝업을 두 곳에서 쓰므로
@@ -7522,14 +7503,42 @@ export default function App() {
             <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"88vh",overflowY:"auto",boxSizing:"border-box"}}>
               <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18}}>
                 <div style={{width:14,height:14,borderRadius:"50%",background:acColor}}/>
-                <div style={{flex:1}}>
+                <div style={{flex:1,minWidth:0}}>
+                  {/* [사용자 확정 2026-10-06] '학원별 미션 추가'로 열면 제목(학원 이름)을 눌러 학원을 고른다 —
+                      고르면 아래 미션이 그 학원 것으로 바뀐다 */}
+                  {acPick?(
+                    <button onClick={()=>setDailyAcListOpen(v=>!v)} aria-expanded={dailyAcListOpen} className="jelly-tap"
+                      style={{display:"flex",alignItems:"center",gap:6,maxWidth:"100%",padding:0,border:"none",background:"none",cursor:"pointer",fontFamily:"inherit"}}>
+                      <span style={{fontWeight:FW.semi,fontSize:FS.modalTitle,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acName}</span>
+                      <span aria-hidden style={{flexShrink:0,fontSize:12,color:C.sub,transition:"transform .2s",transform:dailyAcListOpen?"rotate(180deg)":"none"}}>▼</span>
+                    </button>
+                  ):(
                   <p style={{fontWeight:FW.semi,fontSize:FS.modalTitle,margin:0,color:C.text}}>{acName}</p>
+                  )}
                   {/* [사용자 확정 2026-08-11] 날짜가 학원 이름과 같은 17이라 둘 다 제목처럼 읽혔다 →
                       보조 정보이므로 다른 화면의 보조 줄(12~12.5)에 맞춘다. */}
                   <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>{fmt(date)} {date===TODAY?"(오늘)":""}</p>
                 </div>
                 <button onClick={()=>setShowDailyModal(null)} style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
               </div>
+              {acPick&&dailyAcListOpen&&(
+                <div style={{margin:"-8px 0 16px",border:`1px solid ${C.border}`,borderRadius:RAD.md,padding:"2px 12px"}}>
+                  {curAc.map((a,i)=>(
+                    <button key={a.id} onClick={()=>{
+                        setDailyAcListOpen(false); setEditingDailyItem(null);
+                        setDailyHwInput(""); setDailyTodoInput("");
+                        setShowDailyModal({...showDailyModal,academyId:a.id,acName:a.name,acColor:a.color,baseSupplies:a.baseSupplies||[]});
+                      }} className="jelly-tap"
+                      style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",border:"none",
+                        borderTop:i?`1px solid ${C.border}`:"none",background:"transparent",cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
+                      <span style={{width:9,height:9,borderRadius:"50%",background:a.color,flexShrink:0}}/>
+                      <span style={{flex:1,minWidth:0,fontSize:FS.cardTitle,fontWeight:String(a.id)===String(academyId)?FW.bold:FW.normal,
+                        color:String(a.id)===String(academyId)?C.text:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</span>
+                      {String(a.id)===String(academyId)&&<span aria-hidden style={{flexShrink:0,color:th.main,fontWeight:900,fontSize:13}}>✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
               {/* [사용자 확정 2026-08-16] 준비물을 미션보다 위로 올렸다 —
                   학원 갈 때 먼저 챙기는 것이 준비물이라 읽는 순서를 그대로 따른다.
                   (버튼 이름도 '준비물·미션 수정'으로 같이 맞췄다) */}
