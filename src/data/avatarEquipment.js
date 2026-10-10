@@ -532,8 +532,11 @@ export const AVATAR_CATALOG = [
      사용자 배치 참고 그림(얼굴 매칭 0.917)대로 — 왼쪽 어깨(552,386)에서 오른쪽 옆구리 가방 고리(598,592)로 끈을 늘이고(×0.789·-6.2°),
      가방은 배율 0.73·원점 (586,596). 가방은 몸 뒤(z 14, 손이 앞을 가린다), 끈은 맨 앞(zFront 48). 가방 상자 (586,596,689,689), 끈 상자 (547,386,605,595).
      [2026-10-10] 사용자 조정 — 끈 윗끝을 목 카라 옆 어깨선(580,382)으로, 가방은 손끝보다 안 내려가게 위로 36(원점 (586,560), 끈 아래끝 (598,556)). 가방 상자 (586,560,689,653), 끈 상자 (572,382,604,558). img ?v=2.
-     [2026-10-10] 끈 윗끝을 카라 바로 옆(574,382)으로 왼쪽 6, 가방은 끈 아래끝(596,560)이 가방 고리에 닿게 위로 22(원점 (586,538)). 가방 상자 (586,538,689,631), 끈 상자 (566,382,603,562). img ?v=3. */
-  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=3", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=3", zFront: 48, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
+     [2026-10-10] 끈 윗끝을 카라 바로 옆(574,382)으로 왼쪽 6, 가방은 끈 아래끝(596,560)이 가방 고리에 닿게 위로 22(원점 (586,538)). 가방 상자 (586,538,689,631), 끈 상자 (566,382,603,562). img ?v=3.
+     [2026-10-10] 가방만 왼쪽으로 10(원점 (576,538), 끈 아래끝 (586,560)). 가방을 손 왼쪽 경계에서 둘로 나눠 —
+     손 왼쪽(옷과 겹치는 쪽)은 옷 위로 끈과 한 장(imgFront, zFront 48, 손·팔 자리는 비움), 손 뒤쪽은 옷 뒤(img, z 14).
+     경계는 딸기 소풍룩 기준 팔 왼쪽 끝을 줄마다 땄다. 뒤 상자 (594,538,679,631), 앞(끈+가방 앞) 상자 (564,382,622,631). img ?v=4. */
+  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=4", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=4", zFront: 48, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
