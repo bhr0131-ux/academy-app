@@ -536,8 +536,10 @@ export const AVATAR_CATALOG = [
      [2026-10-10] 가방만 왼쪽으로 10(원점 (576,538), 끈 아래끝 (586,560)). 가방을 손 왼쪽 경계에서 둘로 나눠 —
      손 왼쪽(옷과 겹치는 쪽)은 옷 위로 끈과 한 장(imgFront, zFront 48, 손·팔 자리는 비움), 손 뒤쪽은 옷 뒤(img, z 14).
      경계는 딸기 소풍룩 기준 팔 왼쪽 끝을 줄마다 땄다. 뒤 상자 (594,538,679,631), 앞(끈+가방 앞) 상자 (564,382,622,631). img ?v=4. 
-     [2026-10-10] 가방만 왼쪽으로 10 더(원점 (566,538), 끈 아래끝 (576,560)), 같은 방식으로 다시 나눔. 뒤 상자 (590,538,669,631), 앞 상자 (560,382,622,631). img ?v=5. */
-  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=5", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=5", zFront: 48, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
+     [2026-10-10] 가방만 왼쪽으로 10 더(원점 (566,538), 끈 아래끝 (576,560)), 같은 방식으로 다시 나눔. 뒤 상자 (590,538,669,631), 앞 상자 (560,382,622,631). img ?v=5. 
+     [2026-10-10] 옷별 나눔(topVariant) — 핑크 파티시에: 리본 꼬리가 가방과 팔 사이로 보여 팔(맨살)만 빼고 가방 전부 옷 위로.
+     달빛 마법사: 원피스·소매가 커서 가방이 덮였다 → 소매 윤곽·소맷부리·손 왼쪽 경계까지 옷 위로. */
+  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=5", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=5", zFront: 48, topVariant: { top_bakery_girl: { img: "assets/avatar/back/strawberry-crossbag-bakery-girl.webp", imgFront: "assets/avatar/back/strawberry-crossbag-strap-bakery-girl.webp" }, top_magic: { img: "assets/avatar/back/strawberry-crossbag-magic-girl.webp", imgFront: "assets/avatar/back/strawberry-crossbag-strap-magic-girl.webp" } }, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
@@ -937,14 +939,14 @@ export const getAvatarLayers = (equippedMap = {}, gender = "boy") => {
     .map(slot => {
       if (hideBottom && slot.key === "bottom") return null;
       const id = equippedMap[slot.key];
-      const item = id ? getAvatarItem(id) : null;
+      let item = id ? getAvatarItem(id) : null;
       /* 아이템에 z가 있으면 슬롯 기본 z보다 우선 — 원화가 '앞에서 본 모습'이라
          슬롯 기본 순서로는 몸통에 가려지는 장비(탐험 배낭의 어깨끈 등)를 위해. */
       if (!item) return null;
       /* topVariant — 특정 옷과 짝일 때 그 옷에 맞춘 한 장으로 바꿔 그린다(앞장 없이). */
+      /* imgFront 를 주지 않은 변형은 앞장 없이 한 장, 주면 앞뒤 두 장 그대로(딸기 크로스백 — 옷마다 가방을 나누는 선이 다르다) */
       const variant = item.topVariant?.[equippedMap.top];
-      if (variant) return [{ key: slot.key, slot: slot.key, item: { ...item, ...variant, imgFront: undefined, topVariant: undefined },
-        zIndex: variant.z ?? item.z ?? slot.zIndex, emojiPos: slot.emojiPos }];
+      if (variant) item = { ...item, ...variant, imgFront: variant.imgFront, topVariant: undefined };
       const main = { key: slot.key, slot: slot.key, item, zIndex: item.z ?? slot.zIndex, emojiPos: slot.emojiPos };
       /* shoesOverBoy — 남아가 이 옷을 입으면 어떤 신발이든 옷 위로(바짓단이 신발을 덮지 않는 옷). */
       if (slot.key === "shoes" && gender === "boy") {
