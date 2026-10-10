@@ -530,8 +530,9 @@ export const AVATAR_CATALOG = [
   { id: "back_crossbag_girl", slot: "back", label: "들꽃 크로스백", emoji: "👜", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "girl", z: 14, img: "assets/avatar/back/wildflower-crossbag-back-girl.webp?v=6", imgFront: "assets/avatar/back/wildflower-crossbag-front-girl.webp?v=6", zFront: 48, topVariant: { top_vest: { img: "assets/avatar/back/wildflower-crossbag-girl.webp?v=7", z: 38 } }, thumb: "assets/avatar/thumb/back_crossbag_girl.webp" },
   /* 딸기 크로스백 [2026-10-10] — 여아. 라탄 가방(크림 덮개·딸기 장식, 사용자 원화 141×128) + 어깨끈(52×271) 두 장. 딸기 소풍룩과 짝.
      사용자 배치 참고 그림(얼굴 매칭 0.917)대로 — 왼쪽 어깨(552,386)에서 오른쪽 옆구리 가방 고리(598,592)로 끈을 늘이고(×0.789·-6.2°),
-     가방은 배율 0.73·원점 (586,596). 가방은 몸 뒤(z 14, 손이 앞을 가린다), 끈은 맨 앞(zFront 48). 가방 상자 (586,596,689,689), 끈 상자 (547,386,605,595). */
-  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp", zFront: 48, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
+     가방은 배율 0.73·원점 (586,596). 가방은 몸 뒤(z 14, 손이 앞을 가린다), 끈은 맨 앞(zFront 48). 가방 상자 (586,596,689,689), 끈 상자 (547,386,605,595).
+     [2026-10-10] 사용자 조정 — 끈 윗끝을 목 카라 옆 어깨선(580,382)으로, 가방은 손끝보다 안 내려가게 위로 36(원점 (586,560), 끈 아래끝 (598,556)). 가방 상자 (586,560,689,653), 끈 상자 (572,382,604,558). img ?v=2. */
+  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=2", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=2", zFront: 48, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
