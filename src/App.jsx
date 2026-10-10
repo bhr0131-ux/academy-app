@@ -6107,11 +6107,11 @@ export default function App() {
                               <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
                             </button>
                             {/* [사용자 확정 2026-10-06] 학원이 줄줄이 펼쳐져 복잡했다 → '반복 / 학원별 / 생활' 세 줄로 줄이고,
-                                '학원별 미션 추가'는 첫 학원의 미션 팝업을 바로 열고, 팝업 제목(학원 이름)을 눌러 학원을 바꾼다. */}
+                                '학원별 미션 추가'는 학원을 고르지 않은 채(학원 선택) 팝업을 열고, 맨 위 '학원 선택'을 눌러 고른다. */}
                             {[
                               {key:"ac",icon:"🏫",label:"학원별 미션 추가",n:curAc.reduce((s,ac)=>s+cnt(ac.id),0),
                                 onClick:()=>{ if(!curAc.length){ showToast("등록된 학원이 없어요"); return; }
-                                  const a=curAc[0]; openEdit(a.id,a.name,a.color,a.baseSupplies,true); }},
+                                  openEdit(null,"","#C9CED8",[],true); }},
                               /* 예전 '일반 미션' — 학원과 관계없는 집안일·생활습관 자리 (같은 EXTRA_QUEST_ID 저장) */
                               {key:"life",icon:"🌱",label:"생활 미션 추가",n:cnt(EXTRA_QUEST_ID),
                                 onClick:()=>openEdit(EXTRA_QUEST_ID,"생활 미션",th.main,[])},
@@ -7466,6 +7466,9 @@ export default function App() {
       {showDailyModal&&(()=>{
         const {academyId,date,acName,acColor,baseSupplies,fromMission,acPick}=showDailyModal;
         const isExtra=String(academyId)===String(EXTRA_QUEST_ID); // 기타 미션: 숙제·준비물 없이 미션만
+        /* [사용자 확정 2026-10-06] '학원별 미션 추가'로 열면 처음엔 학원을 안 고른 상태 — 맨 위 '학원 선택'을 눌러 고른다.
+           고르기 전에는 미션 입력 대신 모든 학원의 반복 숙제만 보여 준다(누르면 그 학원에 바로 넣는다). */
+        const noAc=!!acPick&&!academyId;
         /* [사용자 확정 2026-08-16] 미션 탭에서 연 팝업에는 '오늘의 준비물'을 빼고 미션만 다룬다 —
            준비물은 홈탭 '준비물·미션 수정'에서 챙긴다. 같은 팝업을 두 곳에서 쓰므로
            연 자리를 fromMission 으로 구분한다. */
@@ -7508,9 +7511,10 @@ export default function App() {
                       고르면 아래 미션이 그 학원 것으로 바뀐다 */}
                   {acPick?(
                     <button onClick={()=>setDailyAcListOpen(v=>!v)} aria-expanded={dailyAcListOpen} className="jelly-tap"
-                      style={{display:"flex",alignItems:"center",gap:6,maxWidth:"100%",padding:0,border:"none",background:"none",cursor:"pointer",fontFamily:"inherit"}}>
-                      <span style={{fontWeight:FW.semi,fontSize:FS.modalTitle,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acName}</span>
-                      <span aria-hidden style={{flexShrink:0,fontSize:12,color:C.sub,transition:"transform .2s",transform:dailyAcListOpen?"rotate(180deg)":"none"}}>▼</span>
+                      style={{display:"inline-flex",alignItems:"center",gap:8,maxWidth:"100%",padding:"7px 12px 7px 14px",borderRadius:RAD.pill,
+                        border:`1.5px solid ${noAc?th.main:C.border}`,background:noAc?`${th.main}12`:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
+                      <span style={{fontWeight:FW.semi,fontSize:FS.modalTitle,color:noAc?th.main:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{noAc?"학원 선택":acName}</span>
+                      <span aria-hidden style={{flexShrink:0,fontSize:11,color:noAc?th.main:C.sub,transition:"transform .2s",transform:dailyAcListOpen?"rotate(180deg)":"none"}}>▼</span>
                     </button>
                   ):(
                   <p style={{fontWeight:FW.semi,fontSize:FS.modalTitle,margin:0,color:C.text}}>{acName}</p>
@@ -7589,6 +7593,13 @@ export default function App() {
               </div>
               </>);
               })()}
+              {noAc&&(
+                <div style={{background:CT.faint,borderRadius:RAD.md,padding:"14px 14px",marginBottom:18,textAlign:"center"}}>
+                  <p style={{fontSize:FS.cardTitle,fontWeight:FW.semi,color:C.text,margin:0}}>미션을 추가할 학원을 골라 주세요</p>
+                  <p style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,margin:"3px 0 0"}}>맨 위 '학원 선택'을 누르면 학원 목록이 나와요.</p>
+                </div>
+              )}
+              {!noAc&&(<>
               {/* [사용자 확정 2026-08-11] 팝업 안 구역 제목이 창 제목과 같은 17이었다 →
                   다른 화면의 구역 제목(홈 15 · 결석 15.5)에 맞춰 15. */}
               <p style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,margin:isParent&&!isParentEdit&&(hw.length>0||todos.length>0)?"0 0 3px":"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
@@ -7721,8 +7732,59 @@ export default function App() {
                   </div>
                 );
               })()}
+              </>)}
               {(()=>{
                 if(isExtra) return null;
+                /* 학원 선택 전 — 모든 학원의 반복 숙제를 학원 이름과 함께. '추가'는 그 학원의 그날 미션에 바로 넣는다.
+                   학원이 안 정해진 반복 숙제는 학원을 고른 뒤에 넣는다. */
+                if(noAc){
+                  const rows=[];
+                  curAc.forEach(ac=>{
+                    const base=(ac.baseHomeworks||[]);
+                    base.forEach(s=>rows.push({key:`b:${ac.id}:${s}`,text:s,ac,source:"base"}));
+                    getRepeatMissions(childId).filter(it=>it.kind==="hw"&&String(it.academyId||"")===String(ac.id)&&!base.includes(it.text))
+                      .forEach(it=>rows.push({key:`r:${it.id}`,text:it.text,ac,source:"repeat",item:it}));
+                  });
+                  getRepeatMissions(childId).filter(it=>it.kind==="hw"&&!it.academyId)
+                    .forEach(it=>rows.push({key:`r:${it.id}`,text:it.text,ac:null,source:"repeat",item:it}));
+                  if(rows.length===0) return null;
+                  const addRow=(r)=>{
+                    if(!r.ac){ showToast("위에서 학원을 먼저 골라 주세요"); return; }
+                    const e=getDailyEntry(childId,r.ac.id,date), h=e.homeworks||[];
+                    if(h.some(x=>x.text===r.text)){ showToast("이미 추가된 숙제예요"); return; }
+                    const pt=r.source==="repeat"?(r.item.point||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE;
+                    setDailyEntry(childId,r.ac.id,date,{...e,homeworks:[...h,{id:newId(),text:r.text,done:false,point:pt,...(r.source==="base"?{fromBase:true}:{})}]});
+                    showToast(`${r.ac.name}에 추가했어요 📚`);
+                  };
+                  return (
+                    <div style={{marginBottom:20}}>
+                      <p style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,margin:"0 0 3px",display:"flex",alignItems:"center",gap:7}}>
+                        <CareIcon name="repeat" size={15}/>전체 반복 숙제
+                      </p>
+                      <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
+                        '추가'를 누르면 그 학원의 오늘 미션에 바로 들어가요.
+                      </p>
+                      <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                        {rows.map(r=>{
+                          const added=!!r.ac&&(getDailyEntry(childId,r.ac.id,date).homeworks||[]).some(x=>x.text===r.text);
+                          return (
+                            <div key={r.key} style={{display:"flex",gap:6,alignItems:"center"}}>
+                              <div style={{...inp,flex:3,width:"auto",fontSize:FS.cardTitle,padding:"9px 10px",minHeight:CTRL_H,boxSizing:"border-box",display:"flex",alignItems:"center",gap:7,minWidth:0,color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
+                                {r.ac&&<span style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:4,fontSize:FS.tag,fontWeight:FW.bold,color:C.sub}}>
+                                  <span style={{width:7,height:7,borderRadius:"50%",background:r.ac.color}}/>{r.ac.name}</span>}
+                                {added&&<span style={{color:C.green,fontWeight:FW.bold,flexShrink:0}}>✓</span>}
+                                <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.text}</span>
+                              </div>
+                              <button onClick={()=>addRow(r)} disabled={added} style={{padding:"0 13px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:added?`${C.green}18`:(r.ac?.color||th.main),color:added?mixBlack(C.green,0.3):"#fff",fontWeight:FW.semi,fontSize:FS.body,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
+                                {added?"추가됨 ✓":"추가"}
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                }
                 const acObj=getAcademyById(childId,academyId);
                 /* [사용자 확정 2026-09-28] 위 '반복 미션에서 고르기' 칩과 이 목록이 숙제 기준으로
                    똑같은 일을 해서 겹쳐 보였다 → 숙제는 여기 한 곳에만 모은다. 학원에 바로 넣어 둔
@@ -7730,7 +7792,9 @@ export default function App() {
                    같은 글자면 학원에 넣어 둔 쪽을 남기고 반복 미션 쪽은 뺀다(같은 줄이 두 번 뜨지 않게). */
                 const baseList=(acObj?.baseHomeworks||[]).map(s=>({key:`base:${s}`,text:s,source:"base"}));
                 const baseTexts=new Set(baseList.map(b=>b.text));
-                const repeatList=getRepeatMissions(childId).filter(it=>it.kind==="hw"&&!baseTexts.has(it.text))
+                /* [사용자 확정 2026-10-06] 그 학원의 반복 숙제만 — 다른 학원으로 저장한 반복 숙제는 뺀다(학원 안 정한 것은 둔다) */
+                const repeatList=getRepeatMissions(childId).filter(it=>it.kind==="hw"&&!baseTexts.has(it.text)
+                    &&(!it.academyId||String(it.academyId)===String(academyId)))
                   .map(it=>({key:`rep:${it.id}`,text:it.text,source:"repeat",item:it}));
                 const merged=[...baseList,...repeatList];
                 if(merged.length===0) return null;
