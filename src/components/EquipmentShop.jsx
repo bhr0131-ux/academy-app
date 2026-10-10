@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { C, CAMP_SHEET } from "../data/tokens.js";
 import AvatarViewer from "./AvatarViewer.jsx";
+import useDragScroll from "./useDragScroll.js";
 import EmojiIcon, { EmojiText } from "./EmojiIcon.jsx";
 import {
   AVATAR_RARITY, SHOP_TABS, getItemsByTab, getSlot, itemLabel, itemEmoji,
@@ -138,6 +139,7 @@ export default function EquipmentShop({
      성별에 맞는 아이템이 있는 첫 탭에서 시작한다(남아는 상의, 여아는 모자). */
   const firstFilledTab = (g) =>
     (SHOP_TABS.find((t) => getItemsByTab(t.key, g).length > 0) || SHOP_TABS[0]).key;
+  const tabsRef = useDragScroll();   // PC 마우스로도 카테고리 줄을 옆으로 넘긴다
   const [activeTab, setActiveTab] = useState(() => firstFilledTab(gender));
 
   /* 고른 파츠 하나 — 하단 바가 이것 하나의 행동만 보여 준다. */
@@ -372,7 +374,7 @@ export default function EquipmentShop({
         </div>
 
         {/* ── 카테고리 — 글자가 잘리지 않게 줄 높이를 넉넉히 잡고 스크롤바는 숨긴다 ── */}
-        <div className="esTabs" style={{
+        <div className="esTabs" ref={tabsRef} style={{
           flexShrink: 0, display: "flex", alignItems: "center", gap: 6,
           overflowX: "auto", padding: "10px 14px", background: "#fff",
           borderBottom: `1px solid ${C.line || "#EEE"}`,
