@@ -523,8 +523,9 @@ export const AVATAR_CATALOG = [
      사용자 참고 그림(얼굴 매칭 0.965)대로 왼쪽 어깨(452,418)에서 오른쪽 가슴 아래로 — 끈 윗끝·노란 지퍼 고리(556,543) 두 점 맞춤, 배율 0.723·-6.0°.
      옷 위·목 장식 아래 z 38. 상자 (434,411,631,595).
      [2026-10-11] 번개 스케이터만 — 끈 윗끝을 후드 아래 접힌 선(425,428)→(475,430)에서 잘라 후드 밑에서 나오게, 그 선을 후드 선 색으로 이어 그림(topVariant).
-     다른 옷은 후드가 없어 자르면 끈이 떠 보여 그대로. */
-  { id: "back_cross_boy", slot: "back", label: "번개 크로스백", emoji: "⚡", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 38, img: "assets/avatar/back/cross-bag-boy.webp", topVariant: { top_board_boy: { img: "assets/avatar/back/cross-bag-board-boy.webp" } }, thumb: "assets/avatar/thumb/back_cross_boy.webp" },
+     다른 옷은 후드가 없어 자르면 끈이 떠 보여 그대로.
+     [2026-10-11] 번개 스케이터 — 가방 전체 왼쪽으로 6(끈 윗끝 (446,418)·지퍼 고리 (550,543)), 다시 후드 아래 선에서 자름(?v=2). */
+  { id: "back_cross_boy", slot: "back", label: "번개 크로스백", emoji: "⚡", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 38, img: "assets/avatar/back/cross-bag-boy.webp", topVariant: { top_board_boy: { img: "assets/avatar/back/cross-bag-board-boy.webp?v=2" } }, thumb: "assets/avatar/thumb/back_cross_boy.webp" },
   /* 들꽃 크로스백 [2026-10-05] — 여아. 갈색 가죽 크로스백(흰 들꽃 장식), 사용자 원화 230×343. 들꽃 탐험가 옷과 짝.
      사용자 배치 참고 그림(얼굴 매칭 0.915)에 맞춤 — 가방 몸통 매칭(0.986) 배율 0.73·-1° 회전, 끈·가방 이음매 (526,568).
      끈은 가방에서 떼어 옷깃 아래 끝(463,421)까지 늘이고(×0.998) y419 위는 지워 옷깃 밑으로 들어가 보이게.
