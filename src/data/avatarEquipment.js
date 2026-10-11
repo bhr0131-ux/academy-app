@@ -555,6 +555,10 @@ export const AVATAR_CATALOG = [
      [2026-10-11] 손잡이 모양은 원래대로 두고 위치만 — 오른쪽 1·아래로 7(원점 (325,643)) 옮겨 두 손잡이가 손 왼쪽 선·손가락 오른쪽 선에서 나오게. 상자 (325,637,426,771)(?v=3). 
      [2026-10-11] 사용자가 후보 그림에서 고른 자리로 — 원점 (320,632). 상자 (320,626,421,760)(?v=4). */
   { id: "back_cookie_girl", slot: "back", label: "쿠키 가방", emoji: "🍪", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 48, img: "assets/avatar/back/cookie-bag-girl.webp?v=4", thumb: "assets/avatar/thumb/back_cookie_girl.webp" },
+  /* 하늘 가방 [2026-10-11] — 여아. 크림색 편지 봉투 가방(분홍 하트·하늘색 끈) 한 장, 사용자 원화 263×315. 파랑 우편부와 짝.
+     사용자 참고 그림(얼굴 매칭 0.917)대로 왼쪽 어깨(442,384)에서 오른쪽 허리로 — 끈 윗끝·하트 두 점 맞춤 배율 0.730·-0.3°.
+     옷 위·목 장식 아래 z 38. 상자 (436,382,630,612). */
+  { id: "back_sky_girl", slot: "back", label: "하늘 가방", emoji: "💌", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 38, img: "assets/avatar/back/sky-bag-girl.webp", thumb: "assets/avatar/thumb/back_sky_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
@@ -843,7 +847,7 @@ export const SHOP_ORDER = {
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
          "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",
-         "back_crossbag_girl", "back_strawberry_girl", "back_cookie_girl"],
+         "back_crossbag_girl", "back_strawberry_girl", "back_cookie_girl", "back_sky_girl"],
 };
 const shopRank = (it, gender) => {
   const i = (SHOP_ORDER[gender === "girl" ? "girl" : "boy"] || []).indexOf(it.id);
