@@ -547,6 +547,10 @@ export const AVATAR_CATALOG = [
      리본은 가방 아래로, 소매 가장자리는 아래로 갈수록 오른쪽인 부드러운 선(가방 위에 옷 윤곽색 선)으로 정리(?v=3).
      [2026-10-11] 덮개 오른쪽 띠는 사용자가 그은 팔 선 (598,539)→(615,575)까지 소매로 덮음 — 선과 리본 사이는 소매 색으로 메워 리본은 계속 가방 아래(앞장 ?v=4). */
   { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=5", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=5", zFront: 48, topVariant: { top_bakery_girl: { img: "assets/avatar/back/strawberry-crossbag-bakery-girl.webp?v=4", imgFront: "assets/avatar/back/strawberry-crossbag-strap-bakery-girl.webp?v=4" }, top_magic: { img: "assets/avatar/back/strawberry-crossbag-magic-girl.webp?v=3", imgFront: "assets/avatar/back/strawberry-crossbag-strap-magic-girl.webp?v=4" } }, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
+  /* 쿠키 가방 [2026-10-11] — 여아. 쿠키 모양 손가방(흰 리본·분홍 손잡이), 사용자 원화 131×167. 핑크 파티시에와 짝.
+     사용자 참고 그림(얼굴 매칭 0.919)대로 왼손(화면 기준)에 든다 — 배율 0.765·원점 (324,636). 치마 위로 오게 옷 위(z 48)에 그리고,
+     손가락이 손잡이를 쥔 듯 보이게 가방과 겹치는 손(y630~)을 그 위에 다시 그렸다. 상자 (324,630,425,764). */
+  { id: "back_cookie_girl", slot: "back", label: "쿠키 가방", emoji: "🍪", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 48, img: "assets/avatar/back/cookie-bag-girl.webp", thumb: "assets/avatar/thumb/back_cookie_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
@@ -835,7 +839,7 @@ export const SHOP_ORDER = {
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
          "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",
-         "back_crossbag_girl", "back_strawberry_girl"],
+         "back_crossbag_girl", "back_strawberry_girl", "back_cookie_girl"],
 };
 const shopRank = (it, gender) => {
   const i = (SHOP_ORDER[gender === "girl" ? "girl" : "boy"] || []).indexOf(it.id);
