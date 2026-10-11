@@ -551,8 +551,9 @@ export const AVATAR_CATALOG = [
      사용자 참고 그림(얼굴 매칭 0.919)대로 왼손(화면 기준)에 든다 — 배율 0.765·원점 (324,636). 치마 위로 오게 옷 위(z 48)에 그리고,
      손가락이 손잡이를 쥔 듯 보이게 가방과 겹치는 손(y630~)을 그 위에 다시 그렸다. 상자 (324,630,425,764). 
      [2026-10-11] 손잡이를 손 양옆 선에 맞춤 — 손잡이 위쪽 폭(349~410)을 손 폭(356~398)으로 가로 0.69배, 쿠키 몸통(y652→672) 쪽으로 원래 폭으로 되돌림(?v=2). 
-     [2026-10-11] 손잡이 모양은 원래대로 두고 위치만 — 오른쪽 1·아래로 7(원점 (325,643)) 옮겨 두 손잡이가 손 왼쪽 선·손가락 오른쪽 선에서 나오게. 상자 (325,637,426,771)(?v=3). */
-  { id: "back_cookie_girl", slot: "back", label: "쿠키 가방", emoji: "🍪", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 48, img: "assets/avatar/back/cookie-bag-girl.webp?v=3", thumb: "assets/avatar/thumb/back_cookie_girl.webp" },
+     [2026-10-11] 손잡이 모양은 원래대로 두고 위치만 — 오른쪽 1·아래로 7(원점 (325,643)) 옮겨 두 손잡이가 손 왼쪽 선·손가락 오른쪽 선에서 나오게. 상자 (325,637,426,771)(?v=3). 
+     [2026-10-11] 사용자가 후보 그림에서 고른 자리로 — 원점 (320,632). 상자 (320,626,421,760)(?v=4). */
+  { id: "back_cookie_girl", slot: "back", label: "쿠키 가방", emoji: "🍪", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 48, img: "assets/avatar/back/cookie-bag-girl.webp?v=4", thumb: "assets/avatar/thumb/back_cookie_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
