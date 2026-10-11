@@ -538,8 +538,9 @@ export const AVATAR_CATALOG = [
      경계는 딸기 소풍룩 기준 팔 왼쪽 끝을 줄마다 땄다. 뒤 상자 (594,538,679,631), 앞(끈+가방 앞) 상자 (564,382,622,631). img ?v=4. 
      [2026-10-10] 가방만 왼쪽으로 10 더(원점 (566,538), 끈 아래끝 (576,560)), 같은 방식으로 다시 나눔. 뒤 상자 (590,538,669,631), 앞 상자 (560,382,622,631). img ?v=5. 
      [2026-10-10] 옷별 나눔(topVariant) — 핑크 파티시에: 리본 꼬리가 가방과 팔 사이로 보여 팔(맨살)만 빼고 가방 전부 옷 위로.
-     달빛 마법사: 원피스·소매가 커서 가방이 덮였다 → 소매 윤곽·소맷부리·손 왼쪽 경계까지 옷 위로. */
-  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=5", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=5", zFront: 48, topVariant: { top_bakery_girl: { img: "assets/avatar/back/strawberry-crossbag-bakery-girl.webp", imgFront: "assets/avatar/back/strawberry-crossbag-strap-bakery-girl.webp" }, top_magic: { img: "assets/avatar/back/strawberry-crossbag-magic-girl.webp", imgFront: "assets/avatar/back/strawberry-crossbag-strap-magic-girl.webp" } }, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
+     달빛 마법사: 원피스·소매가 커서 가방이 덮였다 → 소매 윤곽·소맷부리·손 왼쪽 경계까지 옷 위로. 
+     [2026-10-11] 파티시에 — 팔 윤곽선(반투명 가장자리)까지 팔로 쳐서 가방이 팔을 조금도 덮지 않게(?v=2). */
+  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=5", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=5", zFront: 48, topVariant: { top_bakery_girl: { img: "assets/avatar/back/strawberry-crossbag-bakery-girl.webp?v=2", imgFront: "assets/avatar/back/strawberry-crossbag-strap-bakery-girl.webp?v=2" }, top_magic: { img: "assets/avatar/back/strawberry-crossbag-magic-girl.webp", imgFront: "assets/avatar/back/strawberry-crossbag-strap-magic-girl.webp" } }, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
