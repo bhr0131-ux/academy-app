@@ -519,6 +519,10 @@ export const AVATAR_CATALOG = [
      옷이 넓어진 만큼 가로도 따라가게(왼쪽 끈 왼쪽으로 3·오른쪽 끈 오른쪽으로 1). 끈 상자 (428,406,600,556). imgFront ?v=6. */
   { id: "back_explorer",  slot: "back",  label: "해적 가방",    emoji: "🏴‍☠️", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "boy", img: "assets/avatar/back/explorer-pack-boy.webp?v=3", imgFront: "assets/avatar/back/explorer-pack-straps-boy.webp?v=6", zFront: 48, thumb: "assets/avatar/thumb/back_explorer.webp" },
   { id: "back_rocket",    slot: "back",  label: "로켓 가방",    emoji: "🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", img: "assets/avatar/back/rocket-pack-boy.webp", thumb: "assets/avatar/thumb/back_rocket.webp" },
+  /* 번개 크로스백 [2026-10-11] — 남아. 남색·청록 크로스백(노란 지퍼 고리·검정 끈) 한 장, 사용자 원화 254×277. 번개 스케이터와 짝.
+     사용자 참고 그림(얼굴 매칭 0.965)대로 왼쪽 어깨(452,418)에서 오른쪽 가슴 아래로 — 끈 윗끝·노란 지퍼 고리(556,543) 두 점 맞춤, 배율 0.723·-6.0°.
+     옷 위·목 장식 아래 z 38. 상자 (434,411,631,595). */
+  { id: "back_cross_boy", slot: "back", label: "번개 크로스백", emoji: "⚡", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 38, img: "assets/avatar/back/cross-bag-boy.webp", thumb: "assets/avatar/thumb/back_cross_boy.webp" },
   /* 들꽃 크로스백 [2026-10-05] — 여아. 갈색 가죽 크로스백(흰 들꽃 장식), 사용자 원화 230×343. 들꽃 탐험가 옷과 짝.
      사용자 배치 참고 그림(얼굴 매칭 0.915)에 맞춤 — 가방 몸통 매칭(0.986) 배율 0.73·-1° 회전, 끈·가방 이음매 (526,568).
      끈은 가방에서 떼어 옷깃 아래 끝(463,421)까지 늘이고(×0.998) y419 위는 지워 옷깃 밑으로 들어가 보이게.
@@ -853,7 +857,7 @@ export const SHOP_ORDER = {
          "shoes_jungle", "shoes_fins", "shoes_pirate_kid", "shoes_lightning", "shoes_jungle_leaf", "shoes_astronaut", "shoes_sandal",
          /* [2026-10-05 사용자 확정] 모자·가방도 짝이 되는 옷 순서대로 */
          "hat_safari_boy", "hat_captain_boy", "hat_pirate_boy", "hat_cap_boy", "hat_acorn_boy", "hat_helmet_boy", "hat_visor_boy",
-         "back_explorer", "back_rocket"],
+         "back_explorer", "back_rocket", "back_cross_boy"],
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
          "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",
