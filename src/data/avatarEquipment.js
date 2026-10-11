@@ -481,6 +481,10 @@ export const AVATAR_CATALOG = [
      손 장비 슬롯이지만 z 12 로 **가장 뒤**(배경 10 바로 위 — 등 장비 15·몸 20보다 뒤)에 그린다.
      [2026-10-11] 원화 교체(280×915, 측면 바퀴가 보이는 판) — 같은 자리·같은 높이(데크 y441~857)에 맞춰 배율 0.4546·원점 (596,441). 탑재 상자 (596,441,723,857). img ?v=2. */
   { id: "hand_board_boy", slot: "hand",  label: "번개 보드",   emoji: "🛹", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/lightning-board-boy.webp?v=2", thumb: "assets/avatar/thumb/hand_board_boy.webp?v=2" },
+  /* 무지개 우산 [2026-10-11] — 여아. 접은 무지개 우산(분홍 손잡이·청록 끈), 사용자 원화 88×555. 노란 우비룩과 짝.
+     사용자 참고 그림(얼굴 매칭 0.951)대로 왼손(화면 기준)에 쥔다 — 배율 0.62(참고 그림 매칭과 같음)·원점 (353,600).
+     아바타 팔은 참고 그림처럼 굽지 않고 내려와 있어서, 손잡이 고리를 손 안에 넣고 겹치는 손을 우산 위에 다시 그렸다. 옷 위 z 48. 상자 (353,596,408,944). */
+  { id: "hand_umbrella_girl", slot: "hand", label: "무지개 우산", emoji: "🌂", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 48, img: "assets/avatar/hand/rainbow-umbrella-girl.webp", thumb: "assets/avatar/thumb/hand_umbrella_girl.webp" },
   /* 바다 산소통 [2026-10-05] — 남아. 산소통(사용자 원화 196×433)은 등 뒤 맨 뒤(z 12), 어깨끈 두 줄(283×172)은 맨 앞(zFront 48).
      사용자 배치 참고 그림을 얼굴 매칭(0.847, 물안경이 눈을 가려 코~입으로)으로 아바타 좌표에 올려 위치를 땄다.
      산소통 배율 0.524·원점 (599,361) (참고 그림 쪽이 조금 홀쭉해서 높이·오른쪽 끝 기준), 끈 매칭 0.967 배율 0.700×0.658·원점 (420,431).
