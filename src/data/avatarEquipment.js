@@ -540,8 +540,9 @@ export const AVATAR_CATALOG = [
      [2026-10-10] 옷별 나눔(topVariant) — 핑크 파티시에: 리본 꼬리가 가방과 팔 사이로 보여 팔(맨살)만 빼고 가방 전부 옷 위로.
      달빛 마법사: 원피스·소매가 커서 가방이 덮였다 → 소매 윤곽·소맷부리·손 왼쪽 경계까지 옷 위로. 
      [2026-10-11] 파티시에 — 팔 윤곽선(반투명 가장자리)까지 팔로 쳐서 가방이 팔을 조금도 덮지 않게(?v=2). 
-     [2026-10-11] 리본 꼬리가 팔 위에 걸친 자리(가방 높이 근처)도 팔이 보이게 — 몸 그림의 팔을 앞장에 다시 그려 덮었다(?v=3). */
-  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=5", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=5", zFront: 48, topVariant: { top_bakery_girl: { img: "assets/avatar/back/strawberry-crossbag-bakery-girl.webp?v=3", imgFront: "assets/avatar/back/strawberry-crossbag-strap-bakery-girl.webp?v=3" }, top_magic: { img: "assets/avatar/back/strawberry-crossbag-magic-girl.webp", imgFront: "assets/avatar/back/strawberry-crossbag-strap-magic-girl.webp" } }, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
+     [2026-10-11] 리본 꼬리가 팔 위에 걸친 자리(가방 높이 근처)도 팔이 보이게 — 몸 그림의 팔을 앞장에 다시 그려 덮었다(?v=3). 
+     [2026-10-11] 가방과 팔 사이 틈으로 리본이 보였다 → 가방은 통째로 옷 위(앞장), 그 위에 팔을 다시 그려 팔이 맨 위(y520~가방 아래끝, ?v=4). */
+  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=5", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=5", zFront: 48, topVariant: { top_bakery_girl: { img: "assets/avatar/back/strawberry-crossbag-bakery-girl.webp?v=4", imgFront: "assets/avatar/back/strawberry-crossbag-strap-bakery-girl.webp?v=4" }, top_magic: { img: "assets/avatar/back/strawberry-crossbag-magic-girl.webp", imgFront: "assets/avatar/back/strawberry-crossbag-strap-magic-girl.webp" } }, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
