@@ -525,8 +525,10 @@ export const AVATAR_CATALOG = [
      [2026-10-11] 번개 스케이터만 — 끈 윗끝을 후드 아래 접힌 선(425,428)→(475,430)에서 잘라 후드 밑에서 나오게, 그 선을 후드 선 색으로 이어 그림(topVariant).
      다른 옷은 후드가 없어 자르면 끈이 떠 보여 그대로.
      [2026-10-11] 번개 스케이터 — 가방 전체 왼쪽으로 6(끈 윗끝 (446,418)·지퍼 고리 (550,543)), 다시 후드 아래 선에서 자름(?v=2).
-     [2026-10-11] 왼쪽으로 5 더(끈 윗끝 (441,418)·지퍼 고리 (545,543)), 후드 아래 선에서 다시 자름(?v=3). */
-  { id: "back_cross_boy", slot: "back", label: "번개 크로스백", emoji: "⚡", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 38, img: "assets/avatar/back/cross-bag-boy.webp", topVariant: { top_board_boy: { img: "assets/avatar/back/cross-bag-board-boy.webp?v=3" } }, thumb: "assets/avatar/thumb/back_cross_boy.webp" },
+     [2026-10-11] 왼쪽으로 5 더(끈 윗끝 (441,418)·지퍼 고리 (545,543)), 후드 아래 선에서 다시 자름(?v=3).
+     [2026-10-11] 끈을 늘린 새 원화(314×387, 예전 원화를 (60,110) 옮긴 것과 같은 그림+긴 끈)로 교체 — 번개 스케이터 외 옷은 가방을 번개 스케이터와 같은 자리
+     (끈 윗끝 기준 (441,418)·지퍼 고리 (545,543), 배율 0.723·-6.0°)에 두고, 끈은 그 옷의 어깨선(몸+옷 윤곽 3px 안쪽)에서 잘랐다. 옷마다 topVariant, 맨몸·그 밖은 기본 img(?v=2). */
+  { id: "back_cross_boy", slot: "back", label: "번개 크로스백", emoji: "⚡", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 38, img: "assets/avatar/back/cross-bag-boy.webp?v=2", topVariant: { top_board_boy: { img: "assets/avatar/back/cross-bag-board-boy.webp?v=3" }, top_tee_white: { img: "assets/avatar/back/cross-bag-tee-boy.webp" }, top_vest: { img: "assets/avatar/back/cross-bag-vest-boy.webp" }, top_pirate: { img: "assets/avatar/back/cross-bag-pirate-boy.webp" }, top_hoodie_mint: { img: "assets/avatar/back/cross-bag-hoodie-boy.webp" }, top_beach_boy: { img: "assets/avatar/back/cross-bag-beach-boy.webp" }, top_acorn: { img: "assets/avatar/back/cross-bag-acorn-boy.webp" }, top_space: { img: "assets/avatar/back/cross-bag-space-boy.webp" } }, thumb: "assets/avatar/thumb/back_cross_boy.webp" },
   /* 들꽃 크로스백 [2026-10-05] — 여아. 갈색 가죽 크로스백(흰 들꽃 장식), 사용자 원화 230×343. 들꽃 탐험가 옷과 짝.
      사용자 배치 참고 그림(얼굴 매칭 0.915)에 맞춤 — 가방 몸통 매칭(0.986) 배율 0.73·-1° 회전, 끈·가방 이음매 (526,568).
      끈은 가방에서 떼어 옷깃 아래 끝(463,421)까지 늘이고(×0.998) y419 위는 지워 옷깃 밑으로 들어가 보이게.
