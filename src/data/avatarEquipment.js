@@ -544,8 +544,9 @@ export const AVATAR_CATALOG = [
      [2026-10-11] 가방과 팔 사이 틈으로 리본이 보였다 → 가방은 통째로 옷 위(앞장), 그 위에 팔을 다시 그려 팔이 맨 위(y520~가방 아래끝, ?v=4).
      [2026-10-11] 마법사 — 잘린 선이 지저분했다 → 가방 통째로 옷 위, 그 위에 소매·소맷부리·손을 실제 소매 윤곽선 따라 다시 그려 팔이 맨 위(리본 꼬리 끝은 가방 덮개 아래, ?v=2).
      [2026-10-11] 마법사 겹침 순서 — 원피스·리본(맨 아래) < 가방 < 팔(맨 위). 리본 꼬리가 소매를 덮는 위쪽 줄은 리본 오른쪽 윤곽 다음부터 소매로 쳐서
-     리본은 가방 아래로, 소매 가장자리는 아래로 갈수록 오른쪽인 부드러운 선(가방 위에 옷 윤곽색 선)으로 정리(?v=3). */
-  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=5", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=5", zFront: 48, topVariant: { top_bakery_girl: { img: "assets/avatar/back/strawberry-crossbag-bakery-girl.webp?v=4", imgFront: "assets/avatar/back/strawberry-crossbag-strap-bakery-girl.webp?v=4" }, top_magic: { img: "assets/avatar/back/strawberry-crossbag-magic-girl.webp?v=3", imgFront: "assets/avatar/back/strawberry-crossbag-strap-magic-girl.webp?v=3" } }, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
+     리본은 가방 아래로, 소매 가장자리는 아래로 갈수록 오른쪽인 부드러운 선(가방 위에 옷 윤곽색 선)으로 정리(?v=3).
+     [2026-10-11] 덮개 오른쪽 띠는 사용자가 그은 팔 선 (598,539)→(615,575)까지 소매로 덮음 — 선과 리본 사이는 소매 색으로 메워 리본은 계속 가방 아래(앞장 ?v=4). */
+  { id: "back_strawberry_girl", slot: "back", label: "딸기 크로스백", emoji: "🍓", price:DECOR_PRICE.rare, rarity: "rare", theme: "picnic", forGender: "girl", z: 14, img: "assets/avatar/back/strawberry-crossbag-girl.webp?v=5", imgFront: "assets/avatar/back/strawberry-crossbag-strap-girl.webp?v=5", zFront: 48, topVariant: { top_bakery_girl: { img: "assets/avatar/back/strawberry-crossbag-bakery-girl.webp?v=4", imgFront: "assets/avatar/back/strawberry-crossbag-strap-bakery-girl.webp?v=4" }, top_magic: { img: "assets/avatar/back/strawberry-crossbag-magic-girl.webp?v=3", imgFront: "assets/avatar/back/strawberry-crossbag-strap-magic-girl.webp?v=4" } }, thumb: "assets/avatar/thumb/back_strawberry_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
