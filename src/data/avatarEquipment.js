@@ -491,8 +491,10 @@ export const AVATAR_CATALOG = [
   /* 손목아대 [2026-10-12] — 남아. 청록·흰 줄무늬 손목아대 두 개(사용자 원화 446×53, 왼쪽·오른쪽 조각). 썸머 웨이브와 짝.
      사용자 참고 그림(얼굴 매칭 0.962)처럼 양쪽 손목에 하나씩 — 조각마다 배율 0.64, 손목 가운데(x380·x644)에, 아래끝은 손이 넓어지기 바로 전(y628·627).
      손 장비 칸이라 번개 보드·나침반 시계·바다 산소통과 함께는 못 찬다. 옷 위 z 48. 상자 (357,596,667,628).
-     [2026-10-12] 왼쪽 아대만 오른쪽으로 3(가운데 x383). 상자 (360,596,667,628)(?v=2). */
-  { id: "hand_wristband_boy", slot: "hand",  label: "손목아대", emoji: "🎽", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 48, img: "assets/avatar/hand/wristband-boy.webp?v=2", thumb: "assets/avatar/thumb/hand_wristband_boy.webp" },
+     [2026-10-12] 왼쪽 아대만 오른쪽으로 3(가운데 x383). 상자 (360,596,667,628)(?v=2).
+     [2026-10-12] 긴소매 4벌(해적·번개·바다·우주)은 topVariant → wristband-sleeve-boy.webp:
+     배율 0.672(5%↑)·아래끝 y633/632(5↓), 가운데 그대로. 상자 (359,599,668,633). */
+  { id: "hand_wristband_boy", slot: "hand",  label: "손목아대", emoji: "🎽", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 48, img: "assets/avatar/hand/wristband-boy.webp?v=2", topVariant: { top_pirate: { img: "assets/avatar/hand/wristband-sleeve-boy.webp" }, top_board_boy: { img: "assets/avatar/hand/wristband-sleeve-boy.webp" }, top_hoodie_mint: { img: "assets/avatar/hand/wristband-sleeve-boy.webp" }, top_space: { img: "assets/avatar/hand/wristband-sleeve-boy.webp" } }, thumb: "assets/avatar/thumb/hand_wristband_boy.webp" },
   /* 무지개 우산 [2026-10-11] — 여아. 접은 무지개 우산(분홍 손잡이·청록 끈), 사용자 원화 88×555. 노란 우비룩과 짝.
      사용자 참고 그림(얼굴 매칭 0.951)대로 왼손(화면 기준)에 쥔다 — 배율 0.62(참고 그림 매칭과 같음)·원점 (353,600).
      아바타 팔은 참고 그림처럼 굽지 않고 내려와 있어서, 손잡이 고리를 손 안에 넣고 겹치는 손을 우산 위에 다시 그렸다. 옷 위 z 48. 상자 (353,596,408,944).
