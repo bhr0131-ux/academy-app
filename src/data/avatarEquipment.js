@@ -488,6 +488,10 @@ export const AVATAR_CATALOG = [
      [2026-10-12] 오른쪽으로 4(원점 (622,585)). 상자 (622,585,680,629)(?v=3).
      [2026-10-12] 번개 스케이터만 아래로 6 — 시계 아래선이 소매 아래선(632,634)→(668,626)과 겹치게(topVariant). 상자 (622,591,680,635). */
   { id: "hand_watch_boy", slot: "hand",  label: "나침반 시계", emoji: "⌚", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", z: 48, img: "assets/avatar/hand/compass-watch-boy.webp?v=3", topVariant: { top_board_boy: { img: "assets/avatar/hand/compass-watch-board-boy.webp" } }, thumb: "assets/avatar/thumb/hand_watch_boy.webp" },
+  /* 손목아대 [2026-10-12] — 남아. 청록·흰 줄무늬 손목아대 두 개(사용자 원화 446×53, 왼쪽·오른쪽 조각). 썸머 웨이브와 짝.
+     사용자 참고 그림(얼굴 매칭 0.962)처럼 양쪽 손목에 하나씩 — 조각마다 배율 0.64, 손목 가운데(x380·x644)에, 아래끝은 손이 넓어지기 바로 전(y628·627).
+     손 장비 칸이라 번개 보드·나침반 시계·바다 산소통과 함께는 못 찬다. 옷 위 z 48. 상자 (357,596,667,628). */
+  { id: "hand_wristband_boy", slot: "hand",  label: "손목아대", emoji: "🎽", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 48, img: "assets/avatar/hand/wristband-boy.webp", thumb: "assets/avatar/thumb/hand_wristband_boy.webp" },
   /* 무지개 우산 [2026-10-11] — 여아. 접은 무지개 우산(분홍 손잡이·청록 끈), 사용자 원화 88×555. 노란 우비룩과 짝.
      사용자 참고 그림(얼굴 매칭 0.951)대로 왼손(화면 기준)에 쥔다 — 배율 0.62(참고 그림 매칭과 같음)·원점 (353,600).
      아바타 팔은 참고 그림처럼 굽지 않고 내려와 있어서, 손잡이 고리를 손 안에 넣고 겹치는 손을 우산 위에 다시 그렸다. 옷 위 z 48. 상자 (353,596,408,944).
