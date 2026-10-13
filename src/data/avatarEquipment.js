@@ -557,6 +557,12 @@ export const AVATAR_CATALOG = [
      (끈 윗끝 기준 (441,418)·지퍼 고리 (545,543), 배율 0.723·-6.0°)에 두고, 끈은 그 옷의 어깨선(몸+옷 윤곽 3px 안쪽)에서 잘랐다. 옷마다 topVariant, 맨몸·그 밖은 기본 img(?v=2). */
   /* [2026-10-13] 칼라가 끈 위로 — 바다·썸머·번개·도토리: 그 옷 칼라·후드·망토 모자 모양대로 끈을 지운 판(topVariant, art-src/tools/collar_cut.py). */
   { id: "back_cross_boy", slot: "back", label: "번개 크로스백", emoji: "⚡", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 38, img: "assets/avatar/back/cross-bag-boy.webp?v=2", topVariant: { top_board_boy: { img: "assets/avatar/back/cross-bag-board-boy.webp?v=4" }, top_tee_white: { img: "assets/avatar/back/cross-bag-tee-boy.webp" }, top_vest: { img: "assets/avatar/back/cross-bag-vest-boy.webp" }, top_pirate: { img: "assets/avatar/back/cross-bag-pirate-boy.webp" }, top_hoodie_mint: { img: "assets/avatar/back/cross-bag-hoodie-boy.webp?v=2" }, top_beach_boy: { img: "assets/avatar/back/cross-bag-beach-boy.webp?v=2" }, top_acorn: { img: "assets/avatar/back/cross-bag-acorn-boy.webp?v=2" }, top_space: { img: "assets/avatar/back/cross-bag-space-boy.webp" } }, thumb: "assets/avatar/thumb/back_cross_boy.webp" },
+  /* 튜브 가방 [2026-10-13] — 남아. 주황·흰 구명 튜브(청록 손잡이·조개 장식, 사용자 원화 425×459) + 청록 어깨끈 두 줄(276×169). 썸머 웨이브와 짝.
+     사용자 참고 그림을 썸머 웨이브 가슴으로 매칭(0.957)해 아바타 좌표에 올림. 튜브는 몸 뒤 오른쪽(등 장비 기본 z15) —
+     배율 0.50·-8°, 오른쪽 끝 x713·아래 끝 y602, 상자 (502,369,713,602). 어깨끈은 조각마다(왼 x0~137·오른 x138~) 배율 0.60,
+     윗선은 어깨선·바깥선은 팔과 몸통 사이 선에 — 옷마다 그 옷의 선에 맞춘 판(topVariant, 로켓 가방과 같은 선 값), 옷 위 zFront 48.
+     칼라가 끈 위로 — 바다·번개·썸머·도토리·우주는 칼라·후드 모양대로 끈을 지움. */
+  { id: "back_tube_boy", slot: "back", label: "튜브 가방", emoji: "🛟", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", img: "assets/avatar/back/tube-bag-boy.webp", imgFront: "assets/avatar/back/tube-bag-straps-boy.webp", zFront: 48, topVariant: { top_tee_white: { imgFront: "assets/avatar/back/tube-bag-straps-tee-boy.webp" }, top_vest: { imgFront: "assets/avatar/back/tube-bag-straps-vest-boy.webp" }, top_pirate: { imgFront: "assets/avatar/back/tube-bag-straps-pirate-boy.webp" }, top_hoodie_mint: { imgFront: "assets/avatar/back/tube-bag-straps-hoodie-boy.webp" }, top_board_boy: { imgFront: "assets/avatar/back/tube-bag-straps-board-boy.webp" }, top_acorn: { imgFront: "assets/avatar/back/tube-bag-straps-acorn-boy.webp" }, top_space: { imgFront: "assets/avatar/back/tube-bag-straps-space-boy.webp" }, top_beach_boy: { imgFront: "assets/avatar/back/tube-bag-straps-beach-boy.webp" } }, thumb: "assets/avatar/thumb/back_tube_boy.webp" },
   /* 들꽃 크로스백 [2026-10-05] — 여아. 갈색 가죽 크로스백(흰 들꽃 장식), 사용자 원화 230×343. 들꽃 탐험가 옷과 짝.
      사용자 배치 참고 그림(얼굴 매칭 0.915)에 맞춤 — 가방 몸통 매칭(0.986) 배율 0.73·-1° 회전, 끈·가방 이음매 (526,568).
      끈은 가방에서 떼어 옷깃 아래 끝(463,421)까지 늘이고(×0.998) y419 위는 지워 옷깃 밑으로 들어가 보이게.
@@ -902,7 +908,7 @@ export const SHOP_ORDER = {
          "shoes_jungle", "shoes_fins", "shoes_pirate_kid", "shoes_lightning", "shoes_jungle_leaf", "shoes_astronaut", "shoes_sandal",
          /* [2026-10-05 사용자 확정] 모자·가방도 짝이 되는 옷 순서대로 */
          "hat_safari_boy", "hat_captain_boy", "hat_pirate_boy", "hat_cap_boy", "hat_acorn_boy", "hat_helmet_boy", "hat_visor_boy",
-         "hand_tank_boy", "back_explorer", "back_rocket", "back_cross_boy"],
+         "hand_tank_boy", "back_explorer", "back_rocket", "back_cross_boy", "back_tube_boy"],
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
          "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",
