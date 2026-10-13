@@ -598,8 +598,9 @@ export const AVATAR_CATALOG = [
   { id: "back_sky_girl", slot: "back", label: "하늘 가방", emoji: "💌", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 38, img: "assets/avatar/back/sky-bag-girl.webp", topVariant: { top_vest: { img: "assets/avatar/back/sky-bag-vest-girl.webp" } }, thumb: "assets/avatar/thumb/back_sky_girl.webp" },
   /* 해적 가방 [2026-10-13] — 여아. 청록 배낭(갈색 테두리·키 무늬 주머니) + 갈색 어깨끈 두 줄, 사용자 원화 273×377·263×198. 꼬마 해적단과 짝.
      사용자 참고 그림(얼굴 매칭 0.935)처럼 배낭은 몸 뒤 오른쪽(화면 기준)에 — 배율 0.50·키 무늬 (650,460), z 14. 상자 (544,377,680,565).
-     어깨끈은 조각마다 배율 0.60·버클 (442,440)/(577,440), 옷 위 zFront 48. 상자 (429,369,588,488). */
-  { id: "back_pirate_girl", slot: "back", label: "해적 가방", emoji: "🎒", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "girl", z: 14, img: "assets/avatar/back/pirate-backpack-girl.webp", imgFront: "assets/avatar/back/pirate-backpack-strap-girl.webp", zFront: 48, thumb: "assets/avatar/thumb/back_pirate_girl.webp" },
+     어깨끈은 조각마다 배율 0.60·버클 (442,440)/(577,440), 옷 위 zFront 48. 상자 (429,369,588,488).
+     [2026-10-13] 끈 윗선을 몸 어깨선에, 왼쪽 끈 왼쪽 선·오른쪽 끈 오른쪽 선을 팔과 몸통 사이 선에 맞춤(배율 그대로, ?v=2). 상자 (442,374,578,494). */
+  { id: "back_pirate_girl", slot: "back", label: "해적 가방", emoji: "🎒", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "girl", z: 14, img: "assets/avatar/back/pirate-backpack-girl.webp", imgFront: "assets/avatar/back/pirate-backpack-strap-girl.webp?v=2", zFront: 48, thumb: "assets/avatar/thumb/back_pirate_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
