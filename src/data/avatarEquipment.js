@@ -514,8 +514,8 @@ export const AVATAR_CATALOG = [
      [2026-10-05] 어깨끈 — 둘 다 위로 10 올린 뒤 바다 탐험대 후드 맨 아래 라인 위쪽은 지워 끈 윗끝을 후드 선에 맞춤, 오른쪽 끈은 왼쪽으로 5. 끈 상자 (420,427,613,534). imgFront ?v=2.
      [2026-10-13] 사용자 요청 — 메고 있는 장비라 손 칸에서 가방 칸(back)으로 옮김. id 는 저장 데이터(보유 목록) 때문에 그대로 hand_tank_boy,
      그림 경로도 그대로. 예전에 손 칸에 장착해 둔 저장 데이터는 normalizeEquipped 의 읽기 폴백이 가방 칸으로 옮겨 읽는다.
-     칼라가 끈 위로 — 바다·번개·썸머·도토리는 그 옷 칼라·후드 모양대로 끈을 지운 판(topVariant). */
-  { id: "hand_tank_boy", slot: "back",  label: "바다 산소통", emoji: "🤿", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/sea-tank-boy.webp?v=2", imgFront: "assets/avatar/hand/sea-tank-straps-boy.webp?v=2", zFront: 48, topVariant: { top_hoodie_mint: { imgFront: "assets/avatar/hand/sea-tank-straps-hoodie-boy.webp" }, top_board_boy: { imgFront: "assets/avatar/hand/sea-tank-straps-board-boy.webp" }, top_beach_boy: { imgFront: "assets/avatar/hand/sea-tank-straps-beach-boy.webp" }, top_acorn: { imgFront: "assets/avatar/hand/sea-tank-straps-acorn-boy.webp" } }, thumb: "assets/avatar/thumb/hand_tank_boy.webp" },
+     칼라가 끈 위로 — 번개·썸머는 그 옷 칼라·후드 모양대로 끈을 지운 판(topVariant). 바다·도토리는 사용자 요청으로 원래대로. */
+  { id: "hand_tank_boy", slot: "back",  label: "바다 산소통", emoji: "🤿", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/sea-tank-boy.webp?v=2", imgFront: "assets/avatar/hand/sea-tank-straps-boy.webp?v=2", zFront: 48, topVariant: { top_board_boy: { imgFront: "assets/avatar/hand/sea-tank-straps-board-boy.webp" }, top_beach_boy: { imgFront: "assets/avatar/hand/sea-tank-straps-beach-boy.webp" } }, thumb: "assets/avatar/thumb/hand_tank_boy.webp" },
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
      세트 아이템이고(back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
