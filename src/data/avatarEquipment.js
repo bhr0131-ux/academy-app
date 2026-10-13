@@ -571,6 +571,13 @@ export const AVATAR_CATALOG = [
      [2026-10-13] 사용자 조정 — 배낭만 아래로 5(아래 끝 y625, ?v=2). 상자 (484,369,684,625).
      [2026-10-13] 사용자 조정 — 배낭만 아래로 5 더(아래 끝 y630, ?v=3). 상자 (484,374,684,630). */
   { id: "back_xpack_boy", slot: "back", label: "탐험가 가방", emoji: "🎒", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", img: "assets/avatar/back/explorer-bag-boy.webp?v=3", imgFront: "assets/avatar/back/explorer-bag-straps-boy.webp", zFront: 48, topVariant: { top_tee_white: { imgFront: "assets/avatar/back/explorer-bag-straps-tee-boy.webp" }, top_vest: { imgFront: "assets/avatar/back/explorer-bag-straps-vest-boy.webp" }, top_pirate: { imgFront: "assets/avatar/back/explorer-bag-straps-pirate-boy.webp" }, top_hoodie_mint: { imgFront: "assets/avatar/back/explorer-bag-straps-hoodie-boy.webp" }, top_board_boy: { imgFront: "assets/avatar/back/explorer-bag-straps-board-boy.webp" }, top_acorn: { imgFront: "assets/avatar/back/explorer-bag-straps-acorn-boy.webp" }, top_space: { imgFront: "assets/avatar/back/explorer-bag-straps-space-boy.webp" }, top_beach_boy: { imgFront: "assets/avatar/back/explorer-bag-straps-beach-boy.webp" } }, thumb: "assets/avatar/thumb/back_xpack_boy.webp" },
+  /* 도토리 가방 [2026-10-13] — 남아. 도토리 배낭(갈색 깍지·잎·주머니, 사용자 원화 261×401) + 앞장(어깨끈 두 토막·허리 주머니, 268×155). 도토리 숲지기와 짝.
+     사용자 참고 그림을 도토리 숲지기 가슴으로 매칭해 아바타 좌표에 올림. 배낭은 몸 뒤 오른쪽(등 장비 기본 z15) — 배율 0.55,
+     오른쪽 끝 x708·아래 끝 y606, 상자 (564,385,708,606). 앞장은 배율 0.78, 옷 위 zFront 48:
+     도토리 숲지기는 참고 그림 그대로 — 잎 칼라 아래에서 끈이 나오고 주머니는 허리띠 오른쪽(왼 조각 원점 (430.7,508)·오른 조각 (522.3,507.1)), 잎 모양대로 끈을 지움.
+     다른 옷은 원화 끈이 짧아 가슴 중간에서 끊겨 보이므로, 버클 아래 민 끈을 위로 늘려 끈 윗끝을 어깨선까지 올림(주머니·끈 아래쪽은 그대로).
+     왼쪽 끈 바깥선은 옷마다 그 옷의 팔과 몸통 사이 선, 오른쪽 끈은 주머니에 달려 있어 자리 고정. 칼라 규칙 — 바다·번개·썸머·우주(+도토리 잎). */
+  { id: "back_acorn_boy", slot: "back", label: "도토리 가방", emoji: "🌰", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", img: "assets/avatar/back/acorn-bag-boy.webp", imgFront: "assets/avatar/back/acorn-bag-front-boy.webp", zFront: 48, topVariant: { top_tee_white: { imgFront: "assets/avatar/back/acorn-bag-front-tee-boy.webp" }, top_vest: { imgFront: "assets/avatar/back/acorn-bag-front-vest-boy.webp" }, top_pirate: { imgFront: "assets/avatar/back/acorn-bag-front-pirate-boy.webp" }, top_hoodie_mint: { imgFront: "assets/avatar/back/acorn-bag-front-hoodie-boy.webp" }, top_board_boy: { imgFront: "assets/avatar/back/acorn-bag-front-board-boy.webp" }, top_acorn: { imgFront: "assets/avatar/back/acorn-bag-front-acorn-boy.webp" }, top_space: { imgFront: "assets/avatar/back/acorn-bag-front-space-boy.webp" }, top_beach_boy: { imgFront: "assets/avatar/back/acorn-bag-front-beach-boy.webp" } }, thumb: "assets/avatar/thumb/back_acorn_boy.webp" },
   /* 들꽃 크로스백 [2026-10-05] — 여아. 갈색 가죽 크로스백(흰 들꽃 장식), 사용자 원화 230×343. 들꽃 탐험가 옷과 짝.
      사용자 배치 참고 그림(얼굴 매칭 0.915)에 맞춤 — 가방 몸통 매칭(0.986) 배율 0.73·-1° 회전, 끈·가방 이음매 (526,568).
      끈은 가방에서 떼어 옷깃 아래 끝(463,421)까지 늘이고(×0.998) y419 위는 지워 옷깃 밑으로 들어가 보이게.
@@ -916,7 +923,7 @@ export const SHOP_ORDER = {
          "shoes_jungle", "shoes_fins", "shoes_pirate_kid", "shoes_lightning", "shoes_jungle_leaf", "shoes_astronaut", "shoes_sandal",
          /* [2026-10-05 사용자 확정] 모자·가방도 짝이 되는 옷 순서대로 */
          "hat_safari_boy", "hat_captain_boy", "hat_pirate_boy", "hat_cap_boy", "hat_acorn_boy", "hat_helmet_boy", "hat_visor_boy",
-         "hand_tank_boy", "back_explorer", "back_rocket", "back_cross_boy", "back_tube_boy", "back_xpack_boy"],
+         "hand_tank_boy", "back_explorer", "back_rocket", "back_cross_boy", "back_tube_boy", "back_xpack_boy", "back_acorn_boy"],
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
          "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",
