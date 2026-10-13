@@ -483,14 +483,14 @@ export const AVATAR_CATALOG = [
   { id: "hand_board_boy", slot: "hand",  label: "번개 보드",   emoji: "🛹", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/lightning-board-boy.webp?v=2", thumb: "assets/avatar/thumb/hand_board_boy.webp?v=2" },
   /* 나침반 시계 [2026-10-12] — 남아. 갈색 땋은 줄·나침반 얼굴 손목시계, 사용자 원화 77×58. 정글 탐험대와 짝.
      사용자 참고 그림(얼굴 매칭 0.979)처럼 오른손(화면 기준) 손목에 — 줄 왼끝을 손목 왼쪽 선에, 시계 얼굴은 손목 바깥쪽. 배율 0.6·원점 (628,614).
-     손 장비 칸이라 번개 보드·바다 산소통과 함께는 못 찬다. 옷 위 z 48. 상자 (628,614,675,649).
+     손 장비 칸이라 번개 보드와 함께는 못 찬다(바다 산소통은 2026-10-13 가방 칸으로). 옷 위 z 48. 상자 (628,614,675,649).
      [2026-10-12] 사용자 조정 — 배율 0.75로 키우고, 엄지 위 손목 왼쪽 튀어나온 곳(y629) 바로 위에 시계 아래끝이 오게(원점 (618,585)). 상자 (618,585,676,629)(?v=2).
      [2026-10-12] 오른쪽으로 4(원점 (622,585)). 상자 (622,585,680,629)(?v=3).
      [2026-10-12] 번개 스케이터만 아래로 6 — 시계 아래선이 소매 아래선(632,634)→(668,626)과 겹치게(topVariant). 상자 (622,591,680,635). */
   { id: "hand_watch_boy", slot: "hand",  label: "나침반 시계", emoji: "⌚", price:DECOR_PRICE.rare, rarity: "rare", theme: "adventure", forGender: "boy", z: 48, img: "assets/avatar/hand/compass-watch-boy.webp?v=3", topVariant: { top_board_boy: { img: "assets/avatar/hand/compass-watch-board-boy.webp" } }, thumb: "assets/avatar/thumb/hand_watch_boy.webp" },
   /* 손목아대 [2026-10-12] — 남아. 청록·흰 줄무늬 손목아대 두 개(사용자 원화 446×53, 왼쪽·오른쪽 조각). 썸머 웨이브와 짝.
      사용자 참고 그림(얼굴 매칭 0.962)처럼 양쪽 손목에 하나씩 — 조각마다 배율 0.64, 손목 가운데(x380·x644)에, 아래끝은 손이 넓어지기 바로 전(y628·627).
-     손 장비 칸이라 번개 보드·나침반 시계·바다 산소통과 함께는 못 찬다. 옷 위 z 48. 상자 (357,596,667,628).
+     손 장비 칸이라 번개 보드·나침반 시계와 함께는 못 찬다(바다 산소통은 2026-10-13 가방 칸으로). 옷 위 z 48. 상자 (357,596,667,628).
      [2026-10-12] 왼쪽 아대만 오른쪽으로 3(가운데 x383). 상자 (360,596,667,628)(?v=2).
      [2026-10-12] 긴소매 4벌(해적·번개·바다·우주)은 topVariant → wristband-sleeve-boy.webp:
      배율 0.672(5%↑)·아래끝 y633/632(5↓), 가운데 그대로. 상자 (359,599,668,633).
@@ -509,10 +509,13 @@ export const AVATAR_CATALOG = [
   /* 바다 산소통 [2026-10-05] — 남아. 산소통(사용자 원화 196×433)은 등 뒤 맨 뒤(z 12), 어깨끈 두 줄(283×172)은 맨 앞(zFront 48).
      사용자 배치 참고 그림을 얼굴 매칭(0.847, 물안경이 눈을 가려 코~입으로)으로 아바타 좌표에 올려 위치를 땄다.
      산소통 배율 0.524·원점 (599,361) (참고 그림 쪽이 조금 홀쭉해서 높이·오른쪽 끝 기준), 끈 매칭 0.967 배율 0.700×0.658·원점 (420,431).
-     번개 보드와 같은 손 장비 칸. 산소통 상자 (599,361,702,588), 끈 상자 (420,431,618,544).
+     산소통 상자 (599,361,702,588), 끈 상자 (420,431,618,544).
      [2026-10-05] 사용자 조정 — 산소통만 왼쪽으로 4(원점 (595,361)). 산소통 상자 (595,361,698,588). img ?v=2.
-     [2026-10-05] 어깨끈 — 둘 다 위로 10 올린 뒤 바다 탐험대 후드 맨 아래 라인 위쪽은 지워 끈 윗끝을 후드 선에 맞춤, 오른쪽 끈은 왼쪽으로 5. 끈 상자 (420,427,613,534). imgFront ?v=2. */
-  { id: "hand_tank_boy", slot: "hand",  label: "바다 산소통", emoji: "🤿", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/sea-tank-boy.webp?v=2", imgFront: "assets/avatar/hand/sea-tank-straps-boy.webp?v=2", zFront: 48, thumb: "assets/avatar/thumb/hand_tank_boy.webp" },
+     [2026-10-05] 어깨끈 — 둘 다 위로 10 올린 뒤 바다 탐험대 후드 맨 아래 라인 위쪽은 지워 끈 윗끝을 후드 선에 맞춤, 오른쪽 끈은 왼쪽으로 5. 끈 상자 (420,427,613,534). imgFront ?v=2.
+     [2026-10-13] 사용자 요청 — 메고 있는 장비라 손 칸에서 가방 칸(back)으로 옮김. id 는 저장 데이터(보유 목록) 때문에 그대로 hand_tank_boy,
+     그림 경로도 그대로. 예전에 손 칸에 장착해 둔 저장 데이터는 normalizeEquipped 의 읽기 폴백이 가방 칸으로 옮겨 읽는다.
+     칼라가 끈 위로 — 바다·번개·썸머·도토리는 그 옷 칼라·후드 모양대로 끈을 지운 판(topVariant). */
+  { id: "hand_tank_boy", slot: "back",  label: "바다 산소통", emoji: "🤿", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "boy", z: 12, img: "assets/avatar/hand/sea-tank-boy.webp?v=2", imgFront: "assets/avatar/hand/sea-tank-straps-boy.webp?v=2", zFront: 48, topVariant: { top_hoodie_mint: { imgFront: "assets/avatar/hand/sea-tank-straps-hoodie-boy.webp" }, top_board_boy: { imgFront: "assets/avatar/hand/sea-tank-straps-board-boy.webp" }, top_beach_boy: { imgFront: "assets/avatar/hand/sea-tank-straps-beach-boy.webp" }, top_acorn: { imgFront: "assets/avatar/hand/sea-tank-straps-acorn-boy.webp" } }, thumb: "assets/avatar/thumb/hand_tank_boy.webp" },
   /* ── 우주 세트 (남아) — 사용자 원화 2026-09-29 ────────────────────────────
      우주복(top_space)과 같은 원화 세트에서 나온 가방·신발. 둘 다 남아 전용 첫
      세트 아이템이고(back·shoes 슬롯에 살아 있는 아이템이 이제껏 하나도 없었다),
@@ -894,7 +897,7 @@ export const SHOP_ORDER = {
          "shoes_jungle", "shoes_fins", "shoes_pirate_kid", "shoes_lightning", "shoes_jungle_leaf", "shoes_astronaut", "shoes_sandal",
          /* [2026-10-05 사용자 확정] 모자·가방도 짝이 되는 옷 순서대로 */
          "hat_safari_boy", "hat_captain_boy", "hat_pirate_boy", "hat_cap_boy", "hat_acorn_boy", "hat_helmet_boy", "hat_visor_boy",
-         "back_explorer", "back_rocket", "back_cross_boy"],
+         "hand_tank_boy", "back_explorer", "back_rocket", "back_cross_boy"],
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
          "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",
@@ -960,8 +963,15 @@ export const normalizeEquipped = (equippedMap, ownedList) => {
   const owned = new Set(normalizeOwned(ownedList));
   const src = equippedMap && typeof equippedMap === "object" ? equippedMap : {};
   const out = {};
+  /* 읽기 폴백 — 칸을 옮긴 장비(바다 산소통: 손→가방, 2026-10-13)를 예전 칸에 저장해 둔 경우,
+     새 칸이 비어 있으면 그 칸으로 옮겨 읽는다. 저장 키·저장 형식은 그대로. */
+  const moved = {};
+  for (const [k, id] of Object.entries(src)) {
+    const it = id ? getAvatarItem(id) : null;
+    if (it && it.slot !== k && !src[it.slot]) moved[it.slot] = id;
+  }
   for (const slot of AVATAR_SLOTS) {
-    const cur = src[slot.key];
+    const cur = src[slot.key] || moved[slot.key];
     const item = cur ? getAvatarItem(cur) : null;
     out[slot.key] = (item && item.slot === slot.key && owned.has(cur)) ? cur : null;
   }
