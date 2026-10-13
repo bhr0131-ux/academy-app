@@ -522,9 +522,6 @@ export const AVATAR_CATALOG = [
      같은 배율(0.638)·목깃선(y640)으로 탑재해 우주복과 갈아입어도 자리가 안 어긋난다.
      [2026-09-30] 우주 헬멧(hat_astronaut)은 사용자가 미리보기를 보고 바로
      빼 달라고 해서 뺐다 — 아래 RETIRED_ITEM_INFO 참고, 그림 파일은 남겨 둔다. */
-  /* 로켓 가방 — 원화가 어깨 너머로 들여다본 모습이라, 몸통에 가려지는 부분은 버리고
-     실루엣 밖으로 삐져나온 로켓 덩어리만 오려 냈다(등 슬롯 기본 z15 그대로 — 몸통 뒤에서
-     튀어나온 부분만 보이면 되므로 앞으로 끌어올 필요가 없었다). */
   /* 해적 가방(처음 이름 탐험 가방) [2026-10-05] — 남아. 갈색 가죽 배낭 + 지도 두루마리(사용자 원화 290×373) · 어깨끈(사용자 원화 263×198).
      한 아이템이 몸 앞뒤로 나뉜다 — 가방 몸통(img)은 등 장비 기본 z15 로 몸 뒤에, 어깨끈(imgFront)은 zFront 48 로
      옷·목 장식 위(모자 50 아래)에 그린다. 끈은 배율 0.76·가운데 x516·위끝 y414(어깨 윗선), 가방은 배율 0.70·원점 (505,350)
@@ -540,7 +537,11 @@ export const AVATAR_CATALOG = [
      옷이 넓어진 만큼 가로도 따라가게(왼쪽 끈 왼쪽으로 3·오른쪽 끈 오른쪽으로 1). 끈 상자 (428,406,600,556). imgFront ?v=6. */
   /* [2026-10-13] 칼라가 끈 위로 — 바다·번개·도토리(썸머·우주는 사용자 요청으로 원래대로 끈이 칼라 위): 그 옷 칼라·후드·망토 모자 모양대로 끈을 지운 판(topVariant, art-src/tools/collar_cut.py). */
   { id: "back_explorer",  slot: "back",  label: "해적 가방",    emoji: "🏴‍☠️", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "boy", img: "assets/avatar/back/explorer-pack-boy.webp?v=3", imgFront: "assets/avatar/back/explorer-pack-straps-boy.webp?v=6", zFront: 48, topVariant: { top_acorn: { imgFront: "assets/avatar/back/explorer-pack-straps-acorn-boy.webp" }, top_board_boy: { imgFront: "assets/avatar/back/explorer-pack-straps-board-boy.webp" }, top_hoodie_mint: { imgFront: "assets/avatar/back/explorer-pack-straps-hoodie-boy.webp" } }, thumb: "assets/avatar/thumb/back_explorer.webp" },
-  { id: "back_rocket",    slot: "back",  label: "로켓 가방",    emoji: "🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", img: "assets/avatar/back/rocket-pack-boy.webp", thumb: "assets/avatar/thumb/back_rocket.webp" },
+  /* 로켓 가방 [2026-10-13 새 원화로 교체] — 남아. 흰 로켓(주황 머리·파랑 창·날개, 사용자 원화 210×447) + 남색 어깨끈 두 줄(251×178). 우주 탐험대와 짝.
+     사용자 참고 그림을 우주복 가슴(패널·배지)으로 매칭해 아바타 좌표에 올림. 로켓은 몸 뒤 오른쪽(등 장비 기본 z15) —
+     머리 끝 (645,348)·배율 0.58·-6°, 상자 (582,345,702,601). 어깨끈은 조각마다 배율 0.62, 윗선은 몸 어깨선·바깥선은 팔과 몸통 사이 선에 맞춤,
+     옷 위 zFront 48, 상자 (435,408,594,519). 칼라가 끈 위로 — 바다·번개·썸머·도토리·우주는 그 옷 칼라·후드 모양대로 끈을 지운 판(topVariant). */
+  { id: "back_rocket",    slot: "back",  label: "로켓 가방",    emoji: "🚀", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "boy", img: "assets/avatar/back/rocket-pack-boy.webp?v=2", imgFront: "assets/avatar/back/rocket-pack-straps-boy.webp", zFront: 48, topVariant: { top_hoodie_mint: { imgFront: "assets/avatar/back/rocket-pack-straps-hoodie-boy.webp" }, top_board_boy: { imgFront: "assets/avatar/back/rocket-pack-straps-board-boy.webp" }, top_beach_boy: { imgFront: "assets/avatar/back/rocket-pack-straps-beach-boy.webp" }, top_acorn: { imgFront: "assets/avatar/back/rocket-pack-straps-acorn-boy.webp" }, top_space: { imgFront: "assets/avatar/back/rocket-pack-straps-space-boy.webp" } }, thumb: "assets/avatar/thumb/back_rocket.webp?v=2" },
   /* 번개 크로스백 [2026-10-11] — 남아. 남색·청록 크로스백(노란 지퍼 고리·검정 끈) 한 장, 사용자 원화 254×277. 번개 스케이터와 짝.
      사용자 참고 그림(얼굴 매칭 0.965)대로 왼쪽 어깨(452,418)에서 오른쪽 가슴 아래로 — 끈 윗끝·노란 지퍼 고리(556,543) 두 점 맞춤, 배율 0.723·-6.0°.
      옷 위·목 장식 아래 z 38. 상자 (434,411,631,595).
