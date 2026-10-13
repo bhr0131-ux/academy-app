@@ -503,8 +503,9 @@ export const AVATAR_CATALOG = [
      아바타 팔은 참고 그림처럼 굽지 않고 내려와 있어서, 손잡이 고리를 손 안에 넣고 겹치는 손을 우산 위에 다시 그렸다. 옷 위 z 48. 상자 (353,596,408,944).
      [2026-10-11] 사용자 배치대로 — 손잡이 고리가 손가락에 걸리게 오른쪽·아래로(원점 (364,628)), 손 안으로 들어간 고리 끝은 지움(?v=2).
      [2026-10-11] 사용자가 고른 후보 — 고리 끝을 지우지 않은 판, 같은 원점 (364,628)(?v=3).
-     [2026-10-11] 달빛 마법사 — 옷 그림이 손을 따로(치마를 쥔 모양, 왼쪽 18) 그려서 몸 그림 손을 덮으면 손이 잘려 보였다 → 옷 그림의 손으로 덮고 우산도 왼쪽 18(topVariant). */
-  { id: "hand_umbrella_girl", slot: "hand", label: "무지개 우산", emoji: "🌂", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 48, img: "assets/avatar/hand/rainbow-umbrella-girl.webp?v=3", topVariant: { top_magic: { img: "assets/avatar/hand/rainbow-umbrella-magic-girl.webp" } }, thumb: "assets/avatar/thumb/hand_umbrella_girl.webp" },
+     [2026-10-11] 달빛 마법사 — 옷 그림이 손을 따로(치마를 쥔 모양, 왼쪽 18) 그려서 몸 그림 손을 덮으면 손이 잘려 보였다 → 옷 그림의 손으로 덮고 우산도 왼쪽 18(topVariant).
+     [2026-10-13] 손잡이 오른쪽(곧은 대)이 엄지와 검지 사이로 들어가게 왼쪽 16(원점 (348,628), ?v=4). 마법사 판은 그대로. */
+  { id: "hand_umbrella_girl", slot: "hand", label: "무지개 우산", emoji: "🌂", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 48, img: "assets/avatar/hand/rainbow-umbrella-girl.webp?v=4", topVariant: { top_magic: { img: "assets/avatar/hand/rainbow-umbrella-magic-girl.webp" } }, thumb: "assets/avatar/thumb/hand_umbrella_girl.webp" },
   /* 바다 산소통 [2026-10-05] — 남아. 산소통(사용자 원화 196×433)은 등 뒤 맨 뒤(z 12), 어깨끈 두 줄(283×172)은 맨 앞(zFront 48).
      사용자 배치 참고 그림을 얼굴 매칭(0.847, 물안경이 눈을 가려 코~입으로)으로 아바타 좌표에 올려 위치를 땄다.
      산소통 배율 0.524·원점 (599,361) (참고 그림 쪽이 조금 홀쭉해서 높이·오른쪽 끝 기준), 끈 매칭 0.967 배율 0.700×0.658·원점 (420,431).
