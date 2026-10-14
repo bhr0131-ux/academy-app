@@ -171,7 +171,7 @@ function BaseCharacter({ baseCharImg, size, gender = "boy", hideHead = false, bo
 const SHADOW = { w: 0.235, h: 0.055, blur: 0.010 };
 const BARE_SOLE = 938;   // 맨발 바닥 — 베이스 v6 남녀 공통 발끝 (2026-08-14)
 
-function GroundShadow({ size, soleY = BARE_SOLE }) {
+function GroundShadow({ size, soleY = BARE_SOLE, shiftX = 0 }) {
   const w = Math.round(size * SHADOW.w);
   const h = Math.max(4, Math.round(size * SHADOW.h));
   const cy = (soleY + 2) / 1024;   // 밑창보다 2px 아래를 그림자 중심으로
@@ -181,7 +181,7 @@ function GroundShadow({ size, soleY = BARE_SOLE }) {
       style={{
         position: "absolute", left: "50%",
         bottom: Math.round((1 - cy) * size - h / 2),
-        transform: "translateX(-50%)",
+        transform: shiftX ? `translateX(calc(-50% + ${shiftX}px))` : "translateX(-50%)",
         width: w, height: h, borderRadius: "50%",
         /* 가운데를 넓게 유지하다 바깥에서 빠르게 사라진다 — 중심만 진한 그라디언트는
            블러를 먹이면 거의 안 보인다(실측). 기존 성장 캐릭터 그림자가 '단색'인 것과 같은 이유. */
@@ -224,6 +224,10 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
   }, [hidesHeadSrc]);
   const hideHead = !!hidesHeadSrc && readySrc === hidesHeadSrc;
   const bodyOverride = layers.map((l) => itemBodySrc(l.item, gender)).find(Boolean) || null;
+  /* 옆에 세워 두는 장비(킥보드 등, 데이터의 stageShiftX = 상자 폭 대비 비율)를 들면
+     캐릭터+장비 묶음이 가운데 오도록 배경을 뺀 전부를 오른쪽으로 민다. */
+  const shiftX = Math.round(size * Math.max(0, ...layers.map((l) => l.item?.stageShiftX || 0)));
+  const shiftStyle = shiftX ? { transform: `translateX(${shiftX}px)` } : null;
 
   /* ── 속옷 가림: 상의·하의 그림이 다 준비될 때까지 캐릭터를 감춘다 ──
      베이스 몸통이 속옷 차림이라, 옷보다 몸통이 먼저 그려지면 그 사이가 보인다.
@@ -277,16 +281,16 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
         />
       )}
       {/* 접지 그림자 — 배경 위, 베이스 캐릭터 아래 */}
-      {showShadow && <div style={charVis}><GroundShadow size={size} soleY={soleY} /></div>}
+      {showShadow && <div style={charVis}><GroundShadow size={size} soleY={soleY} shiftX={shiftX} /></div>}
       {/* 뒤쪽 레이어(배경·등 장비) → 베이스 캐릭터 → 앞쪽 레이어 순서로 z 배치 */}
       {layers.map((layer) => (
         /* 배경 슬롯은 몸을 가리는 것과 무관하므로 기다리지 않고 먼저 깔린다 */
         <div key={layer.key || layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex,
-          ...(layer.slot === "background" ? null : charVis) }}>
+          ...(layer.slot === "background" ? null : { ...charVis, ...shiftStyle }) }}>
           <AvatarLayer item={layer.item} emojiPos={layer.emojiPos} size={size} gender={gender} noEmoji={!!layer.front} />
         </div>
       ))}
-      <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z, ...charVis }}>
+      <div style={{ position: "absolute", inset: 0, zIndex: AVATAR_BASE_Z, ...charVis, ...shiftStyle }}>
         <BaseCharacter baseCharImg={baseCharImg} size={size} gender={gender} hideHead={hideHead} bodyOverride={bodyOverride} />
       </div>
     </div>
