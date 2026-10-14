@@ -643,8 +643,9 @@ export const AVATAR_CATALOG = [
      사용자 참고 그림을 별빛 우주인 가슴으로 매칭해 아바타 좌표에 올림. 배낭은 몸 뒤 오른쪽(등 장비 기본 z15) — 배율 0.45,
      오른쪽 끝 x684·아래 끝 y580, 상자 (578,420,684,580). 머리(양갈래)가 위를 덮는 건 참고 그림과 같다.
      어깨끈은 사용자가 나중에 줄 예정 — 받으면 imgFront(zFront 48)로 달고 옷별 끈 맞춤·칼라 규칙 적용.
-     [2026-10-14] 사용자 조정 — 위로 10·왼쪽으로 5(오른쪽 끝 x679·아래 끝 y570, ?v=2). 상자 (573,410,679,570). */
-  { id: "back_space_girl", slot: "back", label: "우주 가방", emoji: "🪐", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "girl", img: "assets/avatar/back/space-bag-girl.webp?v=2", thumb: "assets/avatar/thumb/back_space_girl.webp" },
+     [2026-10-14] 사용자 조정 — 위로 10·왼쪽으로 5(오른쪽 끝 x679·아래 끝 y570, ?v=2). 상자 (573,410,679,570).
+     [2026-10-14] 위로 5 더(아래 끝 y565, ?v=3). 상자 (573,405,679,565). 배낭은 z15라 몸·머리(z20) 뒤 — 겹치는 양갈래 머리는 항상 가방 앞에 그려진다. */
+  { id: "back_space_girl", slot: "back", label: "우주 가방", emoji: "🪐", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "girl", img: "assets/avatar/back/space-bag-girl.webp?v=3", thumb: "assets/avatar/thumb/back_space_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
