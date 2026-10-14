@@ -639,6 +639,11 @@ export const AVATAR_CATALOG = [
      기본 반팔티(칼라 없음)는 기본 끈 그대로.
      [2026-10-13] 달빛 마법사는 망토 모자 기준 — 모자 아랫주름선(왼 (430,386)→(480,396), 오른 (535,397)→(595,385))까지 끈을 지움. */
   { id: "back_pirate_girl", slot: "back", label: "해적 가방", emoji: "🎒", price:DECOR_PRICE.rare, rarity: "rare", theme: "pirate", forGender: "girl", z: 14, img: "assets/avatar/back/pirate-backpack-girl.webp", imgFront: "assets/avatar/back/pirate-backpack-strap-girl.webp?v=2", zFront: 48, topVariant: { top_vest: { imgFront: "assets/avatar/back/pirate-backpack-strap-vest-girl.webp" }, top_pirate: { imgFront: "assets/avatar/back/pirate-backpack-strap-pirate-girl.webp" }, top_space: { imgFront: "assets/avatar/back/pirate-backpack-strap-space-girl.webp" }, top_picnic: { imgFront: "assets/avatar/back/pirate-backpack-strap-picnic-girl.webp" }, top_bakery_girl: { imgFront: "assets/avatar/back/pirate-backpack-strap-bakery-girl.webp" }, top_raincoat_girl: { imgFront: "assets/avatar/back/pirate-backpack-strap-raincoat-girl.webp" }, top_delivery_girl: { imgFront: "assets/avatar/back/pirate-backpack-strap-delivery-girl.webp" }, top_magic: { imgFront: "assets/avatar/back/pirate-backpack-strap-magic-girl.webp" } }, thumb: "assets/avatar/thumb/back_pirate_girl.webp" },
+  /* 우주 가방 [2026-10-14] — 여아. 연보라·흰 우주 배낭(별·게이지·분사구, 사용자 원화 235×355). 별빛 우주인과 짝.
+     사용자 참고 그림을 별빛 우주인 가슴으로 매칭해 아바타 좌표에 올림. 배낭은 몸 뒤 오른쪽(등 장비 기본 z15) — 배율 0.45,
+     오른쪽 끝 x684·아래 끝 y580, 상자 (578,420,684,580). 머리(양갈래)가 위를 덮는 건 참고 그림과 같다.
+     어깨끈은 사용자가 나중에 줄 예정 — 받으면 imgFront(zFront 48)로 달고 옷별 끈 맞춤·칼라 규칙 적용. */
+  { id: "back_space_girl", slot: "back", label: "우주 가방", emoji: "🪐", price:DECOR_PRICE.rare, rarity: "rare", theme: "space", forGender: "girl", img: "assets/avatar/back/space-bag-girl.webp", thumb: "assets/avatar/thumb/back_space_girl.webp" },
   /* 우주 부츠 — 우주복 바지 밑단(y1425 근처)에 발목깃이 물리게 맞췄다. */
   /* [2026-10-03] 새 원화로 교체 — 남색·흰 우주 부츠(하늘색 띠·주황 탭) 두 짝, 사용자 원화 352×173. 위 탑재값은 옛 판 기록.
      여아 신발과 같은 방식 — 두 짝을 따로 잘라 원화 부츠목 가운데(왼짝 x85 · 오른짝 x56.5)를 남아 다리 가운데(x450.5 · x574.5)에,
@@ -927,7 +932,7 @@ export const SHOP_ORDER = {
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
          "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",
-         "back_crossbag_girl", "back_strawberry_girl", "back_cookie_girl", "back_sky_girl", "back_pirate_girl"],
+         "back_crossbag_girl", "back_strawberry_girl", "back_cookie_girl", "back_sky_girl", "back_pirate_girl", "back_space_girl"],
 };
 const shopRank = (it, gender) => {
   const i = (SHOP_ORDER[gender === "girl" ? "girl" : "boy"] || []).indexOf(it.id);
