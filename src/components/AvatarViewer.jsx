@@ -225,7 +225,8 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
   const hideHead = !!hidesHeadSrc && readySrc === hidesHeadSrc;
   const bodyOverride = layers.map((l) => itemBodySrc(l.item, gender)).find(Boolean) || null;
   /* 옆에 세워 두는 장비(킥보드 등, 데이터의 stageShiftX = 상자 폭 대비 비율)를 들면
-     캐릭터+장비 묶음이 가운데 오도록 배경을 뺀 전부를 오른쪽으로 민다. */
+     그 장비는 제자리에 두고 캐릭터(몸·옷·다른 장비·그림자)만 오른쪽으로 민다
+     — 홈에서 장비와 오른쪽 펫 사이 가운데에 서도록(2026-10-14 사용자 요청). */
   const shiftX = Math.round(size * Math.max(0, ...layers.map((l) => l.item?.stageShiftX || 0)));
   const shiftStyle = shiftX ? { transform: `translateX(${shiftX}px)` } : null;
 
@@ -286,7 +287,7 @@ export default function AvatarViewer({ equipped = {}, size = 200, showFrame = tr
       {layers.map((layer) => (
         /* 배경 슬롯은 몸을 가리는 것과 무관하므로 기다리지 않고 먼저 깔린다 */
         <div key={layer.key || layer.slot} style={{ position: "absolute", inset: 0, zIndex: layer.zIndex,
-          ...(layer.slot === "background" ? null : { ...charVis, ...shiftStyle }) }}>
+          ...(layer.slot === "background" ? null : { ...charVis, ...(layer.item?.stageShiftX ? null : shiftStyle) }) }}>
           <AvatarLayer item={layer.item} emojiPos={layer.emojiPos} size={size} gender={gender} noEmoji={!!layer.front} />
         </div>
       ))}
