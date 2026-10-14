@@ -506,6 +506,10 @@ export const AVATAR_CATALOG = [
      [2026-10-11] 달빛 마법사 — 옷 그림이 손을 따로(치마를 쥔 모양, 왼쪽 18) 그려서 몸 그림 손을 덮으면 손이 잘려 보였다 → 옷 그림의 손으로 덮고 우산도 왼쪽 18(topVariant).
      [2026-10-13] 손잡이 오른쪽(곧은 대)이 엄지와 검지 사이로 들어가게 왼쪽 16(원점 (348,628), ?v=4). 마법사 판은 그대로. */
   { id: "hand_umbrella_girl", slot: "hand", label: "무지개 우산", emoji: "🌂", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", forGender: "girl", z: 48, img: "assets/avatar/hand/rainbow-umbrella-girl.webp?v=4", topVariant: { top_magic: { img: "assets/avatar/hand/rainbow-umbrella-magic-girl.webp" } }, thumb: "assets/avatar/thumb/hand_umbrella_girl.webp" },
+  /* 킥보드 [2026-10-14] — 남녀 공용. 민트·크림 킥보드(주황 손잡이, 사용자 원화 1222×1287 → 반투명 잡티 지우고 오림 647×1198).
+     사용자 배치 그림(홈 화면 캡처, 얼굴 매칭 0.992)대로 캐릭터 왼쪽 땅에 세워 둠 — 배율 0.33·원점 (113,511), 상자 (113,511,327,906), 몸 뒤 z 12.
+     stageShiftX 0.11 — 킥보드를 들면 캐릭터+킥보드 묶음이 가운데 오도록 배경을 뺀 전부를 오른쪽으로 상자 폭의 11%(캔버스 113) 민다(AvatarViewer). */
+  { id: "hand_kickboard", slot: "hand", label: "킥보드", emoji: "🛴", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", z: 12, stageShiftX: 0.11, img: "assets/avatar/hand/kickboard.webp", thumb: "assets/avatar/thumb/hand_kickboard.webp" },
   /* 바다 산소통 [2026-10-05] — 남아. 산소통(사용자 원화 196×433)은 등 뒤 맨 뒤(z 12), 어깨끈 두 줄(283×172)은 맨 앞(zFront 48).
      사용자 배치 참고 그림을 얼굴 매칭(0.847, 물안경이 눈을 가려 코~입으로)으로 아바타 좌표에 올려 위치를 땄다.
      산소통 배율 0.524·원점 (599,361) (참고 그림 쪽이 조금 홀쭉해서 높이·오른쪽 끝 기준), 끈 매칭 0.967 배율 0.700×0.658·원점 (420,431).
