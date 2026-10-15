@@ -663,3 +663,4 @@ bbox로 여백만 잘라내고 배포본은 높이 480px로 축소했다(전부 
 | bicycle-src.webp | **자전거 원화 남아 (사용자 원화 2026-10-15)** — 파랑·크림 어린이 자전거(번개 무늬). 비표준 PNG 블록·잡티 지우고 오려 보관(805×1166). 여아 분홍 자전거와 같은 높이 380·오른쪽 끝 x330·바닥 y912, z 12 | avatar/hand/bicycle.webp · thumb/hand_bicycle.webp |
 | (원본 같음) kickboard·bicycle *-src.webp | **킥보드·자전거 오른쪽으로 5 (2026-10-15)** — 남녀 그림 모두 캔버스에서 오른쪽 5 이동(킥보드 상자 (118,511,332,906~907), 자전거 (72~73,532,335,912)), ?v 올림 | avatar/hand/kickboard(-girl).webp · bicycle(-girl).webp |
 | (원본 같음) kickboard·bicycle *-src.webp | **아바타 오른쪽으로 3 (2026-10-15)** — 킥보드·자전거를 들었을 때 아바타 밀기 39→42(stageShiftX 0.041). 그림은 그대로 | (데이터만) |
+| (원본 같음) kickboard·bicycle *-src.webp | **다시 조정 (2026-10-15)** — 아바타 밀기 42→39(stageShiftX 0.038), 킥보드·자전거 그림(남녀)은 오른쪽으로 5 더(킥보드 상자 (123,511,337,…), 자전거 (77~78,532,340,912)), ?v 올림 | avatar/hand/kickboard(-girl).webp · bicycle(-girl).webp |
