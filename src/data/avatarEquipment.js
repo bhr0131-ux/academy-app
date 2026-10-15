@@ -516,8 +516,9 @@ export const AVATAR_CATALOG = [
   { id: "hand_kickboard", slot: "hand", label: "킥보드", emoji: "🛴", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", z: 12, stageShiftX: 0.038, img: "assets/avatar/hand/kickboard.webp", imgGirl: "assets/avatar/hand/kickboard-girl.webp", thumb: "assets/avatar/thumb/hand_kickboard.webp", thumbGirl: "assets/avatar/thumb/hand_kickboard-girl.webp" },
   /* 자전거 [2026-10-15] — 남녀 공용. 연분홍·크림 어린이 자전거(라탄 바구니, 사용자 원화 1222×1287 → 비표준 PNG 블록·반투명 잡티 지우고 오림 810×1170).
      킥보드처럼 캐릭터 왼쪽 땅에 세워 둠 — 높이 380(배율 0.325)·오른쪽 끝 x330·바닥 y912, 상자 (67,532,330,912), 몸 뒤 z 12.
-     킥보드와 같은 stageShiftX 0.038 — 자전거는 제자리, 아바타만 자전거와 펫 사이 가운데로. */
-  { id: "hand_bicycle", slot: "hand", label: "자전거", emoji: "🚲", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", z: 12, stageShiftX: 0.038, img: "assets/avatar/hand/bicycle.webp", thumb: "assets/avatar/thumb/hand_bicycle.webp" },
+     킥보드와 같은 stageShiftX 0.038 — 자전거는 제자리, 아바타만 자전거와 펫 사이 가운데로.
+     [2026-10-15] 남아는 파랑 자전거(사용자 원화 → 오림 805×1166, 같은 높이·자리, img ?v=2), 분홍은 여아 전용(imgGirl/thumbGirl, bicycle-girl.webp). */
+  { id: "hand_bicycle", slot: "hand", label: "자전거", emoji: "🚲", price:DECOR_PRICE.rare, rarity: "rare", theme: "common", z: 12, stageShiftX: 0.038, img: "assets/avatar/hand/bicycle.webp?v=2", imgGirl: "assets/avatar/hand/bicycle-girl.webp", thumb: "assets/avatar/thumb/hand_bicycle.webp?v=2", thumbGirl: "assets/avatar/thumb/hand_bicycle-girl.webp" },
   /* 바다 산소통 [2026-10-05] — 남아. 산소통(사용자 원화 196×433)은 등 뒤 맨 뒤(z 12), 어깨끈 두 줄(283×172)은 맨 앞(zFront 48).
      사용자 배치 참고 그림을 얼굴 매칭(0.847, 물안경이 눈을 가려 코~입으로)으로 아바타 좌표에 올려 위치를 땄다.
      산소통 배율 0.524·원점 (599,361) (참고 그림 쪽이 조금 홀쭉해서 높이·오른쪽 끝 기준), 끈 매칭 0.967 배율 0.700×0.658·원점 (420,431).
