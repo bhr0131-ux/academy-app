@@ -158,3 +158,22 @@ export const smsLink=(phone,body="")=>{ const enc=encodeURIComponent(body); cons
 export const DEFAULT_CHILDREN = [
   { id:"child_1", name:"아이1", gender:"boy" }
 ];
+
+/* ── 글자 복사 ────────────────────────────────────────────────────────
+   [버그 수정 2026-10-27] navigator.clipboard.writeText 는 Promise 라서 try/catch 로는
+   실패를 못 잡았고, 클립보드가 아예 없는 환경(?. 로 건너뜀)에서도 "복사했어요"가 떴다.
+   결과를 기다려 성공 여부를 돌려준다. 막힌 환경(구형 웹뷰 등)은 옛 방식으로 한 번 더 시도. */
+export const copyText = async (txt) => {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(txt); return true; }
+  } catch (e) { /* 아래 옛 방식으로 */ }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = txt; ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none";
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return !!ok;
+  } catch (e) { return false; }
+};

@@ -1,7 +1,7 @@
 import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, EXTRA_QUEST_ICON, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorNeedsMaxPet, decorView, getTerms, getParentTerms, getHolidayName } from "./data/characters.js";
-import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, DEFAULT_CHILDREN } from "./utils/dates.js";
+import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, copyText, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
 import { loadOrMigrateDaily, saveDailyShards, dirtyMonths } from "./utils/dailyStore.js";
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, parseShuttle, joinShuttle, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
@@ -1262,6 +1262,15 @@ export default function App() {
      대신 잠금은 보상과 하나로 공유한다 — 한 번 풀면 미션↔보상 사이는 다시 안 묻는다. */
   const parentLocked=()=>!rewardUnlocked;
   const goMissionTab=()=>{ setTab("mission"); };
+  /* [2026-10-27] 앱 밖으로 나가는 링크(카카오 오픈채팅·네이버 지도)는 PIN 뒤에 둔다.
+     엄마용 화면은 아이 화면에서 PIN 없이 넘어올 수 있어서, 아이가 두 번 만에
+     외부 채팅방까지 갈 수 있었다(아동 대상 앱 정책 대비). 엄마 권한이 이미 열려 있으면
+     다시 묻지 않는다. 통과해도 엄마 권한(rewardUnlocked)은 켜지 않는다 — 링크만 연다. */
+  const openExternal=(url)=>{
+    const go=()=>window.open(url,"_blank","noopener,noreferrer");
+    if(!parentLocked()){ go(); return; }
+    askPin(go,"앱 밖으로 나가는 링크예요");
+  };
   /* 미션 탭 안에서 엄마 권한 열기 — 통과하면 보상 탭과 같은 잠금(rewardUnlocked)을 쓴다.
      권한 구조 안내는 여기서 1회 띄운다(예전엔 탭에 들어올 때 띄웠다). */
   /* after: 비밀번호를 통과한 뒤 바로 이어서 할 일 (없으면 열기만 한다).
@@ -1826,7 +1835,7 @@ export default function App() {
 
   const openNaverMapSearch=()=>{
     const q=newAc.name||"학원";
-    window.open(`https://map.naver.com/p/search/${encodeURIComponent(q)}`,"_blank");
+    openExternal(`https://map.naver.com/p/search/${encodeURIComponent(q)}`);
   };
 
   const pickTeacherContact=async()=>{
@@ -1955,7 +1964,11 @@ export default function App() {
       discoveryData,
       /* 옛 단일 값도 함께 담는다 — 이 백업을 예전 버전에서 열어도 연령대가 비지 않는다 */
       rewardAgeGroup: rewardAgeFallback,
-      rewardAgeByChild
+      rewardAgeByChild,
+      /* [버그 수정 2026-10-27] 반복 숙제 목록·보호자 구분(엄마/아빠)이 백업에서 빠져 있어
+         복원하면 반복 숙제가 사라지고 아빠 설정이 엄마로 돌아갔다. 항목만 추가 — 옛 백업도 그대로 복원된다. */
+      repeatMissions,
+      parentGender
     };
 
     const blob=new Blob([JSON.stringify(backup,null,2)],{
@@ -2041,6 +2054,9 @@ export default function App() {
         if(data.rewardAgeGroup!==undefined){ setRewardAgeFallback(data.rewardAgeGroup||"kid"); save("v6_reward_age_group",data.rewardAgeGroup||"kid"); }
         /* 아이별 연령대는 새 백업에만 있다 — 없으면 위 옛 단일 값이 모든 아이에게 쓰인다 */
         if(data.rewardAgeByChild!==undefined){ setRewardAgeByChild(data.rewardAgeByChild||{}); save("v6_reward_age_by_child",data.rewardAgeByChild||{}); }
+        /* 반복 숙제·보호자 구분 — 이 항목이 없는 옛 백업이면 지금 기기의 값을 그대로 둔다 */
+        if(data.repeatMissions!==undefined) setRepeatMissions(normalizeRepeat(data.repeatMissions,DEFAULT_HOMEWORK_SCORE));
+        if(data.parentGender==="mom"||data.parentGender==="dad") setParentGender(data.parentGender);
 
         // 설치 정보: 복원본과 현재 중 더 이른 설치일을 유지 (창립 사용자 자격 보존)
         if(data.installInfo?.installDate){
@@ -5811,10 +5827,9 @@ export default function App() {
             onAddAcademy={openAdd} onEditAcademy={openEdit}
             onCopyAcademy={()=>{ setCopySourceChildId(children.find(c=>c.id!==childId)?.id||""); setCopySelectedAcademyIds([]); setShowAcademyCopyModal(true); }}
             onCopyAccount={(txt)=>{
-              try { navigator.clipboard?.writeText(txt); showToast("계좌번호를 복사했어요"); }
-              catch(e){ showToast("복사할 수 없어요"); }
+              copyText(txt).then(ok=>showToast(ok?"계좌번호를 복사했어요":"복사할 수 없어요"));
             }}
-            onOpenMap={(addr)=>window.open(`https://map.naver.com/p/search/${encodeURIComponent(addr)}`,"_blank","noopener,noreferrer")}
+            onOpenMap={(addr)=>openExternal(`https://map.naver.com/p/search/${encodeURIComponent(addr)}`)}
             onSeedSample={addStarterAcademy}
             onEditDaily={(ac,date)=>{
               /* [사용자 확정 2026-08-11] 미션 편집은 권한을 일부러 두 단계로 둔다 —
@@ -5877,8 +5892,7 @@ export default function App() {
             onPay={(acId)=>setPaySheet({acId})}
             onEditFee={(v)=>setFeeEdit(v)}
             onCopyAccount={(txt)=>{
-              try { navigator.clipboard?.writeText(txt); showToast("계좌번호를 복사했어요"); }
-              catch(e){ showToast("복사할 수 없어요"); }
+              copyText(txt).then(ok=>showToast(ok?"계좌번호를 복사했어요":"복사할 수 없어요"));
             }}
             onDeleteFee={(acId)=>{
               setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===acId?{...x,fee:0}:x)}));
@@ -6253,6 +6267,7 @@ export default function App() {
             onEditTmpl:(t)=>{ setShowTmplEdit(t.id); setEditTmpl({title:t.title,body:t.body}); },
             onDeleteTmpl:(id)=>{ setTemplates(p=>p.filter(t=>t.id!==id)); showToast("삭제됨"); },
             onPinChange:()=>setShowPinChangeModal(true),
+            onOpenExternal:openExternal,
             onRecoverySetup:()=>{ setSetupRecoveryQ(recoveryQuestion||""); setSetupRecoveryA(""); setShowRecoverySetupModal(true); },
             recoveryQuestion,
             backup:{ lastDate:lastBackupDate, daysSince:daysSinceBackup, daysSinceInstall,

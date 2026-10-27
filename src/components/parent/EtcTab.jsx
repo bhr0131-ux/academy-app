@@ -22,7 +22,7 @@
      onOpenModeSelect(): 게임 디자인 선택 (베이커리 출시 전에는 안 보임)
      xp                : XpAdjustCard 에 그대로 넘길 값 묶음
      smsOpen, setSmsOpen, templates, onNewTmpl(), onEditTmpl(t), onDeleteTmpl(id)
-     onPinChange(), onRecoverySetup(), recoveryQuestion
+     onPinChange(), onOpenExternal(url) — 앱 밖 링크(PIN 확인 후 연다), onRecoverySetup(), recoveryQuestion
      backup            : {lastDate, daysSince, daysSinceInstall, nudgeDays, nudgeFirstDays,
                           onExport, onImport(file)}
      onResetChild(), onResetAll()
@@ -37,7 +37,7 @@ export default function EtcTab({ D }) {
     th, CT, TM, childId, children = [], kidSkin, getSkin, bakeryEnabled, skinChosen,
     onOpenGuide, onOpenModeSelect, xp,
     smsOpen, setSmsOpen, templates = [], onNewTmpl, onEditTmpl, onDeleteTmpl,
-    onPinChange, onRecoverySetup, recoveryQuestion,
+    onPinChange, onOpenExternal, onRecoverySetup, recoveryQuestion,
     backup = {}, onResetChild, onResetAll,
   } = D;
 
@@ -209,7 +209,7 @@ export default function EtcTab({ D }) {
         <p style={title}>{ico("bug")}버그 신고</p>
         <p style={{...sub,margin:"0 0 12px"}}>카카오톡 오픈채팅방에서 버그 신고·문의를 함께 나눠요.</p>
         <button
-          onClick={()=>window.open("https://open.kakao.com/o/g6H6WgFi","_blank","noopener,noreferrer")}
+          onClick={()=>onOpenExternal("https://open.kakao.com/o/g6H6WgFi")}
           style={{...btnMain,border:`1px solid ${C.border}`,background:mixWhite("#FEE500",0.45),color:"#3C1E1E",
             display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
           <CareIcon name="sms" size={15}/> 오픈채팅방 입장하기
