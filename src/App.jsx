@@ -39,6 +39,7 @@ import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
 import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import { SupplyCheckModal, MissionCheckModal } from "./components/parent/TodayCareModals.jsx";
+import { isNativeApp, shareBackupFile, installBackButton } from "./utils/native.js";
 import CharacterGrid from "./components/camp/CharacterGrid.jsx";
 import LevelSheet from "./components/camp/LevelSheet.jsx";
 import DecorShopSheet from "./components/camp/DecorShopSheet.jsx";
@@ -73,7 +74,7 @@ import { Fragment, useState, useEffect, useRef } from "react";
    주의: 정식 "위험구역" 초기화(resetGameData/resetAllAppData)는 사용자 기능이라
         이 플래그와 무관하게 항상 동작한다.
    ════════════════════════════════════════════════════════════════════════ */
-const DEV_MODE = true; // ★ 사용자 요청(2026-07-20): 별도 지시 전까지 켜둘 것 — 끄기 전 반드시 사용자 확인
+const DEV_MODE = false; // ★ 2026-10-27 사용자 요청(출시 준비)으로 끔. 다시 켤 땐 사용자 확인 (2026-07-20~10-27 켜 둠)
 
 /* 미션 보상의 코인 — XP(=point)는 그대로 두고 코인만 QUEST_COIN_MUL 배 (tokens.js 주석 참고).
    지급하는 곳과 "💎 +N 코인"이라고 보여 주는 곳이 반드시 같은 값을 써야 해서 함수로 뺐다.
@@ -1139,6 +1140,10 @@ export default function App() {
     return ()=>setSaveErrorHandler(null);
   },[]);
 
+  /* [2026-10-27] 안드로이드 뒤로가기 — 팝업이 떠 있으면 팝업부터 닫고, 없을 때만 앱을 내린다.
+     웹에서는 아무 것도 안 한다(utils/native.js). */
+  useEffect(()=>installBackButton(),[]);
+
   // 온보딩 완료: 입력값을 실제 데이터에 반영 → 홈 진입 → 코치마크
   const finishOnboarding=(data)=>{
     // data = { childName, gender, parentGender, age, acKind, acKindLabel, acName, acDays:[], acTime,
@@ -1971,19 +1976,38 @@ export default function App() {
       parentGender
     };
 
-    const blob=new Blob([JSON.stringify(backup,null,2)],{
+    const text=JSON.stringify(backup,null,2);
+    const fileName=`academy-backup-${TODAY}.json`;
+    const markDone=()=>{
+      setLastBackupDate(TODAY);
+      save("v6_last_backup_date",TODAY);
+    };
+
+    /* [버그 수정 2026-10-27] 안드로이드 앱(WebView)에서는 아래 '파일 다운로드'가 동작하지 않는데도
+       "백업 완료"가 뜨고 마지막 백업 날짜까지 기록돼 30일 백업 권유도 멈췄다.
+       앱에서는 휴대폰 공유창으로 내보내고, 보낼 곳을 고른 경우에만 완료로 기록한다(utils/native.js). */
+    if(isNativeApp()){
+      shareBackupFile(text,fileName).then(r=>{
+        if(r.ok){ markDone(); showToast("백업 파일을 보냈어요 💾"); }
+        else if(r.reason==="cancel") showToast("백업을 취소했어요 — 아직 저장되지 않았어요");
+        else if(r.reason==="plugin") showToast("이 버전의 앱에서는 백업 파일을 만들 수 없어요. 앱을 업데이트해 주세요");
+        else showToast("백업 파일을 만들지 못했어요. 다시 시도해 주세요");
+      });
+      return;
+    }
+
+    const blob=new Blob([text],{
       type:"application/json"
     });
 
     const url=URL.createObjectURL(blob);
     const a=document.createElement("a");
     a.href=url;
-    a.download=`academy-backup-${TODAY}.json`;
+    a.download=fileName;
     a.click();
     URL.revokeObjectURL(url);
 
-    setLastBackupDate(TODAY);
-    save("v6_last_backup_date",TODAY);
+    markDone();
     showToast("데이터 백업 완료 💾");
   };
 
