@@ -28,6 +28,7 @@
      onResetChild(), onResetAll()
    ════════════════════════════════════════════════════════════════════════ */
 
+import { useState } from "react";
 import { C, FS, FW, RAD, gameCard, SHADOW, mixWhite } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 import XpAdjustCard from "./XpAdjustCard.jsx";
@@ -40,6 +41,9 @@ export default function EtcTab({ D }) {
     onPinChange, onOpenExternal, onRecoverySetup, recoveryQuestion,
     backup = {}, onResetChild, onResetAll,
   } = D;
+  /* [2026-10-30] 개인정보처리방침 — 플레이스토어 정책상 앱 안에서도 볼 수 있어야 한다.
+     public/privacy.html 을 앱 안 창(iframe)으로 띄운다 — 앱 밖으로 나가지 않아 PIN 이 필요 없다. */
+  const [privacyOpen, setPrivacyOpen] = useState(false);
 
   /* ── 한 벌로 쓰는 치수 ────────────────────────────────────────────────
      카드는 전부 같은 껍데기, 버튼은 큰 것/작은 것 두 벌뿐이다. */
@@ -251,7 +255,28 @@ export default function EtcTab({ D }) {
         <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,opacity:0.7,margin:"8px 0 0",lineHeight:1.5}}>
           이모지 그림: Twemoji © Twitter, Inc and other contributors · CC-BY 4.0
         </p>
+        <button onClick={()=>setPrivacyOpen(true)}
+          style={{...btnSmall,marginTop:10,border:`1px solid ${th.main}35`,background:th.light,color:th.main}}>
+          개인정보처리방침
+        </button>
       </div>
+
+      {privacyOpen && (
+        <div onClick={()=>setPrivacyOpen(false)}
+          style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(20,20,40,0.55)",
+                  display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+          <div onClick={e=>e.stopPropagation()}
+            style={{width:"100%",maxWidth:480,height:"82vh",background:"#fff",borderRadius:RAD.lg,
+                    overflow:"hidden",display:"flex",flexDirection:"column",boxShadow:SHADOW.sm}}>
+            <iframe title="개인정보처리방침" src="/privacy.html"
+              style={{flex:1,width:"100%",border:"none",background:"#fbf8f3"}}/>
+            <button onClick={()=>setPrivacyOpen(false)}
+              style={{...btnMain,borderRadius:0,border:"none",background:th.grad,color:"#fff"}}>
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
