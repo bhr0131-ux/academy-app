@@ -310,8 +310,9 @@ export default function HeroStage({ D }) {
                     <>
                       {/* 말풍선 — 알 위 (사용자 확정: 위가 더 귀여움), 간격 14→3px + 살짝 우측: 알과 한 덩어리로 보이게.
                           펫 연결 발견을 한 날은 ❤️ — 하트 날은 우측 시프트 없이 알과 가운데 정렬,
-                          말풍선·하트를 키우고 더 위로 띄운다 (사용자 조정) */}
-                      <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:petHeart?16:11,fontWeight:900,padding:petHeart?"5px 11px":"4px 9px",borderRadius:petHeart?13:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:petHeart?11:3,transform:petHeart?"none":"translateX(4px)",lineHeight:1.2}}>
+                          말풍선·하트를 키운다 (사용자 조정). 알과의 거리는 평소 말풍선과 같은 3px
+                          (사용자 확정 2026-11-06 — 하트 날만 11px 로 떠 있어 멀어 보였다). */}
+                      <div style={{position:"relative",background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:petHeart?16:11,fontWeight:900,padding:petHeart?"5px 11px":"4px 9px",borderRadius:petHeart?13:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",marginBottom:3,transform:petHeart?"none":"translateX(4px)",lineHeight:1.2}}>
                         {petHeart?"❤️":"곧 부화! 🐣"}
                         <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
                       </div>
@@ -339,9 +340,10 @@ export default function HeroStage({ D }) {
                       </div>
                       <div style={{width:46,height:11,borderRadius:"50%",background:"rgba(0,0,0,0.3)",filter:"blur(2.5px)",marginTop:-2,animation:"shadowPulsePet 2.6s ease-in-out infinite -1.3s"}}/>
                       {/* 말풍선 — 펫 위 (사용자 확정: 알 말풍선과 통일), 꼬리는 아래로.
-                          펫 연결 발견을 한 날은 ❤️로 바뀐다 — 하트 날은 말풍선·하트를 키우고
-                          더 위로 띄운다 (사용자 조정: 18→30px, 글자 11→16) */}
-                      <div style={{position:"absolute",bottom:"100%",left:"50%",transform:"translateX(-50%)",marginBottom:petHeart?30:18,background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:petHeart?16:11,fontWeight:900,padding:petHeart?"5px 11px":"3px 8px",borderRadius:petHeart?13:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",lineHeight:1.2}}>
+                          펫 연결 발견을 한 날은 ❤️로 바뀐다 — 하트 날은 말풍선·하트를 키운다 (글자 11→16).
+                          [사용자 확정 2026-11-06] 하트 말풍선이 펫에서 너무 멀다 → 펫과의 거리는
+                          평소 말풍선과 같은 18px 로 맞춘다 (예전 하트 날만 30px). */}
+                      <div style={{position:"absolute",bottom:"100%",left:"50%",transform:"translateX(-50%)",marginBottom:18,background:"rgba(255,248,235,0.96)",color:"#5D4633",fontSize:petHeart?16:11,fontWeight:900,padding:petHeart?"5px 11px":"3px 8px",borderRadius:petHeart?13:11,boxShadow:"0 2px 7px rgba(93,70,51,0.28)",whiteSpace:"nowrap",lineHeight:1.2}}>
                         {petHeart?"❤️":"🐾 펫"}
                         <div style={{position:"absolute",bottom:-5,left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:"5px solid rgba(255,248,235,0.96)"}}/>
                       </div>
