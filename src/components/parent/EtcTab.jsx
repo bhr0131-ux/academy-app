@@ -24,7 +24,9 @@
      smsOpen, setSmsOpen, templates, onNewTmpl(), onEditTmpl(t), onDeleteTmpl(id)
      onPinChange(), onOpenExternal(url) — 앱 밖 링크(PIN 확인 후 연다), onRecoverySetup(), recoveryQuestion
      backup            : {lastDate, daysSince, daysSinceInstall, nudgeDays, nudgeFirstDays,
-                          onExport, onImport(file)}
+                          onExport, onShare, isNative, onImport(file)}
+                         앱(isNative)에서는 '휴대폰에 저장'(onExport) + '공유하기'(onShare) 두 버튼,
+                         웹에서는 '데이터 백업하기'(onExport = 파일 다운로드) 하나.
      onResetChild(), onResetAll()
    ════════════════════════════════════════════════════════════════════════ */
 
@@ -64,7 +66,7 @@ export default function EtcTab({ D }) {
   const ico    = (name)=>(<span style={{color:th.main,display:"flex",flexShrink:0}}><CareIcon name={name} size={15}/></span>);
 
   const { lastDate=null, daysSince=null, daysSinceInstall=null,
-          nudgeDays=30, nudgeFirstDays=15, onExport, onImport } = backup;
+          nudgeDays=30, nudgeFirstDays=15, onExport, onShare, isNative=false, onImport } = backup;
 
   return (
     <div>
@@ -191,10 +193,17 @@ export default function EtcTab({ D }) {
           );
         })()}
 
+        {/* [사용자 요청 2026-11-16] 앱에서는 '휴대폰에 저장'을 기본으로, 공유창은 따로 뺀다 */}
         <button onClick={onExport}
           style={{...btnMain,border:"none",background:th.grad,color:"#fff",marginBottom:9}}>
-          데이터 백업하기
+          {isNative ? "휴대폰에 저장" : "데이터 백업하기"}
         </button>
+        {isNative && onShare && (
+          <button onClick={onShare}
+            style={{...btnMain,border:`1.5px solid ${th.main}35`,background:"#fff",color:th.main,marginBottom:9}}>
+            공유하기 (카톡·드라이브로 보내기)
+          </button>
+        )}
 
         <label style={{...btnMain,display:"block",border:`1.5px solid ${th.main}35`,background:th.light,color:th.main,textAlign:"center"}}>
           데이터 복원하기
@@ -204,6 +213,7 @@ export default function EtcTab({ D }) {
 
         <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,lineHeight:1.5,margin:"9px 0 0"}}>
           ※ 다른 기기에서도 복원하여 사용할 수 있습니다.
+          {isNative && <><br/>※ '휴대폰에 저장'은 내 파일 → 문서 → 미션팡 폴더에 저장돼요. 폰을 잃어버리면 함께 사라지니, 가끔은 '공유하기'로 드라이브에도 보관해 주세요.</>}
         </p>
       </div>
 

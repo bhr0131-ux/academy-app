@@ -39,7 +39,7 @@ import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
 import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import { SupplyCheckModal, MissionCheckModal } from "./components/parent/TodayCareModals.jsx";
-import { isNativeApp, shareBackupFile, installBackButton } from "./utils/native.js";
+import { isNativeApp, shareBackupFile, saveBackupToDevice, installBackButton } from "./utils/native.js";
 import CharacterGrid from "./components/camp/CharacterGrid.jsx";
 import LevelSheet from "./components/camp/LevelSheet.jsx";
 import DecorShopSheet from "./components/camp/DecorShopSheet.jsx";
@@ -1931,7 +1931,8 @@ export default function App() {
   // RevenueCat 등 인앱결제가 성공하면 이 함수를 호출한다. (결제 검증은 결제 SDK가 담당)
   // (선택) 환불·구독해지 등으로 프리미엄을 회수해야 할 때
 
-  const exportBackup=()=>{
+  /* how: "share" = 공유창으로 보내기 · 그 밖(기본) = 앱에서는 휴대폰에 바로 저장, 웹은 파일 다운로드 */
+  const exportBackup=(how)=>{
     const backup={
       backupVersion:"1.0",
       appName:"academy-schedule-rpg",
@@ -2000,11 +2001,20 @@ export default function App() {
        "백업 완료"가 뜨고 마지막 백업 날짜까지 기록돼 30일 백업 권유도 멈췄다.
        앱에서는 휴대폰 공유창으로 내보내고, 보낼 곳을 고른 경우에만 완료로 기록한다(utils/native.js). */
     if(isNativeApp()){
-      shareBackupFile(text,fileName).then(r=>{
+      const share=()=>shareBackupFile(text,fileName).then(r=>{
         if(r.ok){ markDone(); showToast("백업 파일을 보냈어요 💾"); }
         else if(r.reason==="cancel") showToast("백업을 취소했어요 — 아직 저장되지 않았어요");
         else if(r.reason==="plugin") showToast("이 버전의 앱에서는 백업 파일을 만들 수 없어요. 앱을 업데이트해 주세요");
         else showToast("백업 파일을 만들지 못했어요. 다시 시도해 주세요");
+      });
+      if(how==="share"){ share(); return; }
+      /* [사용자 요청 2026-11-16] 기본은 휴대폰에 바로 저장 — '내 파일 → 문서 → 미션팡'.
+         같은 날 여러 번 저장해도 덮어쓰지 않게 시각을 붙인다. 저장이 안 되는 폰(Android 10 이하 등)은 공유창으로. */
+      const d=new Date(), hm=`${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}`;
+      saveBackupToDevice(text,`missionpang-backup-${TODAY}-${hm}.json`).then(r=>{
+        if(r.ok){ markDone(); showToast(`휴대폰 '내 파일 → 문서 → ${r.folder}'에 저장했어요 💾`); }
+        else if(r.reason==="plugin") showToast("이 버전의 앱에서는 백업 파일을 만들 수 없어요. 앱을 업데이트해 주세요");
+        else { showToast("이 폰에는 바로 저장이 안 돼요 — 보낼 곳을 골라 주세요"); share(); }
       });
       return;
     }
@@ -6314,7 +6324,8 @@ export default function App() {
             recoveryQuestion,
             backup:{ lastDate:lastBackupDate, daysSince:daysSinceBackup, daysSinceInstall,
               nudgeDays:BACKUP_NUDGE_DAYS, nudgeFirstDays:BACKUP_NUDGE_FIRST_DAYS,
-              onExport:exportBackup, onImport:(f)=>importBackup(f) },
+              onExport:()=>exportBackup(), onShare:()=>exportBackup("share"), isNative:isNativeApp(),
+              onImport:(f)=>importBackup(f) },
             onResetChild:()=>resetGameData(childId),
             onResetAll:resetAllAppData,
           }}/>

@@ -61,6 +61,25 @@ export const shareBackupFile = async (text, fileName) => {
   }
 };
 
+/* ── 백업 파일을 휴대폰에 바로 저장 ─────────────────────────────────────
+   [사용자 요청 2026-11-16] 공유창 말고 한 번에 폰에 저장하는 버튼.
+   '내 파일 → 문서(Documents) → 미션팡' 폴더에 쓴다. Android 11 이상은 권한 없이 저장되고,
+   그보다 오래된 폰은 권한이 없어 실패한다 → 호출하는 쪽이 공유창으로 넘긴다(새 권한을 요청하지 않는다).
+   앱을 지워도 이 파일은 남으므로, 다시 깔고 '데이터 복원하기'로 고르면 된다.
+   결과: { ok:true, folder } · { ok:false, reason:"plugin"|"error" } */
+export const BACKUP_DEVICE_FOLDER = "미션팡";
+export const saveBackupToDevice = async (text, fileName) => {
+  const fs = plugin("Filesystem");
+  if (!fs) return { ok: false, reason: "plugin" };
+  try {
+    await fs.writeFile({ path: `${BACKUP_DEVICE_FOLDER}/${fileName}`, data: text,
+      directory: "DOCUMENTS", encoding: "utf8", recursive: true });
+    return { ok: true, folder: BACKUP_DEVICE_FOLDER };
+  } catch (e) {
+    return { ok: false, reason: "error", error: e };
+  }
+};
+
 /* ── 안드로이드 뒤로가기 ─────────────────────────────────────────────────
    [2026-10-27] 팝업이 떠 있어도 뒤로가기를 누르면 앱이 바로 꺼졌다.
    맨 위 팝업의 바깥(어두운 배경)을 누른 것처럼 처리해 팝업부터 닫는다 — 이 앱의 팝업은
