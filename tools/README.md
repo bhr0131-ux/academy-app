@@ -2,7 +2,7 @@
 
 | 파일 | 하는 일 |
 |---|---|
-| `app-icon/` | 미션팡 앱 아이콘(과녁) — 안드로이드 `res` 폴더에 그대로 덮어쓸 아이콘 세트와 플레이스토어용 `play-store-icon-512.png`. 원화와 만드는 스크립트는 `art-src/app-icon-target-src.webp` · `art-src/tools/app_icon.py` |
+| `app-icon/` | 미션팡 앱 아이콘(과녁) — 안드로이드 `res` 폴더에 그대로 덮어쓸 아이콘 세트, 플레이스토어용 `play-store-icon-512.png`·그래픽 이미지 `play-store-feature-1024x500.png`. 원화와 만드는 스크립트는 `art-src/app-icon-target-src.webp` · `art-src/tools/app_icon.py` |
 | `update-harang-app.ps1` | 최신 미션팡 웹 코드를 PC의 안드로이드 앱 폴더(`C:\harang-app`)에 반영하고 빌드·`cap sync`까지 한다. android 폴더·Capacitor 설정·서명키는 건드리지 않고, 시작 전에 `C:\harang-app-backup-날짜시각`에 백업한다. |
 
 ## 쓰는 법 (Windows)
