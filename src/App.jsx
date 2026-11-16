@@ -146,6 +146,7 @@ const initAuth = {
   newRecoveryQ: "", newRecoveryA: "", // 비번 변경 모달 입력값
   showRecoveryModal: false, recoveryAnswerInput: "", // 복구(찾기) 모달
   showRecoverySetupModal: false, setupRecoveryQ: "", setupRecoveryA: "", // 복구질문 설정/변경 모달
+  setupVerifyInput: "", setupVerifyBy: "answer", // 복구질문 바꾸기 전 본인 확인 (answer: 지금 복구 답 · pin: 지금 비밀번호)
   showResetPinModal: false, resetNewPin: "", resetNewPinConfirm: "", // 복구 성공 후 새 PIN만 설정
   isPaidPremium: false, installInfo: null,
 };
@@ -389,6 +390,8 @@ export default function App() {
   const [showRecoverySetupModal,setShowRecoverySetupModal]= useState(initAuth.showRecoverySetupModal);
   const [setupRecoveryQ,    setSetupRecoveryQ]    = useState(initAuth.setupRecoveryQ);
   const [setupRecoveryA,    setSetupRecoveryA]    = useState(initAuth.setupRecoveryA);
+  const [setupVerifyInput,  setSetupVerifyInput]  = useState(initAuth.setupVerifyInput);
+  const [setupVerifyBy,     setSetupVerifyBy]     = useState(initAuth.setupVerifyBy);
   const [isPaidPremium,     setIsPaidPremium]     = useState(initAuth.isPaidPremium);
   const [installInfo,       setInstallInfo]       = useState(initAuth.installInfo);
   // ── 엄마용은 PIN 없이 진입. 단, '보상' 탭과 '위험구역'만 PIN으로 보호 ──
@@ -1891,13 +1894,31 @@ export default function App() {
   };
 
   // 복구질문 설정/변경 (기타탭 전용 모달)
+  /* [보안 수정 2026-11-16 · 사용자 지적] 예전엔 누구나 복구 질문을 새로 정할 수 있었다.
+     엄마용 화면은 아이도 PIN 없이 들어오므로, 아이가 복구 질문을 바꾼 뒤 '비밀번호를 잊으셨나요?'로
+     비밀번호까지 바꿀 수 있었다. 이제 바꾸기 전에 본인 확인을 받는다.
+       · 복구 질문이 이미 있으면: 지금 복구 질문의 답 (답이 기억 안 나면 지금 비밀번호로도 확인 가능)
+       · 아직 없으면(처음 설정): 지금 비밀번호                                            */
+  const closeRecoverySetup=()=>{
+    setShowRecoverySetupModal(false); setSetupRecoveryQ(""); setSetupRecoveryA("");
+    setSetupVerifyInput(""); setSetupVerifyBy("answer");
+  };
   const saveRecoverySetup=()=>{
+    const hasExisting=!!(recoveryQuestion&&recoveryAnswer);
+    const by=hasExisting?setupVerifyBy:"pin";
+    const v=setupVerifyInput.trim();
+    if(by==="answer"){
+      if(!v){ showToast("지금 복구 질문의 답을 먼저 입력해 주세요"); return; }
+      if(v.toLowerCase()!==recoveryAnswer.trim().toLowerCase()){ showToast("지금 복구 질문의 답이 달라요"); return; }
+    } else {
+      if(!v){ showToast("지금 비밀번호를 먼저 입력해 주세요"); return; }
+      if(v!==parentPin){ showToast("비밀번호가 달라요"); return; }
+    }
     const q=setupRecoveryQ.trim(), a=setupRecoveryA.trim();
     if(!q){ showToast("복구 질문을 선택해 주세요"); return; }
     if(!a){ showToast("복구 질문의 답을 입력해 주세요"); return; }
     setRecoveryQuestion(q); setRecoveryAnswer(a);
-    setSetupRecoveryQ(""); setSetupRecoveryA("");
-    setShowRecoverySetupModal(false);
+    closeRecoverySetup();
     showToast("복구 질문이 저장됐어요 🔑");
   };
 
@@ -6320,7 +6341,7 @@ export default function App() {
             onDeleteTmpl:(id)=>{ setTemplates(p=>p.filter(t=>t.id!==id)); showToast("삭제됨"); },
             onPinChange:()=>setShowPinChangeModal(true),
             onOpenExternal:openExternal,
-            onRecoverySetup:()=>{ setSetupRecoveryQ(recoveryQuestion||""); setSetupRecoveryA(""); setShowRecoverySetupModal(true); },
+            onRecoverySetup:()=>{ setSetupRecoveryQ(recoveryQuestion||""); setSetupRecoveryA(""); setSetupVerifyInput(""); setSetupVerifyBy("answer"); setShowRecoverySetupModal(true); },
             recoveryQuestion,
             backup:{ lastDate:lastBackupDate, daysSince:daysSinceBackup, daysSinceInstall,
               nudgeDays:BACKUP_NUDGE_DAYS, nudgeFirstDays:BACKUP_NUDGE_FIRST_DAYS,
@@ -6667,9 +6688,12 @@ export default function App() {
       )}
 
       {/* ── 비밀번호 변경 모달 ── */}
+      {/* [2026-11-16 사용자 제보] 키보드가 올라오면 비밀번호 창(복구 질문 칸 포함)이 화면보다 길어져
+          위가 잘렸다(가운데 정렬 때문). 비밀번호 관련 창 4개는 바깥을 스크롤되게 하고, 상자는 margin:auto 로
+          공간이 남으면 가운데·넘치면 위부터 보이게 한다. */}
       {showPinChangeModal&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>setShowPinChangeModal(false)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)"}}>
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",justifyContent:"center",zIndex:1000,padding:20,overflowY:"auto"}} onClick={()=>setShowPinChangeModal(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)",margin:"auto 0",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
               <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔐 {PT.role} 비밀번호 변경</h3>
               <button onClick={()=>setShowPinChangeModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
@@ -6724,23 +6748,43 @@ export default function App() {
 
       {/* ── 복구 질문 설정/변경 모달 ── */}
       {showRecoverySetupModal&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}} onClick={()=>{ setShowRecoverySetupModal(false); setSetupRecoveryQ(""); setSetupRecoveryA(""); }}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)"}}>
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",justifyContent:"center",zIndex:1000,padding:20,overflowY:"auto"}} onClick={closeRecoverySetup}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)",margin:"auto 0",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
               <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔑 복구 질문 {recoveryQuestion?"변경":"설정"}</h3>
-              <button onClick={()=>{ setShowRecoverySetupModal(false); setSetupRecoveryQ(""); setSetupRecoveryA(""); }} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button onClick={closeRecoverySetup} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
             <p style={{fontSize:11.5,fontWeight:600,color:C.sub,lineHeight:1.5,margin:"0 0 16px"}}>
               비밀번호를 잊었을 때, 이 질문의 답으로 다시 설정할 수 있어요.
               {recoveryQuestion&&<><br/>현재 질문: <b style={{color:th.main}}>{recoveryQuestion}</b></>}
             </p>
-            <label style={lbl}>복구 질문</label>
+            {/* 본인 확인 — 바꾸기 전에 지금 답(또는 지금 비밀번호)을 맞춰야 저장된다 */}
+            {(()=>{
+              const by=(recoveryQuestion&&recoveryAnswer)?setupVerifyBy:"pin";
+              return (
+              <div style={{background:`${th.main}10`,borderRadius:12,padding:"12px 14px",marginBottom:16}}>
+                <label style={{...lbl,marginTop:0}}>{by==="answer"?"본인 확인 · 지금 복구 질문의 답":"본인 확인 · 지금 비밀번호"}</label>
+                {by==="answer"
+                  ? <input type="text" value={setupVerifyInput} onChange={e=>setSetupVerifyInput(e.target.value)}
+                      placeholder="지금 등록된 답 (대소문자 구분 안 함)" style={{...inp,marginBottom:6}}/>
+                  : <input type="password" inputMode="numeric" value={setupVerifyInput} maxLength={4}
+                      onChange={e=>setSetupVerifyInput(e.target.value.replace(/\D/g,"").slice(0,4))}
+                      placeholder="지금 비밀번호 4자리" style={{...inp,marginBottom:6,textAlign:"center",letterSpacing:4,fontSize:20}}/>}
+                {recoveryQuestion&&recoveryAnswer&&(
+                  <button type="button" onClick={()=>{ setSetupVerifyBy(by==="answer"?"pin":"answer"); setSetupVerifyInput(""); }}
+                    style={{background:"none",border:"none",padding:"2px 0",color:th.main,fontSize:12,fontWeight:800,cursor:"pointer",textDecoration:"underline"}}>
+                    {by==="answer"?"답이 기억 안 나요 → 지금 비밀번호로 확인":"지금 복구 질문의 답으로 확인"}
+                  </button>
+                )}
+              </div>);
+            })()}
+            <label style={lbl}>{recoveryQuestion?"새 복구 질문":"복구 질문"}</label>
             <select value={setupRecoveryQ} onChange={e=>setSetupRecoveryQ(e.target.value)}
               style={{...inp,marginBottom:12}}>
               <option value="">질문을 선택하세요</option>
               {RECOVERY_QUESTIONS.map(q=><option key={q} value={q}>{q}</option>)}
             </select>
-            <label style={lbl}>복구 질문의 답</label>
+            <label style={lbl}>{recoveryQuestion?"새 복구 질문의 답":"복구 질문의 답"}</label>
             <input type="text" value={setupRecoveryA} onChange={e=>setSetupRecoveryA(e.target.value)}
               onKeyDown={e=>e.key==="Enter"&&saveRecoverySetup()}
               placeholder="답을 입력 (대소문자 구분 안 함)"
@@ -6749,7 +6793,7 @@ export default function App() {
               style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
               저장
             </button>
-            <button onClick={()=>{ setShowRecoverySetupModal(false); setSetupRecoveryQ(""); setSetupRecoveryA(""); }}
+            <button onClick={closeRecoverySetup}
               style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
               취소
             </button>
@@ -6759,8 +6803,8 @@ export default function App() {
 
       {/* ── 비밀번호 찾기(복구 질문) 모달 ── */}
       {showRecoveryModal&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1100,padding:20}} onClick={()=>{ setShowRecoveryModal(false); setRecoveryAnswerInput(""); }}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)"}}>
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",justifyContent:"center",zIndex:1100,padding:20,overflowY:"auto"}} onClick={()=>{ setShowRecoveryModal(false); setRecoveryAnswerInput(""); }}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)",margin:"auto 0",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
               <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔑 비밀번호 찾기</h3>
               <button onClick={()=>{ setShowRecoveryModal(false); setRecoveryAnswerInput(""); }} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
@@ -6789,8 +6833,8 @@ export default function App() {
 
       {/* ── 복구 성공 후 새 비밀번호 설정 모달 (기존 PIN 불필요) ── */}
       {showResetPinModal&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1100,padding:20}} onClick={()=>{ setShowResetPinModal(false); setResetNewPin(""); setResetNewPinConfirm(""); }}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)"}}>
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",justifyContent:"center",zIndex:1100,padding:20,overflowY:"auto"}} onClick={()=>{ setShowResetPinModal(false); setResetNewPin(""); setResetNewPinConfirm(""); }}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)",margin:"auto 0",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
               <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔓 새 비밀번호 설정</h3>
               <button onClick={()=>{ setShowResetPinModal(false); setResetNewPin(""); setResetNewPinConfirm(""); }} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
