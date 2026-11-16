@@ -2012,7 +2012,7 @@ export default function App() {
          같은 날 여러 번 저장해도 덮어쓰지 않게 시각을 붙인다. 저장이 안 되는 폰(Android 10 이하 등)은 공유창으로. */
       const d=new Date(), hm=`${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}`;
       saveBackupToDevice(text,`missionpang-backup-${TODAY}-${hm}.json`).then(r=>{
-        if(r.ok){ markDone(); showToast(`휴대폰 '내 파일 → 문서 → ${r.folder}'에 저장했어요 💾`); }
+        if(r.ok){ markDone(); showToast(`휴대폰에 백업했어요 💾 내 파일 → Documents → ${r.folder}`); }
         else if(r.reason==="plugin") showToast("이 버전의 앱에서는 백업 파일을 만들 수 없어요. 앱을 업데이트해 주세요");
         else { showToast("이 폰에는 바로 저장이 안 돼요 — 보낼 곳을 골라 주세요"); share(); }
       });
