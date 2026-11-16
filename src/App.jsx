@@ -1142,7 +1142,20 @@ export default function App() {
 
   /* [2026-10-27] 안드로이드 뒤로가기 — 팝업이 떠 있으면 팝업부터 닫고, 없을 때만 앱을 내린다.
      웹에서는 아무 것도 안 한다(utils/native.js). */
-  useEffect(()=>installBackButton(),[]);
+  /* [2026-11-14] 팝업이 없을 때 — 첫 탭이 아니면 첫 탭(엄마용 '홈' / 아이용 '탐험')으로 먼저 가고,
+     첫 탭에서 한 번 더 눌러야 앱을 내린다 (안드로이드 앱의 보통 동작).
+     탭 바에서 홈을 누른 것과 같게 처리한다 — 미션·보상 밖으로 나가면 엄마 권한 잠금이 다시 걸린다. */
+  const backToFirstTabRef=useRef(null);
+  backToFirstTabRef.current=()=>{
+    if(appMode==="parent"){
+      if(tab==="home") return false;
+      setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab("home");
+      return true;
+    }
+    if(childTab!=="area"){ setChildTab("area"); return true; }
+    return false;
+  };
+  useEffect(()=>installBackButton(()=>backToFirstTabRef.current?.()),[]);
 
   // 온보딩 완료: 입력값을 실제 데이터에 반영 → 홈 진입 → 코치마크
   const finishOnboarding=(data)=>{
@@ -5306,8 +5319,11 @@ export default function App() {
         {/* PIN 입력 모달 */}
         {/* 범용 PIN 게이트 모달 (보상탭 진입 · 위험구역 초기화 · 개발자도구 보호) */}
         {gateAction&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}}>
-            <div style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
+          /* [2026-11-14] 바깥을 누르거나 안드로이드 뒤로가기를 누르면 '취소'와 같게 닫는다.
+             예전엔 취소 버튼으로만 닫혀서 뒤로가기가 먹지 않았다 (utils/native.js 는 바깥을 눌러 팝업을 닫는다). */
+          <div onClick={()=>{ markPinHintSeen(); setGateAction(null); setGatePin(""); }}
+            style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}}>
+            <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
               <h3 style={{fontSize:20,fontWeight:900,margin:"0 0 6px",textAlign:"center"}}>🔒 비밀번호 확인</h3>
               <p style={{fontSize:14,fontWeight:700,color:C.sub,textAlign:"center",margin:"0 0 16px"}}>{gateAction.title}</p>
               <input type="password" inputMode="numeric" value={gatePin} autoFocus
@@ -5612,8 +5628,10 @@ export default function App() {
 
       {/* 범용 PIN 게이트 모달 (부모모드: 보상탭 진입 · 위험구역 초기화 보호) */}
       {gateAction&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}}>
-          <div style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
+        /* 바깥·뒤로가기 = 취소 (위 아이 모드 비밀번호 창과 같다) */
+        <div onClick={()=>{ markPinHintSeen(); setGateAction(null); setGatePin(""); }}
+          style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:350,boxSizing:"border-box"}}>
             <h3 style={{fontSize:20,fontWeight:900,margin:"0 0 6px",textAlign:"center"}}>🔒 비밀번호 확인</h3>
             <p style={{fontSize:14,fontWeight:700,color:C.sub,textAlign:"center",margin:"0 0 16px"}}>{gateAction.title}</p>
             <input type="password" inputMode="numeric" value={gatePin} autoFocus

@@ -66,7 +66,8 @@ export const shareBackupFile = async (text, fileName) => {
    맨 위 팝업의 바깥(어두운 배경)을 누른 것처럼 처리해 팝업부터 닫는다 — 이 앱의 팝업은
    대부분 '바깥을 누르면 닫힘'으로 만들어져 있어서 팝업마다 코드를 고치지 않아도 된다.
    바깥을 눌러도 안 닫히는 팝업(확인이 꼭 필요한 창)은 그대로 두고, 팝업이 없을 때만 앱을 내린다.
-   @capacitor/app 이 없으면 아무 것도 등록하지 않는다(예전 동작 그대로). 해제 함수를 돌려준다. */
+   @capacitor/app 이 없으면 아무 것도 등록하지 않는다(예전 동작 그대로). 해제 함수를 돌려준다.
+   onNoPopup(): 팝업이 없을 때 먼저 불린다 — true 를 돌려주면(첫 탭으로 옮김 등) 앱을 내리지 않는다. */
 const topOverlay = () => {
   if (typeof document === "undefined") return null;
   const W = window.innerWidth, H = window.innerHeight;
@@ -86,7 +87,7 @@ const topOverlay = () => {
   return null;
 };
 
-export const installBackButton = () => {
+export const installBackButton = (onNoPopup) => {
   if (!isNativeApp()) return () => {};
   const app = plugin("App");
   if (!app || typeof app.addListener !== "function") return () => {};
@@ -94,6 +95,7 @@ export const installBackButton = () => {
   const onBack = () => {
     const ov = topOverlay();
     if (ov) { ov.click(); return; }                     // 팝업부터 닫는다(안 닫히는 창이면 그대로 둔다)
+    try { if (typeof onNoPopup === "function" && onNoPopup()) return; } catch (e) { /* 실패하면 그냥 내린다 */ }
     if (typeof app.minimizeApp === "function") app.minimizeApp();
     else if (typeof app.exitApp === "function") app.exitApp();
   };
