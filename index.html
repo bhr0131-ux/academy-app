@@ -9,6 +9,23 @@
     <link rel="preload" href="/assets/fonts/cafe24-ssurround.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/stage-adventure-meadow.webp" as="image" fetchpriority="high" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <!-- [2026-11-17 사용자 제보] 안드로이드 앱에서 아래 버튼 줄(내비게이션 바)이 바텀시트·팝업 아래쪽을 덮었다.
+         Capacitor 8 은 viewport-fit=cover 가 있으면 화면을 상태바·내비게이션 바 밑까지 그리고(edge-to-edge)
+         여백은 각 화면이 env(safe-area-inset-*)로 챙기라고 맡기는데, 바텀시트 상당수가 그 여백을 안 둔다.
+         그래서 앱에서만 cover 를 떼어 낸다 → Capacitor 가 웹뷰를 시스템 바 안쪽에 맞춰 넣어 어떤 화면도 가려지지 않는다
+         (SystemBars.java: 페이지가 보일 때 이 meta 를 읽어 결정). 웹(브라우저·아이폰)은 그대로 cover.
+         Capacitor 브리지는 <head> 맨 앞(또는 문서 시작)에 들어오므로 여기서 window.Capacitor 를 볼 수 있다. -->
+    <script>
+      (function () {
+        try {
+          var C = window.Capacitor;
+          var native = !!(C && (window.androidBridge || (C.getPlatform && C.getPlatform() !== "web")));
+          if (!native) return;
+          var m = document.querySelector('meta[name="viewport"]');
+          if (m) m.setAttribute("content", m.getAttribute("content").replace(/,\s*viewport-fit=cover/, ""));
+        } catch (e) {}
+      })();
+    </script>
     <title>미션팡</title>
     <style>
       /* 카페24 써라운드 — 앱 전체 기본 글씨체 (사용자 확정). 앱 내장(로컬) 파일이라
