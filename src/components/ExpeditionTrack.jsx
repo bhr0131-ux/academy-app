@@ -241,7 +241,12 @@ export default function ExpeditionTrack({ date, done: doneReal = 0, total = 0, c
     setWalking(true);
     const to = setTimeout(() => setWalking(false), moveMs + 50);
     return () => clearTimeout(to);
-  }, [t, moveMs]);
+    /* [버그 수정 2026-11-18] moveMs 를 의존값에 두면, 출발 연출이 끝나 이동 시간이 평소 값으로
+       돌아가는 순간 이 효과가 다시 돌면서 '걷기 끝' 타이머를 지우고(정리 함수) 위의 같은-t 검사에서
+       그냥 빠져나가 버렸다 → 걷기 상태가 영원히 켜져 도착해도 만세를 안 했다(사용자 제보).
+       이동 시간은 t 가 바뀐 그 렌더의 값이면 충분하므로 t 만 본다. */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t]);
 
   /* 화면에 들어왔는지 지켜보다가, 들어와 있고 아직 안 떠났으면 출발 */
   useEffect(() => {
