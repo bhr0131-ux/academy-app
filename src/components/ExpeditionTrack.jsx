@@ -2,6 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import { getExpedition, getExpeditionMount, expeditionTitle, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, itemPlaceOf, CHAR_IMG, mountImgOf,
   POSE_MUL, GOAL_MARK_ENABLED } from "../data/expeditions.js";
 
+/* [사용자 제보 2026-11-17 · 아이폰에서만] 캐릭터 둘레에 옅은 네모와 머리 위 띠가 보였다.
+   사파리(아이폰은 모든 브라우저가 사파리 엔진)가 drop-shadow 필터를 그림 크기만큼의 별도 판으로 합성하면서
+   판의 색이 배경과 미세하게 달라지는 렌더링 문제다 — 그림 파일은 깨끗하고 갤럭시·크롬에서는 안 보인다.
+   사파리에서만 캐릭터·탈것·준비물의 흰 테두리/그림자 필터를 끈다 (발밑 접지 그림자는 그대로 남는다). */
+const SAFARI_ENGINE = typeof navigator !== "undefined" && (() => {
+  const ua = navigator.userAgent || "";
+  if (/iP(hone|ad|od)/.test(ua)) return true;                                   // iOS — 크롬·카톡 등도 사파리 엔진
+  if (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) return true;  // 아이패드 데스크톱 모드
+  return /Safari\//.test(ua) && !/Chrome|Chromium|CriOS|Android|FxiOS|EdgiOS|Edg\//.test(ua);  // 맥 사파리
+})();
+const CHAR_GLOW = SAFARI_ENGINE ? "none" : "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 3px 4px rgba(0,0,0,0.3))";
+const ITEM_GLOW = SAFARI_ENGINE ? "none" : "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 1px 2px rgba(0,0,0,0.3))";
+
 /* ════════════════════════════════════════════════════════════════════════
    ExpeditionTrack — 미션 탭 '하루 한 탐험' 씬 (사용자 기획서 확정)
    ────────────────────────────────────────────────────────────────────────
@@ -499,7 +512,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
                 transition: `height ${moveMs}ms cubic-bezier(.45,.05,.35,1)`,
                 transform: facingLeft ? "scaleX(-1)" : undefined,   // 뒤로 갈 땐 왼쪽을 본다 (기획: 좌우 반전)
                 margin: "0 auto",
-                filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 3px 4px rgba(0,0,0,0.3))" }} />
+                filter: CHAR_GLOW }} />
             {/* 준비물 — 앞으로 내민 손 옆에 들린다. 자리·크기·기울기는 데이터에서
                 (expeditions.js 의 ITEM_PLACE). 좌표는 캐릭터 상자 기준 % 라 카드가
                 커져도 손에서 안 떨어진다. 캐릭터가 뒤를 보면 물건도 같이 뒤집는다. */}
@@ -511,7 +524,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
                   height: `${pl.size}%`, zIndex: 2, lineHeight: 1,
                   transform: `translate(-50%,-50%) rotate(${pl.rot}deg)${flip}`,
                   transformOrigin: "50% 50%", display: "block",
-                  filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}>
+                  filter: ITEM_GLOW }}>
                   {item.img
                     ? <img src={item.img} alt="" draggable={false} style={{ height: "100%", width: "auto", display: "block" }} />
                     : <span style={{ fontSize: 15 }}>{item.emoji}</span>}
