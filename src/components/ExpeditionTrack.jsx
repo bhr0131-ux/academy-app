@@ -39,8 +39,27 @@ const ITEM_GLOW = SAFARI_ENGINE ? "none" : "drop-shadow(0 0 2px rgba(255,251,240
    비율 카드(bgAR)에서는 이 값을 기준으로 %로 환산해 카드와 함께 커진다. */
 const CARD_H = 220;
 
-export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "", gender = "boy", fullBleed = false,
+export default function ExpeditionTrack({ date, done: doneReal = 0, total = 0, charImg = "", gender = "boy", fullBleed = false,
   previewKey = "", previewMount }) {
+  /* ── 화면에 들어올 때 출발 [사용자 요청 2026-11-17] ───────────────────────
+     예전엔 미션 탭을 열면 캐릭터가 이미 오늘 갈 자리까지 와 있어서, 아래로 내려와 보면
+     숲을 통과하는 모습을 볼 수 없었다. 이제 이 그림이 화면에 절반 이상 들어오는 순간
+     출발점에서 오늘 진행한 자리까지 걸어간다(날짜마다 한 번). 그 전까지는 출발점에서 기다린다.
+     아래 계산은 전부 '보여 줄 진행도(done)'로 하므로 걷기·착지·만세 연출이 그대로 이어진다.
+     개발자 미리보기(previewKey)는 바로 보여 준다. */
+  const rootRef = useRef(null);
+  const visibleRef = useRef(false);
+  const [played, setPlayed] = useState(!!previewKey);
+  const [introRun, setIntroRun] = useState(false);
+  const playedDate = useRef(previewKey ? date : null);
+  useEffect(() => {                                   // 날짜를 바꾸면 그 날짜로 다시 한 번
+    if (previewKey || playedDate.current === date) return;
+    setPlayed(false);
+  }, [date, previewKey]);
+  const done = played ? doneReal : 0;
+  const doneRealRef = useRef(doneReal); doneRealRef.current = doneReal;
+  /* 출발 — 같은 렌더에서 '긴 이동 시간'도 함께 켜야 CSS 트랜지션이 그 시간으로 걸린다 */
+  const startIntro = () => { setPlayed(true); if (doneRealRef.current > 0) setIntroRun(true); };
   /* previewKey·previewMount: 개발자 도구 미리보기 전용 —
      날짜로 정해지는 챕터·탈것을 무시하고 고른 것을 그린다 (앱 화면은 안 쓴다) */
   const exp = (previewKey && EXPEDITIONS[previewKey]) || getExpedition(date);
@@ -200,7 +219,10 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
 
   /* 이동 시간 — 기본 1.4초. 씬이 moveMs를 주면 그 속도로 (초원=달리기라 조금 빠르게).
      걸음 흔들림 주기도 같이 줄여야 빨리 움직이는 만큼 다리도 바쁘게 보인다. */
-  const moveMs = exp.moveMs ?? 1400;
+  const baseMoveMs = exp.moveMs ?? 1400;
+  /* 출발 연출은 한 번에 여러 칸을 가므로 칸 수만큼 조금 더 길게 (최대 3.2초) */
+  const introMs = Math.min(3200, Math.round(baseMoveMs * Math.max(1, 0.75 * doneReal)));
+  const moveMs = introRun ? introMs : baseMoveMs;
   const stepMs = (moveMs / 1400) * 0.45;   // 초 단위 (기본 0.45s)
 
   /* 방금 이동했는지 — 이동 중에만 걷기 기울임, 도착 순간 점프.
@@ -220,6 +242,28 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
     const to = setTimeout(() => setWalking(false), moveMs + 50);
     return () => clearTimeout(to);
   }, [t, moveMs]);
+
+  /* 화면에 들어왔는지 지켜보다가, 들어와 있고 아직 안 떠났으면 출발 */
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") { setPlayed(true); return; }   // 지켜볼 수 없으면 예전처럼 바로
+    const io = new IntersectionObserver(([e]) => {
+      visibleRef.current = e.isIntersecting && e.intersectionRatio >= 0.5;
+      if (visibleRef.current) startIntro();
+    }, { threshold: [0, 0.5, 1] });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  useEffect(() => {                                   // 날짜를 바꿨는데 이미 화면에 보이고 있으면 곧바로 출발
+    if (!played && visibleRef.current) { const id = setTimeout(startIntro, 250); return () => clearTimeout(id); }
+  }, [played, date]);
+  useEffect(() => { if (played) playedDate.current = date; }, [played, date]);
+  useEffect(() => {                                   // 출발 연출이 끝나면 평소 이동 시간으로
+    if (!introRun) return;
+    const id = setTimeout(() => setIntroRun(false), introMs + 80);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [introRun]);
 
   const dark = !!sc.dark;
   /* 포즈 원화 선택 (사용자 확정) —
@@ -354,7 +398,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
   }, [arrived, moving, landed, needsLanding, landMs]);
 
   return (
-    <div style={{ marginBottom: 14 }}>
+    <div ref={rootRef} style={{ marginBottom: 14 }}>
     {/* ── 제목·진행 칩 — [사용자 확정 2026-07-31] 그림 밖으로 빼서 날짜와 그림 사이에 둔다.
            풀블리드 카드는 좌우로 16px 삐져나와 있으니 헤더는 그만큼 안쪽으로 넣어 본문과 맞춘다.
            그림 위가 아니라 배경(크림색) 위에 놓이므로 어두운 씬에서도 밝은 칩을 쓴다. ── */}
