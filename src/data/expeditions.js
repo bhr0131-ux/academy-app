@@ -363,6 +363,8 @@ export const EXPEDITIONS = {
       fly:{ x0:10, charB:70, x1:80, charB1:82 },
       deco:[[6,28,"☁️",18],[13,64,"🐚",12],[93,26,"🌴",24],[88,66,"🐬",14],[8,84,"🫧",11]] } },
   wood: { key:"wood", title:"숲길을 산책하자!", emoji:"🌲",
+    /* [사용자 확정 2026-11-17] 드래곤(나는 탈것)을 타는 날은 '산책'이 안 맞는다 → expeditionTitle */
+    titleFly:"숲 위를 날아가자!",
     /* Ch1 숲 — 숲길을 산책한다 */
     mounts:["deer","horse","donkey","unicorn","dragon"],
     pose:"walk", item:"lunchbox", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
