@@ -363,6 +363,8 @@ export const EXPEDITIONS = {
       fly:{ x0:10, charB:70, x1:80, charB1:82 },
       deco:[[6,28,"☁️",18],[13,64,"🐚",12],[93,26,"🌴",24],[88,66,"🐬",14],[8,84,"🫧",11]] } },
   wood: { key:"wood", title:"숲길을 산책하자!", emoji:"🌲",
+    /* [사용자 확정 2026-11-17] 드래곤(나는 탈것)을 타는 날은 '산책'이 안 맞는다 → expeditionTitle */
+    titleFly:"숲 위를 날아가자!",
     /* Ch1 숲 — 숲길을 산책한다 */
     mounts:["deer","horse","donkey","unicorn","dragon"],
     pose:"walk", item:"lunchbox", goal:"🏡", goalImg:"assets/expedition/flag/green.webp",   // 숲 = 나뭇잎 깃발
@@ -378,6 +380,8 @@ export const EXPEDITIONS = {
       fly:{ charB:70, charB1:70 },
       deco:[[6,30,"🌳",26],[14,64,"🌼",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🐇",12]] } },
   meadow: { key:"meadow", title:"초원을 달리자!", emoji:"🌾",
+    /* [사용자 확정 2026-11-17] 열기구(나는 탈것)를 타는 날은 '달리자'가 안 맞는다 → 제목만 바꾼다 (expeditionTitle) */
+    titleFly:"초원을 날아가자!",
     /* Ch6 초원 — 풀밭을 달린다 */
     mounts:["horse","balloon","deer","donkey","unicorn"],
     /* [사용자 확정] 초원은 '달리기' — 전용 달리기 원화 + 이동 속도도 조금 빠르게(moveMs) */
@@ -621,6 +625,10 @@ function _pickUpTo(days) {
   }
   return picked;
 }
+
+/* 그날 탈것에 맞는 제목 — 나는 탈것(k:"fly")을 타는 날, 챕터에 titleFly 가 있으면 그것을 쓴다. */
+export const expeditionTitle = (exp, mountKey) =>
+  (exp && mountKey && MOUNTS[mountKey]?.k === "fly" && exp.titleFly) || exp?.title || "";
 
 export function getExpeditionMount(dateStr) {
   const exp = getExpedition(dateStr);
