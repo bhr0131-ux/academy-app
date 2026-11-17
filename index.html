@@ -93,6 +93,17 @@
       .nav-menu-tap:active{background:rgba(90,70,60,0.06)}
       @keyframes navMenuFade{from{opacity:0}to{opacity:1}}
       @keyframes navMenuUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+      /* [2026-11-17 사용자 제보] 떠 있는 창(꾸미기 상점·보물상자·팝업 등)이나 그 뒤 어두운 곳을 밀면
+         창 뒤의 화면이 같이 스크롤돼서 창이 움직이는 것처럼 보였다(스크롤 체이닝).
+         팝업은 전부 인라인 스타일 position:fixed; inset:0 으로 만들어져 있어(30곳 넘음) 하나씩 고치지 않고
+         그 모양을 가진 요소를 한 번에 잡는다 — React 가 인라인 스타일을 "position: fixed; inset: 0px" 로 적는다.
+         · 덮개 자신을 스크롤 상자로 만들고(overflow-y:auto) 끝에서 더 밀어도 뒤로 넘기지 않는다(contain).
+           인라인으로 overflow 를 따로 정한 덮개는 인라인이 우선이라 그대로다.
+         · 덮개 안의 스크롤 목록도 끝에 닿으면 뒤로 넘기지 않는다.
+         창 안 목록은 지금처럼 스크롤된다. */
+      [style*="position: fixed"][style*="inset: 0px"] { overflow-y: auto; overscroll-behavior: contain; }
+      [style*="position: fixed"][style*="inset: 0px"] [style*="overflow-y: auto"],
+      [style*="position: fixed"][style*="inset: 0px"] [style*="overflow: auto"] { overscroll-behavior: contain; }
       /* 가로로 미는 줄에서 스크롤 막대를 숨긴다 — 막대가 글자 위에 겹쳐 보이던 자리용 */
       .noscrollbar{scrollbar-width:none;-ms-overflow-style:none}
       .noscrollbar::-webkit-scrollbar{display:none}
