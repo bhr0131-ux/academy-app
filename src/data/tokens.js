@@ -452,7 +452,7 @@ export const EXTRA_QUEST_ID = "extra_quest";
    붙어 있었다. 학원이 아닌 걸 성으로 그리면 아이가 이게 뭔지 알 수 없다.
    [사용자 확정 2026-09-26] 과녁으로 바꾼다 — 탐험일지의 '추가 미션' 줄과 같은 그림이다. */
 export const EXTRA_QUEST_ICON = "🎯";
-export const DEV_PIN = "9999"; // 개발자 도구 진입용 PIN
+export const DEV_PIN = "0131"; // 개발자 도구 진입용 PIN (사용자 지정 2026-11-17, 예전 9999) — DEV_MODE 가 켜져 있을 때만 동작
 
 // 비밀번호 복구 질문 목록 (콤보 선택)
 export const RECOVERY_QUESTIONS = [
