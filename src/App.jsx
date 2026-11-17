@@ -3903,7 +3903,7 @@ export default function App() {
       showToast("수업 요일을 골라줘"); return;
     }
     const finalName=(newAc.name||"").trim() || kindLabel;
-    const cleaned={...newAc,name:finalName,kind:newAc.kind,kindLabel,fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),account:(newAc.account||"").trim(),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:newAc.schedules||[]};
+    const cleaned={...newAc,name:finalName,kind:newAc.kind,kindLabel,fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),account:(newAc.account||"").trim(),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:(newAc.schedules||[]).map(s=>({...s,duration:Number(s.duration)||40}))};
     setAcademies(prev=>{
       const list=prev[childId]||[];
       return editTarget!==null
@@ -6668,7 +6668,11 @@ export default function App() {
               ))}
             </div>
             <label style={lbl}>필요 {TM.coin} *</label>
-            <input type="number" min="0" value={rewardForm.point} onChange={e=>setRewardForm(p=>({...p,point:Number(e.target.value)}))}
+            <input type="text" inputMode="numeric" value={rewardForm.point}
+              /* [사용자 제보 2026-11-17] 칸을 비우면 곧바로 0이 다시 들어가 지워지지 않고 '010'처럼 뒤에 붙었다
+                 (빈칸을 Number("")=0 으로 바꿔 넣었기 때문). 입력 중에는 글자 그대로 두고 숫자만 받으며
+                 앞자리 0은 뗀다. 저장할 때 숫자로 바꾼다(submit 의 Number(rewardForm.point||0)). */
+              onChange={e=>{ const v=e.target.value.replace(/\D/g,"").replace(/^0+(?=\d)/,"").slice(0,7); setRewardForm(p=>({...p,point:v})); }}
               placeholder="예: 300"
               style={{...inp,marginBottom:20}}/>
             <div style={{background:th.light,border:`1px solid ${th.main}30`,borderRadius:14,padding:"14px",marginBottom:20}}>
@@ -7274,7 +7278,7 @@ export default function App() {
                       onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,time:e.target.value}:s)}))}
                       style={{...inp,flex:1,width:"auto",fontSize:FS.body,padding:"7px 10px",height:34,boxSizing:"border-box"}}/>
                     <input type="number" value={sc.duration}
-                      onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,duration:Number(e.target.value)}:s)}))}
+                      onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,duration:e.target.value===""?"":Number(e.target.value)}:s)}))}  /* 비울 수 있게 — 비운 채 저장하면 40분 (아래 저장 시 정리) */
                       style={{...inp,width:65,fontSize:FS.body,padding:"7px 8px",height:34,boxSizing:"border-box"}}/>
                     <span style={{fontSize:FS.body,color:C.sub,flexShrink:0}}>분</span>
                   </div>
