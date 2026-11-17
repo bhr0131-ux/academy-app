@@ -95,7 +95,9 @@ export const DISCOVERIES = [
   D("beetle",      "bug", "🪲", "딱정벌레",   "common",   "딱정벌레를 발견했어!",         "나무 밑을 살펴봐!"),
   D("caterpillar", "bug", "🐛", "애벌레",     "common",   "애벌레를 만났어!",            "나뭇잎이 오물오물 흔들려!", { kind: "먹이", amount: 1 }),
   D("spider",      "bug", "🕷️", "거미",      "common",   "거미줄이 반짝반짝 빛나!",       "거미줄에 이슬이 맺혔어!"),
-  D("dragonfly",   "bug", "🪰", "잠자리",     "common",   "잠자리가 머리 위를 맴돌아!",     "오늘 나풀나풀 뭔가 날아다녀!"),
+  /* [사용자 확정 2026-11-17] '잠자리'는 이모지에 잠자리 그림이 없어 🪰(파리)로 대신 나와 어색했다 → 개미로 교체.
+     예전에 잠자리를 발견한 기록은 LEGACY_ID 로 개미로 읽힌다(도감 칸 수·발견 수 그대로). */
+  D("ant",         "bug", "🐜", "개미",       "common",   "개미가 줄지어 지나가!",         "누가 과자 부스러기를 옮기고 있어!"),
   D("butterfly",   "bug", "🦋", "파란 나비",   "uncommon", "희귀한 파란 나비를 발견했어!",   "오늘 나풀나풀 뭔가 날아다녀!"),
   D("firefly",     "bug", "✨", "반딧불이",    "uncommon", "반딧불이가 길을 밝혀 줬어!",     "밤에 뭔가 반짝일 것 같아!"),
   D("gold_butterfly", "bug", "🦋", "황금 나비", "rare",    "황금 나비가 날아왔어!",        "오늘 나풀나풀 뭔가 날아다녀!"),
@@ -156,6 +158,7 @@ const LEGACY_ID = {
   monkey:          "banana",          // '원숭이가 바나나를 선물' 문구를 바나나가 이어받음
   star_shell:      "shiny_stone",     // '별무늬 조개' 은퇴 → 가장 가까운 수집품
   rainbow_feather: "feather_rainbow",
+  dragonfly:       "ant",             // 잠자리(그림이 파리였음) → 개미 (2026-11-17)
   gold_egg:        "dragon_egg",      // 전설 알 → 드래곤 알
   crystal:         "crystal_shard",
 };
