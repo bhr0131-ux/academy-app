@@ -74,7 +74,7 @@ import { Fragment, useState, useEffect, useRef } from "react";
    주의: 정식 "위험구역" 초기화(resetGameData/resetAllAppData)는 사용자 기능이라
         이 플래그와 무관하게 항상 동작한다.
    ════════════════════════════════════════════════════════════════════════ */
-const DEV_MODE = false; // ★ 2026-10-27 사용자 요청(출시 준비)으로 끔. 다시 켤 땐 사용자 확인 (2026-07-20~10-27 켜 둠)
+const DEV_MODE = true; // ★ 2026-11-17 사용자 요청으로 다시 켬. 출시용 AAB 전엔 반드시 false (tools/update-harang-app.ps1 가 앱 폴더에서 끌지 묻는다) — 끄기 전 사용자 확인
 
 /* 미션 보상의 코인 — XP(=point)는 그대로 두고 코인만 QUEST_COIN_MUL 배 (tokens.js 주석 참고).
    지급하는 곳과 "💎 +N 코인"이라고 보여 주는 곳이 반드시 같은 값을 써야 해서 함수로 뺐다.
