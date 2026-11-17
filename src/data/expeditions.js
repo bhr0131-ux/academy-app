@@ -378,6 +378,8 @@ export const EXPEDITIONS = {
       fly:{ charB:70, charB1:70 },
       deco:[[6,30,"🌳",26],[14,64,"🌼",13],[93,30,"🌳",26],[87,66,"🌿",14],[9,84,"🐇",12]] } },
   meadow: { key:"meadow", title:"초원을 달리자!", emoji:"🌾",
+    /* [사용자 확정 2026-11-17] 열기구(나는 탈것)를 타는 날은 '달리자'가 안 맞는다 → 제목만 바꾼다 (expeditionTitle) */
+    titleFly:"초원을 날아가자!",
     /* Ch6 초원 — 풀밭을 달린다 */
     mounts:["horse","balloon","deer","donkey","unicorn"],
     /* [사용자 확정] 초원은 '달리기' — 전용 달리기 원화 + 이동 속도도 조금 빠르게(moveMs) */
@@ -621,6 +623,10 @@ function _pickUpTo(days) {
   }
   return picked;
 }
+
+/* 그날 탈것에 맞는 제목 — 나는 탈것(k:"fly")을 타는 날, 챕터에 titleFly 가 있으면 그것을 쓴다. */
+export const expeditionTitle = (exp, mountKey) =>
+  (exp && mountKey && MOUNTS[mountKey]?.k === "fly" && exp.titleFly) || exp?.title || "";
 
 export function getExpeditionMount(dateStr) {
   const exp = getExpedition(dateStr);

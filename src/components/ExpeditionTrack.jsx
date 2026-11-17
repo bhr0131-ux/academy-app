@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getExpedition, getExpeditionMount, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, itemPlaceOf, CHAR_IMG, mountImgOf,
+import { getExpedition, getExpeditionMount, expeditionTitle, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, itemPlaceOf, CHAR_IMG, mountImgOf,
   POSE_MUL, GOAL_MARK_ENABLED } from "../data/expeditions.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -354,7 +354,7 @@ export default function ExpeditionTrack({ date, done = 0, total = 0, charImg = "
         borderRadius: 12, padding: "5px 11px", boxShadow: "0 2px 6px rgba(0,0,0,0.08)" }}>
         <p style={{ margin: 0, minWidth: 0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 0.5, color: "rgba(90,68,48,0.75)" }}>오늘의 탐험</span>
-          <span style={{ fontSize: 14.5, fontWeight: 900, marginLeft: 7, color: "#4B3A2F" }}>{exp.emoji} {exp.title}</span>
+          <span style={{ fontSize: 14.5, fontWeight: 900, marginLeft: 7, color: "#4B3A2F" }}>{exp.emoji} {expeditionTitle(exp, mount ? mountKey : null)}</span>
         </p>
         {total > 0 && (
           /* [사용자 확정] '탐험 성공!' 문구는 뺀다 — 도착해도 숫자만 (연출은 만세 포즈로 충분) */
