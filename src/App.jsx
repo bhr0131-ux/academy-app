@@ -40,6 +40,7 @@ import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
 import { SupplyCheckModal, MissionCheckModal } from "./components/parent/TodayCareModals.jsx";
 import { isNativeApp, shareBackupFile, saveBackupToDevice, installBackButton } from "./utils/native.js";
+import { playSfx, setSfxEnabled } from "./utils/sfx.js";
 import CharacterGrid from "./components/camp/CharacterGrid.jsx";
 import LevelSheet from "./components/camp/LevelSheet.jsx";
 import DecorShopSheet from "./components/camp/DecorShopSheet.jsx";
@@ -154,6 +155,7 @@ const initOnboarding = {
   showOnboarding: false, showCoachmark: false, showKidCoachmark: false, showModeSelect: false,
   firstTipPending: false, firstTipSeen: false,
   pinHintSeen: false,
+  sfxOn: true,   // 효과음 켜기/끄기 — 새 키 v6_sfx_on (사용자 확정 2026-11-18, 기본 켜짐)
 };
 /* '더보기' 안에 묶인 화면들 (사용자 확정 2026-08-09: 하단 메뉴 5칸으로 줄이면서 통합) */
 /* [사용자 확정 2026-08-19] 달력을 '더보기' 밖으로 꺼내 미션 옆 칸으로 올렸다.
@@ -408,6 +410,7 @@ export default function App() {
   const [firstTipSeen,          setFirstTipSeen]          = useState(initOnboarding.firstTipSeen);
   // 온보딩 직후 첫 홈 화면에서 '학원 추가' → '미션·준비물 편집' 순서로 1회성 버튼 깜빡임 안내
   const [pinHintSeen,           setPinHintSeen]           = useState(initOnboarding.pinHintSeen);
+  const [sfxOn,                 setSfxOn]                 = useState(initOnboarding.sfxOn);
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
@@ -882,6 +885,8 @@ export default function App() {
       if(tipSeen) setFirstTipSeen(true);
       const pinHint=await load("v6_pin_hint_seen");
       if(pinHint) setPinHintSeen(true);
+      const sfxSaved=await load("v6_sfx_on");          // 없으면(처음) 켜짐
+      if(sfxSaved===false){ setSfxOn(false); setSfxEnabled(false); }
       const rAge=await load("v6_reward_age_group");
       if(rAge) setRewardAgeFallback(rAge);
       const rAgeBy=await load("v6_reward_age_by_child");
@@ -1032,6 +1037,7 @@ export default function App() {
   const handleSparkPass=(d)=>{
     if(!loaded||!childId) return;
     if(!canDiscoverOn(childId,d)) return;
+    if(!getDiscoveryOn(discoveryData,childId,d)) playSfx("discovery");   // 오늘 처음 발견할 때만 반짝
     /* [정리 2026-08-15] 예전엔 렌더 시점의 discoveryData 로 '이미 있나'를 보고
        그 값에서 만든 결과를 통째로 덮어썼다. 한 틱에 두 번 불리면 뒤엣것이
        앞엣것을 지울 수 있는 모양이라, prev 기준으로 판단하고 바꾼다
@@ -1241,31 +1247,8 @@ export default function App() {
   // 완료 순간 화면 중앙에 큰 보상 연출을 띄운다 (스크롤 위치와 무관하게 항상 보임, 아이 모드 전용)
   const CHEER_MSGS = ["대단해! 🎉","최고야! ⭐","멋지다! 💪","해냈어! 🔥","굿잡! 👍","완벽해! ✨","좋았어! 😆","척척박사! 🧠"];
   // 미션 완료 효과음 — 음원 파일 없이 Web Audio로 생성 (베이커리: 말랑 팝 / 탐험: 코인 획득)
-  const audioCtxRef=useRef(null);
-  const playCompleteSound=()=>{
-    try{
-      if(!audioCtxRef.current) audioCtxRef.current=new (window.AudioContext||window.webkitAudioContext)();
-      const c=audioCtxRef.current;
-      if(c.state==="suspended") c.resume();
-      const tone=({freq,start,dur,type="sine",gain=0.22,slideTo=null})=>{
-        const o=c.createOscillator(), g=c.createGain();
-        o.type=type; o.frequency.setValueAtTime(freq, c.currentTime+start);
-        if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, c.currentTime+start+dur);
-        g.gain.setValueAtTime(0.0001, c.currentTime+start);
-        g.gain.exponentialRampToValueAtTime(gain, c.currentTime+start+0.012);
-        g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime+start+dur);
-        o.connect(g); g.connect(c.destination);
-        o.start(c.currentTime+start); o.stop(c.currentTime+start+dur+0.05);
-      };
-      if(kidSkin==="cute"){ // 베이커리: 말랑 팝
-        tone({freq:520,start:0,dur:0.16,type:"sine",gain:0.28,slideTo:920});
-        tone({freq:1200,start:0.13,dur:0.2,type:"sine",gain:0.16});
-      } else {             // 탐험: 코인 획득
-        tone({freq:988,start:0,dur:0.09,type:"square",gain:0.16});
-        tone({freq:1318,start:0.08,dur:0.28,type:"square",gain:0.16});
-      }
-    }catch(e){/* 오디오 미지원 환경은 조용히 무시 */}
-  };
+  /* [2026-11-18] 효과음은 utils/sfx.js 로 모았다 (소리 켜기/끄기도 거기서 지킨다). 미션 완료 소리는 예전 그대로. */
+  const playCompleteSound=()=>playSfx("complete",kidSkin);
   const cheerCharacter=(xp=DEFAULT_HOMEWORK_SCORE)=>{
     const msg=CHEER_MSGS[Math.floor(Math.random()*CHEER_MSGS.length)];
     setCharCheer({msg,xp,key:Date.now()});
@@ -3239,6 +3222,7 @@ export default function App() {
       }};
     });
     // 오픈 애니메이션 → 딜레이 후 결과 모달
+    playSfx("chestOpen");
     setOpeningTreasure(true);
     setTimeout(()=>{
       setOpeningTreasure(false);
@@ -3576,6 +3560,7 @@ export default function App() {
     if(eventQueue.length===0) return;
     const nextEvent=eventQueue[0];
     setEventModal(nextEvent);
+    if(appMode==="child"&&(nextEvent.type==="level"||nextEvent.type==="title")) playSfx("levelUp");   // 레벨업·상장 팡파르
     setEventQueue(prev=>prev.slice(1));
   },[eventQueue,eventModal,openingTreasure,treasureModal]);
 
@@ -6340,6 +6325,7 @@ export default function App() {
             onEditTmpl:(t)=>{ setShowTmplEdit(t.id); setEditTmpl({title:t.title,body:t.body}); },
             onDeleteTmpl:(id)=>{ setTemplates(p=>p.filter(t=>t.id!==id)); showToast("삭제됨"); },
             onPinChange:()=>setShowPinChangeModal(true),
+            sfx:{ on:sfxOn, toggle:()=>{ const v=!sfxOn; setSfxOn(v); setSfxEnabled(v); save("v6_sfx_on",v); if(v) playSfx("discovery"); } },
             onOpenExternal:openExternal,
             onRecoverySetup:()=>{ setSetupRecoveryQ(recoveryQuestion||""); setSetupRecoveryA(""); setSetupVerifyInput(""); setSetupVerifyBy("answer"); setShowRecoverySetupModal(true); },
             recoveryQuestion,

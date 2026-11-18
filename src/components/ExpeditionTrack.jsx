@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getExpedition, getExpeditionMount, expeditionTitle, EXPEDITIONS, MOUNTS, ADVENTURE_ITEMS, itemPlaceOf, CHAR_IMG, mountImgOf,
   POSE_MUL, GOAL_MARK_ENABLED } from "../data/expeditions.js";
+import { playSfx } from "../utils/sfx.js";
 
 /* [사용자 제보 2026-11-17 · 아이폰에서만] 캐릭터 둘레에 옅은 네모와 머리 위 띠가 보였다.
    사파리(아이폰은 모든 브라우저가 사파리 엔진)가 drop-shadow 필터를 그림 크기만큼의 별도 판으로 합성하면서
@@ -303,6 +304,13 @@ export default function ExpeditionTrack({ date, done: doneReal = 0, total = 0, c
   /* 착지 중 = 도착했고 이동은 끝났는데, 아직 탄 채로 내려오는 구간 */
   const landing = arrived && !moving && needsLanding && !landed;
   const celebrating = arrived && !moving && !landing;
+  /* [사용자 확정 2026-11-18] 도착해 만세하는 순간 '따다다단!' — 걸어서(또는 착지해서) 막 도착했을 때만.
+     처음부터 만세 상태로 그려지는 경우(개발자 미리보기)는 소리 없이. */
+  const wasCelebrating = useRef(celebrating);
+  useEffect(() => {
+    if (celebrating && !wasCelebrating.current && !previewKey) playSfx("arrive");
+    wasCelebrating.current = celebrating;
+  }, [celebrating, previewKey]);
   /* idlePose: 출발지가 땅이 아닌 씬(바다)은 서 있는 대신 물에 떠 있게 (씬이 정한다) */
   /* 탈것을 실제로 타고 있는 상태 — 도착해 만세할 땐 내려서 성공 포즈 */
   const riding = !!mount && !celebrating;

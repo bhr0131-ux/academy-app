@@ -40,7 +40,7 @@ export default function EtcTab({ D }) {
     th, CT, TM, childId, children = [], kidSkin, getSkin, bakeryEnabled, skinChosen,
     onOpenGuide, onOpenModeSelect, xp,
     smsOpen, setSmsOpen, templates = [], onNewTmpl, onEditTmpl, onDeleteTmpl,
-    onPinChange, onOpenExternal, onRecoverySetup, recoveryQuestion,
+    onPinChange, onOpenExternal, onRecoverySetup, recoveryQuestion, sfx,
     backup = {}, onResetChild, onResetAll,
   } = D;
   /* [2026-10-30] 개인정보처리방침 — 플레이스토어 정책상 앱 안에서도 볼 수 있어야 한다.
@@ -164,6 +164,22 @@ export default function EtcTab({ D }) {
           {recoveryQuestion?"복구 질문 변경":"복구 질문 설정"}
         </button>
       </div>
+
+      {/* [사용자 확정 2026-11-18] 효과음 켜기/끄기 — 학원·밤에 쓸 때. 끄면 모든 효과음이 안 난다 */}
+      {sfx && (
+        <div style={{...card,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+          <div>
+            <p style={{...title,margin:"0 0 4px"}}>{sfx.on?"🔊":"🔇"} 효과음</p>
+            <p style={{...sub,margin:0}}>미션 완료·레벨업·보물상자·탐험 도착·발견 소리</p>
+          </div>
+          <button type="button" role="switch" aria-checked={sfx.on} onClick={sfx.toggle}
+            style={{flexShrink:0,width:52,height:30,borderRadius:999,border:"none",cursor:"pointer",position:"relative",
+              background:sfx.on?th.main:"#CBD5E1",transition:"background .2s"}}>
+            <span style={{position:"absolute",top:3,left:sfx.on?25:3,width:24,height:24,borderRadius:"50%",background:"#fff",
+              boxShadow:"0 1px 3px rgba(0,0,0,0.25)",transition:"left .2s"}}/>
+          </button>
+        </div>
+      )}
 
       {/* 데이터 관리 */}
       <div style={card}>
