@@ -161,6 +161,10 @@ const MAP_LONG = {
      (사용자가 지도에 그려 준 자리). 값은 [중심x%, 중심y%, 폭%, 기울기°].
      이후 한 번 더 위·왼쪽으로 (27,12 → 19,7). 나침반(동서남북)을 가려도 된다고 확인받았다. */
   evImg: { ev_rainbow: [19, 7, 30, -15] },
+  /* [사용자 확정 2026-11-18] 무지개가 뜨는 날엔 그 밑의 나침반(지도 원화에 그려진 것)을 지운다 —
+     무지개가 나침반 위에 반쯤 걸쳐 지저분해 보였다. 나침반 자리만 하늘색으로 메운 조각을 얹는다.
+     [왼쪽%, 위%, 폭%] — art-src/tools/compass_cover.py 가 원화에서 만든 값 그대로. */
+  compassCover: ["assets/map-ev/compass-cover.webp", 3.390, 2.645, 26.554],
   yr: 1777 / 885,
   bw: 14.4, fs: 13.6, // 건물 표시 폭(%)·이모지 크기 (사용자 조정 2026-08-12: 여기서 20% 더 축소 18→14.4)
   fpk: 46,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 64→46)
@@ -246,6 +250,7 @@ const MAP_SHORT = {
              ev_boar: [87.8, 74.1, 17], ev_frog: [17.4, 66.7, 16.2],
              ev_turtle: [78, 84, 17] },
   evImg: { ev_rainbow: [19, 7.5, 31, -15] },
+  compassCover: ["assets/map-ev/compass-cover-short.webp", 3.441, 2.660, 26.559],   // 무지개 날 나침반 지우기 (긴 지도와 같음)
   yr: 1692 / 930,
   bw: 15.96, fs: 14.44, // 짧은 지도 건물 크기 (사용자 조정 2026-08-12: 20% 축소 21→16.8 뒤 짧은 지도만 5% 더 16.8→15.96)
   fpk: 36,          // 발자국 개수 (경로 등간격) — 적을수록 간격이 넓어짐 (사용자 조정: 50→36)
@@ -802,6 +807,12 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
              동물 일곱에 합류해 하루 두 마리 뽑기에 들어갔고, 여기 남은 건 무지개뿐이다.
              무지개는 땅에 서지 않으므로 중심 기준으로 놓고, 동물이 아니라 👋도 안 붙인다.
              나오는 빈도는 rollRainbow(5%)가 정한다 — 동물보다 드물게. ── */}
+      {/* 무지개 날 — 나침반 자리를 하늘로 덮는다 (무지개보다 아래, 지도 바로 위) */}
+      {showRainbow && M.evImg?.ev_rainbow && M.compassCover && (
+        <img src={M.compassCover[0]} alt="" draggable={false} aria-hidden="true"
+          style={{ position: "absolute", left: `${M.compassCover[1]}%`, top: `${M.compassCover[2]}%`,
+            width: `${M.compassCover[3]}%`, height: "auto", display: "block", pointerEvents: "none", zIndex: 1 }} />
+      )}
       {showRainbow && M.evImg?.ev_rainbow && (() => {
         const [ax, ay, aw, arot] = M.evImg.ev_rainbow;
         return (
