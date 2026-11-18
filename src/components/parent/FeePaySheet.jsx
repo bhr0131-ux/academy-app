@@ -61,7 +61,7 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
       display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: "22px 22px 0 0",
         padding: "10px 18px calc(26px + env(safe-area-inset-bottom))", width: "100%", maxWidth: 430,
-        boxSizing: "border-box", maxHeight: "88vh", overflowY: "auto", fontFamily: F }}>
+        boxSizing: "border-box", maxHeight: "calc(var(--am-vh, 100vh) * 0.88)", overflowY: "auto", fontFamily: F }}>
         {/* 드래그 손잡이 (장식) — 다른 바텀시트와 같은 모양 */}
         <div aria-hidden="true" style={{ width: 38, height: 4, borderRadius: 999,
           background: tone.border, margin: "0 auto 12px" }} />

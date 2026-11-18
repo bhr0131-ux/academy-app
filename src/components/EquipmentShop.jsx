@@ -301,7 +301,10 @@ export default function EquipmentShop({
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "100%", maxWidth: 460, height: "94vh", maxHeight: 880, overflow: "hidden",
+          /* [2026-11-18] 높이를 94vh → '주소창이 보일 때의 화면 높이(--am-vh, index.html)'의 94%로.
+             휴대폰 브라우저의 vh 는 주소창이 접힌 높이라, 주소창이 보이면 창 아래(구매 버튼·목록 끝)가
+             화면 밖으로 밀려 목록이 끝까지 안 내려가는 것처럼 보일 수 있었다. 다른 바텀시트도 같은 식으로 맞췄다. */
+          width: "100%", maxWidth: 460, height: "calc(var(--am-vh, 100vh) * 0.94)", maxHeight: 880, overflow: "hidden",
           background: C.card, borderRadius: 24, display: "flex", flexDirection: "column",
           boxShadow: "0 24px 60px rgba(0,0,0,0.3)",
         }}

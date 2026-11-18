@@ -48,7 +48,7 @@ export default function LevelSheet({
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 4000,
       background: "rgba(20,16,32,0.55)", backdropFilter: "blur(3px)",
       display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 460, maxHeight: "88vh",
+      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 460, maxHeight: "calc(var(--am-vh, 100vh) * 0.88)",
         overflow: "hidden", background: PAPER, borderRadius: "24px 24px 0 0", fontFamily: F,
         display: "flex", flexDirection: "column", boxShadow: "0 -12px 40px rgba(0,0,0,0.3)" }}>
 

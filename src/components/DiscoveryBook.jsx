@@ -47,7 +47,7 @@ export default function DiscoveryBook({ open, onClose, data, childId, childName 
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "100%", maxWidth: 460, maxHeight: "92vh", overflow: "hidden",
+          width: "100%", maxWidth: 460, maxHeight: "calc(var(--am-vh, 100vh) * 0.92)", overflow: "hidden",
           background: "#FBF4E4", borderRadius: 26, display: "flex", flexDirection: "column",
           boxShadow: "0 24px 60px rgba(0,0,0,0.3)", border: "2px solid #D9C08C",
         }}
