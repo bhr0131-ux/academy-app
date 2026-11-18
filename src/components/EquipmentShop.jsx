@@ -93,7 +93,11 @@ const useStageSize = (active) => {
     ro.observe(el);
     return () => ro.disconnect();
   }, [active]);
-  const size = Math.max(bounds.min, Math.min(box || bounds.min, bounds.max));
+  /* [사용자 확정 2026-11-18] 탭(모자·옷·신발…)마다 미리보기 크기가 min~max 사이에서 달라 보였다
+     → 화면 크기로 정한 한 값(max)으로 고정한다. 탭을 바꿔도 아바타 크기·목록 시작 위치가 그대로다.
+     (box 측정은 남겨 둔다 — 다시 '남는 만큼'으로 돌릴 때 이 줄만 되돌리면 된다) */
+  void box;
+  const size = bounds.max;
   return [ref, size, bounds];
 };
 
@@ -351,7 +355,7 @@ export default function EquipmentShop({
         <div ref={stageRef} style={{
           /* 먼저 최대치(max)를 차지하고, 목록이 자리를 더 달라고 할 때만 min 까지 줄어든다.
              둘 다 grow 로 두면 남는 자리를 반씩 나눠 가져 무대가 최대치에 못 닿는다. */
-          flex: "0 1 auto", height: stageLimit.max + 8, minHeight: stageLimit.min + 8,
+          flex: "0 0 auto", height: stageLimit.max + 8, minHeight: stageLimit.max + 8,   // 고정 크기 (2026-11-18)
           position: "relative", padding: "4px 0",
           display: "flex", alignItems: "center", justifyContent: "center", background: G.soft,
         }}>
