@@ -34,6 +34,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 import { useEffect, useMemo, useRef, useState } from "react";
 import EmojiIcon from "./EmojiIcon.jsx";
+import { playSfx } from "../utils/sfx.js";
 
 // 지도 2종 (v5 파스텔 원화 — 이미 저채도라 배경 보정 없이 원본 사용): 0~3곳=짧은 지도 / 4곳 이상=긴 지도
 // 학원 건물 아이콘 4종 (정글 세트) — 배치 순서대로 순환 사용 (원화 무수정, 위치·크기만 조정)
@@ -505,6 +506,14 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
      아이 그림 폭이 지도 폭의 약 11%(±5.3)라, 상자 오른쪽 끝보다 그만큼 더 오른쪽이어야 안 겹친다. */
   const [cx, cy] = pointAt(t);
   const chestParty = mode === "past" || (mode === "today" && arrived);
+  /* [사용자 요청 2026-11-19] 오늘 학원을 다 다녀와 상자가 '열리는 순간' 짜잔!
+     오늘 지도에서 닫혀 있던 상자가 열릴 때만 (지난 날짜는 처음부터 열려 있어 소리 없음).
+     지도를 열 때마다 아이가 길을 다시 걸어 상자를 여는 연출이라, 소리도 그때마다 함께 난다. */
+  const chestWasOpen = useRef(chestParty);
+  useEffect(() => {
+    if (chestParty && !chestWasOpen.current && mode === "today") playSfx("tada");
+    chestWasOpen.current = chestParty;
+  }, [chestParty, mode]);
   // (삭제됨) 아이 머리 위 발견 말풍선 — 무대의 발견 한 줄과 중복이라 뺐다 (사용자 확정).
   // 대신 발견 지점의 "{이모지} 발견!" 칩이 사라지지 않고 계속 남는다.
 
