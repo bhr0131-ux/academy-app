@@ -53,7 +53,7 @@ export default function ItemShopSheet({ open, onClose, dark, skin = "dungeon", c
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 4000,
       background: "rgba(20,16,32,0.55)", backdropFilter: "blur(3px)",
       display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 460, height: "88vh",
+      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 460, height: "calc(var(--am-vh, 100vh) * 0.88)",
         overflow: "hidden", background: dark ? CAMP_SHEET.bodyBg : "#fff", borderRadius: "24px 24px 0 0",
         display: "flex", flexDirection: "column", boxShadow: "0 -12px 40px rgba(0,0,0,0.3)" }}>
 

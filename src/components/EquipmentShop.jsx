@@ -93,7 +93,11 @@ const useStageSize = (active) => {
     ro.observe(el);
     return () => ro.disconnect();
   }, [active]);
-  const size = Math.max(bounds.min, Math.min(box || bounds.min, bounds.max));
+  /* [사용자 확정 2026-11-18] 탭(모자·옷·신발…)마다 미리보기 크기가 min~max 사이에서 달라 보였다
+     → 화면 크기로 정한 한 값(max)으로 고정한다. 탭을 바꿔도 아바타 크기·목록 시작 위치가 그대로다.
+     (box 측정은 남겨 둔다 — 다시 '남는 만큼'으로 돌릴 때 이 줄만 되돌리면 된다) */
+  void box;
+  const size = bounds.max;
   return [ref, size, bounds];
 };
 
@@ -297,7 +301,10 @@ export default function EquipmentShop({
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "100%", maxWidth: 460, height: "94vh", maxHeight: 880, overflow: "hidden",
+          /* [2026-11-18] 높이를 94vh → '주소창이 보일 때의 화면 높이(--am-vh, index.html)'의 94%로.
+             휴대폰 브라우저의 vh 는 주소창이 접힌 높이라, 주소창이 보이면 창 아래(구매 버튼·목록 끝)가
+             화면 밖으로 밀려 목록이 끝까지 안 내려가는 것처럼 보일 수 있었다. 다른 바텀시트도 같은 식으로 맞췄다. */
+          width: "100%", maxWidth: 460, height: "calc(var(--am-vh, 100vh) * 0.94)", maxHeight: 880, overflow: "hidden",
           background: C.card, borderRadius: 24, display: "flex", flexDirection: "column",
           boxShadow: "0 24px 60px rgba(0,0,0,0.3)",
         }}
@@ -351,7 +358,7 @@ export default function EquipmentShop({
         <div ref={stageRef} style={{
           /* 먼저 최대치(max)를 차지하고, 목록이 자리를 더 달라고 할 때만 min 까지 줄어든다.
              둘 다 grow 로 두면 남는 자리를 반씩 나눠 가져 무대가 최대치에 못 닿는다. */
-          flex: "0 1 auto", height: stageLimit.max + 8, minHeight: stageLimit.min + 8,
+          flex: "0 0 auto", height: stageLimit.max + 8, minHeight: stageLimit.max + 8,   // 고정 크기 (2026-11-18)
           position: "relative", padding: "4px 0",
           display: "flex", alignItems: "center", justifyContent: "center", background: G.soft,
         }}>

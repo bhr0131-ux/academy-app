@@ -168,10 +168,8 @@ export default function EtcTab({ D }) {
       {/* [사용자 확정 2026-11-18] 효과음 켜기/끄기 — 학원·밤에 쓸 때. 끄면 모든 효과음이 안 난다 */}
       {sfx && (
         <div style={{...card,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
-          <div>
-            <p style={{...title,margin:"0 0 4px"}}>{sfx.on?"🔊":"🔇"} 효과음</p>
-            <p style={{...sub,margin:0}}>미션 완료·레벨업·보물상자·탐험 도착·발견 소리</p>
-          </div>
+          {/* [사용자 확정 2026-11-19] 제목은 '효과음 켜기/끄기' 한 줄, 아래 설명 문구는 뺐다 */}
+          <p style={{...title,margin:0}}>{sfx.on?"🔊":"🔇"} 효과음 켜기/끄기</p>
           <button type="button" role="switch" aria-checked={sfx.on} onClick={sfx.toggle}
             style={{flexShrink:0,width:52,height:30,borderRadius:999,border:"none",cursor:"pointer",position:"relative",
               background:sfx.on?th.main:"#CBD5E1",transition:"background .2s"}}>

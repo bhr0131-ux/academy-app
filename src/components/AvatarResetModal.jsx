@@ -31,7 +31,7 @@ export default function AvatarResetModal({ notice, onClose }) {
       <div
         onClick={(e)=>e.stopPropagation()}
         style={{
-          width:"100%", maxWidth:380, maxHeight:"84vh", overflowY:"auto",
+          width:"100%", maxWidth:380, maxHeight: "calc(var(--am-vh, 100vh) * 0.84)", overflowY:"auto",
           background:C.card, borderRadius:RAD.lg, boxShadow:SHADOW.lg,
         }}
       >
