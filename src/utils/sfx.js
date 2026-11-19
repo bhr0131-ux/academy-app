@@ -4,7 +4,9 @@
    [사용자 확정 2026-11-18] 미션 완료 소리 하나뿐이던 것을 늘렸다:
      complete  미션 완료 (베이커리: 말랑 팝 / 탐험: 코인 획득 — 예전 소리 그대로)
      levelUp   레벨업 · 상장 — 올라가는 4음 팡파르
-     chestOpen 보물상자 열기 — 덜컹 + 반짝반짝
+     chestOpen 보물상자 열기 — 덜컹 + 반짝반짝 (결과 창이 뜨는 순간)
+     drumRoll  보물상자 여는 중 '두구두구…' — 점점 빨라지고 커지는 북소리
+               [사용자 요청 2026-11-19] 오픈 연출(1.2초) 동안 울리고, 결과 창에서 chestOpen 이 '짠!'
      arrive    탐험 도착 만세 — 짧은 '따다다단!'
      discovery 오늘의 발견 — 높은 반짝 두 번
    소리 켜기/끄기는 setSfxEnabled 로 (App 이 저장 키 v6_sfx_on 에서 읽어 넣는다 — 새 키).
@@ -47,6 +49,39 @@ const tone = (c, { freq, start = 0, dur = 0.15, type = "sine", gain = 0.18, slid
   o.start(t0); o.stop(t0 + dur + 0.05);
 };
 
+/* 북·스네어 같은 '타격음' — 짧은 잡음(스네어 결) + 낮게 떨어지는 사인(북 몸통) */
+let noiseBuf = null;
+const getNoise = (c) => {
+  if (noiseBuf && noiseBuf.sampleRate === c.sampleRate) return noiseBuf;
+  const len = Math.floor(c.sampleRate * 0.2);
+  noiseBuf = c.createBuffer(1, len, c.sampleRate);
+  const d = noiseBuf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  return noiseBuf;
+};
+const drumHit = (c, { start = 0, gain = 0.2, pitch = 140 }) => {
+  const t0 = c.currentTime + start;
+  // 북 몸통
+  const o = c.createOscillator(), og = c.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(pitch, t0);
+  o.frequency.exponentialRampToValueAtTime(pitch * 0.55, t0 + 0.09);
+  og.gain.setValueAtTime(0.0001, t0);
+  og.gain.exponentialRampToValueAtTime(gain, t0 + 0.004);
+  og.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.11);
+  o.connect(og); og.connect(c.destination);
+  o.start(t0); o.stop(t0 + 0.14);
+  // 스네어 결(잡음)
+  const n = c.createBufferSource(); n.buffer = getNoise(c);
+  const f = c.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 1800; f.Q.value = 0.8;
+  const ng = c.createGain();
+  ng.gain.setValueAtTime(0.0001, t0);
+  ng.gain.exponentialRampToValueAtTime(gain * 0.45, t0 + 0.003);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.06);
+  n.connect(f); f.connect(ng); ng.connect(c.destination);
+  n.start(t0); n.stop(t0 + 0.08);
+};
+
 const SOUNDS = {
   complete: (c, skin) => {
     if (skin === "cute") {                                   // 베이커리: 말랑 팝
@@ -65,6 +100,15 @@ const SOUNDS = {
   chestOpen: (c) => {                                        // 덜컹(낮게 미끄러짐) → 반짝반짝
     tone(c, { freq: 180, dur: 0.16, type: "sawtooth", gain: 0.08, slideTo: 110 });
     [1319, 1568, 2093, 2637].forEach((f, i) => tone(c, { freq: f, start: 0.16 + i * 0.07, dur: 0.22, gain: 0.11 }));
+  },
+  drumRoll: (c) => {                                         // 두구두구… 점점 빨라지고 커진다 (약 1.1초)
+    let t = 0, gap = 0.1;
+    while (t < 1.08) {
+      const k = t / 1.08;                                    // 0 → 1
+      drumHit(c, { start: t, gain: 0.07 + k * 0.17, pitch: 130 + k * 40 });
+      t += gap;
+      gap = Math.max(0.038, gap * 0.9);
+    }
   },
   arrive: (c) => {                                           // 따다다단!
     [392, 523, 659].forEach((f, i) => tone(c, { freq: f, start: i * 0.09, dur: 0.1, type: "triangle", gain: 0.18 }));

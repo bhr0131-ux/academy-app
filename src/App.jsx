@@ -3222,10 +3222,11 @@ export default function App() {
       }};
     });
     // 오픈 애니메이션 → 딜레이 후 결과 모달
-    playSfx("chestOpen");
+    playSfx("drumRoll");                       // 여는 중 '두구두구…' → 결과 창에서 '짠!'(chestOpen)
     setOpeningTreasure(true);
     setTimeout(()=>{
       setOpeningTreasure(false);
+      playSfx("chestOpen");
       setTreasureModal({emoji,boxName,rewardCoin,titleReward:dropResult.title,headerGrad,petEvolved});
       // 상장 획득 팝업은 상장 감지 useEffect가 일원화해 처리 (중복 방지)
       if(petEvolved){
