@@ -7,6 +7,8 @@
      chestOpen 보물상자 열기 — 덜컹 + 반짝반짝 (결과 창이 뜨는 순간)
      drumRoll  보물상자 여는 중 '두구두구…' — 점점 빨라지고 커지는 북소리
                [사용자 요청 2026-11-19] 오픈 연출(1.2초) 동안 울리고, 결과 창에서 chestOpen 이 '짠!'
+     tada      지도 보물상자가 열릴 때 '짜잔!' (그날 학원을 다 다녀와 상자에 도착)
+               [사용자 요청 2026-11-19] 짧은 화음 '짜' → 길고 밝은 화음 '잔!' + 반짝
      arrive    탐험 도착 만세 — 짧은 '따다다단!'
      discovery 오늘의 발견 — 높은 반짝 두 번
    소리 켜기/끄기는 setSfxEnabled 로 (App 이 저장 키 v6_sfx_on 에서 읽어 넣는다 — 새 키).
@@ -109,6 +111,11 @@ const SOUNDS = {
       t += gap;
       gap = Math.max(0.038, gap * 0.9);
     }
+  },
+  tada: (c) => {                                             // 짜—잔!
+    [523, 659, 784].forEach(f => tone(c, { freq: f, dur: 0.12, type: "triangle", gain: 0.12 }));            // 짜
+    [784, 988, 1175, 1568].forEach(f => tone(c, { freq: f, start: 0.16, dur: 0.6, type: "triangle", gain: 0.11 })); // 잔!
+    [2093, 2637, 3136].forEach((f, i) => tone(c, { freq: f, start: 0.3 + i * 0.08, dur: 0.2, gain: 0.06 }));  // 반짝
   },
   arrive: (c) => {                                           // 따다다단!
     [392, 523, 659].forEach((f, i) => tone(c, { freq: f, start: i * 0.09, dur: 0.1, type: "triangle", gain: 0.18 }));
