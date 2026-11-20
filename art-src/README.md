@@ -460,7 +460,7 @@ getBoundingClientRect로 재서 정한다. 2026-08-05 점검에서 이 기준을
 | expedition/ride/rocket-src.webp | 탑승 원화 16 로켓 — 하늘섬 변형 (우주 챕터 기본 예정) | expedition/ride/rocket.webp |
 | expedition/ride/meteor-v2-src.webp / meteor-girl-v2-src.webp | 탑승 원화 26 유성 v2 — 우주 대표, 남녀 디자인 소폭 수정(사용자 재작업, 2026-09-28 탑재). 받은 PNG 에 약알파(1~19) 픽셀이 21,000~23,000개 깔려 있어 20 미만을 0 으로 눌러 자른 뒤 기존과 같은 높이(510px)로 맞췄다. 꼬리의 작은 반짝임 조각 몇 개가 몸통과 안 이어져 연결 조각이 2~3개로 나오는데, 원화에 흩어져 그려진 별똥·반짝이라 의도된 것 — 지우지 않는다 | expedition/ride/meteor(-girl).webp |
 | expedition/ride/motorbike-src.webp | 탑승 원화 27 오토바이 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/motorbike.webp |
-| expedition/ride/sandboard-src.webp | 탑승 원화 28 모래 보드 — 사막 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/sandboard.webp |
+| expedition/ride/sandboard-src.webp / sandboard-girl-src.webp | 탑승 원화 28 모래 보드 **v2 — 남녀 (사용자 원화 2026-11-20, 이전 판 교체)**. 1198×1313 / 1217×1293 투명 배경, 모래 물보라를 뒤로 끌며 보드를 타는 아이. 원화가 다른 탈것보다 훨씬 선명해서(사용자 지적 "화질이 너무 좋아졌어") 다른 탈것과 같은 해상도로 맞췄다 — 약알파(<20) 지우고 잘라 세로 238px(이전 모래 보드와 같은 높이) q80. 가로세로비 0.924 / 0.903 → _RIDE_AR 0.91 그대로 | expedition/ride/sandboard.webp · sandboard-girl.webp |
 | expedition/ride/submarine-src.webp | 탑승 원화 32 잠수정 — 바다 변형 (탈것+앉은 캐릭터 한 장, halo 보정 후 탑재) | expedition/ride/submarine.webp |
 | expedition/char/common-run-src.webp | 탐험 씬 달리기 포즈 (초원 전용 — 이동 속도도 조금 빠르게, halo 보정 후 탑재) | expedition/char/common-run.webp |
 | bg-adventure-meadow-v10-src.webp | 탐험 모드 무대 기본 배경 v10 (866×1815 = 1:2.10 — 무대 칸 비율에 맞춘 세로 긴 판. v9과 구도는 같고 전체를 더 밝고 맑게 뺀 판(하늘 하늘색·모래 밝은 베이지). 우측 나무도 빠져 좌우가 트였다. 받은 그대로 톤 보정 없음, 현행) | stage-adventure-meadow.webp |
