@@ -92,7 +92,7 @@ export default function BankSheet({ open, onClose, dark, today, bank = { deposit
           </div>
           {/* 지갑 / 맡긴 코인 */}
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-            {[["내 지갑", coin], ["은행에 맡긴", bankTotal(bank)]].map(([label, v]) => (
+            {[["내 지갑", coin], [`은행에 맡긴 ${coinName}`, bankTotal(bank)]].map(([label, v]) => (
               <div key={label} style={{ flex: 1, borderRadius: 12, padding: "8px 10px",
                 background: dark ? CAMP_SHEET.chipBg : "rgba(255,255,255,0.65)",
                 border: `1px solid ${dark ? CAMP_SHEET.chipBorder : "rgba(255,255,255,0.9)"}` }}>
