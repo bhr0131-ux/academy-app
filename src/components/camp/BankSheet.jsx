@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { C, CAMP_SHEET } from "../../data/tokens.js";
 import EmojiIcon from "../EmojiIcon.jsx";
 import {
   BANK_PRODUCTS, BANK_MAX_SLOTS, BANK_MAX_AMOUNT, BANK_MIN_AMOUNT,
-  bankInterest, depositStatus, bankTotal, bankClockBack, getBankProduct,
+  bankInterest, depositStatus, bankTotal, bankClockBack, getBankProduct, josa,
 } from "../../data/bank.js";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -31,7 +31,10 @@ export default function BankSheet({ open, onClose, dark, today, bank = { deposit
   const [pick, setPick] = useState("mid");
   const [amt, setAmt] = useState("");
   const [confirmEarly, setConfirmEarly] = useState(null);   // 중도 해지 확인을 띄운 예금 id
+  // 닫았다 다시 열면 적던 금액·해지 확인을 비운다 (지난번 값이 남아 있으면 헷갈린다)
+  useEffect(() => { if (!open) { setAmt(""); setConfirmEarly(null); } }, [open]);
   if (!open) return null;
+  const coinEul = josa(coinName, "을를"), coinI = josa(coinName, "이가"), coinEun = josa(coinName, "은는");
 
   const T = dark
     ? { text: CAMP_SHEET.text, sub: CAMP_SHEET.textSub, card: "#FFF9EC", line: "#EAD9AE", soft: "#FBF3DE",
@@ -47,7 +50,7 @@ export default function BankSheet({ open, onClose, dark, today, bank = { deposit
   const prod = getBankProduct(pick);
   const interest = bankInterest(n, pick);
   const amountErr = !amt ? "" : n < BANK_MIN_AMOUNT ? `${BANK_MIN_AMOUNT} ${coinName}부터 맡길 수 있어요`
-    : n > coin ? `${coinName}이 모자라요 (지금 ${coin.toLocaleString()})`
+    : n > coin ? `${coinI} 모자라요 (지금 ${coin.toLocaleString()})`
     : n > BANK_MAX_AMOUNT ? `한 번에 ${BANK_MAX_AMOUNT.toLocaleString()}까지 맡길 수 있어요` : "";
   const canDeposit = !clockBack && !slotsFull && n >= BANK_MIN_AMOUNT && !amountErr;
 
@@ -82,7 +85,7 @@ export default function BankSheet({ open, onClose, dark, today, bank = { deposit
               <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}><EmojiIcon emoji="🏦" size={19} style={{ verticalAlign: "-0.18em", marginRight: 4 }} />은행</p>
               <p style={{ margin: "4px 0 0", fontSize: 12.5, fontWeight: 700,
                 color: dark ? CAMP_SHEET.headerTextSub : "#8A6B7A" }}>
-                {coinName}을 맡기고 기다리면 이자가 붙어요
+                {coinEul} 맡기고 기다리면 이자가 붙어요
               </p>
             </div>
             <button onClick={onClose} aria-label="닫기" style={{ border: "none", cursor: "pointer",
@@ -109,7 +112,7 @@ export default function BankSheet({ open, onClose, dark, today, bank = { deposit
               marginBottom: 12, fontSize: 12.5, fontWeight: 800, color: "#9A4A2E", lineHeight: 1.5 }}>
               <EmojiIcon emoji="⚠️" size={13} style={{ verticalAlign: "-0.18em", marginRight: 4 }} />
               휴대폰 날짜가 이상해요. 날짜가 맞을 때까지 새로 맡기기와 이자 받기를 쉬어요.
-              (맡긴 {coinName}은 언제든 찾을 수 있어요)
+              (맡긴 {coinEun} 언제든 찾을 수 있어요)
             </div>
           )}
 
@@ -121,7 +124,7 @@ export default function BankSheet({ open, onClose, dark, today, bank = { deposit
             <div style={{ textAlign: "center", padding: "18px 10px", borderRadius: 14, background: T.soft,
               border: `1px dashed ${T.line}`, marginBottom: 16 }}>
               <p style={{ margin: 0 }}><EmojiIcon emoji="🏦" size={34} /></p>
-              <p style={{ margin: "6px 0 0", fontSize: 13, fontWeight: 800, color: T.sub }}>아직 맡긴 {coinName}이 없어요</p>
+              <p style={{ margin: "6px 0 0", fontSize: 13, fontWeight: 800, color: T.sub }}>아직 맡긴 {coinI} 없어요</p>
             </div>
           ) : deposits.map(dep => {
             const st = depositStatus(dep, today);
@@ -238,7 +241,7 @@ export default function BankSheet({ open, onClose, dark, today, bank = { deposit
                     {prod.days}일 뒤에 <Coin />{n.toLocaleString()} → <b style={{ color: prod.color }}>{(n + interest).toLocaleString()}</b>
                     <span style={{ color: prod.color }}> (이자 +{interest})</span>
                   </>) : <span style={{ color: T.sub }}>
-                    {coin < BANK_MIN_AMOUNT ? `${coinName}을 ${BANK_MIN_AMOUNT}개 이상 모으면 맡길 수 있어요` : `얼마를 맡길지 적어 주세요 (${BANK_MIN_AMOUNT}~${maxCan.toLocaleString()})`}
+                    {coin < BANK_MIN_AMOUNT ? `${coinEul} ${BANK_MIN_AMOUNT}개 이상 모으면 맡길 수 있어요` : `얼마를 맡길지 적어 주세요 (${BANK_MIN_AMOUNT}~${maxCan.toLocaleString()})`}
                   </span>}
               </div>
 

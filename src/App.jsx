@@ -50,7 +50,7 @@ import HistorySheet from "./components/camp/HistorySheet.jsx";
 import PetSheet from "./components/camp/PetSheet.jsx";
 import TreasureSheet from "./components/camp/TreasureSheet.jsx";
 import BankSheet from "./components/camp/BankSheet.jsx";
-import { BANK_KEY, BANK_MAX_SLOTS, BANK_MAX_AMOUNT, BANK_MIN_AMOUNT, getBankProduct, bankInterest, bankAddDays, getChildBank, emptyBank, bankClockBack, bankTotal, bankMaturedCount } from "./data/bank.js";
+import { BANK_KEY, BANK_MAX_SLOTS, BANK_MAX_AMOUNT, BANK_MIN_AMOUNT, getBankProduct, bankInterest, bankAddDays, getChildBank, emptyBank, bankClockBack, bankTotal, bankMaturedCount, josa } from "./data/bank.js";
 import ItemShopSheet from "./components/camp/ItemShopSheet.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
@@ -426,7 +426,8 @@ export default function App() {
   /* 오늘의 발견 — 지도 발견 지점을 지나간 날 하루 1개 (미션과 무관). 저장은 새 키(v6_discoveries)로만. */
   const [discoveryData,         setDiscoveryData]          = useState({});
   /* 은행(정기예금) — 사용자 확정 2026-11-20. 저장은 새 키(v6_bank)로만 (data/bank.js 참고) */
-  const [bankData,              setBankData]               = useState({});
+  /* useSyncState — '찾기'를 빠르게 두 번 눌러도 한 번만 받도록 판단은 bankRef(동기 거울)로 한다 */
+  const [bankData,              setBankData,  bankRef]     = useSyncState({});
   const [openBank,              setOpenBank]               = useState(false);
   /* 반복 미션 — 자주 쓰는 미션을 저장해 두고 미션 추가 팝업에서 눌러 넣는다.
      저장은 새 키(v6_repeat_missions)로만. 기존 미션 저장(일별 entry)은 안 건드린다. */
@@ -2118,7 +2119,9 @@ export default function App() {
         /* 반복 숙제·보호자 구분 — 이 항목이 없는 옛 백업이면 지금 기기의 값을 그대로 둔다 */
         if(data.repeatMissions!==undefined) setRepeatMissions(normalizeRepeat(data.repeatMissions,DEFAULT_HOMEWORK_SCORE));
         if(data.parentGender==="mom"||data.parentGender==="dad") setParentGender(data.parentGender);
-        if(data.bankData!==undefined) setBankData(data.bankData||{});   // 은행 — 없는 옛 백업이면 지금 것 유지
+        /* 은행 — 은행이 없던 옛 백업이면 비운다. 지갑 코인(scoreData)은 백업 시점으로 돌아가는데
+           맡긴 예금만 지금 것으로 남으면, 맡기느라 빠졌던 코인이 지갑에도 되살아나 두 번 생긴다. */
+        setBankData(data.bankData&&typeof data.bankData==="object"?data.bankData:{});
 
         // 설치 정보: 복원본과 현재 중 더 이른 설치일을 유지 (창립 사용자 자격 보존)
         if(data.installInfo?.installDate){
@@ -3807,13 +3810,13 @@ export default function App() {
   /* 은행이 본 가장 늦은 날짜 — 휴대폰 날짜를 되돌린 걸 알아채는 기준 (data/bank.js bankClockBack) */
   const touchBankDate=(b)=>(!b.lastSeen||TODAY>b.lastSeen)?TODAY:b.lastSeen;
   const bankDeposit=(cid,productId,amount)=>{
-    const bank=getChildBank(bankData,cid);
+    const bank=getChildBank(bankRef.current,cid);
     const a=Math.floor(Number(amount)||0);
     const p=getBankProduct(productId);
     if(bankClockBack(bank,TODAY)){ showToast("휴대폰 날짜를 확인해 주세요"); return; }
     if(bank.deposits.length>=BANK_MAX_SLOTS){ showToast(`예금은 ${BANK_MAX_SLOTS}개까지 맡길 수 있어요`); return; }
     if(a<BANK_MIN_AMOUNT||a>BANK_MAX_AMOUNT){ showToast(`${BANK_MIN_AMOUNT}~${BANK_MAX_AMOUNT} ${TM.coin}까지 맡길 수 있어요`); return; }
-    if(a>getChildCoin(cid)){ showToast(`${TM.coin}이 모자라요`); return; }
+    if(a>getChildCoin(cid)){ showToast(`${josa(TM.coin,"이가")} 모자라요`); return; }
     const dep={id:newId(),product:p.id,amount:a,start:TODAY,due:bankAddDays(TODAY,p.days)};
     moveBankCoin(cid,-a,"bank_in",`${p.emoji} ${p.name}에 맡김 (${p.days}일)`);
     setBankData(prev=>{
@@ -3821,11 +3824,11 @@ export default function App() {
       return {...prev,[cid]:{deposits:[...b.deposits,dep],lastSeen:touchBankDate(b)}};
     });
     playSfx("coinIn");
-    showToast(`🏦 ${a.toLocaleString()} ${TM.coin}을 맡겼어요! ${p.days}일 뒤 이자 +${bankInterest(a,p.id)}`,2200);
+    showToast(`🏦 ${a.toLocaleString()} ${josa(TM.coin,"을를")} 맡겼어요! ${p.days}일 뒤 이자 +${bankInterest(a,p.id)}`,2200);
   };
   /* early=true 면 원금만. 만기 전이거나 날짜가 이상하면(되돌림) early 가 아니어도 원금만 준다 */
   const bankWithdraw=(cid,depId,early)=>{
-    const bank=getChildBank(bankData,cid);
+    const bank=getChildBank(bankRef.current,cid);
     const dep=bank.deposits.find(d=>d.id===depId);
     if(!dep) return;
     const p=getBankProduct(dep.product);
@@ -3840,10 +3843,10 @@ export default function App() {
     if(interest>0){
       moveBankCoin(cid,interest,"bank_interest",`${p.emoji} ${p.name} 이자 (${Math.round(p.rate*100)}%)`);
       playSfx("bankPayout");
-      showToast(`🎉 이자 +${interest}! ${(Number(dep.amount)+interest).toLocaleString()} ${TM.coin}을 찾았어요`,2400);
+      showToast(`🎉 이자 +${interest}! ${(Number(dep.amount)+interest).toLocaleString()} ${josa(TM.coin,"을를")} 찾았어요`,2400);
     } else {
       playSfx("coinIn");
-      showToast(`${Number(dep.amount).toLocaleString()} ${TM.coin}을 찾았어요`);
+      showToast(`${Number(dep.amount).toLocaleString()} ${josa(TM.coin,"을를")} 찾았어요`);
     }
   };
   // 은행을 열면 오늘 날짜를 기억해 둔다 (날짜 되돌림 감지 기준)

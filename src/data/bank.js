@@ -86,5 +86,13 @@ export const depositStatus = (dep, today) => {
   };
 };
 
+/* 받침에 맞춘 조사 — 재화 이름이 스킨마다 달라서 ("코인을" · "쿠키를") */
+export const josa = (word, pair) => {
+  const w = String(word || ""); const c = w.charCodeAt(w.length - 1);
+  const has = c >= 0xac00 && c <= 0xd7a3 && (c - 0xac00) % 28 !== 0;
+  const [a, b] = { "을를": ["을", "를"], "이가": ["이", "가"], "은는": ["은", "는"] }[pair] || ["", ""];
+  return w + (has ? a : b);
+};
+
 export const bankTotal = (bank) => bank.deposits.reduce((s, d) => s + Number(d.amount || 0), 0);
 export const bankMaturedCount = (bank, today) => bank.deposits.filter(d => today >= d.due && today >= d.start).length;
