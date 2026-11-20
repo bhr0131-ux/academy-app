@@ -1945,6 +1945,7 @@ export default function App() {
   // (선택) 환불·구독해지 등으로 프리미엄을 회수해야 할 때
 
   /* how: "share" = 공유창으로 보내기 · 그 밖(기본) = 앱에서는 휴대폰에 바로 저장, 웹은 파일 다운로드 */
+  const backupBusyRef=useRef(false);   // 앱에서 백업 공유·저장이 끝나기 전 두 번째 누름 막기
   const exportBackup=(how)=>{
     const backup={
       backupVersion:"1.0",
@@ -2016,7 +2017,12 @@ export default function App() {
        "백업 완료"가 뜨고 마지막 백업 날짜까지 기록돼 30일 백업 권유도 멈췄다.
        앱에서는 휴대폰 공유창으로 내보내고, 보낼 곳을 고른 경우에만 완료로 기록한다(utils/native.js). */
     if(isNativeApp()){
-      const share=()=>shareBackupFile(text,fileName).then(r=>{
+      /* [2026-11-20 연타 점검] 앱에서는 공유창·저장이 뜨기까지 잠깐 걸린다. 그 사이 한 번 더 누르면
+         공유창·저장이 두 번 시작돼 두 번째가 실패하거나 파일이 두 번 생길 수 있다 — 끝날 때까지 한 번만 받는다. */
+      if(backupBusyRef.current) return;
+      backupBusyRef.current=true;
+      const done=()=>{ backupBusyRef.current=false; };
+      const share=()=>shareBackupFile(text,fileName).finally(done).then(r=>{
         if(r.ok){ markDone(); showToast("백업 파일을 보냈어요 💾"); }
         else if(r.reason==="cancel") showToast("백업을 취소했어요 — 아직 저장되지 않았어요");
         else if(r.reason==="plugin") showToast("이 버전의 앱에서는 백업 파일을 만들 수 없어요. 앱을 업데이트해 주세요");
@@ -2027,10 +2033,11 @@ export default function App() {
          같은 날 여러 번 저장해도 덮어쓰지 않게 시각을 붙인다. 저장이 안 되는 폰(Android 10 이하 등)은 공유창으로. */
       const d=new Date(), hm=`${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}`;
       saveBackupToDevice(text,`missionpang-backup-${TODAY}-${hm}.json`).then(r=>{
+        if(r.reason!=="plugin"&&!r.ok){ share(); showToast("이 폰에는 바로 저장이 안 돼요 — 보낼 곳을 골라 주세요"); return; }   // 공유창으로 넘길 땐 잠금 유지(share 가 푼다)
+        done();
         if(r.ok){ markDone(); showToast(`휴대폰에 백업했어요 💾 내 파일 → Documents → ${r.folder}`); }
         else if(r.reason==="plugin") showToast("이 버전의 앱에서는 백업 파일을 만들 수 없어요. 앱을 업데이트해 주세요");
-        else { showToast("이 폰에는 바로 저장이 안 돼요 — 보낼 곳을 골라 주세요"); share(); }
-      });
+      }).catch(done);
       return;
     }
 
