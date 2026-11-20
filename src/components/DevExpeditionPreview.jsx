@@ -75,7 +75,7 @@ export default function DevExpeditionPreview({ onClose, gender = "boy" }) {
         <p style={label}>챕터</p>
         <div style={{ ...row, flexWrap: "wrap", overflowX: "visible", marginBottom: 12 }}>
           {EXPEDITION_ORDER.map((k, i) => (
-            <button key={k} onClick={() => { setKey(k); setMountKey(""); }} style={chip(k === key)}>
+            <button key={k} onClick={() => { setKey(k); setMountKey(EXPEDITIONS[k].alwaysMount ? (EXPEDITIONS[k].mounts || [])[0] || "" : ""); }} style={chip(k === key)}>
               {i + 1}. {EXPEDITIONS[k].emoji}
             </button>
           ))}
@@ -96,11 +96,15 @@ export default function DevExpeditionPreview({ onClose, gender = "boy" }) {
         </div>
 
         {/* 탈것 — 그 챕터에 나오는 것만 */}
-        <p style={label}>이동 방법 ({(exp.mounts || []).length + 1}가지)</p>
+        <p style={label}>이동 방법 ({(exp.mounts || []).length + (exp.alwaysMount ? 0 : 1)}가지)</p>
         <div style={{ ...row, flexWrap: "wrap", overflowX: "visible", marginBottom: 12 }}>
+          {/* 항상 탈것을 타는 챕터(하늘섬·우주 — alwaysMount)는 실제 화면에 걷기 회차가 없으므로 버튼도 뺀다
+              [사용자 확정 2026-11-20] */}
+          {!exp.alwaysMount && (
           <button onClick={() => setMountKey("")} style={chip(mountKey === "", CK.ground)}>
             기본 · {POSE_LABEL[exp.pose] || exp.pose}
           </button>
+          )}
           {(exp.mounts || []).map(k => {
             const m = MOUNTS[k];
             if (!m) return null;
