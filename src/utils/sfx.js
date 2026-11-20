@@ -9,6 +9,8 @@
                [사용자 요청 2026-11-19] 오픈 연출(1.2초) 동안 울리고, 결과 창에서 chestOpen 이 '짠!'
      tada      지도 보물상자가 열릴 때 '짜잔!' (그날 학원을 다 다녀와 상자에 도착)
                [사용자 요청 2026-11-19] 짧은 화음 '짜' → 길고 밝은 화음 '잔!' + 반짝
+     coinIn    은행에 맡기기·원금 찾기 — 동전 두 번 '짤랑' (2026-11-20 은행)
+     bankPayout 은행 이자 받기 — 동전이 쏟아지는 '짜르르' + 반짝
      arrive    탐험 도착 만세 — 짧은 '따다다단!'
      discovery 오늘의 발견 — 높은 반짝 두 번
    소리 켜기/끄기는 setSfxEnabled 로 (App 이 저장 키 v6_sfx_on 에서 읽어 넣는다 — 새 키).
@@ -116,6 +118,15 @@ const SOUNDS = {
     [523, 659, 784].forEach(f => tone(c, { freq: f, dur: 0.12, type: "triangle", gain: 0.12 }));            // 짜
     [784, 988, 1175, 1568].forEach(f => tone(c, { freq: f, start: 0.16, dur: 0.6, type: "triangle", gain: 0.11 })); // 잔!
     [2093, 2637, 3136].forEach((f, i) => tone(c, { freq: f, start: 0.3 + i * 0.08, dur: 0.2, gain: 0.06 }));  // 반짝
+  },
+  coinIn: (c) => {                                           // 짤랑 짤랑
+    tone(c, { freq: 1760, dur: 0.08, gain: 0.12 }); tone(c, { freq: 2637, start: 0.03, dur: 0.12, gain: 0.07 });
+    tone(c, { freq: 1976, start: 0.13, dur: 0.1, gain: 0.12 }); tone(c, { freq: 2960, start: 0.16, dur: 0.16, gain: 0.07 });
+  },
+  bankPayout: (c) => {                                       // 짜르르르 + 반짝
+    [1568, 1760, 1976, 2093, 2349, 2637, 2794, 3136].forEach((f, i) =>
+      tone(c, { freq: f, start: i * 0.055, dur: 0.12, gain: 0.09 }));
+    [523, 659, 784, 1047].forEach(f => tone(c, { freq: f, start: 0.46, dur: 0.5, type: "triangle", gain: 0.09 }));
   },
   arrive: (c) => {                                           // 따다다단!
     [392, 523, 659].forEach((f, i) => tone(c, { freq: f, start: i * 0.09, dur: 0.1, type: "triangle", gain: 0.18 }));

@@ -28,7 +28,8 @@ import {
    매일 바뀌므로 그림에 넣을 수 없다.
 
    props
-     stations : [{key,img,name,badge,onPress}] — 배열 순서가 화면 순서
+     stations : [{key,img,name,badge,onPress, emoji?, alert?}] — 배열 순서가 화면 순서
+                img 이 없으면 emoji 를 그린다(원화 오기 전 임시). alert 면 뱃지 글자를 주황으로 강조
      level    : {emoji,level,name}
      nextLevel: {emoji,level,name} | null
      progress : {percent,currentXp,needXp,remainXp}
@@ -175,14 +176,22 @@ export default function CharacterGrid({
             style={{ width: S.cellW, border: "none", background: "none", padding: 0, cursor: "pointer",
               display: "flex", flexDirection: "column", alignItems: "center",
               fontFamily: "inherit" }}>
-            <img src={`assets/camp/${st.img}`} alt="" draggable={false}
-              style={{ width: S.iconW, height: S.iconH, display: "block",
-                objectFit: "contain", objectPosition: "center bottom" }} />
+            {/* 그림 원화가 아직 없는 칸(은행 — 2026-11-20)은 이모지로 같은 자리를 채운다 */}
+            {st.img ? (
+              <img src={`assets/camp/${st.img}`} alt="" draggable={false}
+                style={{ width: S.iconW, height: S.iconH, display: "block",
+                  objectFit: "contain", objectPosition: "center bottom" }} />
+            ) : (
+              <span style={{ width: S.iconW, height: S.iconH, display: "flex",
+                alignItems: "center", justifyContent: "center" }}>
+                <EmojiIcon emoji={st.emoji} size={Math.round(S.iconW * 0.62)} />
+              </span>
+            )}
             <span style={{ marginTop: S.labelGap, fontSize: S.labelF, fontWeight: 900, color: INK,
               letterSpacing: -0.2, whiteSpace: "nowrap" }}>{st.name}</span>
             {st.badge && (
-              <span style={{ marginTop: 2, fontSize: Math.round(S.labelF * 0.72), fontWeight: 800,
-                color: INK_SUB, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+              <span style={{ marginTop: 2, fontSize: Math.round(S.labelF * 0.72), fontWeight: st.alert ? 900 : 800,
+                color: st.alert ? "#D0662B" : INK_SUB, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                 maxWidth: "100%" }}>{st.badge}</span>
             )}
           </button>

@@ -49,6 +49,8 @@ import TitleSheet from "./components/camp/TitleSheet.jsx";
 import HistorySheet from "./components/camp/HistorySheet.jsx";
 import PetSheet from "./components/camp/PetSheet.jsx";
 import TreasureSheet from "./components/camp/TreasureSheet.jsx";
+import BankSheet from "./components/camp/BankSheet.jsx";
+import { BANK_KEY, BANK_MAX_SLOTS, BANK_MAX_AMOUNT, BANK_MIN_AMOUNT, getBankProduct, bankInterest, bankAddDays, getChildBank, emptyBank, bankClockBack, bankTotal, bankMaturedCount } from "./data/bank.js";
 import ItemShopSheet from "./components/camp/ItemShopSheet.jsx";
 import HeroStage from "./components/HeroStage.jsx";
 import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
@@ -423,6 +425,9 @@ export default function App() {
   const [journalAcId,            setJournalAcId]            = useState(null); // 탐험일지 표시 학원 (null=시간 기준 자동)
   /* 오늘의 발견 — 지도 발견 지점을 지나간 날 하루 1개 (미션과 무관). 저장은 새 키(v6_discoveries)로만. */
   const [discoveryData,         setDiscoveryData]          = useState({});
+  /* 은행(정기예금) — 사용자 확정 2026-11-20. 저장은 새 키(v6_bank)로만 (data/bank.js 참고) */
+  const [bankData,              setBankData]               = useState({});
+  const [openBank,              setOpenBank]               = useState(false);
   /* 반복 미션 — 자주 쓰는 미션을 저장해 두고 미션 추가 팝업에서 눌러 넣는다.
      저장은 새 키(v6_repeat_missions)로만. 기존 미션 저장(일별 entry)은 안 건드린다. */
   const [repeatMissions,        setRepeatMissions]         = useState({});
@@ -577,7 +582,7 @@ export default function App() {
       const ch=await load("v6_children"), ac=await load("v6_ac"), ab=await load("v6_abs"),
             p=await load("v6_paid"), dm=await load("v6_dm"),
             bsk=await load("v6_base_seeded"),
-            petD=await load("v6_pet"), discD=await load(DISCOVERY_KEY),
+            petD=await load("v6_pet"), discD=await load(DISCOVERY_KEY), bankD=await load(BANK_KEY),
             repeatD=await load(REPEAT_MISSION_KEY),
             tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac"),
             pin=await load("v6_parent_pin"), pgender=await load("v6_parent_gender"), score=await load("v6_score"),
@@ -788,6 +793,7 @@ export default function App() {
       if(bsk) setBaseSeededKeys(bsk);
       if(petD) setPetData(petD);
       if(discD) setDiscoveryData(discD);
+      if(bankD&&typeof bankD==="object") setBankData(bankD);
       if(savedSkinMap && typeof savedSkinMap==="object"){
         setSkinByChild(savedSkinMap);
       } else if(savedSkin && SKINS[savedSkin] && ch){
@@ -1007,6 +1013,7 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_base_seeded",baseSeededKeys); },[baseSeededKeys,loaded]);
   useEffect(()=>{ if(loaded) save("v6_pet",petData); },[petData,loaded]);
   useEffect(()=>{ if(loaded) save(DISCOVERY_KEY,discoveryData); },[discoveryData,loaded]);
+  useEffect(()=>{ if(loaded) save(BANK_KEY,bankData); },[bankData,loaded]);
   useEffect(()=>{ if(loaded) save(REPEAT_MISSION_KEY,repeatMissions); },[repeatMissions,loaded]);
   /* 오늘의 발견 — 하루 1개. [사용자 확정] 미션과 무관하다.
      지도 위 아이가 '이전 학원을 마치고 이동하며 발견 지점을 지나간 순간'
@@ -1719,6 +1726,7 @@ export default function App() {
        0으로 돌아가는데 도감만 그대로 남아, 초기화한 아이의 수집품이 계속 보였다.
        (발견 도감은 나중에 붙은 기능이라 백업·초기화 여러 곳에서 함께 누락돼 있었다) */
     setDiscoveryData(prev=>({...prev,[cid]:{log:[]}}));
+    setBankData(prev=>({...prev,[cid]:emptyBank()}));   // 은행에 맡긴 코인도 함께 (코인이 0이 되니까)
     showToast("게임 데이터 초기화 완료");
     }, `🧹 ${nm} 데이터 초기화`);
   };
@@ -1741,7 +1749,7 @@ export default function App() {
     /* [버그 수정 2026-08-15] 아래 네 가지가 빠져 있었다. clearAllStorage 가 저장소는
        비우지만 화면(메모리) 값은 그대로 남아, 초기화 뒤에 발견을 하나 하거나 값이
        바뀌는 순간 예전 것이 통째로 다시 저장됐다 — 지운 도감이 되살아난다. */
-    setDiscoveryData({}); setRewardAgeGroup("kid");
+    setDiscoveryData({}); setBankData({}); setRewardAgeGroup("kid");
     setRecoveryQuestion(""); setRecoveryAnswer("");
     setTemplates(SAMPLE_TMPL); setParentPin("1234");
     setLastBackupDate(null); setLastNudgeDate(null); // 백업·안내 기록도 초기화
@@ -1991,7 +1999,9 @@ export default function App() {
       /* [버그 수정 2026-10-27] 반복 숙제 목록·보호자 구분(엄마/아빠)이 백업에서 빠져 있어
          복원하면 반복 숙제가 사라지고 아빠 설정이 엄마로 돌아갔다. 항목만 추가 — 옛 백업도 그대로 복원된다. */
       repeatMissions,
-      parentGender
+      parentGender,
+      /* 은행(2026-11-20) — 맡긴 코인은 지갑 코인(scoreData)과 따로 있어서 함께 담아야 복원 때 안 사라진다 */
+      bankData
     };
 
     const text=JSON.stringify(backup,null,2);
@@ -2108,6 +2118,7 @@ export default function App() {
         /* 반복 숙제·보호자 구분 — 이 항목이 없는 옛 백업이면 지금 기기의 값을 그대로 둔다 */
         if(data.repeatMissions!==undefined) setRepeatMissions(normalizeRepeat(data.repeatMissions,DEFAULT_HOMEWORK_SCORE));
         if(data.parentGender==="mom"||data.parentGender==="dad") setParentGender(data.parentGender);
+        if(data.bankData!==undefined) setBankData(data.bankData||{});   // 은행 — 없는 옛 백업이면 지금 것 유지
 
         // 설치 정보: 복원본과 현재 중 더 이른 설치일을 유지 (창립 사용자 자격 보존)
         if(data.installInfo?.installDate){
@@ -2654,7 +2665,7 @@ export default function App() {
     [setAcademies,setAbsences,setScoreData,setRewardRequests,setRewardData,
      setTreasureData,setPetData,setSkinByChild,setSelectedTitles,setSeenTitles,setEarnedTitleIds,
      setSpecialTitles,setBestStreakData,setLastLevelByChild,setOwnedDecor,setEquippedDecor,
-     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData].forEach(dropKey);
+     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData].forEach(dropKey);
 
     /* 열쇠 앞머리에 아이 id 가 붙는 저장소 — 접두어로 지운다.
          일별 미션   dailyData[`아이-학원-날짜`]     (dKey)
@@ -2810,6 +2821,9 @@ export default function App() {
         case "level_bonus": info={icon:"✨",title:"레벨업 보너스"}; break;
         case "badge_reward": info={icon:"🏆",title:"업적 보상"}; break;
         case "manual":   info={icon:"✍️",title:"엄마 점수 조정"}; break;
+        case "bank_in":  info={icon:"🏦",title:"은행에 맡김"}; break;
+        case "bank_out": info={icon:"🏦",title:"은행에서 찾음"}; break;
+        case "bank_interest": info={icon:"💰",title:"은행 이자"}; break;
         default:         info={icon:"📜",title:"탐험 기록"};
       }
     } else {
@@ -2830,6 +2844,8 @@ export default function App() {
       case "level_bonus":  return "#FFD86B"; // 레벨업 = 금색
       case "homework": case "todo": case "quest": return "#FF9F5A"; // 미션 = 주황
       case "manual":       return "#9DB0D8"; // 수동 조정 = 회청
+      case "bank_in": case "bank_out": return "#8FA37A"; // 은행 맡김·찾음 = 올리브
+      case "bank_interest": return "#E0A030"; // 은행 이자 = 주황금
       default:             return "#6B7BA8";
     }
   };
@@ -3773,6 +3789,73 @@ export default function App() {
       }};
     });
   };
+  /* ── 은행 (정기예금) ──────────────────────────────────────────────
+     [사용자 확정 2026-11-20] 지갑 코인을 맡기고, 만기에 원금+이자를 찾는다. 중간에 찾으면 원금만.
+     지갑 코인은 기존 scoreData 그대로 쓰고(XP·레벨은 안 건드린다), 맡긴 내역만 새 키 v6_bank 에 둔다.
+     코인이 오간 기록은 코인 기록에 bank_in / bank_out / bank_interest 로 남긴다. */
+  const moveBankCoin=(cid,delta,type,memo)=>{
+    setScoreData(prev=>{
+      const cur=prev[cid]||{xp:0,coin:0,history:[]};
+      return {...prev,[cid]:{
+        ...cur,
+        xp:Number(cur.xp??cur.total??0),
+        coin:Math.max(0,Number(cur.coin??cur.balance??cur.total??0)+delta),
+        history:[...(cur.history||[]),{id:newId(),point:delta,xp:0,coin:delta,date:TODAY,type,memo}]
+      }};
+    });
+  };
+  /* 은행이 본 가장 늦은 날짜 — 휴대폰 날짜를 되돌린 걸 알아채는 기준 (data/bank.js bankClockBack) */
+  const touchBankDate=(b)=>(!b.lastSeen||TODAY>b.lastSeen)?TODAY:b.lastSeen;
+  const bankDeposit=(cid,productId,amount)=>{
+    const bank=getChildBank(bankData,cid);
+    const a=Math.floor(Number(amount)||0);
+    const p=getBankProduct(productId);
+    if(bankClockBack(bank,TODAY)){ showToast("휴대폰 날짜를 확인해 주세요"); return; }
+    if(bank.deposits.length>=BANK_MAX_SLOTS){ showToast(`예금은 ${BANK_MAX_SLOTS}개까지 맡길 수 있어요`); return; }
+    if(a<BANK_MIN_AMOUNT||a>BANK_MAX_AMOUNT){ showToast(`${BANK_MIN_AMOUNT}~${BANK_MAX_AMOUNT} ${TM.coin}까지 맡길 수 있어요`); return; }
+    if(a>getChildCoin(cid)){ showToast(`${TM.coin}이 모자라요`); return; }
+    const dep={id:newId(),product:p.id,amount:a,start:TODAY,due:bankAddDays(TODAY,p.days)};
+    moveBankCoin(cid,-a,"bank_in",`${p.emoji} ${p.name}에 맡김 (${p.days}일)`);
+    setBankData(prev=>{
+      const b=getChildBank(prev,cid);
+      return {...prev,[cid]:{deposits:[...b.deposits,dep],lastSeen:touchBankDate(b)}};
+    });
+    playSfx("coinIn");
+    showToast(`🏦 ${a.toLocaleString()} ${TM.coin}을 맡겼어요! ${p.days}일 뒤 이자 +${bankInterest(a,p.id)}`,2200);
+  };
+  /* early=true 면 원금만. 만기 전이거나 날짜가 이상하면(되돌림) early 가 아니어도 원금만 준다 */
+  const bankWithdraw=(cid,depId,early)=>{
+    const bank=getChildBank(bankData,cid);
+    const dep=bank.deposits.find(d=>d.id===depId);
+    if(!dep) return;
+    const p=getBankProduct(dep.product);
+    const ok=!early && TODAY>=dep.due && TODAY>=dep.start && !bankClockBack(bank,TODAY);
+    const interest=ok?bankInterest(dep.amount,dep.product):0;
+    setBankData(prev=>{
+      const b=getChildBank(prev,cid);
+      if(!b.deposits.some(d=>d.id===depId)) return prev;   // 두 번 눌러도 한 번만
+      return {...prev,[cid]:{deposits:b.deposits.filter(d=>d.id!==depId),lastSeen:touchBankDate(b)}};
+    });
+    moveBankCoin(cid,Number(dep.amount),"bank_out",`${p.emoji} ${p.name} 찾기${ok?"":" (이자 없음)"}`);
+    if(interest>0){
+      moveBankCoin(cid,interest,"bank_interest",`${p.emoji} ${p.name} 이자 (${Math.round(p.rate*100)}%)`);
+      playSfx("bankPayout");
+      showToast(`🎉 이자 +${interest}! ${(Number(dep.amount)+interest).toLocaleString()} ${TM.coin}을 찾았어요`,2400);
+    } else {
+      playSfx("coinIn");
+      showToast(`${Number(dep.amount).toLocaleString()} ${TM.coin}을 찾았어요`);
+    }
+  };
+  // 은행을 열면 오늘 날짜를 기억해 둔다 (날짜 되돌림 감지 기준)
+  useEffect(()=>{
+    if(!openBank||!childId) return;
+    setBankData(prev=>{
+      const b=getChildBank(prev,childId);
+      const t=touchBankDate(b);
+      return t===b.lastSeen?prev:{...prev,[childId]:{...b,lastSeen:t}};
+    });
+  },[openBank,childId]);
+
   // 준비물 챙김 체크 토글 (탐험 카드 ✅/⬜ 칩) — 보상 없이 챙김 표시만
   const toggleSupplyChecked=(cid,academyId,date,name)=>{
     const entry=getDailyEntry(cid,academyId,date);
@@ -4436,6 +4519,13 @@ export default function App() {
           dark={kidSkin!=="cute"} skin={kidSkin} treasure={getChildTreasure(childId)}
           onOpen={openTreasureBox} themeMain={th.main} faint={CT.faint}
           boxName={TM.box} bookEmoji={TM.bookEmoji} bookName={TM.book} />
+        {/* 은행 — src/components/camp/BankSheet.jsx (코인 옮기기·저장은 위 bankDeposit/bankWithdraw) */}
+        <BankSheet open={openBank} onClose={()=>setOpenBank(false)}
+          dark={kidSkin!=="cute"} today={TODAY} bank={getChildBank(bankData,childId)} coin={getChildCoin(childId)}
+          coinEmoji={TM.coinEmoji} coinName={TM.coin}
+          onDeposit={(pid,amt)=>bankDeposit(childId,pid,amt)}
+          onClaim={(id)=>bankWithdraw(childId,id,false)}
+          onWithdrawEarly={(id)=>bankWithdraw(childId,id,true)} />
         {/* 아이템 상점 시트 — 캐릭터 탭 '아이템 상점' 카드에서 연다 */}
         <ItemShopSheet open={openRewardShop} onClose={()=>setOpenRewardShop(false)}
           dark={kidSkin!=="cute"} skin={kidSkin} coin={getChildCoin(childId)}
@@ -5308,6 +5398,11 @@ export default function App() {
                       { key:"box", img:"st-box.webp", name:TM.book,
                         badge:boxCnt>0?`상자 ${boxCnt}개`:"상자 없음",
                         onPress:()=>setOpenTreasure(true) },
+                      /* 은행 [사용자 확정 2026-11-20] — 보물창고 바로 옆 칸 (사용자 원화 st-bank.webp) */
+                      (()=>{ const b=getChildBank(bankData,childId); const m=bankClockBack(b,TODAY)?0:bankMaturedCount(b,TODAY); const tot=bankTotal(b);
+                        return { key:"bank", img:"st-bank.webp", emoji:"🏦", name:"은행",
+                          badge:m>0?`이자 받을 예금 ${m}개!`:tot>0?`맡긴 ${TM.coin} ${tot.toLocaleString()}`:`맡긴 ${TM.coin} 없음`,
+                          alert:m>0, onPress:()=>setOpenBank(true) }; })(),
                       { key:"pet", img:"st-pet.webp", name:"나의 펫",
                         badge:pet.name, onPress:()=>setOpenPet(true) },
                       { key:"book", img:"st-book.webp", name:"발견 도감",
