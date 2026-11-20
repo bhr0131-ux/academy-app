@@ -5398,6 +5398,11 @@ export default function App() {
                       { key:"box", img:"st-box.webp", name:TM.book,
                         badge:boxCnt>0?`상자 ${boxCnt}개`:"상자 없음",
                         onPress:()=>setOpenTreasure(true) },
+                      /* 은행 [사용자 확정 2026-11-20] — 보물창고 바로 옆 칸 (사용자 원화 st-bank.webp) */
+                      (()=>{ const b=getChildBank(bankData,childId); const m=bankClockBack(b,TODAY)?0:bankMaturedCount(b,TODAY); const tot=bankTotal(b);
+                        return { key:"bank", img:"st-bank.webp", emoji:"🏦", name:"은행",
+                          badge:m>0?`이자 받을 예금 ${m}개!`:tot>0?`맡긴 ${TM.coin} ${tot.toLocaleString()}`:`맡긴 ${TM.coin} 없음`,
+                          alert:m>0, onPress:()=>setOpenBank(true) }; })(),
                       { key:"pet", img:"st-pet.webp", name:"나의 펫",
                         badge:pet.name, onPress:()=>setOpenPet(true) },
                       { key:"book", img:"st-book.webp", name:"발견 도감",
@@ -5414,11 +5419,6 @@ export default function App() {
                       // 세어서 보여 줄 만한 값이 아니라 아예 뺐다.
                       { key:"history", img:"st-history.webp", name:T.logName||"탐험 기록",
                         onPress:()=>setOpenHistory(true) },
-                      /* 은행 [사용자 확정 2026-11-20] — 원화(st-bank.webp)가 오기 전까지 이모지로 */
-                      (()=>{ const b=getChildBank(bankData,childId); const m=bankClockBack(b,TODAY)?0:bankMaturedCount(b,TODAY); const tot=bankTotal(b);
-                        return { key:"bank", emoji:"🏦", name:"은행",
-                          badge:m>0?`이자 받을 예금 ${m}개!`:tot>0?`맡긴 ${TM.coin} ${tot.toLocaleString()}`:`맡긴 ${TM.coin} 없음`,
-                          alert:m>0, onPress:()=>setOpenBank(true) }; })(),
                     ]}
                   />
                 );
