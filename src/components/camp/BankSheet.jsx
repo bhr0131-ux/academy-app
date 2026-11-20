@@ -50,8 +50,9 @@ export default function BankSheet({ open, onClose, dark, today, bank = { deposit
   const prod = getBankProduct(pick);
   const interest = bankInterest(n, pick);
   const amountErr = !amt ? "" : n < BANK_MIN_AMOUNT ? `${BANK_MIN_AMOUNT} ${coinName}부터 맡길 수 있어요`
-    : n > coin ? `${coinI} 모자라요 (지금 ${coin.toLocaleString()})`
-    : n > BANK_MAX_AMOUNT ? `한 번에 ${BANK_MAX_AMOUNT.toLocaleString()}까지 맡길 수 있어요` : "";
+    /* [사용자 지적 2026-11-20] 최대 금액을 넘겼는데 '모자라요'가 떴다 — 한도 검사를 먼저 한다 */
+    : n > BANK_MAX_AMOUNT ? `한 번에 ${BANK_MAX_AMOUNT.toLocaleString()}까지 맡길 수 있어요`
+    : n > coin ? `${coinI} 모자라요 (지금 ${coin.toLocaleString()})` : "";
   const canDeposit = !clockBack && !slotsFull && n >= BANK_MIN_AMOUNT && !amountErr;
 
   const setAmount = (v) => setAmt(String(Math.max(0, Math.min(v, maxCan)) || ""));
