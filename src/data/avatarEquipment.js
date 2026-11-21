@@ -24,6 +24,9 @@ import { DECOR_PRICE } from "./characters.js";
    ════════════════════════════════════════════════════════════════════════ */
 
 /* ── 저장 키 (v2 신규) ───────────────────────────────────────────────── */
+/* [사용자 확정 2026-11-21] 맛보기 옷 — 첫 미션·상장으로 모으는 코인(25 남짓)으로 금방 닿게
+   남아 '정글 탐험대' · 여아 '들꽃 탐험가'(같은 top_vest)만 40코인. 처음 꾸미기를 사 보는 경험을 빨리 주려는 것 */
+export const AVATAR_TASTER_PRICE = 40;
 export const AVATAR_OWNED_KEY      = "v6_avatar_owned2";     // { [childId]: string[] }
 export const AVATAR_EQUIPPED_KEY   = "v6_avatar_equipped2";  // { [childId]: {slot:itemId|null} }
 export const CHAR_DISPLAY_MODE_KEY = "v6_char_display_mode"; // "growth"|"avatar" (구조 동일, 유지)
@@ -326,7 +329,7 @@ export const AVATAR_CATALOG = [
   /* [2026-10-02] 여아 사파리 옷 새 원화로 교체 — 크림 블라우스(데이지 자수 깃) + 벨트 초록 반바지(사용자 원화).
      베이커리룩과 같은 방식: 원화 목 외곽선 중심(x181)을 여아 목 중심 x512.5 에, 목이 어깨로 넓어지는 원화 y15 를 y372 에 맞추고
      배율 0.70(원화 목 폭 63 → 여아 목 44 와 같아지는 값, 수영복 비침 1px). 원화 목은 페이드. imgGirl ?v=5 · thumbGirl ?v=2. */
-  { id: "top_vest",       slot: "top",   label: "정글 탐험대",   emoji: "🌿", labelGirl: "들꽃 탐험가", emojiGirl: "🌼", price:DECOR_PRICE.rare, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=9", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_vest.webp?v=6", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp?v=3" },
+  { id: "top_vest",       slot: "top",   label: "정글 탐험대",   emoji: "🌿", labelGirl: "들꽃 탐험가", emojiGirl: "🌼", price:AVATAR_TASTER_PRICE, rarity: "rare",   theme: "adventure", coversBottom: true, img: "assets/avatar/top/safari-outfit-boy.webp?v=9", imgGirl: "assets/avatar/top/safari-outfit-girl.webp?v=5", thumb: "assets/avatar/thumb/top_vest.webp?v=6", thumbGirl: "assets/avatar/thumb/top_vest-girl.webp?v=3" },
 
   /* ── 딸기 소풍 · 별빛 마법사 (여아) — 사용자 원화 2026-08-19 ─────────────
      이 두 벌은 원화를 **베이스 v7 여아가 입은 전신 그림**으로 받았다. 그래서 배율을
@@ -954,7 +957,8 @@ export const SHOP_ORDER = {
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
          "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",
-         "back_crossbag_girl", "back_strawberry_girl", "back_cookie_girl", "back_sky_girl", "back_pirate_girl", "back_space_girl"],
+         /* [2026-11-21 사용자 확정] 여아 가방도 옷 순서대로 — 들꽃·딸기·(우비 없음)·우편부(하늘)·파티시에(쿠키)·우주·해적 */
+         "back_crossbag_girl", "back_strawberry_girl", "back_sky_girl", "back_cookie_girl", "back_space_girl", "back_pirate_girl"],
 };
 const shopRank = (it, gender) => {
   const i = (SHOP_ORDER[gender === "girl" ? "girl" : "boy"] || []).indexOf(it.id);

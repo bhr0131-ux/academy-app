@@ -413,6 +413,9 @@ export default function App() {
   // 온보딩 직후 첫 홈 화면에서 '학원 추가' → '미션·준비물 편집' 순서로 1회성 버튼 깜빡임 안내
   const [pinHintSeen,           setPinHintSeen]           = useState(initOnboarding.pinHintSeen);
   const [sfxOn,                 setSfxOn]                 = useState(initOnboarding.sfxOn);
+  /* [사용자 확정 2026-11-21] 처음 꾸미기를 사서 입으면 '내아바타' 뱃지 옆에 "내 아바타를 눌러보세요 →" 안내.
+     새 키 v6_avatar_hint — "pending"(사고 아직 못 봄) / "done"(확인함). 앱을 껐다 켜도 안 본 안내는 다시 뜬다. */
+  const [avatarHint,            setAvatarHint]            = useState("");
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
@@ -892,6 +895,8 @@ export default function App() {
       if(tipSeen) setFirstTipSeen(true);
       const pinHint=await load("v6_pin_hint_seen");
       if(pinHint) setPinHintSeen(true);
+      const avHint=await load("v6_avatar_hint");
+      if(avHint==="pending"||avHint==="done") setAvatarHint(avHint);
       const sfxSaved=await load("v6_sfx_on");          // 없으면(처음) 켜짐
       if(sfxSaved===false){ setSfxOn(false); setSfxEnabled(false); }
       const rAge=await load("v6_reward_age_group");
@@ -3059,6 +3064,15 @@ export default function App() {
     return set?.[3] || null; // stage-3 고정
   };
 
+  /* 처음 산 꾸미기인지 — 기본 지급(starter) 말고 가진 게 하나도 없을 때 산 것. 그때만 '내아바타' 안내를 건다 */
+  const armAvatarHint=(ownedBefore)=>{
+    if(avatarHint) return;
+    const hasBought=(ownedBefore||[]).some(id=>{ const it=getAvatarItem(id); return it&&!it.starter; });
+    if(hasBought) return;
+    setAvatarHint("pending"); save("v6_avatar_hint","pending");
+  };
+  const doneAvatarHint=()=>{ if(avatarHint==="pending"){ setAvatarHint("done"); save("v6_avatar_hint","done"); } };
+
   /* 아바타 파츠 구매 (코인 차감은 기존 spendCoin 패턴 그대로) */
   const buyAvatarItem=(itemId)=>{
     const cid=childId;
@@ -3078,6 +3092,7 @@ export default function App() {
       return;
     }
     const itemName=itemLabel(item,(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy");
+    armAvatarHint(owned);
     spendCoin(cid,res.cost,`${itemName} 꾸미기 파츠 구매`);
     setAvatarOwned(prev=>({...prev,[cid]:res.nextOwned}));
     setAvatarEquipped(prev=>({...prev,[cid]:res.nextEquipped}));
@@ -3105,6 +3120,7 @@ export default function App() {
       if(!r.ok) return false;   // 계산상 일어나지 않지만, 어긋나면 아무것도 사지 않는다
       owned=r.nextOwned; equipped=r.nextEquipped; budget-=r.cost;
     }
+    armAvatarHint(getAvatarOwned(cid));
     const g=(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy";
     spendCoin(cid,total,`꾸미기 한번에 구매 ${toBuy.length}개 (${toBuy.map(it=>itemLabel(it,g)).join(", ")})`);
     setAvatarOwned(prev=>({...prev,[cid]:owned}));
@@ -4651,7 +4667,9 @@ export default function App() {
                  탈것은 미션 탭에서 직접 타는 것으로 충분히 드러난다. */
               // 써라운드는 그 자체가 Bold(700) 폰트라 예전의 0.4px 스트로크 보정은 제거 (겹치면 뭉개진다)
               return (
-                <h1 style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:22,fontWeight:400,margin:"30px 0 0 30px",position:"relative",top:20,left:7,lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",color:_onDark?"#FFF3D9":"#5D4633",
+                <h1 style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:22,fontWeight:400,margin:"30px 0 0 30px",position:"relative",top:20,left:7,lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",
+                  /* '내아바타' 안내가 떠 있는 동안은 인사말을 잠깐 숨긴다 — 같은 자리에 겹친다 (2026-11-21) */
+                  ...(avatarHint==="pending"&&!showEquipShop&&kidSkin!=="cute"&&getCharMode(childId)!==CHAR_DISPLAY_AVATAR?{visibility:"hidden"}:{}),color:_onDark?"#FFF3D9":"#5D4633",
                   // 밝은 무대: 흰 글로우 대신 옅은 웜브라운 그림자 — 흰 구름 위에서도 글자가 묻히지 않게
                   textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 2px rgba(93,70,51,0.30), 0 2px 10px rgba(93,70,51,0.18)"}}>
                   {_lines.map((ln,i)=><Fragment key={i}>{i>0&&<br/>}{ln}</Fragment>)}
@@ -4743,13 +4761,32 @@ export default function App() {
               {/* 아바타 표시 전환 뱃지 — 우측 상단 세로 3번째 (엄마용-아이전환-아바타, 사용자 확정 순서)
                   marginTop 2: 뱃지 원화의 여백 차이로 2·3번째 사이가 좁아 보이는 착시 보정 */}
               {kidSkin!=="cute"&&(
-                <button onClick={toggleCharDisplayMode} className="jelly-tap"
-                  style={{background:"none",border:"none",padding:0,marginTop:2,cursor:"pointer",lineHeight:0}}>
+                <div style={{position:"relative",lineHeight:0,marginTop:2}}>
+                <button onClick={()=>{ doneAvatarHint(); toggleCharDisplayMode(); }} className="jelly-tap"
+                  style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
                   <img
                     src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
                     alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장 캐릭터 보기":"내 아바타 보기"}
                     style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
                 </button>
+                {/* 처음 꾸미기를 산 뒤 한 번 — 뱃지 왼쪽에 배경 없이 글자만 (사용자 확정 2026-11-21).
+                    상점이 닫혀 있고 아직 성장 캐릭터를 보고 있을 때만. 확인이나 뱃지를 누르면 다시 안 뜬다. */}
+                {avatarHint==="pending"&&!showEquipShop&&getCharMode(childId)!==CHAR_DISPLAY_AVATAR&&(
+                  <div style={{position:"absolute",right:"100%",top:"50%",transform:"translateY(-50%)",marginRight:8,zIndex:41,pointerEvents:"none"}}>
+                  <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,lineHeight:1.2,
+                    animation:"popInUp .25s ease both"}}>
+                    <p style={{margin:0,whiteSpace:"nowrap",fontSize:16,fontWeight:900,color:"#4E3B26",
+                      textShadow:"0 0 3px #fff, 0 0 3px #fff, 0 0 6px #fff, 0 1px 2px rgba(255,255,255,0.9)"}}>
+                      내 아바타를 눌러보세요 <span style={{fontSize:19,display:"inline-block",animation:"avHintNudge 1s ease-in-out infinite"}}>→</span>
+                    </p>
+                    <button onClick={doneAvatarHint} style={{pointerEvents:"auto",border:"none",cursor:"pointer",
+                      background:"#5E9A4E",color:"#fff",borderRadius:999,padding:"6px 16px",fontSize:13,fontWeight:900,
+                      fontFamily:"inherit",boxShadow:"0 3px 8px rgba(60,90,40,0.3)"}}>확인</button>
+                    <style>{`@keyframes avHintNudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}`}</style>
+                  </div>
+                  </div>
+                )}
+                </div>
               )}
             </div>
           </div>
