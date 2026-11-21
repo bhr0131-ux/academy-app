@@ -313,13 +313,14 @@ export default function RegisteredAcademyList({
                       {ac.phone && <RowAct label="문자" color={ac.color} big icon={<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg>}
                         onPress={() => onSms(ac)} title={`${ac.name} 문자`} />}
                     </div>
-                    <button onClick={() => onEdit(ac)} className="jelly-tap" aria-label={`${ac.name} 수정`}
+                    <button onClick={() => onEdit(ac)} className="jelly-tap" aria-label={`${ac.name} 수정·삭제`}
                       style={{ border: "none", background: "none", color: SUBD, fontSize: FS.sub, fontWeight: FW.semi,
                         cursor: "pointer", fontFamily: "inherit", padding: "6px 0 6px 12px",
                         display: "inline-flex", alignItems: "center", gap: 5 }}>
                       {/* [사용자 확정 2026-08-16] '오늘의 학원'의 수정은 그날 미션·준비물을
-                          고치는 것이고, 여기는 학원 정보 자체를 고친다 → 이름으로 구분한다. */}
-                      <CareIcon name="pencil" size={13} />학원 수정
+                          고치는 것이고, 여기는 학원 정보 자체를 고친다 → 이름으로 구분한다.
+                          [사용자 확정 2026-11-21] 삭제도 이 버튼으로 여는 창 안에 있어 '학원 수정·삭제'로 */}
+                      <CareIcon name="pencil" size={13} />학원 수정·삭제
                     </button>
                   </div>
                 </div>
