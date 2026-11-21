@@ -949,7 +949,8 @@ export const SHOP_ORDER = {
          "shoes_jungle", "shoes_fins", "shoes_pirate_kid", "shoes_lightning", "shoes_jungle_leaf", "shoes_astronaut", "shoes_sandal",
          /* [2026-10-05 사용자 확정] 모자·가방도 짝이 되는 옷 순서대로 */
          "hat_safari_boy", "hat_captain_boy", "hat_pirate_boy", "hat_cap_boy", "hat_acorn_boy", "hat_helmet_boy", "hat_visor_boy",
-         "hand_tank_boy", "back_explorer", "back_rocket", "back_cross_boy", "back_tube_boy", "back_xpack_boy", "back_acorn_boy"],
+         /* [2026-11-21 사용자 확정] 남아 가방이 옷 순서와 어긋나 있었다 — 정글·바다·해적·번개·도토리·우주·썸머로 맞춤 */
+         "back_xpack_boy", "hand_tank_boy", "back_explorer", "back_cross_boy", "back_acorn_boy", "back_rocket", "back_tube_boy"],
   girl: ["top_vest", "top_picnic", "top_raincoat_girl", "top_delivery_girl", "top_bakery_girl", "top_space", "top_pirate", "top_magic",
          "shoes_wildflower", "shoes_strawberry", "shoes_rain", "shoes_blue", "shoes_pink", "shoes_space_girl", "shoes_pirate_girl", "shoes_purple",
          "hat_safari", "hat_picnic", "hat_cloud_girl", "hat_post_girl", "hat_chef_girl", "hat_helmet_girl", "hat_pirate", "hat_wizard_girl",

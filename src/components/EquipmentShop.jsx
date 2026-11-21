@@ -4,7 +4,7 @@ import AvatarViewer from "./AvatarViewer.jsx";
 import useDragScroll from "./useDragScroll.js";
 import EmojiIcon, { EmojiText } from "./EmojiIcon.jsx";
 import {
-  AVATAR_RARITY, SHOP_TABS, getItemsByTab, getSlot, itemLabel, itemEmoji,
+  AVATAR_RARITY, SHOP_TABS, getItemsByTab, getSlot, itemLabel, itemEmoji, getAvatarItem,
 } from "../data/avatarEquipment.js";
 
 /* 탭 목록·순서는 데이터(SHOP_TABS)에서만 관리한다 — 배경·효과는 거기서 이미 빠져
@@ -82,7 +82,7 @@ const useStageSize = (active) => {
     if (!active || !el) return;
     const measure = () => {
       const r = el.getBoundingClientRect();
-      setBox(Math.floor(Math.min(r.width, r.height)));
+      setBox(Math.floor(r.height));
     };
     measure();
     if (typeof ResizeObserver === "undefined") {
@@ -96,8 +96,11 @@ const useStageSize = (active) => {
   /* [사용자 확정 2026-11-18] 탭(모자·옷·신발…)마다 미리보기 크기가 min~max 사이에서 달라 보였다
      → 화면 크기로 정한 한 값(max)으로 고정한다. 탭을 바꿔도 아바타 크기·목록 시작 위치가 그대로다.
      (box 측정은 남겨 둔다 — 다시 '남는 만큼'으로 돌릴 때 이 줄만 되돌리면 된다) */
-  void box;
-  const size = bounds.max;
+  /* [버그 수정 2026-11-21] 키가 작은 화면(주소창이 보이는 폰 등)에서 무대를 max 로 박아 두니
+     목록(최소 150)·하단 바가 모달 밖으로 밀려 구매 버튼이 잘렸다(사용자 지적).
+     무대 칸은 이제 모자라면 줄어들고(flex-shrink), 그림은 '재 본 칸 높이'와 max 중 작은 쪽.
+     칸 높이는 탭과 무관하게(목록 최소·하단 바 높이가 늘 같다) 정해지므로 탭을 옮겨도 크기가 그대로다. */
+  const size = box > 0 ? Math.max(120, Math.min(bounds.max, box - 8)) : bounds.max;
   return [ref, size, bounds];
 };
 
@@ -129,11 +132,12 @@ const useStageSize = (active) => {
      equipped  : { [slot]: itemId|null }  장착 상태
      onBuy     : (itemId) => void         구매 요청 (App이 코인검증·저장 처리)
      onToggle  : (itemId) => void         장착/벗기 요청
+     onBuyMany : (itemIds) => boolean     입어본 것 한번에 구매 (안 가진 것만 사고 가진 건 입힌다, 2026-11-21)
      coinEmoji : string                   스킨별 코인 그림 (탐험 💎 / 베이커리 🍪)
    ════════════════════════════════════════════════════════════════════════ */
 
 export default function EquipmentShop({
-  open, onClose, coins = 0, owned = [], equipped = {}, onBuy, onToggle, baseCharImg = null, gender = "boy",
+  open, onClose, coins = 0, owned = [], equipped = {}, onBuy, onBuyMany, onToggle, baseCharImg = null, gender = "boy",
   /* 코인 이름·그림은 스킨마다 다르다(탐험 💎 코인 / 베이커리 🍪 쿠키) — 여기서 하드코딩하면
      같은 화면에서 카드는 🪙, 안내는 💎 로 갈린다. App 이 TERMS 값을 내려 준다. */
   coinEmoji = "🪙",
@@ -253,6 +257,18 @@ export default function EquipmentShop({
     setPreview((p) => ({ ...p, [item.slot]: item.id }));
   };
 
+  /* [사용자 확정 2026-11-21] 한번에 구매 — 입어보는 중인 것 중 아직 안 가진 것이 2개 이상이면 나온다.
+     이미 가진 건 값을 치르지 않는다(입기만). 코인이 모자라면 꺼 두고 얼마나 모자란지 알려 준다. */
+  const tryIds = Object.values(preview).filter(Boolean);
+  const bulkItems = tryIds.map(getAvatarItem).filter((it) => it && !owned.includes(it.id));
+  const bulkTotal = bulkItems.reduce((sum, it) => sum + (it.price || 0), 0);
+  const showBulk = bulkItems.length >= 2;
+  const bulkAfford = coins >= bulkTotal;
+  const doBulk = () => {
+    if (!bulkAfford) { bumpShort(); return; }
+    if (onBuyMany && onBuyMany(tryIds)) { setPreview({}); setSelectedId(""); }
+  };
+
   /* 하단 바 — 고른 것 하나의 행동. 없으면 비활성 안내. */
   const wearText = sel
     ? `이 ${getSlot(sel.slot)?.wearNoun || getSlot(sel.slot)?.label || "파츠"} ${getSlot(sel.slot)?.wearVerb || "착용"}`
@@ -358,7 +374,7 @@ export default function EquipmentShop({
         <div ref={stageRef} style={{
           /* 먼저 최대치(max)를 차지하고, 목록이 자리를 더 달라고 할 때만 min 까지 줄어든다.
              둘 다 grow 로 두면 남는 자리를 반씩 나눠 가져 무대가 최대치에 못 닿는다. */
-          flex: "0 0 auto", height: stageLimit.max + 8, minHeight: stageLimit.max + 8,   // 고정 크기 (2026-11-18)
+          flex: "0 1 auto", height: stageLimit.max + 8, minHeight: 128,   // 자리가 모자랄 때만 줄어든다 (2026-11-21)
           position: "relative", padding: "4px 0",
           display: "flex", alignItems: "center", justifyContent: "center", background: G.soft,
         }}>
@@ -418,7 +434,8 @@ export default function EquipmentShop({
         <div style={{
           /* minHeight — 목록이 뭉개지지 않을 만큼은 지킨다. 여기가 버티면
              좁은 화면에서 무대가 대신 min 까지 줄어든다. */
-          flex: "1 1 auto", minHeight: 150, overflowY: "auto",
+          /* basis 0 — 목록 길이(탭마다 다름)가 무대 크기에 끼어들지 않게. 자리가 모자라면 목록은 150에서 멈추고 무대가 줄어든다 */
+          flex: "1 1 0px", minHeight: 150, overflowY: "auto",
           padding: "14px 16px 16px", background: "#fff",
           display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 9, alignContent: "start",
         }}>
@@ -480,23 +497,49 @@ export default function EquipmentShop({
           flexShrink: 0, padding: "10px 16px calc(12px + env(safe-area-inset-bottom, 0px))",
           borderTop: `1px solid ${C.line || "#EEE"}`, background: "#fff",
         }}>
-          {bar.note && (
-            <p style={{ margin: "0 0 7px", textAlign: "center", fontSize: 12, fontWeight: 900, color: C.orange }}>
-              <EmojiText>{bar.note}</EmojiText>
-            </p>
-          )}
-          <button
-            key={shake}
-            onClick={bar.onPress || undefined}
-            disabled={!bar.onPress}
-            style={{
-              width: "100%", border: "none", borderRadius: 14, padding: "14px",
-              fontWeight: 900, fontSize: 15.5, ...barStyle,
-              animation: shake ? "esShake .5s ease-out" : undefined,
-            }}
-          >
-            <EmojiText>{bar.label}</EmojiText>
-          </button>
+          {/* 안내 줄은 늘 자리를 잡아 둔다 — 떴다 사라질 때마다 하단 바 높이가 바뀌면 위 무대 크기가 흔들린다 */}
+          {(() => {
+            const note = bar.note || (showBulk && !bulkAfford
+              ? `${coinEmoji} ${bulkTotal - coins}개 더 모으면 한번에 살 수 있어요` : "");
+            return (
+              <p style={{ margin: "0 0 7px", minHeight: 16, lineHeight: "16px", textAlign: "center", fontSize: 12, fontWeight: 900, color: C.orange,
+                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {note ? <EmojiText>{note}</EmojiText> : null}
+              </p>
+            );
+          })()}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              key={shake}
+              onClick={bar.onPress || undefined}
+              disabled={!bar.onPress}
+              style={{
+                flex: 1, minWidth: 0, border: "none", borderRadius: 14, padding: showBulk ? "14px 6px" : "14px",
+                fontWeight: 900, fontSize: showBulk ? 14 : 15.5, ...barStyle,
+                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                animation: shake ? "esShake .5s ease-out" : undefined,
+              }}
+            >
+              <EmojiText>{bar.label}</EmojiText>
+            </button>
+            {/* 한번에 구매 — 입어본 것 중 안 가진 게 2개 이상일 때만 옆에 나온다 */}
+            {showBulk && (
+              <button
+                key={"bulk" + shake}
+                onClick={doBulk}
+                aria-disabled={!bulkAfford}
+                style={{
+                  flex: 1, minWidth: 0, border: "none", borderRadius: 14, padding: "14px 6px",
+                  fontWeight: 900, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                  ...(bulkAfford ? { background: "#E0912F", color: "#fff", cursor: "pointer" }
+                                 : { background: "#E5E5EA", color: "#9598A8", cursor: "pointer" }),
+                  animation: shake && !bulkAfford ? "esShake .5s ease-out" : undefined,
+                }}
+              >
+                <EmojiText>{`${bulkAfford ? "" : "🔒 "}${bulkItems.length}개 한번에 ${coinEmoji} ${bulkTotal}`}</EmojiText>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

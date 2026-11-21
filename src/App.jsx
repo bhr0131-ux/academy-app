@@ -3084,6 +3084,35 @@ export default function App() {
     showToast(`${itemName} 획득! 🎉`);
   };
 
+  /* [사용자 확정 2026-11-21] 입어본 것 한번에 구매 — ids 중 안 가진 것만 사고, 이미 가진 건 입기만 한다.
+     코인이 전부 살 만큼 있을 때만 산다(일부만 사지 않는다). 판단은 동기 거울(ref)에서 — 연타해도 한 번. */
+  const buyAvatarItems=(ids)=>{
+    const cid=childId;
+    let owned=getAvatarOwned(cid), equipped=getAvatarEquipped(cid);
+    const list=[...new Set(ids||[])].map(getAvatarItem).filter(Boolean);
+    const toBuy=list.filter(it=>!owned.includes(it.id));
+    if(toBuy.length===0) return false;
+    const total=toBuy.reduce((s,it)=>s+(it.price||0),0);
+    const coin=getChildCoin(cid);
+    if(coin<total){ showToast(`${TM.coinEmoji} ${TM.coin} ${total-coin}개 더 모으면 한번에 살 수 있어요`,2200); return false; }
+    let budget=coin;
+    for(const it of list){
+      if(owned.includes(it.id)){
+        if(equipped[it.slot]!==it.id){ const r=computeAvatarEquipToggle(owned,equipped,it.id); if(r.ok) equipped=r.nextEquipped; }
+        continue;
+      }
+      const r=computeAvatarPurchase(owned,equipped,budget,it.id);
+      if(!r.ok) return false;   // 계산상 일어나지 않지만, 어긋나면 아무것도 사지 않는다
+      owned=r.nextOwned; equipped=r.nextEquipped; budget-=r.cost;
+    }
+    const g=(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy";
+    spendCoin(cid,total,`꾸미기 한번에 구매 ${toBuy.length}개 (${toBuy.map(it=>itemLabel(it,g)).join(", ")})`);
+    setAvatarOwned(prev=>({...prev,[cid]:owned}));
+    setAvatarEquipped(prev=>({...prev,[cid]:equipped}));
+    showToast(`${toBuy.length}개 한번에 획득! 🎉`);
+    return true;
+  };
+
   /* 아바타 파츠 장착/벗기 토글 */
   const toggleAvatarItem=(itemId)=>{
     const cid=childId;
@@ -4554,6 +4583,7 @@ export default function App() {
           gender={(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy"}
           coinEmoji={TM.coinEmoji}
           onBuy={buyAvatarItem}
+          onBuyMany={buyAvatarItems}
           onToggle={toggleAvatarItem}
         />
         {/* 발견 도감 — 탐험일지의 '도감' 버튼으로 연다 */}
