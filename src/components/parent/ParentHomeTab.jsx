@@ -48,6 +48,8 @@ export default function ParentHomeTab({
   acKindLabel, getAcademyTheme,
   onGoTab, onGoReward, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
   onHolidayRest,
+  /* [사용자 확정 2026-11-21] 학원비 칩 — 그달 납부했는지(App 의 paidStatus)와 누르면 학원비 탭으로 */
+  isFeePaid = () => false, onGoFee,
   /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
   childrenList = [], showSample = false,
   onAddAcademy, onEditAcademy, onCopyAcademy, onCopyAccount, onOpenMap, onSeedSample,
@@ -99,6 +101,25 @@ export default function ParentHomeTab({
       const day=(entry.supplies||[]).length;
       return n+base+day;
     },0);
+  /* [사용자 확정 2026-11-21] 학원비 — 납부일 '당일'에만, 그달 아직 납부 완료를 안 누른 곳만 센다.
+     (달력의 납부일 ▲ 표시와 같은 기준: 학원비가 있고 납부일 = 이 날짜의 '일') */
+  const feeMonth=hd.getMonth()+1;
+  const feeDueAc=curAc.filter(a=>Number(a.fee||0)>0&&Math.max(1,Number(a.payDay||1))===hd.getDate()&&!isFeePaid(a.id,feeMonth));
+  /* [사용자 확정 2026-11-21] 내일 준비물 — 오늘을 보고 있고 저녁 6시가 넘었을 때만.
+     전날 밤 가방을 미리 챙기라는 뜻. 세는 법은 위 '준비물'과 같다(가는 학원만, 학원마다 한 번) */
+  const tomorrow=addDays(homeDate,1);
+  const showTomorrowSupply=isToday&&new Date().getHours()>=18;
+  const tomorrowSupplyCount=showTomorrowSupply?(()=>{
+    const td=new Date(tomorrow.replace(/-/g,"/"));
+    const tDN=["일","월","화","수","목","금","토"][td.getDay()];
+    const plan=getDayPlan(curAc,curAbs,tomorrow,tDN,(acId)=>isVacationDay(childId,acId,tomorrow));
+    const acs=[...plan.filter(ac=>!ac._absent).reduce((m,ac)=>m.set(String(ac.id),ac),new Map()).values()];
+    return acs.reduce((n,ac)=>{
+      const entry=getDailyEntry(childId,ac.id,tomorrow);
+      const hidden=entry.hiddenBase||[];
+      return n+(ac.baseSupplies||[]).filter(x=>!hidden.includes(x)).length+(entry.supplies||[]).length;
+    },0);
+  })():0;
   return (
     <div>
       {/* 날짜 이동 — [사용자 확정 2026-08-10] 좌우 큰 네모 버튼을 없애고 화살표만 남긴다.
@@ -140,6 +161,10 @@ export default function ParentHomeTab({
             go:onOpenSupplyCheck});
           if(homePendingQuest>0) alerts.push({icon:"mission",label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
             go:onOpenMissionCheck});
+          if(feeDueAc.length>0) alerts.push({icon:"fee",label:`학원비 ${feeDueAc.length}곳`,color:C.blue||"#3B82F6",
+            go:()=>onGoFee&&onGoFee(feeMonth)});
+          if(tomorrowSupplyCount>0) alerts.push({icon:"bag",label:`내일 준비물 ${tomorrowSupplyCount}개`,color:C.purple||"#8B5CF6",
+            go:()=>onOpenSupplyCheck(tomorrow)});
           /* [사용자 확정 2026-08-17] 팝업으로 그 자리에서 처리하던 것을 되돌려 보상 탭으로 보낸다 —
              그 탭 맨 위가 이미 같은 '구매 승인 대기' 카드이고, 들어갈 때 받던 비밀번호도
              없어졌다. 팝업은 같은 화면을 한 겹 더 만드는 셈이었다. */

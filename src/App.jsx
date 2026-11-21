@@ -6049,7 +6049,9 @@ export default function App() {
             acKindLabel={acKindLabel} getAcademyTheme={getAcademyTheme}
             onGoTab={(k)=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab(k); }}
             onGoReward={goRewardTab}
-            onOpenSupplyCheck={()=>setShowSupplyCheck(homeDate)}
+            onOpenSupplyCheck={(d)=>setShowSupplyCheck(typeof d==="string"?d:homeDate)}
+            isFeePaid={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
+            onGoFee={(month)=>{ setFeeMonth(month); if(rewardUnlocked) setRewardUnlocked(false); setTab("fee"); }}
             onOpenMissionCheck={()=>setShowMissionCheck(homeDate)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
             /* [사용자 확정 2026-08-16] 홈의 '오늘의 학원' 자리에서 '등록 학원'으로 토글해
