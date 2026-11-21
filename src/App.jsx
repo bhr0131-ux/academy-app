@@ -5406,9 +5406,9 @@ export default function App() {
                         badge:`총 구매 ${getApprovedRewardCount(childId)}개`,
                         onPress:()=>setOpenRewardShop(true) },
                       /* [사용자 확정 2026-11-21] 열 상자가 없을 땐 '상자 없음' 대신 다음 상자 목표를 보여 준다
-                         ("미션 3개 더 하면 상자!"). 열지 않은 상자가 있으면 목표는 빼고 개수만. */
+                         ("미션 3개 더 하면 상자!"). 열지 않은 상자가 있으면 목표는 빼고 "열지 않은 상자 N개" (사용자 확정 — '상자 N개'보다 열어야 한다는 게 분명하다). */
                       { key:"box", img:"st-box.webp", name:TM.book,
-                        badge:boxCnt>0?`상자 ${boxCnt}개`:`미션 ${nextTreasureGoal(tre).left}개 더 하면 ${getBoxInfo(nextTreasureGoal(tre).type,kidSkin).name}!`,
+                        badge:boxCnt>0?`열지 않은 상자 ${boxCnt}개`:`미션 ${nextTreasureGoal(tre).left}개 더 하면 ${getBoxInfo(nextTreasureGoal(tre).type,kidSkin).name}!`,
                         onPress:()=>setOpenTreasure(true) },
                       /* 은행 [사용자 확정 2026-11-20] — 보물창고 바로 옆 칸 (사용자 원화 st-bank.webp) */
                       (()=>{ const b=getChildBank(bankData,childId); const m=bankClockBack(b,TODAY)?0:bankMaturedCount(b,TODAY); const tot=bankTotal(b);
