@@ -1,6 +1,6 @@
 import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, EXTRA_QUEST_ICON, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
-import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, getDecorById, computeDecorPurchase, decorNeedsMaxPet, decorView, getTerms, getParentTerms, getHolidayName } from "./data/characters.js";
+import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, nextTreasureGoal, getDecorById, computeDecorPurchase, decorNeedsMaxPet, decorView, getTerms, getParentTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, copyText, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
 import { loadOrMigrateDaily, saveDailyShards, dirtyMonths } from "./utils/dailyStore.js";
@@ -5405,8 +5405,10 @@ export default function App() {
                       { key:"item", img:"st-item.webp", name:"아이템 상점",
                         badge:`총 구매 ${getApprovedRewardCount(childId)}개`,
                         onPress:()=>setOpenRewardShop(true) },
+                      /* [사용자 확정 2026-11-21] 열 상자가 없을 땐 '상자 없음' 대신 다음 상자 목표를 보여 준다
+                         ("미션 3개 더 하면 상자!"). 열지 않은 상자가 있으면 목표는 빼고 개수만. */
                       { key:"box", img:"st-box.webp", name:TM.book,
-                        badge:boxCnt>0?`상자 ${boxCnt}개`:"상자 없음",
+                        badge:boxCnt>0?`상자 ${boxCnt}개`:`미션 ${nextTreasureGoal(tre).left}개 더 하면 ${getBoxInfo(nextTreasureGoal(tre).type,kidSkin).name}!`,
                         onPress:()=>setOpenTreasure(true) },
                       /* 은행 [사용자 확정 2026-11-20] — 보물창고 바로 옆 칸 (사용자 원화 st-bank.webp) */
                       (()=>{ const b=getChildBank(bankData,childId); const m=bankClockBack(b,TODAY)?0:bankMaturedCount(b,TODAY); const tot=bankTotal(b);

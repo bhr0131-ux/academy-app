@@ -129,10 +129,12 @@ export default function CharacterGrid({
             <EmojiIcon emoji={level.emoji} size={Math.round(S.labelF * 1.12)} style={{verticalAlign:"-0.18em",marginRight:5}}/>Lv.{level.level} {level.name}
           </p>
 
-          {/* 다음 등급까지 — 다음 레벨이 없으면 최고 레벨 문구 */}
+          {/* 다음 등급까지 — 다음 레벨이 없으면 최고 레벨 문구
+              [사용자 확정 2026-11-21] "다음 등급까지 49%" 대신 남은 양과 받을 것을 바로 말한다
+              ("⭐ 20점 더 모으면 Lv.15!") — 아이가 퍼센트보다 '몇 점 더'를 더 쉽게 이해한다 */}
           <p style={{ margin: 0, fontSize: Math.round(S.labelF * 0.8), fontWeight: 800, color: INK_SUB,
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>
-            <EmojiText>{nextLevel ? `다음 등급까지 ${Math.max(0, 100 - pct)}%` : "🏆 최고 레벨 달성!"}</EmojiText>
+            <EmojiText>{nextLevel ? `${labels.xpEmoji || "⭐"} ${Math.max(0, Number(progress.remainXp) || 0).toLocaleString()}${labels.xpUnit || "점"} 더 모으면 Lv.${nextLevel.level}!` : "🏆 최고 레벨 달성!"}</EmojiText>
           </p>
 
           {/* 진행 막대 — 왼쪽 발자국에서 오른쪽 깃발까지 (시안대로).

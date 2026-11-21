@@ -584,6 +584,17 @@ const _shiftDays = (ymd, n) => {
   return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`;
 };
 
+/* 다음 상자까지 남은 미션 수와 그때 받을 상자 — 캐릭터 탭 보물창고 칸의 목표 문구용
+   [사용자 확정 2026-11-21] (지급 규칙은 아래 computeQuestTreasure 와 같다 — 겹치면 더 좋은 상자) */
+export const nextTreasureGoal = (cur) => {
+  const c = Math.max(0, Math.floor(Number(cur && cur.completedQuestCount) || 0));
+  const M = TREASURE_MILESTONE;
+  const left = Math.min(...[M.normal, M.rare, M.legend].map(m => m - (c % m)));
+  const at = c + left;
+  const type = at % M.legend === 0 ? "legend" : at % M.rare === 0 ? "rare" : "normal";
+  return { left, type };
+};
+
 export const computeQuestTreasure = (cur, questKey, today) => {
   const base = cur || { completedQuestCount:0, normalBox:0, rareBox:0, legendBox:0, rewardedQuestKeys:[] };
   const keys = base.rewardedQuestKeys || [];
