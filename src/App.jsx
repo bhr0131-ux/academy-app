@@ -4,7 +4,7 @@ import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, A
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, copyText, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
 import { loadOrMigrateDaily, saveDailyShards, dirtyMonths } from "./utils/dailyStore.js";
-import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, parseShuttle, joinShuttle, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
+import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, parseShuttle, joinShuttle, getRemainLabel, toKoreanTime, getDayPlan, feeDueDay } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
@@ -4094,7 +4094,7 @@ export default function App() {
        화면에서 제일 도드라지는 게 '더 할 일이 없는 건'이었다. */
     if(isPaid(a.id)) return {key:"paid",label:"납부 완료",color:C.sub};
     const now=new Date(); now.setHours(0,0,0,0);
-    const d=new Date(now.getFullYear(),feeMonth-1,Math.max(1,Number(a.payDay||1)));
+    const d=new Date(now.getFullYear(),feeMonth-1,feeDueDay(a,now.getFullYear(),feeMonth-1));   // 31일 납부일도 그 달 안으로
     const diff=Math.round((d-now)/86400000);
     if(diff<0)   return {key:"late", label:`납부일 ${Math.abs(diff)}일 지남`,color:C.red};
     if(diff===0) return {key:"today",label:"오늘 납부일",color:C.red};
