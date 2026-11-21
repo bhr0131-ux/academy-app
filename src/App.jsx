@@ -4,7 +4,7 @@ import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, A
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, copyText, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
 import { loadOrMigrateDaily, saveDailyShards, dirtyMonths } from "./utils/dailyStore.js";
-import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, parseShuttle, joinShuttle, getRemainLabel, toKoreanTime, getDayPlan } from "./data/sampleData.js";
+import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, makeupTimeText, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, parseShuttle, joinShuttle, getRemainLabel, toKoreanTime, getDayPlan, feeDueDay } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
@@ -414,8 +414,11 @@ export default function App() {
   const [pinHintSeen,           setPinHintSeen]           = useState(initOnboarding.pinHintSeen);
   const [sfxOn,                 setSfxOn]                 = useState(initOnboarding.sfxOn);
   /* [사용자 확정 2026-11-21] 처음 꾸미기를 사서 입으면 '내아바타' 뱃지 옆에 "내 아바타를 눌러보세요 →" 안내.
-     새 키 v6_avatar_hint — "pending"(사고 아직 못 봄) / "done"(확인함). 앱을 껐다 켜도 안 본 안내는 다시 뜬다. */
-  const [avatarHint,            setAvatarHint]            = useState("");
+     [사용자 확정 2026-11-21] 아이마다 따로 — 형제 중 한 명이 확인해도 다른 아이는 자기가 처음 살 때 본다.
+     새 키 v6_avatar_hint_by_child = { [아이id]: "pending"(사고 아직 못 봄) | "done"(확인함) }.
+     (첫 판 v6_avatar_hint 는 앱 전체 한 값이라 누구 것인지 몰라 읽지 않는다 — 키는 지우지 않고 둔다) */
+  const [avatarHintMap,         setAvatarHintMap]         = useState({});
+  const avatarHint=avatarHintMap[childId]||"";
 
   // ── 도메인 I: ui (범용 탭/모달/토글) ─────────────────────────────
   const [childTab,               setChildTab]               = useState(initUi.childTab);
@@ -895,8 +898,8 @@ export default function App() {
       if(tipSeen) setFirstTipSeen(true);
       const pinHint=await load("v6_pin_hint_seen");
       if(pinHint) setPinHintSeen(true);
-      const avHint=await load("v6_avatar_hint");
-      if(avHint==="pending"||avHint==="done") setAvatarHint(avHint);
+      const avHint=await load("v6_avatar_hint_by_child");
+      if(avHint&&typeof avHint==="object") setAvatarHintMap(avHint);
       const sfxSaved=await load("v6_sfx_on");          // 없으면(처음) 켜짐
       if(sfxSaved===false){ setSfxOn(false); setSfxEnabled(false); }
       const rAge=await load("v6_reward_age_group");
@@ -1733,6 +1736,7 @@ export default function App() {
        (발견 도감은 나중에 붙은 기능이라 백업·초기화 여러 곳에서 함께 누락돼 있었다) */
     setDiscoveryData(prev=>({...prev,[cid]:{log:[]}}));
     setBankData(prev=>({...prev,[cid]:emptyBank()}));   // 은행에 맡긴 코인도 함께 (코인이 0이 되니까)
+    setAvatarHintMap(prev=>{ if(!(cid in prev)) return prev; const n={...prev}; delete n[cid]; save("v6_avatar_hint_by_child",n); return n; });   // 꾸미기를 다 비우니 첫 구매 안내도 다시
     showToast("게임 데이터 초기화 완료");
     }, `🧹 ${nm} 데이터 초기화`);
   };
@@ -1755,7 +1759,7 @@ export default function App() {
     /* [버그 수정 2026-08-15] 아래 네 가지가 빠져 있었다. clearAllStorage 가 저장소는
        비우지만 화면(메모리) 값은 그대로 남아, 초기화 뒤에 발견을 하나 하거나 값이
        바뀌는 순간 예전 것이 통째로 다시 저장됐다 — 지운 도감이 되살아난다. */
-    setDiscoveryData({}); setBankData({}); setRewardAgeGroup("kid");
+    setDiscoveryData({}); setBankData({}); setAvatarHintMap({}); setRewardAgeGroup("kid");
     setRecoveryQuestion(""); setRecoveryAnswer("");
     setTemplates(SAMPLE_TMPL); setParentPin("1234");
     setLastBackupDate(null); setLastNudgeDate(null); // 백업·안내 기록도 초기화
@@ -2704,6 +2708,9 @@ export default function App() {
       return n;
     });
 
+    // 내 아바타 첫 구매 안내 기록도 그 아이 것만 덜어낸다 (새 키라 저장까지 함께)
+    setAvatarHintMap(prev=>{ if(!(id in prev)) return prev; const n={...prev}; delete n[id]; save("v6_avatar_hint_by_child",n); return n; });
+
     showToast("삭제됨");
   };
   /* 아이 순서 바꾸기 — 배열 순서가 곧 화면 위 아이 선택 탭의 순서다 (사용자 확정 2026-08-10) */
@@ -3065,13 +3072,14 @@ export default function App() {
   };
 
   /* 처음 산 꾸미기인지 — 기본 지급(starter) 말고 가진 게 하나도 없을 때 산 것. 그때만 '내아바타' 안내를 건다 */
-  const armAvatarHint=(ownedBefore)=>{
-    if(avatarHint) return;
+  const setHintFor=(cid,v)=>setAvatarHintMap(prev=>{ const n={...prev,[cid]:v}; save("v6_avatar_hint_by_child",n); return n; });
+  const armAvatarHint=(cid,ownedBefore)=>{
+    if(avatarHintMap[cid]) return;
     const hasBought=(ownedBefore||[]).some(id=>{ const it=getAvatarItem(id); return it&&!it.starter; });
     if(hasBought) return;
-    setAvatarHint("pending"); save("v6_avatar_hint","pending");
+    setHintFor(cid,"pending");
   };
-  const doneAvatarHint=()=>{ if(avatarHint==="pending"){ setAvatarHint("done"); save("v6_avatar_hint","done"); } };
+  const doneAvatarHint=()=>{ if(avatarHint==="pending") setHintFor(childId,"done"); };
 
   /* 아바타 파츠 구매 (코인 차감은 기존 spendCoin 패턴 그대로) */
   const buyAvatarItem=(itemId)=>{
@@ -3092,7 +3100,7 @@ export default function App() {
       return;
     }
     const itemName=itemLabel(item,(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy");
-    armAvatarHint(owned);
+    armAvatarHint(cid,owned);
     spendCoin(cid,res.cost,`${itemName} 꾸미기 파츠 구매`);
     setAvatarOwned(prev=>({...prev,[cid]:res.nextOwned}));
     setAvatarEquipped(prev=>({...prev,[cid]:res.nextEquipped}));
@@ -3120,7 +3128,7 @@ export default function App() {
       if(!r.ok) return false;   // 계산상 일어나지 않지만, 어긋나면 아무것도 사지 않는다
       owned=r.nextOwned; equipped=r.nextEquipped; budget-=r.cost;
     }
-    armAvatarHint(getAvatarOwned(cid));
+    armAvatarHint(cid,getAvatarOwned(cid));
     const g=(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy";
     spendCoin(cid,total,`꾸미기 한번에 구매 ${toBuy.length}개 (${toBuy.map(it=>itemLabel(it,g)).join(", ")})`);
     setAvatarOwned(prev=>({...prev,[cid]:owned}));
@@ -4094,7 +4102,7 @@ export default function App() {
        화면에서 제일 도드라지는 게 '더 할 일이 없는 건'이었다. */
     if(isPaid(a.id)) return {key:"paid",label:"납부 완료",color:C.sub};
     const now=new Date(); now.setHours(0,0,0,0);
-    const d=new Date(now.getFullYear(),feeMonth-1,Math.max(1,Number(a.payDay||1)));
+    const d=new Date(now.getFullYear(),feeMonth-1,feeDueDay(a,now.getFullYear(),feeMonth-1));   // 31일 납부일도 그 달 안으로
     const diff=Math.round((d-now)/86400000);
     if(diff<0)   return {key:"late", label:`납부일 ${Math.abs(diff)}일 지남`,color:C.red};
     if(diff===0) return {key:"today",label:"오늘 납부일",color:C.red};

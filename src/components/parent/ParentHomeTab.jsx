@@ -29,7 +29,7 @@
 import { useState } from "react";
 import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
-import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan } from "../../data/sampleData.js";
+import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan, feeDueDay } from "../../data/sampleData.js";
 import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 import EmojiIcon from "../EmojiIcon.jsx";
@@ -104,7 +104,7 @@ export default function ParentHomeTab({
   /* [사용자 확정 2026-11-21] 학원비 — 납부일 '당일'에만, 그달 아직 납부 완료를 안 누른 곳만 센다.
      (달력의 납부일 ▲ 표시와 같은 기준: 학원비가 있고 납부일 = 이 날짜의 '일') */
   const feeMonth=hd.getMonth()+1;
-  const feeDueAc=curAc.filter(a=>Number(a.fee||0)>0&&Math.max(1,Number(a.payDay||1))===hd.getDate()&&!isFeePaid(a.id,feeMonth));
+  const feeDueAc=curAc.filter(a=>Number(a.fee||0)>0&&feeDueDay(a,hd.getFullYear(),hd.getMonth())===hd.getDate()&&!isFeePaid(a.id,feeMonth));
   /* [사용자 확정 2026-11-21] 내일 준비물 — 오늘을 보고 있고 저녁 6시가 넘었을 때만.
      전날 밤 가방을 미리 챙기라는 뜻. 세는 법은 위 '준비물'과 같다(가는 학원만, 학원마다 한 번) */
   const tomorrow=addDays(homeDate,1);

@@ -33,7 +33,7 @@ import { C, FS, FW, RAD, CTRL_H, mixWhite, SHADOW } from "../../data/tokens.js";
    달력에서만 쓰는 순서를 여기에 따로 둔다. */
 const CAL_DAYS = ["일","월","화","수","목","금","토"];
 import { TODAY, getDN, toStr, addDays, parseLocal } from "../../utils/dates.js";
-import { hasClassOnDay, getShuttleText, makeupTimeText, getDayPlan } from "../../data/sampleData.js";
+import { hasClassOnDay, getShuttleText, makeupTimeText, getDayPlan, feeDueDay } from "../../data/sampleData.js";
 import { getHolidayName } from "../../data/characters.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
@@ -114,7 +114,7 @@ export default function CalendarTab({
   const vacCnt=selInfo.acList.length-liveAc.length;
   if(vacCnt) sumParts.push(`휴원 ${vacCnt}곳`);
   /* 학원비 납부일 — 매월 같은 날이라 '평소와 다른 일'은 아니지만 놓치면 곤란해서 예외로 둔다 */
-  const feeDueOnSel=curAc.filter(a=>Number(a.fee||0)>0&&Math.max(1,Number(a.payDay||1))===selInfo.day);
+  const feeDueOnSel=curAc.filter(a=>Number(a.fee||0)>0&&feeDueDay(a,selInfo.y,selInfo.m)===selInfo.day);
   if(feeDueOnSel.length) sumParts.push(`학원비 납부일 ${feeDueOnSel.length}곳`);
 
   /* [사용자 확정 2026-08-10] 월 이동 화살표가 주간 보기에서는 아무 일도 하지 않았다 —
@@ -198,7 +198,7 @@ export default function CalendarTab({
           if(curAbs.some(a=>a.makeupDate===dateStr&&!a.makeupDone)) marks.push("makeup");
           if(curAbs.some(a=>a.makeupDate===dateStr&&a.makeupDone)) marks.push("makeupDone");
           if(onVac) marks.push("vacation");
-          if(curAc.some(a=>Number(a.fee||0)>0&&Math.max(1,Number(a.payDay||1))===day)) marks.push("fee");
+          if(curAc.some(a=>Number(a.fee||0)>0&&feeDueDay(a,calDate.getFullYear(),calDate.getMonth())===day)) marks.push("fee");
           /* 준비물은 '평소와 다른 것'만 — 그날 따로 넣은 준비물이 있거나
              늘 챙기던 걸 뺀 날에만 찍는다. 매번 같은 기본 준비물로는 찍지 않는다. */
           if(acList.some(a=>{ if(isVacationDay(childId,a.id,dateStr)) return false;

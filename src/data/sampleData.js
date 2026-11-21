@@ -95,6 +95,14 @@ export const makeupTimeText = (ab) => {
 };
 
 // ── 요일별 스케줄 유틸 (하이브리드: 기본 공통시간 + 예외 요일별 시간) ──
+/* 그 달의 실제 학원비 납부일(일) — 납부일이 그 달 마지막 날보다 크면 마지막 날로.
+   [버그 수정 2026-11-21] 납부일 31일 학원은 30일까지인 달에 홈·달력 어디에도 납부일이 안 떴다
+   (학원비 탭 D-day 는 다음 달 1일로 넘어가 계산됐다). y: 연도, m0: 0부터 세는 달 */
+export const feeDueDay = (academy, y, m0) => {
+  const last = new Date(y, m0 + 1, 0).getDate();
+  return Math.min(Math.max(1, Number(academy && academy.payDay) || 1), last);
+};
+
 export const hasClassOnDay = (academy, day) => {
   if (academy.useCustomSchedule) return (academy.schedules||[]).some(s=>s.day===day);
   return (academy.days||[]).includes(day);
