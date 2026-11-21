@@ -3949,7 +3949,7 @@ export default function App() {
          엄마 화면에는 아무 표시가 없었다 — 체크를 풀 때만 토스트가 떠서 '주는 건 안 보이고
          뺏는 것만 보이는' 상태였다. 엄마 화면에도 같은 모양의 토스트를 띄운다. */
       if(appMode==="child") cheerCharacter(point);
-      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${point} ${TM.coin}`);
+      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${questCoin(point)} ${TM.coin}`);   // [버그 수정 2026-11-21] 코인은 questCoin 배율 — 실제로 15 들어오는데 +10 이라고 떴다
     } else {
       showToast(`체크 취소 -${point}${TM.xpUnit} / -${point} ${TM.coin}`);
     }
@@ -3977,7 +3977,7 @@ export default function App() {
          엄마 화면에는 아무 표시가 없었다 — 체크를 풀 때만 토스트가 떠서 '주는 건 안 보이고
          뺏는 것만 보이는' 상태였다. 엄마 화면에도 같은 모양의 토스트를 띄운다. */
       if(appMode==="child") cheerCharacter(point);
-      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${point} ${TM.coin}`);
+      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${questCoin(point)} ${TM.coin}`);   // [버그 수정 2026-11-21] 코인은 questCoin 배율 — 실제로 15 들어오는데 +10 이라고 떴다
     } else {
       showToast(`체크 취소 -${point}${TM.xpUnit} / -${point} ${TM.coin}`);
     }
@@ -6060,6 +6060,7 @@ export default function App() {
             onOpenSupplyCheck={(d)=>setShowSupplyCheck(typeof d==="string"?d:homeDate)}
             isFeePaid={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
             onGoFee={(month)=>{ setFeeMonth(month); if(rewardUnlocked) setRewardUnlocked(false); setTab("fee"); }}
+            onToggleQuest={(item)=>{ if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id); else toggleTodoDone(childId,item.academyId,item.date,item.id); }}
             onOpenMissionCheck={()=>setShowMissionCheck(homeDate)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
             /* [사용자 확정 2026-08-16] 홈의 '오늘의 학원' 자리에서 '등록 학원'으로 토글해

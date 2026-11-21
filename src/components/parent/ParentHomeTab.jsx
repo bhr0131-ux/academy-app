@@ -51,6 +51,8 @@ export default function ParentHomeTab({
   onHolidayRest,
   /* [사용자 확정 2026-11-21] 학원비 칩 — 그달 납부했는지(App 의 paidStatus)와 누르면 학원비 탭으로 */
   isFeePaid = () => false, onGoFee,
+  /* [사용자 확정 2026-11-21] 홈의 미션은 보기 전용이지만 '완료 체크'만은 여기서 한다 (아이가 깜빡했을 때) */
+  onToggleQuest,
   /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
   childrenList = [], showSample = false,
   onAddAcademy, onEditAcademy, onCopyAcademy, onCopyAccount, onOpenMap, onSeedSample,
@@ -600,7 +602,7 @@ export default function ParentHomeTab({
           [사용자 확정 2026-11-21] 홈은 '그날 일정을 한눈에 보는 곳'으로 — 학원 아래에 미션도 늘어놓는다.
           모양은 미션 탭의 미션 줄(제목 크게 · 아래 학원점·학원명·종류 · 점수 배지)을 가져오되,
           카드는 위 학원 카드와 같은 흰 카드 + 왼쪽 학원색 세로선으로 맞춘다.
-          여기서는 누르거나 고치지 않는다 — 추가·수정·삭제는 설정 쪽에서 한다(사용자 계획). */}
+          추가·수정·삭제는 설정 쪽에서 한다(사용자 계획). 완료 체크(○→✓)만은 여기서도 된다(사용자 확정). */}
       {(()=>{
         const items=homeQuestItems;
         const done=items.filter(i=>i.done).length;
@@ -621,13 +623,17 @@ export default function ParentHomeTab({
                 <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`}
                   style={{background:"#fff",borderRadius:RAD.md,marginBottom:8,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,overflow:"hidden",display:"flex"}}>
                   <div style={{width:4,background:col,flexShrink:0}}/>
-                  <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-start",gap:10,padding:"10px 14px 10px 12px",
+                  <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-start",gap:4,padding:"6px 14px 6px 2px",
                     background:item.done?`${C.green}08`:"#fff"}}>
-                    {/* 완료 표시 — 보기 전용이라 버튼이 아니다 */}
-                    <span aria-label={item.done?"완료":item.failed?"미완료":"아직"} style={{width:22,height:22,borderRadius:"50%",flexShrink:0,marginTop:1,
-                      display:"flex",alignItems:"center",justifyContent:"center",border:`2px solid ${st.c}`,background:st.bg,
-                      color:"#fff",fontWeight:900,fontSize:12}}>{st.mark}</span>
-                    <div style={{flex:1,minWidth:0}}>
+                    {/* 완료 체크 — 미션 탭과 같은 동작. 누르는 자리는 40×40, 원은 22. 미완료(×)로 닫힌 건 못 바꾼다 */}
+                    <button onClick={()=>{ if(!item.failed&&onToggleQuest) onToggleQuest(item); }} className="jelly-tap"
+                      aria-label={`${item.label} ${item.done?"완료 취소":"완료"}`} disabled={item.failed}
+                      style={{width:40,height:40,flexShrink:0,border:"none",background:"none",padding:0,display:"flex",alignItems:"center",
+                        justifyContent:"center",cursor:item.failed?"default":"pointer",fontFamily:"inherit"}}>
+                      <span style={{width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
+                        border:`2px solid ${st.c}`,background:st.bg,color:"#fff",fontWeight:900,fontSize:12}}>{st.mark}</span>
+                    </button>
+                    <div style={{flex:1,minWidth:0,paddingTop:5}}>
                       <p style={{fontSize:FS.title,fontWeight:800,margin:0,lineHeight:1.35,
                         color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",
                         display:"-webkit-box",WebkitBoxOrient:"vertical",WebkitLineClamp:2,overflow:"hidden",overflowWrap:"anywhere"}}>
