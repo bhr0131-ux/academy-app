@@ -87,25 +87,25 @@ export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
   const last=i===pages.length-1;
   const row=(icon,name,desc,key)=>(
     <div key={key} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0"}}>
-      <div style={{width:40,height:40,borderRadius:12,background:`${TH.main}15`,color:TH.main,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{icon}</div>
+      <div style={{width:36,height:36,borderRadius:11,background:`${TH.main}15`,color:TH.main,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{icon}</div>
       <div style={{minWidth:0}}>
-        <p style={{fontSize:16,fontWeight:900,color:"#1A1A35",margin:0}}>{name}</p>
-        <p style={{fontSize:13.5,fontWeight:600,color:"#5A6072",margin:"2px 0 0",lineHeight:1.45,whiteSpace:"pre-line"}}>{desc}</p>
+        <p style={{fontSize:14.5,fontWeight:900,color:"#1A1A35",margin:0}}>{name}</p>
+        <p style={{fontSize:12.5,fontWeight:600,color:"#5A6072",margin:"2px 0 0",lineHeight:1.45,whiteSpace:"pre-line"}}>{desc}</p>
       </div>
     </div>
   );
   return (
     <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.78)",display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:"24px",wordBreak:"keep-all"}}>
       <div style={{textAlign:"center",marginBottom:"auto",marginTop:"14vh"}}>
-        <p style={{color:"rgba(255,255,255,0.85)",fontSize:14,fontWeight:700,margin:0}}>{pages[i].head}</p>
-        <p style={{color:"#fff",fontSize:22,fontWeight:900,margin:"8px 0 0"}}>{i+1} / {pages.length}</p>
+        <p style={{color:"rgba(255,255,255,0.85)",fontSize:13,fontWeight:700,margin:0}}>{pages[i].head}</p>
+        <p style={{color:"#fff",fontSize:20,fontWeight:900,margin:"6px 0 0"}}>{i+1} / {pages.length}</p>
       </div>
       <div style={{background:"#fff",borderRadius:22,padding:"18px 20px 22px",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
         <div style={{marginBottom:16}}>
           {i===0
             ? menus.map((m,k)=>row(m.icon,m.name,m.desc,k))
             : [row(<CareIcon name="lock" size={21}/>,`${parentRole} 권한은 잠금`,"몇 곳은 비밀번호를 한번 물어봐요.\n(초기 비밀번호 1234)","lock"),
-               row(<CareIcon name="bag" size={21}/>,"아이용","이제 아이용 화면을 살펴볼까요?\n오른쪽 위 '🎒 아이용' 버튼을 눌러보세요!","kid")]}
+               row(<CareIcon name="bag" size={19}/>,"아이용","이제 아이용 화면을 살펴볼까요?\n오른쪽 위 '🎒 아이용' 버튼을 눌러보세요!","kid")]}
         </div>
         <div style={{display:"flex",gap:5,justifyContent:"center",marginBottom:16}}>
           {pages.map((_,idx)=>(<span key={idx} style={{width:idx===i?20:7,height:7,borderRadius:99,background:idx===i?TH.main:"#D9DEE8",transition:"all .25s"}}/>))}
@@ -186,8 +186,8 @@ export function OnboardingFlow({ onFinish }){
     { kind:"welcome" },
     /* [사용자 확정 2026-09-28] 기본값 mom 이 이미 골라져 있어 그냥 넘어가도 되고,
        아빠면 눌러서 바꾸면 된다 — 강제로 고르게 하지 않는다.
-       [사용자 확정 2026-11-21] 첫 사용을 줄이려고 '보호자' 한 장을 빼고, 아이 이름 화면 위에
-       작은 엄마/아빠 버튼으로 합쳤다 (화면 7 → 6). */
+       [사용자 확정 2026-11-21] 첫 사용을 줄이려고 '보호자' 한 장을 빼고, 아이 이름 화면 아래에
+       같은 크기의 질문으로 합쳤다 (화면 7 → 6). */
     { kind:"input", title:"아이의 이름이 무엇인가요?", sub:"아이 화면과 미션에 표시돼요.", canNext:()=>childName.trim().length>0 },
     { kind:"age", title:"아이의 연령대를 골라주세요", sub:"연령대에 맞는 보상 목록을 자동으로 준비해드려요. 나중에 바꿀 수 있어요.", canNext:()=>age!=="" },
     /* [사용자 지적 2026-08-11] 앱의 학원 등록은 '종류'가 필수고 '이름'이 선택이다.
@@ -252,18 +252,6 @@ export function OnboardingFlow({ onFinish }){
 
         {cur.kind==="input"&&(
           <div>
-            {/* 보호자 — 작은 두 칸 (기본 엄마). 예전엔 이 한 가지로 화면 한 장을 썼다 */}
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:22}}>
-              <span style={{fontSize:13.5,fontWeight:800,color:"#8890B0",marginRight:2}}>보호자</span>
-              {[{k:"mom",e:"👩",t:"엄마"},{k:"dad",e:"👨",t:"아빠"}].map(p=>(
-                <button key={p.k} onClick={()=>setParentGender(p.k)}
-                  style={{padding:"7px 14px",borderRadius:999,border:`1.5px solid ${parentGender===p.k?TH.main:"#E3E8F0"}`,
-                    background:parentGender===p.k?`${TH.main}12`:"#fff",cursor:"pointer",fontSize:14,fontWeight:800,
-                    color:parentGender===p.k?TH.main:"#8890B0",fontFamily:"inherit"}}>
-                  {p.e} {p.t}
-                </button>
-              ))}
-            </div>
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
             <input autoFocus value={childName} onChange={e=>setChildName(e.target.value)} placeholder="예: 연우" style={inp}
@@ -271,6 +259,20 @@ export function OnboardingFlow({ onFinish }){
             <div style={{display:"flex",gap:10,marginTop:16}}>
               {[{k:"boy",t:"👦 남자아이"},{k:"girl",t:"👧 여자아이"}].map(g=>(
                 <button key={g.k} onClick={()=>setGender(g.k)} style={{flex:1,padding:14,borderRadius:14,border:`2px solid ${gender===g.k?TH.main:"#E3E8F0"}`,background:gender===g.k?`${TH.main}12`:"#fff",color:gender===g.k?TH.main:"#8890B0",fontSize:15,fontWeight:800,cursor:"pointer"}}>{g.t}</button>
+              ))}
+            </div>
+            {/* [사용자 확정 2026-11-21] 보호자 질문을 따로 한 장 두지 않고 이름 아래에 같은 크기의 질문으로.
+                엄마·아빠 순서, 기본은 엄마 (그냥 넘어가도 된다) */}
+            <p style={{...lbl,marginTop:40}}>보호자는 누구인가요?</p>
+            <div style={{height:16}}/>
+            <div style={{display:"flex",gap:10}}>
+              {[{k:"mom",e:"👩",t:"엄마"},{k:"dad",e:"👨",t:"아빠"}].map(p=>(
+                <button key={p.k} onClick={()=>setParentGender(p.k)}
+                  style={{flex:1,padding:"18px 14px",borderRadius:16,border:`2px solid ${parentGender===p.k?TH.main:"#E3E8F0"}`,
+                    background:parentGender===p.k?`${TH.main}12`:"#fff",cursor:"pointer",textAlign:"center"}}>
+                  <div style={{fontSize:30,marginBottom:6,lineHeight:1}}>{p.e}</div>
+                  <div style={{fontSize:16,fontWeight:900,color:parentGender===p.k?TH.main:"#1A1A35"}}>{p.t}</div>
+                </button>
               ))}
             </div>
           </div>
