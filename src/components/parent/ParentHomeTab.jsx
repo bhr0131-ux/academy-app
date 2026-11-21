@@ -552,7 +552,7 @@ export default function ParentHomeTab({
                   {moreCnt>0&&<span style={{...chip,background:CT.faint,color:SUBD}}>+{moreCnt}</span>}
                 </div>
               </div>
-              {/* 맨 아랫줄 — 왼쪽 끝에 전화·문자, 오른쪽 끝에 수정 (사용자 확정 2026-08-16).
+              {/* 맨 아랫줄 — 왼쪽 끝에 전화·문자 (오른쪽 '수정'은 2026-11-21 뺐다).
                   수정은 보조 기능이라 오른쪽 아래에 작게 두던 것 그대로다. */}
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
                 {/* 전화·문자 — 등록 학원의 계좌 '복사' · 주소 '지도' 와 같은 생김새(RowAct)로
@@ -563,12 +563,8 @@ export default function ParentHomeTab({
                   {ac.phone&&<RowAct label="문자" color={ac.color} big icon={<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg>}
                     onPress={()=>onSms(ac)} title={`${ac.name} 문자`}/>}
                 </div>
-                <button onClick={()=>onEditDaily(ac,homeDate)}
-                  style={{border:"none",background:"none",color:SUBD,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px",display:"inline-flex",alignItems:"center",gap:5}}>
-                  {/* [사용자 확정 2026-08-16] 그냥 '수정'이면 학원 정보를 고치는 것으로 읽힌다.
-                      여기서 고치는 건 그날의 미션·준비물이다 (학원 정보는 등록 학원 쪽에서). */}
-                  <CareIcon name="pencil" size={13}/>준비물·미션 수정
-                </button>
+                {/* (삭제됨 2026-11-21 사용자 확정) '준비물·미션 수정' — 홈은 보기 전용 대시보드.
+                    그날 준비물·미션은 '전체 학원 → 학원 수정·삭제' 창 안에서 고친다. */}
               </div>
             </div>
             )}

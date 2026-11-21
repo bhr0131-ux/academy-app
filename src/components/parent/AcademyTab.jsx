@@ -221,7 +221,7 @@ export default function AcademyTab({
                       카드가 다시 길어졌다 → 접힌 카드에서는 셋까지만 보이고 나머지는
                       '외 N개'. 펼치면 전부 나온다 (따로 상세 표에 옮기지 않는다). */}
                   {[{k:"bag",   label:"준비물",   items:supplies},
-                    {k:"mission",label:"반복 숙제",items:homeworks}].map((row,ri)=>{
+                    {k:"mission",label:"숙제 즐겨찾기",items:homeworks}].map((row,ri)=>{
                     const shown=isOpen?row.items:row.items.slice(0,3);
                     const rest=row.items.length-shown.length;
                     return (

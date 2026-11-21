@@ -252,7 +252,7 @@ export default function RegisteredAcademyList({
                   <div style={{ display: "flex", alignItems: "flex-start", flexWrap: "wrap",
                     gap: "10px 14px", marginBottom: 14 }}>
                     {[{ k: "bag", label: "준비물", items: supplies },
-                      { k: "mission", label: "반복 숙제", items: homeworks }].map((row) => (
+                      { k: "mission", label: "숙제 즐겨찾기", items: homeworks }].map((row) => (
                       <div key={row.k} style={{ flex: "1 1 auto", minWidth: "max-content", maxWidth: "100%",
                         display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 5, flexShrink: 0, color: SUBD }}>

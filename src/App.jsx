@@ -243,6 +243,10 @@ export default function App() {
   const [newAc,       setNewAc]       = useState(initAcademy.newAc);
   const [editTarget,  setEditTarget]  = useState(initAcademy.editTarget);
   const [supplyInput, setSupplyInput] = useState(initAcademy.supplyInput);
+  /* [사용자 확정 2026-11-21] 학원 수정 창 안 준비물 칸 — '항상' 버튼(기본 꺼짐)을 켜고 추가하면 항상 챙길 준비물,
+     끄고 추가하면 그날(홈에서 보던 날짜) 준비물. 저장(수정 완료)을 눌러야 반영된다. */
+  const [acSupAlways, setAcSupAlways] = useState(false);
+  const [acDaySup,    setAcDaySup]    = useState([]);
   const [baseHwInput, setBaseHwInput] = useState(initAcademy.baseHwInput);
   const [showAcMore,  setShowAcMore]  = useState(initAcademy.showAcMore);
   const [acSecSupply, setAcSecSupply] = useState(false); // 상세: 준비물·숙제
@@ -4017,7 +4021,7 @@ export default function App() {
     const unused=PALETTE.find(c=>!used.includes(c.toUpperCase()));
     return unused||PALETTE[(curAc||[]).length%PALETTE.length];
   };
-  const openAdd=()=>{ setEditTarget(null); setConfirmDelAc(false); setNewAc({...EMPTY_AC,color:getNextAcademyColor(),baseSupplies:[],baseHomeworks:[],kind:"",kindLabel:""}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(false); setAcSecSupply(false); setAcSecFee(false); setAcSecInfo(false); setAcSecMemo(false); setShowAddAcModal(true); };
+  const openAdd=()=>{ setEditTarget(null); setConfirmDelAc(false); setNewAc({...EMPTY_AC,color:getNextAcademyColor(),baseSupplies:[],baseHomeworks:[],kind:"",kindLabel:""}); setSupplyInput(""); setBaseHwInput(""); setAcSupAlways(false); setAcDaySup([]); setShowAcMore(false); setAcSecSupply(false); setAcSecFee(false); setAcSecInfo(false); setAcSecMemo(false); setShowAddAcModal(true); };
   const openEdit=(ac)=>{
     /* 종류 없이 등록했던 예전 학원 — 이름 속 낱말로 종류를 되짚어 기본값으로 채운다
        ("청담어학원" → 영어). 못 알아보면 비워 두고 직접 고르게 한다 —
@@ -4025,7 +4029,7 @@ export default function App() {
     const g=ac.kind?null:guessAcademyKind(ac.name||"");
     const kind=ac.kind || (g?g.key:"");
     const kindLabel=ac.kindLabel || (g?g.label:"");
-    setEditTarget(ac.id); setConfirmDelAc(false); setNewAc({...ac,kind,kindLabel,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseSupplies||[]).length||(ac.baseHomeworks||[]).length)); setAcSecFee(!!ac.fee); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
+    setEditTarget(ac.id); setConfirmDelAc(false); setNewAc({...ac,kind,kindLabel,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setAcSupAlways(false); setAcDaySup([...(getDailyEntry(childId,ac.id,homeDate).supplies||[])]); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseHomeworks||[]).length)); setAcSecFee(!!ac.fee); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
   const saveAcademy=()=>{
     /* [사용자 확정 2026-08-09] 필수는 '종류'와 '수업 요일'. 이름은 선택이다 —
        비워 두면 종류 이름을 그대로 학원 이름으로 쓴다 (예: 피아노). */
@@ -4036,13 +4040,18 @@ export default function App() {
     }
     const finalName=(newAc.name||"").trim() || kindLabel;
     const cleaned={...newAc,name:finalName,kind:newAc.kind,kindLabel,fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),account:(newAc.account||"").trim(),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:(newAc.schedules||[]).map(s=>({...s,duration:Number(s.duration)||40}))};
+    const savedId=editTarget!==null?editTarget:newId();
+    /* 그날 준비물(항상 아님) — 학원 저장과 함께 그 날짜 칸에 넣는다. 미션·체크 상태는 그대로 둔다 */
+    { const cur=getDailyEntry(childId,savedId,homeDate);
+      const before=JSON.stringify(cur.supplies||[]), after=JSON.stringify(acDaySup||[]);
+      if(before!==after) setDailyEntry(childId,savedId,homeDate,{...cur,supplies:[...(acDaySup||[])]}); }
     setAcademies(prev=>{
       const list=prev[childId]||[];
       return editTarget!==null
         // 수정은 등록일(createdAt)을 건드리지 않는다 — 원래 값을 그대로 이어받는다
         ? {...prev,[childId]:list.map(a=>a.id===editTarget?{...cleaned,id:editTarget,createdAt:a.createdAt}:a)}
         // 새 학원은 등록일을 남긴다 — 수집품이 언제부터 열리는지의 기준이 된다
-        : {...prev,[childId]:[...list,{...cleaned,id:newId(),createdAt:new Date().toISOString()}]};
+        : {...prev,[childId]:[...list,{...cleaned,id:savedId,createdAt:new Date().toISOString()}]};
     });
     setShowAddAcModal(false); setEditTarget(null); setNewAc({...EMPTY_AC,baseSupplies:[],baseHomeworks:[]});
     showToast(editTarget?"수정됨 ✓":"추가됨 ✓");
@@ -4069,6 +4078,19 @@ export default function App() {
     showToast("삭제됨");
   };
   const addBaseSupply=()=>{ const v=supplyInput.trim(); if(!v) return; setNewAc(p=>({...p,baseSupplies:[...(p.baseSupplies||[]),v]})); setSupplyInput(""); };
+  /* 학원 수정 창의 준비물 '추가' — 항상 버튼이 켜져 있으면 항상 챙길 준비물, 아니면 그날 준비물.
+     추가하고 나면 항상 버튼은 다시 꺼진다(다음 것을 실수로 '항상'에 넣지 않게) */
+  const addAcSupply=()=>{
+    const v=supplyInput.trim(); if(!v) return;
+    if(acSupAlways){
+      if((newAc.baseSupplies||[]).includes(v)){ showToast("이미 항상 챙길 준비물에 있어요"); return; }
+      setNewAc(p=>({...p,baseSupplies:[...(p.baseSupplies||[]),v]}));
+    } else {
+      if(acDaySup.includes(v)||(newAc.baseSupplies||[]).includes(v)){ showToast("이미 있는 준비물이에요"); return; }
+      setAcDaySup(p=>[...p,v]);
+    }
+    setSupplyInput(""); setAcSupAlways(false);
+  };
   const addBaseHomework=()=>{ const v=baseHwInput.trim(); if(!v) return; setNewAc(p=>({...p,baseHomeworks:[...(p.baseHomeworks||[]),v]})); setBaseHwInput(""); };
   const removeBaseHomework=(i)=>setNewAc(p=>({...p,baseHomeworks:(p.baseHomeworks||[]).filter((_,idx)=>idx!==i)}));
 
@@ -7479,6 +7501,90 @@ export default function App() {
               })()}
             </div>
 
+            {/* ── 준비물 (상세 정보 밖, 색상 바로 아래) ── [사용자 확정 2026-11-21]
+                '항상' 버튼을 켜고 추가 → 항상 챙길 준비물 / 끄고 추가 → 그 날짜(홈에서 보던 날) 준비물.
+                둘 다 '수정 완료'를 눌러야 저장된다. */}
+            {(()=>{
+              const dLabel=homeDate===TODAY?"오늘":dateLabelOf(homeDate);
+              const chipS=(always)=>({fontSize:FS.cardTitle,padding:"5px 10px",borderRadius:RAD.lg,
+                background:always?`${th.main}18`:`${C.orange}14`,color:always?th.main:mixBlack(C.orange,0.15),
+                display:"flex",alignItems:"center",gap:5,fontWeight:FW.semi});
+              const xBtn=(on)=>({background:"none",border:"none",color:"inherit",cursor:"pointer",fontSize:14,padding:0,opacity:0.8});
+              const base=newAc.baseSupplies||[];
+              return (
+                <div style={{marginBottom:18}}>
+                  <label style={lblIcon}><CareIcon name="bag" size={14}/>준비물</label>
+                  {(base.length>0||acDaySup.length>0)?(
+                    <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
+                      {base.map((x,i)=>(
+                        <span key={`b${i}`} style={chipS(true)}>
+                          <span style={{fontSize:10.5,fontWeight:900,padding:"1px 6px",borderRadius:8,background:th.main,color:"#fff"}}>항상</span>
+                          {x}<button aria-label={`${x} 빼기`} onClick={()=>setNewAc(p=>({...p,baseSupplies:p.baseSupplies.filter((_,j)=>j!==i)}))} style={xBtn()}>✕</button>
+                        </span>
+                      ))}
+                      {acDaySup.map((x,i)=>(
+                        <span key={`d${i}`} style={chipS(false)}>
+                          <span style={{fontSize:10.5,fontWeight:900,opacity:0.8}}>{dLabel}</span>
+                          {x}<button aria-label={`${x} 빼기`} onClick={()=>setAcDaySup(p=>p.filter((_,j)=>j!==i))} style={xBtn()}>✕</button>
+                        </span>
+                      ))}
+                    </div>
+                  ):(
+                    <p style={{fontSize:FS.sub,color:C.sub,margin:"0 0 8px"}}>아직 준비물이 없어요</p>
+                  )}
+                  <div style={{display:"flex",gap:6}}>
+                    <input value={supplyInput} onChange={e=>setSupplyInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addAcSupply()}
+                      placeholder={acSupAlways?"항상 챙길 준비물 입력":`${dLabel} 준비물 입력`} style={{...inp,flex:1,width:"auto",minWidth:0,fontSize:FS.title}}/>
+                    <button onClick={()=>setAcSupAlways(v=>!v)} aria-pressed={acSupAlways}
+                      style={{padding:"0 11px",borderRadius:RAD.sm,cursor:"pointer",fontFamily:"inherit",fontSize:FS.body,fontWeight:FW.bold,flexShrink:0,
+                        border:`1.5px solid ${acSupAlways?th.main:C.border}`,background:acSupAlways?`${th.main}14`:"#fff",color:acSupAlways?th.main:"#B2B7C6",
+                        display:"flex",alignItems:"center",gap:4}}>
+                      <span style={{width:15,height:15,borderRadius:4,border:`1.5px solid ${acSupAlways?th.main:"#C9CED8"}`,background:acSupAlways?th.main:"#fff",
+                        color:"#fff",fontSize:11,lineHeight:"13px",textAlign:"center",fontWeight:900}}>{acSupAlways?"✓":""}</span>
+                      항상
+                    </button>
+                    <button onClick={addAcSupply} style={{padding:"0 15px",borderRadius:RAD.sm,border:"none",background:th.main,color:"#fff",fontWeight:FW.normal,fontSize:FS.cardTitle,cursor:"pointer",flexShrink:0}}>추가</button>
+                  </div>
+                  <p style={{fontSize:FS.tag,color:C.sub,margin:"6px 0 0",lineHeight:1.5}}>
+                    '항상'을 체크하고 추가하면 이 학원에 가는 날마다 보여요. 체크하지 않으면 {dLabel}만 보여요.
+                  </p>
+                </div>
+              );
+            })()}
+
+            {/* ── 그날 미션 (기존 학원만) ── [사용자 확정 2026-11-21] 학원 정보와 함께 그날 미션도 여기서 고친다.
+                편집은 미션 탭과 같은 미션 창(준비물 없이)을 이 창 위에 띄워서 한다 — 점수·숙제 즐겨찾기까지 같은 규칙. */}
+            {editTarget!==null&&(()=>{
+              const dLabel=homeDate===TODAY?"오늘":dateLabelOf(homeDate);
+              const e=getDailyEntry(childId,editTarget,homeDate);
+              const list=[...(e.homeworks||[]).map(x=>({...x,k:"숙제"})),...(e.todos||[]).map(x=>({...x,k:"할 일"}))];
+              return (
+                <div style={{marginBottom:18}}>
+                  <label style={lblIcon}><CareIcon name="mission" size={14}/>{dLabel} 미션</label>
+                  {list.length>0?(
+                    <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
+                      {list.map(x=>(
+                        <span key={x.k+x.id} style={{fontSize:FS.cardTitle,padding:"5px 10px",borderRadius:RAD.lg,fontWeight:FW.semi,
+                          background:x.done?`${C.green}14`:`${C.orange}14`,color:x.done?C.green:mixBlack(C.orange,0.15),
+                          textDecoration:x.done?"line-through":"none"}}>{x.done?"✓ ":""}{x.text}</span>
+                      ))}
+                    </div>
+                  ):(
+                    <p style={{fontSize:FS.sub,color:C.sub,margin:"0 0 8px"}}>{dLabel} 미션이 없어요</p>
+                  )}
+                  <button onClick={()=>{
+                      setShowDailyModal({academyId:editTarget,date:homeDate,acName:(newAc.name||"").trim()||newAc.kindLabel||"학원",acColor:newAc.color||th.main,baseSupplies:newAc.baseSupplies||[],fromMission:true});
+                      setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
+                      setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+                    }}
+                    style={{width:"100%",padding:"11px",borderRadius:RAD.sm,border:`1.5px solid ${th.main}55`,background:`${th.main}0D`,color:th.main,
+                      fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>
+                    {list.length>0?`${dLabel} 미션 추가·수정`:`${dLabel} 미션 추가`}
+                  </button>
+                </div>
+              );
+            })()}
+
             <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
               필수 정보 입력 완료<br/><span style={{opacity:0.85}}>나머지는 필요할 때 추가해도 돼요</span>
             </p>
@@ -7491,23 +7597,11 @@ export default function App() {
             {/* ① 준비물·숙제 묶음 */}
             <div style={{borderTop:`1px solid ${C.border}`,background:"#fff"}}>
             <button type="button" onClick={()=>setAcSecSupply(v=>!v)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 2px",border:"none",background:"none",color:C.text,fontSize:FS.cardTitle,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
-              <span style={{display:"flex",alignItems:"center",gap:7}}><CareIcon name="bag" size={15}/>항상 챙길 준비물 · 반복 숙제</span><span style={{color:C.sub}}>{acSecSupply?"▲":"▼"}</span>
+              <span style={{display:"flex",alignItems:"center",gap:7}}><CareIcon name="repeat" size={15}/>숙제 즐겨찾기</span><span style={{color:C.sub}}>{acSecSupply?"▲":"▼"}</span>
             </button>
             {acSecSupply&&(
             <div style={{padding:"0 2px 16px"}}>
-            <label style={lblIcon}><CareIcon name="bag" size={14}/>항상 챙길 준비물</label>
-            <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
-              {(newAc.baseSupplies||[]).map((s,i)=>(
-                <span key={i} style={{fontSize:FS.cardTitle,padding:"5px 11px",borderRadius:RAD.lg,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:FW.normal}}>
-                  {s}<button onClick={()=>setNewAc(p=>({...p,baseSupplies:p.baseSupplies.filter((_,j)=>j!==i)}))} style={{background:"none",border:"none",color:th.main,cursor:"pointer",fontSize:15,padding:0}}>✕</button>
-                </span>
-              ))}
-            </div>
-            <div style={{display:"flex",gap:8,marginBottom:12}}>
-              <input value={supplyInput} onChange={e=>setSupplyInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addBaseSupply()} placeholder="예: 교재, 필통" style={{...inp,flex:1,width:"auto",fontSize:FS.title,padding:"10px 12px",marginBottom:0}}/>
-              <button onClick={addBaseSupply} style={{padding:"0 16px",borderRadius:RAD.sm,border:"none",background:th.main,color:"#fff",fontWeight:FW.normal,fontSize:FS.cardTitle,cursor:"pointer"}}>추가</button>
-            </div>
-            <label style={lblIcon}><CareIcon name="repeat" size={14}/>반복 숙제 <span style={hintSpan}>(미션 화면에서 눌러 추가)</span></label>
+            <label style={lblIcon}><CareIcon name="repeat" size={14}/>숙제 즐겨찾기 <span style={hintSpan}>(미션 창에서 눌러 바로 추가)</span></label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseHomeworks||[]).map((s,i)=>(
                 <span key={i} style={{fontSize:FS.cardTitle,padding:"5px 11px",borderRadius:RAD.lg,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:FW.normal}}>
@@ -8047,7 +8141,7 @@ export default function App() {
                   return (
                     <div style={{marginBottom:20}}>
                       <p style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,margin:"0 0 3px",display:"flex",alignItems:"center",gap:7}}>
-                        <CareIcon name="repeat" size={15}/>전체 반복 숙제
+                        <CareIcon name="repeat" size={15}/>전체 숙제 즐겨찾기
                       </p>
                       <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
                         '추가'를 누르면 그 학원의 오늘 미션에 바로 들어가요.
@@ -8091,7 +8185,7 @@ export default function App() {
                   if(existing.includes(m.text)){ showToast("이미 추가된 숙제예요"); return; }
                   if(m.source==="repeat"){ pickRepeat(m.item); return; }
                   upd({...entry,homeworks:[...hw,{id:newId(),text:m.text,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
-                  showToast("반복 숙제를 추가했어요 📚");
+                  showToast("숙제 즐겨찾기에서 추가했어요 📚");
                 };
                 return (
                   <div style={{marginBottom:20}}>
@@ -8102,7 +8196,7 @@ export default function App() {
                         구역 제목인데 혼자 작아 어긋나 보였다 → 크기 쪽(글자·굵기·아이콘·간격)만
                         같게 맞춘다. 색은 지금의 학원색 그대로 둔다 (사용자 확정). */}
                     <p style={{fontSize:FS.title,fontWeight:FW.bold,color:acColor,margin:"0 0 3px",display:"flex",alignItems:"center",gap:7}}>
-                      <CareIcon name="repeat" size={15}/>반복 숙제
+                      <CareIcon name="repeat" size={15}/>숙제 즐겨찾기
                     </p>
                     <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
                       학원에 등록한 숙제와, 반복 미션으로 저장해 둔 숙제를 빠르게 불러올 수 있어요.

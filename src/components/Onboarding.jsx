@@ -399,7 +399,7 @@ export function OnboardingFlow({ onFinish }){
               onKeyDown={e=>e.key==="Enter"&&cur.canNext()&&next()}/>
 
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:`${MISSION_GAP}px 0 4px`}}>
-              반복 숙제 <span style={tagOpt}>선택</span>
+              숙제 즐겨찾기 <span style={tagOpt}>선택</span>
             </p>
             <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>반복되는 숙제를 등록해두면 미션 추가할 때 편해요.</p>
             <input value={baseHw} onChange={e=>setBaseHw(e.target.value)} placeholder="예: 단어 5개 암기" style={inp}/>
