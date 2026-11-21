@@ -34,6 +34,7 @@ import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 import EmojiIcon from "../EmojiIcon.jsx";
 import RegisteredAcademyList from "./RegisteredAcademyList.jsx";
+import SectionHead from "./SectionHead.jsx";
 import { RowAct } from "./AcademyTab.jsx";
 
 /* [사용자 확정 2026-08-10] 카드 안 보조 글자가 너무 연해 잘 안 읽혔다 →
@@ -594,6 +595,61 @@ export default function ParentHomeTab({
           <span style={{flexShrink:0,fontSize:12,fontWeight:FW.bold,color:C.red}}>›</span>
         </button>
       )}
+
+      {/* ── 그날의 미션 (보기 전용) ──────────────────────────────────────
+          [사용자 확정 2026-11-21] 홈은 '그날 일정을 한눈에 보는 곳'으로 — 학원 아래에 미션도 늘어놓는다.
+          모양은 미션 탭의 미션 줄(제목 크게 · 아래 학원점·학원명·종류 · 점수 배지)을 가져오되,
+          카드는 위 학원 카드와 같은 흰 카드 + 왼쪽 학원색 세로선으로 맞춘다.
+          여기서는 누르거나 고치지 않는다 — 추가·수정·삭제는 설정 쪽에서 한다(사용자 계획). */}
+      {(()=>{
+        const items=homeQuestItems;
+        const done=items.filter(i=>i.done).length;
+        const title=dayTag?`${dayTag}의 미션`:`${hd.getMonth()+1}/${hd.getDate()} 미션`;
+        return (
+          <div style={{marginTop:26}}>
+            <SectionHead icon="mission" label={title} th={th}
+              note={items.length>0?`${items.length}개 중 ${done}개 완료`:null}/>
+            {items.length===0?(
+              <div style={{background:"#fff",border:`1px dashed ${C.border}`,borderRadius:RAD.md,padding:"16px 12px",
+                textAlign:"center",fontSize:FS.body,fontWeight:FW.semi,color:C.sub}}>
+                등록된 미션이 없어요
+              </div>
+            ):items.map(item=>{
+              const col=item.academyColor||th.main;
+              const st=item.done?{c:C.green,bg:C.green,mark:"✓"}:item.failed?{c:C.sub,bg:C.sub,mark:"×"}:{c:mixBlack(C.sub,0.12),bg:"transparent",mark:""};
+              return (
+                <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`}
+                  style={{background:"#fff",borderRadius:RAD.md,marginBottom:8,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,overflow:"hidden",display:"flex"}}>
+                  <div style={{width:4,background:col,flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-start",gap:10,padding:"10px 14px 10px 12px",
+                    background:item.done?`${C.green}08`:"#fff"}}>
+                    {/* 완료 표시 — 보기 전용이라 버튼이 아니다 */}
+                    <span aria-label={item.done?"완료":item.failed?"미완료":"아직"} style={{width:22,height:22,borderRadius:"50%",flexShrink:0,marginTop:1,
+                      display:"flex",alignItems:"center",justifyContent:"center",border:`2px solid ${st.c}`,background:st.bg,
+                      color:"#fff",fontWeight:900,fontSize:12}}>{st.mark}</span>
+                    <div style={{flex:1,minWidth:0}}>
+                      <p style={{fontSize:FS.title,fontWeight:800,margin:0,lineHeight:1.35,
+                        color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",
+                        display:"-webkit-box",WebkitBoxOrient:"vertical",WebkitLineClamp:2,overflow:"hidden",overflowWrap:"anywhere"}}>
+                        {item.label}
+                      </p>
+                      <div style={{display:"flex",alignItems:"center",gap:7,margin:"4px 0 0",minWidth:0}}>
+                        <span style={{minWidth:0,fontSize:FS.sub,color:SUBD,fontWeight:FW.normal,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                          {item.academyName} · {item.kind==="homework"?"숙제":"할 일"}
+                        </span>
+                        <span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,
+                          background:item.failed?`${C.sub}14`:`${C.orange}14`,color:item.failed?C.sub:C.orange}}>
+                          {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${(TM&&TM.xpUnit)||"점"}`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
     </div>
   );
