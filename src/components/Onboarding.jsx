@@ -69,35 +69,46 @@ export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
      토글로 합쳐지면서 하단 메뉴에서 사라졌다(사용자 확정). 없는 탭을 안내하던 장이다.
      같은 이유로 홈 설명도 '학원도 여기서 등록해요'를 덧붙였다 — 학원 등록 자리를
      못 찾는 일이 없어야 한다. */
-  const items=[
-    { icon:NAV_ICONS.home,     name:"홈", desc:"오늘 챙길 일과 학원 일정을 한눈에 보고, 학원도 여기서 등록해요." },
-    { icon:NAV_ICONS.mission,  name:"미션", desc:"날짜별 미션과 점수를 관리해요." },
-    { icon:NAV_ICONS.reward,   name:"보상", desc:"보상 목록을 수정하고,\n아이가 보상을 신청하면 승인해요." },
-    { icon:NAV_ICONS.settings, name:"기타", desc:"점수 조정 / 문자 관리 /\n비밀번호 / 백업이 여기 있어요." },
-    { icon:NAV_ICONS.more,     name:"더보기", desc:"달력 / 학원비 / 결석·보충이\n여기 있어요." },
-    { icon:<CareIcon name="lock" size={23}/>, name:`${parentRole} 권한은 잠금`,
-      desc:"몇 곳은 비밀번호를 한번 물어봐요.\n(초기 비밀번호 1234)." },
-    { icon:<CareIcon name="bag" size={23}/>, name:"아이용", desc:"이제 아이용 화면을 살펴볼까요?\n오른쪽 위 '🎒 아이용' 버튼을 눌러보세요!" },
+  /* [사용자 확정 2026-11-21] 일곱 장 → 두 장. 아이 화면을 보기 전에 넘길 화면을 줄인다.
+       1장: 아래 메뉴 다섯 칸을 한 장에 (아이콘은 하단 메뉴 그림 그대로)
+       2장: 잠금(비밀번호 1234) + "아이용 버튼을 눌러보세요" */
+  const menus=[
+    { icon:NAV_ICONS.home,     name:"홈",     desc:"오늘 챙길 일 · 학원 일정 · 학원 등록" },
+    { icon:NAV_ICONS.mission,  name:"미션",   desc:"날짜별 미션과 점수 관리" },
+    { icon:NAV_ICONS.reward,   name:"보상",   desc:"보상 목록 수정 · 아이 신청 승인" },
+    { icon:NAV_ICONS.settings, name:"기타",   desc:"점수 조정 · 문자 · 비밀번호 · 백업" },
+    { icon:NAV_ICONS.more,     name:"더보기", desc:"달력 · 학원비 · 결석·보충" },
+  ];
+  const pages=[
+    { head:"화면 아래 메뉴 다섯 칸이에요" },
+    { head:"마지막으로 두 가지만!" },
   ];
   const [i,setI]=useState(0);
-  const last=i===items.length-1;
-  const it=items[i];
+  const last=i===pages.length-1;
+  const row=(icon,name,desc,key)=>(
+    <div key={key} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0"}}>
+      <div style={{width:40,height:40,borderRadius:12,background:`${TH.main}15`,color:TH.main,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{icon}</div>
+      <div style={{minWidth:0}}>
+        <p style={{fontSize:16,fontWeight:900,color:"#1A1A35",margin:0}}>{name}</p>
+        <p style={{fontSize:13.5,fontWeight:600,color:"#5A6072",margin:"2px 0 0",lineHeight:1.45,whiteSpace:"pre-line"}}>{desc}</p>
+      </div>
+    </div>
+  );
   return (
     <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.78)",display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:"24px",wordBreak:"keep-all"}}>
-      <div style={{textAlign:"center",marginBottom:"auto",marginTop:"22vh"}}>
-        <p style={{color:"rgba(255,255,255,0.85)",fontSize:14,fontWeight:700,margin:0}}>화면 아래 탭을 눌러 이동해요</p>
-        <p style={{color:"#fff",fontSize:22,fontWeight:900,margin:"8px 0 0"}}>{i+1} / {items.length}</p>
+      <div style={{textAlign:"center",marginBottom:"auto",marginTop:"14vh"}}>
+        <p style={{color:"rgba(255,255,255,0.85)",fontSize:14,fontWeight:700,margin:0}}>{pages[i].head}</p>
+        <p style={{color:"#fff",fontSize:22,fontWeight:900,margin:"8px 0 0"}}>{i+1} / {pages.length}</p>
       </div>
-      <div style={{background:"#fff",borderRadius:22,padding:"24px 22px",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
-        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
-          <div style={{width:48,height:48,borderRadius:14,background:`${TH.main}15`,color:TH.main,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0}}>{it.icon}</div>
-          <p style={{fontSize:20,fontWeight:900,color:"#1A1A35",margin:0}}>{it.name}</p>
+      <div style={{background:"#fff",borderRadius:22,padding:"18px 20px 22px",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
+        <div style={{marginBottom:16}}>
+          {i===0
+            ? menus.map((m,k)=>row(m.icon,m.name,m.desc,k))
+            : [row(<CareIcon name="lock" size={21}/>,`${parentRole} 권한은 잠금`,"몇 곳은 비밀번호를 한번 물어봐요.\n(초기 비밀번호 1234)","lock"),
+               row(<CareIcon name="bag" size={21}/>,"아이용","이제 아이용 화면을 살펴볼까요?\n오른쪽 위 '🎒 아이용' 버튼을 눌러보세요!","kid")]}
         </div>
-        <div style={{minHeight:54,marginBottom:20}}>
-          <p style={{fontSize:15,fontWeight:600,color:"#5A6072",lineHeight:1.7,margin:0,whiteSpace:"pre-line"}}>{it.desc}</p>
-        </div>
-        <div style={{display:"flex",gap:5,justifyContent:"center",marginBottom:18}}>
-          {items.map((_,idx)=>(<span key={idx} style={{width:idx===i?20:7,height:7,borderRadius:99,background:idx===i?TH.main:"#D9DEE8",transition:"all .25s"}}/>))}
+        <div style={{display:"flex",gap:5,justifyContent:"center",marginBottom:16}}>
+          {pages.map((_,idx)=>(<span key={idx} style={{width:idx===i?20:7,height:7,borderRadius:99,background:idx===i?TH.main:"#D9DEE8",transition:"all .25s"}}/>))}
         </div>
         <div style={{display:"flex",gap:10}}>
           {!last&&<button onClick={onFinish} style={{flex:1,padding:15,borderRadius:14,border:"1.5px solid #E3E8F0",background:"#fff",color:"#8890B0",fontSize:15,fontWeight:800,cursor:"pointer"}}>건너뛰기</button>}
@@ -174,8 +185,9 @@ export function OnboardingFlow({ onFinish }){
   const steps=[
     { kind:"welcome" },
     /* [사용자 확정 2026-09-28] 기본값 mom 이 이미 골라져 있어 그냥 넘어가도 되고,
-       아빠면 눌러서 바꾸면 된다 — 강제로 고르게 하지 않는다. */
-    { kind:"parent", title:"보호자는 누구인가요?", canNext:()=>true },
+       아빠면 눌러서 바꾸면 된다 — 강제로 고르게 하지 않는다.
+       [사용자 확정 2026-11-21] 첫 사용을 줄이려고 '보호자' 한 장을 빼고, 아이 이름 화면 위에
+       작은 엄마/아빠 버튼으로 합쳤다 (화면 7 → 6). */
     { kind:"input", title:"아이의 이름이 무엇인가요?", sub:"아이 화면과 미션에 표시돼요.", canNext:()=>childName.trim().length>0 },
     { kind:"age", title:"아이의 연령대를 골라주세요", sub:"연령대에 맞는 보상 목록을 자동으로 준비해드려요. 나중에 바꿀 수 있어요.", canNext:()=>age!=="" },
     /* [사용자 지적 2026-08-11] 앱의 학원 등록은 '종류'가 필수고 '이름'이 선택이다.
@@ -238,25 +250,20 @@ export function OnboardingFlow({ onFinish }){
           </div>
         )}
 
-        {cur.kind==="parent"&&(
+        {cur.kind==="input"&&(
           <div>
-            <p style={lbl}>{cur.title}</p>
-            {cur.sub?<p style={sub}>{cur.sub}</p>:<div style={{height:24}}/>}
-            <div style={{display:"flex",gap:10}}>
+            {/* 보호자 — 작은 두 칸 (기본 엄마). 예전엔 이 한 가지로 화면 한 장을 썼다 */}
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:22}}>
+              <span style={{fontSize:13.5,fontWeight:800,color:"#8890B0",marginRight:2}}>보호자</span>
               {[{k:"mom",e:"👩",t:"엄마"},{k:"dad",e:"👨",t:"아빠"}].map(p=>(
                 <button key={p.k} onClick={()=>setParentGender(p.k)}
-                  style={{flex:1,padding:"22px 14px",borderRadius:16,border:`2px solid ${parentGender===p.k?TH.main:"#E3E8F0"}`,
-                    background:parentGender===p.k?`${TH.main}12`:"#fff",cursor:"pointer",textAlign:"center"}}>
-                  <div style={{fontSize:34,marginBottom:8,lineHeight:1}}>{p.e}</div>
-                  <div style={{fontSize:16,fontWeight:900,color:parentGender===p.k?TH.main:"#1A1A35"}}>{p.t}</div>
+                  style={{padding:"7px 14px",borderRadius:999,border:`1.5px solid ${parentGender===p.k?TH.main:"#E3E8F0"}`,
+                    background:parentGender===p.k?`${TH.main}12`:"#fff",cursor:"pointer",fontSize:14,fontWeight:800,
+                    color:parentGender===p.k?TH.main:"#8890B0",fontFamily:"inherit"}}>
+                  {p.e} {p.t}
                 </button>
               ))}
             </div>
-          </div>
-        )}
-
-        {cur.kind==="input"&&(
-          <div>
             <p style={lbl}>{cur.title}</p>
             <p style={sub}>{cur.sub}</p>
             <input autoFocus value={childName} onChange={e=>setChildName(e.target.value)} placeholder="예: 연우" style={inp}
