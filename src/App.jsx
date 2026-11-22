@@ -4033,7 +4033,7 @@ export default function App() {
     const g=ac.kind?null:guessAcademyKind(ac.name||"");
     const kind=ac.kind || (g?g.key:"");
     const kindLabel=ac.kindLabel || (g?g.label:"");
-    setEditTarget(ac.id); setConfirmDelAc(false); setNewAc({...ac,kind,kindLabel,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setAcSupAlways(false); setAcDaySup([...(getDailyEntry(childId,ac.id,homeDate).supplies||[])]); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseHomeworks||[]).length)); setAcSecFee(!!ac.fee); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
+    setEditTarget(ac.id); setConfirmDelAc(false); setNewAc({...ac,kind,kindLabel,baseSupplies:[...(ac.baseSupplies||[])],baseHomeworks:[...(ac.baseHomeworks||[])],schedules:[...(ac.schedules||[])],days:[...(ac.days||[])]}); setSupplyInput(""); setBaseHwInput(""); setAcSupAlways(false); setAcDaySup([...(getDailyEntry(childId,ac.id,acSupDateFor(ac)).supplies||[])]); setShowAcMore(!!(ac.fee||ac.teacher||ac.phone||ac.address||(ac.baseHomeworks||[]).length||ac.shuttleInfo||ac.memo)); setAcSecSupply(!!((ac.baseHomeworks||[]).length)); setAcSecFee(!!ac.fee); setAcSecInfo(!!(ac.teacher||ac.phone||ac.address||ac.shuttleInfo)); setAcSecMemo(!!ac.memo); setShowDetailModal(null); setShowAddAcModal(true); };
   const saveAcademy=()=>{
     /* [사용자 확정 2026-08-09] 필수는 '종류'와 '수업 요일'. 이름은 선택이다 —
        비워 두면 종류 이름을 그대로 학원 이름으로 쓴다 (예: 피아노). */
@@ -4046,9 +4046,10 @@ export default function App() {
     const cleaned={...newAc,name:finalName,kind:newAc.kind,kindLabel,fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),account:(newAc.account||"").trim(),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:(newAc.schedules||[]).map(s=>({...s,duration:Number(s.duration)||40}))};
     const savedId=editTarget!==null?editTarget:newId();
     /* 그날 준비물(항상 아님) — 학원 저장과 함께 그 날짜 칸에 넣는다. 미션·체크 상태는 그대로 둔다 */
-    { const cur=getDailyEntry(childId,savedId,homeDate);
+    { const supD=acSupDateFor({...newAc,id:savedId});
+      const cur=getDailyEntry(childId,savedId,supD);
       const before=JSON.stringify(cur.supplies||[]), after=JSON.stringify(acDaySup||[]);
-      if(before!==after) setDailyEntry(childId,savedId,homeDate,{...cur,supplies:[...(acDaySup||[])]}); }
+      if(before!==after) setDailyEntry(childId,savedId,supD,{...cur,supplies:[...(acDaySup||[])]}); }
     setAcademies(prev=>{
       const list=prev[childId]||[];
       return editTarget!==null
@@ -4084,6 +4085,16 @@ export default function App() {
   const addBaseSupply=()=>{ const v=supplyInput.trim(); if(!v) return; setNewAc(p=>({...p,baseSupplies:[...(p.baseSupplies||[]),v]})); setSupplyInput(""); };
   /* 학원 수정 창의 준비물 '추가' — 항상 버튼이 켜져 있으면 항상 챙길 준비물, 아니면 그날 준비물.
      추가하고 나면 항상 버튼은 다시 꺼진다(다음 것을 실수로 '항상'에 넣지 않게) */
+  /* [버그 수정 2026-11-22] 학원 수정 창의 '그날 준비물'은 홈에서 보던 날짜(homeDate)로 들어갔다 —
+     그날 그 학원에 안 가면(전체 학원에서 목요일 학원을 일요일에 고칠 때) 넣은 준비물이 어디에도 안 보였다.
+     → 그 날짜에 수업이 없으면 그 뒤 첫 수업일(60일 안)로 넣는다. 화면의 날짜 표시도 같은 값을 쓴다. */
+  const acSupDateFor=(ac)=>{
+    if(!ac) return homeDate;
+    const dnOf=(x)=>["일","월","화","수","목","금","토"][new Date(x.replace(/-/g,"/")).getDay()];
+    let x=homeDate;
+    for(let i=0;i<60;i++){ if(hasClassOnDay(ac,dnOf(x))&&!(ac.id!=null&&isVacationDay(childId,ac.id,x))) return x; x=addDays(x,1); }
+    return homeDate;
+  };
   const addAcSupply=()=>{
     const v=supplyInput.trim(); if(!v) return;
     if(acSupAlways){
@@ -7510,7 +7521,8 @@ export default function App() {
                 '항상' 버튼을 켜고 추가 → 항상 챙길 준비물 / 끄고 추가 → 그 날짜(홈에서 보던 날) 준비물.
                 둘 다 '수정 완료'를 눌러야 저장된다. */}
             {(()=>{
-              const dLabel=homeDate===TODAY?"오늘":dateLabelOf(homeDate);
+              const supD=acSupDateFor(newAc);
+              const dLabel=supD===TODAY?"오늘":supD===addDays(TODAY,1)?"내일":`${Number(supD.slice(5,7))}/${Number(supD.slice(8,10))}`;
               const chipS=(always)=>({fontSize:FS.cardTitle,padding:"5px 10px",borderRadius:RAD.lg,
                 background:always?`${th.main}18`:`${C.orange}14`,color:always?th.main:mixBlack(C.orange,0.15),
                 display:"flex",alignItems:"center",gap:5,fontWeight:FW.semi});
