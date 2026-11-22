@@ -280,7 +280,8 @@ export default function App() {
      반복 미션은 그 날짜를 볼 때 그날 미션 칸(일별 기록)에 한 번 만들어 넣는다(ruleId 표시).
      그날 지운 반복 미션은 entry.skipRules 에 적어 다시 안 만든다. '한 번'은 규칙 없이 그날만. */
   const [missionRules,       setMissionRules]        = useState({});
-  const [missionRepeat,      setMissionRepeat]       = useState({type:"once",days:[]});   // 미션 편집 팝업에서 고른 종류 (숙제|할 일)
+  const [missionRepeat,      setMissionRepeat]       = useState({type:"once",days:[]});
+  const [missionCoin,        setMissionCoin]         = useState(null);   // 미션 창 코인 칸 — null 이면 점수에 맞춰 자동(10점→15)   // 미션 편집 팝업에서 고른 종류 (숙제|할 일)
   /* [사용자 확정 2026-08-16] 학원 고르기를 팝업 대신 '미션 추가·관리' 버튼 아래로 펼친다 —
      팝업을 한 번 더 띄우지 않고 목록에서 바로 학원을 고른다. */
   const [missionPickOpen, setMissionPickOpen] = useState(false);
@@ -1284,9 +1285,9 @@ export default function App() {
   // 미션 완료 효과음 — 음원 파일 없이 Web Audio로 생성 (베이커리: 말랑 팝 / 탐험: 코인 획득)
   /* [2026-11-18] 효과음은 utils/sfx.js 로 모았다 (소리 켜기/끄기도 거기서 지킨다). 미션 완료 소리는 예전 그대로. */
   const playCompleteSound=()=>playSfx("complete",kidSkin);
-  const cheerCharacter=(xp=DEFAULT_HOMEWORK_SCORE)=>{
+  const cheerCharacter=(xp=DEFAULT_HOMEWORK_SCORE,coin=null)=>{
     const msg=CHEER_MSGS[Math.floor(Math.random()*CHEER_MSGS.length)];
-    setCharCheer({msg,xp,key:Date.now()});
+    setCharCheer({msg,xp,coin,key:Date.now()});
     setTimeout(()=>setCharCheer(null),1300);
   };
 
@@ -2797,7 +2798,7 @@ export default function App() {
           const isExtra=String(r.acId)===String(EXTRA_QUEST_ID);
           const list=isExtra?(e.todos||[]):(e.homeworks||[]);
           if(list.some(x=>x.ruleId===r.id)) continue;
-          const item={id:newId(),text:r.text,done:false,point:r.point,ruleId:r.id};
+          const item={id:newId(),text:r.text,done:false,point:r.point,...(r.coin!=null?{coin:r.coin}:{}),ruleId:r.id};
           const ne=isExtra?{...e,todos:[...list,item]}:{...e,homeworks:[...list,item]};
           if(!changed){ next={...prev}; changed=true; }
           next[k]=ne;
@@ -2907,7 +2908,7 @@ export default function App() {
 
   const getQuestRewardText=(item)=>{
     const point=item.point||DEFAULT_HOMEWORK_SCORE;
-    return `${TM.xpEmoji} +${point}${TM.xpUnit}  ·  ${TM.coinEmoji} +${questCoin(point)} ${TM.coin}`;
+    return `${TM.xpEmoji} +${point}${TM.xpUnit}  ·  ${TM.coinEmoji} +${itemCoin(item)} ${TM.coin}`;
   };
 
   /* 기록 종류 → 선 아이콘 (엄마용 '탐험 기록' 목록 전용).
@@ -3921,7 +3922,9 @@ export default function App() {
   // addReward = XP/코인 지급 (미션/보물상자용)
   /* [사용자 확정 2026-08-11] 기록 목록에 '미션 클리어'만 줄줄이 찍혀 무엇을 했는지 안 남았다 →
      미션 이름을 memo 로 함께 넘긴다. (기존 기록은 memo 가 없으므로 예전처럼 '미션 클리어'로 보인다) */
-  const addReward=(cid,point,reason="quest",memo="")=>addChildScore(cid,point,memo,reason,questCoin(point));
+  const addReward=(cid,point,reason="quest",memo="",coin=null)=>addChildScore(cid,point,memo,reason,coin==null?questCoin(point):coin);
+  /* [사용자 확정 2026-11-22] 미션마다 코인을 따로 정할 수 있다(item.coin). 없으면 예전처럼 점수×배율 */
+  const itemCoin=(it)=>{ const c=Number(it&&it.coin); return it&&it.coin!=null&&it.coin!==""&&Number.isFinite(c)?Math.max(0,Math.round(c)):questCoin((it&&it.point)||DEFAULT_HOMEWORK_SCORE); };
   // spendCoin = 코인만 차감 (구매용)
   const spendCoin=(cid,amount,memo="")=>spendChildScore(cid,amount,memo);
   // refundCoin = 코인만 환불 (구매 거절 시 되돌려줌, XP·레벨 영향 없음)
@@ -4023,7 +4026,8 @@ export default function App() {
     if(nextDone&&appMode==="child") playCompleteSound(); // 누르는 즉시 소리 (상태 갱신 전)
     const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,homeworks:homeworks.map(h=>h.id===homeworkId?{...h,done:nextDone,failed:false}:h)});
-    addReward(cid,nextDone?point:-point,"homework",target.text);
+    const coinV=itemCoin(target);
+    addReward(cid,nextDone?point:-point,"homework",target.text,nextDone?coinV:-coinV);
     if(nextDone){
       if(isFirstEver) setFirstTipPending(true);
       giveTreasureForQuestOnce(
@@ -4034,8 +4038,8 @@ export default function App() {
       /* [사용자 확정 2026-08-12] 아이 화면은 큰 연출(cheerCharacter)로 +XP·+코인을 보여 주는데
          엄마 화면에는 아무 표시가 없었다 — 체크를 풀 때만 토스트가 떠서 '주는 건 안 보이고
          뺏는 것만 보이는' 상태였다. 엄마 화면에도 같은 모양의 토스트를 띄운다. */
-      if(appMode==="child") cheerCharacter(point);
-      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${questCoin(point)} ${TM.coin}`);   // [버그 수정 2026-11-21] 코인은 questCoin 배율 — 실제로 15 들어오는데 +10 이라고 떴다
+      if(appMode==="child") cheerCharacter(point,coinV);
+      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${coinV} ${TM.coin}`);
     } else {
       showToast(`체크 취소 -${point}${TM.xpUnit} / -${point} ${TM.coin}`);
     }
@@ -4051,7 +4055,8 @@ export default function App() {
     if(nextDone&&appMode==="child") playCompleteSound(); // 누르는 즉시 소리 (상태 갱신 전)
     const isFirstEver=appMode==="child"&&nextDone&&!firstTipSeen;
     setDailyEntry(cid,academyId,date,{...entry,todos:todos.map(t=>t.id===todoId?{...t,done:nextDone,failed:false}:t)});
-    addReward(cid,nextDone?point:-point,"todo",target.text);
+    const coinV=itemCoin(target);
+    addReward(cid,nextDone?point:-point,"todo",target.text,nextDone?coinV:-coinV);
     if(nextDone){
       if(isFirstEver) setFirstTipPending(true);
       giveTreasureForQuestOnce(
@@ -4062,8 +4067,8 @@ export default function App() {
       /* [사용자 확정 2026-08-12] 아이 화면은 큰 연출(cheerCharacter)로 +XP·+코인을 보여 주는데
          엄마 화면에는 아무 표시가 없었다 — 체크를 풀 때만 토스트가 떠서 '주는 건 안 보이고
          뺏는 것만 보이는' 상태였다. 엄마 화면에도 같은 모양의 토스트를 띄운다. */
-      if(appMode==="child") cheerCharacter(point);
-      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${questCoin(point)} ${TM.coin}`);   // [버그 수정 2026-11-21] 코인은 questCoin 배율 — 실제로 15 들어오는데 +10 이라고 떴다
+      if(appMode==="child") cheerCharacter(point,coinV);
+      else showToast(`체크 완료 +${point}${TM.xpUnit} / +${coinV} ${TM.coin}`);
     } else {
       showToast(`체크 취소 -${point}${TM.xpUnit} / -${point} ${TM.coin}`);
     }
@@ -5515,7 +5520,7 @@ export default function App() {
                                     : (()=>{const pt=item.point||DEFAULT_HOMEWORK_SCORE;return (
                                         <div style={{display:"flex",gap:10,fontWeight:900,fontSize:13.5,opacity:item.done?0.7:1}}>
                                           <span style={{color:"#D89A26"}}><EmojiIcon emoji={TM.xpEmoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{pt}{TM.xpUnit}</span>
-                                          <span style={{color:"#2E8FD6"}}><EmojiIcon emoji={TM.coinEmoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{questCoin(pt)} {TM.coin}</span>
+                                          <span style={{color:"#2E8FD6"}}><EmojiIcon emoji={TM.coinEmoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{itemCoin(item)} {TM.coin}</span>
                                         </div>
                                       );})()}
                               </div>
@@ -5750,7 +5755,7 @@ export default function App() {
             <p style={{fontSize:19,fontWeight:900,margin:0,whiteSpace:"nowrap"}}>
               <span style={{color:GP.gold}}><EmojiIcon emoji={TM.xpEmoji} size={19} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{charCheer.xp}</span>
               <span style={{color:C.sub,margin:"0 8px"}}>·</span>
-              <span style={{color:C.green}}><EmojiIcon emoji={TM.coinEmoji} size={19} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{questCoin(charCheer.xp)}</span>
+              <span style={{color:C.green}}><EmojiIcon emoji={TM.coinEmoji} size={19} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{charCheer.coin!=null?charCheer.coin:questCoin(charCheer.xp)}</span>
             </p>
           </div>
         </div>
@@ -6182,7 +6187,7 @@ export default function App() {
             onOpenSupplyCheck={(d)=>setShowSupplyCheck(typeof d==="string"?d:homeDate)}
             isFeePaid={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
             onGoFee={(month)=>{ setFeeMonth(month); if(rewardUnlocked) setRewardUnlocked(false); setTab("fee"); }}
-            questCoinOf={questCoin}
+            questCoinOf={itemCoin} coinEmoji={TM.coinEmoji}
             onToggleQuest={(item)=>{ if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id); else toggleTodoDone(childId,item.academyId,item.date,item.id); }}
             onOpenMissionCheck={()=>setShowMissionCheck(homeDate)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
@@ -6412,9 +6417,13 @@ export default function App() {
                                   </span>
                                   <span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,
                                     background:item.failed?`${C.sub}14`:`${C.orange}14`,color:item.failed?C.sub:C.orange}}>
-                                    {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${TM.xpUnit} +${questCoin(item.point||DEFAULT_HOMEWORK_SCORE)}${TM.coin}`}
+                                    {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${TM.xpUnit}`}
                                   </span>
                                 </div>
+                                {/* 코인은 아랫줄에, 아이 화면 코인 색으로 (사용자 확정 2026-11-22) */}
+                                {!item.failed&&<p style={{margin:"3px 0 0",fontSize:12,fontWeight:800,color:"#2E8FD6"}}>
+                                  <EmojiIcon emoji={TM.coinEmoji} size={12} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{itemCoin(item)} {TM.coin}
+                                </p>}
                               </div>
                             </div>
                           ))}
@@ -6460,7 +6469,7 @@ export default function App() {
                           };
                           const openEdit=(acId,acName,acColor,baseSupplies,acPick=false)=>{
                             setDailyAcListOpen(false);
-                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[],fromMission:true,acPick}); setMissionRepeat({type:"once",days:[]});
+                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[],fromMission:true,acPick}); setMissionRepeat({type:"once",days:[]}); setMissionCoin(null);
                             setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
                             setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
                           };
@@ -8026,7 +8035,7 @@ export default function App() {
                     ) : (
                       <>
                         <span style={{flex:1,fontSize:FS.body,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:FS.sub,color:C.orange,fontWeight:FW.semi,flexShrink:0}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit} +{questCoin(h.point||DEFAULT_HOMEWORK_SCORE)}{TM.coin}</span>
+                        <span style={{fontSize:FS.sub,fontWeight:FW.semi,flexShrink:0,textAlign:"right",lineHeight:1.3}}><span style={{color:C.orange}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><br/><span style={{color:"#2E8FD6"}}>+{itemCoin(h)}{TM.coin}</span></span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id),...(h.ruleId?{skipRules:[...(entry.skipRules||[]),h.ruleId]}:{})})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
                         {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
@@ -8048,7 +8057,7 @@ export default function App() {
                     ) : (
                       <>
                         <span style={{flex:1,fontSize:FS.body,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:FS.sub,color:C.orange,fontWeight:FW.semi,flexShrink:0}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit} +{questCoin(t.point||DEFAULT_HOMEWORK_SCORE)}{TM.coin}</span>
+                        <span style={{fontSize:FS.sub,fontWeight:FW.semi,flexShrink:0,textAlign:"right",lineHeight:1.3}}><span style={{color:C.orange}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><br/><span style={{color:"#2E8FD6"}}>+{itemCoin(t)}{TM.coin}</span></span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id),...(t.ruleId?{skipRules:[...(entry.skipRules||[]),t.ruleId]}:{})})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
                         {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
@@ -8066,15 +8075,17 @@ export default function App() {
                 const pt=dailyHwPoint, setPt=setDailyHwPoint;
                 const ptN=Math.max(1,Number(pt)||DEFAULT_HOMEWORK_SCORE);
                 const rep=missionRepeat;
-                const opts=[...(isExtra?[]:[{k:"class",l:"수업 있는 날"}]),{k:"daily",l:"매일"},{k:"once",l:"한 번"},{k:"days",l:"특정 요일"}];
+                /* 순서: 한 번(기본) · 매일 · 특정 요일 · 학원 가는 날 (사용자 확정 2026-11-22) */
+                const opts=[{k:"once",l:"한 번"},{k:"daily",l:"매일"},{k:"days",l:"특정 요일"},...(isExtra?[]:[{k:"class",l:"학원 가는 날"}])];
+                const coinN=missionCoin==null||missionCoin===""?questCoin(ptN):Math.max(0,Math.round(Number(missionCoin)||0));
                 const myRules=(missionRules[childId]||[]).filter(r=>String(r.acId)===String(academyId));
-                const ruleText=(r)=>r.type==="class"?"수업 있는 날":r.type==="daily"?"매일":`${(r.days||[]).join("·")}요일`;
+                const ruleText=(r)=>r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":`${(r.days||[]).join("·")}요일`;
                 const addMission=()=>{
                   const v=val.trim(); if(!v) return;
                   if(rep.type==="days"&&!(rep.days||[]).length){ showToast("요일을 골라 주세요"); return; }
-                  const item={id:newId(),text:v,done:false,point:ptN};
+                  const item={id:newId(),text:v,done:false,point:ptN,coin:coinN};
                   if(rep.type!=="once"){
-                    const rule={id:newId(),acId:academyId,text:v,point:ptN,type:rep.type,days:rep.type==="days"?[...rep.days]:[],start:date};
+                    const rule={id:newId(),acId:academyId,text:v,point:ptN,coin:coinN,type:rep.type,days:rep.type==="days"?[...rep.days]:[],start:date};
                     setMissionRules(prev=>({...prev,[childId]:[...(prev[childId]||[]),rule]}));
                     item.ruleId=rule.id;
                     if(ruleHits(childId,rule,date)) upd(isExtra?{...entry,todos:[...todos,item]}:{...entry,homeworks:[...hw,item]});
@@ -8082,7 +8093,7 @@ export default function App() {
                   } else {
                     upd(isExtra?{...entry,todos:[...todos,item]}:{...entry,homeworks:[...hw,item]});
                   }
-                  setVal(""); setMissionRepeat({type:"once",days:[]});
+                  setVal(""); setMissionRepeat({type:"once",days:[]}); setMissionCoin(null);
                 };
                 const chipB=(on)=>({padding:"6px 11px",borderRadius:999,fontFamily:"inherit",fontSize:FS.sub,fontWeight:on?FW.bold:FW.semi,cursor:"pointer",
                   border:`1.5px solid ${on?th.main:CT.faintB}`,background:on?`${th.main}16`:"#fff",color:on?th.main:C.sub});
@@ -8091,14 +8102,18 @@ export default function App() {
                     <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addMission()}
                       placeholder="미션 내용 입력" aria-label="미션 내용"
                       style={{...inp,width:"100%",boxSizing:"border-box",fontSize:FS.cardTitle,padding:"10px 12px",marginBottom:8,background:"#fff"}}/>
-                    <div style={{display:"flex",alignItems:"center",gap:7}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",rowGap:8}}>
                       <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>보상</span>
                       <input type="number" value={pt} onChange={e=>setPt(e.target.value)} aria-label={`보상 ${TM.xp}`} min="1"
-                        style={{...inp,width:56,fontSize:FS.body,padding:"8px 6px",minHeight:CTRL_H,boxSizing:"border-box",textAlign:"center",marginBottom:0,background:"#fff"}}/>
+                        style={{...inp,width:46,fontSize:FS.body,padding:"8px 6px",minHeight:CTRL_H,boxSizing:"border-box",textAlign:"center",marginBottom:0,background:"#fff"}}/>
                       <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
-                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.orange,flexShrink:0}}>{TM.coin} {questCoin(ptN)}개</span>
+                      {/* 코인도 고칠 수 있다 — 안 고치면 점수에 맞춰 따라간다 (10점 → 15) */}
+                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0,marginLeft:2}}>{TM.coin}</span>
+                      <input type="number" value={missionCoin==null?String(questCoin(ptN)):missionCoin} onChange={e=>setMissionCoin(e.target.value)} aria-label={`보상 ${TM.coin}`} min="0"
+                        style={{...inp,width:46,fontSize:FS.body,padding:"8px 6px",minHeight:CTRL_H,boxSizing:"border-box",textAlign:"center",marginBottom:0,background:"#fff",color:"#2E8FD6"}}/>
+                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>개</span>
                       <button onClick={addMission} className="jelly-tap"
-                        style={{marginLeft:"auto",flexShrink:0,padding:"0 18px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontWeight:FW.bold,fontSize:FS.body,cursor:"pointer",fontFamily:"inherit"}}>
+                        style={{marginLeft:"auto",flexShrink:0,padding:"0 14px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontWeight:FW.bold,fontSize:FS.body,cursor:"pointer",fontFamily:"inherit"}}>
                         추가
                       </button>
                     </div>
