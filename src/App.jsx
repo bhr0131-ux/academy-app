@@ -6513,16 +6513,13 @@ export default function App() {
                         {(()=>{
                           const pastCnt=getPastQuestCandidates(childId,TODAY).length;
                           return (
+                            /* 예전 모양 그대로 — 테마색을 옅게 깐 작은 한 줄 버튼, 오른쪽에 남은 개수 (사용자 확정 2026-11-22) */
                             <button onClick={()=>setShowPastMissionModal(TODAY)} className="jelly-tap"
-                              style={{width:"100%",padding:"11px 14px",borderRadius:12,border:`1px solid ${C.border}`,background:"#fff",
-                                cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:10,textAlign:"left"}}>
-                              <span aria-hidden="true" style={{width:18,flexShrink:0,display:"flex",justifyContent:"center"}}><EmojiIcon emoji="📜" size={15}/></span>
-                              <span style={{flex:1,minWidth:0}}>
-                                <span style={{display:"block",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text}}>지난 미션 관리</span>
-                                <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>날짜가 지난 미션을 관리해요.</span>
+                              style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:mixBlack(th.main,0.25),fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                              <span style={{display:"flex",alignItems:"center",gap:5}}>
+                                <span style={{color:th.main,display:"flex"}}><CareIcon name="calendar" size={14}/></span> 지난 미션 관리
                               </span>
-                              {pastCnt>0&&<span style={{flexShrink:0,fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
-                              <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
+                              {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
                             </button>
                           );
                         })()}
