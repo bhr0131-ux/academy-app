@@ -6483,8 +6483,6 @@ export default function App() {
                                   openEdit(null,"","#C9CED8",[],true); }},
                               {key:"life",icon:"🌱",label:"생활 습관 미션",desc:"반복 연습으로 생활 습관을 잡아요.",n:cnt(EXTRA_QUEST_ID),
                                 onClick:()=>openEdit(EXTRA_QUEST_ID,"생활 습관 미션",th.main,[])},
-                              {key:"past",icon:"📜",label:"지난 미션 관리",desc:"날짜가 지난 미션을 관리해요.",n:getPastQuestCandidates(childId,TODAY).length,
-                                onClick:()=>setShowPastMissionModal(TODAY)},
                             ].map((r,ri)=>(
                               <button key={r.key} onClick={r.onClick} className="jelly-tap"
                                 style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
@@ -6509,8 +6507,25 @@ export default function App() {
                         })()}
 
                         {/* (뺐음 2026-11-22) 엄마 권한 칸 — 미션 탭 자체를 비밀번호로 열므로 안쪽 잠금이 필요 없다.
-                            '지난 미션 관리'는 위 세 줄 메뉴로 옮겼다. */}
+                            '지난 미션 관리'는 상자 아래 따로 둔다(사용자 확정 2026-11-22). */}
                         </div>
+                        {/* ── 지난 미션 관리 — '미션 추가·관리' 상자와 떼어 아래에 따로 (예전 자리처럼) ── */}
+                        {(()=>{
+                          const pastCnt=getPastQuestCandidates(childId,TODAY).length;
+                          return (
+                            <button onClick={()=>setShowPastMissionModal(TODAY)} className="jelly-tap"
+                              style={{width:"100%",padding:"11px 14px",borderRadius:12,border:`1px solid ${C.border}`,background:"#fff",
+                                cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:10,textAlign:"left"}}>
+                              <span aria-hidden="true" style={{width:18,flexShrink:0,display:"flex",justifyContent:"center"}}><EmojiIcon emoji="📜" size={15}/></span>
+                              <span style={{flex:1,minWidth:0}}>
+                                <span style={{display:"block",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text}}>지난 미션 관리</span>
+                                <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>날짜가 지난 미션을 관리해요.</span>
+                              </span>
+                              {pastCnt>0&&<span style={{flexShrink:0,fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
+                              <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
+                            </button>
+                          );
+                        })()}
                       </div>
                     </div>
                   )}
