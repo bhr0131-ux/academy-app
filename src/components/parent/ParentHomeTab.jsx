@@ -604,11 +604,11 @@ export default function ParentHomeTab({
         if(feeAc.length===0) return null;
         return (
           <div style={{marginTop:6}}>
-            <SectionHead icon="fee" label={`${feeMonth}월 학원비`} th={th} style={{margin:feeAc.length>0?"0 0 2px":undefined}}/>
+            <SectionHead icon="fee" label={`${feeMonth}월 학원비 요약`} th={th} style={{margin:feeAc.length>0?"0 0 2px":undefined}}/>
             {/* 요약은 제목 아랫줄로 (사용자 확정 2026-11-22) */}
             {feeAc.length>0&&(
               <p style={{margin:"0 0 12px 20px",fontSize:FS.sub,fontWeight:FW.semi,color:SUBD}}>
-                {paidCnt}/{feeAc.length}곳 납부 · {total.toLocaleString()}원
+                총 학원비 {total.toLocaleString()}원 / {feeAc.length}곳 중 {paidCnt}곳 납부
               </p>
             )}
             {feeAc.length===0?(
@@ -639,6 +639,14 @@ export default function ParentHomeTab({
                 })}
               </div>
             )}
+            {/* [사용자 확정 2026-11-22] 요약 아래 작게 — 누르면 그 달 학원비 탭으로 */}
+            <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
+              <button onClick={()=>onGoFee&&onGoFee(feeMonth)} className="jelly-tap"
+                style={{fontSize:FS.sub,padding:"6px 12px",borderRadius:RAD.sm,border:`1px solid ${C.border}`,background:"#fff",
+                  color:SUBD,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",display:"inline-flex",alignItems:"center",gap:5}}>
+                <CareIcon name="fee" size={13}/>학원비 관리 ›
+              </button>
+            </div>
           </div>
         );
       })()}
