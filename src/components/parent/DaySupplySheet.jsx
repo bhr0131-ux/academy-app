@@ -70,7 +70,8 @@ export default function DaySupplySheet({ ac, dateLabel, dateText, entry, onSaveE
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}>
               <span style={{ fontSize: FS.sub, color: C.sub, fontWeight: FW.semi }}>{dateText}</span>
               <button onClick={() => setPickDay(v => !v)} aria-expanded={pickDay}
-                style={{ border: `1px solid ${pickDay ? th.main : C.border}`, background: pickDay ? `${th.main}12` : "#fff", color: pickDay ? th.main : C.sub,
+                /* 잘 안 보였다(사용자 지적 2026-11-22) → 접혀 있을 때도 테마색을 옅게 입힌다 */
+                style={{ border: `1px solid ${pickDay ? th.main : `${th.main}66`}`, background: pickDay ? `${th.main}22` : `${th.main}12`, color: th.main,
                   borderRadius: 999, padding: "2px 9px", fontSize: FS.tag, fontWeight: FW.bold, cursor: "pointer", fontFamily: "inherit" }}>
                 다른 날 {pickDay ? "▴" : "▾"}
               </button>
