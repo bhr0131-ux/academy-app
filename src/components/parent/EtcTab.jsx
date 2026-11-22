@@ -34,6 +34,7 @@ import { useState } from "react";
 import { C, FS, FW, RAD, gameCard, SHADOW, mixWhite } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 import XpAdjustCard from "./XpAdjustCard.jsx";
+import SmsTemplateList from "./SmsTemplateList.jsx";
 
 export default function EtcTab({ D }) {
   const {
@@ -113,41 +114,9 @@ export default function EtcTab({ D }) {
         </button>
 
         {smsOpen&&(
+          /* 내용은 SmsTemplateList — 학원 카드 문자 창의 '템플릿 관리' 팝업과 같은 화면 (2026-11-22) */
           <div style={{marginTop:14}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-              <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.semi,margin:0}}>문자 템플릿 관리</p>
-              <button onClick={onNewTmpl}
-                style={{...btnSmall,border:"none",background:th.grad,color:"#fff"}}>＋ 새 템플릿</button>
-            </div>
-
-            <div style={{background:`${C.purple}08`,border:`1px solid ${C.purple}25`,borderRadius:RAD.sm,padding:"10px 13px",marginBottom:13}}>
-              <p style={{fontSize:FS.sub,color:C.purple,fontWeight:FW.semi,margin:"0 0 6px"}}>사용 가능한 변수</p>
-              <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                {["{아이이름}","{학원명}","{날짜}","{시간}"].map(v=>(
-                  <span key={v} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.sm,background:C.purpleL,color:C.purple,fontWeight:FW.normal}}>{v}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* [사용자 확정 2026-08-18] 흰 카드 안에 또 흰 카드가 들어가 단계가 겹쳐 보였다 →
-                안쪽은 옅은 칸(그림자 없음), 그 안의 본문 미리보기만 흰색으로 뒤집는다. */}
-            {templates.map(tmpl=>(
-              <div key={tmpl.id} style={{background:CT.faint,borderRadius:RAD.md,padding:"12px 13px",marginBottom:10,border:`1px solid ${C.border}`}}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,marginBottom:8}}>
-                  <span style={{display:"inline-flex",alignItems:"center",gap:6,minWidth:0,fontWeight:FW.semi,fontSize:FS.body,color:C.text,
-                    overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                    <span style={{color:C.sub,display:"flex",flexShrink:0}}><CareIcon name="sms" size={13}/></span>{tmpl.title}
-                  </span>
-                  <div style={{display:"flex",gap:6,flexShrink:0}}>
-                    <button onClick={()=>onEditTmpl(tmpl)}
-                      style={{...btnSmall,border:`1px solid ${C.border}`,background:"#fff",color:C.sub}}>수정</button>
-                    <button onClick={()=>onDeleteTmpl(tmpl.id)}
-                      style={{...btnSmall,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red}}>삭제</button>
-                  </div>
-                </div>
-                <p style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,margin:0,whiteSpace:"pre-wrap",background:"#fff",borderRadius:RAD.sm,padding:"9px 11px",lineHeight:1.5}}>{tmpl.body}</p>
-              </div>
-            ))}
+            <SmsTemplateList templates={templates} onNew={onNewTmpl} onEdit={onEditTmpl} onDelete={onDeleteTmpl} th={th} CT={CT}/>
           </div>
         )}
       </div>

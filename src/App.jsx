@@ -15,6 +15,7 @@ import EtcTab from "./components/parent/EtcTab.jsx";
 import TimeField from "./components/parent/TimeField.jsx";
 import AbsenceTab from "./components/parent/AbsenceTab.jsx";
 import DaySupplySheet from "./components/parent/DaySupplySheet.jsx";
+import SmsTemplateList from "./components/parent/SmsTemplateList.jsx";
 import RepeatMissionSheet, { RepeatMissionChips } from "./components/parent/RepeatMissionSheet.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
 import { REPEAT_MISSION_KEY, REPEAT_MISSION_MAX, getRepeatList, normalizeRepeat, addRepeatMission, editRepeatMission,
@@ -248,7 +249,8 @@ export default function App() {
      끄고 추가하면 그날(홈에서 보던 날짜) 준비물. 저장(수정 완료)을 눌러야 반영된다. */
   const [acSupAlways, setAcSupAlways] = useState(false);
   const [acDaySup,    setAcDaySup]    = useState([]);
-  const [daySupplyEdit, setDaySupplyEdit] = useState(null);   // 홈 오늘 학원 카드의 [준비물 수정] {acId,date} (2026-11-22)
+  const [daySupplyEdit, setDaySupplyEdit] = useState(null);
+  const [showTmplManager, setShowTmplManager] = useState(false);   // 문자 창의 '템플릿 관리' 팝업 (2026-11-22)   // 홈 오늘 학원 카드의 [준비물 수정] {acId,date} (2026-11-22)
   const [baseHwInput, setBaseHwInput] = useState(initAcademy.baseHwInput);
   const [showAcMore,  setShowAcMore]  = useState(initAcademy.showAcMore);
   const [acSecSupply, setAcSecSupply] = useState(false); // 상세: 준비물·숙제
@@ -2183,7 +2185,7 @@ export default function App() {
     showResetPinModal || showVacModal || showChildMgr || showAcademyCopyModal ||
     paySheet || feeEdit || showAddAcModal || showDetailModal ||
     showDailyModal || showSmsModal || showTmplEdit || showAbsModal || showKindPicker ||
-    holidayRest || daySupplyEdit
+    holidayRest || daySupplyEdit || showTmplManager
   );
   // 특정 프리미엄 기능을 막아야 하는지 여부 (true 면 잠금 표시)
   const isLocked = () => !isPremiumUser;
@@ -8233,7 +8235,15 @@ export default function App() {
               </div>
               <button onClick={()=>setShowSmsModal(null)} style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
             </div>
-            <p style={{fontSize:FS.title,color:C.sub,fontWeight:FW.normal,margin:"0 0 10px"}}>📋 템플릿 선택</p>
+            {/* [사용자 확정 2026-11-22] 줄 오른쪽 끝에 '템플릿 관리' — 누르면 기타 탭 문자관리와 같은 화면을 팝업으로 */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,margin:"0 0 10px"}}>
+              <p style={{fontSize:FS.title,color:C.sub,fontWeight:FW.normal,margin:0}}>📋 템플릿 선택</p>
+              {/* 알약 대신 학원비 탭 '납부 처리'처럼 밑줄 글자로 (사용자 확정 2026-11-22) */}
+              <button onClick={()=>setShowTmplManager(true)}
+                style={{flexShrink:0,border:"none",background:"none",padding:"4px 2px",cursor:"pointer",fontFamily:"inherit",fontSize:FS.tag,fontWeight:FW.semi,color:C.sub,textDecoration:"underline",textUnderlineOffset:3}}>
+                ⚙️ 템플릿 관리
+              </button>
+            </div>
             <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:16}}>
               {templates.map(t=><button key={t.id} onClick={()=>applyTmpl(t,showSmsModal)} style={{padding:"7px 14px",borderRadius:RAD.sm,border:`1px solid ${C.purple}40`,background:C.purpleL,color:C.purple,fontSize:FS.sub,fontWeight:FW.normal,cursor:"pointer"}}>{t.title}</button>)}
             </div>
@@ -8254,14 +8264,28 @@ export default function App() {
       )}
 
       {/* ── 템플릿 편집 모달 ── */}
+      {showTmplManager&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:310}} onClick={()=>setShowTmplManager(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 20px 34px",width:"100%",maxWidth:430,margin:"0 auto",maxHeight:"calc(var(--am-vh, 100vh) * 0.88)",overflowY:"auto",boxSizing:"border-box"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+              <p style={{margin:0,fontSize:FS.modalTitle,fontWeight:FW.bold,color:C.text}}>💬 문자 템플릿 관리</p>
+              <button onClick={()=>setShowTmplManager(false)} aria-label="닫기" style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
+            </div>
+            <SmsTemplateList templates={templates} th={th} CT={CT} hideLabel
+              onNew={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }}
+              onEdit={(t)=>{ setShowTmplEdit(t.id); setEditTmpl({title:t.title,body:t.body}); }}
+              onDelete={(id)=>{ setTemplates(p=>p.filter(t=>t.id!==id)); showToast("삭제됨"); }}/>
+          </div>
+        </div>
+      )}
       {showTmplEdit&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowTmplEdit(null)}>
+        <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:320}} onClick={()=>setShowTmplEdit(null)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,boxSizing:"border-box"}}>
             <h3 style={{margin:"0 0 20px",fontSize:17,fontWeight:800,color:C.text}}>{showTmplEdit==="new"?"새 템플릿 추가":"템플릿 수정"}</h3>
             <label style={lbl}>템플릿 제목</label>
             <input value={editTmpl.title} onChange={e=>setEditTmpl(p=>({...p,title:e.target.value}))} placeholder="예: 결석 안내" style={{...inp,marginBottom:16}}/>
             <label style={lbl}>문자 내용</label>
-            <textarea value={editTmpl.body} onChange={e=>setEditTmpl(p=>({...p,body:e.target.value}))} placeholder={"{아이이름}, {학원명}, {날짜}, {시간} 변수 사용 가능"} style={{...inp,height:140,resize:"none",marginBottom:22}}/>
+            <textarea value={editTmpl.body} onChange={e=>setEditTmpl(p=>({...p,body:e.target.value}))} placeholder={"자동 입력 항목: {아이이름}, {학원명}, {날짜}, {시간}"} style={{...inp,height:140,resize:"none",marginBottom:22}}/>
             <div style={{display:"flex",gap:10}}>
               <button onClick={()=>setShowTmplEdit(null)} style={{flex:1,padding:14,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:17,cursor:"pointer"}}>취소</button>
               <button onClick={saveTmpl} style={{flex:2,padding:14,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>저장</button>
