@@ -928,7 +928,8 @@ export default function App() {
           setAppMode("parent");
           /* [2026-08-16] '학원' 탭을 없앴다. 마지막 화면으로 저장돼 있으면 그대로
              복원했을 때 아무것도 안 그려지고 하단에도 그 칸이 없어 갇힌다 → 홈으로 보낸다. */
-          if(typeof lastUi.ptab==="string") setTab(lastUi.ptab==="academy"?"home":lastUi.ptab);
+          /* 미션 탭은 비밀번호로 여는 곳이라(2026-11-22) 되살리지 않고 홈으로 */
+          if(typeof lastUi.ptab==="string") setTab(lastUi.ptab==="academy"||lastUi.ptab==="mission"?"home":lastUi.ptab);
         }
       }
       setLoaded(true);
@@ -1001,6 +1002,8 @@ export default function App() {
   },[loaded]);
   // 안전장치: 아이모드에 있는 동안에는 보상탭 잠금을 항상 유지(어떤 경로로 진입하든 PIN 재요구).
   useEffect(()=>{ if(appMode==="child" && rewardUnlocked) setRewardUnlocked(false); },[appMode,rewardUnlocked]);
+  /* 안전장치 — 잠긴 채로 미션 탭에 와 있으면(어떤 길로든) 홈으로 (2026-11-22) */
+  useEffect(()=>{ if(appMode==="parent" && tab==="mission" && !rewardUnlocked) setTab("home"); },[appMode,tab,rewardUnlocked]);
   useEffect(()=>{ if(loaded) save("v6_kid_skin_map",skinByChild); },[skinByChild,loaded]);
   useEffect(()=>{ if(loaded) save("v6_ac",academies); },[academies,loaded]);
   useEffect(()=>{ if(loaded) save("v6_abs",absences); },[absences,loaded]);
@@ -1289,7 +1292,12 @@ export default function App() {
      아이가 엄마용으로 넘어와 자기 점수를 올릴 수 있다.
      대신 잠금은 보상과 하나로 공유한다 — 한 번 풀면 미션↔보상 사이는 다시 안 묻는다. */
   const parentLocked=()=>!rewardUnlocked;
-  const goMissionTab=()=>{ setTab("mission"); };
+  /* [사용자 확정 2026-11-22] 미션 탭 자체를 비밀번호로 잠근다 — 통과하면 엄마 권한(rewardUnlocked)도 함께 열려
+     탭 안에서는 다시 묻지 않는다. 다른 탭으로 나가면 다시 잠긴다(아래 메뉴 go 가 끈다). */
+  const goMissionTab=()=>{
+    if(!parentLocked()){ setTab("mission"); return; }
+    askPin(()=>{ setRewardUnlocked(true); setTab("mission"); window.scrollTo(0,0); }, "미션 관리");
+  };
   /* [2026-10-27] 앱 밖으로 나가는 링크(카카오 오픈채팅·네이버 지도)는 PIN 뒤에 둔다.
      엄마용 화면은 아이 화면에서 PIN 없이 넘어올 수 있어서, 아이가 두 번 만에
      외부 채팅방까지 갈 수 있었다(아동 대상 앱 정책 대비). 엄마 권한이 이미 열려 있으면
