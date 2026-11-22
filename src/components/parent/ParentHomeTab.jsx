@@ -52,7 +52,7 @@ export default function ParentHomeTab({
   /* [사용자 확정 2026-11-21] 학원비 칩 — 그달 납부했는지(App 의 paidStatus)와 누르면 학원비 탭으로 */
   isFeePaid = () => false, onGoFee,
   /* [사용자 확정 2026-11-21] 홈의 미션은 보기 전용이지만 '완료 체크'만은 여기서 한다 (아이가 깜빡했을 때) */
-  onToggleQuest,
+  onToggleQuest, questCoinOf = (p) => p,
   /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
   childrenList = [], showSample = false,
   onAddAcademy, onEditAcademy, onCopyAcademy, onCopyAccount, onOpenMap, onSeedSample,
@@ -689,11 +689,11 @@ export default function ParentHomeTab({
                       </p>
                       <div style={{display:"flex",alignItems:"center",gap:7,margin:"4px 0 0",minWidth:0}}>
                         <span style={{minWidth:0,fontSize:FS.sub,color:SUBD,fontWeight:FW.normal,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                          {item.academyName} · {item.kind==="homework"?"숙제":"할 일"}
+                          {item.academyName}
                         </span>
                         <span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,
                           background:item.failed?`${C.sub}14`:`${C.orange}14`,color:item.failed?C.sub:C.orange}}>
-                          {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${(TM&&TM.xpUnit)||"점"}`}
+                          {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${(TM&&TM.xpUnit)||"점"} +${questCoinOf(item.point||DEFAULT_HOMEWORK_SCORE)}${(TM&&TM.coin)||"코인"}`}
                         </span>
                       </div>
                     </div>
