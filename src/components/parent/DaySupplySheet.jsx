@@ -10,8 +10,8 @@ import CareIcon from "./CareIcons.jsx";
      · 항상 ☐ 로 추가  → 이 날짜 준비물
      · '항상' 칩의 ✕  → 항상 챙길 준비물에서 지운다 (학원 수정 창과 같다)
      · '그날' 칩의 ✕  → 지우기
-   [사용자 확정 2026-11-22] 머리의 '다른 날'을 누르면 날짜 줄(‹ ›)이 펴진다 — 그 학원 '가는 날'로만 옮겨
-     다른 날짜 준비물도 넣는다.
+   [사용자 확정 2026-11-22] 머리의 '다른 날'을 누르면 작은 달력이 펴진다 — 그 학원 '가는 날'만 누를 수 있고
+     (다른 날은 흐리게), 고르면 그 날짜 준비물을 넣는다.
      '오늘만 빼기·되돌리기'와 그 안내 문구는 뺐다.
    넣고 빼면 바로 저장된다(예전 준비물 창과 같다). 미션은 여기서 다루지 않는다.
 
@@ -23,16 +23,25 @@ import CareIcon from "./CareIcons.jsx";
      onSaveEntry(nextEntry)  : 그날 기록 저장
      onAddBase(text)         : 항상 챙길 준비물에 추가 (학원 정보 저장)
      onRemoveBase(text)      : 항상 챙길 준비물에서 지우기
-     onPrev / onNext         : 그 학원의 앞·뒤 '가는 날'로 (없으면 null)
+     date                    : 지금 보는 날짜 "YYYY-MM-DD"
+     isClassDay(date)        : 그 학원에 가는 날인지 (정규·보충, 결석·휴원 제외)
+     onPickDate(date)        : 달력에서 날짜를 고르면
      onClose, th, inp(입력칸 스타일), onToast
    ════════════════════════════════════════════════════════════════════════ */
-export default function DaySupplySheet({ ac, dateLabel, dateText, entry, onSaveEntry, onAddBase, onRemoveBase, onPrev, onNext, onClose, th, inp, onToast }) {
+const pad = (n) => String(n).padStart(2, "0");
+const ymd = (y, m0, d) => `${y}-${pad(m0 + 1)}-${pad(d)}`;
+const todayStr = () => { const t = new Date(); return ymd(t.getFullYear(), t.getMonth(), t.getDate()); };
+
+export default function DaySupplySheet({ ac, dateLabel, dateText, date, isClassDay = () => true, onPickDate, entry, onSaveEntry, onAddBase, onRemoveBase, onClose, th, inp, onToast }) {
   const [text, setText] = useState("");
   const [always, setAlways] = useState(false);
   /* [사용자 확정 2026-11-22] 날짜 줄은 늘 보이지 않고, '다른 날'을 눌렀을 때만 편다 */
   const [pickDay, setPickDay] = useState(false);
   useEffect(() => { setText(""); setAlways(false); }, [ac && ac.id, dateText]);
   useEffect(() => { setPickDay(false); }, [ac && ac.id]);
+  /* 달력에 보이는 달 — 고른 날짜의 달에서 시작 */
+  const [view, setView] = useState(() => { const d = date ? new Date(date.replace(/-/g, "/")) : new Date(); return { y: d.getFullYear(), m: d.getMonth() }; });
+  useEffect(() => { if (pickDay && date) { const d = new Date(date.replace(/-/g, "/")); setView({ y: d.getFullYear(), m: d.getMonth() }); } }, [pickDay]);   // eslint-disable-line react-hooks/exhaustive-deps
   if (!ac) return null;
 
   const base = ac.baseSupplies || [];
@@ -81,17 +90,45 @@ export default function DaySupplySheet({ ac, dateLabel, dateText, entry, onSaveE
         </div>
 
         {/* 날짜 — '다른 날'을 눌렀을 때만. 그 학원 가는 날만 오간다 */}
-        {pickDay && <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#F4F6FA", borderRadius: RAD.md, padding: "4px", marginBottom: 16 }}>
-          {[{ d: onPrev, t: "‹", l: "이전 수업일" }].map(b => (
-            <button key={b.l} onClick={b.d || undefined} disabled={!b.d} aria-label={b.l}
-              style={{ width: 36, height: 34, border: "none", background: "none", fontSize: 20, fontWeight: 900, color: b.d ? C.sub : "#D3D7E0", cursor: b.d ? "pointer" : "default" }}>{b.t}</button>
-          ))}
-          <span style={{ flex: 1, textAlign: "center", fontSize: FS.title, fontWeight: FW.bold, color: C.text }}>{dateText}</span>
-          {[{ d: onNext, t: "›", l: "다음 수업일" }].map(b => (
-            <button key={b.l} onClick={b.d || undefined} disabled={!b.d} aria-label={b.l}
-              style={{ width: 36, height: 34, border: "none", background: "none", fontSize: 20, fontWeight: 900, color: b.d ? C.sub : "#D3D7E0", cursor: b.d ? "pointer" : "default" }}>{b.t}</button>
-          ))}
-        </div>}
+        {pickDay && (() => {
+          const first = new Date(view.y, view.m, 1).getDay();
+          const last = new Date(view.y, view.m + 1, 0).getDate();
+          const cells = [...Array(first).fill(null), ...Array.from({ length: last }, (_, i) => i + 1)];
+          const today = todayStr();
+          const move = (k) => setView(v => { const d = new Date(v.y, v.m + k, 1); return { y: d.getFullYear(), m: d.getMonth() }; });
+          const nav = { width: 34, height: 30, border: "none", background: "none", fontSize: 19, fontWeight: 900, color: C.sub, cursor: "pointer" };
+          return (
+            <div style={{ background: "#F7F8FB", border: `1px solid ${C.border}`, borderRadius: RAD.md, padding: "8px 8px 10px", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+                <button onClick={() => move(-1)} aria-label="이전 달" style={nav}>‹</button>
+                <span style={{ flex: 1, textAlign: "center", fontSize: FS.title, fontWeight: FW.bold, color: C.text }}>{view.y}년 {view.m + 1}월</span>
+                <button onClick={() => move(1)} aria-label="다음 달" style={nav}>›</button>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3, textAlign: "center" }}>
+                {["일", "월", "화", "수", "목", "금", "토"].map((w, i) => (
+                  <span key={w} style={{ fontSize: FS.tag, fontWeight: FW.bold, padding: "2px 0", color: i === 0 ? C.red : i === 6 ? "#4A7BD8" : C.sub }}>{w}</span>
+                ))}
+                {cells.map((d, i) => {
+                  if (!d) return <span key={`e${i}`} />;
+                  const ds = ymd(view.y, view.m, d);
+                  const can = isClassDay(ds);
+                  const sel = ds === date, isT = ds === today;
+                  return (
+                    <button key={ds} disabled={!can} onClick={() => { onPickDate(ds); setPickDay(false); }}
+                      aria-label={`${view.m + 1}월 ${d}일${can ? "" : " (수업 없음)"}`}
+                      style={{ height: 34, borderRadius: 10, fontFamily: "inherit", fontSize: FS.body, cursor: can ? "pointer" : "default",
+                        border: isT && !sel ? `1.5px solid ${th.main}` : "1.5px solid transparent",
+                        background: sel ? th.main : can ? `${ac.color || th.main}1F` : "transparent",
+                        color: sel ? "#fff" : can ? C.text : "#C9CED8", fontWeight: can || sel ? FW.bold : FW.normal }}>
+                      {d}
+                    </button>
+                  );
+                })}
+              </div>
+              <p style={{ margin: "8px 2px 0", fontSize: FS.tag, color: C.sub }}>색칠된 날이 {ac.name}에 가는 날이에요</p>
+            </div>
+          );
+        })()}
         <label style={lblIcon}><CareIcon name="bag" size={14} />준비물</label>
         {(shownBase.length > 0 || day.length > 0) ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
