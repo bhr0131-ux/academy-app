@@ -8238,8 +8238,9 @@ export default function App() {
             {/* [사용자 확정 2026-11-22] 줄 오른쪽 끝에 '템플릿 관리' — 누르면 기타 탭 문자관리와 같은 화면을 팝업으로 */}
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,margin:"0 0 10px"}}>
               <p style={{fontSize:FS.title,color:C.sub,fontWeight:FW.normal,margin:0}}>📋 템플릿 선택</p>
-              <button onClick={()=>setShowTmplManager(true)} className="jelly-tap"
-                style={{flexShrink:0,padding:"5px 11px",borderRadius:RAD.sm,border:`1px solid ${C.purple}40`,background:"#fff",color:C.purple,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
+              {/* 알약 대신 학원비 탭 '납부 처리'처럼 밑줄 글자로 (사용자 확정 2026-11-22) */}
+              <button onClick={()=>setShowTmplManager(true)}
+                style={{flexShrink:0,border:"none",background:"none",padding:"4px 2px",cursor:"pointer",fontFamily:"inherit",fontSize:FS.tag,fontWeight:FW.semi,color:C.sub,textDecoration:"underline",textUnderlineOffset:3}}>
                 ⚙️ 템플릿 관리
               </button>
             </div>

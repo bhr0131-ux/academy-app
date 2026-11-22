@@ -23,7 +23,7 @@ export default function SmsTemplateList({ templates = [], onNew, onEdit, onDelet
 
       <div style={{ background: `${C.purple}08`, border: `1px solid ${C.purple}25`, borderRadius: RAD.sm, padding: "10px 13px", marginBottom: 13 }}>
         <p style={{ fontSize: FS.sub, color: C.purple, fontWeight: FW.semi, margin: "0 0 2px" }}>자동 입력 항목</p>
-        <p style={{ fontSize: FS.tag, color: C.sub, fontWeight: FW.normal, margin: "0 0 7px" }}>문자에 넣어 두면 보낼 때 아이 이름·학원 이름 등으로 자동으로 바뀌어요</p>
+        <p style={{ fontSize: FS.tag, color: C.sub, fontWeight: FW.normal, margin: "0 0 7px" }}>새 템플릿을 추가할 때 넣어 두면 아이 이름·학원 이름 등으로 자동으로 바뀌어요</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
           {SMS_AUTO_FIELDS.map(v => (
             <span key={v} style={{ fontSize: FS.sub, padding: "3px 9px", borderRadius: RAD.sm, background: C.purpleL, color: C.purple, fontWeight: FW.normal }}>{v}</span>

@@ -641,10 +641,10 @@ export default function ParentHomeTab({
             )}
             {/* [사용자 확정 2026-11-22] 요약 아래 작게 — 누르면 그 달 학원비 탭으로 */}
             <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
-              <button onClick={()=>onGoFee&&onGoFee(feeMonth)} className="jelly-tap"
-                style={{fontSize:FS.sub,padding:"6px 12px",borderRadius:RAD.sm,border:`1px solid ${C.border}`,background:"#fff",
-                  color:SUBD,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",display:"inline-flex",alignItems:"center",gap:5}}>
-                <CareIcon name="fee" size={13}/>학원비 관리 ›
+              <button onClick={()=>onGoFee&&onGoFee(feeMonth)}
+                style={{border:"none",background:"none",padding:"4px 2px",cursor:"pointer",fontFamily:"inherit",fontSize:FS.tag,fontWeight:FW.semi,
+                  color:C.sub,textDecoration:"underline",textUnderlineOffset:3,display:"inline-flex",alignItems:"center",gap:4}}>
+                <CareIcon name="fee" size={12}/>학원비 관리
               </button>
             </div>
           </div>
