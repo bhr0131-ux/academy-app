@@ -6104,7 +6104,8 @@ export default function App() {
                    홈    : 미션·준비물 추가 ○ / 점수 수정 ✕ / 삭제 ✕ / 완료 체크 ✕
                    미션 탭 : 전부 ○ (PIN 통과 = rewardUnlocked)
                  ※ 한때 여기도 PIN 뒤로 옮겼다가 되돌렸다. 두 단계가 맞다. */
-              setShowDailyModal({academyId:ac.id,date,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies});
+              /* [사용자 확정 2026-11-22] 홈의 오늘 학원 카드에서는 '준비물 수정'만 — 미션은 미션(설정) 탭에서 */
+              setShowDailyModal({academyId:ac.id,date,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies,supplyOnly:true});
               setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
               setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
             }}
@@ -7815,7 +7816,7 @@ export default function App() {
 
       {/* ── 날짜별 숙제/준비물 모달 ── */}
       {showDailyModal&&(()=>{
-        const {academyId,date,acName,acColor,baseSupplies,fromMission,acPick}=showDailyModal;
+        const {academyId,date,acName,acColor,baseSupplies,fromMission,acPick,supplyOnly}=showDailyModal;   // supplyOnly: 준비물만 (홈 오늘 학원 카드, 2026-11-22)
         const isExtra=String(academyId)===String(EXTRA_QUEST_ID); // 기타 미션: 숙제·준비물 없이 미션만
         /* [사용자 확정 2026-10-06] '학원별 미션 추가'로 열면 처음엔 학원을 안 고른 상태 — 맨 위 '학원 선택'을 눌러 고른다.
            고르기 전에는 미션 입력 대신 모든 학원의 반복 숙제만 보여 준다(누르면 그 학원에 바로 넣는다). */
@@ -7944,13 +7945,13 @@ export default function App() {
               </div>
               </>);
               })()}
-              {noAc&&(
+              {!supplyOnly&&noAc&&(
                 <div style={{background:CT.faint,borderRadius:RAD.md,padding:"14px 14px",marginBottom:18,textAlign:"center"}}>
                   <p style={{fontSize:FS.cardTitle,fontWeight:FW.semi,color:C.text,margin:0}}>미션을 추가할 학원을 골라 주세요</p>
                   <p style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,margin:"3px 0 0"}}>맨 위 '학원 선택'을 누르면 학원 목록이 나와요.</p>
                 </div>
               )}
-              {!noAc&&(<>
+              {!supplyOnly&&!noAc&&(<>
               {/* [사용자 확정 2026-08-11] 팝업 안 구역 제목이 창 제목과 같은 17이었다 →
                   다른 화면의 구역 제목(홈 15 · 결석 15.5)에 맞춰 15. */}
               <p style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,margin:isParent&&!isParentEdit&&(hw.length>0||todos.length>0)?"0 0 3px":"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
@@ -8085,7 +8086,7 @@ export default function App() {
               })()}
               </>)}
               {(()=>{
-                if(isExtra) return null;
+                if(isExtra||supplyOnly) return null;
                 /* 학원 선택 전 — 모든 학원의 반복 숙제를 학원 이름과 함께. '추가'는 그 학원의 그날 미션에 바로 넣는다.
                    학원이 안 정해진 반복 숙제는 학원을 고른 뒤에 넣는다. */
                 if(noAc){
