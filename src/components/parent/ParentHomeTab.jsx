@@ -365,15 +365,7 @@ export default function ParentHomeTab({
               </button>
             )}
           </div>
-          {showSample&&(
-            <button onClick={onSeedSample}
-              style={{width:"100%",marginTop:14,padding:"12px",borderRadius:RAD.md,border:`1.5px dashed ${th.main}55`,
-                background:mixWhite(th.main,0.9),color:th.main,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",
-                lineHeight:1.5,fontFamily:"inherit"}}>
-              <span style={{display:"inline-flex",alignItems:"center",gap:6}}><CareIcon name="school" size={14}/>샘플 학원 추가해보기</span>
-              <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
-            </button>
-          )}
+          {/* (뺐음 2026-11-22 사용자 확정) '샘플 학원 추가해보기' — 홈은 일정을 보는 곳이라 체험용 버튼을 두지 않는다 */}
         </div>
       )}
 
@@ -552,7 +544,7 @@ export default function ParentHomeTab({
                   {moreCnt>0&&<span style={{...chip,background:CT.faint,color:SUBD}}>+{moreCnt}</span>}
                 </div>
               </div>
-              {/* 맨 아랫줄 — 왼쪽 끝에 전화·문자, 오른쪽 끝에 수정 (사용자 확정 2026-08-16).
+              {/* 맨 아랫줄 — 왼쪽 끝에 전화·문자, 오른쪽 끝에 '준비물 수정' (2026-11-22).
                   수정은 보조 기능이라 오른쪽 아래에 작게 두던 것 그대로다. */}
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
                 {/* 전화·문자 — 등록 학원의 계좌 '복사' · 주소 '지도' 와 같은 생김새(RowAct)로
@@ -563,11 +555,10 @@ export default function ParentHomeTab({
                   {ac.phone&&<RowAct label="문자" color={ac.color} big icon={<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5.5 19v-3H4Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg>}
                     onPress={()=>onSms(ac)} title={`${ac.name} 문자`}/>}
                 </div>
+                {/* [사용자 확정 2026-11-22] 오늘 학원 카드에는 '준비물 수정'만 남긴다 — 미션은 여기서 고치지 않는다(미션 탭) */}
                 <button onClick={()=>onEditDaily(ac,homeDate)}
                   style={{border:"none",background:"none",color:SUBD,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px",display:"inline-flex",alignItems:"center",gap:5}}>
-                  {/* [사용자 확정 2026-08-16] 그냥 '수정'이면 학원 정보를 고치는 것으로 읽힌다.
-                      여기서 고치는 건 그날의 미션·준비물이다 (학원 정보는 등록 학원 쪽에서). */}
-                  <CareIcon name="pencil" size={13}/>준비물·미션 수정
+                  <CareIcon name="pencil" size={13}/>준비물 수정
                 </button>
               </div>
             </div>
@@ -603,7 +594,49 @@ export default function ParentHomeTab({
           모양은 미션 탭의 미션 줄(제목 크게 · 아래 학원점·학원명·종류 · 점수 배지)을 가져오되,
           카드는 위 학원 카드와 같은 흰 카드 + 왼쪽 학원색 세로선으로 맞춘다.
           추가·수정·삭제는 설정 쪽에서 한다(사용자 계획). 완료 체크(○→✓)만은 여기서도 된다(사용자 확정). */}
-      {(()=>{
+      {/* ── 전체 학원 보기 — 아래는 미션 대신 학원비 요약 (사용자 확정 2026-11-22)
+          학원마다 금액과 그달(보고 있는 날짜의 달) 납부했는지만. 고치는 건 학원비 탭·학원 수정 창에서. */}
+      {acView==="all"&&(()=>{
+        const feeAc=curAc.filter(a=>Number(a.fee||0)>0);
+        const paidCnt=feeAc.filter(a=>isFeePaid(a.id,feeMonth)).length;
+        const total=feeAc.reduce((n,a)=>n+Number(a.fee||0),0);
+        return (
+          <div style={{marginTop:6}}>
+            <SectionHead icon="fee" label={`${feeMonth}월 학원비`} th={th} style={{margin:feeAc.length>0?"0 0 2px":undefined}}/>
+            {/* 요약은 제목 아랫줄로 (사용자 확정 2026-11-22) */}
+            {feeAc.length>0&&(
+              <p style={{margin:"0 0 12px 20px",fontSize:FS.sub,fontWeight:FW.semi,color:SUBD}}>
+                {paidCnt}/{feeAc.length}곳 납부 · {total.toLocaleString()}원
+              </p>
+            )}
+            {feeAc.length===0?(
+              <div style={{background:"#fff",border:`1px dashed ${C.border}`,borderRadius:RAD.md,padding:"16px 12px",
+                textAlign:"center",fontSize:FS.body,fontWeight:FW.semi,color:C.sub}}>
+                등록된 학원비가 없어요
+              </div>
+            ):(
+              <div style={{background:"#fff",borderRadius:RAD.md,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,overflow:"hidden"}}>
+                {feeAc.map((a,i)=>{
+                  const paid=isFeePaid(a.id,feeMonth);
+                  return (
+                    <div key={a.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderTop:i?`1px solid ${C.border}`:"none"}}>
+                      <span style={{width:8,height:8,borderRadius:"50%",background:a.color,flexShrink:0}}/>
+                      <span style={{flex:1,minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                        {acKindLabel(a)}
+                      </span>
+                      <span style={{flexShrink:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text}}>{Number(a.fee).toLocaleString()}원</span>
+                      <span style={{flexShrink:0,minWidth:62,textAlign:"center",boxSizing:"border-box",fontSize:FS.tag,fontWeight:FW.bold,padding:"3px 9px",borderRadius:RAD.sm,
+                        background:paid?`${C.green}14`:`${C.red}12`,color:paid?C.green:C.red}}>{paid?"납부 완료":"미납"}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {acView==="today"&&(()=>{
         const items=homeQuestItems;
         const done=items.filter(i=>i.done).length;
         const title=dayTag?`${dayTag}의 미션`:`${hd.getMonth()+1}/${hd.getDate()} 미션`;

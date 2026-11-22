@@ -253,7 +253,7 @@ export default function RepeatMissionSheet({
                 </p>
                 <p style={{ margin: "0 0 14px", fontSize: 12, fontWeight: 600, color: tone.sub, lineHeight: 1.5 }}>
                   {target?.fromAcademy
-                    ? "학원에 넣어 둔 반복 숙제 기록에서 지워져요."
+                    ? "학원에 넣어 둔 숙제 즐겨찾기에서 지워져요."
                     : "이미 오늘 미션에 넣어 둔 건 그대로 남아요."}
                 </p>
                 <div style={{ display: "flex", gap: 8 }}>
