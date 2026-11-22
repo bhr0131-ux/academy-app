@@ -14,6 +14,7 @@ import RewardTab from "./components/parent/RewardTab.jsx";
 import EtcTab from "./components/parent/EtcTab.jsx";
 import TimeField from "./components/parent/TimeField.jsx";
 import AbsenceTab from "./components/parent/AbsenceTab.jsx";
+import DaySupplySheet from "./components/parent/DaySupplySheet.jsx";
 import RepeatMissionSheet, { RepeatMissionChips } from "./components/parent/RepeatMissionSheet.jsx";
 import DiscoveryBook from "./components/DiscoveryBook.jsx";
 import { REPEAT_MISSION_KEY, REPEAT_MISSION_MAX, getRepeatList, normalizeRepeat, addRepeatMission, editRepeatMission,
@@ -247,6 +248,7 @@ export default function App() {
      끄고 추가하면 그날(홈에서 보던 날짜) 준비물. 저장(수정 완료)을 눌러야 반영된다. */
   const [acSupAlways, setAcSupAlways] = useState(false);
   const [acDaySup,    setAcDaySup]    = useState([]);
+  const [daySupplyEdit, setDaySupplyEdit] = useState(null);   // 홈 오늘 학원 카드의 [준비물 수정] {acId,date} (2026-11-22)
   const [baseHwInput, setBaseHwInput] = useState(initAcademy.baseHwInput);
   const [showAcMore,  setShowAcMore]  = useState(initAcademy.showAcMore);
   const [acSecSupply, setAcSecSupply] = useState(false); // 상세: 준비물·숙제
@@ -2181,7 +2183,7 @@ export default function App() {
     showResetPinModal || showVacModal || showChildMgr || showAcademyCopyModal ||
     paySheet || feeEdit || showAddAcModal || showDetailModal ||
     showDailyModal || showSmsModal || showTmplEdit || showAbsModal || showKindPicker ||
-    holidayRest
+    holidayRest || daySupplyEdit
   );
   // 특정 프리미엄 기능을 막아야 하는지 여부 (true 면 잠금 표시)
   const isLocked = () => !isPremiumUser;
@@ -6104,8 +6106,8 @@ export default function App() {
                    홈    : 미션·준비물 추가 ○ / 점수 수정 ✕ / 삭제 ✕ / 완료 체크 ✕
                    미션 탭 : 전부 ○ (PIN 통과 = rewardUnlocked)
                  ※ 한때 여기도 PIN 뒤로 옮겼다가 되돌렸다. 두 단계가 맞다. */
-              /* [사용자 확정 2026-11-22] 홈의 오늘 학원 카드에서는 '준비물 수정'만 — 미션은 미션(설정) 탭에서 */
-              setShowDailyModal({academyId:ac.id,date,acName:ac.name,acColor:ac.color,baseSupplies:ac.baseSupplies,supplyOnly:true});
+              /* [사용자 확정 2026-11-22] 홈의 오늘 학원 카드에서는 '준비물 수정'만 — 학원 수정 창과 같은 모양의 준비물 창(항상 체크) */
+              setDaySupplyEdit({acId:ac.id,date}); return;
               setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
               setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
             }}
@@ -7815,6 +7817,19 @@ export default function App() {
         tone={{text:C.text,sub:C.sub,border:C.border,faint:C.faint,main:th.main,grad:th.grad,red:C.red}}/>
 
       {/* ── 날짜별 숙제/준비물 모달 ── */}
+      {daySupplyEdit&&(()=>{
+        const ac=curAc.find(a=>String(a.id)===String(daySupplyEdit.acId));
+        if(!ac) return null;
+        const d=daySupplyEdit.date;
+        const short=d===TODAY?"오늘":d===addDays(TODAY,1)?"내일":d===addDays(TODAY,-1)?"어제":`${Number(d.slice(5,7))}/${Number(d.slice(8,10))}`;
+        return (
+          <DaySupplySheet ac={ac} dateLabel={short} dateText={dateLabelOf(d)} entry={getDailyEntry(childId,ac.id,d)} th={th} inp={inp}
+            onSaveEntry={(ne)=>setDailyEntry(childId,ac.id,d,ne)}
+            onAddBase={(v)=>setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(a=>String(a.id)===String(ac.id)?{...a,baseSupplies:[...(a.baseSupplies||[]),v]}:a)}))}
+            onToast={showToast}
+            onClose={()=>setDaySupplyEdit(null)} />
+        );
+      })()}
       {showDailyModal&&(()=>{
         const {academyId,date,acName,acColor,baseSupplies,fromMission,acPick,supplyOnly}=showDailyModal;   // supplyOnly: 준비물만 (홈 오늘 학원 카드, 2026-11-22)
         const isExtra=String(academyId)===String(EXTRA_QUEST_ID); // 기타 미션: 숙제·준비물 없이 미션만

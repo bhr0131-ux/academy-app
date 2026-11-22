@@ -365,15 +365,7 @@ export default function ParentHomeTab({
               </button>
             )}
           </div>
-          {showSample&&(
-            <button onClick={onSeedSample}
-              style={{width:"100%",marginTop:14,padding:"12px",borderRadius:RAD.md,border:`1.5px dashed ${th.main}55`,
-                background:mixWhite(th.main,0.9),color:th.main,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",
-                lineHeight:1.5,fontFamily:"inherit"}}>
-              <span style={{display:"inline-flex",alignItems:"center",gap:6}}><CareIcon name="school" size={14}/>샘플 학원 추가해보기</span>
-              <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>처음이라면 예시 학원으로 미리 체험해보세요</span>
-            </button>
-          )}
+          {/* (뺐음 2026-11-22 사용자 확정) '샘플 학원 추가해보기' — 홈은 일정을 보는 곳이라 체험용 버튼을 두지 않는다 */}
         </div>
       )}
 
@@ -610,8 +602,13 @@ export default function ParentHomeTab({
         const total=feeAc.reduce((n,a)=>n+Number(a.fee||0),0);
         return (
           <div style={{marginTop:6}}>
-            <SectionHead icon="fee" label={`${feeMonth}월 학원비`} th={th}
-              note={feeAc.length>0?`${paidCnt}/${feeAc.length}곳 납부 · ${total.toLocaleString()}원`:null}/>
+            <SectionHead icon="fee" label={`${feeMonth}월 학원비`} th={th} style={{margin:feeAc.length>0?"0 0 2px":undefined}}/>
+            {/* 요약은 제목 아랫줄로 (사용자 확정 2026-11-22) */}
+            {feeAc.length>0&&(
+              <p style={{margin:"0 0 12px 20px",fontSize:FS.sub,fontWeight:FW.semi,color:SUBD}}>
+                {paidCnt}/{feeAc.length}곳 납부 · {total.toLocaleString()}원
+              </p>
+            )}
             {feeAc.length===0?(
               <div style={{background:"#fff",border:`1px dashed ${C.border}`,borderRadius:RAD.md,padding:"16px 12px",
                 textAlign:"center",fontSize:FS.body,fontWeight:FW.semi,color:C.sub}}>
