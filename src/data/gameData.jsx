@@ -413,6 +413,8 @@ export const ACADEMY_DUNGEON_RULES = [
 export const ACADEMY_KINDS = [
   /* [사용자 요청 2026-10-05] 학원 말고 아이가 다니는 기관도 고를 수 있게 맨 앞에 */
   { key:"daycare",    label:"어린이집",     icon:"🏡",  kw:"어린이집" },
+  /* [사용자 요청 2026-11-22] 유치원도 따로 — 던전 이름은 어린이집과 같은 '배움의 놀이터' 규칙(kw 유치원) */
+  { key:"kindergarten", label:"유치원",     icon:"🧸",  kw:"유치원" },
   { key:"school",     label:"학교",        icon:"🎒",  kw:"학교" },
   { key:"english",    label:"영어",        icon:"📖",  kw:"영어" },
   { key:"math",       label:"수학",        icon:"🔢",  kw:"수학" },

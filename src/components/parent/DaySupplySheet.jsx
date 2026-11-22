@@ -10,7 +10,8 @@ import CareIcon from "./CareIcons.jsx";
      · 항상 ☐ 로 추가  → 이 날짜 준비물
      · '항상' 칩의 ✕  → 항상 챙길 준비물에서 지운다 (학원 수정 창과 같다)
      · '그날' 칩의 ✕  → 지우기
-   [사용자 확정 2026-11-22] 위 날짜 줄의 ‹ › 로 그 학원 '가는 날'을 옮겨 다른 날짜 준비물도 넣는다.
+   [사용자 확정 2026-11-22] 머리의 '다른 날'을 누르면 날짜 줄(‹ ›)이 펴진다 — 그 학원 '가는 날'로만 옮겨
+     다른 날짜 준비물도 넣는다.
      '오늘만 빼기·되돌리기'와 그 안내 문구는 뺐다.
    넣고 빼면 바로 저장된다(예전 준비물 창과 같다). 미션은 여기서 다루지 않는다.
 
@@ -28,7 +29,10 @@ import CareIcon from "./CareIcons.jsx";
 export default function DaySupplySheet({ ac, dateLabel, dateText, entry, onSaveEntry, onAddBase, onRemoveBase, onPrev, onNext, onClose, th, inp, onToast }) {
   const [text, setText] = useState("");
   const [always, setAlways] = useState(false);
+  /* [사용자 확정 2026-11-22] 날짜 줄은 늘 보이지 않고, '다른 날'을 눌렀을 때만 편다 */
+  const [pickDay, setPickDay] = useState(false);
   useEffect(() => { setText(""); setAlways(false); }, [ac && ac.id, dateText]);
+  useEffect(() => { setPickDay(false); }, [ac && ac.id]);
   if (!ac) return null;
 
   const base = ac.baseSupplies || [];
@@ -63,12 +67,20 @@ export default function DaySupplySheet({ ac, dateLabel, dateText, entry, onSaveE
           <div style={{ width: 14, height: 14, borderRadius: "50%", background: ac.color, flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ margin: 0, fontSize: FS.modalTitle, fontWeight: FW.bold, color: C.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ac.name}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}>
+              <span style={{ fontSize: FS.sub, color: C.sub, fontWeight: FW.semi }}>{dateText}</span>
+              <button onClick={() => setPickDay(v => !v)} aria-expanded={pickDay}
+                style={{ border: `1px solid ${pickDay ? th.main : C.border}`, background: pickDay ? `${th.main}12` : "#fff", color: pickDay ? th.main : C.sub,
+                  borderRadius: 999, padding: "2px 9px", fontSize: FS.tag, fontWeight: FW.bold, cursor: "pointer", fontFamily: "inherit" }}>
+                다른 날 {pickDay ? "▴" : "▾"}
+              </button>
+            </div>
           </div>
           <button onClick={onClose} aria-label="닫기" style={{ width: 36, height: 36, borderRadius: RAD.sm, border: "none", background: "#EEF2F8", color: C.sub, fontSize: 16, cursor: "pointer", flexShrink: 0 }}>✕</button>
         </div>
 
-        {/* 날짜 — 그 학원 가는 날만 오간다 */}
-        <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#F4F6FA", borderRadius: RAD.md, padding: "4px", marginBottom: 16 }}>
+        {/* 날짜 — '다른 날'을 눌렀을 때만. 그 학원 가는 날만 오간다 */}
+        {pickDay && <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#F4F6FA", borderRadius: RAD.md, padding: "4px", marginBottom: 16 }}>
           {[{ d: onPrev, t: "‹", l: "이전 수업일" }].map(b => (
             <button key={b.l} onClick={b.d || undefined} disabled={!b.d} aria-label={b.l}
               style={{ width: 36, height: 34, border: "none", background: "none", fontSize: 20, fontWeight: 900, color: b.d ? C.sub : "#D3D7E0", cursor: b.d ? "pointer" : "default" }}>{b.t}</button>
@@ -78,7 +90,7 @@ export default function DaySupplySheet({ ac, dateLabel, dateText, entry, onSaveE
             <button key={b.l} onClick={b.d || undefined} disabled={!b.d} aria-label={b.l}
               style={{ width: 36, height: 34, border: "none", background: "none", fontSize: 20, fontWeight: 900, color: b.d ? C.sub : "#D3D7E0", cursor: b.d ? "pointer" : "default" }}>{b.t}</button>
           ))}
-        </div>
+        </div>}
         <label style={lblIcon}><CareIcon name="bag" size={14} />준비물</label>
         {(shownBase.length > 0 || day.length > 0) ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>

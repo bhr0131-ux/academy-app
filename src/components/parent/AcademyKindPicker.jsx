@@ -44,7 +44,8 @@ export default function AcademyKindPicker({ open, value = "", customLabel = "", 
      찾는 종류가 어디쯤 있는지 짐작이 안 됐다 → 가나다순으로 늘어놓는다.
      (원본 ACADEMY_KINDS 순서는 그대로 두고 여기서만 정렬한다) */
   /* 어린이집·학교는 학원이 아닌 기관이라 가나다순과 따로 맨 위에 고정한다 (사용자 요청 2026-10-05) */
-  const PINNED = ["daycare", "school"];
+  /* [사용자 확정 2026-11-22] 학교 · 유치원 · 어린이집 순으로 맨 위 (그 아래는 가나다순 — 검도부터) */
+  const PINNED = ["school", "kindergarten", "daycare"];
   const sorted = [
     ...PINNED.map(k => ACADEMY_KINDS.find(x => x.key === k)).filter(Boolean),
     ...ACADEMY_KINDS.filter(k => !PINNED.includes(k.key)).sort((a, b) => a.label.localeCompare(b.label, "ko")),
