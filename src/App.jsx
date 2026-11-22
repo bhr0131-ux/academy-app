@@ -7552,39 +7552,8 @@ export default function App() {
               );
             })()}
 
-            {/* ── 그날 미션 (기존 학원만) ── [사용자 확정 2026-11-21] 학원 정보와 함께 그날 미션도 여기서 고친다.
-                편집은 미션 탭과 같은 미션 창(준비물 없이)을 이 창 위에 띄워서 한다 — 점수·숙제 즐겨찾기까지 같은 규칙. */}
-            {editTarget!==null&&(()=>{
-              const dLabel=homeDate===TODAY?"오늘":dateLabelOf(homeDate);
-              const e=getDailyEntry(childId,editTarget,homeDate);
-              const list=[...(e.homeworks||[]).map(x=>({...x,k:"숙제"})),...(e.todos||[]).map(x=>({...x,k:"할 일"}))];
-              return (
-                <div style={{marginBottom:18}}>
-                  <label style={lblIcon}><CareIcon name="mission" size={14}/>{dLabel} 미션</label>
-                  {list.length>0?(
-                    <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
-                      {list.map(x=>(
-                        <span key={x.k+x.id} style={{fontSize:FS.cardTitle,padding:"5px 10px",borderRadius:RAD.lg,fontWeight:FW.semi,
-                          background:x.done?`${C.green}14`:`${C.orange}14`,color:x.done?C.green:mixBlack(C.orange,0.15),
-                          textDecoration:x.done?"line-through":"none"}}>{x.done?"✓ ":""}{x.text}</span>
-                      ))}
-                    </div>
-                  ):(
-                    <p style={{fontSize:FS.sub,color:C.sub,margin:"0 0 8px"}}>{dLabel} 미션이 없어요</p>
-                  )}
-                  <button onClick={()=>{
-                      setShowDailyModal({academyId:editTarget,date:homeDate,acName:(newAc.name||"").trim()||newAc.kindLabel||"학원",acColor:newAc.color||th.main,baseSupplies:newAc.baseSupplies||[],fromMission:true});
-                      setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
-                      setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
-                    }}
-                    style={{width:"100%",padding:"11px",borderRadius:RAD.sm,border:`1.5px solid ${th.main}55`,background:`${th.main}0D`,color:th.main,
-                      fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>
-                    {list.length>0?`${dLabel} 미션 추가·수정`:`${dLabel} 미션 추가`}
-                  </button>
-                </div>
-              );
-            })()}
-
+            {/* (뺐음 2026-11-21 사용자 확정) 그날 미션 칸 — 미션은 옆 탭에서 따로 관리한다.
+                학원 창에는 준비물까지만 기본 정보로, 숙제 즐겨찾기는 아래 상세 정보에서. */}
             <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
               필수 정보 입력 완료<br/><span style={{opacity:0.85}}>나머지는 필요할 때 추가해도 돼요</span>
             </p>
