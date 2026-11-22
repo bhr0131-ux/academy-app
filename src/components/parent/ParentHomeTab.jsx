@@ -600,6 +600,8 @@ export default function ParentHomeTab({
         const feeAc=curAc.filter(a=>Number(a.fee||0)>0);
         const paidCnt=feeAc.filter(a=>isFeePaid(a.id,feeMonth)).length;
         const total=feeAc.reduce((n,a)=>n+Number(a.fee||0),0);
+        /* [사용자 확정 2026-11-22] 학원비를 넣은 학원이 하나도 없으면 칸 자체를 그리지 않는다 */
+        if(feeAc.length===0) return null;
         return (
           <div style={{marginTop:6}}>
             <SectionHead icon="fee" label={`${feeMonth}월 학원비`} th={th} style={{margin:feeAc.length>0?"0 0 2px":undefined}}/>
