@@ -4041,7 +4041,7 @@ export default function App() {
       if(appMode==="child") cheerCharacter(point,coinV);
       else showToast(`체크 완료 +${point}${TM.xpUnit} / +${coinV} ${TM.coin}`);
     } else {
-      showToast(`체크 취소 -${point}${TM.xpUnit} / -${point} ${TM.coin}`);
+      showToast(`체크 취소 -${point}${TM.xpUnit} / -${coinV} ${TM.coin}`);
     }
   };
 
@@ -4070,7 +4070,7 @@ export default function App() {
       if(appMode==="child") cheerCharacter(point,coinV);
       else showToast(`체크 완료 +${point}${TM.xpUnit} / +${coinV} ${TM.coin}`);
     } else {
-      showToast(`체크 취소 -${point}${TM.xpUnit} / -${point} ${TM.coin}`);
+      showToast(`체크 취소 -${point}${TM.xpUnit} / -${coinV} ${TM.coin}`);
     }
   };
 
@@ -4626,7 +4626,7 @@ export default function App() {
                 style={{...inputStyle,marginBottom:12}}/>
               {/* [사용자 확정 2026-08-11] 보상이 늘 10/10 로 정해져 있는데 어디에도 안 적혀 있었다 */}
               <p style={{fontSize:12.5,fontWeight:800,margin:"0 0 14px",color:subColor,textAlign:"center"}}>
-                다 하면 <EmojiIcon emoji={TM.xpEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{DEFAULT_HOMEWORK_SCORE}{TM.xpUnit} · <EmojiIcon emoji={TM.coinEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{DEFAULT_HOMEWORK_SCORE} {TM.coin}
+                다 하면 <EmojiIcon emoji={TM.xpEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{DEFAULT_HOMEWORK_SCORE}{TM.xpUnit} · <EmojiIcon emoji={TM.coinEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{questCoin(DEFAULT_HOMEWORK_SCORE)} {TM.coin}
               </p>
               {/* 등록 버튼 — 아무것도 안 넣었으면 못 누르게 (빈 상태인데 색이 진해 눌리는 줄 알았다) */}
               <button onClick={kidAddMission} disabled={!canAdd}
