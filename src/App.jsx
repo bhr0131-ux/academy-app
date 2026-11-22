@@ -7825,16 +7825,13 @@ export default function App() {
         const dn=(x)=>["일","월","화","수","목","금","토"][new Date(x.replace(/-/g,"/")).getDay()];
         const wd=dn(d);
         const dateText=`${Number(d.slice(5,7))}/${Number(d.slice(8,10))}(${wd})${short.includes("/")?"":` ${short}`}`;
-        /* 그 학원 '가는 날'(정규·보충, 결석·휴원 제외)만 오간다 — 60일 안에서 */
+        /* 그 학원 '가는 날'(정규·보충, 결석·휴원 제외)만 달력에서 고를 수 있다 */
         const goes=(x)=>getDayPlan(curAc,curAbsLive,x,dn(x),(acId)=>isVacationDay(childId,acId,x)).some(a=>String(a.id)===String(ac.id)&&!a._absent);
-        const step=(dir)=>{ let x=d; for(let i=0;i<60;i++){ x=addDays(x,dir); if(goes(x)) return x; } return null; };
-        const prevD=step(-1), nextD=step(1);
         const setBase=(fn)=>setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(a=>String(a.id)===String(ac.id)?{...a,baseSupplies:fn(a.baseSupplies||[])}:a)}));
         return (
           <DaySupplySheet ac={ac} dateLabel={short} dateText={dateText} entry={getDailyEntry(childId,ac.id,d)} th={th} inp={inp}
             onSaveEntry={(ne)=>setDailyEntry(childId,ac.id,d,ne)}
-            onPrev={prevD?()=>setDaySupplyEdit(p=>({...p,date:prevD})):null}
-            onNext={nextD?()=>setDaySupplyEdit(p=>({...p,date:nextD})):null}
+            date={d} isClassDay={goes} onPickDate={(x)=>setDaySupplyEdit(p=>({...p,date:x}))}
             onRemoveBase={(v)=>setBase(list=>list.filter(x=>x!==v))}
             onAddBase={(v)=>setBase(list=>[...list,v])}
             onToast={showToast}
