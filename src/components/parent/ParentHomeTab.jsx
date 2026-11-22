@@ -600,6 +600,8 @@ export default function ParentHomeTab({
         const feeAc=curAc.filter(a=>Number(a.fee||0)>0);
         const paidCnt=feeAc.filter(a=>isFeePaid(a.id,feeMonth)).length;
         const total=feeAc.reduce((n,a)=>n+Number(a.fee||0),0);
+        /* [사용자 확정 2026-11-22] 학원비를 넣은 학원이 하나도 없으면 칸 자체를 그리지 않는다 */
+        if(feeAc.length===0) return null;
         return (
           <div style={{marginTop:6}}>
             <SectionHead icon="fee" label={`${feeMonth}월 학원비`} th={th} style={{margin:feeAc.length>0?"0 0 2px":undefined}}/>
@@ -618,6 +620,11 @@ export default function ParentHomeTab({
               <div style={{background:"#fff",borderRadius:RAD.md,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,overflow:"hidden"}}>
                 {feeAc.map((a,i)=>{
                   const paid=isFeePaid(a.id,feeMonth);
+                  /* [사용자 확정 2026-11-22] 미납이면 알약에 납부 날짜를 쓴다 (예: 11/5 납부).
+                     날짜가 지났거나 오늘이면 빨강, 아직 남았으면 차분한 색 */
+                  const dueDay=feeDueDay(a,hd.getFullYear(),hd.getMonth());
+                  const dueStr=`${hd.getFullYear()}-${String(feeMonth).padStart(2,"0")}-${String(dueDay).padStart(2,"0")}`;
+                  const late=dueStr<=TODAY;
                   return (
                     <div key={a.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderTop:i?`1px solid ${C.border}`:"none"}}>
                       <span style={{width:8,height:8,borderRadius:"50%",background:a.color,flexShrink:0}}/>
@@ -626,7 +633,7 @@ export default function ParentHomeTab({
                       </span>
                       <span style={{flexShrink:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text}}>{Number(a.fee).toLocaleString()}원</span>
                       <span style={{flexShrink:0,minWidth:62,textAlign:"center",boxSizing:"border-box",fontSize:FS.tag,fontWeight:FW.bold,padding:"3px 9px",borderRadius:RAD.sm,
-                        background:paid?`${C.green}14`:`${C.red}12`,color:paid?C.green:C.red}}>{paid?"납부 완료":"미납"}</span>
+                        background:paid?`${C.green}14`:late?`${C.red}12`:"#EEF1F6",color:paid?C.green:late?C.red:SUBD}}>{paid?"납부 완료":`${feeMonth}/${dueDay} 납부`}</span>
                     </div>
                   );
                 })}
