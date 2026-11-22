@@ -7822,10 +7822,21 @@ export default function App() {
         if(!ac) return null;
         const d=daySupplyEdit.date;
         const short=d===TODAY?"오늘":d===addDays(TODAY,1)?"내일":d===addDays(TODAY,-1)?"어제":`${Number(d.slice(5,7))}/${Number(d.slice(8,10))}`;
+        const dn=(x)=>["일","월","화","수","목","금","토"][new Date(x.replace(/-/g,"/")).getDay()];
+        const wd=dn(d);
+        const dateText=`${Number(d.slice(5,7))}/${Number(d.slice(8,10))}(${wd})${short.includes("/")?"":` ${short}`}`;
+        /* 그 학원 '가는 날'(정규·보충, 결석·휴원 제외)만 오간다 — 60일 안에서 */
+        const goes=(x)=>getDayPlan(curAc,curAbsLive,x,dn(x),(acId)=>isVacationDay(childId,acId,x)).some(a=>String(a.id)===String(ac.id)&&!a._absent);
+        const step=(dir)=>{ let x=d; for(let i=0;i<60;i++){ x=addDays(x,dir); if(goes(x)) return x; } return null; };
+        const prevD=step(-1), nextD=step(1);
+        const setBase=(fn)=>setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(a=>String(a.id)===String(ac.id)?{...a,baseSupplies:fn(a.baseSupplies||[])}:a)}));
         return (
-          <DaySupplySheet ac={ac} dateLabel={short} dateText={dateLabelOf(d)} entry={getDailyEntry(childId,ac.id,d)} th={th} inp={inp}
+          <DaySupplySheet ac={ac} dateLabel={short} dateText={dateText} entry={getDailyEntry(childId,ac.id,d)} th={th} inp={inp}
             onSaveEntry={(ne)=>setDailyEntry(childId,ac.id,d,ne)}
-            onAddBase={(v)=>setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(a=>String(a.id)===String(ac.id)?{...a,baseSupplies:[...(a.baseSupplies||[]),v]}:a)}))}
+            onPrev={prevD?()=>setDaySupplyEdit(p=>({...p,date:prevD})):null}
+            onNext={nextD?()=>setDaySupplyEdit(p=>({...p,date:nextD})):null}
+            onRemoveBase={(v)=>setBase(list=>list.filter(x=>x!==v))}
+            onAddBase={(v)=>setBase(list=>[...list,v])}
             onToast={showToast}
             onClose={()=>setDaySupplyEdit(null)} />
         );
