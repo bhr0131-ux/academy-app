@@ -181,7 +181,8 @@ export default function ParentHomeTab({
           if(todaySupplies.length>0) alerts.push({icon:"bag",name:"준비물",items:todaySupplies,label:`준비물 ${todaySupplies.length}개`,color:th.main,
             go:onOpenSupplyCheck});
           /* [사용자 확정 2026-11-23] 한 미션은 하나씩 빠지고, 다 하면 '미션  완료' 한 줄만 남는다 */
-          if(homeQuestItems.length>0) alerts.push({icon:"mission",name:"미션",
+          /* [버그 점검 2026-11-23] 남은 게 '미완료(실패)'뿐이면 '완료'가 아니다 — 한 것이 하나라도 있을 때만 '완료' */
+          if(homePendingQuest>0||homeQuestItems.some(it=>it.done)) alerts.push({icon:"mission",name:"미션",
             items:homeQuestItems.filter(it=>!it.done&&!it.failed).map(it=>it.label),allDone:homePendingQuest===0,
             label:`미션 ${homeQuestItems.length}개`,color:th.main,
             go:onOpenMissionCheck});
