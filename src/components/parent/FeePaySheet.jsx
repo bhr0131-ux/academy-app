@@ -46,9 +46,10 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
   const [amount, setAmount] = useState(String(value?.amount ?? ac?.fee ?? ""));
   const [method, setMethod] = useState(value?.method || "transfer");
   const [memo,   setMemo]   = useState(value?.memo || "");
-  const [feeV,     setFeeV]     = useState(String(ac?.fee ?? ""));
+  const [feeV,     setFeeV]     = useState(Number(ac?.fee) > 0 ? String(ac.fee) : "")   // 0원은 빈 칸으로 (예시 글자가 보이게);
   const [payDayV,  setPayDayV]  = useState(String(ac?.payDay ?? 1));
   const [askUnpay, setAskUnpay] = useState(false);   // 되돌리기 확인 (한 번 더 묻는다)
+  const [pickOpen, setPickOpen] = useState(false);   // 학원 선택 콤보 펼침
   if (!ac) return null;
 
   const inp = { width: "100%", boxSizing: "border-box", background: tone.faint,
@@ -82,21 +83,33 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
 
         {/* [사용자 확정 2026-11-23] '미등록 ＋ 학원비 추가'로 열면 맨 위에서 학원을 고른다 */}
         {pickList && (<>
+          {/* [사용자 확정 2026-11-23] 콤보 모양 — 누르면 목록이 아래로 펼쳐지고, 고르면 접힌다
+              (미션 추가 창의 '학원 선택'과 같은 생김새) */}
           <label style={lbl}>학원 선택</label>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 15 }}>
-            {pickList.map(a => {
-              const on = a.id === ac.id;
-              return (
-                <button key={a.id} onClick={() => onPick && onPick(a.id)} className="jelly-tap" aria-pressed={on}
-                  style={{ padding: "8px 13px", borderRadius: 12, cursor: "pointer", fontFamily: F, fontSize: 14, fontWeight: on ? 900 : 700,
-                    border: on ? `1.5px solid ${a.color}` : `1px solid ${tone.border}`,
-                    background: on ? `${a.color}18` : "#fff", color: on ? tone.text : tone.sub,
-                    display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: a.color, flexShrink: 0 }} />{a.name}
-                </button>
-              );
-            })}
-          </div>
+          <button onClick={() => setPickOpen(v => !v)} className="jelly-tap" aria-expanded={pickOpen}
+            style={{ ...inp, display: "flex", alignItems: "center", gap: 9, cursor: "pointer", textAlign: "left",
+              marginBottom: pickOpen ? 6 : 15, background: "#fff", border: `1.5px solid ${pickOpen ? tone.main : tone.border}` }}>
+            <span style={{ width: 9, height: 9, borderRadius: "50%", background: ac.color, flexShrink: 0 }} />
+            <span style={{ flex: 1, minWidth: 0, fontWeight: 900, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ac.name}</span>
+            <span style={{ flexShrink: 0, fontSize: 12, color: tone.sub }}>{pickOpen ? "▲" : "▼"}</span>
+          </button>
+          {pickOpen && (
+            <div role="listbox" style={{ border: `1px solid ${tone.border}`, borderRadius: 14, padding: "2px 14px", marginBottom: 15, background: "#fff" }}>
+              {pickList.map((a, i) => {
+                const on = a.id === ac.id;
+                return (
+                  <button key={a.id} role="option" aria-selected={on} onClick={() => { onPick && onPick(a.id); setPickOpen(false); }}
+                    style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "12px 2px", border: "none",
+                      borderTop: i ? `1px solid ${tone.border}` : "none", background: "none", cursor: "pointer", fontFamily: F, textAlign: "left" }}>
+                    <span style={{ width: 9, height: 9, borderRadius: "50%", background: a.color, flexShrink: 0 }} />
+                    <span style={{ flex: 1, minWidth: 0, fontSize: 15, fontWeight: on ? 900 : 700, color: on ? tone.text : tone.sub,
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.name}</span>
+                    {on && <span style={{ flexShrink: 0, color: tone.main, fontWeight: 900 }}>✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </>)}
 
         {/* 학원비 설정 — ⋮ > 학원비 수정으로 열었을 때만. 매달 바뀌지 않는 값이라 위에 둔다. */}
