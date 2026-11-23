@@ -26,7 +26,7 @@
      onHolidayRest(name)   : 공휴일에만 나오는 '공휴일엔 쉬어요' 시트 열기
    ════════════════════════════════════════════════════════════════════════ */
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan, feeDueDay } from "../../data/sampleData.js";
@@ -174,7 +174,7 @@ export default function ParentHomeTab({
             go:onOpenSupplyCheck});
           if(homePendingQuest>0) alerts.push({icon:"mission",name:"미션",items:homeQuestItems.filter(it=>!it.done&&!it.failed).map(it=>it.label),label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
             go:onOpenMissionCheck});
-          if(feeDueAc.length>0) alerts.push({icon:"fee",name:"학원비",items:feeDueAc.map(a=>`${acKindLabel(a)} ${Number(a.fee).toLocaleString()}원`),label:`학원비 ${feeDueAc.length}곳`,color:C.blue||"#3B82F6",
+          if(feeDueAc.length>0) alerts.push({icon:"fee",name:"학원비",items:feeDueAc.map(a=>`${acKindLabel(a)} 납부일`),label:`학원비 ${feeDueAc.length}곳`,color:C.blue||"#3B82F6",
             go:()=>onGoFee&&onGoFee(feeMonth)});
           if(tomorrowSupplyCount>0) alerts.push({icon:"bag",name:"내일 준비물",items:tomorrowSupplyList,label:`내일 준비물 ${tomorrowSupplyCount}개`,color:C.purple||"#8B5CF6",
             go:()=>onOpenSupplyCheck(tomorrow)});
@@ -214,15 +214,19 @@ export default function ParentHomeTab({
               <p style={{fontSize:FS.sub,fontWeight:FW.semi,margin:"0 0 4px",color:C.sub}}>{label}</p>
               {alerts.map((a,i)=>(
                 <button key={i} onClick={a.go} className="jelly-tap" aria-label={`${a.label} 확인`}
-                  style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"7px 0",border:"none",
+                  style={{width:"100%",display:"flex",alignItems:"flex-start",gap:10,padding:"7px 0",border:"none",
                     borderTop:i?`1px solid ${C.border}`:"none",background:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}>
-                  <span style={{flexShrink:0,width:92,display:"inline-flex",alignItems:"center",gap:5,fontSize:FS.sub,fontWeight:FW.bold,color:mixBlack(a.color,0.45)}}>
+                  <span style={{flexShrink:0,width:84,display:"inline-flex",alignItems:"center",gap:5,fontSize:FS.sub,fontWeight:FW.bold,color:mixBlack(a.color,0.45),lineHeight:1.45,paddingTop:1}}>
                     <CareIcon name={a.icon} size={13}/>{a.name}
                   </span>
-                  <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                    {a.items.join(" · ")}
+                  {/* [사용자 확정 2026-11-23] 대시보드는 누르지 않아도 다 보이게 — 길면 줄을 넘겨 다 쓴다 */}
+                  <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,lineHeight:1.5}}>
+                    {/* 낱말 중간이나 '·' 앞에서 줄이 갈리지 않게 — 항목마다 '이름 ·'를 한 덩어리로 */}
+                    {a.items.map((t,k)=>(
+                      <Fragment key={k}><span style={{whiteSpace:"nowrap"}}>{t}{k<a.items.length-1?<span style={{color:C.sub,marginLeft:5}}>·</span>:null}</span>{k<a.items.length-1?" ":null}</Fragment>
+                    ))}
                   </span>
-                  <span aria-hidden="true" style={{flexShrink:0,fontSize:12,color:"#B9B3AD",fontWeight:900}}>›</span>
+                  <span aria-hidden="true" style={{flexShrink:0,fontSize:12,color:"#B9B3AD",fontWeight:900,lineHeight:1.6}}>›</span>
                 </button>
               ))}
             </div>
