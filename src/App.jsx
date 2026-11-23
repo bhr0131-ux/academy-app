@@ -281,7 +281,7 @@ export default function App() {
      반복 미션은 그 날짜를 볼 때 그날 미션 칸(일별 기록)에 한 번 만들어 넣는다(ruleId 표시).
      그날 지운 반복 미션은 entry.skipRules 에 적어 다시 안 만든다. '한 번'은 규칙 없이 그날만. */
   const [missionRules,       setMissionRules]        = useState({});
-  const [missionRepeat,      setMissionRepeat]       = useState({type:"once",days:[]});
+  const [missionRepeat,      setMissionRepeat]       = useState({type:"once",days:[],dates:[]});
   const [missionCoin,        setMissionCoin]         = useState(null);   // 미션 창 코인 칸 — null 이면 점수에 맞춰 자동(10점→15)   // 미션 편집 팝업에서 고른 종류 (숙제|할 일)
   /* [사용자 확정 2026-08-16] 학원 고르기를 팝업 대신 '미션 추가·관리' 버튼 아래로 펼친다 —
      팝업을 한 번 더 띄우지 않고 목록에서 바로 학원을 고른다. */
@@ -6485,7 +6485,7 @@ export default function App() {
                           };
                           const openEdit=(acId,acName,acColor,baseSupplies,acPick=false)=>{
                             setDailyAcListOpen(false);
-                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[],fromMission:true,acPick}); setMissionRepeat({type:"once",days:[]}); setMissionCoin(null);
+                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[],fromMission:true,acPick}); setMissionRepeat({type:"once",days:[],dates:[]}); setMissionCoin(null);
                             setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
                             setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
                           };
@@ -8121,16 +8121,30 @@ export default function App() {
                 /* [사용자 확정 2026-11-23] 점수는 미션당 10점 고정 — 엄마는 코인만 정한다 */
                 const ptN=DEFAULT_HOMEWORK_SCORE;
                 const rep=missionRepeat;
-                /* 순서: 한 번(기본) · 매일 · 특정 요일 · 학원 가는 날 (사용자 확정 2026-11-22) */
-                const opts=[{k:"once",l:"한 번"},{k:"daily",l:"매일"},{k:"days",l:"특정 요일"},...(isExtra?[]:[{k:"class",l:"학원 가는 날"}])];
+                /* 순서: 한 번(기본) · 매일 · 특정 요일 · 특정 날짜 · 학원 가는 날 (사용자 확정 2026-11-22 / 특정 날짜 2026-11-23) */
+                const opts=[{k:"once",l:"한 번"},{k:"daily",l:"매일"},{k:"days",l:"특정 요일"},{k:"dates",l:"특정 날짜"},...(isExtra?[]:[{k:"class",l:"학원 가는 날"}])];
+                /* 특정 날짜 — 고른 날짜마다 그날 미션으로 한 번씩 넣는다(규칙은 만들지 않는다). 오늘 이전은 못 고른다 */
+                const pickedDates=[...(rep.dates||[])].sort();
+                const dLabel=(d)=>{ const x=new Date(d.replace(/-/g,"/")); return `${x.getMonth()+1}/${x.getDate()}(${"일월화수목금토"[x.getDay()]})`; };
                 const coinN=missionCoin==null||missionCoin===""?questCoin(ptN):Math.max(0,Math.round(Number(missionCoin)||0));
                 const myRules=(missionRules[childId]||[]).filter(r=>String(r.acId)===String(academyId));
                 const ruleText=(r)=>r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":`${(r.days||[]).join("·")}요일`;
                 const addMission=()=>{
                   const v=val.trim(); if(!v) return;
                   if(rep.type==="days"&&!(rep.days||[]).length){ showToast("요일을 골라 주세요"); return; }
+                  if(rep.type==="dates"&&!pickedDates.length){ showToast("날짜를 골라 주세요"); return; }
                   const item={id:newId(),text:v,done:false,point:ptN,coin:coinN};
-                  if(rep.type!=="once"){
+                  if(rep.type==="dates"){
+                    const key=isExtra?"todos":"homeworks"; let n=0;
+                    pickedDates.forEach(d=>{
+                      const e=d===date?entry:getDailyEntry(childId,academyId,d); const L=e[key]||[];
+                      if(L.some(x=>x.text===v)) return;   // 그날 같은 미션이 이미 있으면 건너뛴다
+                      const ne={...e,[key]:[...L,{...item,id:newId()}]};
+                      if(d===date) upd(ne); else setDailyEntry(childId,academyId,d,ne);
+                      n++;
+                    });
+                    showToast(n?`${n}일에 미션을 넣었어요`:"이미 그날 미션에 있어요");
+                  } else if(rep.type!=="once"){
                     const rule={id:newId(),acId:academyId,text:v,point:ptN,coin:coinN,type:rep.type,days:rep.type==="days"?[...rep.days]:[],start:date};
                     setMissionRules(prev=>({...prev,[childId]:[...(prev[childId]||[]),rule]}));
                     item.ruleId=rule.id;
@@ -8139,7 +8153,7 @@ export default function App() {
                   } else {
                     upd(isExtra?{...entry,todos:[...todos,item]}:{...entry,homeworks:[...hw,item]});
                   }
-                  setVal(""); setMissionRepeat({type:"once",days:[]}); setMissionCoin(null);
+                  setVal(""); setMissionRepeat({type:"once",days:[],dates:[]}); setMissionCoin(null);
                 };
                 const chipB=(on)=>({padding:"6px 11px",borderRadius:999,fontFamily:"inherit",fontSize:FS.sub,fontWeight:on?FW.bold:FW.semi,cursor:"pointer",
                   border:`1.5px solid ${on?th.main:CT.faintB}`,background:on?`${th.main}16`:"#fff",color:on?th.main:C.sub});
@@ -8154,10 +8168,6 @@ export default function App() {
                       <input type="number" value={missionCoin==null?String(questCoin(ptN)):missionCoin} onChange={e=>setMissionCoin(e.target.value)} aria-label={`보상 ${TM.coin}`} min="0"
                         style={{...inp,width:46,fontSize:FS.body,padding:"8px 6px",minHeight:CTRL_H,boxSizing:"border-box",textAlign:"center",marginBottom:0,background:"#fff",color:"#2E8FD6"}}/>
                       <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>개</span>
-                      <button onClick={addMission} className="jelly-tap"
-                        style={{marginLeft:"auto",flexShrink:0,padding:"0 14px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontWeight:FW.bold,fontSize:FS.body,cursor:"pointer",fontFamily:"inherit"}}>
-                        추가
-                      </button>
                     </div>
                     {/* 반복 설정 — 고르고 '추가'를 누르면 그 규칙으로 들어간다 */}
                     <p style={{fontSize:FS.sub,fontWeight:FW.bold,color:C.text,margin:"12px 0 6px",display:"flex",alignItems:"center",gap:5}}>
@@ -8165,7 +8175,7 @@ export default function App() {
                     </p>
                     <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                       {opts.map(o=>(
-                        <button key={o.k} onClick={()=>setMissionRepeat(p=>({type:o.k,days:o.k==="days"?(p.days||[]):[]}))} aria-pressed={rep.type===o.k} style={chipB(rep.type===o.k)}>{o.l}</button>
+                        <button key={o.k} onClick={()=>setMissionRepeat(p=>({type:o.k,days:o.k==="days"?(p.days||[]):[],dates:o.k==="dates"?(p.dates||[]):[]}))} aria-pressed={rep.type===o.k} style={chipB(rep.type===o.k)}>{o.l}</button>
                       ))}
                     </div>
                     {rep.type==="days"&&(
@@ -8177,6 +8187,31 @@ export default function App() {
                         ); })}
                       </div>
                     )}
+                    {rep.type==="dates"&&(
+                      <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:6,marginTop:8}}>
+                        {pickedDates.map(d=>(
+                          <span key={d} style={{display:"inline-flex",alignItems:"center",gap:3,padding:"4px 4px 4px 10px",borderRadius:999,background:th.main,color:"#fff",fontSize:FS.sub,fontWeight:FW.bold}}>
+                            {dLabel(d)}
+                            <button onClick={()=>setMissionRepeat(p=>({...p,dates:(p.dates||[]).filter(x=>x!==d)}))} aria-label={`${dLabel(d)} 빼기`}
+                              style={{border:"none",background:"none",color:"#fff",cursor:"pointer",fontSize:12,padding:"0 5px",fontFamily:"inherit"}}>✕</button>
+                          </span>
+                        ))}
+                        {/* 날짜 고르기 — 휴대폰 달력이 뜬다. 고를 때마다 하나씩 늘어난다 */}
+                        <label style={{...chipB(false),position:"relative",display:"inline-flex",alignItems:"center",gap:4,overflow:"hidden"}}>
+                          <CareIcon name="calendar" size={13}/>날짜 고르기
+                          <input type="date" min={TODAY} value="" aria-label="날짜 고르기"
+                            onChange={e=>{ const d=e.target.value; if(!d) return; if(d<TODAY){ showToast("오늘부터 고를 수 있어요"); return; } setMissionRepeat(p=>({...p,dates:(p.dates||[]).includes(d)?p.dates:[...(p.dates||[]),d]})); }}
+                            style={{position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%"}}/>
+                        </label>
+                      </div>
+                    )}
+                    {/* 추가 — 반복 설정 아래 오른쪽 끝 (사용자 확정 2026-11-23) */}
+                    <div style={{display:"flex",justifyContent:"flex-end",marginTop:12}}>
+                      <button onClick={addMission} className="jelly-tap"
+                        style={{flexShrink:0,padding:"0 22px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:th.grad,color:"#fff",fontWeight:FW.bold,fontSize:FS.body,cursor:"pointer",fontFamily:"inherit"}}>
+                        추가
+                      </button>
+                    </div>
                     {/* 지금 반복 중인 미션 — ✕ 로 반복을 끈다(오늘 것은 남고, 내일부터 안 들어간다) */}
                     {myRules.length>0&&(
                       <div style={{marginTop:12}}>
