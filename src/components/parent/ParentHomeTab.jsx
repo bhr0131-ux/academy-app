@@ -695,11 +695,11 @@ export default function ParentHomeTab({
                           background:item.failed?`${C.sub}14`:`${C.orange}14`,color:item.failed?C.sub:C.orange}}>
                           {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${(TM&&TM.xpUnit)||"점"}`}
                         </span>
+                        {/* 코인 — 점수와 같은 알약, 색만 파랑 (사용자 확정 2026-11-23) */}
+                        {!item.failed&&<span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>
+                          +{questCoinOf(item)}{(TM&&TM.coin)||"코인"}
+                        </span>}
                       </div>
-                      {/* 코인은 아랫줄에, 아이 화면 코인 색으로 (사용자 확정 2026-11-22) */}
-                      {!item.failed&&<p style={{margin:"3px 0 0",fontSize:12,fontWeight:800,color:"#2E8FD6"}}>
-                        <EmojiIcon emoji={coinEmoji} size={12} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{questCoinOf(item)} {(TM&&TM.coin)||"코인"}
-                      </p>}
                     </div>
                   </div>
                 </div>
