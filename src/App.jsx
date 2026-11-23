@@ -2791,6 +2791,8 @@ export default function App() {
       for(const date of dates){
         if(!date) continue;
         for(const r of rules){
+          /* [버그 수정 2026-11-23] 지운 학원의 '매일·요일' 규칙이 주인 없는 기록을 계속 만들었다 — 학원이 없으면 건너뛴다 */
+          if(String(r.acId)!==String(EXTRA_QUEST_ID)&&!(academies[cid]||[]).some(a=>String(a.id)===String(r.acId))) continue;
           if(!ruleHits(cid,r,date)) continue;
           const k=dKey(cid,r.acId,date);
           const e=next[k]||{homeworks:[],supplies:[],todos:[]};
@@ -4145,6 +4147,8 @@ export default function App() {
     showToast(editTarget?"수정됨 ✓":"추가됨 ✓");
   };
   const deleteAcademy=(id)=>{
+    // 그 학원의 반복 미션 규칙도 함께 지운다 (2026-11-23)
+    setMissionRules(prev=>{ const list=prev[childId]||[]; const n=list.filter(r=>String(r.acId)!==String(id)); return n.length===list.length?prev:{...prev,[childId]:n}; });
     // 학원 삭제
     setAcademies(p=>({...p,[childId]:(p[childId]||[]).filter(a=>a.id!==id)}));
     // 해당 학원 결석 기록 삭제
