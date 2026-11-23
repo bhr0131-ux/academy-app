@@ -171,8 +171,6 @@ export default function ParentHomeTab({
           });
           const pendingRewards=getChildRewardRequests(childId).filter(r=>r.status==="pending");
           const alerts=[];
-          /* 그날 달력 메모 — 줄바꿈도 그대로 보여 준다 */
-          if(dayMemo) alerts.push({icon:"memo",name:"메모",items:[dayMemo],memo:true,label:"메모",color:C.orange,go:()=>onGoMemo&&onGoMemo()});
           if(todaySupplies.length>0) alerts.push({icon:"bag",name:"준비물",items:todaySupplies,label:`준비물 ${todaySupplies.length}개`,color:th.main,
             go:onOpenSupplyCheck});
           if(homePendingQuest>0) alerts.push({icon:"mission",name:"미션",items:homeQuestItems.filter(it=>!it.done&&!it.failed).map(it=>it.label),label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
@@ -187,6 +185,8 @@ export default function ParentHomeTab({
             go:()=>onGoTab("absence")});
           if(makeupOnHome.length>0) alerts.push({icon:"makeup",name:"보충수업",items:makeupOnHome.map(a=>acName(a.academyId)).filter(Boolean),label:`보충수업 ${makeupOnHome.length}개`,color:C.orange,
             go:()=>onGoTab("absence")});
+          /* 그날 달력 메모 — 맨 아래 (사용자 확정 2026-11-23 순서). 줄바꿈도 그대로 보여 준다 */
+          if(dayMemo) alerts.push({icon:"memo",name:"메모",items:[dayMemo],memo:true,label:"메모",color:C.orange,go:()=>onGoMemo&&onGoMemo()});
           /* [사용자 확정 2026-08-09] 내용 개수에 따라 카드 높이가 달라진다.
              예전엔 준비물 하나뿐인 날에도 두 줄짜리 카드가 자리를 차지해 비어 보였다.
                0개  → 한 줄 완료 배너
