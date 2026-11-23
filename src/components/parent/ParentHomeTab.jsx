@@ -53,6 +53,7 @@ export default function ParentHomeTab({
   isFeePaid = () => false, onGoFee,
   /* [사용자 확정 2026-11-21] 홈의 미션은 보기 전용이지만 '완료 체크'만은 여기서 한다 (아이가 깜빡했을 때) */
   onToggleQuest, questCoinOf = (it) => 0, coinEmoji = "💎",
+  dayMemo = "", onGoMemo,
   /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
   childrenList = [], showSample = false,
   onAddAcademy, onEditAcademy, onCopyAcademy, onCopyAccount, onOpenMap, onSeedSample,
@@ -170,6 +171,8 @@ export default function ParentHomeTab({
           });
           const pendingRewards=getChildRewardRequests(childId).filter(r=>r.status==="pending");
           const alerts=[];
+          /* 그날 달력 메모 — 줄바꿈도 그대로 보여 준다 */
+          if(dayMemo) alerts.push({icon:"memo",name:"메모",items:[dayMemo],memo:true,label:"메모",color:C.orange,go:()=>onGoMemo&&onGoMemo()});
           if(todaySupplies.length>0) alerts.push({icon:"bag",name:"준비물",items:todaySupplies,label:`준비물 ${todaySupplies.length}개`,color:th.main,
             go:onOpenSupplyCheck});
           if(homePendingQuest>0) alerts.push({icon:"mission",name:"미션",items:homeQuestItems.filter(it=>!it.done&&!it.failed).map(it=>it.label),label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
@@ -222,7 +225,7 @@ export default function ParentHomeTab({
                   {/* [사용자 확정 2026-11-23] 대시보드는 누르지 않아도 다 보이게 — 길면 줄을 넘겨 다 쓴다 */}
                   <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,lineHeight:1.5}}>
                     {/* 낱말 중간이나 '·' 앞에서 줄이 갈리지 않게 — 항목마다 '이름 ·'를 한 덩어리로 */}
-                    {a.items.map((t,k)=>(
+                    {a.memo?<span style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{a.items[0]}</span>:a.items.map((t,k)=>(
                       <Fragment key={k}><span style={{whiteSpace:"nowrap"}}>{t}{k<a.items.length-1?<span style={{color:C.sub,marginLeft:5}}>·</span>:null}</span>{k<a.items.length-1?" ":null}</Fragment>
                     ))}
                   </span>
