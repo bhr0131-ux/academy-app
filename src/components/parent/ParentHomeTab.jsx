@@ -160,7 +160,7 @@ export default function ParentHomeTab({
           보충수업)을 빼고, 감싸던 파스텔 카드도 없앴다. 이름·레벨은 바로 위 아이 선택
           줄에 이미 있고, 요약 3칸의 결석·보충수업은 '오늘 챙길 일' 칩과 겹쳤다.
           이제 이 자리에는 '오늘 챙길 일' 한 칸만 남는다. */}
-      <div style={{marginBottom:22}}>
+      <div style={{marginBottom:32}}>{/* 여백 22→32 (사용자 확정 2026-11-23) */}
         {/* 오늘 챙길 일 알림 */}
         {(()=>{
           const pendingRewardCnt=getChildRewardRequests(childId).filter(r=>r.status==="pending").length;
@@ -181,7 +181,8 @@ export default function ParentHomeTab({
           if(todaySupplies.length>0) alerts.push({icon:"bag",name:"준비물",items:todaySupplies,label:`준비물 ${todaySupplies.length}개`,color:th.main,
             go:onOpenSupplyCheck});
           /* [사용자 확정 2026-11-23] 한 미션은 하나씩 빠지고, 다 하면 '미션  완료' 한 줄만 남는다 */
-          if(homeQuestItems.length>0) alerts.push({icon:"mission",name:"미션",
+          /* [버그 점검 2026-11-23] 남은 게 '미완료(실패)'뿐이면 '완료'가 아니다 — 한 것이 하나라도 있을 때만 '완료' */
+          if(homePendingQuest>0||homeQuestItems.some(it=>it.done)) alerts.push({icon:"mission",name:"미션",
             items:homeQuestItems.filter(it=>!it.done&&!it.failed).map(it=>it.label),allDone:homePendingQuest===0,
             label:`미션 ${homeQuestItems.length}개`,color:th.main,
             go:onOpenMissionCheck});
@@ -216,18 +217,18 @@ export default function ParentHomeTab({
             /* [사용자 확정 2026-08-16] 챙길 일이 없는 날만 배경이 진해 화면에서 혼자 튀었다 →
                챙길 일이 있을 때 카드와 같은 흰 바탕·같은 테두리로 맞춘다. 글자색은 그대로 둔다. */
             <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,
-              padding:"9px 13px",display:"flex",alignItems:"center",gap:9,boxShadow:SHADOW.sm}}>
+              padding:"15px 15px",display:"flex",alignItems:"center",gap:9,boxShadow:SHADOW.sm}}>
               <span style={{flexShrink:0,color:mixBlack(th.main,0.45),display:"flex"}}><CareIcon name="check" size={15}/></span>
               <span style={{fontSize:FS.body,fontWeight:FW.semi,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
             </div>
           );
           /* 한 항목 = 한 줄: [아이콘 이름] 가방 · 문제집 · 악보 … ›  (길면 말줄임) */
           return (
-            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,padding:"10px 13px 6px",boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:FS.sub,fontWeight:FW.semi,margin:"0 0 4px",color:C.sub}}>{label}</p>
+            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,padding:"16px 15px 12px",boxShadow:SHADOW.sm}}>
+              <p style={{fontSize:FS.sub,fontWeight:FW.semi,margin:"0 0 8px",color:C.sub}}>{label}</p>
               {alerts.map((a,i)=>(
                 <button key={i} onClick={a.go} className="jelly-tap" aria-label={`${a.label} 확인`}
-                  style={{width:"100%",display:"flex",alignItems:"flex-start",gap:10,padding:"7px 0",border:"none",
+                  style={{width:"100%",display:"flex",alignItems:"flex-start",gap:10,padding:"11px 0",border:"none",
                     borderTop:i?`1px solid ${C.border}`:"none",background:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}>
                   <span style={{flexShrink:0,width:84,display:"inline-flex",alignItems:"center",gap:5,fontSize:FS.sub,fontWeight:FW.bold,color:mixBlack(a.color,0.45),lineHeight:1.45,paddingTop:1}}>
                     <CareIcon name={a.icon} size={13}/>{a.name}
@@ -629,7 +630,7 @@ export default function ParentHomeTab({
           계좌 복사·⋮ 수정/삭제까지 그대로. 저장(v6_paid / v6_fee_pay_info)은 App 그대로다.
           (그전 2026-11-22 의 '학원비 요약' 칸은 이 화면이 대신한다) */}
       {acView==="all"&&curAc.length>0&&feePanel&&(
-        <div ref={feeRef} style={{marginTop:6,scrollMarginTop:12}}>
+        <div ref={feeRef} style={{marginTop:24,scrollMarginTop:12}}>
           <SectionHead icon="fee" label="학원비" th={th} style={{margin:"0 0 10px"}}/>
           {feePanel}
         </div>

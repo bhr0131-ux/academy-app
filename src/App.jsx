@@ -3700,6 +3700,9 @@ export default function App() {
   /* '오늘 챙길 일'의 결석 칩처럼 다른 곳에서 곧장 학원비·결석·기타로 보내는 길이 있다.
      그때도 하단 '더보기'를 다시 누르면 방금 보던 칸으로 돌아오게 기억해 둔다. */
   useEffect(()=>{ if(isMoreTab(tab)) setMoreTab(tab); },[tab]);
+  /* [버그 점검 2026-11-23] 학원비가 홈 '전체 학원' 아래로 들어왔으니, 홈 날짜를 다른 달로 넘기면
+     학원비 칸도 그 달을 보여 준다 (그 안에서 ‹ › 로 따로 넘기는 건 그대로 된다) */
+  useEffect(()=>{ const m=Number(String(homeDate).slice(5,7)); if(m>=1&&m<=12) setFeeMonth(m); },[homeDate]);
 
   useEffect(()=>{
     if(!loaded||!childId||appMode!=="child") return;
