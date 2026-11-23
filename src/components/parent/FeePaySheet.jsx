@@ -46,7 +46,7 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
   const [amount, setAmount] = useState(String(value?.amount ?? ac?.fee ?? ""));
   const [method, setMethod] = useState(value?.method || "transfer");
   const [memo,   setMemo]   = useState(value?.memo || "");
-  const [feeV,     setFeeV]     = useState(Number(ac?.fee) > 0 ? String(ac.fee) : "")   // 0원은 빈 칸으로 (예시 글자가 보이게);
+  const [feeV,     setFeeV]     = useState(Number(ac?.fee) > 0 ? String(ac.fee) : "");   // 0원은 빈 칸으로 (예시 글자가 보이게)
   const [payDayV,  setPayDayV]  = useState(String(ac?.payDay ?? 1));
   const [askUnpay, setAskUnpay] = useState(false);   // 되돌리기 확인 (한 번 더 묻는다)
   const [pickOpen, setPickOpen] = useState(false);   // 학원 선택 콤보 펼침
