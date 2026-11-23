@@ -112,17 +112,18 @@ export default function ParentHomeTab({
      전날 밤 가방을 미리 챙기라는 뜻. 세는 법은 위 '준비물'과 같다(가는 학원만, 학원마다 한 번) */
   const tomorrow=addDays(homeDate,1);
   const showTomorrowSupply=isToday&&new Date().getHours()>=18;
-  const tomorrowSupplyCount=showTomorrowSupply?(()=>{
+  const tomorrowSupplyList=showTomorrowSupply?(()=>{
     const td=new Date(tomorrow.replace(/-/g,"/"));
     const tDN=["일","월","화","수","목","금","토"][td.getDay()];
     const plan=getDayPlan(curAc,curAbs,tomorrow,tDN,(acId)=>isVacationDay(childId,acId,tomorrow));
     const acs=[...plan.filter(ac=>!ac._absent).reduce((m,ac)=>m.set(String(ac.id),ac),new Map()).values()];
-    return acs.reduce((n,ac)=>{
+    return acs.flatMap(ac=>{
       const entry=getDailyEntry(childId,ac.id,tomorrow);
       const hidden=entry.hiddenBase||[];
-      return n+(ac.baseSupplies||[]).filter(x=>!hidden.includes(x)).length+(entry.supplies||[]).length;
-    },0);
-  })():0;
+      return [...(ac.baseSupplies||[]).filter(x=>!hidden.includes(x)),...(entry.supplies||[])];
+    });
+  })():[];
+  const tomorrowSupplyCount=tomorrowSupplyList.length;
   return (
     <div>
       {/* 날짜 이동 — [사용자 확정 2026-08-10] 좌우 큰 네모 버튼을 없애고 화살표만 남긴다.
@@ -159,23 +160,29 @@ export default function ParentHomeTab({
           // 준비물·미션은 팝업, 보상승인·결석·보충수업은 이미 처리 화면이 있는 탭으로 보낸다.
           /* [사용자 확정 2026-08-11] 🎒🎯🎁🏥📚 다섯 이모지가 한 줄에 나란히 있으니
              색·그림체가 제각각이라 칩이 시끄러웠다 → 칩 글자색을 그대로 따르는 선 아이콘으로. */
+          /* [사용자 확정 2026-11-23] 누르지 않아도 내용이 보이게 — 항목마다 한 줄에 이름만 나열한다
+             (어느 학원 것인지는 안 쓴다). 내용이 있는 항목만, 줄을 누르면 예전처럼 처리 화면으로. */
+          const acName=(id)=>{ const a=curAc.find(x=>String(x.id)===String(id)); return a?acKindLabel(a):""; };
+          const todaySupplies=homeSupplyAc.flatMap(ac=>{
+            const entry=getDailyEntry(childId,ac.id,homeDate);
+            const hidden=entry.hiddenBase||[];
+            return [...(ac.baseSupplies||[]).filter(x=>!hidden.includes(x)),...(entry.supplies||[])];
+          });
+          const pendingRewards=getChildRewardRequests(childId).filter(r=>r.status==="pending");
           const alerts=[];
-          if(homeSupplyCount>0) alerts.push({icon:"bag",label:`준비물 ${homeSupplyCount}개`,color:th.main,
+          if(todaySupplies.length>0) alerts.push({icon:"bag",name:"준비물",items:todaySupplies,label:`준비물 ${todaySupplies.length}개`,color:th.main,
             go:onOpenSupplyCheck});
-          if(homePendingQuest>0) alerts.push({icon:"mission",label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
+          if(homePendingQuest>0) alerts.push({icon:"mission",name:"미션",items:homeQuestItems.filter(it=>!it.done&&!it.failed).map(it=>it.label),label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
             go:onOpenMissionCheck});
-          if(feeDueAc.length>0) alerts.push({icon:"fee",label:`학원비 ${feeDueAc.length}곳`,color:C.blue||"#3B82F6",
+          if(feeDueAc.length>0) alerts.push({icon:"fee",name:"학원비",items:feeDueAc.map(a=>`${acKindLabel(a)} ${Number(a.fee).toLocaleString()}원`),label:`학원비 ${feeDueAc.length}곳`,color:C.blue||"#3B82F6",
             go:()=>onGoFee&&onGoFee(feeMonth)});
-          if(tomorrowSupplyCount>0) alerts.push({icon:"bag",label:`내일 준비물 ${tomorrowSupplyCount}개`,color:C.purple||"#8B5CF6",
+          if(tomorrowSupplyCount>0) alerts.push({icon:"bag",name:"내일 준비물",items:tomorrowSupplyList,label:`내일 준비물 ${tomorrowSupplyCount}개`,color:C.purple||"#8B5CF6",
             go:()=>onOpenSupplyCheck(tomorrow)});
-          /* [사용자 확정 2026-08-17] 팝업으로 그 자리에서 처리하던 것을 되돌려 보상 탭으로 보낸다 —
-             그 탭 맨 위가 이미 같은 '구매 승인 대기' 카드이고, 들어갈 때 받던 비밀번호도
-             없어졌다. 팝업은 같은 화면을 한 겹 더 만드는 셈이었다. */
-          if(pendingRewardCnt>0) alerts.push({icon:"reward",label:`보상승인 ${pendingRewardCnt}개`,color:C.green,
+          if(pendingRewardCnt>0) alerts.push({icon:"reward",name:"보상 승인",items:pendingRewards.map(r=>r.title),label:`보상승인 ${pendingRewardCnt}개`,color:C.green,
             go:onGoReward});
-          if(absOnHome.length>0) alerts.push({icon:"absent",label:`결석 ${absOnHome.length}개`,color:C.red,
+          if(absOnHome.length>0) alerts.push({icon:"absent",name:"결석",items:absOnHome.map(a=>acName(a.academyId)).filter(Boolean),label:`결석 ${absOnHome.length}개`,color:C.red,
             go:()=>onGoTab("absence")});
-          if(makeupOnHome.length>0) alerts.push({icon:"makeup",label:`보충수업 ${makeupOnHome.length}개`,color:C.orange,
+          if(makeupOnHome.length>0) alerts.push({icon:"makeup",name:"보충수업",items:makeupOnHome.map(a=>acName(a.academyId)).filter(Boolean),label:`보충수업 ${makeupOnHome.length}개`,color:C.orange,
             go:()=>onGoTab("absence")});
           /* [사용자 확정 2026-08-09] 내용 개수에 따라 카드 높이가 달라진다.
              예전엔 준비물 하나뿐인 날에도 두 줄짜리 카드가 자리를 차지해 비어 보였다.
@@ -201,17 +208,23 @@ export default function ParentHomeTab({
               <span style={{fontSize:FS.body,fontWeight:FW.semi,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
             </div>
           );
-          if(alerts.length===1) return (
-            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,
-              padding:"9px 13px",display:"flex",alignItems:"center",gap:10,boxShadow:SHADOW.sm}}>
-              <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>{label}</span>
-              <span style={{marginLeft:"auto"}}>{chip(alerts[0],0)}</span>
-            </div>
-          );
+          /* 한 항목 = 한 줄: [아이콘 이름] 가방 · 문제집 · 악보 … ›  (길면 말줄임) */
           return (
-            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,padding:"11px 13px",boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:FS.sub,fontWeight:FW.semi,margin:"0 0 7px",color:C.sub}}>{label}</p>
-              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>{alerts.map(chip)}</div>
+            <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,padding:"10px 13px 6px",boxShadow:SHADOW.sm}}>
+              <p style={{fontSize:FS.sub,fontWeight:FW.semi,margin:"0 0 4px",color:C.sub}}>{label}</p>
+              {alerts.map((a,i)=>(
+                <button key={i} onClick={a.go} className="jelly-tap" aria-label={`${a.label} 확인`}
+                  style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"7px 0",border:"none",
+                    borderTop:i?`1px solid ${C.border}`:"none",background:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}>
+                  <span style={{flexShrink:0,width:92,display:"inline-flex",alignItems:"center",gap:5,fontSize:FS.sub,fontWeight:FW.bold,color:mixBlack(a.color,0.45)}}>
+                    <CareIcon name={a.icon} size={13}/>{a.name}
+                  </span>
+                  <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                    {a.items.join(" · ")}
+                  </span>
+                  <span aria-hidden="true" style={{flexShrink:0,fontSize:12,color:"#B9B3AD",fontWeight:900}}>›</span>
+                </button>
+              ))}
             </div>
           );
         })()}
