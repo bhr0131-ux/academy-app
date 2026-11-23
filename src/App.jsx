@@ -2801,7 +2801,8 @@ export default function App() {
           const isExtra=String(r.acId)===String(EXTRA_QUEST_ID);
           const list=isExtra?(e.todos||[]):(e.homeworks||[]);
           if(list.some(x=>x.ruleId===r.id)) continue;
-          const item={id:newId(),text:r.text,done:false,point:r.point,...(r.coin!=null?{coin:r.coin}:{}),ruleId:r.id};
+          /* [사용자 확정 2026-11-23] 점수는 10점 고정 — 예전에 다른 점수로 만든 규칙은 그 점수에 맞던 코인을 그대로 준다 */
+          const item={id:newId(),text:r.text,done:false,point:DEFAULT_HOMEWORK_SCORE,coin:r.coin!=null?r.coin:questCoin(r.point||DEFAULT_HOMEWORK_SCORE),ruleId:r.id};
           const ne=isExtra?{...e,todos:[...list,item]}:{...e,homeworks:[...list,item]};
           if(!changed){ next={...prev}; changed=true; }
           next[k]=ne;
@@ -3811,8 +3812,11 @@ export default function App() {
     const targetAcId=(item.kind==="hw"&&item.academyId)?item.academyId:EXTRA_QUEST_ID;
     const isExtraTarget=String(targetAcId)===String(EXTRA_QUEST_ID);
     const entry=getDailyEntry(childId,targetAcId,rewardDate);
-    const r=applyRepeatToEntry(entry,item,{id:newId(),isExtra:isExtraTarget});
+    const r=applyRepeatToEntry(entry,{...item,point:DEFAULT_HOMEWORK_SCORE},{id:newId(),isExtra:isExtraTarget});
     if(!r.ok){ showToast("이미 오늘 미션에 있어요"); return; }
+    /* [사용자 확정 2026-11-23] 점수 10점 고정 — 예전 반복 미션의 다른 점수는 코인으로만 이어 준다 */
+    const oldPt=Number(item.point)||DEFAULT_HOMEWORK_SCORE;
+    if(oldPt!==DEFAULT_HOMEWORK_SCORE){ const k=r.kind==="hw"?"homeworks":"todos"; const L=r.next[k]||[]; const last=L[L.length-1]; if(last) r.next={...r.next,[k]:[...L.slice(0,-1),{...last,coin:questCoin(oldPt)}]}; }
     setDailyEntry(childId,targetAcId,rewardDate,r.next);
     showToast(`${item.text} 추가! ${r.kind==="hw"?"📘":"✅"}`);
   };
@@ -7861,7 +7865,7 @@ export default function App() {
       <RepeatMissionSheet
         open={showRepeatSheet} onClose={()=>setShowRepeatSheet(false)}
         list={getRepeatMissions(childId)} academies={curAc}
-        canScore={rewardUnlocked} defaultPoint={DEFAULT_HOMEWORK_SCORE}
+        canScore={false} defaultPoint={DEFAULT_HOMEWORK_SCORE}   /* 점수 10점 고정 (사용자 확정 2026-11-23) */
         onAdd={addRepeat} onEdit={editRepeat} onRemove={removeRepeat}
         onEditBase={editAcademyBaseHomework} onRemoveBase={removeAcademyBaseHomework}
         onQuickAdd={quickAddRepeat} parentRole={PT.role}
@@ -7913,18 +7917,33 @@ export default function App() {
            · 생활·일반(isExtra)은 숙제 칸이 없으므로 숙제로 저장한 것도 할 일로 들어간다
            · 점수는 저장된 값을 그대로 쓴다 — 만들 때 이미 엄마 권한으로 정한 값이다 */
         const pickRepeat=(item)=>{
-          const r=applyRepeatToEntry(entry,item,{id:newId(),isExtra});
+          const r=applyRepeatToEntry(entry,{...item,point:DEFAULT_HOMEWORK_SCORE},{id:newId(),isExtra});
           if(!r.ok){ showToast("이미 오늘 미션에 있어요"); return; }
+          /* [사용자 확정 2026-11-23] 점수 10점 고정 — 예전 반복 미션의 점수는 코인으로만 이어 준다 */
+          const oldPt=Number(item.point)||DEFAULT_HOMEWORK_SCORE;
+          if(oldPt!==DEFAULT_HOMEWORK_SCORE){ const k=r.kind==="hw"?"homeworks":"todos"; const L=r.next[k]||[]; const last=L[L.length-1]; if(last) r.next={...r.next,[k]:[...L.slice(0,-1),{...last,coin:questCoin(oldPt)}]}; }
           upd(r.next);
           showToast(`${item.text} 추가! ${r.kind==="hw"?"📘":"✅"}`);
         };
-        const startEditItem=(kind,id,text,point)=>{ setEditingDailyItem({kind,id}); setEditingDailyText(text); setEditingDailyPoint(String(point||DEFAULT_HOMEWORK_SCORE)); };
+        /* [사용자 확정 2026-11-23] 점수는 미션당 10점 고정 — ✎ 에서는 글자와 코인만 고친다.
+           editingDailyPoint 칸(이름은 예전 그대로)에 이제 코인 값을 담는다. */
+        const startEditItem=(kind,id,text,item)=>{ setEditingDailyItem({kind,id}); setEditingDailyText(text); setEditingDailyPoint(String(itemCoin(item||{}))); };
         const saveEditItem=()=>{
           const v=editingDailyText.trim(); if(!v||!editingDailyItem){ setEditingDailyItem(null); return; }
-          // 보상탭(isParentEdit)에서만 점수 수정 반영, 아니면 기존 점수 유지
-          const applyPt=(orig)=>isParentEdit?Number(editingDailyPoint||orig||DEFAULT_HOMEWORK_SCORE):(orig||DEFAULT_HOMEWORK_SCORE);
-          if(editingDailyItem.kind==="hw") upd({...entry,homeworks:hw.map(x=>x.id===editingDailyItem.id?{...x,text:v,point:applyPt(x.point)}:x)});
-          else upd({...entry,todos:todos.map(x=>x.id===editingDailyItem.id?{...x,text:v,point:applyPt(x.point)}:x)});
+          // 엄마 권한(isParentEdit)일 때만 코인 수정 반영. 이미 완료한 미션은 코인을 안 바꾼다 —
+          // 받은 코인과 체크를 풀 때 돌려받는 코인이 어긋나지 않게.
+          let blocked=false;
+          const applyCoin=(x)=>{
+            if(!isParentEdit) return x;
+            const raw=String(editingDailyPoint).trim(); if(raw==="") return x;
+            const c=Math.max(0,Math.round(Number(raw)||0));
+            if(c===itemCoin(x)) return x;
+            if(x.done){ blocked=true; return x; }
+            return {...x,coin:c};
+          };
+          if(editingDailyItem.kind==="hw") upd({...entry,homeworks:hw.map(x=>x.id===editingDailyItem.id?applyCoin({...x,text:v}):x)});
+          else upd({...entry,todos:todos.map(x=>x.id===editingDailyItem.id?applyCoin({...x,text:v}):x)});
+          if(blocked) showToast(`완료한 미션은 ${TM.coin}을 바꿀 수 없어요`);
           setEditingDailyItem(null); setEditingDailyText(""); setEditingDailyPoint("");
         };
         return (
@@ -8037,7 +8056,7 @@ export default function App() {
                   삭제·점수 수정을 여는 건 그 안의 '엄마 권한'이므로 안내도 그렇게 바꾼다. */}
               {isParent&&!isParentEdit&&(hw.length>0||todos.length>0)&&(
                 <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 10px"}}>
-                  미션 삭제 · {TM.xp} 수정은 {PT.role}권한(비밀번호)을 열면 가능해요
+                  미션 삭제 · {TM.coin} 수정은 {PT.role}권한(비밀번호)을 열면 가능해요
                 </p>
               )}
               {hw.length===0&&todos.length===0&&(
@@ -8054,17 +8073,17 @@ export default function App() {
                       <>
                         <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:FS.body,padding:"6px 9px"}}/>
                         {isParentEdit&&(<>
-                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:FS.body,padding:"6px 4px",textAlign:"center"}} min="1"/>
-                          <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
+                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:FS.body,padding:"6px 4px",textAlign:"center",color:"#2E8FD6"}} min="0" aria-label={TM.coin}/>
+                          <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.coin}</span>
                         </>)}
                         <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:RAD.sm,padding:"6px 11px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",flexShrink:0}}>저장</button>
                       </>
                     ) : (
                       <>
                         <span style={{flex:1,fontSize:FS.body,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{display:"flex",gap:4,flexShrink:0}}><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:`${C.orange}14`,color:C.orange}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(h)}{TM.coin}</span></span>
+                        <span style={{display:"flex",gap:4,flexShrink:0}}><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(h)}{TM.coin}</span></span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id),...(h.ruleId?{skipRules:[...(entry.skipRules||[]),h.ruleId]}:{})})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
-                        {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
+                        {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
                     )}
                   </div>
@@ -8076,17 +8095,17 @@ export default function App() {
                       <>
                         <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:FS.body,padding:"6px 9px"}}/>
                         {isParentEdit&&(<>
-                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:FS.body,padding:"6px 4px",textAlign:"center"}} min="1"/>
-                          <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
+                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:FS.body,padding:"6px 4px",textAlign:"center",color:"#2E8FD6"}} min="0" aria-label={TM.coin}/>
+                          <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.coin}</span>
                         </>)}
                         <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:RAD.sm,padding:"6px 11px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",flexShrink:0}}>저장</button>
                       </>
                     ) : (
                       <>
                         <span style={{flex:1,fontSize:FS.body,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{display:"flex",gap:4,flexShrink:0}}><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:`${C.orange}14`,color:C.orange}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(t)}{TM.coin}</span></span>
+                        <span style={{display:"flex",gap:4,flexShrink:0}}><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(t)}{TM.coin}</span></span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id),...(t.ruleId?{skipRules:[...(entry.skipRules||[]),t.ruleId]}:{})})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
-                        {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
+                        {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
                     )}
                   </div>
@@ -8099,8 +8118,8 @@ export default function App() {
                   학원 창은 숙제(hw)로, 생활 습관 미션 창은 할 일(todo)로 들어간다(저장 형식은 예전 그대로). */}
               {(()=>{
                 const val=dailyHwInput, setVal=setDailyHwInput;
-                const pt=dailyHwPoint, setPt=setDailyHwPoint;
-                const ptN=Math.max(1,Number(pt)||DEFAULT_HOMEWORK_SCORE);
+                /* [사용자 확정 2026-11-23] 점수는 미션당 10점 고정 — 엄마는 코인만 정한다 */
+                const ptN=DEFAULT_HOMEWORK_SCORE;
                 const rep=missionRepeat;
                 /* 순서: 한 번(기본) · 매일 · 특정 요일 · 학원 가는 날 (사용자 확정 2026-11-22) */
                 const opts=[{k:"once",l:"한 번"},{k:"daily",l:"매일"},{k:"days",l:"특정 요일"},...(isExtra?[]:[{k:"class",l:"학원 가는 날"}])];
@@ -8130,12 +8149,8 @@ export default function App() {
                       placeholder="미션 내용 입력" aria-label="미션 내용"
                       style={{...inp,width:"100%",boxSizing:"border-box",fontSize:FS.cardTitle,padding:"10px 12px",marginBottom:8,background:"#fff"}}/>
                     <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",rowGap:8}}>
-                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>보상</span>
-                      <input type="number" value={pt} onChange={e=>setPt(e.target.value)} aria-label={`보상 ${TM.xp}`} min="1"
-                        style={{...inp,width:46,fontSize:FS.body,padding:"8px 6px",minHeight:CTRL_H,boxSizing:"border-box",textAlign:"center",marginBottom:0,background:"#fff"}}/>
-                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>{TM.xpUnit}</span>
-                      {/* 코인도 고칠 수 있다 — 안 고치면 점수에 맞춰 따라간다 (10점 → 15) */}
-                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0,marginLeft:2}}>{TM.coin}</span>
+                      {/* 코인만 고친다 — 안 고치면 기본값(10점 → 15) */}
+                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>보상 {TM.coin}</span>
                       <input type="number" value={missionCoin==null?String(questCoin(ptN)):missionCoin} onChange={e=>setMissionCoin(e.target.value)} aria-label={`보상 ${TM.coin}`} min="0"
                         style={{...inp,width:46,fontSize:FS.body,padding:"8px 6px",minHeight:CTRL_H,boxSizing:"border-box",textAlign:"center",marginBottom:0,background:"#fff",color:"#2E8FD6"}}/>
                       <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>개</span>
@@ -8201,8 +8216,8 @@ export default function App() {
                     if(!r.ac){ showToast("위에서 학원을 먼저 골라 주세요"); return; }
                     const e=getDailyEntry(childId,r.ac.id,date), h=e.homeworks||[];
                     if(h.some(x=>x.text===r.text)){ showToast("이미 추가된 숙제예요"); return; }
-                    const pt=r.source==="repeat"?(r.item.point||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE;
-                    setDailyEntry(childId,r.ac.id,date,{...e,homeworks:[...h,{id:newId(),text:r.text,done:false,point:pt,...(r.source==="base"?{fromBase:true}:{})}]});
+                    const oldPt=r.source==="repeat"?(Number(r.item.point)||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE;   // 점수 10 고정, 예전 점수는 코인으로
+                    setDailyEntry(childId,r.ac.id,date,{...e,homeworks:[...h,{id:newId(),text:r.text,done:false,point:DEFAULT_HOMEWORK_SCORE,...(oldPt!==DEFAULT_HOMEWORK_SCORE?{coin:questCoin(oldPt)}:{}),...(r.source==="base"?{fromBase:true}:{})}]});
                     showToast(`${r.ac.name}에 추가했어요 📚`);
                   };
                   return (
