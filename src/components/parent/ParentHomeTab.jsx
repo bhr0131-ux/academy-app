@@ -26,7 +26,7 @@
      onHolidayRest(name)   : 공휴일에만 나오는 '공휴일엔 쉬어요' 시트 열기
    ════════════════════════════════════════════════════════════════════════ */
 
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan, feeDueDay } from "../../data/sampleData.js";
@@ -50,9 +50,10 @@ export default function ParentHomeTab({
   onGoTab, onGoReward, onOpenSupplyCheck, onOpenMissionCheck, onSms, onEditDaily,
   onHolidayRest,
   /* [사용자 확정 2026-11-21] 학원비 칩 — 그달 납부했는지(App 의 paidStatus)와 누르면 학원비 탭으로 */
-  isFeePaid = () => false, onGoFee,
+  isFeePaid = () => false, onGoFee, feePanel = null,
   /* [사용자 확정 2026-11-21] 홈의 미션은 보기 전용이지만 '완료 체크'만은 여기서 한다 (아이가 깜빡했을 때) */
   onToggleQuest, questCoinOf = (it) => 0, coinEmoji = "💎",
+  dayMemo = "", onGoMemo,
   /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
   childrenList = [], showSample = false,
   onAddAcademy, onEditAcademy, onCopyAcademy, onCopyAccount, onOpenMap, onSeedSample,
@@ -61,6 +62,13 @@ export default function ParentHomeTab({
      탭을 옮기면 이 화면이 통째로 사라졌다 다시 그려지므로 늘 '오늘의 학원'으로 돌아온다.
      매일 여는 홈의 기본은 오늘 일정이어야 한다는 뜻이라 이 초기화가 맞다. */
   const [acView, setAcView] = useState("today");
+  const feeRef = useRef(null);
+  /* '학원비' 줄을 누르면 — 학원비 탭이 없어졌으니 '전체 학원'으로 넘겨 학원비 칸까지 내려 준다 */
+  const goFeeSection = (month) => {
+    if (onGoFee) onGoFee(month);
+    setAcView("all");
+    setTimeout(() => { try { feeRef.current && feeRef.current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch { /* 무시 */ } }, 60);
+  };
   const [regAcOpen, setRegAcOpen] = useState({});   // 등록 학원에서 펼친 카드 (아코디언)
   const canCopy = childrenList.filter(c => c.id !== childId).length > 0;
   const hd=new Date(homeDate.replace(/-/g,"/"));
@@ -172,10 +180,13 @@ export default function ParentHomeTab({
           const alerts=[];
           if(todaySupplies.length>0) alerts.push({icon:"bag",name:"준비물",items:todaySupplies,label:`준비물 ${todaySupplies.length}개`,color:th.main,
             go:onOpenSupplyCheck});
-          if(homePendingQuest>0) alerts.push({icon:"mission",name:"미션",items:homeQuestItems.filter(it=>!it.done&&!it.failed).map(it=>it.label),label:`미완료 미션 ${homePendingQuest}개`,color:th.main,
+          /* [사용자 확정 2026-11-23] 한 미션은 하나씩 빠지고, 다 하면 '미션  완료' 한 줄만 남는다 */
+          if(homeQuestItems.length>0) alerts.push({icon:"mission",name:"미션",
+            items:homeQuestItems.filter(it=>!it.done&&!it.failed).map(it=>it.label),allDone:homePendingQuest===0,
+            label:`미션 ${homeQuestItems.length}개`,color:th.main,
             go:onOpenMissionCheck});
           if(feeDueAc.length>0) alerts.push({icon:"fee",name:"학원비",items:feeDueAc.map(a=>`${acKindLabel(a)} 납부일`),label:`학원비 ${feeDueAc.length}곳`,color:C.blue||"#3B82F6",
-            go:()=>onGoFee&&onGoFee(feeMonth)});
+            go:()=>goFeeSection(feeMonth)});
           if(tomorrowSupplyCount>0) alerts.push({icon:"bag",name:"내일 준비물",items:tomorrowSupplyList,label:`내일 준비물 ${tomorrowSupplyCount}개`,color:C.purple||"#8B5CF6",
             go:()=>onOpenSupplyCheck(tomorrow)});
           if(pendingRewardCnt>0) alerts.push({icon:"reward",name:"보상 승인",items:pendingRewards.map(r=>r.title),label:`보상승인 ${pendingRewardCnt}개`,color:C.green,
@@ -184,6 +195,8 @@ export default function ParentHomeTab({
             go:()=>onGoTab("absence")});
           if(makeupOnHome.length>0) alerts.push({icon:"makeup",name:"보충수업",items:makeupOnHome.map(a=>acName(a.academyId)).filter(Boolean),label:`보충수업 ${makeupOnHome.length}개`,color:C.orange,
             go:()=>onGoTab("absence")});
+          /* 그날 달력 메모 — 맨 아래 (사용자 확정 2026-11-23 순서). 줄바꿈도 그대로 보여 준다 */
+          if(dayMemo) alerts.push({icon:"memo",name:"메모",items:[dayMemo],memo:true,label:"메모",color:C.orange,go:()=>onGoMemo&&onGoMemo()});
           /* [사용자 확정 2026-08-09] 내용 개수에 따라 카드 높이가 달라진다.
              예전엔 준비물 하나뿐인 날에도 두 줄짜리 카드가 자리를 차지해 비어 보였다.
                0개  → 한 줄 완료 배너
@@ -222,7 +235,8 @@ export default function ParentHomeTab({
                   {/* [사용자 확정 2026-11-23] 대시보드는 누르지 않아도 다 보이게 — 길면 줄을 넘겨 다 쓴다 */}
                   <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,lineHeight:1.5}}>
                     {/* 낱말 중간이나 '·' 앞에서 줄이 갈리지 않게 — 항목마다 '이름 ·'를 한 덩어리로 */}
-                    {a.items.map((t,k)=>(
+                    {a.allDone?<span style={{fontSize:FS.tag,fontWeight:FW.bold,padding:"2px 8px",borderRadius:RAD.sm,background:`${C.green}14`,color:C.green}}>완료</span>
+                    :a.memo?<span style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{a.items[0]}</span>:a.items.map((t,k)=>(
                       <Fragment key={k}><span style={{whiteSpace:"nowrap"}}>{t}{k<a.items.length-1?<span style={{color:C.sub,marginLeft:5}}>·</span>:null}</span>{k<a.items.length-1?" ":null}</Fragment>
                     ))}
                   </span>
@@ -437,8 +451,8 @@ export default function ParentHomeTab({
            _key 는 정규 카드일 때 String(ac.id) 라, 이미 펼쳐 둔 상태도 그대로 이어진다. */
         const acKey=ac._key||ac.id;
         const missionAll=[...hw.map(h=>({text:h.text,done:h.done})),...todos.map(t=>({text:t.text,done:t.done}))];
-        const missionChips=[...missionAll].sort((x,y)=>(x.done?1:0)-(y.done?1:0)).slice(0,1);
-        const moreCnt=missionAll.length-missionChips.length;
+        /* [사용자 확정 2026-11-23] '+N'으로 줄이지 않고 미션을 다 보여 준다 (안 한 것 먼저) */
+        const missionChips=[...missionAll].sort((x,y)=>(x.done?1:0)-(y.done?1:0));
         return (
           /* [사용자 확정 2026-08-09] 카드 색을 옅게(배경 1F→12), 테두리는 한 단계 진하게(45→55),
              그림자는 약하게, 카드 간격은 14로 통일. 왼쪽 세로선만 원래 색을 유지해 구분을 준다. */
@@ -553,12 +567,11 @@ export default function ParentHomeTab({
                   {totalTodoCnt===0
                     ? <span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>
                     : missionChips.map((mc,i)=>(
-                        <span key={`m${i}`} style={{...chip,maxWidth:170,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
+                        <span key={`m${i}`} style={{...chip,maxWidth:"100%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
                           background:mc.done?`${C.green}14`:`${C.orange}15`,color:mc.done?C.green:C.orange}}>
                           {mc.done?"✓ ":""}{mc.text}
                         </span>
                       ))}
-                  {moreCnt>0&&<span style={{...chip,background:CT.faint,color:SUBD}}>+{moreCnt}</span>}
                 </div>
               </div>
               {/* 맨 아랫줄 — 왼쪽 끝에 전화·문자, 오른쪽 끝에 '준비물 수정' (2026-11-22).
@@ -611,120 +624,19 @@ export default function ParentHomeTab({
           모양은 미션 탭의 미션 줄(제목 크게 · 아래 학원점·학원명·종류 · 점수 배지)을 가져오되,
           카드는 위 학원 카드와 같은 흰 카드 + 왼쪽 학원색 세로선으로 맞춘다.
           추가·수정·삭제는 설정 쪽에서 한다(사용자 계획). 완료 체크(○→✓)만은 여기서도 된다(사용자 확정). */}
-      {/* ── 전체 학원 보기 — 아래는 미션 대신 학원비 요약 (사용자 확정 2026-11-22)
-          학원마다 금액과 그달(보고 있는 날짜의 달) 납부했는지만. 고치는 건 학원비 탭·학원 수정 창에서. */}
-      {acView==="all"&&(()=>{
-        const feeAc=curAc.filter(a=>Number(a.fee||0)>0);
-        const paidCnt=feeAc.filter(a=>isFeePaid(a.id,feeMonth)).length;
-        const total=feeAc.reduce((n,a)=>n+Number(a.fee||0),0);
-        /* [사용자 확정 2026-11-22] 학원비를 넣은 학원이 하나도 없으면 칸 자체를 그리지 않는다 */
-        if(feeAc.length===0) return null;
-        return (
-          <div style={{marginTop:6}}>
-            <SectionHead icon="fee" label={`${feeMonth}월 학원비 요약`} th={th} style={{margin:feeAc.length>0?"0 0 2px":undefined}}/>
-            {/* 요약은 제목 아랫줄로 (사용자 확정 2026-11-22) */}
-            {feeAc.length>0&&(
-              <p style={{margin:"0 0 12px 20px",fontSize:FS.sub,fontWeight:FW.semi,color:SUBD}}>
-                총 학원비 {total.toLocaleString()}원 / {feeAc.length}곳 중 {paidCnt}곳 납부
-              </p>
-            )}
-            {feeAc.length===0?(
-              <div style={{background:"#fff",border:`1px dashed ${C.border}`,borderRadius:RAD.md,padding:"16px 12px",
-                textAlign:"center",fontSize:FS.body,fontWeight:FW.semi,color:C.sub}}>
-                등록된 학원비가 없어요
-              </div>
-            ):(
-              <div style={{background:"#fff",borderRadius:RAD.md,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,overflow:"hidden"}}>
-                {feeAc.map((a,i)=>{
-                  const paid=isFeePaid(a.id,feeMonth);
-                  /* [사용자 확정 2026-11-22] 미납이면 알약에 납부 날짜를 쓴다 (예: 11/5 납부).
-                     날짜가 지났거나 오늘이면 빨강, 아직 남았으면 차분한 색 */
-                  const dueDay=feeDueDay(a,hd.getFullYear(),hd.getMonth());
-                  const dueStr=`${hd.getFullYear()}-${String(feeMonth).padStart(2,"0")}-${String(dueDay).padStart(2,"0")}`;
-                  const late=dueStr<=TODAY;
-                  return (
-                    <div key={a.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderTop:i?`1px solid ${C.border}`:"none"}}>
-                      <span style={{width:8,height:8,borderRadius:"50%",background:a.color,flexShrink:0}}/>
-                      <span style={{flex:1,minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                        {acKindLabel(a)}
-                      </span>
-                      <span style={{flexShrink:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text}}>{Number(a.fee).toLocaleString()}원</span>
-                      <span style={{flexShrink:0,minWidth:62,textAlign:"center",boxSizing:"border-box",fontSize:FS.tag,fontWeight:FW.bold,padding:"3px 9px",borderRadius:RAD.sm,
-                        background:paid?`${C.green}14`:late?`${C.red}12`:"#EEF1F6",color:paid?C.green:late?C.red:SUBD}}>{paid?"납부 완료":`${feeMonth}/${dueDay} 납부`}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            {/* [사용자 확정 2026-11-22] 요약 아래 작게 — 누르면 그 달 학원비 탭으로 */}
-            <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
-              <button onClick={()=>onGoFee&&onGoFee(feeMonth)}
-                style={{border:"none",background:"none",padding:"4px 2px",cursor:"pointer",fontFamily:"inherit",fontSize:FS.tag,fontWeight:FW.semi,
-                  color:C.sub,textDecoration:"underline",textUnderlineOffset:3,display:"inline-flex",alignItems:"center",gap:4}}>
-                <CareIcon name="fee" size={12}/>학원비 관리
-              </button>
-            </div>
-          </div>
-        );
-      })()}
+      {/* ── 전체 학원 보기 — 아래에 학원비 (사용자 확정 2026-11-23)
+          학원비 탭을 없애고 그 화면(FeeTab)을 통째로 여기로 옮겼다. 월 이동·요약·납부 처리·
+          계좌 복사·⋮ 수정/삭제까지 그대로. 저장(v6_paid / v6_fee_pay_info)은 App 그대로다.
+          (그전 2026-11-22 의 '학원비 요약' 칸은 이 화면이 대신한다) */}
+      {acView==="all"&&curAc.length>0&&feePanel&&(
+        <div ref={feeRef} style={{marginTop:6,scrollMarginTop:12}}>
+          <SectionHead icon="fee" label="학원비" th={th} style={{margin:"0 0 10px"}}/>
+          {feePanel}
+        </div>
+      )}
 
-      {acView==="today"&&(()=>{
-        const items=homeQuestItems;
-        const done=items.filter(i=>i.done).length;
-        const title=dayTag?`${dayTag}의 미션`:`${hd.getMonth()+1}/${hd.getDate()} 미션`;
-        return (
-          <div style={{marginTop:26}}>
-            <SectionHead icon="mission" label={title} th={th}
-              note={items.length>0?`${items.length}개 중 ${done}개 완료`:null}/>
-            {items.length===0?(
-              <div style={{background:"#fff",border:`1px dashed ${C.border}`,borderRadius:RAD.md,padding:"16px 12px",
-                textAlign:"center",fontSize:FS.body,fontWeight:FW.semi,color:C.sub}}>
-                등록된 미션이 없어요
-              </div>
-            ):items.map(item=>{
-              const col=item.academyColor||th.main;
-              const st=item.done?{c:C.green,bg:C.green,mark:"✓"}:item.failed?{c:C.sub,bg:C.sub,mark:"×"}:{c:mixBlack(C.sub,0.12),bg:"transparent",mark:""};
-              return (
-                <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`}
-                  style={{background:"#fff",borderRadius:RAD.md,marginBottom:8,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,overflow:"hidden",display:"flex"}}>
-                  <div style={{width:4,background:col,flexShrink:0}}/>
-                  <div style={{flex:1,minWidth:0,display:"flex",alignItems:"flex-start",gap:4,padding:"6px 14px 6px 2px",
-                    background:item.done?`${C.green}08`:"#fff"}}>
-                    {/* 완료 체크 — 미션 탭과 같은 동작. 누르는 자리는 40×40, 원은 22. 미완료(×)로 닫힌 건 못 바꾼다 */}
-                    <button onClick={()=>{ if(!item.failed&&onToggleQuest) onToggleQuest(item); }} className="jelly-tap"
-                      aria-label={`${item.label} ${item.done?"완료 취소":"완료"}`} disabled={item.failed}
-                      style={{width:40,height:40,flexShrink:0,border:"none",background:"none",padding:0,display:"flex",alignItems:"center",
-                        justifyContent:"center",cursor:item.failed?"default":"pointer",fontFamily:"inherit"}}>
-                      <span style={{width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
-                        border:`2px solid ${st.c}`,background:st.bg,color:"#fff",fontWeight:900,fontSize:12}}>{st.mark}</span>
-                    </button>
-                    <div style={{flex:1,minWidth:0,paddingTop:5}}>
-                      <p style={{fontSize:FS.title,fontWeight:800,margin:0,lineHeight:1.35,
-                        color:item.done||item.failed?C.sub:C.text,textDecoration:item.done||item.failed?"line-through":"none",
-                        display:"-webkit-box",WebkitBoxOrient:"vertical",WebkitLineClamp:2,overflow:"hidden",overflowWrap:"anywhere"}}>
-                        {item.label}
-                      </p>
-                      <div style={{display:"flex",alignItems:"center",gap:7,margin:"4px 0 0",minWidth:0}}>
-                        <span style={{minWidth:0,fontSize:FS.sub,color:SUBD,fontWeight:FW.normal,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                          {item.academyName}
-                        </span>
-                        <span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,
-                          background:item.failed?`${C.sub}14`:`${C.orange}14`,color:item.failed?C.sub:C.orange}}>
-                          {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${(TM&&TM.xpUnit)||"점"}`}
-                        </span>
-                        {/* 코인 — 점수와 같은 알약, 색만 파랑 (사용자 확정 2026-11-23) */}
-                        {!item.failed&&<span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>
-                          +{questCoinOf(item)}{(TM&&TM.coin)||"코인"}
-                        </span>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        );
-      })()}
+      {/* (뺐음 2026-11-23 사용자 확정) 학원 아래 '오늘의 미션' 목록 — 미션은 위 '오늘 챙길 일'과
+          학원 카드 안에서 다 보인다. 체크는 미션 탭에서 한다. */}
 
     </div>
   );
