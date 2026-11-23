@@ -166,7 +166,8 @@ const initOnboarding = {
    학원 칸이 빠지면서 아래 바에 자리가 하나 남아 있었다.
    남은 셋은 학원비 → 결석·보충 → 기타 순서 그대로 둔다. */
 /* [사용자 확정 2026-10-02] 기타를 하단 칸으로 꺼내고 달력을 더보기 안으로 넣었다 */
-const MORE_TABS = [{ k:"calendar", l:"달력" }, { k:"fee", l:"학원비" }, { k:"absence", l:"결석·보충" }];
+// [사용자 확정 2026-11-23] '학원비'는 홈 '전체 학원' 아래로 합쳐서 여기서 뺐다
+const MORE_TABS = [{ k:"calendar", l:"달력" }, { k:"absence", l:"결석·보충" }];
 const isMoreTab = (t) => MORE_TABS.some(m => m.k === t);
 
 /* 엄마용을 되살려 주는 시간 (사용자 요청: '잠깐' 다른 앱 갔다 온 경우).
@@ -478,7 +479,7 @@ export default function App() {
   const [openLevel,              setOpenLevel]              = useState(initUi.openLevel); // 가방(레벨) 상세 시트
   const [bagEvent,               setBagEvent]               = useState(null);             // 가방 카드에 1분간 띄우는 소식
   const [holidayRest,            setHolidayRest]            = useState(null);             // 공휴일 '쉬는 학원 고르기' 시트 {name, ids:[]}
-  const [moreTab,                setMoreTab]                = useState("fee");            // '더보기' 안에서 마지막으로 본 칸
+  const [moreTab,                setMoreTab]                = useState("calendar");       // '더보기' 안에서 마지막으로 본 칸
   const [moreMenuOpen,           setMoreMenuOpen]           = useState(false);            // '더보기' 눌러 위로 열리는 메뉴
   const [showKindPicker,         setShowKindPicker]         = useState(false);            // 학원 종류 고르기 시트
   const [homeAcOpen,             setHomeAcOpen]             = useState({});                // 엄마용 홈 '오늘의 학원' 펼친 카드
@@ -6190,7 +6191,25 @@ export default function App() {
             onGoReward={goRewardTab}
             onOpenSupplyCheck={(d)=>setShowSupplyCheck(typeof d==="string"?d:homeDate)}
             isFeePaid={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
-            onGoFee={(month)=>{ setFeeMonth(month); if(rewardUnlocked) setRewardUnlocked(false); setTab("fee"); }}
+            /* [사용자 확정 2026-11-23] 학원비 탭을 없애고 홈 '전체 학원' 아래로 옮겼다 — 여기선 달만 맞춘다 */
+            onGoFee={(month)=>{ setFeeMonth(month); }}
+            feePanel={
+              <FeeTab
+                th={th} CT={CT} curAc={curAc}
+                feeMonth={feeMonth} setFeeMonth={setFeeMonth}
+                isPaid={isPaid} payRec={payRec} payStatus={payStatus}
+                feeMenu={feeMenu} setFeeMenu={setFeeMenu}
+                onPay={(acId)=>setPaySheet({acId})}
+                onEditFee={(v)=>setFeeEdit(v)}
+                onCopyAccount={(txt)=>{
+                  copyText(txt).then(ok=>showToast(ok?"계좌번호를 복사했어요":"복사할 수 없어요"));
+                }}
+                onDeleteFee={(acId)=>{
+                  setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===acId?{...x,fee:0}:x)}));
+                  showToast("학원비를 지웠어요");
+                }}
+                 />
+            }
             questCoinOf={itemCoin} coinEmoji={TM.coinEmoji}
             /* [사용자 요청 2026-11-23] 대시보드에 그날 달력 메모도 — 누르면 달력의 그날로 */
             dayMemo={(()=>{ const d=new Date(homeDate.replace(/-/g,"/")); return (dayMemos[mKey(childId,d.getFullYear(),d.getMonth(),d.getDate())]||"").trim(); })()}
@@ -6260,26 +6279,8 @@ export default function App() {
             onVacation={()=>{ setVacForm({academyId:"",start:TODAY,end:TODAY}); setShowVacModal({date:TODAY,acList:curAc}); }} />
         )}
 
-        {/* ════ 학원비 탭 ════ */}
-        {/* [2026-08-09] 화면 본문을 components/parent/FeeTab.jsx 로 옮겼다.
-            납부 여부(v6_paid)·납부 기록(v6_fee_pay_info) 저장은 그대로 App에 남는다. */}
-        {tab==="fee"&&(
-          <FeeTab
-            th={th} CT={CT} curAc={curAc}
-            feeMonth={feeMonth} setFeeMonth={setFeeMonth}
-            isPaid={isPaid} payRec={payRec} payStatus={payStatus}
-            feeMenu={feeMenu} setFeeMenu={setFeeMenu}
-            onPay={(acId)=>setPaySheet({acId})}
-            onEditFee={(v)=>setFeeEdit(v)}
-            onCopyAccount={(txt)=>{
-              copyText(txt).then(ok=>showToast(ok?"계좌번호를 복사했어요":"복사할 수 없어요"));
-            }}
-            onDeleteFee={(acId)=>{
-              setAcademies(prev=>({...prev,[childId]:(prev[childId]||[]).map(x=>x.id===acId?{...x,fee:0}:x)}));
-              showToast("학원비를 지웠어요");
-            }}
-             />
-        )}
+        {/* ════ 학원비 탭 — 없앰 (사용자 확정 2026-11-23) ════
+            화면(FeeTab)은 홈 '전체 학원' 아래로 옮겼다 (위 ParentHomeTab 의 feePanel). */}
 
         {/* ════ 결석 탭 ════ */}
         {/* ════ 결석·보충 탭 ════ */}
