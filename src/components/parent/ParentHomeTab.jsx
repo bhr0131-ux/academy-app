@@ -180,10 +180,10 @@ export default function ParentHomeTab({
           const alerts=[];
           if(todaySupplies.length>0) alerts.push({icon:"bag",name:"준비물",items:todaySupplies,label:`준비물 ${todaySupplies.length}개`,color:th.main,
             go:onOpenSupplyCheck});
-          /* [사용자 확정 2026-11-23] 다 한 미션도 지우지 않고 '완료'로 남긴다 — 안 한 것 먼저 */
+          /* [사용자 확정 2026-11-23] 한 미션은 하나씩 빠지고, 다 하면 '미션  완료' 한 줄만 남는다 */
           if(homeQuestItems.length>0) alerts.push({icon:"mission",name:"미션",
-            items:[...homeQuestItems].sort((x,y)=>((x.done||x.failed)?1:0)-((y.done||y.failed)?1:0)).map(it=>it.label),
-            marks:[...homeQuestItems].sort((x,y)=>((x.done||x.failed)?1:0)-((y.done||y.failed)?1:0)).map(it=>it.done?"done":it.failed?"failed":""),label:`미션 ${homeQuestItems.length}개`,color:th.main,
+            items:homeQuestItems.filter(it=>!it.done&&!it.failed).map(it=>it.label),allDone:homePendingQuest===0,
+            label:`미션 ${homeQuestItems.length}개`,color:th.main,
             go:onOpenMissionCheck});
           if(feeDueAc.length>0) alerts.push({icon:"fee",name:"학원비",items:feeDueAc.map(a=>`${acKindLabel(a)} 납부일`),label:`학원비 ${feeDueAc.length}곳`,color:C.blue||"#3B82F6",
             go:()=>goFeeSection(feeMonth)});
@@ -235,9 +235,9 @@ export default function ParentHomeTab({
                   {/* [사용자 확정 2026-11-23] 대시보드는 누르지 않아도 다 보이게 — 길면 줄을 넘겨 다 쓴다 */}
                   <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,lineHeight:1.5}}>
                     {/* 낱말 중간이나 '·' 앞에서 줄이 갈리지 않게 — 항목마다 '이름 ·'를 한 덩어리로 */}
-                    {a.memo?<span style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{a.items[0]}</span>:a.items.map((t,k)=>(
-                      <Fragment key={k}><span style={{whiteSpace:"nowrap"}}>{a.marks&&a.marks[k]?<span style={{color:C.sub}}>{t}<span style={{marginLeft:4,fontSize:FS.tag,fontWeight:FW.bold,padding:"1px 6px",borderRadius:RAD.sm,
-                        background:a.marks[k]==="done"?`${C.green}14`:`${C.sub}14`,color:a.marks[k]==="done"?C.green:C.sub}}>{a.marks[k]==="done"?"완료":"미완료"}</span></span>:t}{k<a.items.length-1?<span style={{color:C.sub,marginLeft:5}}>·</span>:null}</span>{k<a.items.length-1?" ":null}</Fragment>
+                    {a.allDone?<span style={{fontSize:FS.tag,fontWeight:FW.bold,padding:"2px 8px",borderRadius:RAD.sm,background:`${C.green}14`,color:C.green}}>완료</span>
+                    :a.memo?<span style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{a.items[0]}</span>:a.items.map((t,k)=>(
+                      <Fragment key={k}><span style={{whiteSpace:"nowrap"}}>{t}{k<a.items.length-1?<span style={{color:C.sub,marginLeft:5}}>·</span>:null}</span>{k<a.items.length-1?" ":null}</Fragment>
                     ))}
                   </span>
                   <span aria-hidden="true" style={{flexShrink:0,fontSize:12,color:"#B9B3AD",fontWeight:900,lineHeight:1.6}}>›</span>
