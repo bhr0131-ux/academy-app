@@ -6419,11 +6419,11 @@ export default function App() {
                                     background:item.failed?`${C.sub}14`:`${C.orange}14`,color:item.failed?C.sub:C.orange}}>
                                     {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${TM.xpUnit}`}
                                   </span>
+                                  {/* 코인 — 점수와 같은 알약, 색만 파랑 (사용자 확정 2026-11-23) */}
+                                  {!item.failed&&<span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>
+                                    +{itemCoin(item)}{TM.coin}
+                                  </span>}
                                 </div>
-                                {/* 코인은 아랫줄에, 아이 화면 코인 색으로 (사용자 확정 2026-11-22) */}
-                                {!item.failed&&<p style={{margin:"3px 0 0",fontSize:12,fontWeight:800,color:"#2E8FD6"}}>
-                                  <EmojiIcon emoji={TM.coinEmoji} size={12} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{itemCoin(item)} {TM.coin}
-                                </p>}
                               </div>
                             </div>
                           ))}
@@ -6483,8 +6483,6 @@ export default function App() {
                                   openEdit(null,"","#C9CED8",[],true); }},
                               {key:"life",icon:"🌱",label:"생활 습관 미션",desc:"반복 연습으로 생활 습관을 잡아요.",n:cnt(EXTRA_QUEST_ID),
                                 onClick:()=>openEdit(EXTRA_QUEST_ID,"생활 습관 미션",th.main,[])},
-                              {key:"past",icon:"📜",label:"지난 미션 관리",desc:"날짜가 지난 미션을 관리해요.",n:getPastQuestCandidates(childId,TODAY).length,
-                                onClick:()=>setShowPastMissionModal(TODAY)},
                             ].map((r,ri)=>(
                               <button key={r.key} onClick={r.onClick} className="jelly-tap"
                                 style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
@@ -6509,8 +6507,22 @@ export default function App() {
                         })()}
 
                         {/* (뺐음 2026-11-22) 엄마 권한 칸 — 미션 탭 자체를 비밀번호로 열므로 안쪽 잠금이 필요 없다.
-                            '지난 미션 관리'는 위 세 줄 메뉴로 옮겼다. */}
+                            '지난 미션 관리'는 상자 아래 따로 둔다(사용자 확정 2026-11-22). */}
                         </div>
+                        {/* ── 지난 미션 관리 — '미션 추가·관리' 상자와 떼어 아래에 따로 (예전 자리처럼) ── */}
+                        {(()=>{
+                          const pastCnt=getPastQuestCandidates(childId,TODAY).length;
+                          return (
+                            /* 예전 모양 그대로 — 테마색을 옅게 깐 작은 한 줄 버튼, 오른쪽에 남은 개수 (사용자 확정 2026-11-22) */
+                            <button onClick={()=>setShowPastMissionModal(TODAY)} className="jelly-tap"
+                              style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:mixBlack(th.main,0.25),fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                              <span style={{display:"flex",alignItems:"center",gap:5}}>
+                                <span style={{color:th.main,display:"flex"}}><CareIcon name="calendar" size={14}/></span> 지난 미션 관리
+                              </span>
+                              {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
+                            </button>
+                          );
+                        })()}
                       </div>
                     </div>
                   )}
@@ -8035,7 +8047,7 @@ export default function App() {
                     ) : (
                       <>
                         <span style={{flex:1,fontSize:FS.body,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:FS.sub,fontWeight:FW.semi,flexShrink:0,textAlign:"right",lineHeight:1.3}}><span style={{color:C.orange}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><br/><span style={{color:"#2E8FD6"}}>+{itemCoin(h)}{TM.coin}</span></span>
+                        <span style={{display:"flex",gap:4,flexShrink:0}}><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:`${C.orange}14`,color:C.orange}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(h)}{TM.coin}</span></span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id),...(h.ruleId?{skipRules:[...(entry.skipRules||[]),h.ruleId]}:{})})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
                         {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
@@ -8057,7 +8069,7 @@ export default function App() {
                     ) : (
                       <>
                         <span style={{flex:1,fontSize:FS.body,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{fontSize:FS.sub,fontWeight:FW.semi,flexShrink:0,textAlign:"right",lineHeight:1.3}}><span style={{color:C.orange}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><br/><span style={{color:"#2E8FD6"}}>+{itemCoin(t)}{TM.coin}</span></span>
+                        <span style={{display:"flex",gap:4,flexShrink:0}}><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:`${C.orange}14`,color:C.orange}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(t)}{TM.coin}</span></span>
                         {isParentEdit&&<button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id),...(t.ruleId?{skipRules:[...(entry.skipRules||[]),t.ruleId]}:{})})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15}}>✕</button>}
                         {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t.point)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}
                       </>
