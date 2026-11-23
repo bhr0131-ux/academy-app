@@ -40,15 +40,16 @@ export const payMethodLabel = (k) => PAY_METHODS.find(m => m.key === k)?.label |
 const won = (v) => { const n = String(v ?? "").replace(/[^0-9]/g, ""); return n ? Number(n).toLocaleString() : ""; };
 
 export default function FeePaySheet({ ac, month, value, today, onClose, onSave, onUnpay, tone,
-  showFee = false, showRecord = true }) {
+  showFee = false, showRecord = true, pickList = null, onPick }) {
   const editing = !!value;
   const [date,   setDate]   = useState(value?.date || today);
   const [amount, setAmount] = useState(String(value?.amount ?? ac?.fee ?? ""));
   const [method, setMethod] = useState(value?.method || "transfer");
   const [memo,   setMemo]   = useState(value?.memo || "");
-  const [feeV,     setFeeV]     = useState(String(ac?.fee ?? ""));
+  const [feeV,     setFeeV]     = useState(Number(ac?.fee) > 0 ? String(ac.fee) : "");   // 0원은 빈 칸으로 (예시 글자가 보이게)
   const [payDayV,  setPayDayV]  = useState(String(ac?.payDay ?? 1));
   const [askUnpay, setAskUnpay] = useState(false);   // 되돌리기 확인 (한 번 더 묻는다)
+  const [pickOpen, setPickOpen] = useState(false);   // 학원 선택 콤보 펼침
   if (!ac) return null;
 
   const inp = { width: "100%", boxSizing: "border-box", background: tone.faint,
@@ -69,7 +70,7 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
         <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 4 }}>
           <div style={{ width: 4, height: 20, borderRadius: 10, background: ac.color, flexShrink: 0 }} />
           <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: tone.text, minWidth: 0,
-            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ac.name}</h3>
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pickList ? "학원비 추가" : ac.name}</h3>
           <button onClick={onClose} aria-label="닫기" className="jelly-tap"
             style={{ marginLeft: "auto", background: tone.faint + "88", border: "none", borderRadius: 10,
               width: 28, height: 28, cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
@@ -77,8 +78,39 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
         <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 15px" }}>
           {showRecord
             ? `${month}월 학원비 · 낸 날과 방법을 남겨 두면 나중에 확인하기 좋아요.`
-            : "매달 얼마를 언제 내는지 적어 두면 학원비 탭이 알아서 챙겨 줘요."}
+            : "매달 얼마를 언제 내는지 적어 두면 홈에서 알아서 챙겨 줘요."}
         </p>
+
+        {/* [사용자 확정 2026-11-23] '미등록 ＋ 학원비 추가'로 열면 맨 위에서 학원을 고른다 */}
+        {pickList && (<>
+          {/* [사용자 확정 2026-11-23] 콤보 모양 — 누르면 목록이 아래로 펼쳐지고, 고르면 접힌다
+              (미션 추가 창의 '학원 선택'과 같은 생김새) */}
+          <label style={lbl}>학원 선택</label>
+          <button onClick={() => setPickOpen(v => !v)} className="jelly-tap" aria-expanded={pickOpen}
+            style={{ ...inp, display: "flex", alignItems: "center", gap: 9, cursor: "pointer", textAlign: "left",
+              marginBottom: pickOpen ? 6 : 15, background: "#fff", border: `1.5px solid ${pickOpen ? tone.main : tone.border}` }}>
+            <span style={{ width: 9, height: 9, borderRadius: "50%", background: ac.color, flexShrink: 0 }} />
+            <span style={{ flex: 1, minWidth: 0, fontWeight: 900, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ac.name}</span>
+            <span style={{ flexShrink: 0, fontSize: 12, color: tone.sub }}>{pickOpen ? "▲" : "▼"}</span>
+          </button>
+          {pickOpen && (
+            <div role="listbox" style={{ border: `1px solid ${tone.border}`, borderRadius: 14, padding: "2px 14px", marginBottom: 15, background: "#fff" }}>
+              {pickList.map((a, i) => {
+                const on = a.id === ac.id;
+                return (
+                  <button key={a.id} role="option" aria-selected={on} onClick={() => { onPick && onPick(a.id); setPickOpen(false); }}
+                    style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "12px 2px", border: "none",
+                      borderTop: i ? `1px solid ${tone.border}` : "none", background: "none", cursor: "pointer", fontFamily: F, textAlign: "left" }}>
+                    <span style={{ width: 9, height: 9, borderRadius: "50%", background: a.color, flexShrink: 0 }} />
+                    <span style={{ flex: 1, minWidth: 0, fontSize: 15, fontWeight: on ? 900 : 700, color: on ? tone.text : tone.sub,
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.name}</span>
+                    {on && <span style={{ flexShrink: 0, color: tone.main, fontWeight: 900 }}>✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </>)}
 
         {/* 학원비 설정 — ⋮ > 학원비 수정으로 열었을 때만. 매달 바뀌지 않는 값이라 위에 둔다. */}
         {showFee && (<>
