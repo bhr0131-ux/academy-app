@@ -2,7 +2,9 @@ import { C } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
-   XpAdjustCard — '수동 점수 조정' 칸
+   XpAdjustCard — '수동 코인 조정' 칸
+   [사용자 확정 2026-11-23] 점수(XP)는 미션당 10점 고정으로 두고, 엄마가 손대는 건 코인만.
+   그래서 이 칸도 점수 대신 코인을 더하고 뺀다 (레벨에는 영향 없음). 파일 이름은 그대로 둔다.
    ────────────────────────────────────────────────────────────────────────
    [사용자 확정 2026-08-16] 보상 탭에서 '기타' 탭으로 옮기고 비밀번호로 잠갔다.
    점수를 직접 더하고 빼는 자리라, 잠금 없이 두면 아이가 🎒 버튼으로 엄마 관리에
@@ -33,9 +35,9 @@ export default function XpAdjustCard({ D }) {
         <div style={{ textAlign: "left", minWidth: 0 }}>
           <p style={{ ...secTitle, display: "flex", alignItems: "center", gap: 6 }}>
             {locked && <span style={{ color: th.main, display: "flex" }}><CareIcon name="lock" size={14} /></span>}
-            수동 {TM.xp} 조정
+            수동 {TM.coin} 조정
           </p>
-          <p style={secSub}>{locked ? "비밀번호를 한 번 물어봐요" : `보너스 지급 / ${TM.xp} 차감`}</p>
+          <p style={secSub}>{locked ? "비밀번호를 한 번 물어봐요" : `보너스 ${TM.coin} 지급 / 차감`}</p>
         </div>
         {!locked && <span aria-hidden="true" style={secArrow(open)}>⌄</span>}
       </button>
@@ -60,15 +62,17 @@ export default function XpAdjustCard({ D }) {
             <input value={label} onChange={e => setLabel(e.target.value)} placeholder="사유"
               style={{ flex: 1, padding: "9px 10px", borderRadius: 10, border: `1px solid ${C.border}`,
                 fontSize: 13, outline: "none", background: "#fff", minWidth: 0 }} />
-            <input type="number" value={input} onChange={e => setInput(e.target.value)} placeholder={TM.xp}
+            <input type="number" value={input} onChange={e => setInput(e.target.value)} placeholder={TM.coin}
               style={{ width: 58, padding: "9px 6px", borderRadius: 10, border: `1px solid ${C.border}`,
                 fontSize: 13, outline: "none", background: "#fff", textAlign: "center", flexShrink: 0 }} />
             <button onClick={() => {
               const v = Number(input);
-              if (!v || v <= 0) { showToast(`${TM.xp} 값을 입력해줘`); return; }
-              addChildScore(childId, sign === "+" ? v : -v, label || "수동 조정", "manual");
+              if (!v || v <= 0) { showToast(`${TM.coin} 개수를 입력해줘`); return; }
+              const n = Math.round(v);
+              /* 점수 0 · 코인만 ± (addChildScore 의 coinPoint) — 레벨은 그대로 */
+              addChildScore(childId, 0, label || "수동 조정", "manual", sign === "+" ? n : -n);
               setInput(""); setLabel("");
-              showToast(sign === "+" ? `+${v}${TM.xpUnit} 지급 완료` : `-${v}${TM.xpUnit} 차감 완료`);
+              showToast(sign === "+" ? `+${n}${TM.coin} 지급 완료` : `-${n}${TM.coin} 차감 완료`);
             }} style={{ padding: "9px 14px", borderRadius: 10, border: "none",
               background: sign === "+" ? C.green : C.red, color: "#fff",
               fontSize: 13, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
