@@ -40,7 +40,7 @@ export const payMethodLabel = (k) => PAY_METHODS.find(m => m.key === k)?.label |
 const won = (v) => { const n = String(v ?? "").replace(/[^0-9]/g, ""); return n ? Number(n).toLocaleString() : ""; };
 
 export default function FeePaySheet({ ac, month, value, today, onClose, onSave, onUnpay, tone,
-  showFee = false, showRecord = true }) {
+  showFee = false, showRecord = true, pickList = null, onPick }) {
   const editing = !!value;
   const [date,   setDate]   = useState(value?.date || today);
   const [amount, setAmount] = useState(String(value?.amount ?? ac?.fee ?? ""));
@@ -69,7 +69,7 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
         <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 4 }}>
           <div style={{ width: 4, height: 20, borderRadius: 10, background: ac.color, flexShrink: 0 }} />
           <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: tone.text, minWidth: 0,
-            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ac.name}</h3>
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pickList ? "학원비 추가" : ac.name}</h3>
           <button onClick={onClose} aria-label="닫기" className="jelly-tap"
             style={{ marginLeft: "auto", background: tone.faint + "88", border: "none", borderRadius: 10,
               width: 28, height: 28, cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
@@ -77,8 +77,27 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
         <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 15px" }}>
           {showRecord
             ? `${month}월 학원비 · 낸 날과 방법을 남겨 두면 나중에 확인하기 좋아요.`
-            : "매달 얼마를 언제 내는지 적어 두면 학원비 탭이 알아서 챙겨 줘요."}
+            : "매달 얼마를 언제 내는지 적어 두면 홈에서 알아서 챙겨 줘요."}
         </p>
+
+        {/* [사용자 확정 2026-11-23] '미등록 ＋ 학원비 추가'로 열면 맨 위에서 학원을 고른다 */}
+        {pickList && (<>
+          <label style={lbl}>학원 선택</label>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 15 }}>
+            {pickList.map(a => {
+              const on = a.id === ac.id;
+              return (
+                <button key={a.id} onClick={() => onPick && onPick(a.id)} className="jelly-tap" aria-pressed={on}
+                  style={{ padding: "8px 13px", borderRadius: 12, cursor: "pointer", fontFamily: F, fontSize: 14, fontWeight: on ? 900 : 700,
+                    border: on ? `1.5px solid ${a.color}` : `1px solid ${tone.border}`,
+                    background: on ? `${a.color}18` : "#fff", color: on ? tone.text : tone.sub,
+                    display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: a.color, flexShrink: 0 }} />{a.name}
+                </button>
+              );
+            })}
+          </div>
+        </>)}
 
         {/* 학원비 설정 — ⋮ > 학원비 수정으로 열었을 때만. 매달 바뀌지 않는 값이라 위에 둔다. */}
         {showFee && (<>

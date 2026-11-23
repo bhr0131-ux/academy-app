@@ -37,7 +37,7 @@ const SUBD = "#5F678C";
 export default function FeeTab({
   th, CT, curAc = [], feeMonth, setFeeMonth,
   isPaid, payRec, payStatus, feeMenu, setFeeMenu,
-  onPay, onEditFee, onDeleteFee, onCopyAccount,
+  onPay, onEditFee, onDeleteFee, onCopyAccount, onAddFee,
 }) {
   /* [사용자 확정 2026-08-09] 이 화면의 일은 '예쁘게 보이기'가 아니라
      "이번 달에 얼마를 더 내야 하고, 어떤 학원이 미납인가"를 빨리 판단하게 하는 것. */
@@ -53,12 +53,16 @@ export default function FeeTab({
      학원비를 아직 안 적은 곳은 '낼 곳' 쪽에 둔다 — 그것도 손이 가야 하는 일이다. */
   const [doneOpen, setDoneOpen] = useState(false);
   const isDone=(a)=>Number(a.fee||0)>0&&isPaid(a.id);
-  const todoAc=curAc.filter(a=>!isDone(a));
+  /* [사용자 확정 2026-11-23] 낼 곳 · 납부 완료 · 미등록 세 묶음으로 나눈다.
+     미등록(학원비를 안 적은 곳)은 카드를 늘어놓지 않고 'N곳'과 '＋ 학원비 추가' 하나만 —
+     누르면 시트 맨 위에서 학원을 고른다. */
+  const todoAc=curAc.filter(a=>Number(a.fee||0)>0&&!isPaid(a.id));
   const doneAc=curAc.filter(isDone);
-  const groups=(todoAc.length>0&&doneAc.length>0)
-    ? [{key:"todo",head:`낼 곳 ${todoAc.length}곳`,items:todoAc,fold:false},
-       {key:"done",head:`납부 완료 ${doneAc.length}곳`,items:doneAc,fold:true}]
-    : [{key:"one",head:null,items:curAc,fold:false}];
+  const unregAc=curAc.filter(a=>!(Number(a.fee||0)>0));
+  const groups=[
+    {key:"todo",head:`낼 곳 ${todoAc.length}곳`,items:todoAc,fold:false},
+    {key:"done",head:`납부 완료 ${doneAc.length}곳`,items:doneAc,fold:true},
+  ].filter(g=>g.items.length>0);
   const headRow={ display:"flex",alignItems:"center",gap:8,margin:"0 0 10px" };
   const headTxt={ fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0 };
   return (
@@ -87,28 +91,10 @@ export default function FeeTab({
         높이 약 18% 축소, 그라데이션도 약하게. '2곳 중 1곳 납부'는 위 금액으로
         이미 알 수 있어 뺐다(다 냈을 때만 축하 한 줄). */}
     {/* 총액 21px 만 척도(17) 밖이다 — 이 화면의 주인공 숫자라 일부러 한 단 크게 둔다. */}
-    <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.96)} 0%, ${mixWhite(th.main,0.88)} 100%)`,borderRadius:RAD.md,padding:"12px 14px 11px",marginBottom:14,border:`1px solid ${th.main}2A`,boxShadow:SHADOW.sm}}>
+    <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.96)} 0%, ${mixWhite(th.main,0.88)} 100%)`,borderRadius:RAD.md,padding:"12px 14px 12px",marginBottom:14,border:`1px solid ${th.main}2A`,boxShadow:SHADOW.sm}}>
       <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:0,textAlign:"center"}}>{feeMonth}월 총 학원비</p>
       <p style={{fontSize:21,fontWeight:FW.bold,color:C.text,margin:"1px 0 0",textAlign:"center",letterSpacing:-0.3}}>{won(total)}</p>
-      <div style={{display:"flex",alignItems:"stretch",marginTop:9,paddingTop:9,borderTop:`1px solid ${th.main}1F`}}>
-        <div style={{flex:1,minWidth:0,textAlign:"center"}}>
-          <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:0}}>납부 완료</p>
-          <p style={{fontSize:FS.title,fontWeight:FW.semi,color:C.green,margin:"2px 0 0",whiteSpace:"nowrap"}}>{won(paidSum)}</p>
-        </div>
-        <div style={{width:1,background:`${th.main}1F`}}/>
-        <div style={{flex:1,minWidth:0,textAlign:"center"}}>
-          <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:0}}>남은 금액</p>
-          <p style={{fontSize:FS.title,fontWeight:FW.bold,color:restSum>0?C.red:C.sub,margin:"2px 0 0",whiteSpace:"nowrap"}}>{won(restSum)}</p>
-        </div>
-      </div>
-      {/* [사용자 확정 2026-08-18] '등록된 학원비가 없어요'는 뺐다 — 바로 위 '0원'이
-          이미 같은 말을 하고, 아래 카드에 '학원비가 등록되지 않았어요 / ＋ 학원비 추가'가
-          또 있어 한 화면에서 같은 이야기를 세 번 했다. 다 냈을 때 한 줄만 남긴다. */}
-      {billed.length>0&&restSum===0&&(
-      <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"9px 0 0",textAlign:"center",opacity:0.9}}>
-        {billed.length}곳 모두 납부했어요
-      </p>
-      )}
+      {/* [사용자 확정 2026-11-23] 총 학원비만 남긴다 — 납부·남은 금액은 아래 '낼 곳/납부 완료'가 말해 준다 */}
     </div>
 
     {groups.map((g,gi)=>{
@@ -271,6 +257,19 @@ export default function FeeTab({
       </div>
       );
     })}
+    {unregAc.length>0&&(
+      <div style={{marginTop:groups.length?10:0}}>
+        <div style={headRow}>
+          <span style={headTxt}>미등록 {unregAc.length}곳</span>
+          <div style={{flex:1,height:1,background:C.border}}/>
+        </div>
+        <button onClick={()=>onAddFee&&onAddFee(unregAc[0].id)} className="jelly-tap"
+          style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",color:mixBlack(th.main,0.28),
+            fontSize:FS.sub,fontWeight:FW.semi,textDecoration:"underline",textUnderlineOffset:3,padding:"4px 0 8px"}}>
+          ＋ 학원비 추가
+        </button>
+      </div>
+    )}
     {curAc.length===0&&<div style={{textAlign:"center",padding:"40px",color:C.sub,fontSize:FS.body,background:mixWhite(th.main,0.93),borderRadius:RAD.lg,border:`1.5px dashed ${th.main}40`}}>등록된 학원이 없어요</div>}
     {/* [사용자 확정 2026-08-10] 목록 아래 '＋ 학원비 항목 추가' 버튼은 뺐다 —
         학원비가 없는 학원 카드 안에 이미 '＋ 학원비 추가'가 있어 두 번 나오는 셈이었다. */}

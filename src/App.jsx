@@ -6201,6 +6201,7 @@ export default function App() {
                 feeMenu={feeMenu} setFeeMenu={setFeeMenu}
                 onPay={(acId)=>setPaySheet({acId})}
                 onEditFee={(v)=>setFeeEdit(v)}
+                onAddFee={(acId)=>setFeeEdit({id:acId,fee:"",payDay:"1",pick:true})}
                 onCopyAccount={(txt)=>{
                   copyText(txt).then(ok=>showToast(ok?"계좌번호를 복사했어요":"복사할 수 없어요"));
                 }}
@@ -7388,6 +7389,9 @@ export default function App() {
         return (
           <FeePaySheet ac={ac} month={feeMonth} today={TODAY} value={rec}
             showFee showRecord={!!rec}
+            /* 미등록 '＋ 학원비 추가' — 맨 위에서 학원을 고른다 (사용자 확정 2026-11-23) */
+            pickList={feeEdit.pick?curAc.filter(a=>!(Number(a.fee||0)>0)):null}
+            onPick={(id)=>setFeeEdit(p=>p&&({...p,id}))}
             tone={{text:C.text,sub:C.sub,border:C.border,faint:CT.faint,green:C.green,red:C.red,orange:C.orange,main:th.main,grad:th.grad}}
             onClose={()=>setFeeEdit(null)}
             onSave={(v)=>{
