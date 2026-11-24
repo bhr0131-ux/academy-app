@@ -31,7 +31,7 @@ import EmojiIcon, { EmojiText } from "./components/EmojiIcon.jsx";
 import { REWARD_EMOJI } from "./data/rewardEmoji.js";
 import SectionHead from "./components/parent/SectionHead.jsx";
 import XpAdjustCard from "./components/parent/XpAdjustCard.jsx";
-import MissionRuleList from "./components/parent/MissionRuleList.jsx";
+import MissionOverview from "./components/parent/MissionOverview.jsx";
 import CalendarTab from "./components/parent/CalendarTab.jsx";
 import ParentHomeTab from "./components/parent/ParentHomeTab.jsx";
 import FeeTab from "./components/parent/FeeTab.jsx";
@@ -2831,6 +2831,49 @@ export default function App() {
       return changed?next:prev;
     });
     showToast("반복을 껐어요");
+  };
+  /* ── 미션 탭 '전체 미션'의 ✎ 편집 (사용자 확정 2026-11-24) ─────────────
+     하루 미션: 내용·코인을 고치고 지운다. 이미 완료한 미션은 코인 변경·삭제를 막는다
+     (받은 코인과 체크를 풀 때 빠지는 코인이 어긋나지 않게 — 미션 창 ✎ 와 같은 규칙).
+     반복 미션: 규칙의 내용·코인을 고치고, 오늘 이후 아직 안 한 그 규칙의 미션에도 같이 반영한다.
+     지우기는 반복 끄기(stopMissionRule). */
+  const questListKey=(it)=>it.kind==="homework"?"homeworks":"todos";
+  const saveQuestItem=(cid,it,{text,coin})=>{
+    const e=getDailyEntry(cid,it.academyId,it.date); const k=questListKey(it);
+    let blocked=false;
+    const L=(e[k]||[]).map(x=>{
+      if(x.id!==it.id) return x;
+      const nx={...x,text};
+      if(coin!==itemCoin(x)){ if(x.done) blocked=true; else nx.coin=coin; }
+      return nx;
+    });
+    setDailyEntry(cid,it.academyId,it.date,{...e,[k]:L});
+    showToast(blocked?`완료한 미션은 ${TM.coin}을 바꿀 수 없어요`:"저장됨 ✓");
+  };
+  const deleteQuestItem=(cid,it)=>{
+    if(it.done){ showToast("완료한 미션은 체크를 풀고 지워 주세요"); return; }
+    const e=getDailyEntry(cid,it.academyId,it.date); const k=questListKey(it);
+    setDailyEntry(cid,it.academyId,it.date,{...e,[k]:(e[k]||[]).filter(x=>x.id!==it.id),...(it.ruleId?{skipRules:[...(e.skipRules||[]),it.ruleId]}:{})});
+    showToast("미션을 지웠어요");
+  };
+  const saveMissionRule=(cid,ruleId,{text,coin})=>{
+    setMissionRules(prev=>({...prev,[cid]:(prev[cid]||[]).map(r=>r.id===ruleId?{...r,text,coin}:r)}));
+    setDailyData(prev=>{
+      let next=prev, changed=false;
+      for(const k of Object.keys(prev)){
+        if(!k.startsWith(`${cid}-`)) continue;
+        if(k.slice(-10)<TODAY) continue;
+        const e=prev[k];
+        const fix=(L)=>(L||[]).map(x=>x.ruleId===ruleId&&!x.done?{...x,text,coin}:x);
+        const hw=fix(e.homeworks), td=fix(e.todos);
+        if(JSON.stringify(hw)!==JSON.stringify(e.homeworks||[])||JSON.stringify(td)!==JSON.stringify(e.todos||[])){
+          if(!changed){ next={...prev}; changed=true; }
+          next[k]={...e,homeworks:hw,todos:td};
+        }
+      }
+      return changed?next:prev;
+    });
+    showToast("반복 미션을 고쳤어요");
   };
 
   // 아이용 미션 추가 (현재 보는 날짜에 할일로 추가, 점수 기본값)
@@ -6462,98 +6505,20 @@ export default function App() {
                           );
                         })()}
                       </div>
-                      {/* ── 전체 미션 (사용자 확정 2026-11-23) — 추가·관리와 지난 미션 아래에 여백을 두고,
-                          그날의 미션을 쭉, 이어서 반복 설정된 미션을 쭉 늘어놓는다 ── */}
+                      {/* ── 전체 미션 — 쭉 보는 곳 (사용자 확정 2026-11-23 / 한 목록으로 2026-11-24) ──
+                          제목으로 나누지 않고 위에 그날의 하루 미션, 아래에 반복 미션. 체크 동그라미 없이 ✎ 로만 고친다.
+                          반복 규칙에서 생긴 그날 미션(ruleId)은 아래 반복 줄과 겹치므로 위에서 뺀다. */}
                       <div style={{marginTop:34}}>
-                        <p style={{fontSize:FS.title+1,fontWeight:FW.bold,color:C.text,margin:"0 0 14px",display:"flex",alignItems:"center",gap:7}}>
-                          <span style={{color:th.main,display:"flex"}}><CareIcon name="mission" size={16}/></span>전체 미션
-                        </p>
-                      {/* [사용자 확정 2026-08-16] 홈의 '오늘의 학원'과 같은 구역 머리를
-                          미션 목록 위에도 둔다 — 목록이 무엇인지 이름이 붙는다.
-                          학원 쪽과 마찬가지로 미션이 없는 날에도 머리는 늘 나온다. */}
-                      <SectionHead icon="mission" label={rDayTag?`${rDayTag}의 미션`:"오늘의 미션"} th={th}
-                        note={rewardTodayTodos.length>0?`${rewardTodayTodos.length}개 중 ${doneCnt}개 완료`:null}/>
-                      {rewardTodayTodos.length===0?(
-                        <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
-                          <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:44,height:44,borderRadius:"50%",background:CT.faint,color:C.sub}}>
-                            <CareIcon name="mission" size={22}/>
-                          </span>
-                          <p style={{fontSize:13,fontWeight:700,margin:"8px 0 0"}}>등록된 미션이 없어요</p>
-                        </div>
-                      ):(
-                        <div style={{display:"flex",flexDirection:"column",gap:7}}>
-                          {rewardTodayTodos.map(item=>(
-                            /* [사용자 확정 2026-08-11] 항목 배경까지 분홍이라 카드와 구분이 안 됐다 →
-                               평소엔 흰 바탕 + 연한 테두리, 완료·미완료일 때만 색을 옅게 깐다.
-                               [사용자 확정 2026-08-17] 안여백이 위6·오른쪽11·아래9·왼쪽4 로 네 방향이
-                               다 달랐다 → 위아래를 8 로 맞추고 오른쪽은 12. 왼쪽만 4 로 두는 건
-                               바로 옆 40×40 체크 버튼이 그 자리를 대신 채우기 때문이다.
-                               둥글기 12 도 척도 밖이라 RAD.md(14) 로. */
-                            <div key={`${item.kind}-${item.academyId}-${item.date}-${item.id}`} style={{display:"flex",alignItems:"flex-start",gap:4,padding:"8px 12px 8px 4px",borderRadius:RAD.md,background:item.done?`${C.green}0C`:item.failed?`${C.sub}0C`:"#fff",border:`1px solid ${item.done?C.green+"33":item.failed?C.border:C.border}`}}>
-                              {/* 체크 원이 연회색이라 못 누르는 것처럼 보였다 → 테두리를 진하게,
-                                  누르는 자리는 40×40 으로 넓힌다(원 자체는 24). */}
-                              <button onClick={()=>{
-                                if(item.failed) return;
-                                if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id);
-                                else toggleTodoDone(childId,item.academyId,item.date,item.id);
-                              }} className="jelly-tap" aria-label={`${item.label} ${item.done?"완료 취소":"완료"}`}
-                                style={{width:40,height:40,flexShrink:0,border:"none",background:"none",padding:0,display:"flex",alignItems:"center",justifyContent:"center",cursor:item.failed?"default":"pointer",fontFamily:"inherit"}}>
-                                <span style={{width:24,height:24,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
-                                  border:`2px solid ${item.done?C.green:item.failed?C.sub:mixBlack(C.sub,0.12)}`,
-                                  background:item.done?C.green:item.failed?C.sub:"transparent",color:"#fff",fontWeight:900,fontSize:13}}>
-                                  {item.done?"✓":item.failed?"×":""}
-                                </span>
-                              </button>
-                              {/* [사용자 확정 2026-08-11] 첫 줄의 학원명이 색·굵기로 세서 정작
-                                  '무엇을 해야 하는지'보다 먼저 보였다 → 미션명을 위로 올려 크게,
-                                  학원·종류는 아래에 작고 연하게. 학원색은 앞의 작은 점으로만 남긴다.
-                                  미션명은 두 줄까지 보여 주고 그다음에 말줄임 — 한 줄만 보이면
-                                  비슷한 미션끼리 구별이 안 된다. XP는 오른쪽 위에 붙여 제목 폭을 넓혔다. */}
-                              {/* [사용자 확정 2026-08-11] 제목·날짜보다 미션이 먼저 보여야 한다 →
-                                  XP 는 오른쪽 위가 아니라 학원·종류와 같은 아랫줄에 작은 배지로
-                                  붙여 카드가 덜 흩어지게 한다.
-                                  ※ 한때 17까지 키웠으나 미션 탭만 글자가 커 보인다는 지적 →
-                                    다른 탭의 주요 항목(홈 15 · 학원 14.5 · 학원비 14)에 맞춰 15. */}
-                              <div style={{flex:1,minWidth:0,paddingTop:6}}>
-                                <p style={{fontSize:15,fontWeight:800,margin:0,lineHeight:1.35,
-                                  color:item.done||item.failed?C.sub:C.text,
-                                  textDecoration:item.done||item.failed?"line-through":"none",
-                                  display:"-webkit-box",WebkitBoxOrient:"vertical",WebkitLineClamp:2,overflow:"hidden",
-                                  /* 띄어쓰기 없이 긴 제목도 둘째 줄로 넘어가게 — 없으면 한 줄에서 잘린다 */
-                                  overflowWrap:"anywhere"}}>
-                                  {item.label}
-                                  {item.byKid&&<span title="아이가 추가" style={{fontSize:11,fontWeight:900,marginLeft:5,color:item.academyColor||th.main,background:`${item.academyColor||th.main}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}
-                                </p>
-                                <div style={{display:"flex",alignItems:"center",gap:7,margin:"5px 0 0",minWidth:0}}>
-                                  <span style={{display:"flex",alignItems:"center",gap:5,minWidth:0,fontSize:FS.sub,color:C.sub,fontWeight:FW.normal}}>
-                                    <span style={{width:6,height:6,borderRadius:"50%",background:item.academyColor||th.main,flexShrink:0}}/>
-                                    <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                                      {/* 숙제·할 일 구분은 뺐다 (사용자 확정 2026-11-22) */}
-                                      {item.academyName}
-                                    </span>
-                                  </span>
-                                  <span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,
-                                    background:item.failed?`${C.sub}14`:`${C.orange}14`,color:item.failed?C.sub:C.orange}}>
-                                    {item.failed?"미완료":`+${item.point||DEFAULT_HOMEWORK_SCORE}${TM.xpUnit}`}
-                                  </span>
-                                  {/* 코인 — 점수와 같은 알약, 색만 파랑 (사용자 확정 2026-11-23) */}
-                                  {!item.failed&&<span style={{flexShrink:0,fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>
-                                    +{itemCoin(item)}{TM.coin}
-                                  </span>}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                        <div style={{marginTop:24}}>
-                          <SectionHead icon="repeat" label="반복 설정된 미션" th={th}
-                            note={(missionRules[childId]||[]).length>0?`${(missionRules[childId]||[]).length}개`:null}/>
-                          <MissionRuleList rules={missionRules[childId]||[]} th={th} TM={TM}
-                            acInfo={(id)=>{ if(String(id)===String(EXTRA_QUEST_ID)) return {name:"생활 습관 미션",color:th.main}; const a=getAcademyById(childId,id); return a?{name:a.name,color:a.color}:{name:"",color:C.sub}; }}
-                            coinOf={(r)=>r.coin!=null?r.coin:questCoin(r.point||DEFAULT_HOMEWORK_SCORE)}
-                            onStop={(id)=>{ stopMissionRule(childId,id); showToast("반복을 껐어요 (이미 들어간 미션은 남아요)"); }}/>
-                        </div>
+                        <SectionHead icon="mission" label="전체 미션" th={th}/>
+                        <MissionOverview th={th} TM={TM}
+                          dayItems={rewardTodayTodos.filter(it=>!it.ruleId).map(it=>({key:`d:${it.kind}:${it.academyId}:${it.id}`,item:it,text:it.label,
+                            acName:it.academyName,acColor:it.academyColor,coin:itemCoin(it),done:!!it.done,failed:!!it.failed}))}
+                          rules={(missionRules[childId]||[]).map(r=>{ const isLife=String(r.acId)===String(EXTRA_QUEST_ID); const a=isLife?null:getAcademyById(childId,r.acId);
+                            return {key:`r:${r.id}`,rule:r,text:r.text,acName:isLife?"생활 습관 미션":(a?a.name:""),acColor:isLife?th.main:(a?a.color:C.sub),
+                              coin:r.coin!=null?r.coin:questCoin(r.point||DEFAULT_HOMEWORK_SCORE),
+                              repeatText:r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":`${(r.days||[]).join("·")}요일`}; })}
+                          onSave={(row,v)=>row.kind==="rule"?saveMissionRule(childId,row.rule.id,v):saveQuestItem(childId,row.item,v)}
+                          onDelete={(row)=>row.kind==="rule"?stopMissionRule(childId,row.rule.id):deleteQuestItem(childId,row.item)}/>
                       </div>
                     </div>
                   )}
