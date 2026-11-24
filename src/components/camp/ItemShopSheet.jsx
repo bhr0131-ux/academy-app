@@ -107,10 +107,11 @@ export default function ItemShopSheet({ open, onClose, dark, skin = "dungeon", c
             {rewards.slice().sort((a, b) => a.point - b.point).map(reward => {
               const canGet = coin >= reward.point;
               const remain = Math.max(0, reward.point - coin);
-              const grade = getRewardGrade(reward);
+              /* [사용자 확정 2026-11-24] 보상 등급을 쓰지 않는다 — 색은 모두 '일반' 한 가지, 등급 글자 배지도 뺐다 */
+              const grade = getRewardGrade({ grade: "common" });
               const pending = hasPending(reward.id);
               const isOpen = openId === reward.id || canGet || pending;
-              const dr = dungeonDecorRarity(reward.grade);
+              const dr = dungeonDecorRarity("common");
               const cardBg = cute ? (canGet ? `linear-gradient(135deg, ${grade.color}16, #fff)` : "#fff") : DUNGEON_DECOR_CARD.cardBg;
               const cardBorder = cute ? (canGet ? grade.color + "55" : C.border) : dr.border;
               // 상태 배지 — 꾸미기 상점의 '구매 가능' 칩과 같은 색 규칙(대기중=보라 · 가능=파랑 · 아직=은은하게)
@@ -140,9 +141,6 @@ export default function ItemShopSheet({ open, onClose, dark, skin = "dungeon", c
                       <div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                           <p style={{ fontSize: 17, fontWeight: 900, margin: 0, color: cute ? C.text : CAMP_SHEET.text }}>{reward.title}</p>
-                          <span style={{ fontSize: 11, fontWeight: 900, color: cute ? grade.color : dr.badgeText,
-                            background: cute ? `${grade.color}18` : dr.badgeBg,
-                            padding: "2px 7px", borderRadius: 20 }}>{grade.name}</span>
                         </div>
                         <p style={{ fontSize: 13, fontWeight: 800, margin: 0, color: cute ? C.sub : CAMP_SHEET.textSub }}>{reward.point} {coinEmoji} {coinName} 필요</p>
                       </div>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { C, FS, FW, RAD, mixBlack } from "../../data/tokens.js";
 import { REWARD_SETS_BY_AGE } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
@@ -21,17 +22,23 @@ export default function RewardTab({ D }) {
     rewardAgeGroup,
     setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
     th, parentLocked, unlockRewardManage, rewardSecOpen,
+    /* [사용자 확정 2026-11-24] 미션 탭 맨 아래에 '접힌 보상 관리'로 들어간다(embedded).
+       승인 대기는 미션 탭 위쪽에 따로 그리므로 여기선 뺀다. 머리 오른쪽 끝에 작은 '연령대 변경'. */
+    embedded = false, open = true, setOpen, onPickAge,
   } = D;
+  const [ageOpen, setAgeOpen] = useState(false);
+  const ageOpts = [...Object.entries(REWARD_SETS_BY_AGE).map(([k, v]) => ({ k, label: v.label, emoji: v.emoji })), { k: "custom", label: "나만의 목록", emoji: "✏️" }];
+  const ageNote = rewardAgeGroup === "custom" ? "나만의 목록" : (REWARD_SETS_BY_AGE[rewardAgeGroup] || REWARD_SETS_BY_AGE.kid).label;
   return (
     <div>
 
-      <RewardApprovals
+      {!embedded&&<RewardApprovals
         requests={getChildRewardRequests(childId).filter(r=>r.status==="pending")}
         childName={curChild?.name||""} showWho={children.length>1}
         coinLabel={TM.coin} th={th} CT={CT}
         onApprove={approveRewardRequest}
         /* 거절은 코인을 돌려주고 되돌릴 수 없다 → 한 번 물어본다 (사용자 확정 2026-08-11) */
-        onReject={(req)=>setPendingReject(req)} />
+        onReject={(req)=>setPendingReject(req)} />}
 
       {/* 보상 관리 — 바깥 카드 없이 배경 위에 바로 (사용자 확정 2026-08-16)
           [사용자 확정 2026-08-16] 더는 접히지 않는다 — 이 탭에서 늘 펼쳐 두는 자리라
@@ -40,9 +47,39 @@ export default function RewardTab({ D }) {
         {/* [사용자 확정 2026-08-16] 홈의 '오늘의 학원'과 같은 구역 머리로 바꿨다.
             아랫줄로 길게 적던 설명은 자리가 없어져, 그중 실제 정보인 연령대만
             이름 뒤 옅은 글씨로 옮긴다 ('3곳'이 붙던 자리). */}
-        <SectionHead icon="reward" label="보상 관리" th={th}
-          note={rewardAgeGroup==="custom"?"나만의 목록":(REWARD_SETS_BY_AGE[rewardAgeGroup]||REWARD_SETS_BY_AGE.kid).label}/>
-        {(()=>{
+        {embedded?(
+          <>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <button onClick={()=>setOpen&&setOpen(!open)} aria-expanded={open} className="jelly-tap"
+                style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:7,border:"none",background:"none",padding:"4px 0",cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}>
+                <span style={{color:th.main,display:"flex"}}><CareIcon name="reward" size={15}/></span>
+                <span style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,flexShrink:0}}>보상 관리</span>
+                <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ageNote} · {getChildRewards().length}개</span>
+                <span aria-hidden style={{flexShrink:0,fontSize:12,color:C.sub,transition:"transform .2s",transform:open?"rotate(180deg)":"none"}}>⌄</span>
+              </button>
+              <button onClick={()=>setAgeOpen(v=>!v)} aria-expanded={ageOpen} className="jelly-tap"
+                style={{flexShrink:0,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,borderRadius:RAD.sm,padding:"5px 9px",fontSize:FS.tag,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
+                연령대 변경
+              </button>
+            </div>
+            {ageOpen&&(
+              <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:7,marginTop:10}}>
+                {ageOpts.map(o=>{ const on=rewardAgeGroup===o.k; return (
+                  /* 고르면 '목록이 통째로 바뀐다'는 확인 창이 한 번 뜬다(App 의 pendingAgeChange) */
+                  <button key={o.k} onClick={()=>{ setAgeOpen(false); if(!on&&onPickAge) onPickAge(o.k); }}
+                    style={{padding:"9px 8px",borderRadius:RAD.md,cursor:on?"default":"pointer",fontFamily:"inherit",
+                      border:`1.5px solid ${on?th.main:C.border}`,background:on?`${th.main}12`:"#fff",
+                      color:on?th.main:C.sub,fontSize:FS.body,fontWeight:on?FW.bold:FW.semi,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+                    <EmojiIcon emoji={o.emoji} size={15}/>{o.label}
+                  </button>
+                ); })}
+              </div>
+            )}
+          </>
+        ):(
+        <SectionHead icon="reward" label="보상 관리" th={th} note={ageNote}/>
+        )}
+        {(!embedded||open)&&(()=>{
         /* [사용자 확정 2026-08-16] 보상 탭 자체는 열려 있고(승인만 하러 들르는 일이 많다),
            목록을 고치는 것만 비밀번호로 막는다. 잠겨 있으면 '＋ 보상 추가'와 항목별
            수정·삭제를 감추고 자물쇠 버튼 하나만 둔다 — 열면 예전 화면 그대로 돌아온다. */

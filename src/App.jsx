@@ -41,7 +41,7 @@ import { getMapWalker } from "./data/mapWalkers.js";
 import ExpeditionTrack from "./components/ExpeditionTrack.jsx";
 import DevToolsPanel from "./components/DevToolsPanel.jsx";
 import DevExpeditionPreview from "./components/DevExpeditionPreview.jsx";
-import { SupplyCheckModal, MissionCheckModal } from "./components/parent/TodayCareModals.jsx";
+import { SupplyCheckModal, MissionCheckModal, RewardApproveModal } from "./components/parent/TodayCareModals.jsx";
 import { isNativeApp, shareBackupFile, saveBackupToDevice, installBackButton } from "./utils/native.js";
 import { playSfx, setSfxEnabled } from "./utils/sfx.js";
 import CharacterGrid from "./components/camp/CharacterGrid.jsx";
@@ -323,6 +323,8 @@ export default function App() {
      연령대를 바꿀 수 있게 되면서, 지금 보고 있는 아이가 아닌 다른 아이를 고칠 수 있다.
      그래서 어느 아이의 목록을 갈아 끼우는지 함께 들고 다닌다. */
   const [pendingAgeChange, setPendingAgeChange] = useState(null);
+  const [rewardMgrOpen, setRewardMgrOpen] = useState(false);          // 미션 탭 아래 '보상 관리' 펼침 (2026-11-24)
+  const [showRewardApprove, setShowRewardApprove] = useState(false);  // 홈 '보상 승인' 시트 (2026-11-24)
   const [pendingReject,    setPendingReject]    = useState(null); // 보상 구매 거절 확인 모달용 (요청 객체)
   /* [사용자 확정 2026-08-16] 홈의 '오늘 챙길 일' 보상승인 칩을 누르면 보상 탭으로 보내지 않고
      이 팝업으로 그 자리에서 승인한다 — 승인 하나 하려고 비밀번호를 넣는 게 번거로웠다.
@@ -2773,6 +2775,8 @@ export default function App() {
      규칙이 그 날짜에 해당하는지 — class: 그 학원 가는 날(정규·보충, 결석·휴원 제외) / daily: 매일 / days: 고른 요일 */
   const DN7=["일","월","화","수","목","금","토"];
   const ruleHits=(cid,rule,date)=>{
+    /* [사용자 확정 2026-11-24] 특정 날짜도 반복 규칙으로 저장한다 — 고른 날짜에만 해당 (만든 날보다 앞 날짜도 된다) */
+    if(rule&&rule.type==="dates") return (rule.dates||[]).includes(date);
     if(!rule||date<rule.start) return false;
     const dn=DN7[new Date(date.replace(/-/g,"/")).getDay()];
     if(rule.type==="daily") return true;
@@ -2785,8 +2789,9 @@ export default function App() {
     return false;
   };
   /* 그 날짜들에 반복 미션을 만들어 넣는다 — 이미 있거나(ruleId) 그날 지운 것(skipRules)은 건너뛴다 */
-  const materializeRules=(cid,dates)=>{
-    const rules=missionRules[cid]||[];
+  const materializeRules=(cid,dates,rulesOverride=null)=>{
+    // rulesOverride — 방금 만들거나 고친 규칙(아직 state 에 안 들어간 것)을 바로 넣을 때
+    const rules=rulesOverride||missionRules[cid]||[];
     if(!rules.length) return;
     setDailyData(prev=>{
       let next=prev, changed=false;
@@ -2856,12 +2861,15 @@ export default function App() {
     setDailyEntry(cid,it.academyId,it.date,{...e,[k]:(e[k]||[]).filter(x=>x.id!==it.id),...(it.ruleId?{skipRules:[...(e.skipRules||[]),it.ruleId]}:{})});
     showToast("미션을 지웠어요");
   };
-  const saveMissionRule=(cid,ruleId,{text,coin,type,days})=>{
+  const saveMissionRule=(cid,ruleId,{text,coin,type,days,dates})=>{
     /* [사용자 확정 2026-11-24] 반복 주기도 바꾼다. 주기가 바뀌면 내일 이후 미리 만들어 둔 '아직 안 한' 것은
        거두고(새 주기에 맞게 다시 만들어진다), 오늘 것은 그대로 둔다. */
     const old=(missionRules[cid]||[]).find(r=>r.id===ruleId);
-    const periodChanged=!!old&&type!=null&&(type!==old.type||JSON.stringify(days||[])!==JSON.stringify(old.days||[]));
-    setMissionRules(prev=>({...prev,[cid]:(prev[cid]||[]).map(r=>r.id===ruleId?{...r,text,coin,...(type!=null?{type,days:days||[]}:{})}:r)}));
+    const periodChanged=!!old&&type!=null&&(type!==old.type||JSON.stringify(days||[])!==JSON.stringify(old.days||[])||JSON.stringify(dates||[])!==JSON.stringify(old.dates||[]));
+    const upd1=(r)=>({...r,text,coin,...(type!=null?{type,days:days||[],dates:type==="dates"?[...(dates||[])]:[]}:{})});
+    setMissionRules(prev=>({...prev,[cid]:(prev[cid]||[]).map(r=>r.id===ruleId?upd1(r):r)}));
+    // 특정 날짜로 바꾸면 고른 날짜(오늘부터)에 바로 넣는다 — 미리 보기 창 밖 날짜도 빠지지 않게
+    if(periodChanged&&type==="dates"&&old) setTimeout(()=>materializeRules(cid,(dates||[]).filter(d=>d>=TODAY),[upd1(old)]),0);
     if(periodChanged) setDailyData(prev=>{
       let next=prev, changed=false;
       for(const k of Object.keys(prev)){
@@ -6258,7 +6266,7 @@ export default function App() {
             getQuestItemsForDate={getQuestItemsForDate} getChildRewardRequests={getChildRewardRequests}
             acKindLabel={acKindLabel} getAcademyTheme={getAcademyTheme}
             onGoTab={(k)=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab(k); }}
-            onGoReward={goRewardTab}
+            onGoReward={()=>setShowRewardApprove(true)}
             onOpenSupplyCheck={(d)=>setShowSupplyCheck(typeof d==="string"?d:homeDate)}
             isFeePaid={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
             /* [사용자 확정 2026-11-23] 학원비 탭을 없애고 홈 '전체 학원' 아래로 옮겼다 — 여기선 달만 맞춘다 */
@@ -6509,6 +6517,32 @@ export default function App() {
                         {/* (뺐음 2026-11-22) 엄마 권한 칸 — 미션 탭 자체를 비밀번호로 열므로 안쪽 잠금이 필요 없다.
                             '지난 미션 관리'는 상자 아래 따로 둔다(사용자 확정 2026-11-22). */}
                         </div>
+                        {/* ── 구매 승인 대기 (사용자 확정 2026-11-24) — 생겼을 때만, 미션 추가·관리 바로 아래 · 오늘의 미션 위 ── */}
+                        {getChildRewardRequests(childId).some(r=>r.status==="pending")&&(
+                          <div style={{marginTop:6}}>
+                            <RewardApprovals
+                              requests={getChildRewardRequests(childId).filter(r=>r.status==="pending")}
+                              childName={curChild?.name||""} showWho={children.length>1}
+                              coinLabel={TM.coin} th={th} CT={CT}
+                              onApprove={approveRewardRequest}
+                              onReject={(req)=>setPendingReject(req)} />
+                          </div>
+                        )}
+                        {/* [버그 수정 2026-11-24] 9e628bf 에서 실수로 빠졌던 '지난 미션 관리'를 되살린다 */}
+                        {/* ── 지난 미션 관리 — '미션 추가·관리' 상자와 떼어 아래에 따로 (예전 자리처럼) ── */}
+                        {(()=>{
+                          const pastCnt=getPastQuestCandidates(childId,TODAY).length;
+                          return (
+                            /* 예전 모양 그대로 — 테마색을 옅게 깐 작은 한 줄 버튼, 오른쪽에 남은 개수 (사용자 확정 2026-11-22) */
+                            <button onClick={()=>setShowPastMissionModal(TODAY)} className="jelly-tap"
+                              style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:mixBlack(th.main,0.25),fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                              <span style={{display:"flex",alignItems:"center",gap:5}}>
+                                <span style={{color:th.main,display:"flex"}}><CareIcon name="calendar" size={14}/></span> 지난 미션 관리
+                              </span>
+                              {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
+                            </button>
+                          );
+                        })()}
                       </div>
                       {/* ── 전체 미션 — 쭉 보는 곳 (사용자 확정 2026-11-23 / 한 목록으로 2026-11-24) ──
                           제목으로 나누지 않고 위에 그날의 하루 미션, 아래에 반복 미션. 체크 동그라미 없이 ✎ 로만 고친다.
@@ -6518,7 +6552,8 @@ export default function App() {
                       {(()=>{
                         const onSave=(row,v)=>row.kind==="rule"?saveMissionRule(childId,row.rule.id,v):saveQuestItem(childId,row.item,v);
                         const onDelete=(row)=>row.kind==="rule"?stopMissionRule(childId,row.rule.id):deleteQuestItem(childId,row.item);
-                        const rules=missionRules[childId]||[];
+                        /* 특정 날짜 규칙은 남은 날짜(오늘 포함)가 없으면 목록에서 뺀다 (사용자 확정 2026-11-24) */
+                        const rules=(missionRules[childId]||[]).filter(r=>r.type!=="dates"||(r.dates||[]).some(d=>d>=TODAY));
                         return (<>
                           <div style={{marginTop:34}}>
                             <SectionHead icon="mission" label={rDayTag?`${rDayTag}의 미션`:"오늘의 미션"} th={th}
@@ -6533,12 +6568,26 @@ export default function App() {
                             <MissionOverview th={th} TM={TM} onSave={onSave} onDelete={onDelete} emptyText="반복 미션이 없어요"
                               rules={rules.map(r=>{ const isLife=String(r.acId)===String(EXTRA_QUEST_ID); const a=isLife?null:getAcademyById(childId,r.acId);
                                 return {key:`r:${r.id}`,rule:r,text:r.text,acName:isLife?"생활 습관":(a?a.name:""),acColor:isLife?th.main:(a?a.color:C.sub),
-                                  type:r.type,days:r.days||[],allowClass:!isLife,
+                                  type:r.type,days:r.days||[],dates:r.dates||[],allowClass:!isLife,
                                   coin:r.coin!=null?r.coin:questCoin(r.point||DEFAULT_HOMEWORK_SCORE),
-                                  repeatText:r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":`${(r.days||[]).join("·")}요일`}; })}/>
+                                  repeatText:r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":r.type==="dates"
+                                    ?(r.dates||[]).filter(d=>d>=TODAY).sort().map(d=>{ const x=new Date(d.replace(/-/g,"/")); return `${x.getMonth()+1}/${x.getDate()}(${"일월화수목금토"[x.getDay()]})`; }).join(" · ")
+                                    :`${(r.days||[]).join("·")}요일`}; })}/>
                           </div>
                         </>);
                       })()}
+                      {/* ── 보상 관리 (사용자 확정 2026-11-24) — 보상 탭을 미션 탭 맨 아래로. 접힌 채로, 누르면 목록이 펼쳐진다.
+                          미션 탭은 비밀번호로 들어오므로 여기선 바로 고칠 수 있다(parentLocked=false). ── */}
+                      <div style={{marginTop:30}}>
+                        <RewardTab D={{
+                          CT, TM, PT, approveRewardRequest, childId, children, curChild, deleteReward,
+                          getChildRewardRequests, getChildRewards, openEditReward, rewardAgeGroup,
+                          setEditingRewardId, setPendingReject, setRewardForm, setShowRewardModal,
+                          th, parentLocked, unlockRewardManage, rewardSecOpen,
+                          embedded:true, open:rewardMgrOpen, setOpen:setRewardMgrOpen,
+                          onPickAge:(age)=>setPendingAgeChange({age,cid:childId}),
+                        }}/>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -6630,9 +6679,7 @@ export default function App() {
               // 미션은 매일 보는 화면이라 보상보다 앞에 둔다.
               { key:"mission",  label:"미션",   icon:"mission",  active:tab==="mission",
                 onPress:()=>{ setMoreMenuOpen(false); goMissionTab(); } },
-              // 보상은 누를 때마다 PIN을 다시 받는다 (goRewardTab이 그 규칙을 갖고 있다)
-              { key:"reward",   label:"보상",   icon:"reward",   active:tab==="reward",
-                onPress:()=>{ setMoreMenuOpen(false); goRewardTab(); } },
+              /* (뺐음 2026-11-24 사용자 확정) '보상' 칸 — 보상 관리는 미션 탭 맨 아래, 승인은 미션 탭 위·홈 '오늘 챙길 일'에서 */
               /* [사용자 확정 2026-10-02] 이 자리에 있던 달력은 '더보기' 안으로 넣고, 기타를 꺼냈다. */
               { key:"etc",      label:"기타",   icon:"settings", active:tab==="etc",      onPress:go("etc") },
               // 더보기는 화면을 바꾸지 않고 '위로 열리는 메뉴'만 띄운다 (사용자 확정 2026-08-09)
@@ -6712,6 +6759,15 @@ export default function App() {
           팝업을 한 번 더 띄우지 않고 목록에서 바로 학원을 고른다. */}
 
       {/* ── 지난 미션 보기 모달 (엄마용: 못한 지난 미션 확인 + 체크/실패로 마감) ── */}
+      {/* ── 오늘 챙길 일: 🎁 보상 승인 (사용자 확정 2026-11-24) — 여기서 바로 승인/거절 ── */}
+      {showRewardApprove&&(
+        <RewardApproveModal tone={careTone} coinLabel={TM.coin} whoLabel={children.length>1?(curChild?.name||""):""}
+          requests={getChildRewardRequests(childId).filter(r=>r.status==="pending")}
+          onClose={()=>setShowRewardApprove(false)}
+          onApprove={(id)=>{ approveRewardRequest(id); if(getChildRewardRequests(childId).filter(r=>r.status==="pending").length<=1) setShowRewardApprove(false); }}
+          /* 거절은 확인 창을 한 번 더 띄운다 — 시트를 닫고 그 창을 연다 */
+          onReject={(req)=>{ setShowRewardApprove(false); setPendingReject(req); }}/>
+      )}
       {/* ── 오늘 챙길 일: 🎒 준비물 확인 ─────────────────────────────────
            그날 수업이 있는 학원별로 준비물을 묶고, 아이가 탐험일지에서 체크한
            상태를 그대로 비춘다. 체크 키 규칙은 탐험일지와 같다 —
@@ -6905,15 +6961,7 @@ export default function App() {
             <input value={rewardForm.title} onChange={e=>setRewardForm(p=>({...p,title:e.target.value}))}
               placeholder="예: 아이스크림, 게임 30분, 치킨"
               style={{...inp,marginBottom:16}}/>
-            <label style={lbl}>등급</label>
-            <div style={{display:"flex",gap:8,marginBottom:16}}>
-              {REWARD_GRADES.map(g=>(
-                <button key={g.id} onClick={()=>setRewardForm(p=>({...p,grade:g.id}))}
-                  style={{flex:1,padding:"8px 0",borderRadius:10,border:`2px solid ${rewardForm.grade===g.id?g.color:C.border}`,background:rewardForm.grade===g.id?`${g.color}15`:"#fff",color:rewardForm.grade===g.id?g.color:C.sub,fontSize:13,fontWeight:900,cursor:"pointer"}}>
-                  {g.name}
-                </button>
-              ))}
-            </div>
+            {/* (뺐음 2026-11-24 사용자 확정) '등급' 고르기 — 보상에 등급을 쓰지 않는다. 저장값 grade 는 'common' 그대로 둔다 */}
             <label style={lbl}>필요 {TM.coin} *</label>
             <input type="text" inputMode="numeric" value={rewardForm.point}
               /* [사용자 제보 2026-11-17] 칸을 비우면 곧바로 0이 다시 들어가 지워지지 않고 '010'처럼 뒤에 붙었다
@@ -8068,22 +8116,22 @@ export default function App() {
                 const dLabel=(d)=>{ const x=new Date(d.replace(/-/g,"/")); return `${x.getMonth()+1}/${x.getDate()}(${"일월화수목금토"[x.getDay()]})`; };
                 const coinN=missionCoin==null||missionCoin===""?questCoin(ptN):Math.max(0,Math.round(Number(missionCoin)||0));
                 const myRules=(missionRules[childId]||[]).filter(r=>String(r.acId)===String(academyId));
-                const ruleText=(r)=>r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":`${(r.days||[]).join("·")}요일`;
+                const ruleText=(r)=>r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":r.type==="dates"?"특정 날짜":`${(r.days||[]).join("·")}요일`;
                 const addMission=()=>{
                   const v=val.trim(); if(!v) return;
                   if(rep.type==="days"&&!(rep.days||[]).length){ showToast("요일을 골라 주세요"); return; }
                   if(rep.type==="dates"&&!pickedDates.length){ showToast("날짜를 골라 주세요"); return; }
                   const item={id:newId(),text:v,done:false,point:ptN,coin:coinN};
                   if(rep.type==="dates"){
-                    const key=isExtra?"todos":"homeworks"; let n=0;
-                    pickedDates.forEach(d=>{
-                      const e=d===date?entry:getDailyEntry(childId,academyId,d); const L=e[key]||[];
-                      if(L.some(x=>x.text===v)) return;   // 그날 같은 미션이 이미 있으면 건너뛴다
-                      const ne={...e,[key]:[...L,{...item,id:newId()}]};
-                      if(d===date) upd(ne); else setDailyEntry(childId,academyId,d,ne);
-                      n++;
-                    });
-                    showToast(n?`${n}일에 미션을 넣었어요`:"이미 그날 미션에 있어요");
+                    /* [사용자 확정 2026-11-24] 특정 날짜도 반복 규칙으로 저장 — 미션 탭 '반복 미션'에 보이고(지난 날짜만 남으면 안 보임),
+                       ✎ 로 고치거나 지울 수 있다. 고른 날짜에는 지금 바로 넣는다(그날 이미 같은 미션이 있으면 그날은 건너뜀). */
+                    const fresh=pickedDates.filter(d=>{ const e=d===date?entry:getDailyEntry(childId,academyId,d); return !((isExtra?e.todos:e.homeworks)||[]).some(x=>x.text===v); });
+                    const rule={id:newId(),acId:academyId,text:v,point:ptN,coin:coinN,type:"dates",days:[],dates:[...pickedDates],start:date};
+                    setMissionRules(prev=>({...prev,[childId]:[...(prev[childId]||[]),rule]}));
+                    // 같은 미션이 이미 있던 날은 다시 넣지 않도록 그날만 건너뛰기 표시
+                    pickedDates.filter(d=>!fresh.includes(d)).forEach(d=>{ const e=d===date?entry:getDailyEntry(childId,academyId,d); const ne={...e,skipRules:[...(e.skipRules||[]),rule.id]}; if(d===date) upd(ne); else setDailyEntry(childId,academyId,d,ne); });
+                    materializeRules(childId,fresh,[rule]);
+                    showToast(fresh.length?`${fresh.length}일에 미션을 넣었어요 (반복 미션에 저장)`:"이미 그날 미션에 있어요");
                   } else if(rep.type!=="once"){
                     const rule={id:newId(),acId:academyId,text:v,point:ptN,coin:coinN,type:rep.type,days:rep.type==="days"?[...rep.days]:[],start:date};
                     setMissionRules(prev=>({...prev,[childId]:[...(prev[childId]||[]),rule]}));
