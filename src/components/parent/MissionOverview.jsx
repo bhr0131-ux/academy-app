@@ -27,7 +27,7 @@ import CareIcon from "./CareIcons.jsx";
 
 const pill = { flexShrink: 0, fontSize: 11.5, fontWeight: 800, padding: "2px 8px", borderRadius: 20 };
 
-export default function MissionOverview({ dayItems = [], rules = [], th, TM, onSave, onDelete, emptyText = "등록된 미션이 없어요" }) {
+export default function MissionOverview({ dayItems = [], rules = [], th, TM, onSave, onDelete, onToggle, emptyText = "등록된 미션이 없어요" }) {
   const [edit, setEdit] = useState(null);     // { key, text, coin }
   const rows = [...dayItems.map(r => ({ ...r, kind: "day" })), ...rules.map(r => ({ ...r, kind: "rule" }))];
   const xpU = (TM && TM.xpUnit) || "점", coinU = (TM && TM.coin) || "코인";
@@ -117,6 +117,20 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
               </div>
             ) : (
               <>
+                {/* [사용자 확정 2026-11-24] 오늘의 미션은 여기서 바로 체크한다 (생활 습관 미션도 체크할 곳이 필요했다).
+                    미완료(실패) 처리된 것은 못 누른다. 반복 미션 목록에는 체크가 없다. */}
+                {row.kind === "day" && onToggle && (
+                  <button onClick={() => { if (!row.failed) onToggle(row); }} className="jelly-tap"
+                    aria-label={`${row.text} ${row.done ? "완료 취소" : "완료"}`}
+                    style={{ width: 34, height: 34, flexShrink: 0, margin: "0 -2px 0 -6px", border: "none", background: "none", padding: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center", cursor: row.failed ? "default" : "pointer" }}>
+                    <span style={{ width: 24, height: 24, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                      border: `2px solid ${row.done ? C.green : row.failed ? C.sub : "#B7BDCB"}`,
+                      background: row.done ? C.green : row.failed ? C.sub : "transparent", color: "#fff", fontWeight: 900, fontSize: 13 }}>
+                      {row.done ? "✓" : row.failed ? "×" : ""}
+                    </span>
+                  </button>
+                )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ margin: 0, fontSize: 15, fontWeight: 800, lineHeight: 1.35, overflowWrap: "anywhere",
                     color: faded ? C.sub : C.text, textDecoration: faded ? "line-through" : "none" }}>
@@ -125,8 +139,9 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                     {row.text}
                   </p>
                   {/* 아랫줄 — 하루·반복 모두 같은 모양: 학원 · +점 · +코인 (사용자 확정 2026-11-24) */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 5, minWidth: 0 }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, fontSize: FS.sub, color: C.sub }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 5, minWidth: 0, flexWrap: "wrap", rowGap: 5 }}>
+                    {/* 학원 이름이 먼저 줄어 '생…'처럼 되지 않게 — 자기 폭을 지키되 너무 길면 절반까지만 */}
+                    <span style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, flexShrink: 0, maxWidth: "50%", fontSize: FS.sub, color: C.sub }}>
                       <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.acColor || th.main, flexShrink: 0 }} />
                       <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.acName}</span>
                     </span>
