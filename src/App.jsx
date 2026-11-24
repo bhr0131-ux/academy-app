@@ -2773,6 +2773,8 @@ export default function App() {
      규칙이 그 날짜에 해당하는지 — class: 그 학원 가는 날(정규·보충, 결석·휴원 제외) / daily: 매일 / days: 고른 요일 */
   const DN7=["일","월","화","수","목","금","토"];
   const ruleHits=(cid,rule,date)=>{
+    /* [사용자 확정 2026-11-24] 특정 날짜도 반복 규칙으로 저장한다 — 고른 날짜에만 해당 (만든 날보다 앞 날짜도 된다) */
+    if(rule&&rule.type==="dates") return (rule.dates||[]).includes(date);
     if(!rule||date<rule.start) return false;
     const dn=DN7[new Date(date.replace(/-/g,"/")).getDay()];
     if(rule.type==="daily") return true;
@@ -2785,8 +2787,9 @@ export default function App() {
     return false;
   };
   /* 그 날짜들에 반복 미션을 만들어 넣는다 — 이미 있거나(ruleId) 그날 지운 것(skipRules)은 건너뛴다 */
-  const materializeRules=(cid,dates)=>{
-    const rules=missionRules[cid]||[];
+  const materializeRules=(cid,dates,rulesOverride=null)=>{
+    // rulesOverride — 방금 만들거나 고친 규칙(아직 state 에 안 들어간 것)을 바로 넣을 때
+    const rules=rulesOverride||missionRules[cid]||[];
     if(!rules.length) return;
     setDailyData(prev=>{
       let next=prev, changed=false;
@@ -2856,12 +2859,15 @@ export default function App() {
     setDailyEntry(cid,it.academyId,it.date,{...e,[k]:(e[k]||[]).filter(x=>x.id!==it.id),...(it.ruleId?{skipRules:[...(e.skipRules||[]),it.ruleId]}:{})});
     showToast("미션을 지웠어요");
   };
-  const saveMissionRule=(cid,ruleId,{text,coin,type,days})=>{
+  const saveMissionRule=(cid,ruleId,{text,coin,type,days,dates})=>{
     /* [사용자 확정 2026-11-24] 반복 주기도 바꾼다. 주기가 바뀌면 내일 이후 미리 만들어 둔 '아직 안 한' 것은
        거두고(새 주기에 맞게 다시 만들어진다), 오늘 것은 그대로 둔다. */
     const old=(missionRules[cid]||[]).find(r=>r.id===ruleId);
-    const periodChanged=!!old&&type!=null&&(type!==old.type||JSON.stringify(days||[])!==JSON.stringify(old.days||[]));
-    setMissionRules(prev=>({...prev,[cid]:(prev[cid]||[]).map(r=>r.id===ruleId?{...r,text,coin,...(type!=null?{type,days:days||[]}:{})}:r)}));
+    const periodChanged=!!old&&type!=null&&(type!==old.type||JSON.stringify(days||[])!==JSON.stringify(old.days||[])||JSON.stringify(dates||[])!==JSON.stringify(old.dates||[]));
+    const upd1=(r)=>({...r,text,coin,...(type!=null?{type,days:days||[],dates:type==="dates"?[...(dates||[])]:[]}:{})});
+    setMissionRules(prev=>({...prev,[cid]:(prev[cid]||[]).map(r=>r.id===ruleId?upd1(r):r)}));
+    // 특정 날짜로 바꾸면 고른 날짜(오늘부터)에 바로 넣는다 — 미리 보기 창 밖 날짜도 빠지지 않게
+    if(periodChanged&&type==="dates"&&old) setTimeout(()=>materializeRules(cid,(dates||[]).filter(d=>d>=TODAY),[upd1(old)]),0);
     if(periodChanged) setDailyData(prev=>{
       let next=prev, changed=false;
       for(const k of Object.keys(prev)){
@@ -6518,7 +6524,8 @@ export default function App() {
                       {(()=>{
                         const onSave=(row,v)=>row.kind==="rule"?saveMissionRule(childId,row.rule.id,v):saveQuestItem(childId,row.item,v);
                         const onDelete=(row)=>row.kind==="rule"?stopMissionRule(childId,row.rule.id):deleteQuestItem(childId,row.item);
-                        const rules=missionRules[childId]||[];
+                        /* 특정 날짜 규칙은 남은 날짜(오늘 포함)가 없으면 목록에서 뺀다 (사용자 확정 2026-11-24) */
+                        const rules=(missionRules[childId]||[]).filter(r=>r.type!=="dates"||(r.dates||[]).some(d=>d>=TODAY));
                         return (<>
                           <div style={{marginTop:34}}>
                             <SectionHead icon="mission" label={rDayTag?`${rDayTag}의 미션`:"오늘의 미션"} th={th}
@@ -6533,9 +6540,11 @@ export default function App() {
                             <MissionOverview th={th} TM={TM} onSave={onSave} onDelete={onDelete} emptyText="반복 미션이 없어요"
                               rules={rules.map(r=>{ const isLife=String(r.acId)===String(EXTRA_QUEST_ID); const a=isLife?null:getAcademyById(childId,r.acId);
                                 return {key:`r:${r.id}`,rule:r,text:r.text,acName:isLife?"생활 습관":(a?a.name:""),acColor:isLife?th.main:(a?a.color:C.sub),
-                                  type:r.type,days:r.days||[],allowClass:!isLife,
+                                  type:r.type,days:r.days||[],dates:r.dates||[],allowClass:!isLife,
                                   coin:r.coin!=null?r.coin:questCoin(r.point||DEFAULT_HOMEWORK_SCORE),
-                                  repeatText:r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":`${(r.days||[]).join("·")}요일`}; })}/>
+                                  repeatText:r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":r.type==="dates"
+                                    ?(r.dates||[]).filter(d=>d>=TODAY).sort().map(d=>{ const x=new Date(d.replace(/-/g,"/")); return `${x.getMonth()+1}/${x.getDate()}(${"일월화수목금토"[x.getDay()]})`; }).join(" · ")
+                                    :`${(r.days||[]).join("·")}요일`}; })}/>
                           </div>
                         </>);
                       })()}
@@ -8068,22 +8077,22 @@ export default function App() {
                 const dLabel=(d)=>{ const x=new Date(d.replace(/-/g,"/")); return `${x.getMonth()+1}/${x.getDate()}(${"일월화수목금토"[x.getDay()]})`; };
                 const coinN=missionCoin==null||missionCoin===""?questCoin(ptN):Math.max(0,Math.round(Number(missionCoin)||0));
                 const myRules=(missionRules[childId]||[]).filter(r=>String(r.acId)===String(academyId));
-                const ruleText=(r)=>r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":`${(r.days||[]).join("·")}요일`;
+                const ruleText=(r)=>r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":r.type==="dates"?"특정 날짜":`${(r.days||[]).join("·")}요일`;
                 const addMission=()=>{
                   const v=val.trim(); if(!v) return;
                   if(rep.type==="days"&&!(rep.days||[]).length){ showToast("요일을 골라 주세요"); return; }
                   if(rep.type==="dates"&&!pickedDates.length){ showToast("날짜를 골라 주세요"); return; }
                   const item={id:newId(),text:v,done:false,point:ptN,coin:coinN};
                   if(rep.type==="dates"){
-                    const key=isExtra?"todos":"homeworks"; let n=0;
-                    pickedDates.forEach(d=>{
-                      const e=d===date?entry:getDailyEntry(childId,academyId,d); const L=e[key]||[];
-                      if(L.some(x=>x.text===v)) return;   // 그날 같은 미션이 이미 있으면 건너뛴다
-                      const ne={...e,[key]:[...L,{...item,id:newId()}]};
-                      if(d===date) upd(ne); else setDailyEntry(childId,academyId,d,ne);
-                      n++;
-                    });
-                    showToast(n?`${n}일에 미션을 넣었어요`:"이미 그날 미션에 있어요");
+                    /* [사용자 확정 2026-11-24] 특정 날짜도 반복 규칙으로 저장 — 미션 탭 '반복 미션'에 보이고(지난 날짜만 남으면 안 보임),
+                       ✎ 로 고치거나 지울 수 있다. 고른 날짜에는 지금 바로 넣는다(그날 이미 같은 미션이 있으면 그날은 건너뜀). */
+                    const fresh=pickedDates.filter(d=>{ const e=d===date?entry:getDailyEntry(childId,academyId,d); return !((isExtra?e.todos:e.homeworks)||[]).some(x=>x.text===v); });
+                    const rule={id:newId(),acId:academyId,text:v,point:ptN,coin:coinN,type:"dates",days:[],dates:[...pickedDates],start:date};
+                    setMissionRules(prev=>({...prev,[childId]:[...(prev[childId]||[]),rule]}));
+                    // 같은 미션이 이미 있던 날은 다시 넣지 않도록 그날만 건너뛰기 표시
+                    pickedDates.filter(d=>!fresh.includes(d)).forEach(d=>{ const e=d===date?entry:getDailyEntry(childId,academyId,d); const ne={...e,skipRules:[...(e.skipRules||[]),rule.id]}; if(d===date) upd(ne); else setDailyEntry(childId,academyId,d,ne); });
+                    materializeRules(childId,fresh,[rule]);
+                    showToast(fresh.length?`${fresh.length}일에 미션을 넣었어요 (반복 미션에 저장)`:"이미 그날 미션에 있어요");
                   } else if(rep.type!=="once"){
                     const rule={id:newId(),acId:academyId,text:v,point:ptN,coin:coinN,type:rep.type,days:rep.type==="days"?[...rep.days]:[],start:date};
                     setMissionRules(prev=>({...prev,[childId]:[...(prev[childId]||[]),rule]}));

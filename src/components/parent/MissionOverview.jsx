@@ -24,7 +24,11 @@
 import { useState } from "react";
 import { C, FS, FW, RAD, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
+import { TODAY } from "../../utils/dates.js";
 
+/* 오늘 'YYYY-MM-DD' — 앱의 TODAY(개발용 날짜 바꾸기도 따른다) · 'M/D(요)' */
+const todayStr = () => TODAY;
+const dLabel = (d) => { const x = new Date(d.replace(/-/g, "/")); return `${x.getMonth() + 1}/${x.getDate()}(${"일월화수목금토"[x.getDay()]})`; };
 const pill = { flexShrink: 0, fontSize: 11.5, fontWeight: 800, padding: "2px 8px", borderRadius: 20 };
 
 export default function MissionOverview({ dayItems = [], rules = [], th, TM, onSave, onDelete, onToggle, emptyText = "등록된 미션이 없어요" }) {
@@ -49,7 +53,9 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
     const raw = String(edit.coin).trim();
     const c = raw === "" ? row.coin : Math.max(0, Math.round(Number(raw) || 0));
     if (row.kind === "rule" && edit.type === "days" && !(edit.days || []).length) return;   // 요일을 하나는 골라야 한다
-    onSave && onSave(row, { text: t, coin: c, ...(row.kind === "rule" ? { type: edit.type, days: edit.type === "days" ? [...edit.days] : [] } : {}) });
+    if (row.kind === "rule" && edit.type === "dates" && !(edit.dates || []).length) return; // 날짜를 하나는 골라야 한다
+    onSave && onSave(row, { text: t, coin: c, ...(row.kind === "rule" ? { type: edit.type, days: edit.type === "days" ? [...edit.days] : [],
+      dates: edit.type === "dates" ? [...edit.dates].sort() : [] } : {}) });
     setEdit(null);
   };
 
@@ -87,7 +93,7 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                 {row.kind === "rule" && (
                   <div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                      {[{ k: "daily", l: "매일" }, { k: "days", l: "특정 요일" }, ...(row.allowClass ? [{ k: "class", l: "학원 가는 날" }] : [])].map(o => {
+                      {[{ k: "daily", l: "매일" }, { k: "days", l: "특정 요일" }, { k: "dates", l: "특정 날짜" }, ...(row.allowClass ? [{ k: "class", l: "학원 가는 날" }] : [])].map(o => {
                         const on = edit.type === o.k;
                         return (
                           <button key={o.k} onClick={() => setEdit(p => ({ ...p, type: o.k }))} aria-pressed={on}
@@ -108,6 +114,28 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                           );
                         })}
                       </div>
+                    )}
+                    {edit.type === "dates" && (
+                      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, marginTop: 7 }}>
+                        {[...(edit.dates || [])].sort().map(d => (
+                          <span key={d} style={{ display: "inline-flex", alignItems: "center", gap: 2, padding: "3px 3px 3px 10px", borderRadius: 999,
+                            background: th.main, color: "#fff", fontSize: FS.sub, fontWeight: FW.bold }}>
+                            {dLabel(d)}
+                            <button onClick={() => setEdit(p => ({ ...p, dates: p.dates.filter(x => x !== d) }))} aria-label={`${dLabel(d)} 빼기`}
+                              style={{ border: "none", background: "none", color: "#fff", cursor: "pointer", fontSize: 12, padding: "0 5px", fontFamily: "inherit" }}>✕</button>
+                          </span>
+                        ))}
+                        <label style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 11px", borderRadius: 999,
+                          border: `1.5px solid ${C.border}`, background: "#fff", color: C.sub, fontSize: FS.sub, fontWeight: FW.semi, overflow: "hidden", cursor: "pointer" }}>
+                          <CareIcon name="calendar" size={13} />날짜 고르기
+                          <input type="date" min={todayStr()} value="" aria-label="날짜 고르기"
+                            onChange={e => { const d = e.target.value; if (!d || d < todayStr()) return; setEdit(p => ({ ...p, dates: (p.dates || []).includes(d) ? p.dates : [...(p.dates || []), d] })); }}
+                            style={{ position: "absolute", inset: 0, opacity: 0, width: "100%", height: "100%", cursor: "pointer" }} />
+                        </label>
+                      </div>
+                    )}
+                    {edit.type === "dates" && !(edit.dates || []).length && (
+                      <p style={{ margin: "6px 0 0", fontSize: FS.tag, color: C.red, fontWeight: FW.semi }}>날짜를 하나 이상 골라 주세요</p>
                     )}
                     {edit.type === "days" && !(edit.days || []).length && (
                       <p style={{ margin: "6px 0 0", fontSize: FS.tag, color: C.red, fontWeight: FW.semi }}>요일을 하나 이상 골라 주세요</p>
@@ -157,7 +185,7 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                     </p>
                   )}
                 </div>
-                <button onClick={() => setEdit({ key: row.key, text: row.text, coin: String(row.coin), type: row.type, days: [...(row.days || [])] })} className="jelly-tap"
+                <button onClick={() => setEdit({ key: row.key, text: row.text, coin: String(row.coin), type: row.type, days: [...(row.days || [])], dates: [...(row.dates || [])].filter(d => d >= todayStr()) })} className="jelly-tap"
                   aria-label={`${row.text} 고치기`}
                   style={{ flexShrink: 0, width: 36, height: 36, border: "none", background: "none", color: C.sub, cursor: "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center" }}>
