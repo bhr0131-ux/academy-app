@@ -1,6 +1,9 @@
 /* ════════════════════════════════════════════════════════════════════════
    MissionOverview — 미션 탭 아래 '전체 미션' 목록
    ────────────────────────────────────────────────────────────────────────
+   [사용자 확정 2026-11-24 · 2차] 같은 줄 모양으로 두 목록 — App 이 '오늘의 미션'(그날 미션 전부,
+   반복에서 온 것은 제목 앞 반복 그림만)과 '반복 미션'(아랫줄 밑에 반복 주기)을 따로 부른다.
+   (아래 1차 설명 중 '한 목록'·'ruleId 는 뺀다'는 2차에서 바뀌었다.)
    [사용자 확정 2026-11-24] 여기는 '쭉 보는 곳'. 오늘의 미션 / 반복 설정된 미션을
    제목으로 나누지 않고 한 목록으로 늘어놓는다 — 위에 그날의 하루 미션, 아래에 반복 미션.
      · 줄 모양은 하나로 통일: 미션 이름 / [반복 주기] · 학원 · +점 · +코인 / 오른쪽 끝 ✎
@@ -24,7 +27,7 @@ import CareIcon from "./CareIcons.jsx";
 
 const pill = { flexShrink: 0, fontSize: 11.5, fontWeight: 800, padding: "2px 8px", borderRadius: 20 };
 
-export default function MissionOverview({ dayItems = [], rules = [], th, TM, onSave, onDelete }) {
+export default function MissionOverview({ dayItems = [], rules = [], th, TM, onSave, onDelete, emptyText = "등록된 미션이 없어요" }) {
   const [edit, setEdit] = useState(null);     // { key, text, coin }
   const rows = [...dayItems.map(r => ({ ...r, kind: "day" })), ...rules.map(r => ({ ...r, kind: "rule" }))];
   const xpU = (TM && TM.xpUnit) || "점", coinU = (TM && TM.coin) || "코인";
@@ -35,7 +38,7 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
         <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: "#EEF1F6" }}>
           <CareIcon name="mission" size={22} />
         </span>
-        <p style={{ fontSize: 13, fontWeight: 700, margin: "8px 0 0" }}>등록된 미션이 없어요</p>
+        <p style={{ fontSize: 13, fontWeight: 700, margin: "8px 0 0" }}>{emptyText}</p>
       </div>
     );
   }
@@ -85,22 +88,28 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
               <>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ margin: 0, fontSize: 15, fontWeight: 800, lineHeight: 1.35, overflowWrap: "anywhere",
-                    color: faded ? C.sub : C.text, textDecoration: faded ? "line-through" : "none" }}>{row.text}</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, minWidth: 0, flexWrap: "wrap", rowGap: 5 }}>
-                    {row.kind === "rule" && (
-                      <span style={{ ...pill, display: "inline-flex", alignItems: "center", gap: 3, fontWeight: FW.bold, color: th.main, background: `${th.main}14` }}>
-                        <CareIcon name="repeat" size={11} />{row.repeatText}
-                      </span>
-                    )}
+                    color: faded ? C.sub : C.text, textDecoration: faded ? "line-through" : "none" }}>
+                    {/* 오늘의 미션 중 반복에서 온 것은 주기 글 없이 반복 그림만 (사용자 확정 2026-11-24) */}
+                    {row.kind === "day" && row.repeat && <span title="반복 미션" style={{ display: "inline-flex", verticalAlign: "-0.1em", marginRight: 5, color: th.main }}><CareIcon name="repeat" size={13} /></span>}
+                    {row.text}
+                  </p>
+                  {/* 아랫줄 — 하루·반복 모두 같은 모양: 학원 · +점 · +코인 (사용자 확정 2026-11-24) */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 5, minWidth: 0 }}>
                     <span style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, fontSize: FS.sub, color: C.sub }}>
                       <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.acColor || th.main, flexShrink: 0 }} />
                       <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.acName}</span>
                     </span>
                     <span style={{ ...pill, background: `${C.orange}14`, color: C.orange }}>+{DEFAULT_HOMEWORK_SCORE}{xpU}</span>
                     <span style={{ ...pill, background: "#2E8FD614", color: "#2E8FD6" }}>+{row.coin}{coinU}</span>
-                    {row.kind === "day" && row.done && <span style={{ ...pill, background: `${C.green}14`, color: C.green }}>완료</span>}
+                    {/* 완료는 줄이 그어지는 것으로 충분해 글자를 뺐다. 미완료(실패)만 남긴다 */}
                     {row.kind === "day" && row.failed && <span style={{ ...pill, background: `${C.sub}14`, color: C.sub }}>미완료</span>}
                   </div>
+                  {/* 반복 미션은 그 아래 한 줄에 반복 주기 */}
+                  {row.kind === "rule" && (
+                    <p style={{ margin: "6px 0 0", display: "flex", alignItems: "center", gap: 4, fontSize: FS.sub, fontWeight: FW.bold, color: th.main }}>
+                      <CareIcon name="repeat" size={12} />{row.repeatText}
+                    </p>
+                  )}
                 </div>
                 <button onClick={() => setEdit({ key: row.key, text: row.text, coin: String(row.coin) })} className="jelly-tap"
                   aria-label={`${row.text} 고치기`}
