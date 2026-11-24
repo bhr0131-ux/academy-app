@@ -3772,6 +3772,9 @@ export default function App() {
   /* '오늘 챙길 일'의 결석 칩처럼 다른 곳에서 곧장 학원비·결석·기타로 보내는 길이 있다.
      그때도 하단 '더보기'를 다시 누르면 방금 보던 칸으로 돌아오게 기억해 둔다. */
   useEffect(()=>{ if(isMoreTab(tab)) setMoreTab(tab); },[tab]);
+  /* 결석·보충은 달력 탭 아래에 있다 — 'absence' 로 들어오면 그 칸까지 내려 준다 (사용자 확정 2026-11-24) */
+  const absSecRef=useRef(null);
+  useEffect(()=>{ if(tab!=="absence") return; const t=setTimeout(()=>{ try{ absSecRef.current&&absSecRef.current.scrollIntoView({behavior:"smooth",block:"start"}); }catch{ /* 무시 */ } },80); return ()=>clearTimeout(t); },[tab]);
   /* [버그 점검 2026-11-23] 학원비가 홈 '전체 학원' 아래로 들어왔으니, 홈 날짜를 다른 달로 넘기면
      학원비 칸도 그 달을 보여 준다 (그 안에서 ‹ › 로 따로 넘기는 건 그대로 된다) */
   useEffect(()=>{ const m=Number(String(homeDate).slice(5,7)); if(m>=1&&m<=12) setFeeMonth(m); },[homeDate]);
@@ -6342,7 +6345,8 @@ export default function App() {
         {/* [2026-08-09] 화면 본문을 components/parent/CalendarTab.jsx 로 옮겼다
             (CLAUDE.md 규칙 3 — 화면을 고칠 때 그 화면을 컴포넌트로 뺀다).
             데이터·저장은 여전히 여기 App에 있고, 아래로는 값과 콜백만 내려보낸다. */}
-        {tab==="calendar"&&(
+        {/* [사용자 확정 2026-11-24] 달력 탭 = 달력 + 그 아래 결석·보충. 예전 'absence' 탭으로 오면 같은 화면에서 결석·보충 칸으로 내려 준다 */}
+        {(tab==="calendar"||tab==="absence")&&(
           <CalendarTab
             th={th} CT={CT} childId={childId} childGender={childGender}
             curAc={curAc} curAbs={curAbsLive}
@@ -6366,7 +6370,9 @@ export default function App() {
         {/* ════ 결석·보충 탭 ════ */}
         {/* [2026-08-17] 화면 본문을 components/parent/AbsenceTab.jsx 로 옮겼다
             (CLAUDE.md 규칙 3). 데이터·저장은 여전히 App에 있고, 값과 콜백만 내려보낸다. */}
-        {tab==="absence"&&(
+        {(tab==="calendar"||tab==="absence")&&(
+          <div ref={absSecRef} style={{marginTop:34,scrollMarginTop:12}}>
+          <SectionHead icon="absent" label="결석·보충" th={th}/>
           <AbsenceTab
             th={th} CT={CT} curAc={curAc}
             /* 지워진 학원의 '주인 없는 기록'은 여기서 미리 걸러서 넘긴다 */
@@ -6381,6 +6387,7 @@ export default function App() {
             onResult={(id,k)=>setMakeupResult(id,k)}
             onDelete={(id)=>deleteAbs(id)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }} />
+          </div>
         )}
 
         {/* ════ 미션 탭 ════ */}
@@ -6680,11 +6687,10 @@ export default function App() {
               { key:"mission",  label:"미션",   icon:"mission",  active:tab==="mission",
                 onPress:()=>{ setMoreMenuOpen(false); goMissionTab(); } },
               /* (뺐음 2026-11-24 사용자 확정) '보상' 칸 — 보상 관리는 미션 탭 맨 아래, 승인은 미션 탭 위·홈 '오늘 챙길 일'에서 */
-              /* [사용자 확정 2026-10-02] 이 자리에 있던 달력은 '더보기' 안으로 넣고, 기타를 꺼냈다. */
+              /* [사용자 확정 2026-11-24] 하단은 홈·미션·달력·기타 넷. '더보기'를 없애고 달력(결석·보충 포함)을 꺼냈다 */
+              { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar"||tab==="absence",
+                onPress:()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab("calendar"); window.scrollTo(0,0); } },
               { key:"etc",      label:"기타",   icon:"settings", active:tab==="etc",      onPress:go("etc") },
-              // 더보기는 화면을 바꾸지 않고 '위로 열리는 메뉴'만 띄운다 (사용자 확정 2026-08-09)
-              { key:"more",     label:"더보기", icon:"more",     active:isMoreTab(tab)||moreMenuOpen,
-                onPress:()=>setMoreMenuOpen(v=>!v) },
             ]}/>
         );
       })()}

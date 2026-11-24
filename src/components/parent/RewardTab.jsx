@@ -132,7 +132,7 @@ export default function RewardTab({ D }) {
                 <span style={{fontSize:FS.sub,fontWeight:FW.semi,opacity:0.92,flexShrink:0,whiteSpace:"nowrap"}}>{ageNote}</span>
               </button>
               <button onClick={()=>{ setAgeOpen(v=>!v); if(setOpen&&!open) setOpen(true); }} aria-expanded={ageOpen} className="jelly-tap"
-                style={{flexShrink:0,border:"1px solid #ffffff99",background:"#ffffff26",color:"#fff",borderRadius:RAD.sm,padding:"5px 8px",fontSize:FS.tag,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+                style={{flexShrink:0,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,borderRadius:8,padding:"3px 7px",fontSize:11,fontWeight:FW.semi,lineHeight:1.3,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>{/* 버튼 모양은 예전(흰 바탕·회색 테두리), 크기는 더 작게 (사용자 확정 2026-11-24) */}
                 연령대 변경
               </button>
               {/* 펼침 표시 — 오른쪽 끝. 글자 ⌄ 는 작게 나와 선 그림으로 키웠다 (사용자 확정 2026-11-24) */}
