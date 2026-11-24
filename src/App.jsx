@@ -6524,6 +6524,7 @@ export default function App() {
                             <SectionHead icon="mission" label={rDayTag?`${rDayTag}의 미션`:"오늘의 미션"} th={th}
                               note={rewardTodayTodos.length>0?`${rewardTodayTodos.length}개 중 ${doneCnt}개 완료`:null}/>
                             <MissionOverview th={th} TM={TM} onSave={onSave} onDelete={onDelete}
+                              onToggle={(row)=>{ const it=row.item; if(it.kind==="homework") toggleHomeworkDone(childId,it.academyId,it.date,it.id); else toggleTodoDone(childId,it.academyId,it.date,it.id); }}
                               dayItems={rewardTodayTodos.map(it=>({key:`d:${it.kind}:${it.academyId}:${it.id}`,item:it,text:it.label,repeat:!!it.ruleId,
                                 acName:String(it.academyId)===String(EXTRA_QUEST_ID)?"생활 습관":it.academyName,acColor:it.academyColor,coin:itemCoin(it),done:!!it.done,failed:!!it.failed}))}/>
                           </div>
