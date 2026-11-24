@@ -31,6 +31,7 @@ import EmojiIcon, { EmojiText } from "./components/EmojiIcon.jsx";
 import { REWARD_EMOJI } from "./data/rewardEmoji.js";
 import SectionHead from "./components/parent/SectionHead.jsx";
 import XpAdjustCard from "./components/parent/XpAdjustCard.jsx";
+import MissionRuleList from "./components/parent/MissionRuleList.jsx";
 import CalendarTab from "./components/parent/CalendarTab.jsx";
 import ParentHomeTab from "./components/parent/ParentHomeTab.jsx";
 import FeeTab from "./components/parent/FeeTab.jsx";
@@ -6367,10 +6368,109 @@ export default function App() {
                         <button onClick={()=>setRewardDate(addDays(rewardDate,1))} className="jelly-tap" aria-label="다음 날"
                           style={{width:34,height:34,borderRadius:RAD.sm,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>›</button>
                       </div>
+                      {/* [사용자 확정 2026-08-09] 두 버튼은 미션 목록 아래로 —
+                          위에 있으면 미션보다 버튼이 먼저 눈에 들어왔다 */}
+                      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                        {/* [사용자 확정 2026-08-11] 연분홍 버튼이라 일반 영역과 구분이 안 됐다 →
+                            핵심 행동이므로 진한 테마색으로 채운다. 문구도 상태에 따라 바꾼다 —
+                            미션이 없으면 '오늘 미션 추가', 있으면 '미션 추가·관리'.
+                            [사용자 확정 2026-08-16] 누르면 팝업 대신 학원 목록이 이 버튼 아래로
+                            펼쳐진다. 학원을 고르면 그때 미션 수정 팝업이 열린다. */}
+                        {/* [사용자 확정 2026-08-16] 버튼과 펼친 내용을 한 칸으로 묶는다 —
+                            버튼 아래에 따로 떨어져 나오면 '갑자기 메뉴가 나타난' 느낌이었다.
+                            상자 하나를 아래로 늘리는 모양이라 같은 컴포넌트로 읽힌다. */}
+                        <div style={{borderRadius:12,overflow:"hidden",
+                          boxShadow:"0 2px 10px rgba(20,24,60,0.06)",
+                          border:`1px solid ${C.border}`,background:"#fff"}}>
+                          {/* [사용자 확정 2026-11-23] 접지 않는다 — 머리는 이름표, 아래 두 줄을 늘 보여 준다 */}
+                          <div style={{width:"100%",padding:"12px 10px",background:th.grad,color:"#fff",fontSize:FS.cardTitle,fontWeight:FW.bold,display:"flex",alignItems:"center",justifyContent:"center",gap:7,boxSizing:"border-box"}}>
+                            미션 추가·관리
+                          </div>
+
+                        {/* 학원 목록 — 버튼 아래로 펼친다 */}
+                        {(()=>{
+                          /* [사용자 확정 2026-08-16] 학원마다 독립된 큰 카드로 늘어놓으니
+                             '오늘 미션'보다 아래 관리 메뉴가 더 중요해 보였다. 학원이 5곳만
+                             돼도 한 화면을 다 먹었다. 여기서 하는 일은 "어느 학원의 미션을
+                             관리할까?" 하나뿐이므로 위계를 낮춘다.
+                               · 카드 5장 → 흰 목록 패널 하나 (줄 사이는 구분선만)
+                               · 학원색은 테두리·배경에서 빼고 왼쪽 점에만 남긴다
+                                 (오늘 미션 카드의 학원 표시와 같은 규칙이라 색 연결은 유지)
+                               · 줄마다 '등록된 미션 N개'를 보여 준다 — 들어가면 무엇을
+                                 하는 자리인지 분명해진다
+                               · 일반 미션은 성격이 달라 목록 밖으로 분리
+                             [사용자 확정 2026-10-06] 다시 '반복 / 학원별 / 생활' 세 줄로 — 학원 목록은 시트로 뺐다. */
+                          const cnt=(acId)=>{
+                            const e=getDailyEntry(childId,acId,rewardDate);
+                            return (e.homeworks||[]).length+(e.todos||[]).length;
+                          };
+                          const openEdit=(acId,acName,acColor,baseSupplies,acPick=false)=>{
+                            setDailyAcListOpen(false);
+                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[],fromMission:true,acPick}); setMissionRepeat({type:"once",days:[],dates:[]}); setMissionCoin(null);
+                            setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
+                            setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
+                          };
+                          return (
+                          <div style={{padding:"10px 12px 12px"}}>
+                            {/* [사용자 확정 2026-11-22] 세 줄만 — 학원별 숙제 / 생활 습관 미션 / 지난 미션 관리.
+                                '반복 미션 추가'는 뺐다(반복은 미션 창 안 '반복 설정'으로). 줄마다 아래에 설명 한 줄. */}
+                            {[
+                              {key:"ac",icon:"🏫",label:"학원별 숙제",desc:"학원에서 내준 숙제를 관리해요.",n:curAc.reduce((s,ac)=>s+cnt(ac.id),0),
+                                onClick:()=>{ if(!curAc.length){ showToast("등록된 학원이 없어요"); return; }
+                                  openEdit(null,"","#C9CED8",[],true); }},
+                              {key:"life",icon:"🌱",label:"생활 습관 미션",desc:"반복 연습으로 생활 습관을 잡아요.",n:cnt(EXTRA_QUEST_ID),
+                                onClick:()=>openEdit(EXTRA_QUEST_ID,"생활 습관 미션",th.main,[])},
+                            ].map((r,ri)=>(
+                              <button key={r.key} onClick={r.onClick} className="jelly-tap"
+                                style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
+                                  border:"none",borderTop:ri?`1px solid ${C.border}`:"none",background:"transparent",
+                                  cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
+                                <span aria-hidden="true" style={{width:18,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                                  <EmojiIcon emoji={r.icon} size={15}/>
+                                </span>
+                                <span style={{flex:1,minWidth:0}}>
+                                  <span style={{display:"flex",alignItems:"baseline",gap:5}}>
+                                    <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
+                                      overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.label}</span>
+                                    {r.n>0&&<span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({r.n})</span>}
+                                  </span>
+                                  <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>{r.desc}</span>
+                                </span>
+                                <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
+                              </button>
+                            ))}
+                          </div>
+                          );
+                        })()}
+
+                        {/* (뺐음 2026-11-22) 엄마 권한 칸 — 미션 탭 자체를 비밀번호로 열므로 안쪽 잠금이 필요 없다.
+                            '지난 미션 관리'는 상자 아래 따로 둔다(사용자 확정 2026-11-22). */}
+                        </div>
+                        {/* ── 지난 미션 관리 — '미션 추가·관리' 상자와 떼어 아래에 따로 (예전 자리처럼) ── */}
+                        {(()=>{
+                          const pastCnt=getPastQuestCandidates(childId,TODAY).length;
+                          return (
+                            /* 예전 모양 그대로 — 테마색을 옅게 깐 작은 한 줄 버튼, 오른쪽에 남은 개수 (사용자 확정 2026-11-22) */
+                            <button onClick={()=>setShowPastMissionModal(TODAY)} className="jelly-tap"
+                              style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:mixBlack(th.main,0.25),fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                              <span style={{display:"flex",alignItems:"center",gap:5}}>
+                                <span style={{color:th.main,display:"flex"}}><CareIcon name="calendar" size={14}/></span> 지난 미션 관리
+                              </span>
+                              {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
+                            </button>
+                          );
+                        })()}
+                      </div>
+                      {/* ── 전체 미션 (사용자 확정 2026-11-23) — 추가·관리와 지난 미션 아래에 여백을 두고,
+                          그날의 미션을 쭉, 이어서 반복 설정된 미션을 쭉 늘어놓는다 ── */}
+                      <div style={{marginTop:34}}>
+                        <p style={{fontSize:FS.title+1,fontWeight:FW.bold,color:C.text,margin:"0 0 14px",display:"flex",alignItems:"center",gap:7}}>
+                          <span style={{color:th.main,display:"flex"}}><CareIcon name="mission" size={16}/></span>전체 미션
+                        </p>
                       {/* [사용자 확정 2026-08-16] 홈의 '오늘의 학원'과 같은 구역 머리를
                           미션 목록 위에도 둔다 — 목록이 무엇인지 이름이 붙는다.
                           학원 쪽과 마찬가지로 미션이 없는 날에도 머리는 늘 나온다. */}
-                      <SectionHead icon="mission" label="오늘의 미션" th={th}
+                      <SectionHead icon="mission" label={rDayTag?`${rDayTag}의 미션`:"오늘의 미션"} th={th}
                         note={rewardTodayTodos.length>0?`${rewardTodayTodos.length}개 중 ${doneCnt}개 완료`:null}/>
                       {rewardTodayTodos.length===0?(
                         <div style={{textAlign:"center",padding:"18px 10px",color:C.sub}}>
@@ -6445,100 +6545,14 @@ export default function App() {
                           ))}
                         </div>
                       )}
-                      {/* [사용자 확정 2026-08-09] 두 버튼은 미션 목록 아래로 —
-                          위에 있으면 미션보다 버튼이 먼저 눈에 들어왔다 */}
-                      <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:8}}>
-                        {/* [사용자 확정 2026-08-11] 연분홍 버튼이라 일반 영역과 구분이 안 됐다 →
-                            핵심 행동이므로 진한 테마색으로 채운다. 문구도 상태에 따라 바꾼다 —
-                            미션이 없으면 '오늘 미션 추가', 있으면 '미션 추가·관리'.
-                            [사용자 확정 2026-08-16] 누르면 팝업 대신 학원 목록이 이 버튼 아래로
-                            펼쳐진다. 학원을 고르면 그때 미션 수정 팝업이 열린다. */}
-                        {/* [사용자 확정 2026-08-16] 버튼과 펼친 내용을 한 칸으로 묶는다 —
-                            버튼 아래에 따로 떨어져 나오면 '갑자기 메뉴가 나타난' 느낌이었다.
-                            상자 하나를 아래로 늘리는 모양이라 같은 컴포넌트로 읽힌다. */}
-                        <div style={{borderRadius:12,overflow:"hidden",
-                          boxShadow:missionPickOpen?"0 2px 10px rgba(20,24,60,0.06)":`0 4px 12px ${th.main}33`,
-                          border:missionPickOpen?`1px solid ${C.border}`:"none",background:"#fff"}}>
-                          <button onClick={()=>setMissionPickOpen(v=>!v)} className="jelly-tap"
-                            aria-expanded={missionPickOpen}
-                            style={{width:"100%",padding:"13px 10px",border:"none",background:th.grad,color:"#fff",fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
-                            {rewardTodayTodos.length===0?"오늘 미션 추가":"미션 추가·관리"}
-                            <span aria-hidden style={{fontSize:12,transition:"transform .2s",transform:missionPickOpen?"rotate(180deg)":"none"}}>⌄</span>
-                          </button>
-
-                        {/* 학원 목록 — 버튼 아래로 펼친다 */}
-                        {missionPickOpen&&(()=>{
-                          /* [사용자 확정 2026-08-16] 학원마다 독립된 큰 카드로 늘어놓으니
-                             '오늘 미션'보다 아래 관리 메뉴가 더 중요해 보였다. 학원이 5곳만
-                             돼도 한 화면을 다 먹었다. 여기서 하는 일은 "어느 학원의 미션을
-                             관리할까?" 하나뿐이므로 위계를 낮춘다.
-                               · 카드 5장 → 흰 목록 패널 하나 (줄 사이는 구분선만)
-                               · 학원색은 테두리·배경에서 빼고 왼쪽 점에만 남긴다
-                                 (오늘 미션 카드의 학원 표시와 같은 규칙이라 색 연결은 유지)
-                               · 줄마다 '등록된 미션 N개'를 보여 준다 — 들어가면 무엇을
-                                 하는 자리인지 분명해진다
-                               · 일반 미션은 성격이 달라 목록 밖으로 분리
-                             [사용자 확정 2026-10-06] 다시 '반복 / 학원별 / 생활' 세 줄로 — 학원 목록은 시트로 뺐다. */
-                          const cnt=(acId)=>{
-                            const e=getDailyEntry(childId,acId,rewardDate);
-                            return (e.homeworks||[]).length+(e.todos||[]).length;
-                          };
-                          const openEdit=(acId,acName,acColor,baseSupplies,acPick=false)=>{
-                            setDailyAcListOpen(false);
-                            setShowDailyModal({academyId:acId,date:rewardDate,acName,acColor,baseSupplies:baseSupplies||[],fromMission:true,acPick}); setMissionRepeat({type:"once",days:[],dates:[]}); setMissionCoin(null);
-                            setDailyHwInput(""); setDailySupInput(""); setDailyTodoInput("");
-                            setDailyHwPoint(DEFAULT_HOMEWORK_SCORE); setDailyTodoPoint(DEFAULT_HOMEWORK_SCORE);
-                          };
-                          return (
-                          <div style={{padding:"10px 12px 12px"}}>
-                            {/* [사용자 확정 2026-11-22] 세 줄만 — 학원별 숙제 / 생활 습관 미션 / 지난 미션 관리.
-                                '반복 미션 추가'는 뺐다(반복은 미션 창 안 '반복 설정'으로). 줄마다 아래에 설명 한 줄. */}
-                            {[
-                              {key:"ac",icon:"🏫",label:"학원별 숙제",desc:"학원에서 내준 숙제를 관리해요.",n:curAc.reduce((s,ac)=>s+cnt(ac.id),0),
-                                onClick:()=>{ if(!curAc.length){ showToast("등록된 학원이 없어요"); return; }
-                                  openEdit(null,"","#C9CED8",[],true); }},
-                              {key:"life",icon:"🌱",label:"생활 습관 미션",desc:"반복 연습으로 생활 습관을 잡아요.",n:cnt(EXTRA_QUEST_ID),
-                                onClick:()=>openEdit(EXTRA_QUEST_ID,"생활 습관 미션",th.main,[])},
-                            ].map((r,ri)=>(
-                              <button key={r.key} onClick={r.onClick} className="jelly-tap"
-                                style={{display:"flex",alignItems:"center",gap:10,padding:"11px 2px",width:"100%",
-                                  border:"none",borderTop:ri?`1px solid ${C.border}`:"none",background:"transparent",
-                                  cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}>
-                                <span aria-hidden="true" style={{width:18,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                                  <EmojiIcon emoji={r.icon} size={15}/>
-                                </span>
-                                <span style={{flex:1,minWidth:0}}>
-                                  <span style={{display:"flex",alignItems:"baseline",gap:5}}>
-                                    <span style={{minWidth:0,fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,
-                                      overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.label}</span>
-                                    {r.n>0&&<span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:C.sub}}>({r.n})</span>}
-                                  </span>
-                                  <span style={{display:"block",fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginTop:2}}>{r.desc}</span>
-                                </span>
-                                <span aria-hidden="true" style={{flexShrink:0,fontSize:15,color:"#B9B3AD",fontWeight:900,lineHeight:1}}>›</span>
-                              </button>
-                            ))}
-                          </div>
-                          );
-                        })()}
-
-                        {/* (뺐음 2026-11-22) 엄마 권한 칸 — 미션 탭 자체를 비밀번호로 열므로 안쪽 잠금이 필요 없다.
-                            '지난 미션 관리'는 상자 아래 따로 둔다(사용자 확정 2026-11-22). */}
+                        <div style={{marginTop:24}}>
+                          <SectionHead icon="repeat" label="반복 설정된 미션" th={th}
+                            note={(missionRules[childId]||[]).length>0?`${(missionRules[childId]||[]).length}개`:null}/>
+                          <MissionRuleList rules={missionRules[childId]||[]} th={th} TM={TM}
+                            acInfo={(id)=>{ if(String(id)===String(EXTRA_QUEST_ID)) return {name:"생활 습관 미션",color:th.main}; const a=getAcademyById(childId,id); return a?{name:a.name,color:a.color}:{name:"",color:C.sub}; }}
+                            coinOf={(r)=>r.coin!=null?r.coin:questCoin(r.point||DEFAULT_HOMEWORK_SCORE)}
+                            onStop={(id)=>{ stopMissionRule(childId,id); showToast("반복을 껐어요 (이미 들어간 미션은 남아요)"); }}/>
                         </div>
-                        {/* ── 지난 미션 관리 — '미션 추가·관리' 상자와 떼어 아래에 따로 (예전 자리처럼) ── */}
-                        {(()=>{
-                          const pastCnt=getPastQuestCandidates(childId,TODAY).length;
-                          return (
-                            /* 예전 모양 그대로 — 테마색을 옅게 깐 작은 한 줄 버튼, 오른쪽에 남은 개수 (사용자 확정 2026-11-22) */
-                            <button onClick={()=>setShowPastMissionModal(TODAY)} className="jelly-tap"
-                              style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:mixBlack(th.main,0.25),fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-                              <span style={{display:"flex",alignItems:"center",gap:5}}>
-                                <span style={{color:th.main,display:"flex"}}><CareIcon name="calendar" size={14}/></span> 지난 미션 관리
-                              </span>
-                              {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
-                            </button>
-                          );
-                        })()}
                       </div>
                     </div>
                   )}
@@ -7946,6 +7960,18 @@ export default function App() {
           if(blocked) showToast(`완료한 미션은 ${TM.coin}을 바꿀 수 없어요`);
           setEditingDailyItem(null); setEditingDailyText(""); setEditingDailyPoint("");
         };
+        /* [사용자 확정 2026-11-23] ✕ 를 빼고, ✎ 를 눌렀을 때 '저장' 아래 '삭제'로 지운다.
+           반복 규칙에서 온 미션이면 그날만 다시 생기지 않게 skipRules 에 넣는다(예전 ✕ 와 같은 동작). */
+        const deleteEditItem=()=>{
+          if(!editingDailyItem) return;
+          const {kind,id}=editingDailyItem;
+          const L=kind==="hw"?hw:todos; const x=L.find(i=>i.id===id); if(!x){ setEditingDailyItem(null); return; }
+          if(x.done){ showToast("완료한 미션은 체크를 풀고 지워 주세요"); return; }
+          const skip=x.ruleId?{skipRules:[...(entry.skipRules||[]),x.ruleId]}:{};
+          upd(kind==="hw"?{...entry,homeworks:hw.filter(i=>i.id!==id),...skip}:{...entry,todos:todos.filter(i=>i.id!==id),...skip});
+          setEditingDailyItem(null); setEditingDailyText(""); setEditingDailyPoint("");
+          showToast("미션을 지웠어요");
+        };
         return (
           <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:300}} onClick={()=>setShowDailyModal(null)}>
             <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"88vh",overflowY:"auto",boxSizing:"border-box"}}>
@@ -7958,8 +7984,8 @@ export default function App() {
                     <button onClick={()=>setDailyAcListOpen(v=>!v)} aria-expanded={dailyAcListOpen} className="jelly-tap"
                       style={{display:"inline-flex",alignItems:"center",gap:8,maxWidth:"100%",padding:"7px 12px 7px 14px",borderRadius:RAD.pill,
                         border:`1.5px solid ${noAc?th.main:C.border}`,background:noAc?`${th.main}12`:"#fff",cursor:"pointer",fontFamily:"inherit"}}>
-                      <span style={{fontWeight:FW.semi,fontSize:FS.modalTitle,color:noAc?th.main:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{noAc?"학원 선택":acName}</span>
-                      <span aria-hidden style={{flexShrink:0,fontSize:11,color:noAc?th.main:C.sub,transition:"transform .2s",transform:dailyAcListOpen?"rotate(180deg)":"none"}}>▼</span>
+                      <span style={{fontWeight:FW.bold,fontSize:FS.modalTitle,color:noAc?mixBlack(th.main,0.32):C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{noAc?"학원 선택":acName}</span>
+                      <span aria-hidden style={{flexShrink:0,fontSize:11,color:noAc?mixBlack(th.main,0.32):C.sub,transition:"transform .2s",transform:dailyAcListOpen?"rotate(180deg)":"none"}}>▼</span>
                     </button>
                   ):(
                   <p style={{fontWeight:FW.semi,fontSize:FS.modalTitle,margin:0,color:C.text}}>{acName}</p>
@@ -8038,79 +8064,8 @@ export default function App() {
               </div>
               </>);
               })()}
-              {!supplyOnly&&noAc&&(
-                <div style={{background:CT.faint,borderRadius:RAD.md,padding:"14px 14px",marginBottom:18,textAlign:"center"}}>
-                  <p style={{fontSize:FS.cardTitle,fontWeight:FW.semi,color:C.text,margin:0}}>미션을 추가할 학원을 골라 주세요</p>
-                  <p style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,margin:"3px 0 0"}}>맨 위 '학원 선택'을 누르면 학원 목록이 나와요.</p>
-                </div>
-              )}
+              {/* (뺐음 2026-11-23 사용자 확정) '미션을 추가할 학원을 골라 주세요' 안내 칸 — 학원 선택만 보이게 */}
               {!supplyOnly&&!noAc&&(<>
-              {/* [사용자 확정 2026-08-11] 팝업 안 구역 제목이 창 제목과 같은 17이었다 →
-                  다른 화면의 구역 제목(홈 15 · 결석 15.5)에 맞춰 15. */}
-              <p style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,margin:isParent&&!isParentEdit&&(hw.length>0||todos.length>0)?"0 0 3px":"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
-                <span style={{color:acColor,display:"flex"}}><CareIcon name="mission" size={15}/></span>오늘의 미션
-              </p>
-              {/* [사용자 확정 2026-08-11] 홈에서 연 팝업과 미션 탭에서 연 팝업이 똑같이 생겨서
-                  '왜 여기선 점수가 안 바뀌지'가 됐다 → 잠긴 쪽에만 어디로 가면 되는지 한 줄 적는다.
-                  [사용자 확정 2026-08-16] 미션 탭 자체는 더 이상 잠겨 있지 않다 —
-                  삭제·점수 수정을 여는 건 그 안의 '엄마 권한'이므로 안내도 그렇게 바꾼다. */}
-              {isParent&&!isParentEdit&&(hw.length>0||todos.length>0)&&(
-                <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 10px"}}>
-                  미션 삭제 · {TM.coin} 수정은 {PT.role}권한(비밀번호)을 열면 가능해요
-                </p>
-              )}
-              {hw.length===0&&todos.length===0&&(
-                <div style={{background:CT.faint,borderRadius:RAD.md,padding:"14px 14px",marginBottom:12,textAlign:"center"}}>
-                  <p style={{fontSize:FS.cardTitle,fontWeight:FW.semi,color:C.text,margin:0}}>등록된 미션이 없어요</p>
-                  <p style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,margin:"3px 0 0"}}>아래에서 오늘 할 일을 추가할 수 있어요.</p>
-                </div>
-              )}
-              <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:12}}>
-                {hw.map(h=>(
-                  <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:RAD.sm,background:h.done?`${C.green}08`:CT.faint,border:`1.5px solid ${h.done?C.green+"30":CT.faintB}`}}>
-                    <button onClick={()=>{ if(canCheck) toggleHomeworkDone(childId,academyId,date,h.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:FS.body,color:"#fff",fontWeight:FW.normal,opacity:!canCheck&&!h.done?0.5:1}}>{h.done?"✓":""}</button>
-                    {editingDailyItem&&editingDailyItem.kind==="hw"&&editingDailyItem.id===h.id ? (
-                      <>
-                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:FS.body,padding:"6px 9px"}}/>
-                        {isParentEdit&&(<>
-                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:FS.body,padding:"6px 4px",textAlign:"center",color:"#2E8FD6"}} min="0" aria-label={TM.coin}/>
-                          <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.coin}</span>
-                        </>)}
-                        <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:RAD.sm,padding:"6px 11px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",flexShrink:0}}>저장</button>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{flex:1,fontSize:FS.body,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{display:"flex",flexDirection:"column",alignItems:"stretch",gap:3,flexShrink:0,textAlign:"center"}}>{/* 점수·코인 위아래 (사용자 확정 2026-11-23) */}<span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:`${C.orange}14`,color:C.orange}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(h)}{TM.coin}</span></span>
-                        <span style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,flexShrink:0}}>{/* ✕·✎ 위아래 (사용자 확정 2026-11-23) */}{isParentEdit&&<button onClick={()=>upd({...entry,homeworks:hw.filter(x=>x.id!==h.id),...(h.ruleId?{skipRules:[...(entry.skipRules||[]),h.ruleId]}:{})})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15,padding:"2px 4px",lineHeight:1}}>✕</button>}
-                        {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}</span>
-                      </>
-                    )}
-                  </div>
-                ))}
-                {todos.map(t=>(
-                  <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:RAD.sm,background:t.done?`${C.green}08`:CT.faint,border:`1.5px solid ${t.done?C.green+"30":CT.faintB}`}}>
-                    <button onClick={()=>{ if(canCheck) toggleTodoDone(childId,academyId,date,t.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:FS.body,color:"#fff",fontWeight:FW.normal,opacity:!canCheck&&!t.done?0.5:1}}>{t.done?"✓":""}</button>
-                    {editingDailyItem&&editingDailyItem.kind==="todo"&&editingDailyItem.id===t.id ? (
-                      <>
-                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,flex:1,width:0,minWidth:0,fontSize:FS.body,padding:"6px 9px"}}/>
-                        {isParentEdit&&(<>
-                          <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:46,fontSize:FS.body,padding:"6px 4px",textAlign:"center",color:"#2E8FD6"}} min="0" aria-label={TM.coin}/>
-                          <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.coin}</span>
-                        </>)}
-                        <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:RAD.sm,padding:"6px 11px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",flexShrink:0}}>저장</button>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{flex:1,fontSize:FS.body,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
-                        <span style={{display:"flex",flexDirection:"column",alignItems:"stretch",gap:3,flexShrink:0,textAlign:"center"}}>{/* 점수·코인 위아래 (사용자 확정 2026-11-23) */}<span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:`${C.orange}14`,color:C.orange}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(t)}{TM.coin}</span></span>
-                        <span style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,flexShrink:0}}>{/* ✕·✎ 위아래 (사용자 확정 2026-11-23) */}{isParentEdit&&<button onClick={()=>upd({...entry,todos:todos.filter(x=>x.id!==t.id),...(t.ruleId?{skipRules:[...(entry.skipRules||[]),t.ruleId]}:{})})} style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:15,padding:"2px 4px",lineHeight:1}}>✕</button>}
-                        {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}</span>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
               {/* [사용자 확정 2026-08-11] '숙제 입력 / 10 / 점 / [숙제]' 줄이 둘로 나뉘어 있어
                   마지막 주황 버튼이 무슨 일을 하는지 한 번 생각해야 했다 →
                   종류를 먼저 고르고, 내용과 보상을 넣고, '＋ 추가'로 끝내는 한 묶음으로 합친다. */}
@@ -8159,15 +8114,14 @@ export default function App() {
                   border:`1.5px solid ${on?th.main:CT.faintB}`,background:on?`${th.main}16`:"#fff",color:on?th.main:C.sub});
                 return (
                   <div style={{marginBottom:20,background:CT.faint,borderRadius:RAD.md,padding:"12px 12px 13px"}}>
-                    <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addMission()}
-                      placeholder="미션 내용 입력" aria-label="미션 내용"
-                      style={{...inp,width:"100%",boxSizing:"border-box",fontSize:FS.cardTitle,padding:"10px 12px",marginBottom:8,background:"#fff"}}/>
-                    <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",rowGap:8}}>
-                      {/* 코인만 고친다 — 안 고치면 기본값(10점 → 15) */}
-                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>보상 {TM.coin}</span>
+                    {/* [사용자 확정 2026-11-23] 미션 내용 옆에 코인 칸 하나 — '[15] 코인'만 (기본 15, 점수는 10 고정) */}
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addMission()}
+                        placeholder="미션 내용 입력" aria-label="미션 내용"
+                        style={{...inp,flex:1,width:0,minWidth:0,boxSizing:"border-box",fontSize:FS.cardTitle,padding:"10px 12px",marginBottom:0,background:"#fff"}}/>
                       <input type="number" value={missionCoin==null?String(questCoin(ptN)):missionCoin} onChange={e=>setMissionCoin(e.target.value)} aria-label={`보상 ${TM.coin}`} min="0"
-                        style={{...inp,width:46,fontSize:FS.body,padding:"8px 6px",minHeight:CTRL_H,boxSizing:"border-box",textAlign:"center",marginBottom:0,background:"#fff",color:"#2E8FD6"}}/>
-                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>개</span>
+                        style={{...inp,width:50,flexShrink:0,fontSize:FS.body,padding:"8px 4px",minHeight:CTRL_H,boxSizing:"border-box",textAlign:"center",marginBottom:0,background:"#fff",color:"#2E8FD6",fontWeight:FW.bold}}/>
+                      <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0}}>{TM.coin}</span>
                     </div>
                     {/* 반복 설정 — 고르고 '추가'를 누르면 그 규칙으로 들어간다 */}
                     <p style={{fontSize:FS.sub,fontWeight:FW.bold,color:C.text,margin:"12px 0 6px",display:"flex",alignItems:"center",gap:5}}>
@@ -8212,25 +8166,87 @@ export default function App() {
                         추가
                       </button>
                     </div>
-                    {/* 지금 반복 중인 미션 — ✕ 로 반복을 끈다(오늘 것은 남고, 내일부터 안 들어간다) */}
-                    {myRules.length>0&&(
-                      <div style={{marginTop:12}}>
-                        <p style={{fontSize:FS.tag,fontWeight:FW.semi,color:C.sub,margin:"0 0 6px"}}>반복 중인 미션</p>
-                        <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                          {myRules.map(r=>(
-                            <span key={r.id} style={{display:"inline-flex",alignItems:"center",gap:5,padding:"4px 6px 4px 10px",borderRadius:999,background:"#fff",border:`1px solid ${CT.faintB}`,fontSize:FS.sub,color:C.text,maxWidth:"100%"}}>
-                              <span style={{color:th.main,fontWeight:FW.bold,flexShrink:0,display:"inline-flex",alignItems:"center",gap:3}}><CareIcon name="repeat" size={12}/>{ruleText(r)}</span>
-                              <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.text}</span>
-                              <button onClick={()=>stopMissionRule(childId,r.id)} aria-label={`${r.text} 반복 끄기`}
-                                style={{border:"none",background:"none",color:C.sub,cursor:"pointer",fontSize:13,padding:"0 4px",flexShrink:0}}>✕</button>
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    {/* (뺐음 2026-11-23 사용자 확정) '반복 중인 미션' — 미션 탭 '전체 미션'에서 본다 */}
                   </div>
                 );
               })()}
+              {/* [사용자 확정 2026-08-11] 팝업 안 구역 제목이 창 제목과 같은 17이었다 →
+                  다른 화면의 구역 제목(홈 15 · 결석 15.5)에 맞춰 15. */}
+              <p style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,margin:isParent&&!isParentEdit&&(hw.length>0||todos.length>0)?"0 0 3px":"0 0 10px",display:"flex",alignItems:"center",gap:7}}>
+                {/* [사용자 확정 2026-11-23] 입력 칸(추가 버튼까지)이 먼저, 오늘의 미션은 그 아래 */}
+                <span style={{color:acColor,display:"flex"}}><CareIcon name="mission" size={15}/></span>오늘의 미션
+              </p>
+              {/* [사용자 확정 2026-08-11] 홈에서 연 팝업과 미션 탭에서 연 팝업이 똑같이 생겨서
+                  '왜 여기선 점수가 안 바뀌지'가 됐다 → 잠긴 쪽에만 어디로 가면 되는지 한 줄 적는다.
+                  [사용자 확정 2026-08-16] 미션 탭 자체는 더 이상 잠겨 있지 않다 —
+                  삭제·점수 수정을 여는 건 그 안의 '엄마 권한'이므로 안내도 그렇게 바꾼다. */}
+              {isParent&&!isParentEdit&&(hw.length>0||todos.length>0)&&(
+                <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 10px"}}>
+                  미션 삭제 · {TM.coin} 수정은 {PT.role}권한(비밀번호)을 열면 가능해요
+                </p>
+              )}
+              {hw.length===0&&todos.length===0&&(
+                <div style={{background:CT.faint,borderRadius:RAD.md,padding:"14px 14px",marginBottom:12,textAlign:"center"}}>
+                  <p style={{fontSize:FS.cardTitle,fontWeight:FW.semi,color:C.text,margin:0}}>등록된 미션이 없어요</p>
+                  <p style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,margin:"3px 0 0"}}>아래에서 오늘 할 일을 추가할 수 있어요.</p>
+                </div>
+              )}
+              <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:12}}>
+                {hw.map(h=>(
+                  <div key={h.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:RAD.sm,background:h.done?`${C.green}08`:CT.faint,border:`1.5px solid ${h.done?C.green+"30":CT.faintB}`}}>
+                    <button onClick={()=>{ if(canCheck) toggleHomeworkDone(childId,academyId,date,h.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${h.done?C.green:"#CCC"}`,background:h.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:FS.body,color:"#fff",fontWeight:FW.normal,opacity:!canCheck&&!h.done?0.5:1}}>{h.done?"✓":""}</button>
+                    {editingDailyItem&&editingDailyItem.kind==="hw"&&editingDailyItem.id===h.id ? (
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:6}}>{/* 고치기 — 글자 칸은 한 줄 통째로, 아래에 코인 · 저장/삭제 (사용자 확정 2026-11-23) */}
+                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:"100%",boxSizing:"border-box",fontSize:FS.body,padding:"7px 9px",marginBottom:0}}/>
+                        <div style={{display:"flex",alignItems:"flex-start",gap:6}}>
+                          {isParentEdit&&(<span style={{display:"flex",alignItems:"center",gap:6}}>
+                            <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:50,fontSize:FS.body,padding:"6px 4px",textAlign:"center",color:"#2E8FD6",marginBottom:0}} min="0" aria-label={TM.coin}/>
+                            <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.coin}</span>
+                          </span>)}
+                          <span style={{marginLeft:"auto",display:"flex",flexDirection:"column",gap:5,flexShrink:0}}>
+                            <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:RAD.sm,padding:"6px 14px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer"}}>저장</button>
+                            {isParentEdit&&<button onClick={deleteEditItem} style={{background:"#fff",border:`1px solid ${C.red}55`,color:C.red,borderRadius:RAD.sm,padding:"5px 14px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer"}}>삭제</button>}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <span style={{flex:1,fontSize:FS.body,color:h.done?C.sub:C.text,textDecoration:h.done?"line-through":"none"}}>{h.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{h.text}{h.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
+                        <span style={{display:"flex",flexDirection:"column",alignItems:"stretch",gap:3,flexShrink:0,textAlign:"center"}}>{/* 점수·코인 위아래 (사용자 확정 2026-11-23) */}<span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:`${C.orange}14`,color:C.orange}}>+{h.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(h)}{TM.coin}</span></span>
+                        <span style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,flexShrink:0}}>{/* ✎ 만 — 삭제는 ✎ 안에서 (사용자 확정 2026-11-23) */}
+                        {isParent&&<button onClick={()=>startEditItem("hw",h.id,h.text,h)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}</span>
+                      </>
+                    )}
+                  </div>
+                ))}
+                {todos.map(t=>(
+                  <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:RAD.sm,background:t.done?`${C.green}08`:CT.faint,border:`1.5px solid ${t.done?C.green+"30":CT.faintB}`}}>
+                    <button onClick={()=>{ if(canCheck) toggleTodoDone(childId,academyId,date,t.id); }} disabled={!canCheck} style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${t.done?C.green:"#CCC"}`,background:t.done?C.green:"transparent",cursor:canCheck?"pointer":"not-allowed",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:FS.body,color:"#fff",fontWeight:FW.normal,opacity:!canCheck&&!t.done?0.5:1}}>{t.done?"✓":""}</button>
+                    {editingDailyItem&&editingDailyItem.kind==="todo"&&editingDailyItem.id===t.id ? (
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:6}}>{/* 고치기 — 글자 칸은 한 줄 통째로, 아래에 코인 · 저장/삭제 (사용자 확정 2026-11-23) */}
+                        <input value={editingDailyText} autoFocus onChange={e=>setEditingDailyText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:"100%",boxSizing:"border-box",fontSize:FS.body,padding:"7px 9px",marginBottom:0}}/>
+                        <div style={{display:"flex",alignItems:"flex-start",gap:6}}>
+                          {isParentEdit&&(<span style={{display:"flex",alignItems:"center",gap:6}}>
+                            <input type="number" value={editingDailyPoint} onChange={e=>setEditingDailyPoint(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEditItem()} style={{...inp,width:50,fontSize:FS.body,padding:"6px 4px",textAlign:"center",color:"#2E8FD6",marginBottom:0}} min="0" aria-label={TM.coin}/>
+                            <span style={{fontSize:FS.sub,color:C.sub,flexShrink:0}}>{TM.coin}</span>
+                          </span>)}
+                          <span style={{marginLeft:"auto",display:"flex",flexDirection:"column",gap:5,flexShrink:0}}>
+                            <button onClick={saveEditItem} style={{background:th.main,border:"none",color:"#fff",borderRadius:RAD.sm,padding:"6px 14px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer"}}>저장</button>
+                            {isParentEdit&&<button onClick={deleteEditItem} style={{background:"#fff",border:`1px solid ${C.red}55`,color:C.red,borderRadius:RAD.sm,padding:"5px 14px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer"}}>삭제</button>}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <span style={{flex:1,fontSize:FS.body,color:t.done?C.sub:C.text,textDecoration:t.done?"line-through":"none"}}>{t.ruleId&&<span title="반복 미션" style={{display:"inline-flex",verticalAlign:"-0.12em",marginRight:4,color:th.main}}><CareIcon name="repeat" size={12}/></span>}{t.text}{t.byKid&&<span title="아이가 추가" style={{fontSize:FS.tag,fontWeight:FW.bold,marginLeft:5,color:acColor,background:`${acColor}1A`,borderRadius:6,padding:"0 5px"}}>+</span>}</span>
+                        <span style={{display:"flex",flexDirection:"column",alignItems:"stretch",gap:3,flexShrink:0,textAlign:"center"}}>{/* 점수·코인 위아래 (사용자 확정 2026-11-23) */}<span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:`${C.orange}14`,color:C.orange}}>+{t.point||DEFAULT_HOMEWORK_SCORE}{TM.xpUnit}</span><span style={{fontSize:11.5,fontWeight:800,padding:"2px 8px",borderRadius:20,background:"#2E8FD614",color:"#2E8FD6"}}>+{itemCoin(t)}{TM.coin}</span></span>
+                        <span style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,flexShrink:0}}>{/* ✎ 만 — 삭제는 ✎ 안에서 (사용자 확정 2026-11-23) */}
+                        {isParent&&<button onClick={()=>startEditItem("todo",t.id,t.text,t)} aria-label="고치기" style={{background:"none",border:"none",color:C.sub,cursor:"pointer",flexShrink:0,padding:"2px 4px",display:"flex",alignItems:"center"}}><CareIcon name="pencil" size={14}/></button>}</span>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
               </>)}
               {(()=>{
                 if(isExtra||supplyOnly) return null;
@@ -8255,10 +8271,11 @@ export default function App() {
                     setDailyEntry(childId,r.ac.id,date,{...e,homeworks:[...h,{id:newId(),text:r.text,done:false,point:DEFAULT_HOMEWORK_SCORE,...(oldPt!==DEFAULT_HOMEWORK_SCORE?{coin:questCoin(oldPt)}:{}),...(r.source==="base"?{fromBase:true}:{})}]});
                     showToast(`${r.ac.name}에 추가했어요 📚`);
                   };
+                  /* [사용자 확정 2026-11-23] 학원 선택 아래 여백을 두고 맨 아래에, 이름은 '숙제 즐겨찾기' */
                   return (
-                    <div style={{marginBottom:20}}>
+                    <div style={{margin:"44px 0 20px",paddingTop:18,borderTop:`1px solid ${C.border}`}}>
                       <p style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,margin:"0 0 3px",display:"flex",alignItems:"center",gap:7}}>
-                        <CareIcon name="repeat" size={15}/>전체 숙제 즐겨찾기
+                        <CareIcon name="repeat" size={15}/>숙제 즐겨찾기
                       </p>
                       <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
                         '추가'를 누르면 그 학원의 오늘 미션에 바로 들어가요.
@@ -8284,57 +8301,8 @@ export default function App() {
                     </div>
                   );
                 }
-                const acObj=getAcademyById(childId,academyId);
-                /* [사용자 확정 2026-09-28] 위 '반복 미션에서 고르기' 칩과 이 목록이 숙제 기준으로
-                   똑같은 일을 해서 겹쳐 보였다 → 숙제는 여기 한 곳에만 모은다. 학원에 바로 넣어 둔
-                   숙제(baseHomeworks)와, 반복 미션으로 저장해 둔 숙제를 함께 보여 준다.
-                   같은 글자면 학원에 넣어 둔 쪽을 남기고 반복 미션 쪽은 뺀다(같은 줄이 두 번 뜨지 않게). */
-                const baseList=(acObj?.baseHomeworks||[]).map(s=>({key:`base:${s}`,text:s,source:"base"}));
-                const baseTexts=new Set(baseList.map(b=>b.text));
-                /* [사용자 확정 2026-10-06] 그 학원의 반복 숙제만 — 다른 학원으로 저장한 반복 숙제는 뺀다(학원 안 정한 것은 둔다) */
-                const repeatList=getRepeatMissions(childId).filter(it=>it.kind==="hw"&&!baseTexts.has(it.text)
-                    &&(!it.academyId||String(it.academyId)===String(academyId)))
-                  .map(it=>({key:`rep:${it.id}`,text:it.text,source:"repeat",item:it}));
-                const merged=[...baseList,...repeatList];
-                if(merged.length===0) return null;
-                const existing=hw.map(h=>h.text);
-                const addOne=(m)=>{
-                  if(existing.includes(m.text)){ showToast("이미 추가된 숙제예요"); return; }
-                  if(m.source==="repeat"){ pickRepeat(m.item); return; }
-                  upd({...entry,homeworks:[...hw,{id:newId(),text:m.text,done:false,point:DEFAULT_HOMEWORK_SCORE,fromBase:true}]});
-                  showToast("숙제 즐겨찾기에서 추가했어요 📚");
-                };
-                return (
-                  <div style={{marginBottom:20}}>
-                    {/* [사용자 확정 2026-08-11] 위 '오늘의 미션'과 같은 글이 아래에도 보여
-                        같은 미션이 두 번 등록된 줄 알았다는 지적 → 무엇인지 한 줄로 밝힌다.
-                        ※ '자동으로 추가된다'고 쓰지 않는다 — 실제로는 여기서 눌러야 들어간다. */}
-                    {/* [사용자 확정 2026-08-16] 위 '오늘의 준비물'·'오늘의 미션'과 같은 층의
-                        구역 제목인데 혼자 작아 어긋나 보였다 → 크기 쪽(글자·굵기·아이콘·간격)만
-                        같게 맞춘다. 색은 지금의 학원색 그대로 둔다 (사용자 확정). */}
-                    <p style={{fontSize:FS.title,fontWeight:FW.bold,color:acColor,margin:"0 0 3px",display:"flex",alignItems:"center",gap:7}}>
-                      <CareIcon name="repeat" size={15}/>숙제 즐겨찾기
-                    </p>
-                    <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 8px",lineHeight:1.5}}>
-                      학원에 등록한 숙제와, 반복 미션으로 저장해 둔 숙제를 빠르게 불러올 수 있어요.
-                    </p>
-                    <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                      {merged.map((m)=>{
-                        const added=existing.includes(m.text);
-                        return (
-                          <div key={m.key} style={{display:"flex",gap:6,alignItems:"center"}}>
-                            <div style={{...inp,flex:3,width:"auto",fontSize:FS.cardTitle,padding:"9px 10px",minHeight:CTRL_H,boxSizing:"border-box",display:"flex",alignItems:"center",color:added?C.sub:C.text,background:added?`${C.green}08`:CT.faint,border:`1.5px solid ${added?C.green+"30":CT.faintB}`}}>
-                              {added&&<span style={{color:C.green,marginRight:5,fontWeight:FW.bold}}>✓</span>}{m.text}
-                            </div>
-                            <button onClick={()=>addOne(m)} disabled={added} style={{padding:"0 13px",minHeight:CTRL_H,boxSizing:"border-box",borderRadius:RAD.sm,border:"none",background:added?`${C.green}18`:acColor,color:added?mixBlack(C.green,0.3):"#fff",fontWeight:FW.semi,fontSize:FS.body,cursor:added?"default":"pointer",flexShrink:0,whiteSpace:"nowrap",fontFamily:"inherit"}}>
-                              {added?"추가됨 ✓":"추가"}
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
+                /* (뺐음 2026-11-23 사용자 확정) 학원을 고른 뒤의 '숙제 즐겨찾기' — 학원 선택 전 화면에 이미 있다 */
+                return null;
               })()}
               {/* [사용자 확정 2026-08-11] '＋ 추가'와 '저장하기'가 둘 다 저장처럼 읽혀서
                   버튼 이름을 사실대로 '닫기'로 바꿨다. 그때 같이 붙였던
