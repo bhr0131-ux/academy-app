@@ -41,6 +41,22 @@ import { RowAct } from "./AcademyTab.jsx";
    C.sub(#8890B0)보다 한 단계 진한 청회색. 칩은 펼친 카드에서 한 모양으로 쓴다. */
 const SUBD="#5F678C";
 const chip={fontSize:FS.sub,fontWeight:FW.normal,padding:"3px 9px",borderRadius:RAD.lg,lineHeight:1.5};
+/* 체크 버튼 — '준비물 확인' 창(TodayCareModals)의 버튼과 같은 모양·색 (사용자 확정 2026-11-23)
+   안 한 것: 흰 바탕·회색 테두리·○ / 한 것: 초록 바탕·초록 글자·✓ / 미완료(실패): 흐린 회색, 못 누름 */
+function CheckChip({ label, on, failed = false, onPress }){
+  const G=C.green;
+  return (
+    <button onClick={onPress||undefined} disabled={!onPress} className="jelly-tap"
+      aria-label={`${label} ${failed?"미완료":on?"체크 해제":"체크"}`} aria-pressed={on}
+      style={{fontFamily:"inherit",fontSize:FS.sub,fontWeight:FW.semi,padding:"6px 11px",borderRadius:RAD.pill,maxWidth:"100%",
+        cursor:onPress?"pointer":"default",background:on?`${G}1F`:failed?`${C.sub}10`:"#fff",
+        border:`1px solid ${on?G+"88":C.border}`,color:on?G:failed?"#A6ADBD":SUBD,
+        textDecoration:failed?"line-through":"none",display:"inline-flex",alignItems:"center",gap:6,minWidth:0}}>
+      <span style={{flexShrink:0,display:"flex"}}><CareIcon name={on?"check":"checkEmpty"} size={14}/></span>
+      <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{label}</span>
+    </button>
+  );
+}
 
 export default function ParentHomeTab({
   th, CT, TM, childId, childGender, kidSkin, curAc = [], curAbs = [],
@@ -52,7 +68,7 @@ export default function ParentHomeTab({
   /* [사용자 확정 2026-11-21] 학원비 칩 — 그달 납부했는지(App 의 paidStatus)와 누르면 학원비 탭으로 */
   isFeePaid = () => false, onGoFee, feePanel = null,
   /* [사용자 확정 2026-11-21] 홈의 미션은 보기 전용이지만 '완료 체크'만은 여기서 한다 (아이가 깜빡했을 때) */
-  onToggleQuest, questCoinOf = (it) => 0, coinEmoji = "💎",
+  onToggleQuest, onToggleSupply, questCoinOf = (it) => 0, coinEmoji = "💎",
   dayMemo = "", onGoMemo,
   /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
   childrenList = [], showSample = false,
@@ -451,9 +467,13 @@ export default function ParentHomeTab({
            보충), 둘 다 ac.id 가 같아 한 장을 펼치면 두 장이 같이 펼쳐졌다(사용자 점검).
            _key 는 정규 카드일 때 String(ac.id) 라, 이미 펼쳐 둔 상태도 그대로 이어진다. */
         const acKey=ac._key||ac.id;
-        const missionAll=[...hw.map(h=>({text:h.text,done:h.done})),...todos.map(t=>({text:t.text,done:t.done}))];
+        /* [사용자 확정 2026-11-23] 카드 안 준비물·미션을 '준비물 확인' 창과 같은 체크 버튼으로 —
+           누르면 바로 체크(준비물은 아이 탐험일지와 같은 checkedSupplies, 미션은 완료 처리·보상까지).
+           누를 때마다 순서가 바뀌면 헷갈리므로 정렬하지 않고 넣은 순서 그대로 둔다. */
+        const missionAll=[...hw.map(h=>({...h,kind:"homework"})),...todos.map(t=>({...t,kind:"todo"}))];
+        const checkedSup=entry.checkedSupplies||[];
         /* [사용자 확정 2026-11-23] '+N'으로 줄이지 않고 미션을 다 보여 준다 (안 한 것 먼저) */
-        const missionChips=[...missionAll].sort((x,y)=>(x.done?1:0)-(y.done?1:0));
+        const missionChips=missionAll;
         return (
           /* [사용자 확정 2026-08-09] 카드 색을 옅게(배경 1F→12), 테두리는 한 단계 진하게(45→55),
              그림자는 약하게, 카드 간격은 14로 통일. 왼쪽 세로선만 원래 색을 유지해 구분을 준다. */
@@ -556,8 +576,10 @@ export default function ParentHomeTab({
                     <CareIcon name="bag" size={14}/>
                     <span style={{fontSize:FS.tag,fontWeight:FW.normal}}>준비물</span>
                   </span>
-                  {baseSup.map((x,i)=><span key={`b${i}`} style={{...chip,background:`${ac.color}18`,color:ac.color}}>{x}</span>)}
-                  {sup.map((x,i)=><span key={`d${i}`} style={{...chip,background:`${C.orange}15`,color:C.orange}}>+{x}</span>)}
+                  {baseSup.map((x,i)=><CheckChip key={`b${i}`} label={x} on={checkedSup.includes(x)}
+                    onPress={onToggleSupply?()=>onToggleSupply(ac.id,homeDate,x):null}/>)}
+                  {sup.map((x,i)=><CheckChip key={`d${i}`} label={`+${x}`} on={checkedSup.includes("+"+x)}
+                    onPress={onToggleSupply?()=>onToggleSupply(ac.id,homeDate,"+"+x):null}/>)}
                   {baseSup.length===0&&sup.length===0&&<span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>}
                 </div>
                 <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
@@ -568,10 +590,8 @@ export default function ParentHomeTab({
                   {totalTodoCnt===0
                     ? <span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>
                     : missionChips.map((mc,i)=>(
-                        <span key={`m${i}`} style={{...chip,maxWidth:"100%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
-                          background:mc.done?`${C.green}14`:`${C.orange}15`,color:mc.done?C.green:C.orange}}>
-                          {mc.done?"✓ ":""}{mc.text}
-                        </span>
+                        <CheckChip key={`m${i}`} label={mc.text} on={!!mc.done} failed={!!mc.failed}
+                          onPress={onToggleQuest&&!mc.failed?()=>onToggleQuest({...mc,academyId:ac.id,date:homeDate}):null}/>
                       ))}
                 </div>
               </div>

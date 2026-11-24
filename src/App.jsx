@@ -6223,6 +6223,7 @@ export default function App() {
             /* [사용자 요청 2026-11-23] 대시보드에 그날 달력 메모도 — 누르면 달력의 그날로 */
             dayMemo={(()=>{ const d=new Date(homeDate.replace(/-/g,"/")); return (dayMemos[mKey(childId,d.getFullYear(),d.getMonth(),d.getDate())]||"").trim(); })()}
             onGoMemo={()=>{ const d=new Date(homeDate.replace(/-/g,"/")); setCalDate(new Date(d.getFullYear(),d.getMonth(),1)); setCalSelDate(homeDate); if(rewardUnlocked) setRewardUnlocked(false); setMoreTab("calendar"); setTab("calendar"); }}
+            onToggleSupply={(acId,date,key)=>toggleSupplyChecked(childId,acId,date,key)}
             onToggleQuest={(item)=>{ if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id); else toggleTodoDone(childId,item.academyId,item.date,item.id); }}
             onOpenMissionCheck={()=>setShowMissionCheck(homeDate)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
