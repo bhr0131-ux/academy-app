@@ -6490,20 +6490,6 @@ export default function App() {
                         {/* (뺐음 2026-11-22) 엄마 권한 칸 — 미션 탭 자체를 비밀번호로 열므로 안쪽 잠금이 필요 없다.
                             '지난 미션 관리'는 상자 아래 따로 둔다(사용자 확정 2026-11-22). */}
                         </div>
-                        {/* ── 지난 미션 관리 — '미션 추가·관리' 상자와 떼어 아래에 따로 (예전 자리처럼) ── */}
-                        {(()=>{
-                          const pastCnt=getPastQuestCandidates(childId,TODAY).length;
-                          return (
-                            /* 예전 모양 그대로 — 테마색을 옅게 깐 작은 한 줄 버튼, 오른쪽에 남은 개수 (사용자 확정 2026-11-22) */
-                            <button onClick={()=>setShowPastMissionModal(TODAY)} className="jelly-tap"
-                              style={{width:"100%",padding:"9px 12px",borderRadius:RAD.md,border:`1px solid ${th.main}33`,background:`${th.main}0E`,color:mixBlack(th.main,0.25),fontSize:12.5,fontWeight:800,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-                              <span style={{display:"flex",alignItems:"center",gap:5}}>
-                                <span style={{color:th.main,display:"flex"}}><CareIcon name="calendar" size={14}/></span> 지난 미션 관리
-                              </span>
-                              {pastCnt>0&&<span style={{fontSize:11,fontWeight:900,color:"#fff",background:C.orange,borderRadius:20,padding:"1px 7px"}}>{pastCnt}</span>}
-                            </button>
-                          );
-                        })()}
                       </div>
                       {/* ── 전체 미션 — 쭉 보는 곳 (사용자 확정 2026-11-23 / 한 목록으로 2026-11-24) ──
                           제목으로 나누지 않고 위에 그날의 하루 미션, 아래에 반복 미션. 체크 동그라미 없이 ✎ 로만 고친다.
