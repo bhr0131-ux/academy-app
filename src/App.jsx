@@ -6517,18 +6517,7 @@ export default function App() {
                         {/* (뺐음 2026-11-22) 엄마 권한 칸 — 미션 탭 자체를 비밀번호로 열므로 안쪽 잠금이 필요 없다.
                             '지난 미션 관리'는 상자 아래 따로 둔다(사용자 확정 2026-11-22). */}
                         </div>
-                        {/* ── 구매 승인 대기 (사용자 확정 2026-11-24) — 생겼을 때만, 미션 추가·관리 바로 아래 · 오늘의 미션 위 ── */}
-                        {getChildRewardRequests(childId).some(r=>r.status==="pending")&&(
-                          <div style={{marginTop:6}}>
-                            <RewardApprovals
-                              requests={getChildRewardRequests(childId).filter(r=>r.status==="pending")}
-                              childName={curChild?.name||""} showWho={children.length>1}
-                              coinLabel={TM.coin} th={th} CT={CT}
-                              onApprove={approveRewardRequest}
-                              onReject={(req)=>setPendingReject(req)} />
-                          </div>
-                        )}
-                        {/* [버그 수정 2026-11-24] 9e628bf 에서 실수로 빠졌던 '지난 미션 관리'를 되살린다 */}
+                        {/* [버그 수정 2026-11-24] 9e628bf 에서 실수로 빠졌던 '지난 미션 관리'를 되살린다 — 구매 승인 대기보다 위 (사용자 확정 2026-11-24) */}
                         {/* ── 지난 미션 관리 — '미션 추가·관리' 상자와 떼어 아래에 따로 (예전 자리처럼) ── */}
                         {(()=>{
                           const pastCnt=getPastQuestCandidates(childId,TODAY).length;
@@ -6543,6 +6532,17 @@ export default function App() {
                             </button>
                           );
                         })()}
+                        {/* ── 구매 승인 대기 (사용자 확정 2026-11-24) — 생겼을 때만, 미션 추가·관리 바로 아래 · 오늘의 미션 위 ── */}
+                        {getChildRewardRequests(childId).some(r=>r.status==="pending")&&(
+                          <div style={{marginTop:6}}>
+                            <RewardApprovals
+                              requests={getChildRewardRequests(childId).filter(r=>r.status==="pending")}
+                              childName={curChild?.name||""} showWho={children.length>1}
+                              coinLabel={TM.coin} th={th} CT={CT}
+                              onApprove={approveRewardRequest}
+                              onReject={(req)=>setPendingReject(req)} />
+                          </div>
+                        )}
                       </div>
                       {/* ── 전체 미션 — 쭉 보는 곳 (사용자 확정 2026-11-23 / 한 목록으로 2026-11-24) ──
                           제목으로 나누지 않고 위에 그날의 하루 미션, 아래에 반복 미션. 체크 동그라미 없이 ✎ 로만 고친다.
