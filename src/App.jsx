@@ -941,7 +941,9 @@ export default function App() {
           /* [2026-08-16] '학원' 탭을 없앴다. 마지막 화면으로 저장돼 있으면 그대로
              복원했을 때 아무것도 안 그려지고 하단에도 그 칸이 없어 갇힌다 → 홈으로 보낸다. */
           /* 미션 탭은 비밀번호로 여는 곳이라(2026-11-22) 되살리지 않고 홈으로 */
-          if(typeof lastUi.ptab==="string") setTab(lastUi.ptab==="academy"||lastUi.ptab==="mission"?"home":lastUi.ptab);
+          /* [버그 수정 2026-11-24] 학원비·보상·더보기 칸이 없어졌다 — 그 탭이 마지막 화면으로 저장돼 있으면
+             빈 화면에 갇힌다. 지금 하단에 있는 칸(홈·달력·결석·기타)만 되살리고 나머지는 홈으로 */
+          if(typeof lastUi.ptab==="string") setTab(["home","calendar","absence","etc"].includes(lastUi.ptab)?lastUi.ptab:"home");
         }
       }
       setLoaded(true);
@@ -3912,7 +3914,7 @@ export default function App() {
   };
   const approveRewardRequest=(requestId)=>{
     const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
-    if(!request) return;
+    if(!request||request.status!=="pending") return;   // [버그 수정 2026-11-24] 연타로 같은 요청을 두 번 승인하지 않게
     // 코인은 요청 시 이미 차감됨 → 승인은 상태만 변경
     setRewardRequests(prev=>({...prev,[childId]:(prev[childId]||[]).map(r=>r.id===requestId?{...r,status:"approved",approvedAt:new Date().toISOString()}:r)}));
     /* [사용자 확정 2026-08-11] '구매 승인 완료!'만으로는 무엇을 승인했는지 안 남는다 →
@@ -6770,7 +6772,8 @@ export default function App() {
         <RewardApproveModal tone={careTone} coinLabel={TM.coin} whoLabel={children.length>1?(curChild?.name||""):""}
           requests={getChildRewardRequests(childId).filter(r=>r.status==="pending")}
           onClose={()=>setShowRewardApprove(false)}
-          onApprove={(id)=>{ approveRewardRequest(id); if(getChildRewardRequests(childId).filter(r=>r.status==="pending").length<=1) setShowRewardApprove(false); }}
+          /* [버그 수정 2026-11-24] 승인 뒤 남은 개수로 판단한다(요청 목록 ref 는 바로 바뀐다) — 예전엔 하나 남았는데 창이 닫혔다 */
+          onApprove={(id)=>{ approveRewardRequest(id); if(getChildRewardRequests(childId).filter(r=>r.status==="pending").length===0) setShowRewardApprove(false); }}
           /* 거절은 확인 창을 한 번 더 띄운다 — 시트를 닫고 그 창을 연다 */
           onReject={(req)=>{ setShowRewardApprove(false); setPendingReject(req); }}/>
       )}
