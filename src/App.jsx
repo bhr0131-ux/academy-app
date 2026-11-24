@@ -6690,7 +6690,7 @@ export default function App() {
                 onPress:()=>{ setMoreMenuOpen(false); goMissionTab(); } },
               /* (뺐음 2026-11-24 사용자 확정) '보상' 칸 — 보상 관리는 미션 탭 맨 아래, 승인은 미션 탭 위·홈 '오늘 챙길 일'에서 */
               /* [사용자 확정 2026-11-24] 하단은 홈·미션·달력·기타 넷. '더보기'를 없애고 달력(결석·보충 포함)을 꺼냈다 */
-              { key:"calendar", label:"달력",   icon:"calendar", active:tab==="calendar"||tab==="absence",
+              { key:"calendar", label:"캘린더", icon:"calendar", active:tab==="calendar"||tab==="absence",
                 onPress:()=>{ setMoreMenuOpen(false); if(rewardUnlocked) setRewardUnlocked(false); setTab("calendar"); window.scrollTo(0,0); } },
               { key:"etc",      label:"기타",   icon:"settings", active:tab==="etc",      onPress:go("etc") },
             ]}/>
