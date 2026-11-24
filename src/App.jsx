@@ -2856,8 +2856,27 @@ export default function App() {
     setDailyEntry(cid,it.academyId,it.date,{...e,[k]:(e[k]||[]).filter(x=>x.id!==it.id),...(it.ruleId?{skipRules:[...(e.skipRules||[]),it.ruleId]}:{})});
     showToast("미션을 지웠어요");
   };
-  const saveMissionRule=(cid,ruleId,{text,coin})=>{
-    setMissionRules(prev=>({...prev,[cid]:(prev[cid]||[]).map(r=>r.id===ruleId?{...r,text,coin}:r)}));
+  const saveMissionRule=(cid,ruleId,{text,coin,type,days})=>{
+    /* [사용자 확정 2026-11-24] 반복 주기도 바꾼다. 주기가 바뀌면 내일 이후 미리 만들어 둔 '아직 안 한' 것은
+       거두고(새 주기에 맞게 다시 만들어진다), 오늘 것은 그대로 둔다. */
+    const old=(missionRules[cid]||[]).find(r=>r.id===ruleId);
+    const periodChanged=!!old&&type!=null&&(type!==old.type||JSON.stringify(days||[])!==JSON.stringify(old.days||[]));
+    setMissionRules(prev=>({...prev,[cid]:(prev[cid]||[]).map(r=>r.id===ruleId?{...r,text,coin,...(type!=null?{type,days:days||[]}:{})}:r)}));
+    if(periodChanged) setDailyData(prev=>{
+      let next=prev, changed=false;
+      for(const k of Object.keys(prev)){
+        if(!k.startsWith(`${cid}-`)) continue;
+        if(!(k.slice(-10)>TODAY)) continue;
+        const e=prev[k];
+        const hw=(e.homeworks||[]).filter(x=>!(x.ruleId===ruleId&&!x.done));
+        const td=(e.todos||[]).filter(x=>!(x.ruleId===ruleId&&!x.done));
+        if(hw.length!==(e.homeworks||[]).length||td.length!==(e.todos||[]).length){
+          if(!changed){ next={...prev}; changed=true; }
+          next[k]={...e,homeworks:hw,todos:td};
+        }
+      }
+      return changed?next:prev;
+    });
     setDailyData(prev=>{
       let next=prev, changed=false;
       for(const k of Object.keys(prev)){
@@ -6506,13 +6525,14 @@ export default function App() {
                               note={rewardTodayTodos.length>0?`${rewardTodayTodos.length}개 중 ${doneCnt}개 완료`:null}/>
                             <MissionOverview th={th} TM={TM} onSave={onSave} onDelete={onDelete}
                               dayItems={rewardTodayTodos.map(it=>({key:`d:${it.kind}:${it.academyId}:${it.id}`,item:it,text:it.label,repeat:!!it.ruleId,
-                                acName:String(it.academyId)===String(EXTRA_QUEST_ID)?"생활 습관 미션":it.academyName,acColor:it.academyColor,coin:itemCoin(it),done:!!it.done,failed:!!it.failed}))}/>
+                                acName:String(it.academyId)===String(EXTRA_QUEST_ID)?"생활 습관":it.academyName,acColor:it.academyColor,coin:itemCoin(it),done:!!it.done,failed:!!it.failed}))}/>
                           </div>
                           <div style={{marginTop:26}}>
                             <SectionHead icon="repeat" label="반복 미션" th={th} note={rules.length>0?`${rules.length}개`:null}/>
                             <MissionOverview th={th} TM={TM} onSave={onSave} onDelete={onDelete} emptyText="반복 미션이 없어요"
                               rules={rules.map(r=>{ const isLife=String(r.acId)===String(EXTRA_QUEST_ID); const a=isLife?null:getAcademyById(childId,r.acId);
-                                return {key:`r:${r.id}`,rule:r,text:r.text,acName:isLife?"생활 습관 미션":(a?a.name:""),acColor:isLife?th.main:(a?a.color:C.sub),
+                                return {key:`r:${r.id}`,rule:r,text:r.text,acName:isLife?"생활 습관":(a?a.name:""),acColor:isLife?th.main:(a?a.color:C.sub),
+                                  type:r.type,days:r.days||[],allowClass:!isLife,
                                   coin:r.coin!=null?r.coin:questCoin(r.point||DEFAULT_HOMEWORK_SCORE),
                                   repeatText:r.type==="class"?"학원 가는 날":r.type==="daily"?"매일":`${(r.days||[]).join("·")}요일`}; })}/>
                           </div>

@@ -48,7 +48,8 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
     if (!t) return;
     const raw = String(edit.coin).trim();
     const c = raw === "" ? row.coin : Math.max(0, Math.round(Number(raw) || 0));
-    onSave && onSave(row, { text: t, coin: c });
+    if (row.kind === "rule" && edit.type === "days" && !(edit.days || []).length) return;   // 요일을 하나는 골라야 한다
+    onSave && onSave(row, { text: t, coin: c, ...(row.kind === "rule" ? { type: edit.type, days: edit.type === "days" ? [...edit.days] : [] } : {}) });
     setEdit(null);
   };
 
@@ -66,23 +67,53 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                   onKeyDown={e => e.key === "Enter" && save(row)} aria-label="미션 내용"
                   style={{ width: "100%", boxSizing: "border-box", border: `1px solid ${C.border}`, borderRadius: RAD.sm, padding: "8px 10px",
                     fontSize: FS.body, fontWeight: 700, color: C.text, outline: "none", fontFamily: "inherit", background: "#F6F8FC" }} />
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <input type="number" min="0" value={edit.coin} onChange={e => setEdit(p => ({ ...p, coin: e.target.value }))}
-                      onKeyDown={e => e.key === "Enter" && save(row)} aria-label={coinU}
-                      style={{ width: 54, boxSizing: "border-box", border: `1px solid ${C.border}`, borderRadius: RAD.sm, padding: "7px 4px",
-                        fontSize: FS.body, fontWeight: 800, color: "#2E8FD6", textAlign: "center", outline: "none", fontFamily: "inherit", background: "#F6F8FC" }} />
-                    <span style={{ fontSize: FS.sub, color: C.sub, fontWeight: FW.semi }}>{coinU}</span>
-                  </span>
-                  <span style={{ marginLeft: "auto", display: "flex", flexDirection: "column", gap: 5 }}>
+                {/* [사용자 확정 2026-11-24] 코인 옆에 저장 · 삭제 · 취소 를 한 줄로 */}
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <input type="number" min="0" value={edit.coin} onChange={e => setEdit(p => ({ ...p, coin: e.target.value }))}
+                    onKeyDown={e => e.key === "Enter" && save(row)} aria-label={coinU}
+                    style={{ width: 50, flexShrink: 0, boxSizing: "border-box", border: `1px solid ${C.border}`, borderRadius: RAD.sm, padding: "7px 4px",
+                      fontSize: FS.body, fontWeight: 800, color: "#2E8FD6", textAlign: "center", outline: "none", fontFamily: "inherit", background: "#F6F8FC" }} />
+                  <span style={{ fontSize: FS.sub, color: C.sub, fontWeight: FW.semi, flexShrink: 0 }}>{coinU}</span>
+                  <span style={{ marginLeft: "auto", display: "flex", gap: 5, flexShrink: 0 }}>
                     <button onClick={() => save(row)} className="jelly-tap"
-                      style={{ background: th.main, border: "none", color: "#fff", borderRadius: RAD.sm, padding: "6px 14px", fontSize: FS.sub, fontWeight: FW.semi, cursor: "pointer", fontFamily: "inherit" }}>저장</button>
+                      style={{ background: th.main, border: "none", color: "#fff", borderRadius: RAD.sm, padding: "7px 11px", fontSize: FS.sub, fontWeight: FW.semi, cursor: "pointer", fontFamily: "inherit" }}>저장</button>
                     <button onClick={() => { onDelete && onDelete(row); setEdit(null); }} className="jelly-tap"
-                      style={{ background: "#fff", border: `1px solid ${C.red}55`, color: C.red, borderRadius: RAD.sm, padding: "5px 14px", fontSize: FS.sub, fontWeight: FW.semi, cursor: "pointer", fontFamily: "inherit" }}>삭제</button>
-                    <button onClick={() => setEdit(null)}
-                      style={{ background: "none", border: "none", color: C.sub, fontSize: FS.tag, fontWeight: FW.semi, cursor: "pointer", fontFamily: "inherit", padding: "2px 0" }}>취소</button>
+                      style={{ background: "#fff", border: `1px solid ${C.red}55`, color: C.red, borderRadius: RAD.sm, padding: "6px 10px", fontSize: FS.sub, fontWeight: FW.semi, cursor: "pointer", fontFamily: "inherit" }}>삭제</button>
+                    <button onClick={() => setEdit(null)} className="jelly-tap"
+                      style={{ background: "#fff", border: `1px solid ${C.border}`, color: C.sub, borderRadius: RAD.sm, padding: "6px 10px", fontSize: FS.sub, fontWeight: FW.semi, cursor: "pointer", fontFamily: "inherit" }}>취소</button>
                   </span>
                 </div>
+                {/* 반복 미션은 반복 주기도 바꾼다 — 매일 · 특정 요일 · 학원 가는 날(학원 미션만) */}
+                {row.kind === "rule" && (
+                  <div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {[{ k: "daily", l: "매일" }, { k: "days", l: "특정 요일" }, ...(row.allowClass ? [{ k: "class", l: "학원 가는 날" }] : [])].map(o => {
+                        const on = edit.type === o.k;
+                        return (
+                          <button key={o.k} onClick={() => setEdit(p => ({ ...p, type: o.k }))} aria-pressed={on}
+                            style={{ padding: "5px 11px", borderRadius: 999, fontFamily: "inherit", fontSize: FS.sub, fontWeight: on ? FW.bold : FW.semi, cursor: "pointer",
+                              border: `1.5px solid ${on ? th.main : C.border}`, background: on ? `${th.main}16` : "#fff", color: on ? th.main : C.sub }}>{o.l}</button>
+                        );
+                      })}
+                    </div>
+                    {edit.type === "days" && (
+                      <div style={{ display: "flex", gap: 4, marginTop: 7 }}>
+                        {["월", "화", "수", "목", "금", "토", "일"].map(d => {
+                          const on = (edit.days || []).includes(d);
+                          return (
+                            <button key={d} onClick={() => setEdit(p => ({ ...p, days: on ? p.days.filter(x => x !== d) : [...(p.days || []), d] }))} aria-pressed={on}
+                              style={{ flex: 1, height: 30, borderRadius: RAD.sm, fontFamily: "inherit", fontSize: FS.sub, fontWeight: FW.bold, cursor: "pointer",
+                                border: `1.5px solid ${on ? th.main : C.border}`, background: on ? th.main : "#fff",
+                                color: on ? "#fff" : d === "일" ? C.red : d === "토" ? "#4A7BD8" : C.sub }}>{d}</button>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {edit.type === "days" && !(edit.days || []).length && (
+                      <p style={{ margin: "6px 0 0", fontSize: FS.tag, color: C.red, fontWeight: FW.semi }}>요일을 하나 이상 골라 주세요</p>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <>
@@ -111,7 +142,7 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                     </p>
                   )}
                 </div>
-                <button onClick={() => setEdit({ key: row.key, text: row.text, coin: String(row.coin) })} className="jelly-tap"
+                <button onClick={() => setEdit({ key: row.key, text: row.text, coin: String(row.coin), type: row.type, days: [...(row.days || [])] })} className="jelly-tap"
                   aria-label={`${row.text} 고치기`}
                   style={{ flexShrink: 0, width: 36, height: 36, border: "none", background: "none", color: C.sub, cursor: "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center" }}>
