@@ -230,3 +230,44 @@ export function MissionCheckModal({ dateLabel = "오늘", groups = { remain: [],
     </Sheet>
   );
 }
+
+/* ── 🎁 보상 승인 ─────────────────────────────────────────────────────────
+   [사용자 확정 2026-11-24] 홈 '오늘 챙길 일'의 '보상 승인' 줄을 누르면 여기서 바로 승인한다
+   (예전엔 보상 탭으로 보냈다 — 보상 탭이 미션 탭 아래로 들어가면서 바꿨다).
+   준비물·미션 확인 창과 같은 바텀시트·같은 칸 모양. 거절은 코인을 돌려주고 되돌릴 수 없어
+   App 이 한 번 더 묻는다(onReject).
+   requests : [{ id, title, emoji, point }]   대기 중인 요청만
+   onApprove(id) / onReject(req)                                          */
+export function RewardApproveModal({ requests = [], coinLabel = "코인", whoLabel = "", tone, onClose, onApprove, onReject }) {
+  return (
+    <Sheet title="보상 승인" icon="reward" tone={tone} onClose={onClose}
+      desc={requests.length ? `${whoLabel ? whoLabel + "의 " : ""}보상 구매 요청이에요. 승인하면 바로 쓸 수 있어요.` : undefined}>
+      {requests.length === 0 ? (
+        <Empty icon="reward" title="승인할 보상이 없어요" tone={tone} />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {requests.map(r => (
+            <div key={r.id} style={{ padding: "10px 12px 12px", borderRadius: RAD.md, border: `1.5px solid ${tone.border}`, background: tone.faint }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
+                <span style={{ flexShrink: 0, display: "flex" }}><EmojiIcon emoji={r.emoji || "🎁"} size={26} /></span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: FS.cardTitle, fontWeight: FW.bold, color: tone.text,
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</p>
+                  <p style={{ margin: "2px 0 0", fontSize: FS.sub, fontWeight: FW.semi, color: tone.sub }}>{r.point} {coinLabel} 사용</p>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => onApprove && onApprove(r.id)} className="jelly-tap"
+                  style={{ flex: 2, padding: "10px 0", borderRadius: RAD.sm, border: "none", background: tone.green, color: "#fff",
+                    fontFamily: F, fontSize: FS.body, fontWeight: FW.bold, cursor: "pointer" }}>승인</button>
+                <button onClick={() => onReject && onReject(r)} className="jelly-tap"
+                  style={{ flex: 1, padding: "10px 0", borderRadius: RAD.sm, border: `1px solid ${tone.border}`, background: "#fff", color: tone.sub,
+                    fontFamily: F, fontSize: FS.body, fontWeight: FW.semi, cursor: "pointer" }}>거절</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Sheet>
+  );
+}
