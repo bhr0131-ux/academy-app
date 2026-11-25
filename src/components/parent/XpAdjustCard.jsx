@@ -39,7 +39,10 @@ export default function XpAdjustCard({ D }) {
           </p>
           <p style={secSub}>{`여기서 보너스 ${TM.coin}을 지급/차감 할 수 있어요.`}</p>
         </div>
-        {!locked && <span aria-hidden="true" style={secArrow(open)}>⌄</span>}
+        {/* 잠겨 있어도 펼칠 수 있는 칸이라는 걸 알 수 있게 화살표는 늘 보인다 (사용자 확정 2026-11-25) */}
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0, color: C.sub, marginLeft: 8, transition: "transform .2s", transform: !locked && open ? "rotate(180deg)" : "none" }}>
+          <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
 
       {!locked && open && (

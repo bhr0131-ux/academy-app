@@ -6453,8 +6453,8 @@ export default function App() {
                             {rDayTag&&<span style={{fontSize:11.5,background:th.main,color:"#fff",borderRadius:9,padding:"2px 8px",fontWeight:800,flexShrink:0}}>{rDayTag}</span>}
                             {!isRewToday&&(
                               <button onClick={()=>setRewardDate(TODAY)} className="jelly-tap"
-                                style={{background:"none",border:"none",color:th.main,fontSize:12,cursor:"pointer",padding:"2px 4px",fontWeight:800,flexShrink:0,fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>
-                                오늘로
+                                style={{background:"none",border:"none",color:th.main,fontSize:FS.tag,cursor:"pointer",padding:"2px 4px",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>{/* 홈과 같은 '↩ 오늘로' (사용자 확정 2026-11-25) */}
+                                ↩ 오늘로
                               </button>
                             )}
                           </div>
