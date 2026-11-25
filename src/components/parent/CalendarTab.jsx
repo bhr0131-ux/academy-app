@@ -540,7 +540,7 @@ export default function CalendarTab({
                           ? <span style={{fontSize:FS.sub,fontWeight:FW.normal,padding:"3px 9px",borderRadius:RAD.pill,background:CT.faint,color:SUBD}}>없음</span>
                           : (<>
                               {baseSup.map((s,i)=><span key={`b${i}`} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.pill,background:`${ac.color}16`,color:ac.color,fontWeight:FW.normal}}>{s}</span>)}
-                              {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.pill,background:`${C.orange}14`,color:C.orange,fontWeight:FW.normal}}>+{s}</span>)}
+                              {sup.map((s,i)=><span key={`d${i}`} style={{fontSize:FS.sub,padding:"3px 9px",borderRadius:RAD.pill,background:`${C.orange}14`,color:C.orange,fontWeight:FW.normal}}>{s}</span>)}
                             </>)}
                       </div>
                     </div>

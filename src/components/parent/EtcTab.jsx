@@ -164,7 +164,7 @@ export default function EtcTab({ D }) {
         {/* [사용자 요청 2026-11-16] 앱에서는 '휴대폰에 백업'을 기본으로, 공유창은 따로 뺀다.
             [사용자 확정 2026-11-16] 버튼 이름에 '백업'을 꼭 넣는다 — '휴대폰에 저장'만으로는 무엇을 저장하는지 몰랐다. */}
         <button onClick={onExport}
-          style={{...btnMain,border:"none",background:th.grad,color:"#fff",marginBottom:9}}>
+          style={{...btnMain,border:"none",background:th.main,color:"#fff",marginBottom:9}}>{/* 과한 그라데이션 대신 단색 테마 버튼 (사용자 확정 2026-11-26) */}
           {isNative ? "휴대폰에 백업하기" : "데이터 백업하기"}
         </button>
         {isNative && onShare && (

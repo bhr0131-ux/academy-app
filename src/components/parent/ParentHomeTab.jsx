@@ -27,7 +27,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { Fragment, useRef, useState } from "react";
-import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
+import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE, SUB_LABEL } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan, feeDueDay } from "../../data/sampleData.js";
 import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
@@ -363,7 +363,7 @@ export default function ParentHomeTab({
               <button key={t.k} onClick={()=>setAcView(t.k)} className="jelly-tap"
                 aria-pressed={on}
                 style={{border:"none",cursor:"pointer",fontFamily:"inherit",
-                  padding:"6px 11px",borderRadius:RAD.sm,minWidth:156,justifyContent:"center",
+                  padding:"6px 9px",borderRadius:RAD.sm,minWidth:136,justifyContent:"center",
                   fontSize:FS.cardTitle,fontWeight:FW.bold,letterSpacing:0.2,whiteSpace:"nowrap",
                   background:on?`linear-gradient(135deg, ${mixWhite(th.main,0.10)}, ${mixWhite(th.main,0.30)})`:"transparent",
                   color:on?"#fff":"#A8AEC0",
@@ -545,7 +545,7 @@ export default function ParentHomeTab({
                     <EmojiIcon emoji={getAcademyTheme(ac.name,kidSkin,ac.kind).icon} size={FS.cardTitle}
                       style={{verticalAlign:"-0.18em",marginRight:4}}/>{ac.name}
                   </span>
-                  {sc?.duration&&<span style={{flexShrink:0,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,whiteSpace:"nowrap"}}>
+                  {sc?.duration&&<span style={{flexShrink:0,fontSize:FS.sub,...SUB_LABEL,whiteSpace:"nowrap"}}>
                     · {sc.duration}분 수업</span>}
                 </p>
                 {/* (이동됨) 전화·문자 원형 버튼 — 아래 '준비물·미션 수정'과 같은 줄 왼쪽 끝으로
@@ -561,7 +561,7 @@ export default function ParentHomeTab({
                   <p style={{margin:"0 0 16px",display:"flex",alignItems:"flex-start",gap:5,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,lineHeight:1.35}}>
                     <span style={{marginTop:1,flexShrink:0}}><CareIcon name="shuttle" size={13}/></span>
                     <span style={{minWidth:0,whiteSpace:"pre-wrap"}}>
-                      {m?<><span style={{fontWeight:FW.bold,color:C.text}}>{m[1]}</span>{"  "}{m[2]}</>:shuttleText}
+                      {m?<><span style={{fontWeight:FW.bold,color:C.text}}>{m[1]}</span>{"  "}<span style={SUB_LABEL}>{m[2]}</span></>:shuttleText}
                     </span>
                   </p>
                 );
@@ -574,18 +574,18 @@ export default function ParentHomeTab({
                 <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
                   <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
                     <CareIcon name="bag" size={14}/>
-                    <span style={{fontSize:FS.tag,fontWeight:FW.normal}}>준비물</span>
+                    <span style={{fontSize:FS.tag,...SUB_LABEL}}>준비물</span>
                   </span>
                   {baseSup.map((x,i)=><CheckChip key={`b${i}`} label={x} on={checkedSup.includes(x)}
                     onPress={onToggleSupply?()=>onToggleSupply(ac.id,homeDate,x):null}/>)}
-                  {sup.map((x,i)=><CheckChip key={`d${i}`} label={`+${x}`} on={checkedSup.includes("+"+x)}
+                  {sup.map((x,i)=><CheckChip key={`d${i}`} label={x} on={checkedSup.includes("+"+x)}
                     onPress={onToggleSupply?()=>onToggleSupply(ac.id,homeDate,"+"+x):null}/>)}
                   {baseSup.length===0&&sup.length===0&&<span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>}
                 </div>
                 <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
                   <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
                     <CareIcon name="mission" size={14}/>
-                    <span style={{fontSize:FS.tag,fontWeight:FW.normal}}>오늘 미션</span>
+                    <span style={{fontSize:FS.tag,...SUB_LABEL}}>오늘 미션</span>
                   </span>
                   {totalTodoCnt===0
                     ? <span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>
@@ -650,8 +650,9 @@ export default function ParentHomeTab({
           계좌 복사·⋮ 수정/삭제까지 그대로. 저장(v6_paid / v6_fee_pay_info)은 App 그대로다.
           (그전 2026-11-22 의 '학원비 요약' 칸은 이 화면이 대신한다) */}
       {acView==="all"&&curAc.length>0&&feePanel&&(
-        <div ref={feeRef} style={{marginTop:24,scrollMarginTop:12}}>
-          <SectionHead icon="fee" label="학원비" th={th} style={{margin:"0 0 10px"}}/>
+        /* [사용자 확정 2026-11-25] 학원비 영역 전체를 한 카드로 묶는다 — 위 학원 목록·날짜 줄과 떨어져 보이게.
+           머리('학원비 ‹ 2026년 12월 ›')는 FeeTab(embedded)이 그린다 */
+        <div ref={feeRef} style={{marginTop:24,scrollMarginTop:12,background:mixWhite(th.main,0.95),border:`1px solid ${th.main}22`,borderRadius:RAD.lg,padding:"14px 12px 4px",boxShadow:SHADOW.sm}}>
           {feePanel}
         </div>
       )}

@@ -377,6 +377,52 @@ export const dungeonPalette = (main="#60A8FF") => {
 };
 
 // 현재 테마(main)에 맞춰 흰색 계열 박스색을 같은 계열로 물들인 색 세트 생성
+/* ── 엄마 화면용 테마 (사용자 확정 2026-11-26) ───────────────────────────
+   아이가 고른 색은 그대로 쓰되, 흰 글씨가 올라가는 버튼·배지가 흐리지 않게(살구·분홍)
+   흰 바탕 대비 3:1 이 될 때까지만 살짝 진하게 한다. 그라데이션도 같은 색에서 아주 조금만
+   밝아지게 — 과한 그라데이션 대신 거의 단색. 아이 화면은 원래 색 그대로 쓴다. */
+const _lum = (hex) => {
+  const h = String(hex || "#000000").replace("#", "");
+  const ch = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255)
+    .map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+};
+export const contrastOnWhite = (hex) => 1.05 / (_lum(hex) + 0.05);
+/* 검정을 섞으면 살구가 갈색으로 탁해진다 → 색상·채도는 그대로 두고 밝기(HSL L)만 낮춘다 */
+const _hexToHsl = (hex) => {
+  const h = String(hex).replace("#", "");
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  if (mx === mn) return [0, 0, l];
+  const d = mx - mn, s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+  const hh = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [hh * 60, s, l];
+};
+const _hslToHex = (H, S, L) => {
+  const f = (n) => { const k = (n + H / 30) % 12, a = S * Math.min(L, 1 - L);
+    return Math.round(255 * (L - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))).toString(16).padStart(2, "0"); };
+  return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
+};
+export const readableMain = (hex, min = 3) => {
+  if (contrastOnWhite(hex) >= min) return hex;
+  const [H, S, L] = _hexToHsl(hex);
+  let l = L, c = hex;
+  while (contrastOnWhite(c) < min && l > 0.2) { l -= 0.01; c = _hslToHex(H, S, l); }
+  return c;
+};
+export const parentTheme = (th) => {
+  if (!th || !th.main) return th;
+  const main = readableMain(th.main);
+  return { ...th, main, grad: `linear-gradient(135deg, ${main}, ${mixWhite(main, 0.14)})` };
+};
+
+/* ── 보조 라벨 글씨 (사용자 확정 2026-11-26) ─────────────────────────────
+   앱 글꼴(Cafe24 써라운드)은 굵기가 하나뿐이라 font-weight 를 낮춰도 똑같이 굵게 나온다.
+   제목·금액은 앱 글꼴 그대로, '준비물'·'오늘 미션'·'40분 수업'·'납부 예정일' 같은 보조 라벨만
+   기기 기본 글꼴의 보통 굵기 + 회색으로 낮춰 위계를 만든다. */
+export const FONT_SUB = "'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',system-ui,sans-serif";
+export const SUB_LABEL = { fontFamily: FONT_SUB, fontWeight: 500, color: "#6B7280" };
+
 export const makeThemeColors = (main) => ({
   ...C,
   card:   mixWhite(main, 0.96), // 거의 흰색이나 테마기운
