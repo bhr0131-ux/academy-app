@@ -1909,7 +1909,7 @@ export default function App() {
 
   const openNaverMapSearch=()=>{
     const q=newAc.name||"학원";
-    openExternal(`https://map.naver.com/p/search/${encodeURIComponent(q)}`);
+    openExternal(`https://map.naver.com/p/search/${encodeURIComponent(q)}`,{noPin:true});   // 지도는 비밀번호 없이 (사용자 확정 2026-11-26)
   };
 
   const pickTeacherContact=async()=>{
@@ -6344,7 +6344,7 @@ export default function App() {
             onCopyAccount={(txt)=>{
               copyText(txt).then(ok=>showToast(ok?"계좌번호를 복사했어요":"복사할 수 없어요"));
             }}
-            onOpenMap={(addr)=>openExternal(`https://map.naver.com/p/search/${encodeURIComponent(addr)}`)}
+            onOpenMap={(addr)=>openExternal(`https://map.naver.com/p/search/${encodeURIComponent(addr)}`,{noPin:true})}
             onSeedSample={addStarterAcademy}
             onEditDaily={(ac,date)=>{
               /* [사용자 확정 2026-08-11] 미션 편집은 권한을 일부러 두 단계로 둔다 —
