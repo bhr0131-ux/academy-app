@@ -198,7 +198,7 @@ export default function EtcTab({ D }) {
         {/* 문구 사용자 확정 2026-11-25 */}
         <p style={{...sub,margin:"0 0 12px",lineHeight:1.55}}>여러분의 제보로 더 나은 서비스를 만들 수 있어요.<br/>불편함을 느끼셨다면 잠시만 시간을 내주세요<EmojiIcon emoji="🙏" size={14} style={{verticalAlign:"-0.15em",marginLeft:3}}/></p>
         <button
-          onClick={()=>onOpenExternal("https://open.kakao.com/o/g6H6WgFi")}
+          onClick={()=>onOpenExternal("https://open.kakao.com/o/g6H6WgFi",{noPin:true})}   /* 오픈채팅은 비밀번호 없이 (사용자 확정 2026-11-26) */
           style={{...btnMain,border:`1px solid ${C.border}`,background:mixWhite("#FEE500",0.45),color:"#3C1E1E",
             display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
           <CareIcon name="sms" size={15}/> 오픈채팅방 입장하기
