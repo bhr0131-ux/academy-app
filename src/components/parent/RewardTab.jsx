@@ -42,7 +42,7 @@ export default function RewardTab({ D }) {
                 바탕과 거의 같은 색이 됐다(대비 1.04). 미션 카드와 같은 규칙으로 흰 줄. */}
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {getChildRewards().slice().sort((a,b)=>a.point-b.point).map(reward=>(
-                <div key={reward.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:RAD.md,background:"#fff",border:`1px solid ${C.border}`}}>
+                <div key={reward.id} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 10px",borderRadius:RAD.md,background:"#fff",border:`1px solid ${C.border}`}}>
                   {/* [사용자 확정 2026-08-17] 잠겨 있을 때는 한 줄 — 이름 왼쪽, 값 오른쪽 끝.
                       값이 한 세로줄에 모여 보상끼리 견주기 쉽고 목록도 짧아진다(61 → 45).
                       열면 수정·삭제가 오른쪽을 차지해 값이 낄 자리가 없다 → 그때만 예전처럼
@@ -52,8 +52,8 @@ export default function RewardTab({ D }) {
                     <div style={{flex:1,minWidth:0}}>
                       <p style={{fontSize:FS.title,fontWeight:FW.semi,margin:0,color:C.text,
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{reward.title}</p>
-                      <p style={{fontSize:FS.body,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>
-                        {reward.point} <EmojiIcon emoji={TM.coinEmoji} size={FS.body} style={{verticalAlign:"-0.18em",marginRight:3}}/> {TM.coin} 필요
+                      <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>
+                        {/* 문구 '구매에 필요한 코인 110💎' (사용자 확정 2026-11-25) */}구매에 필요한 {TM.coin} <span style={{whiteSpace:"nowrap"}}>{reward.point}<EmojiIcon emoji={TM.coinEmoji} size={FS.sub} style={{verticalAlign:"-0.18em",marginLeft:2}}/></span>
                       </p>
                     </div>
                   ):(
@@ -69,11 +69,11 @@ export default function RewardTab({ D }) {
                   /* 두 줄짜리 줄이라 수정·삭제는 예전처럼 세로로 쌓는다 */
                   <div style={{display:"flex",flexDirection:"column",gap:5,flexShrink:0}}>
                     <button onClick={()=>openEditReward(reward)}
-                      style={{border:`1px solid ${th.main}30`,background:th.light,color:th.main,borderRadius:RAD.sm,padding:"5px 9px",fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
+                      style={{border:`1px solid ${th.main}30`,background:th.light,color:th.main,borderRadius:RAD.sm,padding:"4px 8px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
                       수정
                     </button>
                     <button onClick={()=>deleteReward(reward.id)}
-                      style={{border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:RAD.sm,padding:"5px 9px",fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
+                      style={{border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:RAD.sm,padding:"4px 8px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
                       삭제
                     </button>
                   </div>
@@ -144,7 +144,7 @@ export default function RewardTab({ D }) {
               </button>
             </div>
             {(open||ageOpen)&&(
-            <div style={{padding:"0 12px 12px"}}>
+            <div style={{padding:"0 8px 10px"}}>
             {ageOpen&&(
               <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:7,marginTop:12}}>
                 {ageOpts.map(o=>{ const on=rewardAgeGroup===o.k; return (
