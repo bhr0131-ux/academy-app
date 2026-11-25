@@ -4917,7 +4917,8 @@ export default function App() {
                   ...(avatarHint==="pending"&&!showEquipShop&&kidSkin!=="cute"&&getCharMode(childId)!==CHAR_DISPLAY_AVATAR?{visibility:"hidden"}:{}),color:_onDark?"#FFF3D9":"#5D4633",
                   // 밝은 무대: 흰 글로우 대신 옅은 웜브라운 그림자 — 흰 구름 위에서도 글자가 묻히지 않게
                   textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 2px rgba(93,70,51,0.30), 0 2px 10px rgba(93,70,51,0.18)"}}>
-                  {_lines.map((ln,i)=><Fragment key={i}>{i>0&&<br/>}{ln}</Fragment>)}
+                  {/* 줄 사이에 띄어쓰기를 함께 둔다 — 한 줄로 이어 읽힐 때 '신나는탐험'처럼 붙지 않게 (2026-11-26) */}
+                  {_lines.map((ln,i)=><Fragment key={i}>{i>0&&<>{" "}<br/></>}{ln}</Fragment>)}
                   {_emoji&&<EmojiIcon emoji={_emoji} size="0.64em" style={{verticalAlign:"-0.08em",marginLeft:3}}/>}
                   {/* 발견·만남 줄은 응원 문구에서 한 뼘 떨어뜨린다 (사용자 조정: 9→18px) */}
                   {_ddi&&<span style={{display:"block",fontSize:13.5,marginTop:18,opacity:0.96}}><EmojiIcon emoji={_ddi.emoji} size={13.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{_ddi.msg}</span>}
@@ -6231,9 +6232,10 @@ export default function App() {
 
         <div style={{position:"relative",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <h1 style={{fontSize:17,fontWeight:900,margin:0,color:mixBlack(th.main,0.45)}}>🎒 {PT.role} 관리</h1>
-          <button onClick={exitParentMode} className="jelly-tap"
-            style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:12,padding:"7px 12px",fontSize:12,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`}}>
-            🎒 아이용
+          {/* [사용자 확정 2026-11-26] 제목 가방과 겹치지 않게 — 나침반 + '아이용 보기 ›'로 '화면 전환 버튼'임이 바로 보이게 */}
+          <button onClick={exitParentMode} className="jelly-tap" aria-label="아이용 화면으로 바꾸기"
+            style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:12,padding:"7px 10px 7px 11px",fontSize:12,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`,display:"inline-flex",alignItems:"center",gap:5}}>
+            <EmojiIcon emoji="🧭" size={15}/>아이용 보기<span aria-hidden="true" style={{fontSize:14,lineHeight:1,marginLeft:1,opacity:0.8}}>›</span>
           </button>
         </div>
       </div>
