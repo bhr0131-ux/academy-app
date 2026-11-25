@@ -142,7 +142,7 @@ export default function ItemShopSheet({ open, onClose, dark, skin = "dungeon", c
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                           <p style={{ fontSize: 17, fontWeight: 900, margin: 0, color: cute ? C.text : CAMP_SHEET.text }}>{reward.title}</p>
                         </div>
-                        <p style={{ fontSize: 13, fontWeight: 800, margin: 0, color: cute ? C.sub : CAMP_SHEET.textSub }}>구매에 필요한 {coinName} {reward.point}{coinEmoji}</p>
+                        <p style={{ fontSize: 13, fontWeight: 800, margin: 0, color: cute ? C.sub : CAMP_SHEET.textSub }}>{coinEmoji} {reward.point}{coinName}</p>
                       </div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>

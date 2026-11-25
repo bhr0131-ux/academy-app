@@ -52,8 +52,8 @@ export default function RewardTab({ D }) {
                     <div style={{flex:1,minWidth:0}}>
                       <p style={{fontSize:FS.title,fontWeight:FW.semi,margin:0,color:C.text,
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{reward.title}</p>
-                      <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>
-                        {/* 문구 '구매에 필요한 코인 110💎' (사용자 확정 2026-11-25) */}구매에 필요한 {TM.coin} <span style={{whiteSpace:"nowrap"}}>{reward.point}<EmojiIcon emoji={TM.coinEmoji} size={FS.sub} style={{verticalAlign:"-0.18em",marginLeft:2}}/></span>
+                      <p style={{fontSize:FS.body,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>
+                        {/* 가격은 '💎 40코인'으로 짧게 (사용자 확정 2026-11-25) */}<span style={{whiteSpace:"nowrap"}}><EmojiIcon emoji={TM.coinEmoji} size={FS.body} style={{verticalAlign:"-0.18em",marginRight:3}}/>{reward.point}{TM.coin}</span>
                       </p>
                     </div>
                   ):(
