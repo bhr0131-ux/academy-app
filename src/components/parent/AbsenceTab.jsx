@@ -313,12 +313,19 @@ export default function AbsenceTab({
   return (
   <div>
     {/* 월 네비게이션 — 홈·달력·학원비와 같은 치수 */}
-    <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:2,marginBottom:10}}>
+    <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:2,marginBottom:10,position:"relative"}}>
       <button onClick={()=>shiftMonth(-1)} className="jelly-tap" aria-label="이전 달"
         style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
       <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text,whiteSpace:"nowrap"}}>{ay}년 {am}월 결석</span>
       <button onClick={()=>shiftMonth(1)} className="jelly-tap" aria-label="다음 달"
         style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
+      {/* 다른 달을 보고 있으면 '↩ 이번달로' (사용자 확정 2026-11-25 — 캘린더·학원비와 같은 모양) */}
+      {absMonth!==TODAY.slice(0,7)&&(
+        <button onClick={()=>setAbsMonth(TODAY.slice(0,7))} className="jelly-tap"
+          style={{position:"absolute",right:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+          ↩ 이번달로
+        </button>
+      )}
     </div>
 
     {/* 요약 한 줄 — [사용자 확정 2026-08-18] 큰 상자 3개가 화면을 많이 차지했다.

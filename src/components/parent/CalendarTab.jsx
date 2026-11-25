@@ -160,10 +160,17 @@ export default function CalendarTab({
           ))}
         </div>
         <div style={{flex:1}}/>
+        {/* [사용자 확정 2026-11-25] 돌아가기 버튼은 '↩ ○○로' 한 모양 — 주간 '↩ 이번주로', 월간 '↩ 이번달로' */}
         {isWeek&&!(TODAY>=weekMon&&TODAY<=weekSun)&&(
           <button onClick={()=>setCalSelDate(TODAY)} className="jelly-tap"
             style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
-            이번 주
+            ↩ 이번주로
+          </button>
+        )}
+        {!isWeek&&!(calDate.getFullYear()===parseLocal(TODAY).getFullYear()&&calDate.getMonth()===parseLocal(TODAY).getMonth())&&(
+          <button onClick={()=>{ const t=parseLocal(TODAY); setCalDate(new Date(t.getFullYear(),t.getMonth(),1)); setCalSelDate(null); }} className="jelly-tap"
+            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            ↩ 이번달로
           </button>
         )}
       </div>
