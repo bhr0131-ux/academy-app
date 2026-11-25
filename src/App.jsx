@@ -3006,7 +3006,7 @@ export default function App() {
         case "reward":   info={icon:"🛒",title:"아이템 구매"}; break;
         case "level_bonus": info={icon:"✨",title:"레벨업 보너스"}; break;
         case "badge_reward": info={icon:"🏆",title:"업적 보상"}; break;
-        case "manual":   info={icon:"✍️",title:"엄마 점수 조정"}; break;
+        case "manual":   info={icon:"✍️",title:"엄마 조정"}; break;   // 2026-11-24 수동 조정이 코인 전용이 되어 '점수'를 뺐다 (예전 기록은 점수였을 수 있어 중립 이름)
         case "bank_in":  info={icon:"🏦",title:"은행에 맡김"}; break;
         case "bank_out": info={icon:"🏦",title:"은행에서 찾음"}; break;
         case "bank_interest": info={icon:"💰",title:"은행 이자"}; break;
@@ -3017,7 +3017,7 @@ export default function App() {
       info = L[key] || L.default;
     }
     // 보호자 호칭 반영 — 데이터(gameData.jsx SKINS)는 '엄마'로 고정돼 있어 여기서 바꾼다
-    if(item.type==="manual") info={...info,title:`${PT.role} 점수 조정`};
+    if(item.type==="manual") info={...info,title:`${PT.role} 조정`};
     return info;
   };
   // 탐험 퀘스트 로그: 기록 종류별 왼쪽 컬러 바 색 (코인/XP/상자/펫진화/미션/업적 구분)

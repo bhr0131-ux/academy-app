@@ -72,15 +72,16 @@ export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
   /* [사용자 확정 2026-11-21] 일곱 장 → 두 장. 아이 화면을 보기 전에 넘길 화면을 줄인다.
        1장: 아래 메뉴 다섯 칸을 한 장에 (아이콘은 하단 메뉴 그림 그대로)
        2장: 잠금(비밀번호 1234) + "아이용 버튼을 눌러보세요" */
+  /* [사용자 확정 2026-11-24] 하단 메뉴를 홈·미션·캘린더·기타 넷으로 줄인 것에 맞춘다.
+     보상은 미션 탭 안으로, 학원비는 홈 '전체 학원' 아래로, 결석·보충은 캘린더 아래로 들어갔다. */
   const menus=[
-    { icon:NAV_ICONS.home,     name:"홈",     desc:"오늘 챙길 일 · 학원 일정 · 학원 등록" },
-    { icon:NAV_ICONS.mission,  name:"미션",   desc:"날짜별 미션과 점수 관리" },
-    { icon:NAV_ICONS.reward,   name:"보상",   desc:"보상 목록 수정 · 아이 신청 승인" },
-    { icon:NAV_ICONS.settings, name:"기타",   desc:"점수 조정 · 문자 · 비밀번호 · 백업" },
-    { icon:NAV_ICONS.more,     name:"더보기", desc:"달력 · 학원비 · 결석·보충" },
+    { icon:NAV_ICONS.home,     name:"홈",     desc:"오늘 챙길 일 · 학원 · 학원비" },
+    { icon:NAV_ICONS.mission,  name:"미션",   desc:"미션 관리 · 보상 관리·승인" },
+    { icon:NAV_ICONS.calendar, name:"캘린더", desc:"일정 · 메모 · 방학 · 결석·보충" },
+    { icon:NAV_ICONS.settings, name:"기타",   desc:"코인 조정 · 문자 · 비밀번호 · 백업" },
   ];
   const pages=[
-    { head:"화면 아래 메뉴 다섯 칸이에요" },
+    { head:"화면 아래 메뉴 네 칸이에요" },
     { head:"마지막으로 두 가지만!" },
   ];
   const [i,setI]=useState(0);
