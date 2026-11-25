@@ -77,7 +77,7 @@ export default function EtcTab({ D }) {
         <button onClick={onOpenGuide} style={rowBtn}>
           <div>
             <p style={title}>{ico("guide")}사용 가이드 다시 보기</p>
-            <p style={sub}>홈부터 각 탭이 어떤 기능인지 다시 안내해요</p>
+            {/* (뺐음 2026-11-25 사용자 확정) 설명 줄 '홈부터 각 탭이 어떤 기능인지 다시 안내해요' */}
           </div>
           <span style={pill}>보기</span>
         </button>
