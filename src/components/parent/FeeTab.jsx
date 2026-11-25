@@ -28,6 +28,7 @@ import { useState } from "react";
 import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, SUB_LABEL } from "../../data/tokens.js";
 import { payMethodLabel } from "./FeePaySheet.jsx";
 import CareIcon from "./CareIcons.jsx";
+import { feeDueDay } from "../../data/sampleData.js";
 
 /* 카드 안 보조 글자색 — 홈 학원카드와 같은 값.
    C.sub(#8890B0)는 회색 배경 위에서는 맞지만 흰 카드 위에서는 너무 흐려서
@@ -234,7 +235,8 @@ export default function FeeTab({
             {hasFee&&!paid&&(
               <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
                 <span style={{fontSize:FS.tag,...SUB_LABEL,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                  납부 예정일 {feeMonth}월 {a.payDay}일
+                  {/* 31일 납부는 30일까지인 달에 그 달 마지막 날로 — 캘린더·D-day 와 같은 계산(feeDueDay) */}
+                  납부 예정일 {feeMonth}월 {feeDueDay(a,new Date().getFullYear(),feeMonth-1)}일
                 </span>
                 {/* [사용자 확정 2026-11-25] 밑줄 글자 대신 작은 알약 버튼 */}
                 <button onClick={()=>onPay(a.id)} className="jelly-tap" style={{...payPill,marginLeft:"auto"}}>
