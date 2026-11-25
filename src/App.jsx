@@ -4233,6 +4233,11 @@ export default function App() {
     if(newAc.useCustomSchedule?(newAc.schedules||[]).length===0:(newAc.days||[]).length===0){
       showToast("수업 요일을 골라줘"); return;
     }
+    /* [버그 수정 2026-11-26] 수업 시간이 0·음수면 끝나는 시각이 시작보다 앞서는 일정이 생겼다(15:00–14:50) —
+       일반·요일별 모두 저장 전에 1분 이상인지 본다. 비운 칸은 예전처럼 기본값(40분)으로 저장된다. */
+    const badDur=(v)=>v!==""&&v!=null&&!(Number(v)>=1);
+    if(!newAc.useCustomSchedule&&badDur(newAc.duration)){ showToast("수업 시간은 1분 이상으로 적어 주세요"); return; }
+    if(newAc.useCustomSchedule&&(newAc.schedules||[]).some(s=>badDur(s.duration))){ showToast("요일별 수업 시간은 1분 이상으로 적어 주세요"); return; }
     const finalName=(newAc.name||"").trim() || kindLabel;
     const cleaned={...newAc,name:finalName,kind:newAc.kind,kindLabel,fee:Number(newAc.fee||0),duration:Number(newAc.duration||0),payDay:Number(newAc.payDay||1),account:(newAc.account||"").trim(),baseSupplies:newAc.baseSupplies||[],baseHomeworks:newAc.baseHomeworks||[],schedules:(newAc.schedules||[]).map(s=>({...s,duration:Number(s.duration)||40}))};
     const savedId=editTarget!==null?editTarget:newId();
@@ -6657,7 +6662,7 @@ export default function App() {
               addChildScore, showToast, secArrow:rewardSecArrow,
               open:showParentXpAdjust, setOpen:setShowParentXpAdjust,
               locked:parentLocked(),
-              unlock:(after)=>askPin(()=>{ setRewardUnlocked(true); after&&after(); },"수동 점수 조정"),
+              unlock:(after)=>askPin(()=>{ setRewardUnlocked(true); after&&after(); },"수동 코인 조정"),
               sign:xpAdjustSign, setSign:setXpAdjustSign,
               label:xpAdjustLabel, setLabel:setXpAdjustLabel,
               input:xpAdjustInput, setInput:setXpAdjustInput,
@@ -6942,7 +6947,7 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",alignItems:"flex-end",zIndex:1000}} onClick={()=>setShowRewardModal(false)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🎁 보상 추가</h3>
+              <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🎁 {editingRewardId?"보상 수정":"보상 추가"}</h3>
               <button onClick={()=>setShowRewardModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
             {/* [사용자 확정 2026-08-17] 이모지를 직접 치게 하니 폰에서 이모지 자판을 불러야 했고,
@@ -7013,7 +7018,7 @@ export default function App() {
             </div>
             <button onClick={addRewardItem}
               style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",boxShadow:`0 4px 16px ${th.main}40`}}>
-              보상 추가하기
+              {editingRewardId?"수정 완료":"보상 추가하기"}
             </button>
           </div>
         </div>
@@ -7566,7 +7571,7 @@ export default function App() {
             {!newAc.useCustomSchedule&&(
               <div style={{display:"flex",gap:10,marginBottom:12}}>
                 <div style={{flex:1}}><label style={lbl}>시작 시간</label><input type="time" value={newAc.time||""} onChange={e=>setNewAc(p=>({...p,time:e.target.value}))} style={inp}/></div>
-                <div style={{flex:1}}><label style={lbl}>수업 시간(분)</label><input type="number" value={newAc.duration===""?"":(newAc.duration||40)} onFocus={e=>e.target.select&&e.target.select()} onChange={e=>setNewAc(p=>({...p,duration:e.target.value===""?"":Number(e.target.value)}))} style={inp}/></div>
+                <div style={{flex:1}}><label style={lbl}>수업 시간(분)</label><input type="number" min="1" value={newAc.duration===""?"":(newAc.duration||40)} onFocus={e=>e.target.select&&e.target.select()} onChange={e=>setNewAc(p=>({...p,duration:e.target.value===""?"":Number(e.target.value)}))} style={inp}/></div>
               </div>
             )}
 
@@ -7600,7 +7605,7 @@ export default function App() {
                     <input type="time" value={sc.time}
                       onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,time:e.target.value}:s)}))}
                       style={{...inp,flex:1,width:"auto",fontSize:FS.body,padding:"7px 10px",height:34,boxSizing:"border-box"}}/>
-                    <input type="number" value={sc.duration}
+                    <input type="number" min="1" value={sc.duration}
                       onChange={e=>setNewAc(p=>({...p,schedules:(p.schedules||[]).map(s=>s.day===sc.day?{...s,duration:e.target.value===""?"":Number(e.target.value)}:s)}))}  /* 비울 수 있게 — 비운 채 저장하면 40분 (아래 저장 시 정리) */
                       style={{...inp,width:65,fontSize:FS.body,padding:"7px 8px",height:34,boxSizing:"border-box"}}/>
                     <span style={{fontSize:FS.body,color:C.sub,flexShrink:0}}>분</span>
