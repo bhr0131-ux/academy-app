@@ -106,7 +106,7 @@ export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
           {i===0
             ? menus.map((m,k)=>row(m.icon,m.name,m.desc,k))
             : [row(<CareIcon name="lock" size={21}/>,`${parentRole} 권한은 잠금`,"비밀번호를 꼭 기억해두세요.\n(초기 비밀번호 1234)","lock"),
-               row(<CareIcon name="bag" size={19}/>,"아이용","이제 아이용 화면을 살펴볼까요?\n오른쪽 위 '🎒 아이용' 버튼을 눌러보세요!","kid")]}
+               row(<CareIcon name="bag" size={19}/>,"아이용 보기","이제 아이용 화면을 살펴볼까요?\n오른쪽 위 '🧭 아이용 보기' 버튼을 눌러보세요!","kid")]}
         </div>
         <div style={{display:"flex",gap:5,justifyContent:"center",marginBottom:16}}>
           {pages.map((_,idx)=>(<span key={idx} style={{width:idx===i?20:7,height:7,borderRadius:99,background:idx===i?TH.main:"#D9DEE8",transition:"all .25s"}}/>))}
@@ -384,7 +384,7 @@ export function OnboardingFlow({ onFinish }){
             <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:"0 0 4px"}}>
               오늘 미션 <span style={tagReq}>필수</span>
             </p>
-            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>오늘 하루만 하는 숙제/할 일이에요.</p>
+            <p style={{fontSize:12.5,fontWeight:600,color:"#8890B0",margin:"0 0 8px"}}>오늘 하루만 하는 숙제/생활습관 미션이에요.</p>
             {/* 종류 고르기는 앱의 미션 편집 화면과 같은 모양으로 (사용자 확정) */}
             <div style={{display:"flex",gap:8,marginBottom:10}}>
               {/* 앱의 미션 편집 팝업은 '숙제' '할 일' 글자만 쓴다 — 여기만 이모지가 붙어 있었다 */}

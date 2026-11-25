@@ -1338,9 +1338,9 @@ export default function App() {
      엄마용 화면은 아이 화면에서 PIN 없이 넘어올 수 있어서, 아이가 두 번 만에
      외부 채팅방까지 갈 수 있었다(아동 대상 앱 정책 대비). 엄마 권한이 이미 열려 있으면
      다시 묻지 않는다. 통과해도 엄마 권한(rewardUnlocked)은 켜지 않는다 — 링크만 연다. */
-  const openExternal=(url)=>{
+  const openExternal=(url,{noPin=false}={})=>{
     const go=()=>window.open(url,"_blank","noopener,noreferrer");
-    if(!parentLocked()){ go(); return; }
+    if(noPin||!parentLocked()){ go(); return; }
     askPin(go,"앱 밖으로 나가는 링크예요");
   };
   /* 미션 탭 안에서 엄마 권한 열기 — 통과하면 보상 탭과 같은 잠금(rewardUnlocked)을 쓴다.
@@ -1909,7 +1909,7 @@ export default function App() {
 
   const openNaverMapSearch=()=>{
     const q=newAc.name||"학원";
-    openExternal(`https://map.naver.com/p/search/${encodeURIComponent(q)}`);
+    openExternal(`https://map.naver.com/p/search/${encodeURIComponent(q)}`,{noPin:true});   // 지도는 비밀번호 없이 (사용자 확정 2026-11-26)
   };
 
   const pickTeacherContact=async()=>{
@@ -2205,6 +2205,9 @@ export default function App() {
           });
         }
 
+        /* [사용자 확정 2026-11-26] 방금 복원한 파일이 곧 그 시점의 백업이다 — 오늘을 마지막 백업일로 적어
+           복원 직후 '백업하세요' 안내가 또 뜨지 않게 한다 (백업 안내 주기는 오늘부터 다시 센다) */
+        setLastBackupDate(TODAY); save("v6_last_backup_date",TODAY);
         showToast("데이터 복원 완료 📂");
       }catch(err){
         showToast("복원 실패: 백업 파일을 확인해줘");
@@ -6341,7 +6344,7 @@ export default function App() {
             onCopyAccount={(txt)=>{
               copyText(txt).then(ok=>showToast(ok?"계좌번호를 복사했어요":"복사할 수 없어요"));
             }}
-            onOpenMap={(addr)=>openExternal(`https://map.naver.com/p/search/${encodeURIComponent(addr)}`)}
+            onOpenMap={(addr)=>openExternal(`https://map.naver.com/p/search/${encodeURIComponent(addr)}`,{noPin:true})}
             onSeedSample={addStarterAcademy}
             onEditDaily={(ac,date)=>{
               /* [사용자 확정 2026-08-11] 미션 편집은 권한을 일부러 두 단계로 둔다 —
