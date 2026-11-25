@@ -412,6 +412,23 @@ export default function App() {
   const [resetNewPinConfirm,setResetNewPinConfirm]= useState(initAuth.resetNewPinConfirm);
   const [showRecoverySetupModal,setShowRecoverySetupModal]= useState(initAuth.showRecoverySetupModal);
   const [setupRecoveryQ,    setSetupRecoveryQ]    = useState(initAuth.setupRecoveryQ);
+  /* [사용자 확정 2026-11-25] 비밀번호 찾기 질문에 '직접 입력' — 고르면 질문을 직접 쓴다 (저장은 예전처럼 질문 글자 그대로) */
+  const [setupQCustom, setSetupQCustom] = useState(false);
+  const [newQCustom,   setNewQCustom]   = useState(false);
+  const recQPicker=(q,setQ,custom,setCustom)=>{
+    const inpS={width:"100%",boxSizing:"border-box",padding:"12px 14px",borderRadius:12,border:`1px solid ${C.border}`,fontSize:15,fontWeight:700,outline:"none",background:"#F6F8FC",color:C.text,fontFamily:"inherit"};
+    const isCustom=custom||(q&&!RECOVERY_QUESTIONS.includes(q));
+    return (<>
+      <select value={isCustom?"__custom__":q} onChange={e=>{ const v=e.target.value; if(v==="__custom__"){ setCustom(true); setQ(""); } else { setCustom(false); setQ(v); } }}
+        style={{...inpS,marginBottom:isCustom?8:12}}>
+        <option value="">질문을 선택하세요</option>
+        {RECOVERY_QUESTIONS.map(x=><option key={x} value={x}>{x}</option>)}
+        <option value="__custom__">직접 입력</option>
+      </select>
+      {isCustom&&<input type="text" value={q} onChange={e=>setQ(e.target.value.slice(0,40))} placeholder="질문을 직접 입력하세요 (예: 첫 직장 이름은?)" autoFocus
+        style={{...inpS,marginBottom:12}}/>}
+    </>);
+  };
   const [setupRecoveryA,    setSetupRecoveryA]    = useState(initAuth.setupRecoveryA);
   const [setupVerifyInput,  setSetupVerifyInput]  = useState(initAuth.setupVerifyInput);
   const [setupVerifyBy,     setSetupVerifyBy]     = useState(initAuth.setupVerifyBy);
@@ -1920,7 +1937,7 @@ export default function App() {
     setParentPin(newPinInput);
     if(q&&a){ setRecoveryQuestion(q); setRecoveryAnswer(a); }
     setOldPinInput(""); setNewPinInput(""); setNewPinConfirm("");
-    setNewRecoveryQ(""); setNewRecoveryA("");
+    setNewRecoveryQ(""); setNewRecoveryA(""); setNewQCustom(false);
     setShowPinChangeModal(false);
     showToast("비밀번호가 변경됐어요 🔐");
   };
@@ -1932,7 +1949,7 @@ export default function App() {
        · 복구 질문이 이미 있으면: 지금 복구 질문의 답 (답이 기억 안 나면 지금 비밀번호로도 확인 가능)
        · 아직 없으면(처음 설정): 지금 비밀번호                                            */
   const closeRecoverySetup=()=>{
-    setShowRecoverySetupModal(false); setSetupRecoveryQ(""); setSetupRecoveryA("");
+    setShowRecoverySetupModal(false); setSetupRecoveryQ(""); setSetupRecoveryA(""); setSetupQCustom(false);
     setSetupVerifyInput(""); setSetupVerifyBy("answer");
   };
   const saveRecoverySetup=()=>{
@@ -1947,11 +1964,11 @@ export default function App() {
       if(v!==parentPin){ showToast("비밀번호가 달라요"); return; }
     }
     const q=setupRecoveryQ.trim(), a=setupRecoveryA.trim();
-    if(!q){ showToast("복구 질문을 선택해 주세요"); return; }
-    if(!a){ showToast("복구 질문의 답을 입력해 주세요"); return; }
+    if(!q){ showToast(setupQCustom?"질문을 입력해 주세요":"질문을 선택해 주세요"); return; }
+    if(!a){ showToast("질문의 답을 입력해 주세요"); return; }
     setRecoveryQuestion(q); setRecoveryAnswer(a);
     closeRecoverySetup();
-    showToast("복구 질문이 저장됐어요 🔑");
+    showToast("비밀번호 찾기 질문/답이 저장됐어요 🔑");
   };
 
   // 복구 질문 정답 확인 → (PIN 노출 없이) 새 비밀번호 설정 모달로 이동
@@ -7030,11 +7047,7 @@ export default function App() {
                 <br/><b style={{color:C.red}}>비밀번호를 처음 바꿀 땐 꼭 등록해야 해요.</b>
               </p>
               <label style={lbl}>복구 질문</label>
-              <select value={newRecoveryQ} onChange={e=>setNewRecoveryQ(e.target.value)}
-                style={{...inp,marginBottom:12}}>
-                <option value="">질문을 선택하세요</option>
-                {RECOVERY_QUESTIONS.map(q=><option key={q} value={q}>{q}</option>)}
-              </select>
+              {recQPicker(newRecoveryQ,setNewRecoveryQ,newQCustom,setNewQCustom)}
               <label style={lbl}>복구 질문의 답</label>
               <input type="text" value={newRecoveryA} onChange={e=>setNewRecoveryA(e.target.value)}
                 placeholder="답을 입력 (대소문자 구분 안 함)"
@@ -7046,7 +7059,7 @@ export default function App() {
               style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",marginBottom:8}}>
               변경 완료
             </button>
-            <button onClick={()=>{ setShowPinChangeModal(false); setOldPinInput(""); setNewPinInput(""); setNewPinConfirm(""); setNewRecoveryQ(""); setNewRecoveryA(""); }}
+            <button onClick={()=>{ setShowPinChangeModal(false); setOldPinInput(""); setNewPinInput(""); setNewPinConfirm(""); setNewRecoveryQ(""); setNewRecoveryA(""); setNewQCustom(false); }}
               style={{width:"100%",padding:12,borderRadius:14,border:`1px solid ${C.border}`,background:CT.faint,color:C.sub,fontSize:15,fontWeight:700,cursor:"pointer"}}>
               취소
             </button>
@@ -7059,7 +7072,7 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.55)",display:"flex",justifyContent:"center",zIndex:1000,padding:20,overflowY:"auto"}} onClick={closeRecoverySetup}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)",margin:"auto 0",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-              <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔑 복구 질문 {recoveryQuestion?"변경":"설정"}</h3>
+              <h3 style={{fontSize:19,fontWeight:900,margin:0,color:C.text}}>🔑 비밀번호 찾기 질문/답 {recoveryQuestion?"변경":"설정"}</h3>
               <button onClick={closeRecoverySetup} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
             </div>
             <p style={{fontSize:11.5,fontWeight:600,color:C.sub,lineHeight:1.5,margin:"0 0 16px"}}>
@@ -7086,13 +7099,9 @@ export default function App() {
                 )}
               </div>);
             })()}
-            <label style={lbl}>{recoveryQuestion?"새 복구 질문":"복구 질문"}</label>
-            <select value={setupRecoveryQ} onChange={e=>setSetupRecoveryQ(e.target.value)}
-              style={{...inp,marginBottom:12}}>
-              <option value="">질문을 선택하세요</option>
-              {RECOVERY_QUESTIONS.map(q=><option key={q} value={q}>{q}</option>)}
-            </select>
-            <label style={lbl}>{recoveryQuestion?"새 복구 질문의 답":"복구 질문의 답"}</label>
+            <label style={lbl}>{recoveryQuestion?"새 질문":"질문"}</label>
+            {recQPicker(setupRecoveryQ,setSetupRecoveryQ,setupQCustom,setSetupQCustom)}
+            <label style={lbl}>{recoveryQuestion?"새 질문의 답":"질문의 답"}</label>
             <input type="text" value={setupRecoveryA} onChange={e=>setSetupRecoveryA(e.target.value)}
               onKeyDown={e=>e.key==="Enter"&&saveRecoverySetup()}
               placeholder="답을 입력 (대소문자 구분 안 함)"
@@ -8373,7 +8382,7 @@ export default function App() {
               {/* 알약 대신 학원비 탭 '납부 처리'처럼 밑줄 글자로 (사용자 확정 2026-11-22) */}
               <button onClick={()=>setShowTmplManager(true)}
                 style={{flexShrink:0,border:"none",background:"none",padding:"4px 2px",cursor:"pointer",fontFamily:"inherit",fontSize:FS.tag,fontWeight:FW.semi,color:C.sub,textDecoration:"underline",textUnderlineOffset:3}}>
-                ⚙️ 템플릿 관리
+                ⚙️ 문자 관리
               </button>
             </div>
             <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:16}}>
@@ -8400,7 +8409,7 @@ export default function App() {
         <div style={{position:"fixed",inset:0,background:"rgba(20,20,40,0.5)",display:"flex",alignItems:"flex-end",zIndex:310}} onClick={()=>setShowTmplManager(false)}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 20px 34px",width:"100%",maxWidth:430,margin:"0 auto",maxHeight:"calc(var(--am-vh, 100vh) * 0.88)",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-              <p style={{margin:0,fontSize:FS.modalTitle,fontWeight:FW.bold,color:C.text}}>💬 문자 템플릿 관리</p>
+              <p style={{margin:0,fontSize:FS.modalTitle,fontWeight:FW.bold,color:C.text}}>💬 문자 관리</p>
               <button onClick={()=>setShowTmplManager(false)} aria-label="닫기" style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
             </div>
             <SmsTemplateList templates={templates} th={th} CT={CT} hideLabel
