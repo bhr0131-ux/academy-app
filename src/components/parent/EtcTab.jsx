@@ -33,6 +33,7 @@
 import { useState } from "react";
 import { C, FS, FW, RAD, gameCard, SHADOW, mixWhite } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
+import EmojiIcon from "../EmojiIcon.jsx";
 import XpAdjustCard from "./XpAdjustCard.jsx";
 import SmsTemplateList from "./SmsTemplateList.jsx";
 
@@ -103,23 +104,7 @@ export default function EtcTab({ D }) {
           넘어와 자기 점수를 올릴 수 있다. 잠금은 미션·보상과 같은 스위치를 쓴다. */}
       <XpAdjustCard D={{ TM, th, childId, ...xp, card, secTitle:title, secSub:sub }}/>
 
-      {/* 문자관리 */}
-      <div style={card}>
-        <button onClick={()=>setSmsOpen(v=>!v)} style={rowBtn} aria-expanded={smsOpen}>
-          <div>
-            <p style={title}>{ico("sms")}문자관리</p>
-            <p style={sub}>결석 안내, 보충 문의 등 문자 템플릿을 관리해요</p>
-          </div>
-          <span style={pill}>{smsOpen?"닫기 ▲":"열기 ▼"}</span>
-        </button>
-
-        {smsOpen&&(
-          /* 내용은 SmsTemplateList — 학원 카드 문자 창의 '템플릿 관리' 팝업과 같은 화면 (2026-11-22) */
-          <div style={{marginTop:14}}>
-            <SmsTemplateList templates={templates} onNew={onNewTmpl} onEdit={onEditTmpl} onDelete={onDeleteTmpl} th={th} CT={CT}/>
-          </div>
-        )}
-      </div>
+      {/* (뺐음 2026-11-25 사용자 확정) '문자관리' 칸 — 학원 문자 창의 '문자 관리' 버튼과 겹친다 */}
 
       {/* 보안 */}
       <div style={card}>
@@ -130,7 +115,7 @@ export default function EtcTab({ D }) {
         </button>
         <button onClick={onRecoverySetup}
           style={{...btnMain,border:`1.5px solid ${C.border}`,background:CT.faint,color:C.text,marginTop:9}}>
-          {recoveryQuestion?"복구 질문 변경":"복구 질문 설정"}
+          {recoveryQuestion?"비밀번호 찾기 질문/답 변경":"비밀번호 찾기 질문/답 설정"}
         </button>
       </div>
 
@@ -207,8 +192,9 @@ export default function EtcTab({ D }) {
       {/* [사용자 확정 2026-08-16] '학부모 오픈채팅' → '버그 신고'.
           들어가는 곳은 같은 카카오톡 오픈채팅방이고, 무엇을 하러 가는 자리인지를 이름으로 쓴다. */}
       <div style={card}>
-        <p style={title}>{ico("bug")}버그 신고</p>
-        <p style={{...sub,margin:"0 0 12px"}}>카카오톡 오픈채팅방에서 버그 신고·문의를 함께 나눠요.</p>
+        <p style={title}>{ico("bug")}버그신고 & 개선제안</p>
+        {/* 문구 사용자 확정 2026-11-25 */}
+        <p style={{...sub,margin:"0 0 12px",lineHeight:1.55}}>여러분의 제보로 더 나은 서비스를 만들 수 있어요.<br/>불편함을 느끼셨다면 잠시만 시간을 내주세요<EmojiIcon emoji="🙏" size={14} style={{verticalAlign:"-0.15em",marginLeft:3}}/></p>
         <button
           onClick={()=>onOpenExternal("https://open.kakao.com/o/g6H6WgFi")}
           style={{...btnMain,border:`1px solid ${C.border}`,background:mixWhite("#FEE500",0.45),color:"#3C1E1E",

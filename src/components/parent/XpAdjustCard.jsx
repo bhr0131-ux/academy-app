@@ -37,7 +37,7 @@ export default function XpAdjustCard({ D }) {
             {locked && <span style={{ color: th.main, display: "flex" }}><CareIcon name="lock" size={14} /></span>}
             수동 {TM.coin} 조정
           </p>
-          <p style={secSub}>{locked ? "비밀번호를 한 번 물어봐요" : `보너스 ${TM.coin} 지급 / 차감`}</p>
+          <p style={secSub}>{`여기서 보너스 ${TM.coin}을 지급/차감 할 수 있어요.`}</p>
         </div>
         {!locked && <span aria-hidden="true" style={secArrow(open)}>⌄</span>}
       </button>

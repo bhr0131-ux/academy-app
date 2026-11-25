@@ -78,7 +78,7 @@ export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
     { icon:NAV_ICONS.home,     name:"홈",     desc:"오늘 챙길 일 · 학원 · 학원비" },
     { icon:NAV_ICONS.mission,  name:"미션",   desc:"미션 관리 · 보상 관리·승인" },
     { icon:NAV_ICONS.calendar, name:"캘린더", desc:"일정 · 메모 · 방학 · 결석·보충" },
-    { icon:NAV_ICONS.settings, name:"기타",   desc:"코인 조정 · 문자 · 비밀번호 · 백업" },
+    { icon:NAV_ICONS.settings, name:"기타",   desc:"코인 조정 · 비밀번호 · 백업 · 버그신고" },
   ];
   const pages=[
     { head:"화면 아래 메뉴 네 칸이에요" },
@@ -105,7 +105,7 @@ export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
         <div style={{marginBottom:16}}>
           {i===0
             ? menus.map((m,k)=>row(m.icon,m.name,m.desc,k))
-            : [row(<CareIcon name="lock" size={21}/>,`${parentRole} 권한은 잠금`,"몇 곳은 비밀번호를 한번 물어봐요.\n(초기 비밀번호 1234)","lock"),
+            : [row(<CareIcon name="lock" size={21}/>,`${parentRole} 권한은 잠금`,"비밀번호를 꼭 기억해두세요.\n(초기 비밀번호 1234)","lock"),
                row(<CareIcon name="bag" size={19}/>,"아이용","이제 아이용 화면을 살펴볼까요?\n오른쪽 위 '🎒 아이용' 버튼을 눌러보세요!","kid")]}
         </div>
         <div style={{display:"flex",gap:5,justifyContent:"center",marginBottom:16}}>
