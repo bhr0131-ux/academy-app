@@ -142,7 +142,7 @@ export function SupplyCheckModal({ dateLabel = "오늘", groups = [], tone, onCl
                         color: it.checked ? tone.green : tone.sub,
                         display: "inline-flex", alignItems: "center", gap: 6 }}>
                       <CareIcon name={it.checked ? "check" : "checkEmpty"} size={14} />
-                      {it.extra ? "+" : ""}{it.label}
+                      {it.label}
                     </button>
                   ))}
                 </div>

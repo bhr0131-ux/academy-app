@@ -1,4 +1,4 @@
-import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, EXTRA_QUEST_ICON, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
+import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, parentTheme, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, EXTRA_QUEST_ICON, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, nextTreasureGoal, getDecorById, computeDecorPurchase, decorNeedsMaxPet, decorView, getTerms, getParentTerms, getHolidayName } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, copyText, DEFAULT_CHILDREN } from "./utils/dates.js";
@@ -276,6 +276,10 @@ export default function App() {
   const [dailyHwPoint,        setDailyHwPoint]        = useState(initDaily.dailyHwPoint);
   const [dailyTodoPoint,      setDailyTodoPoint]      = useState(initDaily.dailyTodoPoint);
   const [showDailyModal,      setShowDailyModal]      = useState(initDaily.showDailyModal);
+  /* 미션 창에서 실제로 바꾼 것이 있나 — 창을 열 때 false, 미션·준비물·반복을 넣거나 고치면 true (2026-11-26) */
+  const dailyDirtyRef=useRef(false);
+  const dailyOpenRef=useRef(false);
+  useEffect(()=>{ const open=!!showDailyModal; if(open&&!dailyOpenRef.current) dailyDirtyRef.current=false; dailyOpenRef.current=open; },[showDailyModal]);
   const [dailyKind,          setDailyKind]           = useState("hw");
   /* [사용자 확정 2026-11-22] 미션 반복 설정 — 새 키 v6_mission_rules (기존 미션 저장은 그대로).
      missionRules[아이id] = [{id, acId, text, point, type:"class"|"daily"|"days", days:["월",…], start:"YYYY-MM-DD"}]
@@ -2239,7 +2243,8 @@ export default function App() {
   const getGenderEmoji = (child) => GENDER_THEME[child?.gender]?.emoji || GENDER_THEME.boy.emoji;
 
   // 테마색은 탐험·베이커리 모두 아이가 고른 색을 그대로 쓴다(아이 구분 유지).
-  const th = getChildTheme(curChild);
+  /* 엄마 화면에서는 흰 글씨가 잘 읽히도록 테마색을 대비 3:1 까지만 진하게 (tokens.parentTheme, 2026-11-26) */
+  const th = appMode==="parent" ? parentTheme(getChildTheme(curChild)) : getChildTheme(curChild);
   const _T = getSkin(kidSkin).text;      // 현재 아이모드 스킨의 텍스트 세트(탐험/베이커리)
   // 어린이용(미취학~초1) 연령대는 영문을 못 읽으므로 탐험모드 상태 라벨을 한글로 교체
   const T = (kidSkin!=="cute" && rewardAgeGroup==="kid")
@@ -5347,7 +5352,7 @@ export default function App() {
                           })}
                           {sup.map((s,i)=>{
                             const key="+"+s; const checked=(entry.checkedSupplies||[]).includes(key);
-                            return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={chipSty(checked)}>{chipMark(checked)}+{s}</button>;
+                            return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={chipSty(checked)}>{chipMark(checked)}{s}</button>;
                           })}
                           {baseSup.length===0&&sup.length===0&&<span style={{fontSize:13,color:"#8A7458",fontWeight:700,alignSelf:"center"}}>없음</span>}
                         </>}
@@ -5416,7 +5421,7 @@ export default function App() {
                             })}
                             {sup.map((s,i)=>{
                               const key="+"+s; const checked=(entry.checkedSupplies||[]).includes(key);
-                              return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={{fontSize:13,padding:"5px 12px",borderRadius:999,cursor:"pointer",background:checked?(dk?"rgba(246,209,143,0.22)":softTint(ac.color,0.62)):(dk?`${ac.color}1f`:`${C.orange}14`),border:checked?(dk?"1px solid #F6D18F":`1px solid ${ac.color}88`):`1px solid ${dk?ac.color+"55":C.orange+"33"}`,color:checked?(dk?"#FFE9BE":GP.boxText):(dk?softTint(ac.color,0.85):C.orange),fontWeight:800,transition:"all .15s"}}><span style={{fontSize:11,marginRight:1}}>{checked?"✅":"⬜"}</span> +{s}</button>;
+                              return <button key={`s${i}`} onClick={()=>toggleSupplyChecked(childId,ac.id,childDate,key)} style={{fontSize:13,padding:"5px 12px",borderRadius:999,cursor:"pointer",background:checked?(dk?"rgba(246,209,143,0.22)":softTint(ac.color,0.62)):(dk?`${ac.color}1f`:`${C.orange}14`),border:checked?(dk?"1px solid #F6D18F":`1px solid ${ac.color}88`):`1px solid ${dk?ac.color+"55":C.orange+"33"}`,color:checked?(dk?"#FFE9BE":GP.boxText):(dk?softTint(ac.color,0.85):C.orange),fontWeight:800,transition:"all .15s"}}><span style={{fontSize:11,marginRight:1}}>{checked?"✅":"⬜"}</span> {s}</button>;
                             })}
                             {(ac.baseSupplies||[]).filter(s=>!(entry.hiddenBase||[]).includes(s)).length===0&&sup.length===0&&<span style={{fontSize:13,color:acSub}}>없음</span>}
                           </div>
@@ -5765,7 +5770,7 @@ export default function App() {
                 style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
               {parentPin==="1234"&&!pinHintSeen&&(
                 <p style={{fontSize:13,fontWeight:700,color:th.main,background:`${th.main}12`,borderRadius:10,padding:"9px 12px",margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
-                  💡 처음 비밀번호는 <b>1234</b> 예요.<br/>기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
+                  💡 처음 비밀번호는 <b>1234</b>예요.<br/>기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
                 </p>
               )}
               <button onClick={submitGatePin}
@@ -6073,7 +6078,7 @@ export default function App() {
               style={{width:"100%",boxSizing:"border-box",padding:"14px",borderRadius:14,border:`1.5px solid ${C.border}`,fontSize:20,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:6}}/>
             {parentPin==="1234"&&!pinHintSeen&&(
               <p style={{fontSize:13,fontWeight:700,color:th.main,background:`${th.main}12`,borderRadius:10,padding:"9px 12px",margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
-                💡 처음 비밀번호는 <b>1234</b> 예요.<br/>기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
+                💡 처음 비밀번호는 <b>1234</b>예요.<br/>기타 &gt; 비밀번호 변경에서 바꿀 수 있어요.
               </p>
             )}
             <button onClick={submitGatePin}
@@ -7970,7 +7975,7 @@ export default function App() {
         const showSupplies=!isExtra&&!fromMission;
         const entry=getDailyEntry(childId,academyId,date);
         const hw=entry.homeworks||[], sup=entry.supplies||[], todos=entry.todos||[];
-        const upd=(ne)=>setDailyEntry(childId,academyId,date,ne);
+        const upd=(ne)=>{ dailyDirtyRef.current=true; setDailyEntry(childId,academyId,date,ne); };
         const isParent=(appMode==="parent");   // 엄마용: 수정 가능 + 완료 체크 비활성
         const isParentEdit=rewardUnlocked;      // 보상탭(PIN) 통과: 삭제·점수수정 허용
         const canCheck=(!isParent)||isParentEdit; // 체크 가능: 아이용 또는 보상탭 통과한 엄마 (엄마 홈탭은 체크 불가)
@@ -8139,6 +8144,7 @@ export default function App() {
                   const v=val.trim(); if(!v) return;
                   if(rep.type==="days"&&!(rep.days||[]).length){ showToast("요일을 골라 주세요"); return; }
                   if(rep.type==="dates"&&!pickedDates.length){ showToast("날짜를 골라 주세요"); return; }
+                  dailyDirtyRef.current=true;
                   const item={id:newId(),text:v,done:false,point:ptN,coin:coinN};
                   if(rep.type==="dates"){
                     /* [사용자 확정 2026-11-24] 특정 날짜도 반복 규칙으로 저장 — 미션 탭 '반복 미션'에 보이고(지난 날짜만 남으면 안 보임),
@@ -8319,6 +8325,7 @@ export default function App() {
                     const e=getDailyEntry(childId,r.ac.id,date), h=e.homeworks||[];
                     if(h.some(x=>x.text===r.text)){ showToast("이미 추가된 숙제예요"); return; }
                     const oldPt=r.source==="repeat"?(Number(r.item.point)||DEFAULT_HOMEWORK_SCORE):DEFAULT_HOMEWORK_SCORE;   // 점수 10 고정, 예전 점수는 코인으로
+                    dailyDirtyRef.current=true;
                     setDailyEntry(childId,r.ac.id,date,{...e,homeworks:[...h,{id:newId(),text:r.text,done:false,point:DEFAULT_HOMEWORK_SCORE,...(oldPt!==DEFAULT_HOMEWORK_SCORE?{coin:questCoin(oldPt)}:{}),...(r.source==="base"?{fromBase:true}:{})}]});
                     showToast(`${r.ac.name}에 추가했어요 📚`);
                   };
@@ -8358,7 +8365,8 @@ export default function App() {
               {/* [사용자 확정 2026-08-11] '＋ 추가'와 '저장하기'가 둘 다 저장처럼 읽혀서
                   버튼 이름을 사실대로 '닫기'로 바꿨다. 그때 같이 붙였던
                   '넣거나 지우면 바로 저장돼요' 안내 줄은 사용자 요청으로 뺀다. */}
-              <button onClick={()=>{ setShowDailyModal(null); showToast(); }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:RAD.md,border:"none",background:th.grad,color:"#fff",fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
+              {/* [사용자 확정 2026-11-26] 바꾼 게 없으면 '저장됨'을 띄우지 않는다 */}
+              <button onClick={()=>{ setShowDailyModal(null); if(dailyDirtyRef.current) showToast(); dailyDirtyRef.current=false; }} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:RAD.md,border:"none",background:th.grad,color:"#fff",fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>닫기</button>
             </div>
           </div>
         );

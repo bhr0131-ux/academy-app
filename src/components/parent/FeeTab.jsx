@@ -25,7 +25,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
-import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW } from "../../data/tokens.js";
+import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, SUB_LABEL } from "../../data/tokens.js";
 import { payMethodLabel } from "./FeePaySheet.jsx";
 import CareIcon from "./CareIcons.jsx";
 
@@ -116,7 +116,7 @@ export default function FeeTab({
         이미 알 수 있어 뺐다(다 냈을 때만 축하 한 줄). */}
     {/* 총액 21px 만 척도(17) 밖이다 — 이 화면의 주인공 숫자라 일부러 한 단 크게 둔다. */}
     <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.96)} 0%, ${mixWhite(th.main,0.88)} 100%)`,borderRadius:RAD.md,padding:"12px 14px 12px",marginBottom:14,border:`1px solid ${th.main}2A`,boxShadow:SHADOW.sm}}>
-      <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:0,textAlign:"center"}}>{feeMonth}월 총 학원비</p>
+      <p style={{fontSize:FS.tag,...SUB_LABEL,margin:0,textAlign:"center"}}>{feeMonth}월 총 학원비</p>
       <p style={{fontSize:21,fontWeight:FW.bold,color:C.text,margin:"1px 0 0",textAlign:"center",letterSpacing:-0.3}}>{won(total)}</p>
       {/* [사용자 확정 2026-11-23] 총 학원비만 남긴다 — 납부·남은 금액은 아래 '낼 곳/납부 완료'가 말해 준다 */}
     </div>
@@ -199,7 +199,7 @@ export default function FeeTab({
             {hasFee?(
               <p style={{margin:"3px 0 0",fontSize:FS.title,fontWeight:FW.bold,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
                 {Number(a.fee).toLocaleString()}원
-                {paid&&<span style={{fontSize:FS.tag,fontWeight:FW.normal,color:SUBD,marginLeft:6}}>
+                {paid&&<span style={{fontSize:FS.tag,...SUB_LABEL,marginLeft:6}}>
                   · 매월 {a.payDay}일
                 </span>}
               </p>
@@ -214,7 +214,7 @@ export default function FeeTab({
                 학원비 설정과 이 달 납부 기록을 한 화면에서 보여 준다. 같은 곳으로 가는
                 길이 둘이었다. 낸 날·방법은 여기 한 줄로 그대로 읽힌다. */}
             {hasFee&&paid&&rec&&(
-              <p style={{margin:"5px 0 0",fontSize:FS.tag,fontWeight:FW.normal,color:SUBD,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+              <p style={{margin:"5px 0 0",fontSize:FS.tag,...SUB_LABEL,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                 {`${Number(rec.date.slice(5,7))}월 ${Number(rec.date.slice(8,10))}일 납부${rec.method?` · ${payMethodLabel(rec.method)}`:""}${rec.memo?` · ${rec.memo}`:""}`}
               </p>
             )}
@@ -233,7 +233,7 @@ export default function FeeTab({
                 따로 한 줄을 쓴다. 왼쪽에는 이번 달 납부 예정일을 온전히 적는다. */}
             {hasFee&&!paid&&(
               <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
-                <span style={{fontSize:FS.tag,fontWeight:FW.normal,color:SUBD,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                <span style={{fontSize:FS.tag,...SUB_LABEL,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                   납부 예정일 {feeMonth}월 {a.payDay}일
                 </span>
                 {/* [사용자 확정 2026-11-25] 밑줄 글자 대신 작은 알약 버튼 */}

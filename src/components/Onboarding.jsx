@@ -194,7 +194,7 @@ export function OnboardingFlow({ onFinish }){
     /* [사용자 지적 2026-08-11] 앱의 학원 등록은 '종류'가 필수고 '이름'이 선택이다.
        첫 등록만 이름을 필수로 받고 있어 규칙이 어긋났다 → 같은 순서·같은 규칙으로 맞춘다.
        이름을 비우면 종류 이름을 그대로 학원 이름으로 쓴다(앱의 saveAcademy 와 같은 규칙). */
-    { kind:"academy", title:"아이가 다니는 곳은 어디인가요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind&&acTimeOk },
+    { kind:"academy", title:"아이가 다니는 곳은 어디인가요?", sub:"우선 하나만 등록해요. 나중에 더 추가할 수 있어요.", canNext:()=>!!acKind&&acDays.length>0&&acTimeOk },   // 수업 요일은 1개 이상 (2026-11-26)
     { kind:"routine", title:"갈 때마다 챙기는 준비물이 있나요?", sub:"한 번 넣어 두면 그곳에 가는 날마다 보여요." },
     /* [사용자 확정 2026-08-11] 반복 숙제를 준비물과 떼어 미션 단계로 옮겼다 — 둘 다 '숙제'라
        미션 이야기를 할 때 같이 보는 게 자연스럽다.
@@ -241,7 +241,7 @@ export function OnboardingFlow({ onFinish }){
         {cur.kind==="welcome"&&(
           <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",textAlign:"center"}}>
             <div style={{fontSize:64,marginBottom:18}}>🌱</div>
-            <h2 style={{fontSize:25,fontWeight:900,color:"#1A1A35",margin:"0 0 32px",lineHeight:1.3}}>미션팡에<br/>오신 걸 환영해요</h2>
+            <h2 style={{fontSize:25,fontWeight:900,color:"#1A1A35",margin:"0 0 32px",lineHeight:1.3}}>미션팡에 오신 걸<br/>환영해요</h2>
             <p style={{fontSize:15,fontWeight:600,color:"#8890B0",lineHeight:1.8,margin:0}}>
               동기부여가 고민이었던 부모님도,<br/>
               숙제가 재미없던 아이도,<br/>
@@ -332,7 +332,7 @@ export function OnboardingFlow({ onFinish }){
             </p>
             <input value={acName} onChange={e=>setAcName(e.target.value)}
               placeholder={acKindLabel?`비우면 '${acKindLabel}'${withRo(acKindLabel).slice(acKindLabel.length)} 저장돼요`:"예: 노아피아노"} style={inp}/>
-            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:`${ACADEMY_GAP}px 0 10px`}}>수업 요일</p>
+            <p style={{fontSize:14,fontWeight:800,color:"#1A1A35",margin:`${ACADEMY_GAP}px 0 10px`}}>수업 요일 <span style={{fontSize:12,fontWeight:700,color:acDays.length?"#8890B0":"#E5484D"}}>{acDays.length?"":"1개 이상 골라 주세요"}</span></p>
             {/* 일곱 칸이 한 줄에 들어가게 폭을 나눠 갖는다 — 고정 폭이면 좁은 기기에서 두 줄로 접혔다 */}
             <div style={{display:"flex",gap:5}}>
               {DAYS.map(d=>(

@@ -22,7 +22,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
-import { C, FS, FW, RAD, DEFAULT_HOMEWORK_SCORE } from "../../data/tokens.js";
+import { C, FS, FW, RAD, DEFAULT_HOMEWORK_SCORE, SUB_LABEL } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 import { TODAY } from "../../utils/dates.js";
 
@@ -171,7 +171,7 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                     {/* [사용자 확정 2026-11-25] 점수·코인은 한 줄에 — 학원 이름이 길면 이름만 말줄임으로 줄인다 */}
                     <span style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, flexShrink: 1, fontSize: FS.sub, color: C.sub }}>
                       <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.acColor || th.main, flexShrink: 0 }} />
-                      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.acName}</span>
+                      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ...SUB_LABEL }}>{row.acName}</span>
                     </span>
                     <span style={{ ...pill, background: `${C.orange}14`, color: C.orange }}>+{DEFAULT_HOMEWORK_SCORE}{xpU}</span>
                     <span style={{ ...pill, background: "#2E8FD614", color: "#2E8FD6" }}>+{row.coin}{coinU}</span>
