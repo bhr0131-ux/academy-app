@@ -38,6 +38,7 @@ export default function FeeTab({
   th, CT, curAc = [], feeMonth, setFeeMonth,
   isPaid, payRec, payStatus, feeMenu, setFeeMenu,
   onPay, onEditFee, onDeleteFee, onCopyAccount, onAddFee,
+  embedded = false,   // 홈 '전체 학원' 아래 카드 안에 들어갈 때 — 머리 한 줄에 '학원비'와 월 이동을 함께 (2026-11-25)
 }) {
   /* [사용자 확정 2026-08-09] 이 화면의 일은 '예쁘게 보이기'가 아니라
      "이번 달에 얼마를 더 내야 하고, 어떤 학원이 미납인가"를 빨리 판단하게 하는 것. */
@@ -69,19 +70,42 @@ export default function FeeTab({
   <div>
     {/* 월 이동 — 화살표를 제목 양옆에 모아 하나의 조작 영역으로 (사용자 지적).
         연도를 같이 써서 지난달을 보다가 헷갈리지 않게 한다. */}
+    {embedded?(
+      /* [사용자 확정 2026-11-25] 머리 한 줄 — 왼쪽 '학원비', 오른쪽 '‹ 2026년 12월 ›' (위쪽 날짜 줄과 다른 모양으로 구분) */
+      <div style={{display:"flex",alignItems:"center",gap:4,margin:"0 0 12px",minWidth:0}}>
+        <span style={{display:"flex",alignItems:"center",gap:6,flexShrink:0,fontSize:FS.title,fontWeight:FW.bold,color:C.text}}>
+          <span style={{color:th.main,display:"flex"}}><CareIcon name="fee" size={16}/></span>학원비
+        </span>
+        <div style={{flex:1}}/>
+        {feeMonth!==thisMonth&&(
+          <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
+            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",marginRight:2}}>
+            ↩ 이번달로
+          </button>
+        )}
+        <div style={{display:"flex",alignItems:"center",flexShrink:0,background:"#fff",border:`1px solid ${th.main}22`,borderRadius:999,padding:"0 2px"}}>
+          <button onClick={()=>setFeeMonth(m=>Math.max(1,m-1))} className="jelly-tap" aria-label="이전 달"
+            style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>‹</button>
+          <span style={{fontWeight:FW.bold,fontSize:FS.sub,color:C.text,whiteSpace:"nowrap"}}>{new Date().getFullYear()}년 {feeMonth}월</span>
+          <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} className="jelly-tap" aria-label="다음 달"
+            style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>›</button>
+        </div>
+      </div>
+    ):(
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginBottom:12,position:"relative"}}>
-      <button onClick={()=>setFeeMonth(m=>Math.max(1,m-1))} className="jelly-tap" aria-label="이전 달"
-        style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
-      <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text}}>{new Date().getFullYear()}년 {feeMonth}월</span>
-      <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} className="jelly-tap" aria-label="다음 달"
-        style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
-      {feeMonth!==thisMonth&&(
-        <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
-          style={{position:"absolute",right:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
-          ↩ 이번달로
-        </button>
-      )}
-    </div>
+        <button onClick={()=>setFeeMonth(m=>Math.max(1,m-1))} className="jelly-tap" aria-label="이전 달"
+          style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
+        <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text}}>{new Date().getFullYear()}년 {feeMonth}월</span>
+        <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} className="jelly-tap" aria-label="다음 달"
+          style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
+        {feeMonth!==thisMonth&&(
+          <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
+            style={{position:"absolute",right:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            ↩ 이번달로
+          </button>
+        )}
+      </div>
+    )}
 
     {/* 요약 — [사용자 확정 2026-08-09] 3칸을 나란히 두면 금액이 길 때
         '200,00…'처럼 잘린다. 이 화면에서 제일 중요한 숫자가 잘리면 안 되므로
@@ -134,6 +158,8 @@ export default function FeeTab({
          '납부 처리'는 어느 카드에서나 같은 무게의 동작이라 색으로 갈릴 이유가 없고,
          상태는 바로 위 배지가 이미 색으로 말한다 (결석 탭의 주 행동 링크와 같은 규칙).
          actC 는 배지 글자에만 남는다. */
+      const payPill={border:"none",cursor:"pointer",fontFamily:"inherit",background:th.main,color:"#fff",borderRadius:999,
+        fontSize:FS.tag,fontWeight:FW.bold,padding:"5px 12px",flexShrink:0,whiteSpace:"nowrap",lineHeight:1.3};
       const actLink={background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",color:C.text,
         fontSize:FS.sub,fontWeight:FW.semi,textDecoration:"underline",textUnderlineOffset:3,
         padding:"8px 0 8px 12px",flexShrink:0,whiteSpace:"nowrap"};
@@ -195,7 +221,7 @@ export default function FeeTab({
             {hasFee&&paid&&!rec&&(
               <div style={{marginTop:6,background:CT.faint,borderRadius:RAD.sm,padding:"8px 10px"}}>
                 <p style={{margin:0,fontSize:FS.tag,fontWeight:FW.normal,color:SUBD}}>납부일과 결제 방법을 입력해 주세요</p>
-                <button onClick={()=>onPay(a.id)} style={{...actLink,padding:"8px 0 4px"}}>
+                <button onClick={()=>onPay(a.id)} className="jelly-tap" style={{...payPill,marginTop:7,background:"#fff",color:th.main,border:`1px solid ${th.main}55`}}>
                   납부 정보 추가
                 </button>
               </div>
@@ -210,7 +236,8 @@ export default function FeeTab({
                 <span style={{fontSize:FS.tag,fontWeight:FW.normal,color:SUBD,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                   납부 예정일 {feeMonth}월 {a.payDay}일
                 </span>
-                <button onClick={()=>onPay(a.id)} style={{...actLink,marginLeft:"auto"}}>
+                {/* [사용자 확정 2026-11-25] 밑줄 글자 대신 작은 알약 버튼 */}
+                <button onClick={()=>onPay(a.id)} className="jelly-tap" style={{...payPill,marginLeft:"auto"}}>
                   납부 처리
                 </button>
               </div>

@@ -363,7 +363,7 @@ export default function ParentHomeTab({
               <button key={t.k} onClick={()=>setAcView(t.k)} className="jelly-tap"
                 aria-pressed={on}
                 style={{border:"none",cursor:"pointer",fontFamily:"inherit",
-                  padding:"6px 11px",borderRadius:RAD.sm,minWidth:156,justifyContent:"center",
+                  padding:"6px 9px",borderRadius:RAD.sm,minWidth:136,justifyContent:"center",
                   fontSize:FS.cardTitle,fontWeight:FW.bold,letterSpacing:0.2,whiteSpace:"nowrap",
                   background:on?`linear-gradient(135deg, ${mixWhite(th.main,0.10)}, ${mixWhite(th.main,0.30)})`:"transparent",
                   color:on?"#fff":"#A8AEC0",
@@ -650,8 +650,9 @@ export default function ParentHomeTab({
           계좌 복사·⋮ 수정/삭제까지 그대로. 저장(v6_paid / v6_fee_pay_info)은 App 그대로다.
           (그전 2026-11-22 의 '학원비 요약' 칸은 이 화면이 대신한다) */}
       {acView==="all"&&curAc.length>0&&feePanel&&(
-        <div ref={feeRef} style={{marginTop:24,scrollMarginTop:12}}>
-          <SectionHead icon="fee" label="학원비" th={th} style={{margin:"0 0 10px"}}/>
+        /* [사용자 확정 2026-11-25] 학원비 영역 전체를 한 카드로 묶는다 — 위 학원 목록·날짜 줄과 떨어져 보이게.
+           머리('학원비 ‹ 2026년 12월 ›')는 FeeTab(embedded)이 그린다 */
+        <div ref={feeRef} style={{marginTop:24,scrollMarginTop:12,background:mixWhite(th.main,0.95),border:`1px solid ${th.main}22`,borderRadius:RAD.lg,padding:"14px 12px 4px",boxShadow:SHADOW.sm}}>
           {feePanel}
         </div>
       )}

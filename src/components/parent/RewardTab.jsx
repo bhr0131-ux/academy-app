@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { C, FS, FW, RAD, mixBlack } from "../../data/tokens.js";
+import { C, FS, FW, RAD, mixBlack, mixWhite, SHADOW } from "../../data/tokens.js";
 import { REWARD_SETS_BY_AGE } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 import EmojiIcon from "../EmojiIcon.jsx";
@@ -66,15 +66,15 @@ export default function RewardTab({ D }) {
                     </>
                   )}
                   {canEdit&&(
-                  /* 두 줄짜리 줄이라 수정·삭제는 예전처럼 세로로 쌓는다 */
-                  <div style={{display:"flex",flexDirection:"column",gap:5,flexShrink:0}}>
-                    <button onClick={()=>openEditReward(reward)}
-                      style={{border:`1px solid ${th.main}30`,background:th.light,color:th.main,borderRadius:RAD.sm,padding:"4px 8px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
-                      수정
+                  /* [사용자 확정 2026-11-25] 수정·삭제는 가로로 나란히, 작은 아이콘 버튼 */
+                  <div style={{display:"flex",gap:6,flexShrink:0}}>
+                    <button onClick={()=>openEditReward(reward)} aria-label={`${reward.title} 수정`} className="jelly-tap"
+                      style={{width:34,height:34,border:`1px solid ${th.main}30`,background:th.light,color:th.main,borderRadius:RAD.sm,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>
+                      <CareIcon name="pencil" size={15}/>
                     </button>
-                    <button onClick={()=>deleteReward(reward.id)}
-                      style={{border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:RAD.sm,padding:"4px 8px",fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
-                      삭제
+                    <button onClick={()=>deleteReward(reward.id)} aria-label={`${reward.title} 삭제`} className="jelly-tap"
+                      style={{width:34,height:34,border:`1px solid ${C.red}30`,background:`${C.red}0A`,color:C.red,borderRadius:RAD.sm,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>
+                      <CareIcon name="trash" size={15}/>
                     </button>
                   </div>
                   )}
@@ -123,28 +123,28 @@ export default function RewardTab({ D }) {
         {embedded?(
           /* [사용자 확정 2026-11-24] '미션 추가·관리'와 같은 칸 — 테마색 머리 안에 '보상 관리 · 연령대 · [연령대 변경] · ⌄'.
              개수는 뺐다. 누르면 아래 흰 칸에 목록이 펼쳐진다. */
-          <div style={{borderRadius:12,overflow:"hidden",boxShadow:"0 2px 10px rgba(20,24,60,0.06)",border:`1px solid ${C.border}`,background:"#fff"}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,background:th.grad,padding:"0 4px 0 4px"}}>
+          /* [사용자 확정 2026-11-25] 홈 카드 톤의 차분한 접이식 바 — 흰 바탕, 진한 색은 쓰지 않는다 */
+          <div style={{borderRadius:RAD.md,overflow:"hidden",boxShadow:SHADOW.sm,border:`1px solid ${th.main}22`,background:"#fff"}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,padding:"0 6px 0 4px",background:(open||ageOpen)?mixWhite(th.main,0.91):"#fff",borderBottom:(open||ageOpen)?`1px solid ${th.main}1A`:"none"}}>
               <button onClick={()=>setOpen&&setOpen(!open)} aria-expanded={open} className="jelly-tap"
-                style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:7,border:"none",background:"none",padding:"12px 6px 12px 10px",cursor:"pointer",fontFamily:"inherit",textAlign:"left",color:"#fff"}}>
-                {/* 좁은 폰에서 연령대 글자가 잘리지 않게 선물 그림은 뺐다 */}
+                style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:7,border:"none",background:"none",padding:"12px 6px 12px 10px",cursor:"pointer",fontFamily:"inherit",textAlign:"left",color:mixBlack(th.main,0.35)}}>
+                {/* 좁은 폰에서도 연령대 글자가 잘리지 않게 선물 그림은 뺀다 */}
                 <span style={{fontSize:FS.cardTitle,fontWeight:FW.bold,flexShrink:0}}>보상 관리</span>
-                <span style={{fontSize:FS.sub,fontWeight:FW.semi,opacity:0.92,flexShrink:0,whiteSpace:"nowrap"}}>{ageNote}</span>
+                <span style={{fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0,whiteSpace:"nowrap"}}>{ageNote}</span>
               </button>
               <button onClick={()=>{ setAgeOpen(v=>!v); if(setOpen&&!open) setOpen(true); }} aria-expanded={ageOpen} className="jelly-tap"
-                style={{flexShrink:0,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,borderRadius:8,padding:"3px 7px",fontSize:11,fontWeight:FW.semi,lineHeight:1.3,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>{/* 버튼 모양은 예전(흰 바탕·회색 테두리), 크기는 더 작게 (사용자 확정 2026-11-24) */}
+                style={{flexShrink:0,border:`1px solid ${C.border}`,background:"#fff",color:C.sub,borderRadius:8,padding:"3px 7px",fontSize:11,fontWeight:FW.semi,lineHeight:1.3,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
                 연령대 변경
               </button>
-              {/* 펼침 표시 — 오른쪽 끝. 글자 ⌄ 는 작게 나와 선 그림으로 키웠다 (사용자 확정 2026-11-24) */}
               <button onClick={()=>setOpen&&setOpen(!open)} aria-label={open?"보상 목록 접기":"보상 목록 펼치기"} className="jelly-tap"
-                style={{flexShrink:0,width:30,height:34,border:"none",background:"none",color:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>
+                style={{flexShrink:0,width:30,height:34,border:"none",background:"none",color:C.sub,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>
                 <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" style={{transition:"transform .2s",transform:open?"rotate(180deg)":"none"}}>
-                  <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
             </div>
             {(open||ageOpen)&&(
-            <div style={{padding:"0 8px 10px"}}>
+            <div style={{padding:"2px 8px 10px"}}>
             {ageOpen&&(
               <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:7,marginTop:12}}>
                 {ageOpts.map(o=>{ const on=rewardAgeGroup===o.k; return (

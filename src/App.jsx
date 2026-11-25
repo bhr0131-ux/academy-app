@@ -6294,7 +6294,7 @@ export default function App() {
             /* [사용자 확정 2026-11-23] 학원비 탭을 없애고 홈 '전체 학원' 아래로 옮겼다 — 여기선 달만 맞춘다 */
             onGoFee={(month)=>{ setFeeMonth(month); }}
             feePanel={
-              <FeeTab
+              <FeeTab embedded
                 th={th} CT={CT} curAc={curAc}
                 feeMonth={feeMonth} setFeeMonth={setFeeMonth}
                 isPaid={isPaid} payRec={payRec} payStatus={payStatus}
@@ -6476,12 +6476,12 @@ export default function App() {
                         {/* [사용자 확정 2026-08-16] 버튼과 펼친 내용을 한 칸으로 묶는다 —
                             버튼 아래에 따로 떨어져 나오면 '갑자기 메뉴가 나타난' 느낌이었다.
                             상자 하나를 아래로 늘리는 모양이라 같은 컴포넌트로 읽힌다. */}
-                        <div style={{borderRadius:12,overflow:"hidden",
-                          boxShadow:"0 2px 10px rgba(20,24,60,0.06)",
-                          border:`1px solid ${C.border}`,background:"#fff"}}>
+                        {/* [사용자 확정 2026-11-25] 홈 카드와 같은 톤 — 흰 카드 + 연라벤더 머리(진한 그라데이션 대신) */}
+                        <div style={{borderRadius:RAD.md,overflow:"hidden",boxShadow:SHADOW.sm,
+                          border:`1px solid ${th.main}22`,background:"#fff"}}>
                           {/* [사용자 확정 2026-11-23] 접지 않는다 — 머리는 이름표, 아래 두 줄을 늘 보여 준다 */}
-                          <div style={{width:"100%",padding:"12px 10px",background:th.grad,color:"#fff",fontSize:FS.cardTitle,fontWeight:FW.bold,display:"flex",alignItems:"center",justifyContent:"center",gap:7,boxSizing:"border-box"}}>
-                            미션 추가·관리
+                          <div style={{width:"100%",padding:"11px 14px",background:mixWhite(th.main,0.91),borderBottom:`1px solid ${th.main}1A`,color:mixBlack(th.main,0.35),fontSize:FS.cardTitle,fontWeight:FW.bold,display:"flex",alignItems:"center",gap:7,boxSizing:"border-box"}}>
+                            <CareIcon name="mission" size={15}/>미션 추가·관리
                           </div>
 
                         {/* 학원 목록 — 버튼 아래로 펼친다 */}

@@ -29,7 +29,7 @@ import { TODAY } from "../../utils/dates.js";
 /* 오늘 'YYYY-MM-DD' — 앱의 TODAY(개발용 날짜 바꾸기도 따른다) · 'M/D(요)' */
 const todayStr = () => TODAY;
 const dLabel = (d) => { const x = new Date(d.replace(/-/g, "/")); return `${x.getMonth() + 1}/${x.getDate()}(${"일월화수목금토"[x.getDay()]})`; };
-const pill = { flexShrink: 0, fontSize: 11.5, fontWeight: 800, padding: "2px 8px", borderRadius: 20 };
+const pill = { flexShrink: 0, fontSize: 11, fontWeight: 800, padding: "2px 7px", whiteSpace: "nowrap", borderRadius: 20 };
 
 export default function MissionOverview({ dayItems = [], rules = [], th, TM, onSave, onDelete, onToggle, emptyText = "등록된 미션이 없어요" }) {
   const [edit, setEdit] = useState(null);     // { key, text, coin }
@@ -65,7 +65,7 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
         const editing = edit && edit.key === row.key;
         const faded = row.kind === "day" && (row.done || row.failed);
         return (
-          <div key={row.key} style={{ display: "flex", alignItems: editing ? "stretch" : "center", gap: 10, padding: "10px 12px 10px 14px",
+          <div key={row.key} style={{ display: "flex", alignItems: editing ? "stretch" : "center", gap: 8, padding: "10px 8px 10px 12px",
             borderRadius: RAD.md, background: "#fff", border: `1px solid ${editing ? th.main + "55" : C.border}` }}>
             {editing ? (
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 7 }}>
@@ -150,7 +150,7 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                 {row.kind === "day" && onToggle && (
                   <button onClick={() => { if (!row.failed) onToggle(row); }} className="jelly-tap"
                     aria-label={`${row.text} ${row.done ? "완료 취소" : "완료"}`}
-                    style={{ width: 34, height: 34, flexShrink: 0, margin: "0 -2px 0 -6px", border: "none", background: "none", padding: 0,
+                    style={{ width: 30, height: 34, flexShrink: 0, margin: "0 -2px 0 -4px", border: "none", background: "none", padding: 0,
                       display: "flex", alignItems: "center", justifyContent: "center", cursor: row.failed ? "default" : "pointer" }}>
                     <span style={{ width: 24, height: 24, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
                       border: `2px solid ${row.done ? C.green : row.failed ? C.sub : "#B7BDCB"}`,
@@ -167,9 +167,9 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                     {row.text}
                   </p>
                   {/* 아랫줄 — 하루·반복 모두 같은 모양: 학원 · +점 · +코인 (사용자 확정 2026-11-24) */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 5, minWidth: 0, flexWrap: "wrap", rowGap: 5 }}>
-                    {/* 학원 이름이 먼저 줄어 '생…'처럼 되지 않게 — 자기 폭을 지키되 너무 길면 절반까지만 */}
-                    <span style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, flexShrink: 0, maxWidth: "50%", fontSize: FS.sub, color: C.sub }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 5, minWidth: 0, flexWrap: "nowrap" }}>
+                    {/* [사용자 확정 2026-11-25] 점수·코인은 한 줄에 — 학원 이름이 길면 이름만 말줄임으로 줄인다 */}
+                    <span style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, flexShrink: 1, fontSize: FS.sub, color: C.sub }}>
                       <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.acColor || th.main, flexShrink: 0 }} />
                       <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.acName}</span>
                     </span>
@@ -187,7 +187,7 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                 </div>
                 <button onClick={() => setEdit({ key: row.key, text: row.text, coin: String(row.coin), type: row.type, days: [...(row.days || [])], dates: [...(row.dates || [])].filter(d => d >= todayStr()) })} className="jelly-tap"
                   aria-label={`${row.text} 고치기`}
-                  style={{ flexShrink: 0, width: 36, height: 36, border: "none", background: "none", color: C.sub, cursor: "pointer",
+                  style={{ flexShrink: 0, width: 30, height: 36, border: "none", background: "none", color: C.sub, cursor: "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <CareIcon name="pencil" size={16} />
                 </button>
