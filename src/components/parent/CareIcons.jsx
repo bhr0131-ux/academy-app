@@ -218,6 +218,15 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M15.6 9.6l4.8 4.8M20.4 9.6l-4.8 4.8" {...P} />
         </svg>
       );
+    case "share":    // 공유 — 점 세 개를 잇는 모양 (일정 이미지 공유, 2026-11-26)
+      return (
+        <svg {...common}>
+          <circle cx="17.5" cy="5.5" r="2.5" {...P} />
+          <circle cx="6.5" cy="12" r="2.5" {...P} />
+          <circle cx="17.5" cy="18.5" r="2.5" {...P} />
+          <path d="M8.7 10.7l6.6-3.9M8.7 13.3l6.6 3.9" {...P} />
+        </svg>
+      );
     case "warn":     // 위험 구역 — 느낌표 삼각형
       return (
         <svg {...common}>

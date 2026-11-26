@@ -6305,7 +6305,7 @@ export default function App() {
         {/* [2026-08-09] 화면 본문을 components/parent/ParentHomeTab.jsx 로 옮겼다
             (CLAUDE.md 규칙 3). 데이터·저장은 여전히 App에 있고, 값과 콜백만 내려보낸다. */}
         {tab==="home"&&(
-          <ParentHomeTab
+          <ParentHomeTab onToast={(m)=>showToast(m)}
             th={th} CT={CT} TM={TM}
             childId={childId} childGender={childGender} kidSkin={kidSkin}
             curAc={curAc} curAbs={curAbsLive}

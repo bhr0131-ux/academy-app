@@ -34,6 +34,7 @@ import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 import EmojiIcon from "../EmojiIcon.jsx";
 import RegisteredAcademyList from "./RegisteredAcademyList.jsx";
+import ShareTodaySheet from "./ShareTodaySheet.jsx";
 import SectionHead from "./SectionHead.jsx";
 import { RowAct } from "./AcademyTab.jsx";
 
@@ -73,6 +74,7 @@ export default function ParentHomeTab({
   /* '등록 학원' 토글용 — 학원 탭이 쓰던 것과 같은 콜백을 그대로 받는다 */
   childrenList = [], showSample = false,
   onAddAcademy, onEditAcademy, onCopyAcademy, onCopyAccount, onOpenMap, onSeedSample,
+  onToast,
 }) {
   /* 학원 칸에 무엇을 보여 줄지 — "today"(그날 일정) | "all"(등록 목록).
      탭을 옮기면 이 화면이 통째로 사라졌다 다시 그려지므로 늘 '오늘의 학원'으로 돌아온다.
@@ -148,37 +150,8 @@ export default function ParentHomeTab({
     });
   })():[];
   const tomorrowSupplyCount=tomorrowSupplyList.length;
-  return (
-    <div>
-      {/* 날짜 이동 — [사용자 확정 2026-08-10] 좌우 큰 네모 버튼을 없애고 화살표만 남긴다.
-          누르는 자리는 34px 그대로 두되 배경·테두리를 빼서 무게를 덜었다. */}
-      <div style={{display:"flex",alignItems:"center",gap:2,marginBottom:24}}>
-        <button onClick={()=>setHomeDate(addDays(homeDate,-1))} className="jelly-tap" aria-label="이전 날"
-          style={{width:34,height:34,borderRadius:RAD.sm,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>‹</button>
-        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:5,minWidth:0}}>
-          <span style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,whiteSpace:"nowrap"}}>{fullLabel}</span>
-          {dayTag&&<span style={{fontSize:FS.tag,background:th.main,color:"#fff",borderRadius:RAD.sm,padding:"2px 7px",fontWeight:FW.semi,flexShrink:0}}>{dayTag}</span>}
-          {!isToday&&(
-            <button onClick={()=>setHomeDate(TODAY)}
-              style={{background:"none",border:"none",color:th.main,fontSize:FS.tag,cursor:"pointer",padding:"2px 4px",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>
-              ↩ 오늘로
-            </button>
-          )}
-        </div>
-        <button onClick={()=>setHomeDate(addDays(homeDate,1))} className="jelly-tap" aria-label="다음 날"
-          style={{width:34,height:34,borderRadius:RAD.sm,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>›</button>
-      </div>
-
-      {/* [사용자 확정 2026-08-10] '오늘 할 일' 3칸 요약으로 바꿨다가 원래의
-          '오늘 챙길 일' 칩 카드로 되돌린다 — 사용자 요청. 개수에 따라 높이가
-          달라지는 규칙(0개 배너 / 1개 한 줄 / 2개+ 펼침)도 그대로다. */}
-      {/* [사용자 확정 2026-08-08] 현황 카드에서 아이 이름·레벨 줄과 요약 3칸(학원·결석·
-          보충수업)을 빼고, 감싸던 파스텔 카드도 없앴다. 이름·레벨은 바로 위 아이 선택
-          줄에 이미 있고, 요약 3칸의 결석·보충수업은 '오늘 챙길 일' 칩과 겹쳤다.
-          이제 이 자리에는 '오늘 챙길 일' 한 칸만 남는다. */}
-      <div style={{marginBottom:24}}>{/* 여백 22→32→24 (사용자 확정 2026-11-26: 전환 탭 위는 줄이고 아래는 늘림) */}
-        {/* 오늘 챙길 일 알림 */}
-        {(()=>{
+  /* ── '오늘 챙길 일' 목록 — 화면 카드와 공유 이미지가 같은 값을 쓴다 (2026-11-26 함수로 뺌) ── */
+  const homeAlerts=(()=>{
           const pendingRewardCnt=getChildRewardRequests(childId).filter(r=>r.status==="pending").length;
           // 칩마다 누르면 갈 곳을 함께 둔다 (사용자 확정: 개수만 보여 주지 말고 내용까지 확인 가능하게).
           // 준비물·미션은 팝업, 보상승인·결석·보충수업은 이미 처리 화면이 있는 탭으로 보낸다.
@@ -214,6 +187,105 @@ export default function ParentHomeTab({
             go:()=>onGoTab("absence")});
           /* 그날 달력 메모 — 맨 아래 (사용자 확정 2026-11-23 순서). 줄바꿈도 그대로 보여 준다 */
           if(dayMemo) alerts.push({icon:"memo",name:"메모",items:[dayMemo],memo:true,label:"메모",color:C.orange,go:()=>onGoMemo&&onGoMemo()});
+          return alerts;
+  })();
+  /* ── 오늘 학원 카드 한 장에 쓰는 값 — 화면 카드와 공유 이미지가 같이 쓴다 (2026-11-26 함수로 뺌) ── */
+  const acDetail=(ac)=>{
+        const sc=getScheduleForDay(ac,hDN);
+        const [h,m]=(ac._time||"00:00").split(":").map(Number);
+        const tm=h*60+m+Number(ac._duration||0);
+        const endT=`${String(Math.floor(tm/60)%24).padStart(2,"0")}:${String(tm%60).padStart(2,"0")}`;
+        /* 접힌 줄의 시간 자리 — 결석이면 '결석', 보충이면 '보충 14:00–14:40'(시간 없으면 '보충').
+           보통 수업은 예전 그대로 '14:00–14:40'. */
+        const timeText = ac._absent ? "결석"
+          : ac._makeup ? (String(ac._label).includes(":") ? `${ac._label}–${endT}` : ac._label)
+          : `${ac._time}–${endT}`;
+        const entry=getDailyEntry(childId,ac.id,homeDate);
+        const hw=entry.homeworks||[], todos=entry.todos||[];
+        /* [사용자 확정 2026-08-17] 결석한 날은 그 학원에 안 가므로 준비물도 없다 —
+           카드에도 '없음'으로 나온다. 미션은 집에서 할 수 있으니 그대로 둔다.
+           보충 카드는 반대로 늘 챙길 준비물이 그대로 붙는다(_absent 가 false 라 그대로). */
+        const sup=ac._absent?[]:(entry.supplies||[]);
+        const totalTodoCnt=hw.length+todos.length;
+        const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
+        const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
+        const baseSup=ac._absent?[]:(ac.baseSupplies||[]).filter(x=>!(entry.hiddenBase||[]).includes(x));
+        /* 미션은 제목을 칩 하나로 보여 준다 — '등록된 미션 없음' 같은 문장보다 짧고 바로 읽힌다.
+           아직 안 한 것을 먼저 보여 주고 나머지는 '+N'. 여러 개를 다 칩으로 깔면
+           칸이 좁아 줄줄이 접혀서 오히려 길어진다. 자세한 목록·점수는 미션 탭과 ✎ 수정에서 본다. */
+        /* [버그 수정 2026-08-17] 펼침 상태의 열쇠는 학원 id 가 아니라 카드 열쇠(_key)다.
+           같은 학원이 하루에 정규 수업과 보충으로 두 장 나오는 날(지난주 결석분을 오늘
+           보충), 둘 다 ac.id 가 같아 한 장을 펼치면 두 장이 같이 펼쳐졌다(사용자 점검).
+           _key 는 정규 카드일 때 String(ac.id) 라, 이미 펼쳐 둔 상태도 그대로 이어진다. */
+        const acKey=ac._key||ac.id;
+        /* [사용자 확정 2026-11-23] 카드 안 준비물·미션을 '준비물 확인' 창과 같은 체크 버튼으로 —
+           누르면 바로 체크(준비물은 아이 탐험일지와 같은 checkedSupplies, 미션은 완료 처리·보상까지).
+           누를 때마다 순서가 바뀌면 헷갈리므로 정렬하지 않고 넣은 순서 그대로 둔다. */
+        const missionAll=[...hw.map(h=>({...h,kind:"homework"})),...todos.map(t=>({...t,kind:"todo"}))];
+        const checkedSup=entry.checkedSupplies||[];
+        /* [사용자 확정 2026-11-23] '+N'으로 줄이지 않고 미션을 다 보여 준다 (안 한 것 먼저) */
+    return {sc,timeText,entry,hw,todos,sup,totalTodoCnt,doneCnt,allDone,baseSup,acKey,missionAll,checkedSup};
+  };
+  /* ── 일정 공유 이미지에 넣을 값 (사용자 요청 2026-11-26) — 누를 때 한 번 만든다 ── */
+  const [shareData, setShareData] = useState(null);
+  const buildShareData=()=>({
+    childName:(childrenList.find(c=>String(c.id)===String(childId))||{}).name||"",
+    dateText:fullLabel+(dayTag==="오늘"?" (오늘)":""), dateKey:homeDate,
+    listLabel:dayTag?`${dayTag} 챙길 일`:"이 날 챙길 일",
+    alerts:homeAlerts.map(a=>({icon:a.icon,name:a.name,color:a.color,items:a.items,allDone:a.allDone,memo:a.memo})),
+    academies:homeAc.map(ac=>{
+      const d=acDetail(ac);
+      const st=getShuttleText(ac,hDN);
+      const m=st&&st.match(/^(\d{1,2}:\d{2})\s+([\s\S]+)$/);
+      return { key:String(ac._key||ac.id), kindLabel:acKindLabel(ac), name:ac.name, color:ac.color,
+        emoji:getAcademyTheme(ac.name,kidSkin,ac.kind).icon,
+        timeText:d.timeText, timeColor:ac._absent?C.red:ac._makeup?C.orange:null, duration:d.sc?.duration||null,
+        shuttle:st?(m?{time:m[1],place:m[2]}:{raw:st}):null,
+        supplies:[...d.baseSup.map(x=>({label:x,on:d.checkedSup.includes(x)})),...d.sup.map(x=>({label:x,on:d.checkedSup.includes("+"+x)}))],
+        missions:d.missionAll.map(mc=>({text:mc.text,done:!!mc.done,failed:!!mc.failed})),
+        badge:d.totalTodoCnt>0?{done:d.allDone,text:d.allDone?"완료 ✓":`미션 ${d.doneCnt}/${d.totalTodoCnt}`}:null };
+    }),
+  });
+  const shareBtn=(
+    <button onClick={()=>setShareData(buildShareData())} aria-label="일정 이미지로 공유하기" className="jelly-tap"
+      style={{flexShrink:0,marginLeft:"auto",width:30,height:30,borderRadius:"50%",border:"none",background:"#F3F4F6",color:SUBD,
+        display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",padding:0}}>
+      <CareIcon name="share" size={15}/>
+    </button>
+  );
+
+  return (
+    <div>
+      {/* 날짜 이동 — [사용자 확정 2026-08-10] 좌우 큰 네모 버튼을 없애고 화살표만 남긴다.
+          누르는 자리는 34px 그대로 두되 배경·테두리를 빼서 무게를 덜었다. */}
+      <div style={{display:"flex",alignItems:"center",gap:2,marginBottom:24}}>
+        <button onClick={()=>setHomeDate(addDays(homeDate,-1))} className="jelly-tap" aria-label="이전 날"
+          style={{width:34,height:34,borderRadius:RAD.sm,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>‹</button>
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:5,minWidth:0}}>
+          <span style={{fontSize:FS.title,fontWeight:FW.bold,color:C.text,whiteSpace:"nowrap"}}>{fullLabel}</span>
+          {dayTag&&<span style={{fontSize:FS.tag,background:th.main,color:"#fff",borderRadius:RAD.sm,padding:"2px 7px",fontWeight:FW.semi,flexShrink:0}}>{dayTag}</span>}
+          {!isToday&&(
+            <button onClick={()=>setHomeDate(TODAY)}
+              style={{background:"none",border:"none",color:th.main,fontSize:FS.tag,cursor:"pointer",padding:"2px 4px",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>
+              ↩ 오늘로
+            </button>
+          )}
+        </div>
+        <button onClick={()=>setHomeDate(addDays(homeDate,1))} className="jelly-tap" aria-label="다음 날"
+          style={{width:34,height:34,borderRadius:RAD.sm,background:"none",border:"none",color:C.sub,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:FW.semi,flexShrink:0,fontFamily:"inherit"}}>›</button>
+      </div>
+
+      {/* [사용자 확정 2026-08-10] '오늘 할 일' 3칸 요약으로 바꿨다가 원래의
+          '오늘 챙길 일' 칩 카드로 되돌린다 — 사용자 요청. 개수에 따라 높이가
+          달라지는 규칙(0개 배너 / 1개 한 줄 / 2개+ 펼침)도 그대로다. */}
+      {/* [사용자 확정 2026-08-08] 현황 카드에서 아이 이름·레벨 줄과 요약 3칸(학원·결석·
+          보충수업)을 빼고, 감싸던 파스텔 카드도 없앴다. 이름·레벨은 바로 위 아이 선택
+          줄에 이미 있고, 요약 3칸의 결석·보충수업은 '오늘 챙길 일' 칩과 겹쳤다.
+          이제 이 자리에는 '오늘 챙길 일' 한 칸만 남는다. */}
+      <div style={{marginBottom:24}}>{/* 여백 22→32→24 (사용자 확정 2026-11-26: 전환 탭 위는 줄이고 아래는 늘림) */}
+        {/* 오늘 챙길 일 알림 */}
+        {(()=>{
+          const alerts=homeAlerts;   // 계산은 위 homeAlerts (공유 이미지도 같은 값을 쓴다)
           /* [사용자 확정 2026-08-09] 내용 개수에 따라 카드 높이가 달라진다.
              예전엔 준비물 하나뿐인 날에도 두 줄짜리 카드가 자리를 차지해 비어 보였다.
                0개  → 한 줄 완료 배너
@@ -236,12 +308,17 @@ export default function ParentHomeTab({
               padding:"15px 15px",display:"flex",alignItems:"center",gap:9,boxShadow:SHADOW.sm}}>
               <span style={{flexShrink:0,color:mixBlack(th.main,0.45),display:"flex"}}><CareIcon name="check" size={15}/></span>
               <span style={{fontSize:FS.body,fontWeight:FW.semi,color:mixBlack(th.main,0.45)}}>{label} 없어요!</span>
+              {shareBtn}
             </div>
           );
           /* 한 항목 = 한 줄: [아이콘 이름] 가방 · 문제집 · 악보 … ›  (길면 말줄임) */
           return (
             <div style={{background:"#fff",border:`1px solid ${th.main}22`,borderRadius:RAD.md,padding:"16px 15px 12px",boxShadow:SHADOW.sm}}>
-              <p style={{fontSize:FS.sub,fontWeight:FW.semi,margin:"0 0 8px",color:C.sub}}>{label}</p>
+              {/* 오른쪽 위 공유 아이콘 — 오늘 일정을 이미지로 (사용자 요청 2026-11-26) */}
+              <div style={{display:"flex",alignItems:"center",gap:8,margin:"-4px 0 4px"}}>
+                <p style={{fontSize:FS.sub,fontWeight:FW.semi,margin:0,color:C.sub}}>{label}</p>
+                {shareBtn}
+              </div>
               {alerts.map((a,i)=>(
                 <button key={i} onClick={a.go} className="jelly-tap" aria-label={`${a.label} 확인`}
                   style={{width:"100%",display:"flex",alignItems:"flex-start",gap:10,padding:"11px 0",border:"none",
@@ -440,39 +517,7 @@ export default function ParentHomeTab({
         </div>
       )}
       {acView==="today"&&homeAc.map((ac,hi)=>{
-        const sc=getScheduleForDay(ac,hDN);
-        const [h,m]=(ac._time||"00:00").split(":").map(Number);
-        const tm=h*60+m+Number(ac._duration||0);
-        const endT=`${String(Math.floor(tm/60)%24).padStart(2,"0")}:${String(tm%60).padStart(2,"0")}`;
-        /* 접힌 줄의 시간 자리 — 결석이면 '결석', 보충이면 '보충 14:00–14:40'(시간 없으면 '보충').
-           보통 수업은 예전 그대로 '14:00–14:40'. */
-        const timeText = ac._absent ? "결석"
-          : ac._makeup ? (String(ac._label).includes(":") ? `${ac._label}–${endT}` : ac._label)
-          : `${ac._time}–${endT}`;
-        const entry=getDailyEntry(childId,ac.id,homeDate);
-        const hw=entry.homeworks||[], todos=entry.todos||[];
-        /* [사용자 확정 2026-08-17] 결석한 날은 그 학원에 안 가므로 준비물도 없다 —
-           카드에도 '없음'으로 나온다. 미션은 집에서 할 수 있으니 그대로 둔다.
-           보충 카드는 반대로 늘 챙길 준비물이 그대로 붙는다(_absent 가 false 라 그대로). */
-        const sup=ac._absent?[]:(entry.supplies||[]);
-        const totalTodoCnt=hw.length+todos.length;
-        const doneCnt=hw.filter(h=>h.done).length+todos.filter(t=>t.done).length;
-        const allDone=totalTodoCnt>0&&doneCnt===totalTodoCnt;
-        const baseSup=ac._absent?[]:(ac.baseSupplies||[]).filter(x=>!(entry.hiddenBase||[]).includes(x));
-        /* 미션은 제목을 칩 하나로 보여 준다 — '등록된 미션 없음' 같은 문장보다 짧고 바로 읽힌다.
-           아직 안 한 것을 먼저 보여 주고 나머지는 '+N'. 여러 개를 다 칩으로 깔면
-           칸이 좁아 줄줄이 접혀서 오히려 길어진다. 자세한 목록·점수는 미션 탭과 ✎ 수정에서 본다. */
-        /* [버그 수정 2026-08-17] 펼침 상태의 열쇠는 학원 id 가 아니라 카드 열쇠(_key)다.
-           같은 학원이 하루에 정규 수업과 보충으로 두 장 나오는 날(지난주 결석분을 오늘
-           보충), 둘 다 ac.id 가 같아 한 장을 펼치면 두 장이 같이 펼쳐졌다(사용자 점검).
-           _key 는 정규 카드일 때 String(ac.id) 라, 이미 펼쳐 둔 상태도 그대로 이어진다. */
-        const acKey=ac._key||ac.id;
-        /* [사용자 확정 2026-11-23] 카드 안 준비물·미션을 '준비물 확인' 창과 같은 체크 버튼으로 —
-           누르면 바로 체크(준비물은 아이 탐험일지와 같은 checkedSupplies, 미션은 완료 처리·보상까지).
-           누를 때마다 순서가 바뀌면 헷갈리므로 정렬하지 않고 넣은 순서 그대로 둔다. */
-        const missionAll=[...hw.map(h=>({...h,kind:"homework"})),...todos.map(t=>({...t,kind:"todo"}))];
-        const checkedSup=entry.checkedSupplies||[];
-        /* [사용자 확정 2026-11-23] '+N'으로 줄이지 않고 미션을 다 보여 준다 (안 한 것 먼저) */
+        const {sc,timeText,hw,todos,sup,totalTodoCnt,doneCnt,allDone,baseSup,acKey,missionAll,checkedSup}=acDetail(ac);   // 계산은 위 acDetail (공유 이미지도 같은 값)
         const missionChips=missionAll;
         return (
           /* [사용자 확정 2026-08-09] 카드 색을 옅게(배경 1F→12), 테두리는 한 단계 진하게(45→55),
@@ -660,6 +705,8 @@ export default function ParentHomeTab({
       {/* (뺐음 2026-11-23 사용자 확정) 학원 아래 '오늘의 미션' 목록 — 미션은 위 '오늘 챙길 일'과
           학원 카드 안에서 다 보인다. 체크는 미션 탭에서 한다. */}
 
+      {/* 일정 공유 — 이미지 미리보기 + 휴대폰 공유창 (사용자 요청 2026-11-26) */}
+      <ShareTodaySheet open={!!shareData} data={shareData||{}} th={th} onClose={()=>setShareData(null)} onToast={onToast}/>
     </div>
   );
 }
