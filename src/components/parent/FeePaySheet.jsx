@@ -27,6 +27,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
+import { CLOSE_BTN } from "../../data/tokens.js";
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
 
@@ -76,8 +77,7 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
           <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: tone.text, minWidth: 0,
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pickList ? "학원비 추가" : ac.name}</h3>
           <button onClick={onClose} aria-label="닫기" className="jelly-tap"
-            style={{ marginLeft: "auto", background: tone.faint + "88", border: "none", borderRadius: 10,
-              width: 28, height: 28, cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
+            style={{...CLOSE_BTN,marginLeft:"auto"}}>✕</button>
         </div>
         <p style={{ fontSize: 12, color: tone.sub, fontWeight: 600, margin: "0 0 15px" }}>
           {showRecord

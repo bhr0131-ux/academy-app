@@ -28,7 +28,7 @@
                  (기본 준비물은 이름 그대로, 그날 추가분은 앞에 '+')
    ════════════════════════════════════════════════════════════════════════ */
 
-import { mixWhite, RAD, FW, FS } from "../../data/tokens.js";
+import { CLOSE_BTN, mixWhite, RAD, FW, FS } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 import EmojiIcon from "../EmojiIcon.jsx";
 
@@ -62,8 +62,7 @@ function Sheet({ title, icon, desc, tone, onClose, children }) {
             {title}
           </h3>
           <button onClick={onClose} aria-label="닫기" className="jelly-tap"
-            style={{ background: tone.faint + "88", border: "none", borderRadius: RAD.sm, width: 28, height: 28,
-              cursor: "pointer", color: tone.sub, fontSize: 15, fontFamily: F }}>✕</button>
+            style={CLOSE_BTN}>✕</button>
         </div>
         {desc && <p style={{ fontSize: FS.sub, color: tone.sub, fontWeight: FW.normal, margin: "0 0 13px", lineHeight: 1.45 }}>{desc}</p>}
         {children}

@@ -22,7 +22,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
-import { C, FS, FW, RAD, DEFAULT_HOMEWORK_SCORE, SUB_LABEL } from "../../data/tokens.js";
+import { C, FS, FW, RAD, DEFAULT_HOMEWORK_SCORE, SUB_LABEL, mixWhite } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 import { TODAY } from "../../utils/dates.js";
 
@@ -32,6 +32,9 @@ const dLabel = (d) => { const x = new Date(d.replace(/-/g, "/")); return `${x.ge
 const pill = { flexShrink: 0, fontSize: 11, fontWeight: 800, padding: "2px 7px", whiteSpace: "nowrap", borderRadius: 20 };
 
 export default function MissionOverview({ dayItems = [], rules = [], th, TM, onSave, onDelete, onToggle, emptyText = "등록된 미션이 없어요" }) {
+  /* [사용자 확정 2026-11-26] 수정 칸도 다른 입력 폼처럼 연한 테마 틴트 바탕 + 진한 글자 (코인 숫자도 파랑 대신 진한 글자) */
+  const editInp = { background: mixWhite(th.main, 0.9), border: `1px solid ${mixWhite(th.main, 0.82)}`, borderRadius: RAD.sm,
+    fontSize: FS.body, color: C.text, outline: "none", fontFamily: "inherit" };
   const [edit, setEdit] = useState(null);     // { key, text, coin }
   const rows = [...dayItems.map(r => ({ ...r, kind: "day" })), ...rules.map(r => ({ ...r, kind: "rule" }))];
   const xpU = (TM && TM.xpUnit) || "점", coinU = (TM && TM.coin) || "코인";
@@ -71,14 +74,12 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 7 }}>
                 <input value={edit.text} autoFocus onChange={e => setEdit(p => ({ ...p, text: e.target.value }))}
                   onKeyDown={e => e.key === "Enter" && save(row)} aria-label="미션 내용"
-                  style={{ width: "100%", boxSizing: "border-box", border: `1px solid ${C.border}`, borderRadius: RAD.sm, padding: "8px 10px",
-                    fontSize: FS.body, fontWeight: 700, color: C.text, outline: "none", fontFamily: "inherit", background: "#F6F8FC" }} />
+                  style={{ width: "100%", boxSizing: "border-box", ...editInp, padding: "8px 10px", fontWeight: 700 }} />
                 {/* [사용자 확정 2026-11-24] 코인 옆에 저장 · 삭제 · 취소 를 한 줄로 */}
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <input type="number" min="0" value={edit.coin} onChange={e => setEdit(p => ({ ...p, coin: e.target.value }))}
                     onKeyDown={e => e.key === "Enter" && save(row)} aria-label={coinU}
-                    style={{ width: 50, flexShrink: 0, boxSizing: "border-box", border: `1px solid ${C.border}`, borderRadius: RAD.sm, padding: "7px 4px",
-                      fontSize: FS.body, fontWeight: 800, color: "#2E8FD6", textAlign: "center", outline: "none", fontFamily: "inherit", background: "#F6F8FC" }} />
+                    style={{ width: 50, flexShrink: 0, boxSizing: "border-box", ...editInp, padding: "7px 4px", fontWeight: 800, textAlign: "center" }} />
                   <span style={{ fontSize: FS.sub, color: C.sub, fontWeight: FW.semi, flexShrink: 0 }}>{coinU}</span>
                   <span style={{ marginLeft: "auto", display: "flex", gap: 5, flexShrink: 0 }}>
                     <button onClick={() => save(row)} className="jelly-tap"

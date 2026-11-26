@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { C, FS, FW, RAD, mixBlack } from "../../data/tokens.js";
+import { CLOSE_BTN, C, FS, FW, RAD, mixBlack } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -86,7 +86,7 @@ export default function DaySupplySheet({ ac, dateLabel, dateText, date, isClassD
               </button>
             </div>
           </div>
-          <button onClick={onClose} aria-label="닫기" style={{ width: 36, height: 36, borderRadius: RAD.sm, border: "none", background: "#EEF2F8", color: C.sub, fontSize: 16, cursor: "pointer", flexShrink: 0 }}>✕</button>
+          <button onClick={onClose} aria-label="닫기" style={CLOSE_BTN}>✕</button>
         </div>
 
         {/* 날짜 — '다른 날'을 눌렀을 때만. 그 학원 가는 날만 오간다 */}

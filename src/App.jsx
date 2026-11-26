@@ -1,4 +1,4 @@
-import { DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, parentTheme, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, EXTRA_QUEST_ICON, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
+import { CLOSE_BTN, DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, parentTheme, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, EXTRA_QUEST_ICON, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
 import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, nextTreasureGoal, getDecorById, computeDecorPurchase, decorNeedsMaxPet, decorView, getTerms, getParentTerms, getHolidayName, fixRewardTitles } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, copyText, DEFAULT_CHILDREN } from "./utils/dates.js";
@@ -6763,7 +6763,7 @@ export default function App() {
                 {holidayRest.name}, 쉬는 학원
               </h3>
               <button onClick={()=>setHolidayRest(null)} aria-label="닫기" className="jelly-tap"
-                style={{marginLeft:"auto",flexShrink:0,background:`${CT.faint}`,border:"none",borderRadius:RAD.sm,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15,fontFamily:"inherit"}}>✕</button>
+                style={{...CLOSE_BTN,marginLeft:"auto"}}>✕</button>
             </div>
             <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"0 0 12px",lineHeight:1.5}}>
               {`${hd.getMonth()+1}월 ${hd.getDate()}일`}에 쉬는 학원을 골라 주세요. 고른 학원만 그날 휴원으로 표시돼요.
@@ -6893,7 +6893,7 @@ export default function App() {
               <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text,display:"flex",alignItems:"center",gap:7}}>
                 <span style={{color:th.main,display:"flex"}}><CareIcon name="clock" size={17}/></span>지난 미션 보기
               </h3>
-              <button onClick={()=>setShowPastMissionModal(null)} style={{background:CT.faint,border:"none",borderRadius:10,width:28,height:28,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button aria-label="닫기" onClick={()=>setShowPastMissionModal(null)} style={CLOSE_BTN}>✕</button>
             </div>
             <p style={{fontSize:13,color:C.sub,fontWeight:600,margin:"0 0 14px",lineHeight:1.55}}>지난 날짜에 미완료로 남아 있는 미션이에요.<br/>완료 또는 미완료로 처리할 수 있어요.</p>
             {cands.length===0?(
@@ -6963,7 +6963,7 @@ export default function App() {
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
               <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🎁 {editingRewardId?"보상 수정":"보상 추가"}</h3>
-              <button onClick={()=>setShowRewardModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button aria-label="닫기" onClick={()=>setShowRewardModal(false)} style={CLOSE_BTN}>✕</button>
             </div>
             {/* [사용자 확정 2026-08-17] 이모지를 직접 치게 하니 폰에서 이모지 자판을 불러야 했고,
                 앱이 그림을 갖고 있지 않은 이모지가 들어오면 그 줄만 운영체제 이모지로 그려져
@@ -7048,7 +7048,7 @@ export default function App() {
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)",margin:"auto 0",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
               <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔐 {PT.role} 비밀번호 변경</h3>
-              <button onClick={()=>setShowPinChangeModal(false)} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button aria-label="닫기" onClick={()=>setShowPinChangeModal(false)} style={CLOSE_BTN}>✕</button>
             </div>
             <label style={lbl}>기존 비밀번호</label>
             <input type="password" inputMode="numeric" value={oldPinInput} onChange={e=>setOldPinInput(e.target.value.replace(/\D/g,"").slice(0,4))} maxLength={4}
@@ -7100,7 +7100,7 @@ export default function App() {
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)",margin:"auto 0",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
               <h3 style={{fontSize:19,fontWeight:900,margin:0,color:C.text}}>🔑 비밀번호 찾기 질문/답 {recoveryQuestion?"변경":"설정"}</h3>
-              <button onClick={closeRecoverySetup} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button aria-label="닫기" onClick={closeRecoverySetup} style={CLOSE_BTN}>✕</button>
             </div>
             <p style={{fontSize:11.5,fontWeight:600,color:C.sub,lineHeight:1.5,margin:"0 0 16px"}}>
               비밀번호를 잊었을 때, 이 질문의 답으로 다시 설정할 수 있어요.
@@ -7151,7 +7151,7 @@ export default function App() {
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)",margin:"auto 0",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
               <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔑 비밀번호 찾기</h3>
-              <button onClick={()=>{ setShowRecoveryModal(false); setRecoveryAnswerInput(""); }} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button aria-label="닫기" onClick={()=>{ setShowRecoveryModal(false); setRecoveryAnswerInput(""); }} style={CLOSE_BTN}>✕</button>
             </div>
             <div style={{background:`${th.main}10`,borderRadius:12,padding:"12px 14px",marginBottom:16}}>
               <p style={{fontSize:12,fontWeight:700,color:C.sub,margin:"0 0 4px"}}>복구 질문</p>
@@ -7181,7 +7181,7 @@ export default function App() {
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:24,width:"100%",maxWidth:360,boxSizing:"border-box",boxShadow:"0 20px 60px rgba(0,0,0,0.18)",margin:"auto 0",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
               <h3 style={{fontSize:20,fontWeight:900,margin:0,color:C.text}}>🔓 새 비밀번호 설정</h3>
-              <button onClick={()=>{ setShowResetPinModal(false); setResetNewPin(""); setResetNewPinConfirm(""); }} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button aria-label="닫기" onClick={()=>{ setShowResetPinModal(false); setResetNewPin(""); setResetNewPinConfirm(""); }} style={CLOSE_BTN}>✕</button>
             </div>
             <p style={{fontSize:12.5,fontWeight:700,color:C.sub,lineHeight:1.5,margin:"0 0 18px"}}>
               본인 확인이 완료됐어요. 새 비밀번호를 정해 주세요.
@@ -7214,36 +7214,33 @@ export default function App() {
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
               <h3 style={{margin:0,fontSize:17,fontWeight:900,color:C.text}}>🏖️ 방학 기간 설정</h3>
               <button onClick={()=>setShowVacModal(null)} aria-label="닫기" className="jelly-tap"
-                style={{flexShrink:0,background:CT.faint,border:"none",borderRadius:12,width:40,height:40,cursor:"pointer",color:C.sub,fontSize:15,fontFamily:"inherit"}}>✕</button>
+                style={CLOSE_BTN}>✕</button>
             </div>
 
-            {/* 방학 추가 폼 */}
-            <div style={{background:"#FFFBF0",borderRadius:14,padding:"16px",marginBottom:20,border:"1.5px solid #F0A500"}}>
-              <p style={{fontSize:14,fontWeight:900,color:"#E65100",margin:"0 0 12px"}}>새 방학 기간 추가</p>
-              <label style={{fontSize:13,color:C.sub,display:"block",marginBottom:6,fontWeight:700}}>학원 선택</label>
-              <select value={vacForm.academyId} onChange={e=>setVacForm(p=>({...p,academyId:e.target.value}))}
-                style={{width:"100%",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"10px 12px",color:C.text,fontSize:14,fontWeight:700,outline:"none",marginBottom:12,fontFamily:"inherit"}}>
-                <option value="">학원 선택</option>
-                {(showVacModal.acList||[]).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
-              {/* [2026-08-10] 날짜 칸 두 개가 안 줄어들어 좁은 기기에서 팝업을 화면 밖으로 밀어냈다.
-                  minWidth:0 + width:0 으로 줄어들게 하고, 글자도 17 → 14 로 (다른 화면과 맞춤). */}
-              <div style={{display:"flex",gap:8,marginBottom:14,minWidth:0}}>
-                <div style={{flex:1,minWidth:0}}>
-                  <label style={{fontSize:13,color:C.sub,display:"block",marginBottom:6,fontWeight:700}}>시작일</label>
-                  <input type="date" value={vacForm.start} onChange={e=>setVacForm(p=>({...p,start:e.target.value}))}
-                    style={{width:"100%",minWidth:0,display:"block",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"10px 8px",color:C.text,fontSize:13.5,fontWeight:700,outline:"none",fontFamily:"inherit"}}/>
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <label style={{fontSize:13,color:C.sub,display:"block",marginBottom:6,fontWeight:700}}>종료일</label>
-                  <input type="date" value={vacForm.end} onChange={e=>setVacForm(p=>({...p,end:e.target.value}))}
-                    style={{width:"100%",minWidth:0,display:"block",boxSizing:"border-box",background:CT.faint,border:`1px solid ${CT.faintB}`,borderRadius:10,padding:"10px 8px",color:C.text,fontSize:13.5,fontWeight:700,outline:"none",fontFamily:"inherit"}}/>
-                </div>
+            {/* 방학 추가 폼 — [사용자 확정 2026-11-26] 노란 테두리 상자·주황 그라데이션 버튼을 걷고
+                '결석 기록 추가'처럼 흰 바탕 + 라벨 + 연한 테마 틴트 입력칸 + 테마색 버튼으로 통일 */}
+            <label style={lbl}>학원 선택</label>
+            <select value={vacForm.academyId} onChange={e=>setVacForm(p=>({...p,academyId:e.target.value}))} style={{...inp,marginBottom:14}}>
+              <option value="">학원을 선택하세요</option>
+              {(showVacModal.acList||[]).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}
+            </select>
+            {/* [2026-08-10] 날짜 칸 두 개가 안 줄어들어 좁은 기기에서 팝업을 화면 밖으로 밀어냈다.
+                minWidth:0 + width:0 으로 줄어들게 한다. */}
+            <div style={{display:"flex",gap:8,marginBottom:18,minWidth:0}}>
+              <div style={{flex:1,minWidth:0}}>
+                <label style={lbl}>시작일</label>
+                <input type="date" value={vacForm.start} onChange={e=>setVacForm(p=>({...p,start:e.target.value}))}
+                  style={{...inp,width:"100%",minWidth:0,display:"block",padding:"12px 8px",fontSize:FS.body}}/>
               </div>
-              <button onClick={addVacation} className="jelly-tap" style={{width:"100%",padding:12,borderRadius:13,border:"none",background:"linear-gradient(135deg,#F0A500,#FFD54F)",color:"#fff",fontSize:14,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>
-                🏖️ 방학 등록
-              </button>
+              <div style={{flex:1,minWidth:0}}>
+                <label style={lbl}>종료일</label>
+                <input type="date" value={vacForm.end} onChange={e=>setVacForm(p=>({...p,end:e.target.value}))}
+                  style={{...inp,width:"100%",minWidth:0,display:"block",padding:"12px 8px",fontSize:FS.body}}/>
+              </div>
             </div>
+            <button onClick={addVacation} className="jelly-tap" style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer",fontFamily:"inherit",marginBottom:24}}>
+              방학 등록
+            </button>
 
             {/* 등록된 방학 목록 */}
             <p style={{fontSize:13,fontWeight:800,color:C.sub,margin:"0 0 10px"}}>등록된 방학 기간</p>
@@ -7276,7 +7273,7 @@ export default function App() {
               );
             })}
             {curAc.every(ac=>getVacations(childId,ac.id).length===0)&&(
-              <div style={{textAlign:"center",padding:"20px",color:C.sub,fontSize:13.5,fontWeight:700,background:CT.faint,borderRadius:14}}>
+              <div style={{textAlign:"center",padding:"18px",color:C.sub,fontSize:13.5,fontWeight:700,background:"#F9FAFB",border:"1.5px dashed #E5E7EB",borderRadius:14}}>
                 등록된 방학이 없어요
               </div>
             )}
@@ -7290,7 +7287,7 @@ export default function App() {
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"24px 20px 48px",width:"100%",maxWidth:430,maxHeight:"90vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
               <h3 style={{margin:0,fontSize:17,fontWeight:800,color:C.text}}>{editingChild?"아이 정보 수정":"아이 추가"}</h3>
-              <button onClick={()=>{ setShowChildMgr(false); setEditingChild(null); }} style={{background:CT.faint,border:"none",borderRadius:10,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button aria-label="닫기" onClick={()=>{ setShowChildMgr(false); setEditingChild(null); }} style={CLOSE_BTN}>✕</button>
             </div>
 
             <label style={lbl}>이름 *</label>
@@ -7416,7 +7413,7 @@ export default function App() {
                 <h3 style={{margin:0,fontSize:FS.modalTitle,fontWeight:FW.bold,color:C.text}}>📚 아이별 학원 복사</h3>
                 <p style={{margin:"4px 0 0",fontSize:FS.body,color:C.sub,fontWeight:FW.normal}}>다른 아이의 학원을 {curChild?.name}에게 복사해요</p>
               </div>
-              <button onClick={()=>setShowAcademyCopyModal(false)} style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:15}}>✕</button>
+              <button aria-label="닫기" onClick={()=>setShowAcademyCopyModal(false)} style={CLOSE_BTN}>✕</button>
             </div>
 
             <label style={lbl}>가져올 아이</label>
@@ -7523,7 +7520,7 @@ export default function App() {
                 </p>
               </div>
               <button onClick={()=>setShowAddAcModal(false)} aria-label="닫기" className="jelly-tap"
-                style={{flexShrink:0,background:CT.faint,border:"none",borderRadius:RAD.md,width:44,height:44,cursor:"pointer",color:C.sub,fontSize:16,fontFamily:"inherit"}}>✕</button>
+                style={CLOSE_BTN}>✕</button>
             </div>
             <div style={{flex:1,minHeight:0,overflowY:"auto",padding:"18px 20px 20px"}}>
             {/* 학원 종류 * — 눌러서 목록에서 고른다 (검색·직접 입력).
@@ -8088,7 +8085,7 @@ export default function App() {
                       보조 정보이므로 다른 화면의 보조 줄(12~12.5)에 맞춘다. */}
                   <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>{fmt(date)} {date===TODAY?"(오늘)":""}</p>
                 </div>
-                <button onClick={()=>setShowDailyModal(null)} style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
+                <button aria-label="닫기" onClick={()=>setShowDailyModal(null)} style={CLOSE_BTN}>✕</button>
               </div>
               {acPick&&dailyAcListOpen&&(
                 <div style={{margin:"-8px 0 16px",border:`1px solid ${C.border}`,borderRadius:RAD.md,padding:"2px 12px"}}>
@@ -8420,7 +8417,7 @@ export default function App() {
                 <p style={{fontWeight:FW.semi,fontSize:FS.modalTitle,margin:0,color:C.text}}>{showSmsModal.name} 문자 보내기</p>
                 {showSmsModal.phone&&<p style={{fontSize:FS.sub,color:C.sub,margin:"2px 0 0"}}>📞 {showSmsModal.phone}</p>}
               </div>
-              <button onClick={()=>setShowSmsModal(null)} style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
+              <button aria-label="닫기" onClick={()=>setShowSmsModal(null)} style={CLOSE_BTN}>✕</button>
             </div>
             {/* [사용자 확정 2026-11-22] 줄 오른쪽 끝에 '템플릿 관리' — 누르면 기타 탭 문자관리와 같은 화면을 팝업으로 */}
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,margin:"0 0 10px"}}>
@@ -8456,7 +8453,7 @@ export default function App() {
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"22px 22px 0 0",padding:"22px 20px 34px",width:"100%",maxWidth:430,margin:"0 auto",maxHeight:"calc(var(--am-vh, 100vh) * 0.88)",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
               <p style={{margin:0,fontSize:FS.modalTitle,fontWeight:FW.bold,color:C.text}}>💬 문자 관리</p>
-              <button onClick={()=>setShowTmplManager(false)} aria-label="닫기" style={{background:CT.faint,border:"none",borderRadius:RAD.sm,width:30,height:30,cursor:"pointer",color:C.sub,fontSize:13}}>✕</button>
+              <button onClick={()=>setShowTmplManager(false)} aria-label="닫기" style={CLOSE_BTN}>✕</button>
             </div>
             <SmsTemplateList templates={templates} th={th} CT={CT} hideLabel
               onNew={()=>{ setShowTmplEdit("new"); setEditTmpl({title:"",body:""}); }}
@@ -8492,7 +8489,7 @@ export default function App() {
                 <p style={{margin:"3px 0 0",fontSize:12,fontWeight:600,color:C.sub,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{curChild?.name}의 결석을 기록해요</p>
               </div>
               <button onClick={()=>setShowAbsModal(false)} aria-label="닫기" className="jelly-tap"
-                style={{flexShrink:0,background:CT.faint,border:"none",borderRadius:12,width:44,height:44,cursor:"pointer",color:C.sub,fontSize:16,fontFamily:"inherit"}}>✕</button>
+                style={CLOSE_BTN}>✕</button>
             </div>
             <label style={lbl}>학원 선택</label>
             <select value={newAbs.academyId} onChange={e=>setNewAbs(p=>({...p,academyId:e.target.value}))} style={{...inp,marginBottom:14}}>
@@ -8504,7 +8501,16 @@ export default function App() {
             <label style={lbl}>결석 사유</label>
             <input value={newAbs.reason} onChange={e=>setNewAbs(p=>({...p,reason:e.target.value}))} placeholder="예: 감기, 가족 행사" style={{...inp,marginBottom:14}}/>
             <label style={lbl}>보충 예정일</label>
-            <input type="date" value={newAbs.makeupDate} onChange={e=>setNewAbs(p=>({...p,makeupDate:e.target.value}))} style={{...inp,marginBottom:newAbs.makeupDate?14:24}}/>
+            {/* [사용자 확정 2026-11-26] 비어 있으면 '날짜 선택 (선택사항)' 안내 — 날짜 칸은 placeholder 를 못 쓰므로 위에 글자를 얹는다.
+                PC 브라우저의 '연도-월-일' 글자는 비었을 때만 감추고, 눌러서 고를 때는 안내 글자를 숨긴다. */}
+            <style>{`.abs-date-empty:not(:focus)::-webkit-datetime-edit{color:transparent}.abs-date-empty:focus+.abs-date-ph{display:none}`}</style>
+            <div style={{position:"relative",marginBottom:newAbs.makeupDate?14:24}}>
+              <input type="date" value={newAbs.makeupDate} onChange={e=>setNewAbs(p=>({...p,makeupDate:e.target.value}))}
+                className={newAbs.makeupDate?undefined:"abs-date-empty"} aria-label="보충 예정일" style={{...inp,marginBottom:0}}/>
+              {!newAbs.makeupDate&&(
+                <span className="abs-date-ph" aria-hidden="true" style={{position:"absolute",left:15,top:"50%",transform:"translateY(-50%)",pointerEvents:"none",color:"#B4BAC6",fontSize:FS.cardTitle,fontFamily:"inherit"}}>날짜 선택 (선택사항)</span>
+              )}
+            </div>
             {/* [사용자 확정 2026-08-09] 보충 시간은 선택 — 날짜만 먼저 잡히는 경우가 많다.
                 [2026-08-10] 날짜를 안 골랐으면 시간 칸 자체를 숨긴다 — 화면이 더 간결해진다. */}
             {newAbs.makeupDate&&(<>
@@ -8515,7 +8521,7 @@ export default function App() {
               <input type="time" value={newAbs.makeupEnd||""} onChange={e=>setNewAbs(p=>({...p,makeupEnd:e.target.value}))} aria-label="보충 종료 시간" style={{...inp,flex:1,width:0,minWidth:0,marginBottom:0}}/>
             </div>
             </>)}
-            <button onClick={addAbs} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.red},#FF8FA3)`,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>기록하기</button>
+            <button onClick={addAbs} style={{width:"100%",padding:15,borderRadius:14,border:"none",background:th.grad /* 테마색 — 다른 모달 저장 버튼과 같게 (2026-11-26) */,color:"#fff",fontSize:17,fontWeight:700,cursor:"pointer"}}>기록하기</button>
           </div>
         </div>
       )}
