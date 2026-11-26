@@ -323,17 +323,12 @@ export default function AbsenceTab({
     {embedded?(
       /* [사용자 확정 2026-11-26] 홈 '학원비' 그룹 카드와 같은 머리 한 줄 —
          왼쪽 '결석·보충' 제목, 오른쪽 '‹ 2026년 11월 ›' 알약 월 선택기 */
-      <div style={{display:"flex",alignItems:"center",gap:4,margin:"0 0 12px",minWidth:0}}>
+      <div style={{margin:"0 0 12px"}}>
+      <div style={{display:"flex",alignItems:"center",gap:4,minWidth:0}}>
         <span style={{display:"flex",alignItems:"center",gap:6,flexShrink:0,fontSize:FS.title,fontWeight:FW.bold,color:C.text}}>
           <span style={{color:th.main,display:"flex"}}><CareIcon name="absent" size={16}/></span>결석·보충
         </span>
         <div style={{flex:1}}/>
-        {absMonth!==TODAY.slice(0,7)&&(
-          <button onClick={()=>setAbsMonth(TODAY.slice(0,7))} className="jelly-tap"
-            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",marginRight:2}}>
-            ↩ 이번달로
-          </button>
-        )}
         <div style={{display:"flex",alignItems:"center",flexShrink:0,background:"#fff",border:`1px solid ${th.main}22`,borderRadius:999,padding:"0 2px"}}>
           <button onClick={()=>shiftMonth(-1)} className="jelly-tap" aria-label="이전 달"
             style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>‹</button>
@@ -341,6 +336,16 @@ export default function AbsenceTab({
           <button onClick={()=>shiftMonth(1)} className="jelly-tap" aria-label="다음 달"
             style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>›</button>
         </div>
+      </div>
+      {/* 다른 달을 보고 있을 때만 — 머리 줄 아래 오른쪽 작은 줄 (320px 화면에서 머리 줄이 넘치지 않게, 2026-11-26) */}
+      {absMonth!==TODAY.slice(0,7)&&(
+        <div style={{display:"flex",justifyContent:"flex-end",marginTop:6}}>
+          <button onClick={()=>setAbsMonth(TODAY.slice(0,7))} className="jelly-tap"
+            style={{background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            ↩ 이번 달로
+          </button>
+        </div>
+      )}
       </div>
     ):(
     /* 월 네비게이션 — 홈·달력·학원비와 같은 치수 */
@@ -350,11 +355,11 @@ export default function AbsenceTab({
       <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text,whiteSpace:"nowrap"}}>{ay}년 {am}월 결석</span>
       <button onClick={()=>shiftMonth(1)} className="jelly-tap" aria-label="다음 달"
         style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
-      {/* 다른 달을 보고 있으면 '↩ 이번달로' (사용자 확정 2026-11-25 — 캘린더·학원비와 같은 모양) */}
+      {/* 다른 달을 보고 있으면 '↩ 이번 달로' (사용자 확정 2026-11-25 — 캘린더·학원비와 같은 모양) */}
       {absMonth!==TODAY.slice(0,7)&&(
         <button onClick={()=>setAbsMonth(TODAY.slice(0,7))} className="jelly-tap"
           style={{position:"absolute",right:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
-          ↩ 이번달로
+          ↩ 이번 달로
         </button>
       )}
     </div>
@@ -413,7 +418,8 @@ export default function AbsenceTab({
     )}
 
     {shownCnt===0&&(
-      <div style={{textAlign:"center",padding:"36px 20px",background:mixWhite(th.main,0.93),borderRadius:RAD.lg,border:`1.5px dashed ${th.main}40`}}>
+      /* [사용자 확정 2026-11-26] 빈 상태는 차분한 연회색 — 아래 테마색 '＋ 결석 기록 추가'와 겹쳐 보이지 않게, 위아래 여백도 콤팩트하게 */
+      <div style={{textAlign:"center",padding:"20px 20px 18px",background:"#F9FAFB",borderRadius:RAD.lg,border:"1.5px dashed #E5E7EB"}}>
         <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:52,height:52,
           borderRadius:"50%",background:`${C.green}14`,color:C.green}}>
           <CareIcon name="check" size={26}/>

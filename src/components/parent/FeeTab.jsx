@@ -74,17 +74,12 @@ export default function FeeTab({
         연도를 같이 써서 지난달을 보다가 헷갈리지 않게 한다. */}
     {embedded?(
       /* [사용자 확정 2026-11-25] 머리 한 줄 — 왼쪽 '학원비', 오른쪽 '‹ 2026년 12월 ›' (위쪽 날짜 줄과 다른 모양으로 구분) */
-      <div style={{display:"flex",alignItems:"center",gap:4,margin:"0 0 12px",minWidth:0}}>
+      <div style={{margin:"0 0 12px"}}>
+      <div style={{display:"flex",alignItems:"center",gap:4,minWidth:0}}>
         <span style={{display:"flex",alignItems:"center",gap:6,flexShrink:0,fontSize:FS.title,fontWeight:FW.bold,color:C.text}}>
           <span style={{color:th.main,display:"flex"}}><CareIcon name="fee" size={16}/></span>학원비
         </span>
         <div style={{flex:1}}/>
-        {feeMonth!==thisMonth&&(
-          <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
-            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",marginRight:2}}>
-            ↩ 이번달로
-          </button>
-        )}
         <div style={{display:"flex",alignItems:"center",flexShrink:0,background:"#fff",border:`1px solid ${th.main}22`,borderRadius:999,padding:"0 2px"}}>
           <button onClick={()=>setFeeMonth(m=>Math.max(1,m-1))} className="jelly-tap" aria-label="이전 달"
             style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>‹</button>
@@ -92,6 +87,16 @@ export default function FeeTab({
           <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} className="jelly-tap" aria-label="다음 달"
             style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>›</button>
         </div>
+      </div>
+      {/* 다른 달을 보고 있을 때만 — 머리 줄 아래 오른쪽 작은 줄 (320px 화면에서 머리 줄이 넘치지 않게, 2026-11-26) */}
+      {feeMonth!==thisMonth&&(
+        <div style={{display:"flex",justifyContent:"flex-end",marginTop:6}}>
+          <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
+            style={{background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            ↩ 이번 달로
+          </button>
+        </div>
+      )}
       </div>
     ):(
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginBottom:12,position:"relative"}}>
@@ -103,7 +108,7 @@ export default function FeeTab({
         {feeMonth!==thisMonth&&(
           <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
             style={{position:"absolute",right:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
-            ↩ 이번달로
+            ↩ 이번 달로
           </button>
         )}
       </div>
