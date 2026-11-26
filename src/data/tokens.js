@@ -486,6 +486,13 @@ export const CLOSE_BTN = { flexShrink: 0, width: 36, height: 36, borderRadius: "
   color: "#6B7280", fontSize: 15, cursor: "pointer", fontFamily: "inherit", padding: 0,
   display: "flex", alignItems: "center", justifyContent: "center" };
 
+/* [사용자 확정 2026-11-26] 카드 맨 아랫줄의 '학원 수정·삭제' / '준비물 수정' — 글자 링크 대신
+   누를 수 있는 게 보이는 연회색 둥근 버튼. 높이는 왼쪽 전화·문자(RowAct big)와 같은 29px. */
+export const SOFT_BTN = { flexShrink: 0, boxSizing: "border-box", height: 29, padding: "0 12px", borderRadius: 9,
+  background: "#F3F4F6", border: "1px solid #E5E7EB", color: "#5F678C", fontSize: 12.5, fontWeight: 600,
+  cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap",
+  display: "inline-flex", alignItems: "center", gap: 5 };
+
 export const PALETTE = ["#FF6B6B","#FFC312","#26de81","#4A90E2","#9B59B6","#E91E8C"];
 export const DEFAULT_HOMEWORK_SCORE = 10;
 /* ── 미션 코인 배수 [사용자 확정 2026-08-27] ──────────────────────────────

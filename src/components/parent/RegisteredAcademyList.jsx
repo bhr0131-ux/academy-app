@@ -24,7 +24,7 @@
    그리기만 하고 저장은 하지 않는다 — 추가·수정은 전부 위로 알린다.
    ════════════════════════════════════════════════════════════════════════ */
 
-import { C, RAD, FW, FS, mixWhite } from "../../data/tokens.js";
+import { C, RAD, FW, FS, mixWhite, SOFT_BTN } from "../../data/tokens.js";
 import { getShuttleText } from "../../data/sampleData.js";
 import CareIcon from "./CareIcons.jsx";
 import EmojiIcon from "../EmojiIcon.jsx";
@@ -314,9 +314,7 @@ export default function RegisteredAcademyList({
                         onPress={() => onSms(ac)} title={`${ac.name} 문자`} />}
                     </div>
                     <button onClick={() => onEdit(ac)} className="jelly-tap" aria-label={`${ac.name} 수정·삭제`}
-                      style={{ border: "none", background: "none", color: SUBD, fontSize: FS.sub, fontWeight: FW.semi,
-                        cursor: "pointer", fontFamily: "inherit", padding: "6px 0 6px 12px",
-                        display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      style={SOFT_BTN}>
                       {/* [사용자 확정 2026-08-16] '오늘의 학원'의 수정은 그날 미션·준비물을
                           고치는 것이고, 여기는 학원 정보 자체를 고친다 → 이름으로 구분한다.
                           [사용자 확정 2026-11-21] 삭제도 이 버튼으로 여는 창 안에 있어 '학원 수정·삭제'로 */}
