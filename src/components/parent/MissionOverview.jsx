@@ -180,7 +180,8 @@ export default function MissionOverview({ dayItems = [], rules = [], th, TM, onS
                   </div>
                   {/* 반복 미션은 그 아래 한 줄에 반복 주기 */}
                   {row.kind === "rule" && (
-                    <p style={{ margin: "6px 0 0", display: "flex", alignItems: "center", gap: 4, fontSize: FS.sub, fontWeight: FW.bold, color: th.main }}>
+                    <p style={{ margin: "6px 0 0", display: "flex", alignItems: "center", gap: 4, fontSize: FS.sub, ...SUB_LABEL }}>
+                      {/* 반복 주기는 차분한 중간 회색 — 제목·점수 배지가 먼저 보이게 (사용자 확정 2026-11-26) */}
                       <CareIcon name="repeat" size={12} />{row.repeatText}
                     </p>
                   )}
