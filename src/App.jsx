@@ -6244,7 +6244,8 @@ export default function App() {
 
         <div style={{position:"relative",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           {/* [사용자 확정 2026-11-26] 가방 대신 보호자 얼굴(👩/👨) — 오른쪽 '🧭 아이용 보기'와 같은 앱 그림 */}
-          <h1 style={{fontSize:17,fontWeight:900,margin:0,color:mixBlack(th.main,0.45),display:"flex",alignItems:"center",gap:6}}><EmojiIcon emoji={PT.emoji||"👩"} size={20}/>{PT.role} 관리</h1>
+          <h1 style={{fontSize:17,fontWeight:900,margin:0,color:mixBlack(th.main,0.45),display:"flex",alignItems:"center",gap:6}}><img src={parentGender==="dad"?"assets/parent-face-dad.webp":"assets/parent-face-mom.webp"} alt="" aria-hidden="true" draggable={false}
+            style={{width:26,height:26,objectFit:"contain",flexShrink:0}}/>{/* 아이 화면 '엄마모드/아빠모드' 동그란 버튼 속 인물만 떼어 쓴다 (사용자 확정 2026-11-26) */}{PT.role} 관리</h1>
           {/* [사용자 확정 2026-11-26] 제목 가방과 겹치지 않게 — 나침반 + '아이용 보기 ›'로 '화면 전환 버튼'임이 바로 보이게 */}
           <button onClick={exitParentMode} className="jelly-tap" aria-label="아이용 화면으로 바꾸기"
             style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:12,padding:"7px 10px 7px 11px",fontSize:12,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`,display:"inline-flex",alignItems:"center",gap:5}}>
