@@ -146,9 +146,10 @@ export default function AbsenceTab({
      '출석 확인 · 보충 추가 · 일정 변경'은 다 같은 무게의 동작이라 색으로 갈릴 이유가 없고,
      상태는 바로 위 배지가 이미 색으로 말한다. 링크까지 물들면 카드에 색이 둘이 된다. */
   /* [사용자 확정 2026-11-26] 밑줄 글자 → 테마색 연한 테두리·배경의 둥근 알약 버튼 */
-  const actLink={ background:`${th.main}12`,border:`1px solid ${th.main}40`,borderRadius:RAD.pill,cursor:"pointer",fontFamily:"inherit",
+  /* [사용자 확정 2026-11-26] 톤을 낮춘다 — 연한 회색 배경 + 짙은 회색 글씨. 눈에 띄는 건 상태 배지 하나만 */
+  const actLink={ background:"#F3F4F6",border:"none",borderRadius:RAD.pill,cursor:"pointer",fontFamily:"inherit",
     fontSize:FS.sub,fontWeight:FW.semi,
-    padding:"5px 13px",margin:"4px 0",flexShrink:0,whiteSpace:"nowrap",color:th.main };
+    padding:"6px 14px",margin:"4px 0",flexShrink:0,whiteSpace:"nowrap",color:"#374151" };
   const headRow={ display:"flex",alignItems:"center",gap:8,margin:"0 0 10px" };
   const headTxt={ fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0 };
 
@@ -381,15 +382,6 @@ export default function AbsenceTab({
       })}
     </div>
 
-    {/* [사용자 확정 2026-11-26] 점선 큰 버튼 → 홈 '＋ 학원비 추가'와 같은 연한 테마색 둥근 버튼 */}
-    <div style={{marginBottom:14}}>
-      <button onClick={onAdd} className="jelly-tap"
-        style={{display:"inline-block",padding:"4px 10px",borderRadius:999,border:`1px solid ${th.main}40`,
-          background:mixWhite(th.main,0.88),color:mixBlack(th.main,0.3),fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
-        ＋ 결석 기록 추가
-      </button>
-    </div>
-
     {/* ── 처리 필요 ── */}
     {pendingList.length>0&&(
       <div>
@@ -431,6 +423,13 @@ export default function AbsenceTab({
         </p>
       </div>
     )}
+
+    {/* [사용자 확정 2026-11-26] '＋ 결석 기록 추가'는 목록 맨 아래, 가로로 꽉 찬 둥근 버튼 */}
+    <button onClick={onAdd} className="jelly-tap"
+      style={{display:"block",width:"100%",boxSizing:"border-box",margin:"12px 0 10px",padding:"10px 12px",borderRadius:999,border:`1px solid ${th.main}40`,
+        background:mixWhite(th.main,0.9),color:mixBlack(th.main,0.3),fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
+      ＋ 결석 기록 추가
+    </button>
   </div>
   );
 }
