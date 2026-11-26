@@ -50,6 +50,10 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
   const [payDayV,  setPayDayV]  = useState(String(ac?.payDay ?? 1));
   const [askUnpay, setAskUnpay] = useState(false);   // 되돌리기 확인 (한 번 더 묻는다)
   const [pickOpen, setPickOpen] = useState(false);   // 학원 선택 콤보 펼침
+  /* [사용자 확정 2026-11-26] 학원비 금액이 비면 0원으로 저장돼 '미등록'에 그대로 남는다 —
+     반영이 안 된 것처럼 보였다. 금액 칸이 비면 저장 버튼을 흐리게 하고, 누르면 안내한다. */
+  const [feeErr, setFeeErr] = useState(false);
+  const needFee = showFee && !(Number(feeV) > 0);
   if (!ac) return null;
 
   const inp = { width: "100%", boxSizing: "border-box", background: tone.faint,
@@ -115,14 +119,20 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
         {/* 학원비 설정 — ⋮ > 학원비 수정으로 열었을 때만. 매달 바뀌지 않는 값이라 위에 둔다. */}
         {showFee && (<>
           <label style={lbl}>월 학원비 (원)</label>
-          <div style={{ position: "relative", marginBottom: 13 }}>
-            <input type="text" inputMode="numeric" value={won(feeV)}
-              onChange={e => setFeeV(e.target.value.replace(/[^0-9]/g, ""))}
-              placeholder="예: 150,000"
-              style={{ ...inp, paddingRight: 38, textAlign: "right", fontSize: 16 }} />
+          <div style={{ position: "relative", marginBottom: feeErr && needFee ? 6 : 13 }}>
+            {/* 예시 글자는 실제 값과 헷갈리지 않게 더 흐리게 (사용자 확정 2026-11-26) */}
+            <style>{`.fps-faint-ph::placeholder{color:#C4C9D4;opacity:1}`}</style>
+            <input id="fee-amount-input" className="fps-faint-ph" type="text" inputMode="numeric" value={won(feeV)}
+              onChange={e => { setFeeV(e.target.value.replace(/[^0-9]/g, "")); setFeeErr(false); }}
+              placeholder="예: 150,000" aria-invalid={feeErr && needFee}
+              style={{ ...inp, paddingRight: 38, textAlign: "right", fontSize: 16,
+                ...(feeErr && needFee ? { borderColor: tone.red, boxShadow: `0 0 0 3px ${tone.red}22` } : {}) }} />
             <span style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)",
               fontSize: 14, fontWeight: 700, color: tone.sub, pointerEvents: "none" }}>원</span>
           </div>
+          {feeErr && needFee && (
+            <p role="alert" style={{ margin: "0 0 13px", fontSize: 13, fontWeight: 700, color: tone.red }}>학원비 금액을 입력해 주세요</p>
+          )}
 
           <label style={lbl}>납부일 (매월)</label>
           <div style={{ position: "relative", marginBottom: showRecord ? 20 : 18 }}>
@@ -176,14 +186,17 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
         </div>
 
         <label style={lbl}>메모 (선택)</label>
-        <input value={memo} onChange={e => setMemo(e.target.value)} placeholder="예: 교재비 포함"
+        <input className="fps-faint-ph" value={memo} onChange={e => setMemo(e.target.value)} placeholder="예: 교재비 포함"
           style={{ ...inp, marginBottom: 18 }} />
         </>)}
 
-        <button onClick={() => onSave({ date, amount: Math.max(0, Number(amount || 0)), method, memo: memo.trim(),
-          fee: Math.max(0, Number(feeV || 0)), payDay: Math.min(31, Math.max(1, Number(payDayV || 1))) })}
-          className="jelly-tap"
-          style={{ width: "100%", padding: 14, borderRadius: 14, border: "none", background: tone.grad,
+        <button onClick={() => {
+            if (needFee) { setFeeErr(true); try { document.getElementById("fee-amount-input")?.focus(); } catch { /* 무시 */ } return; }
+            onSave({ date, amount: Math.max(0, Number(amount || 0)), method, memo: memo.trim(),
+              fee: Math.max(0, Number(feeV || 0)), payDay: Math.min(31, Math.max(1, Number(payDayV || 1))) });
+          }}
+          className="jelly-tap" aria-disabled={needFee}
+          style={{ width: "100%", padding: 14, borderRadius: 14, border: "none", background: tone.grad, opacity: needFee ? 0.45 : 1,
             color: "#fff", fontSize: 16, fontWeight: 900, cursor: "pointer", fontFamily: F }}>
           {!showRecord || editing ? "저장하기" : "납부 처리"}
         </button>
