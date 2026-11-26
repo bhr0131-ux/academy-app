@@ -7640,7 +7640,7 @@ export default function App() {
                         boxShadow:isSel?`0 0 0 3px #fff,0 0 0 5px ${c}`:"0 2px 6px rgba(0,0,0,0.15)"}}>
                       {/* [사용자 확정 2026-08-10] 고른 색에 흰 체크 — 예전의 흰 점은 라디오 버튼처럼 보였다 */}
                       {isSel&&<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                      {isUsed&&!isSel&&<span style={{width:8,height:8,borderRadius:"50%",background:"#fff",boxShadow:"0 0 0 1.5px rgba(0,0,0,0.15)"}}/>}
+                      {/* (뺐음 2026-11-26 사용자 확정) 다른 학원이 쓰는 색의 흰 점 — 안 고른 색은 모두 채운 단색 원으로 통일 */}
                     </button>
                   );
                 });
@@ -7701,9 +7701,15 @@ export default function App() {
 
             {/* (뺐음 2026-11-21 사용자 확정) 그날 미션 칸 — 미션은 옆 탭에서 따로 관리한다.
                 학원 창에는 준비물까지만 기본 정보로, 숙제 즐겨찾기는 아래 상세 정보에서. */}
-            <p style={{fontSize:FS.sub,color:C.sub,fontWeight:FW.normal,margin:"0 0 12px",textAlign:"center",lineHeight:1.5}}>
-              필수 정보 입력 완료<br/><span style={{opacity:0.85}}>나머지는 필요할 때 추가해도 돼요</span>
-            </p>
+            {/* [사용자 확정 2026-11-26] 필수/선택 경계 — 얇은 선 + 초록 알약 배지 + 작은 회색 안내 */}
+            <div style={{borderTop:`1px solid ${C.border}`,margin:"4px 0 0",padding:"16px 0 12px",textAlign:"center"}}>
+              <span style={{display:"inline-flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:999,
+                background:`${C.green}1A`,color:mixBlack(C.green,0.35),fontSize:FS.sub,fontWeight:FW.bold}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                필수 정보 입력 완료
+              </span>
+              <p style={{fontSize:FS.tag,color:"#6B7280",fontWeight:FW.normal,margin:"7px 0 0"}}>나머지는 필요할 때 추가해도 돼요</p>
+            </div>
 
             <button type="button" onClick={()=>setShowAcMore(v=>!v)} style={{width:"100%",padding:"13px",borderRadius:RAD.md,border:`1.5px dashed ${th.main}80`,background:mixWhite(th.main,0.80),color:th.main,fontSize:FS.cardTitle,fontWeight:FW.bold,cursor:"pointer",marginBottom:16}}>
               {showAcMore?"▲ 상세 정보 접기":"▼ 상세 정보 추가 (선택)"}
@@ -7717,7 +7723,8 @@ export default function App() {
             </button>
             {acSecSupply&&(
             <div style={{padding:"0 2px 16px"}}>
-            <label style={lblIcon}><CareIcon name="repeat" size={14}/>숙제 즐겨찾기 <span style={hintSpan}>(미션 창에서 눌러 바로 추가)</span></label>
+            {/* 바깥 제목과 겹쳐 안쪽 제목은 뺐다 — 보조 설명만 (사용자 확정 2026-11-26) */}
+            <p style={{...hintSpan,margin:"0 0 8px"}}>(미션 창에서 눌러 바로 추가)</p>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
               {(newAc.baseHomeworks||[]).map((s,i)=>(
                 <span key={i} style={{fontSize:FS.cardTitle,padding:"5px 11px",borderRadius:RAD.lg,background:`${th.main}18`,color:th.main,display:"flex",alignItems:"center",gap:4,fontWeight:FW.normal}}>
