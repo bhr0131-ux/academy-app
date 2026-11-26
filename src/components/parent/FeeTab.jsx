@@ -297,14 +297,12 @@ export default function FeeTab({
           <span style={headTxt}>미등록 {unregAc.length}곳</span>
           <div style={{flex:1,height:1,background:C.border}}/>
         </div>
-        {/* [사용자 확정 2026-11-26] 밑줄 글자 대신 '＋ 학원 추가'와 같은 크기의 둥근 버튼 — 연한 테마색 바탕(채운 버튼보다 한 단계 가볍게) */}
-        <div style={{display:"flex",justifyContent:"flex-end",margin:"2px 0 12px"}}>
-          <button onClick={()=>onAddFee&&onAddFee(unregAc[0].id)} className="jelly-tap"
-            style={{flexShrink:0,fontSize:FS.sub,padding:"7px 12px",borderRadius:RAD.sm,border:`1px solid ${th.main}40`,
-              background:mixWhite(th.main,0.88),color:mixBlack(th.main,0.3),fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit"}}>
-            ＋ 학원비 추가
-          </button>
-        </div>
+        {/* [사용자 확정 2026-11-26] 밑줄 글자 대신 연한 테마색 둥근 버튼 — 크기·자리(왼쪽, 글자 크기)는 예전 그대로 */}
+        <button onClick={()=>onAddFee&&onAddFee(unregAc[0].id)} className="jelly-tap"
+          style={{display:"inline-block",margin:"0 0 8px",padding:"4px 10px",borderRadius:999,border:`1px solid ${th.main}40`,
+            background:mixWhite(th.main,0.88),color:mixBlack(th.main,0.3),fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
+          ＋ 학원비 추가
+        </button>
       </div>
     )}
     {curAc.length===0&&<div style={{textAlign:"center",padding:"40px",color:C.sub,fontSize:FS.body,background:mixWhite(th.main,0.93),borderRadius:RAD.lg,border:`1.5px dashed ${th.main}40`}}>등록된 학원이 없어요</div>}
