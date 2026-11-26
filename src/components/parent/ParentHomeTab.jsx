@@ -27,7 +27,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { Fragment, useRef, useState } from "react";
-import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE, SUB_LABEL, SOFT_BTN } from "../../data/tokens.js";
+import { C, FS, FW, RAD, mixWhite, mixBlack, SHADOW, DEFAULT_HOMEWORK_SCORE, SUB_LABEL } from "../../data/tokens.js";
 import { TODAY, addDays } from "../../utils/dates.js";
 import { hasClassOnDay, getScheduleForDay, getShuttleText, makeupTimeText, getDayPlan, feeDueDay } from "../../data/sampleData.js";
 import { ADV_SIT_IMG, getHolidayName } from "../../data/characters.js";
@@ -652,7 +652,8 @@ export default function ParentHomeTab({
                     onPress={()=>onSms(ac)} title={`${ac.name} 문자`}/>}
                 </div>
                 {/* [사용자 확정 2026-11-22] 오늘 학원 카드에는 '준비물 수정'만 남긴다 — 미션은 여기서 고치지 않는다(미션 탭) */}
-                <button onClick={()=>onEditDaily(ac,homeDate)} className="jelly-tap" style={SOFT_BTN}>
+                <button onClick={()=>onEditDaily(ac,homeDate)}
+                  style={{border:"none",background:"none",color:SUBD,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",padding:"6px 0 6px 12px",display:"inline-flex",alignItems:"center",gap:5}}>
                   <CareIcon name="pencil" size={13}/>준비물 수정
                 </button>
               </div>
