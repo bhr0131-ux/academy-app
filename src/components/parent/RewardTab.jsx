@@ -125,7 +125,7 @@ export default function RewardTab({ D }) {
              개수는 뺐다. 누르면 아래 흰 칸에 목록이 펼쳐진다. */
           /* [사용자 확정 2026-11-25] 홈 카드 톤의 차분한 접이식 바 — 흰 바탕, 진한 색은 쓰지 않는다 */
           <div style={{borderRadius:RAD.md,overflow:"hidden",boxShadow:SHADOW.sm,border:`1px solid ${th.main}22`,background:"#fff"}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,padding:"0 6px 0 4px",background:(open||ageOpen)?mixWhite(th.main,0.91):"#fff",borderBottom:(open||ageOpen)?`1px solid ${th.main}1A`:"none"}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,padding:"0 6px 0 4px",background:mixWhite(th.main,0.91) /* 접혀도 늘 연한 테마색 — '미션 추가·관리' 머리와 같게 (사용자 확정 2026-11-26) */,borderBottom:(open||ageOpen)?`1px solid ${th.main}1A`:"none"}}>
               <button onClick={()=>setOpen&&setOpen(!open)} aria-expanded={open} className="jelly-tap"
                 style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:7,border:"none",background:"none",padding:"12px 6px 12px 10px",cursor:"pointer",fontFamily:"inherit",textAlign:"left",color:mixBlack(th.main,0.35)}}>
                 {/* 좁은 폰에서도 연령대 글자가 잘리지 않게 선물 그림은 뺀다 */}
