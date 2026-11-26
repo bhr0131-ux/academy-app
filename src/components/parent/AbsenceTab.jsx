@@ -37,7 +37,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
-import { C, FS, FW, RAD, CTRL_H, mixWhite, SHADOW } from "../../data/tokens.js";
+import { C, FS, FW, RAD, CTRL_H, mixWhite, mixBlack, SHADOW } from "../../data/tokens.js";
 import { TODAY } from "../../utils/dates.js";
 import { makeupTimeText } from "../../data/sampleData.js";
 import CareIcon from "./CareIcons.jsx";
@@ -53,7 +53,7 @@ const AB_SLATE = "#6E7BA6";   // 보충 없음 (보충 일정을 아직 안 잡�
 const AB_MID   = "#6B7392";   // 본문 중간 톤 — C.text(진함)와 C.sub(연함) 사이
 
 export default function AbsenceTab({
-  th, CT, curAc = [], absList = [],
+  th, CT, curAc = [], absList = [], embedded = false,
   absMonth, setAbsMonth, absFilter, setAbsFilter,
   absMenu, setAbsMenu, absTimeEdit, setAbsTimeEdit, makeupPick, setMakeupPick,
   onAdd, onPatch, onResult, onDelete, onSms,
@@ -319,7 +319,30 @@ export default function AbsenceTab({
 
   return (
   <div>
-    {/* 월 네비게이션 — 홈·달력·학원비와 같은 치수 */}
+    {embedded?(
+      /* [사용자 확정 2026-11-26] 홈 '학원비' 그룹 카드와 같은 머리 한 줄 —
+         왼쪽 '결석·보충' 제목, 오른쪽 '‹ 2026년 11월 ›' 알약 월 선택기 */
+      <div style={{display:"flex",alignItems:"center",gap:4,margin:"0 0 12px",minWidth:0}}>
+        <span style={{display:"flex",alignItems:"center",gap:6,flexShrink:0,fontSize:FS.title,fontWeight:FW.bold,color:C.text}}>
+          <span style={{color:th.main,display:"flex"}}><CareIcon name="absent" size={16}/></span>결석·보충
+        </span>
+        <div style={{flex:1}}/>
+        {absMonth!==TODAY.slice(0,7)&&(
+          <button onClick={()=>setAbsMonth(TODAY.slice(0,7))} className="jelly-tap"
+            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",marginRight:2}}>
+            ↩ 이번달로
+          </button>
+        )}
+        <div style={{display:"flex",alignItems:"center",flexShrink:0,background:"#fff",border:`1px solid ${th.main}22`,borderRadius:999,padding:"0 2px"}}>
+          <button onClick={()=>shiftMonth(-1)} className="jelly-tap" aria-label="이전 달"
+            style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>‹</button>
+          <span style={{fontWeight:FW.bold,fontSize:FS.sub,color:C.text,whiteSpace:"nowrap"}}>{ay}년 {am}월</span>
+          <button onClick={()=>shiftMonth(1)} className="jelly-tap" aria-label="다음 달"
+            style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>›</button>
+        </div>
+      </div>
+    ):(
+    /* 월 네비게이션 — 홈·달력·학원비와 같은 치수 */
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:2,marginBottom:10,position:"relative"}}>
       <button onClick={()=>shiftMonth(-1)} className="jelly-tap" aria-label="이전 달"
         style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
@@ -334,11 +357,12 @@ export default function AbsenceTab({
         </button>
       )}
     </div>
+    )}
 
     {/* 요약 한 줄 — [사용자 확정 2026-08-18] 큰 상자 3개가 화면을 많이 차지했다.
         여기는 통계 화면이 아니라 결석 관리 화면이라 목록을 먼저 보여 주는 편이 낫다.
         누르면 그 갈래만 걸러 보는 것(예전 3칸이 하던 일)은 그대로 남긴다. */}
-    <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:12}}>
+    <div style={{display:"flex",alignItems:"center",gap:embedded?4:6,flexWrap:"wrap",marginBottom:12}}>
       {[{k:"all",    l:"전체",     v:totalCnt,       c:th.main},   /* 전체는 아이 테마색 (사용자 확정 2026-11-26) */
         {k:"pending",l:"보충 예정",v:pendingAll.length,c:C.orange},
         {k:"done",   l:"보충 완료",v:doneAll.length,  c:C.sub}].map(s=>{
@@ -347,7 +371,7 @@ export default function AbsenceTab({
           <button key={s.k} onClick={()=>setAbsFilter(on?"all":s.k)} className="jelly-tap"
             aria-pressed={on} aria-label={`${s.l} ${s.v}건 보기`}
             style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:4,cursor:"pointer",fontFamily:"inherit",
-              padding:"4px 10px",borderRadius:RAD.pill,
+              padding:embedded?"4px 8px":"4px 10px",borderRadius:RAD.pill,
               border:`1px solid ${on?s.c+"66":C.border}`,background:on?`${s.c}12`:"#fff",
               fontSize:FS.tag,fontWeight:FW.normal,color:on?s.c:AB_MID}}>
             <span style={{width:6,height:6,borderRadius:"50%",background:s.c,flexShrink:0,opacity:on?1:0.55}}/>
@@ -357,10 +381,14 @@ export default function AbsenceTab({
       })}
     </div>
 
-    <button onClick={onAdd} className="jelly-tap"
-      style={{width:"100%",padding:"9px",borderRadius:RAD.sm,border:`1px dashed ${th.main}55`,background:`${th.main}0A`,color:th.main,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",marginBottom:14,fontFamily:"inherit"}}>
-      ＋ 결석 기록 추가
-    </button>
+    {/* [사용자 확정 2026-11-26] 점선 큰 버튼 → 홈 '＋ 학원비 추가'와 같은 연한 테마색 둥근 버튼 */}
+    <div style={{marginBottom:14}}>
+      <button onClick={onAdd} className="jelly-tap"
+        style={{display:"inline-block",padding:"4px 10px",borderRadius:999,border:`1px solid ${th.main}40`,
+          background:mixWhite(th.main,0.88),color:mixBlack(th.main,0.3),fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
+        ＋ 결석 기록 추가
+      </button>
+    </div>
 
     {/* ── 처리 필요 ── */}
     {pendingList.length>0&&(

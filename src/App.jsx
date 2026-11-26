@@ -6417,9 +6417,9 @@ export default function App() {
         {/* [2026-08-17] 화면 본문을 components/parent/AbsenceTab.jsx 로 옮겼다
             (CLAUDE.md 규칙 3). 데이터·저장은 여전히 App에 있고, 값과 콜백만 내려보낸다. */}
         {(tab==="calendar"||tab==="absence")&&(
-          <div ref={absSecRef} style={{marginTop:34,scrollMarginTop:12}}>
-          <SectionHead icon="absent" label="결석·보충" th={th}/>
-          <AbsenceTab
+          /* [사용자 확정 2026-11-26] 홈 '학원비'와 같은 그룹 카드로 감싼다 (배경·테두리·그림자 동일) */
+          <div ref={absSecRef} style={{marginTop:34,scrollMarginTop:12,background:mixWhite(th.main,0.95),border:`1px solid ${th.main}22`,borderRadius:RAD.lg,padding:"14px 12px 4px",boxShadow:SHADOW.sm}}>
+          <AbsenceTab embedded
             th={th} CT={CT} curAc={curAc}
             /* 지워진 학원의 '주인 없는 기록'은 여기서 미리 걸러서 넘긴다 */
             absList={curAbsLive}
