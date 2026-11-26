@@ -53,7 +53,7 @@ export default function RewardTab({ D }) {
                       <p style={{fontSize:FS.title,fontWeight:FW.semi,margin:0,color:C.text,
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{reward.title}</p>
                       <p style={{fontSize:FS.body,color:C.sub,fontWeight:FW.normal,margin:"2px 0 0"}}>
-                        {/* 가격은 '💎 40코인'으로 짧게 (사용자 확정 2026-11-25) */}<span style={{whiteSpace:"nowrap"}}><EmojiIcon emoji={TM.coinEmoji} size={FS.body} style={{verticalAlign:"-0.18em",marginRight:3}}/>{reward.point}{TM.coin}</span>
+                        {/* 가격은 '💎 40코인'으로 짧게 (사용자 확정 2026-11-25) */}<span style={{whiteSpace:"nowrap"}}><EmojiIcon emoji={TM.coinEmoji} size={FS.body} style={{verticalAlign:"-0.18em",marginRight:3}}/>{Number(reward.point||0).toLocaleString()}{TM.coin}</span>
                       </p>
                     </div>
                   ):(
@@ -61,7 +61,7 @@ export default function RewardTab({ D }) {
                       <p style={{flex:1,minWidth:0,fontSize:FS.title,fontWeight:FW.semi,margin:0,color:C.text,
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{reward.title}</p>
                       <span style={{flexShrink:0,fontSize:FS.body,color:C.sub,fontWeight:FW.normal,whiteSpace:"nowrap"}}>
-                        <EmojiIcon emoji={TM.coinEmoji} size={FS.body} style={{verticalAlign:"-0.18em",marginRight:3}}/> {reward.point}{TM.coin}
+                        <EmojiIcon emoji={TM.coinEmoji} size={FS.body} style={{verticalAlign:"-0.18em",marginRight:3}}/> {Number(reward.point||0).toLocaleString()}{TM.coin}
                       </span>
                     </>
                   )}
@@ -107,7 +107,7 @@ export default function RewardTab({ D }) {
 
       {!embedded&&<RewardApprovals
         requests={getChildRewardRequests(childId).filter(r=>r.status==="pending")}
-        childName={curChild?.name||""} showWho={children.length>1}
+        childName={curChild?.name||""} showWho={false}
         coinLabel={TM.coin} th={th} CT={CT}
         onApprove={approveRewardRequest}
         /* 거절은 코인을 돌려주고 되돌릴 수 없다 → 한 번 물어본다 (사용자 확정 2026-08-11) */

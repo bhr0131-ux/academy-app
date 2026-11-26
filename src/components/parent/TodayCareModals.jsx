@@ -253,7 +253,7 @@ export function RewardApproveModal({ requests = [], coinLabel = "코인", whoLab
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ margin: 0, fontSize: FS.cardTitle, fontWeight: FW.bold, color: tone.text,
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: FS.sub, fontWeight: FW.semi, color: tone.sub }}>{r.point} {coinLabel} 사용</p>
+                  <p style={{ margin: "2px 0 0", fontSize: FS.sub, fontWeight: FW.semi, color: tone.sub }}>{Number(r.point||0).toLocaleString()}{coinLabel} 사용</p>
                 </div>
               </div>
               <div style={{ display: "flex", gap: 8 }}>

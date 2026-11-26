@@ -115,6 +115,13 @@ export const REWARD_GRADES = [
 
 export const getRewardGrade=(reward)=>REWARD_GRADES.find(g=>g.id===(reward.grade||"common"))||REWARD_GRADES[0];
 
+/* [사용자 확정 2026-11-26] 예전 기본 보상 이름의 띄어쓰기 고침 — 이미 저장된 보상 목록에도
+   보여 줄 때만 고쳐 쓴다(저장 값은 안 건드린다). 부모가 직접 고친 이름은 그대로 둔다. */
+export const REWARD_TITLE_FIX = { "가고싶은 여행지": "가고 싶은 여행지" };
+export const fixRewardTitles = (list) => Array.isArray(list)
+  ? list.map(r => (r && REWARD_TITLE_FIX[r.title]) ? { ...r, title: REWARD_TITLE_FIX[r.title] } : r)
+  : list;
+
 export const DEFAULT_REWARDS = [
   { id:1,  title:"사탕 하나",              point:30,    emoji:"🍬", grade:"common"    },
   { id:2,  title:"좋아하는 간식",          point:50,    emoji:"🍪", grade:"common"    },
@@ -157,7 +164,7 @@ export const REWARDS_ELEM_HIGH = [
   { id:7,  title:"용돈 5,000원",           point:290,   emoji:"💵", grade:"epic"      },
   { id:8,  title:"외식·배달 메뉴 선택",    point:340,   emoji:"🍕", grade:"epic"      },
   { id:9,  title:"용돈 10,000원",          point:530,   emoji:"💸", grade:"epic"      },
-  { id:10, title:"가고싶은 여행지",        point:700,   emoji:"✈️", grade:"legendary" },
+  { id:10, title:"가고 싶은 여행지",       point:700,   emoji:"✈️", grade:"legendary" },
   { id:11, title:"갖고 싶은 장난감",       point:800,   emoji:"🎁", grade:"legendary" },
   { id:12, title:"큰 선물 도전권",         point:1000,  emoji:"🛍️", grade:"legendary" },
 ];

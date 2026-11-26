@@ -61,7 +61,8 @@ export default function RewardApprovals({
                 <p style={{ fontSize: FS.title, fontWeight: FW.bold, margin: 0, color: C.text,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{req.title}</p>
                 <p style={{ fontSize: FS.sub, color: C.sub, fontWeight: FW.normal, margin: "2px 0 0" }}>
-                  {req.point} {coinLabel} 사용
+                  {/* '30코인 사용' — 보상 목록과 같은 붙여 쓰기·천 단위 쉼표 (사용자 확정 2026-11-26) */}
+                  {Number(req.point||0).toLocaleString()}{coinLabel} 사용
                 </p>
               </div>
               {showWho && childName && (
@@ -74,12 +75,12 @@ export default function RewardApprovals({
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => onApprove && onApprove(req.id)} className="jelly-tap"
                 style={{ flex: 2, border: "none", background: C.green, color: "#fff", borderRadius: RAD.sm,
-                  padding: "10px", fontSize: FS.body, fontWeight: FW.bold, cursor: "pointer", fontFamily: F }}>
+                  padding: "7px 10px", fontSize: FS.body, fontWeight: FW.bold, cursor: "pointer", fontFamily: F }}>
                 승인
               </button>
               <button onClick={() => onReject && onReject(req)} className="jelly-tap"
                 style={{ flex: 1, border: `1px solid ${C.border}`, background: "#fff", color: C.sub,
-                  borderRadius: RAD.sm, padding: "10px", fontSize: FS.body, fontWeight: FW.bold, cursor: "pointer", fontFamily: F }}>
+                  borderRadius: RAD.sm, padding: "7px 10px", fontSize: FS.body, fontWeight: FW.bold, cursor: "pointer", fontFamily: F }}>
                 거절
               </button>
             </div>
