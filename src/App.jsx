@@ -6318,7 +6318,7 @@ export default function App() {
             /* [사용자 확정 2026-11-23] 학원비 탭을 없애고 홈 '전체 학원' 아래로 옮겼다 — 여기선 달만 맞춘다 */
             onGoFee={(month)=>{ setFeeMonth(month); }}
             feePanel={
-              <FeeTab embedded
+              <FeeTab embedded nameOf={acKindLabel}
                 th={th} CT={CT} curAc={curAc}
                 feeMonth={feeMonth} setFeeMonth={setFeeMonth}
                 isPaid={isPaid} payRec={payRec} payStatus={payStatus}

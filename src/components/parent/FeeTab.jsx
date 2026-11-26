@@ -39,7 +39,8 @@ export default function FeeTab({
   th, CT, curAc = [], feeMonth, setFeeMonth,
   isPaid, payRec, payStatus, feeMenu, setFeeMenu,
   onPay, onEditFee, onDeleteFee, onCopyAccount, onAddFee,
-  embedded = false,   // 홈 '전체 학원' 아래 카드 안에 들어갈 때 — 머리 한 줄에 '학원비'와 월 이동을 함께 (2026-11-25)
+  embedded = false,
+  nameOf = (a) => a.name,   // 카드에 쓸 이름 — 홈에서는 위 학원 목록과 같은 짧은 이름(acKindLabel) (2026-11-26)   // 홈 '전체 학원' 아래 카드 안에 들어갈 때 — 머리 한 줄에 '학원비'와 월 이동을 함께 (2026-11-25)
 }) {
   /* [사용자 확정 2026-08-09] 이 화면의 일은 '예쁘게 보이기'가 아니라
      "이번 달에 얼마를 더 내야 하고, 어떤 학원이 미납인가"를 빨리 판단하게 하는 것. */
@@ -116,9 +117,10 @@ export default function FeeTab({
         높이 약 18% 축소, 그라데이션도 약하게. '2곳 중 1곳 납부'는 위 금액으로
         이미 알 수 있어 뺐다(다 냈을 때만 축하 한 줄). */}
     {/* 총액 21px 만 척도(17) 밖이다 — 이 화면의 주인공 숫자라 일부러 한 단 크게 둔다. */}
-    <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.96)} 0%, ${mixWhite(th.main,0.88)} 100%)`,borderRadius:RAD.md,padding:"12px 14px 12px",marginBottom:14,border:`1px solid ${th.main}2A`,boxShadow:SHADOW.sm}}>
+    <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.96)} 0%, ${mixWhite(th.main,0.88)} 100%)`,borderRadius:RAD.md,padding:"8px 14px 9px",marginBottom:14,border:`1px solid ${th.main}2A`,boxShadow:SHADOW.sm}}>
       <p style={{fontSize:FS.tag,...SUB_LABEL,margin:0,textAlign:"center"}}>{feeMonth}월 총 학원비</p>
-      <p style={{fontSize:21,fontWeight:FW.bold,color:C.text,margin:"1px 0 0",textAlign:"center",letterSpacing:-0.3}}>{won(total)}</p>
+      {/* 총액 21→19, 박스 위아래 여백도 줄임 — 아래 카드들과 비율 맞춤 (사용자 확정 2026-11-26) */}
+      <p style={{fontSize:19,fontWeight:FW.bold,color:C.text,margin:"1px 0 0",textAlign:"center",letterSpacing:-0.3}}>{won(total)}</p>
       {/* [사용자 확정 2026-11-23] 총 학원비만 남긴다 — 납부·남은 금액은 아래 '낼 곳/납부 완료'가 말해 준다 */}
     </div>
 
@@ -181,12 +183,15 @@ export default function FeeTab({
            오른쪽 내용 칸이 갖는다 — 홈 카드와 같은 구조다.
            카드에 overflow:hidden 을 걸면 아래 ⋮ 메뉴(position:absolute)까지 잘리므로,
            세로선 자신이 왼쪽 두 모서리만 둥글게 갖는다. */
-        <div key={a.id} style={{position:"relative",background:CT.card,borderRadius:RAD.md,marginBottom:14,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,display:"flex"}}>
-          <div style={{width:4,borderRadius:`${RAD.md}px 0 0 ${RAD.md}px`,background:a.color,flexShrink:0}}/>
+        /* [사용자 확정 2026-11-26] 카드 안쪽(세로선+내용)에 overflow:hidden — 세로선 위아래가 둥근 모서리에 맞게 잘린다.
+           ⋮ 메뉴는 잘리면 안 되므로 바깥 감싸개(position:relative)에 둔다 */
+        <div key={a.id} style={{position:"relative",marginBottom:14}}>
+        <div style={{background:CT.card,borderRadius:RAD.md,border:`1px solid ${C.border}`,boxShadow:SHADOW.sm,display:"flex",overflow:"hidden"}}>
+          <div style={{width:4,background:a.color,flexShrink:0}}/>
           <div style={{flex:1,minWidth:0,padding:"11px 12px"}}>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
               <p style={{fontSize:FS.title,fontWeight:FW.semi,margin:0,flex:1,minWidth:0,color:C.text,
-                overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</p>
+                overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nameOf(a)}</p>
               {/* 납부는 체크됐는데 상세 기록이 없으면(이 기능 이전에 체크만 한 건)
                   '납부 완료'라고만 쓰면 아래 안내와 모순처럼 읽힌다 → 배지에서 미리 밝힌다 */}
               {/* [사용자 확정 2026-08-10] 미납 카드가 여러 개면 같은 배지가 줄줄이 반복돼
@@ -194,11 +199,12 @@ export default function FeeTab({
                   글자는 아래 링크와 똑같은 actC 를 쓴다 — 한 상태에 색은 하나. */}
               {hasFee&&<span style={{flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 9px",borderRadius:RAD.sm,background:`${st.color}0D`,color:actC,whiteSpace:"nowrap"}}>{paid&&!rec?"납부 완료 · 상세 미입력":st.label}</span>}
               <button onClick={()=>setFeeMenu(m=>m===a.id?null:a.id)} className="jelly-tap"
-                aria-label={`${a.name} 더보기`} aria-expanded={feeMenu===a.id}
+                aria-label={`${nameOf(a)} 더보기`} aria-expanded={feeMenu===a.id}
                 style={{flexShrink:0,width:24,height:24,borderRadius:RAD.sm,border:"none",background:"none",color:SUBD,fontSize:FS.title,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit",lineHeight:1}}>⋮</button>
             </div>
             {hasFee?(
-              <p style={{margin:"3px 0 0",fontSize:FS.title,fontWeight:FW.bold,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+              /* 금액은 학원 이름보다 한 단계 작게 — 제목과 금액이 바로 구분되게 (사용자 확정 2026-11-26) */
+              <p style={{margin:"3px 0 0",fontSize:FS.body,fontWeight:FW.semi,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
                 {Number(a.fee).toLocaleString()}원
                 {paid&&<span style={{fontSize:FS.tag,...SUB_LABEL,marginLeft:6}}>
                   · 매월 {a.payDay}일
@@ -262,6 +268,7 @@ export default function FeeTab({
               </button>
             )}
           </div>
+        </div>
           {/* ⋮ 더보기 — 자주 쓰지 않는 수정·삭제는 여기 안에 (사용자 확정).
               큰 삭제 버튼을 항상 띄워 두면 실수로 누를 위험이 있다. */}
           {feeMenu===a.id&&(
@@ -292,9 +299,10 @@ export default function FeeTab({
           <span style={headTxt}>미등록 {unregAc.length}곳</span>
           <div style={{flex:1,height:1,background:C.border}}/>
         </div>
+        {/* [사용자 확정 2026-11-26] 밑줄 글자 대신 연한 테마색 둥근 버튼 — 크기·자리(왼쪽, 글자 크기)는 예전 그대로 */}
         <button onClick={()=>onAddFee&&onAddFee(unregAc[0].id)} className="jelly-tap"
-          style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",color:mixBlack(th.main,0.28),
-            fontSize:FS.sub,fontWeight:FW.semi,textDecoration:"underline",textUnderlineOffset:3,padding:"4px 0 8px"}}>
+          style={{display:"inline-block",margin:"0 0 8px",padding:"4px 10px",borderRadius:999,border:`1px solid ${th.main}40`,
+            background:mixWhite(th.main,0.88),color:mixBlack(th.main,0.3),fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
           ＋ 학원비 추가
         </button>
       </div>
