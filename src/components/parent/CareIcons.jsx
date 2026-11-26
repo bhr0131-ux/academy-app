@@ -204,7 +204,21 @@ export default function CareIcon({ name, size = 14 }) {
           <path d="M8 11.6H4.6M8 15.6H5M16 11.6h3.4M16 15.6h3M9.4 6.2 8.2 4.6M14.6 6.2l1.2-1.6" {...P} />
         </svg>
       );
-    case "warn":     // 위험구역 — 느낌표 삼각형
+    case "sound":    // 효과음 켜짐 — 스피커 + 소리 물결 (사용자 확정 2026-11-26)
+      return (
+        <svg {...common}>
+          <path d="M4 9.6h3.4L12 5.6v12.8l-4.6-4H4z" {...P} />
+          <path d="M15.4 9.2a4 4 0 0 1 0 5.6M18 6.8a7.4 7.4 0 0 1 0 10.4" {...P} />
+        </svg>
+      );
+    case "mute":     // 효과음 꺼짐 — 스피커 + X
+      return (
+        <svg {...common}>
+          <path d="M4 9.6h3.4L12 5.6v12.8l-4.6-4H4z" {...P} />
+          <path d="M15.6 9.6l4.8 4.8M20.4 9.6l-4.8 4.8" {...P} />
+        </svg>
+      );
+    case "warn":     // 위험 구역 — 느낌표 삼각형
       return (
         <svg {...common}>
           <path d="M12 4.4 21 19.6H3L12 4.4Z" {...P} />

@@ -78,7 +78,7 @@ export function CoachmarkOverlay({ th, onFinish, parentRole="엄마" }){
     { icon:NAV_ICONS.home,     name:"홈",     desc:"오늘 챙길 일 · 학원 · 학원비" },
     { icon:NAV_ICONS.mission,  name:"미션",   desc:"미션 관리 · 보상 관리·승인" },
     { icon:NAV_ICONS.calendar, name:"캘린더", desc:"일정 · 메모 · 방학 · 결석·보충" },
-    { icon:NAV_ICONS.settings, name:"기타",   desc:"코인 조정 · 비밀번호 · 백업 · 버그신고" },
+    { icon:NAV_ICONS.settings, name:"기타",   desc:"코인 조정 · 비밀번호 · 백업 · 버그 신고" },
   ];
   const pages=[
     { head:"화면 아래 메뉴 네 칸이에요" },
