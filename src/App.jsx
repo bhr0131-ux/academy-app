@@ -521,7 +521,11 @@ export default function App() {
   const [calView,                setCalView]                = useState("month");          // 달력 보기 — 월간 | 주간
   const [memoEdit,               setMemoEdit]               = useState(null);             // 메모 쓰는 중인 날짜 키
   const [memoDraft,              setMemoDraft]              = useState("");
-  const childStripRef = useRef(null);                                                       // 엄마용 아이 선택 줄 (가운데 맞추기용)
+  const childStripRef = useRef(null);
+  /* 아이 선택 줄 오른쪽 페이드 — 넘쳐 있고 아직 끝까지 안 밀었을 때만 (2026-11-26) */
+  const [childFade, setChildFade] = useState(false);
+  const updateChildFade = () => { const b = childStripRef.current; if (!b) return; setChildFade(b.scrollWidth - b.clientWidth - b.scrollLeft > 4); };
+  useEffect(()=>{ const t=setTimeout(updateChildFade,60); window.addEventListener("resize",updateChildFade); return ()=>{ clearTimeout(t); window.removeEventListener("resize",updateChildFade); }; },[children.length,childId,appMode]);                                                       // 엄마용 아이 선택 줄 (가운데 맞추기용)
   /* [버그 수정 2026-08-16] 아이 모드 오른쪽 위 '아이 전환' 목록.
      예전에는 뱃지 그림 위에 투명 <select>를 겹쳐 브라우저 기본 목록을 띄웠는데,
      PC에서는 그 목록이 뱃지(폭 52px) 왼쪽 끝에 붙어 오른쪽으로 펼쳐지는 바람에
@@ -6239,7 +6243,8 @@ export default function App() {
         <div style={{position:"absolute",bottom:-50,left:-20,width:120,height:120,borderRadius:"50%",background:`${headerTone(th.main,0.34)}55`,filter:"blur(6px)"}}/>
 
         <div style={{position:"relative",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <h1 style={{fontSize:17,fontWeight:900,margin:0,color:mixBlack(th.main,0.45)}}>🎒 {PT.role} 관리</h1>
+          {/* [사용자 확정 2026-11-26] 가방 대신 보호자 얼굴(👩/👨) — 오른쪽 '🧭 아이용 보기'와 같은 앱 그림 */}
+          <h1 style={{fontSize:17,fontWeight:900,margin:0,color:mixBlack(th.main,0.45),display:"flex",alignItems:"center",gap:6}}><EmojiIcon emoji={PT.emoji||"👩"} size={20}/>{PT.role} 관리</h1>
           {/* [사용자 확정 2026-11-26] 제목 가방과 겹치지 않게 — 나침반 + '아이용 보기 ›'로 '화면 전환 버튼'임이 바로 보이게 */}
           <button onClick={exitParentMode} className="jelly-tap" aria-label="아이용 화면으로 바꾸기"
             style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:12,padding:"7px 10px 7px 11px",fontSize:12,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`,display:"inline-flex",alignItems:"center",gap:5}}>
@@ -6255,7 +6260,11 @@ export default function App() {
       <div style={{position:"relative",margin:"-28px 14px 0",background:"#fff",borderRadius:16,boxShadow:SHADOW.lg,padding:"7px 8px",display:"flex",alignItems:"center",gap:7,zIndex:5}}>
         {/* 가로 스크롤 막대가 아이 이름 위로 겹쳐 보여서 막대를 숨긴다 (사용자 지적) —
             넘치는 건 여전히 손가락으로 밀어서 본다 (.noscrollbar) */}
-        <div className="noscrollbar" ref={childStripRef} style={{display:"flex",flex:1,gap:5,overflowX:"auto"}}>
+        {/* [사용자 확정 2026-11-26] 아이가 많아 옆으로 넘칠 때 '+' 앞에서 이름이 딱 잘리지 않게 오른쪽 끝을 흐리게(마스크).
+            끝까지 밀면 마스크를 풀어 마지막 아이도 또렷하게 보인다. */}
+        <div className="noscrollbar" ref={childStripRef} onScroll={updateChildFade}
+          style={{display:"flex",flex:1,gap:5,overflowX:"auto",minWidth:0,paddingRight:childFade?18:0,
+            ...(childFade?{WebkitMaskImage:"linear-gradient(to right, #000 calc(100% - 30px), transparent)",maskImage:"linear-gradient(to right, #000 calc(100% - 30px), transparent)"}:{})}}>
           {children.map(c=>{
             const t=getChildTheme(c);
             const sel=childId===c.id;

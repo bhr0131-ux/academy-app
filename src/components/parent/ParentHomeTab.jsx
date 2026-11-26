@@ -352,7 +352,7 @@ export default function ParentHomeTab({
              붙였다(아래 RegisteredAcademyList 의 todayTag). */}
       <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 15px"}}>
         <div style={{display:"flex",alignItems:"center",gap:2,padding:3,borderRadius:RAD.md+2,
-          background:CT.faint,flexShrink:0}}>
+          background:CT.faint,flex:1,minWidth:0,boxSizing:"border-box"}}>{/* 화면 폭 안에 꽉 — 두 칸이 반씩 (2026-11-26) */}
           {[{k:"today",l:`${shortDayLabel} 가는 학원`,n:homeAc.length},{k:"all",l:"전체 학원",n:curAc.length}].map(t=>{
             const on=acView===t.k;
             return (
@@ -363,13 +363,13 @@ export default function ParentHomeTab({
               <button key={t.k} onClick={()=>setAcView(t.k)} className="jelly-tap"
                 aria-pressed={on}
                 style={{border:"none",cursor:"pointer",fontFamily:"inherit",
-                  padding:"6px 9px",borderRadius:RAD.sm,minWidth:136,justifyContent:"center",
-                  fontSize:FS.cardTitle,fontWeight:FW.bold,letterSpacing:0.2,whiteSpace:"nowrap",
+                  padding:"6px 6px",borderRadius:RAD.sm,flex:1,minWidth:0,justifyContent:"center",
+                  fontSize:FS.body,fontWeight:FW.bold,letterSpacing:0,whiteSpace:"nowrap",overflow:"hidden",
                   background:on?`linear-gradient(135deg, ${mixWhite(th.main,0.10)}, ${mixWhite(th.main,0.30)})`:"transparent",
                   color:on?"#fff":"#A8AEC0",
                   boxShadow:on?`0 3px 10px ${th.main}3A`:"none",
-                  display:"inline-flex",alignItems:"center",gap:5}}>
-                {on&&<span style={{color:"#fff",display:"flex"}}><CareIcon name="school" size={14}/></span>}
+                  display:"inline-flex",alignItems:"center",gap:4}}>
+                {/* 좁은 폰(320px)에서 글자가 잘리지 않게 글자 한 단계 작게, 모자 그림은 뺐다 (2026-11-26) */}
                 {t.l}
                 {/* 학원 탭 머리에 있던 'N곳'을 여기로 — 이제 두 쪽 다 늘 보인다(사용자 확정) —
                     선택 안 된 쪽도 미리 몇 곳인지 알아야 눌러볼지 정할 수 있다. */}
@@ -378,7 +378,7 @@ export default function ParentHomeTab({
             );
           })}
         </div>
-        <div style={{flex:1,height:1,background:C.border}}/>
+        {/* (뺐음 2026-11-26 사용자 확정) 토글 오른쪽으로 삐져나오던 회색 가로선 */}
       </div>
 
       {/* ── '전체 학원' — 날짜와 무관한 목록. 아래 결석·보충 칸은 그대로 둔다 ── */}
