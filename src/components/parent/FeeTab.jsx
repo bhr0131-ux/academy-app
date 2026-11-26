@@ -307,7 +307,7 @@ export default function FeeTab({
         {/* [사용자 확정 2026-11-26] 밑줄 글자 대신 연한 테마색 둥근 버튼 — 크기·자리(왼쪽, 글자 크기)는 예전 그대로 */}
         <button onClick={()=>onAddFee&&onAddFee(unregAc[0].id)} className="jelly-tap"
           style={{display:"inline-block",margin:"0 0 8px",padding:"4px 10px",borderRadius:999,border:`1px solid ${th.main}40`,
-            background:mixWhite(th.main,0.88),color:mixBlack(th.main,0.3),fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
+            background:mixWhite(th.main,0.9),  /* '＋ 결석 기록 추가'와 같은 색 (2026-11-26) */color:mixBlack(th.main,0.3),fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
           ＋ 학원비 추가
         </button>
       </div>

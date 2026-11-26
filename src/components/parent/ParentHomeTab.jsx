@@ -652,7 +652,7 @@ export default function ParentHomeTab({
       {acView==="all"&&curAc.length>0&&feePanel&&(
         /* [사용자 확정 2026-11-25] 학원비 영역 전체를 한 카드로 묶는다 — 위 학원 목록·날짜 줄과 떨어져 보이게.
            머리('학원비 ‹ 2026년 12월 ›')는 FeeTab(embedded)이 그린다 */
-        <div ref={feeRef} style={{marginTop:24,scrollMarginTop:12,background:mixWhite(th.main,0.95),border:`1px solid ${th.main}22`,borderRadius:RAD.lg,padding:"14px 12px 4px",boxShadow:SHADOW.sm}}>
+        <div ref={feeRef} /* [사용자 확정 2026-11-26] 캘린더 '결석·보충' 그룹 카드와 같게 — 흰 배경, 얇은 회색 테두리·그림자 (안쪽 총액 박스만 테마 틴트) */ style={{marginTop:24,scrollMarginTop:12,background:"#FFFFFF",border:`1px solid ${C.border}`,borderRadius:RAD.lg,padding:"14px 12px 4px",boxShadow:SHADOW.sm}}>
           {feePanel}
         </div>
       )}
