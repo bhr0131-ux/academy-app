@@ -1269,7 +1269,9 @@ export default function App() {
         duration:Number(data.acDuration)||40,
         baseSupplies:(data.supply||"").trim()?[data.supply.trim()]:[],
         baseHomeworks:(data.baseHw||"").trim()?[data.baseHw.trim()]:[],
-        color:"#6C63FF" };
+        /* [2026-11-26] 첫 학원도 색상 팔레트의 첫 색 — 팔레트 밖 색(#6C63FF)이면
+           학원 수정 창의 색상 원 중 고른 것(링·체크)이 하나도 안 보였다 */
+        color:PALETTE[0] };
       setAcademies({ [cid]:[newAcademy] });
 
       // 첫 미션 — 고른 종류(숙제|할 일)로 오늘 날짜에 하나
@@ -7632,9 +7634,18 @@ export default function App() {
             <div style={{display:"flex",gap:8,marginBottom:18,flexWrap:"wrap"}}>
               {(()=>{
                 const usedColors=(curAc||[]).filter(a=>!editTarget||String(a.id)!==String(editTarget)).map(a=>(a.color||"").toUpperCase());
-                return PALETTE.map(c=>{
+                /* [사용자 확정 2026-11-26] 고른 색 하나에는 반드시 링+흰 체크.
+                   대소문자 차이는 무시하고, 팔레트 밖 색(예전 첫 학원의 #6C63FF 등)으로 저장된
+                   학원이면 그 색을 맨 앞 원으로 보여 주며 고른 상태로 둔다 — 저장된 색은 안 바꾼다. */
+                const curColor=(newAc.color||"").toUpperCase();
+                const inPal=(c)=>PALETTE.some(x=>x.toUpperCase()===(c||"").toUpperCase());
+                /* 다른 색을 눌러도 원래 색 원이 사라져 줄이 밀리지 않게, 저장돼 있던 색 기준으로 붙인다 */
+                const savedColor=editTarget?((curAc||[]).find(a=>String(a.id)===String(editTarget))?.color||""):"";
+                const extra=[savedColor,newAc.color].find(c=>c&&!inPal(c));
+                const colors=extra?[extra,...PALETTE]:PALETTE;
+                return colors.map(c=>{
                   const isUsed=usedColors.includes(c.toUpperCase());
-                  const isSel=newAc.color===c;
+                  const isSel=curColor===c.toUpperCase();
                   return (
                     <button key={c} onClick={()=>setNewAc(p=>({...p,color:c}))} title={isUsed?"다른 학원이 사용 중":""}
                       style={{position:"relative",width:32,height:32,borderRadius:"50%",background:c,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
