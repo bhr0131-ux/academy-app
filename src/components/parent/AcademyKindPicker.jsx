@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ACADEMY_KINDS, ACADEMY_KIND_CUSTOM } from "../../data/gameData.jsx";
 import EmojiIcon from "../EmojiIcon.jsx";
+import { CLOSE_BTN } from "../../data/tokens.js";
 
 /* ════════════════════════════════════════════════════════════════════════
    AcademyKindPicker — 학원 '종류' 고르기 (검색 + 직접 입력)
@@ -71,8 +72,7 @@ export default function AcademyKindPicker({ open, value = "", customLabel = "", 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <h3 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: "#2E2A26" }}>다니는 곳 고르기</h3>
             <button onClick={onClose} aria-label="닫기"
-              style={{ background: "#F5F1ED", border: "none", borderRadius: 10, width: 30, height: 30,
-                cursor: "pointer", color: "#8A8078", fontSize: 15, fontFamily: F }}>✕</button>
+              style={CLOSE_BTN}>✕</button>
           </div>
           <input value={q} onChange={e => setQ(e.target.value)} autoFocus
             placeholder="예: 어린이집, 학교, 학원 과목 등" style={inp} />

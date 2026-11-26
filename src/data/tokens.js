@@ -480,6 +480,12 @@ export const GAME_MODAL_STYLE = {
     padding:"24px"
   }
 };
+/* [사용자 확정 2026-11-26] 엄마용 모든 모달의 오른쪽 위 ✕ 닫기 — 동그란 연회색 한 가지로 통일.
+   (그 전엔 동그란 핑크·동그란 회색·네모난 핑크 세 가지가 섞여 있었다) */
+export const CLOSE_BTN = { flexShrink: 0, width: 36, height: 36, borderRadius: "50%", background: "#F3F4F6", border: "none",
+  color: "#6B7280", fontSize: 15, cursor: "pointer", fontFamily: "inherit", padding: 0,
+  display: "flex", alignItems: "center", justifyContent: "center" };
+
 export const PALETTE = ["#FF6B6B","#FFC312","#26de81","#4A90E2","#9B59B6","#E91E8C"];
 export const DEFAULT_HOMEWORK_SCORE = 10;
 /* ── 미션 코인 배수 [사용자 확정 2026-08-27] ──────────────────────────────
