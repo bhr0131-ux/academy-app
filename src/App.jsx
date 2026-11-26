@@ -3930,7 +3930,8 @@ export default function App() {
 
   const isMaxPet=(cid)=>getPetStage(cid)>=PET_STAGES.length-1;
 
-  const getChildRewardRequests=(cid)=>rewardReqRef.current[cid]||[];
+  // 예전 이름('가고싶은 여행지')으로 들어온 요청도 보여 줄 때만 고친 이름으로 (저장 값은 그대로, 2026-11-26)
+  const getChildRewardRequests=(cid)=>fixRewardTitles(rewardReqRef.current[cid]||[]);
   const hasPendingRewardRequest=(cid,rewardId)=>getChildRewardRequests(cid).some(r=>r.rewardId===rewardId&&r.status==="pending");
 
   const requestReward=(reward)=>{
@@ -3951,7 +3952,7 @@ export default function App() {
     /* [사용자 확정 2026-08-11] '구매 승인 완료!'만으로는 무엇을 승인했는지 안 남는다 →
        무엇을·얼마에 승인했는지 함께 알린다. (코인은 요청 시 이미 빠져 있으므로
        '차감했어요'가 아니라 '사용'이라고 쓴다 — 지금 빠지는 것처럼 읽히면 안 된다) */
-    showToast(`'${request.title}' 승인 · ${TM.coin} ${request.point} 사용`, 2200);
+    showToast(`'${request.title}' 승인 · ${Number(request.point||0).toLocaleString()}${TM.coin} 사용`, 2200);   // '30코인 사용' 표기 통일 (2026-11-26)
   };
   const rejectRewardRequest=(requestId)=>{
     const request=getChildRewardRequests(childId).find(r=>r.id===requestId);
@@ -3959,7 +3960,7 @@ export default function App() {
     // 거절 시 요청할 때 미리 빠진 코인을 환불 (대기 상태였던 건만)
     if(request.status==="pending") refundCoin(childId,request.point,`${request.title} 구매 거절 환불`);
     setRewardRequests(prev=>({...prev,[childId]:(prev[childId]||[]).map(r=>r.id===requestId?{...r,status:"rejected",rejectedAt:new Date().toISOString()}:r)}));
-    showToast(`요청을 거절했어요 (${request.point} ${TM.coin} 돌려줬어요)`);
+    showToast(`요청을 거절했어요 (${Number(request.point||0).toLocaleString()}${TM.coin} 돌려줬어요)`);
   };
   const openEditReward=(reward)=>{
     setEditingRewardId(reward.id);
