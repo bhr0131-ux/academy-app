@@ -123,7 +123,7 @@ export default function EtcTab({ D }) {
       {sfx && (
         <div style={{...card,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
           {/* [사용자 확정 2026-11-19] 제목은 '효과음 켜기/끄기' 한 줄, 아래 설명 문구는 뺐다 */}
-          <p style={{...title,margin:0}}>{sfx.on?"🔊":"🔇"} 효과음 켜기/끄기</p>
+          <p style={{...title,margin:0}}>{ico(sfx.on?"sound":"mute")}효과음 켜기/끄기</p>
           <button type="button" role="switch" aria-checked={sfx.on} onClick={sfx.toggle}
             style={{flexShrink:0,width:52,height:30,borderRadius:999,border:"none",cursor:"pointer",position:"relative",
               background:sfx.on?th.main:"#CBD5E1",transition:"background .2s"}}>
@@ -194,7 +194,7 @@ export default function EtcTab({ D }) {
       {/* [사용자 확정 2026-08-16] '학부모 오픈채팅' → '버그 신고'.
           들어가는 곳은 같은 카카오톡 오픈채팅방이고, 무엇을 하러 가는 자리인지를 이름으로 쓴다. */}
       <div style={card}>
-        <p style={title}>{ico("bug")}버그신고 & 개선제안</p>
+        <p style={title}>{ico("bug")}버그 신고 & 개선 제안</p>
         {/* 문구 사용자 확정 2026-11-25 */}
         <p style={{...sub,margin:"0 0 12px",lineHeight:1.55}}>여러분의 제보로 더 나은 서비스를 만들 수 있어요.<br/>불편함을 느끼셨다면 잠시만 시간을 내주세요<EmojiIcon emoji="🙏" size={14} style={{verticalAlign:"-0.15em",marginLeft:3}}/></p>
         <button
@@ -210,7 +210,7 @@ export default function EtcTab({ D }) {
           두 버튼은 '이 아이만'(연함) / '전부'(진함) 로 무게를 나눈다. */}
       <div style={{...card,border:`1px solid ${C.red}40`,background:`${C.red}06`}}>
         <p style={{...title,color:C.red,margin:"0 0 4px"}}>
-          <span style={{color:C.red,display:"flex",flexShrink:0}}><CareIcon name="warn" size={15}/></span>위험구역
+          <span style={{color:C.red,display:"flex",flexShrink:0}}><CareIcon name="warn" size={15}/></span>위험 구역
         </p>
         <p style={{...sub,color:C.red,margin:"0 0 12px",opacity:0.85}}>
           초기화는 되돌릴 수 없어요. 미리 데이터 백업을 권장해요.

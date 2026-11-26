@@ -37,7 +37,7 @@ export default function XpAdjustCard({ D }) {
             {locked && <span style={{ color: th.main, display: "flex" }}><CareIcon name="lock" size={14} /></span>}
             수동 {TM.coin} 조정
           </p>
-          <p style={secSub}>{`여기서 보너스 ${TM.coin}을 지급/차감 할 수 있어요.`}</p>
+          <p style={secSub}>{`여기서 보너스 ${TM.coin}을 지급/차감할 수 있어요.`}</p>
         </div>
         {/* 잠겨 있어도 펼칠 수 있는 칸이라는 걸 알 수 있게 화살표는 늘 보인다 (사용자 확정 2026-11-25) */}
         <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0, color: C.sub, marginLeft: 8, transition: "transform .2s", transform: !locked && open ? "rotate(180deg)" : "none" }}>
