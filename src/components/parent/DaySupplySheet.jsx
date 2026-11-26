@@ -164,7 +164,7 @@ export default function DaySupplySheet({ ac, dateLabel, dateText, date, isClassD
         <p style={{ fontSize: FS.tag, color: C.sub, margin: "6px 0 18px", lineHeight: 1.5 }}>
           '항상'을 체크하고 추가하면 이 학원에 가는 날마다 보여요. 체크하지 않으면 {dateLabel}만 보여요.
         </p>
-        <button onClick={onClose} style={{ width: "100%", padding: 14, borderRadius: RAD.md, border: "none", background: th.grad || th.main, color: "#fff", fontSize: FS.title, fontWeight: FW.bold, cursor: "pointer", fontFamily: "inherit" }}>닫기</button>
+        <button onClick={onClose} style={{ width: "100%", padding: 14, borderRadius: RAD.md, border: "none", background: th.grad || th.main, color: "#fff", fontSize: FS.title, fontWeight: FW.bold, cursor: "pointer", fontFamily: "inherit" }}>완료</button>{/* 넣은 내용은 바로 저장된다는 느낌으로 '완료' (사용자 확정 2026-11-26) */}
       </div>
     </div>
   );
