@@ -117,9 +117,10 @@ export default function FeeTab({
         높이 약 18% 축소, 그라데이션도 약하게. '2곳 중 1곳 납부'는 위 금액으로
         이미 알 수 있어 뺐다(다 냈을 때만 축하 한 줄). */}
     {/* 총액 21px 만 척도(17) 밖이다 — 이 화면의 주인공 숫자라 일부러 한 단 크게 둔다. */}
-    <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.96)} 0%, ${mixWhite(th.main,0.88)} 100%)`,borderRadius:RAD.md,padding:"12px 14px 12px",marginBottom:14,border:`1px solid ${th.main}2A`,boxShadow:SHADOW.sm}}>
+    <div style={{background:`linear-gradient(165deg, ${mixWhite(th.main,0.96)} 0%, ${mixWhite(th.main,0.88)} 100%)`,borderRadius:RAD.md,padding:"8px 14px 9px",marginBottom:14,border:`1px solid ${th.main}2A`,boxShadow:SHADOW.sm}}>
       <p style={{fontSize:FS.tag,...SUB_LABEL,margin:0,textAlign:"center"}}>{feeMonth}월 총 학원비</p>
-      <p style={{fontSize:21,fontWeight:FW.bold,color:C.text,margin:"1px 0 0",textAlign:"center",letterSpacing:-0.3}}>{won(total)}</p>
+      {/* 총액 21→19, 박스 위아래 여백도 줄임 — 아래 카드들과 비율 맞춤 (사용자 확정 2026-11-26) */}
+      <p style={{fontSize:19,fontWeight:FW.bold,color:C.text,margin:"1px 0 0",textAlign:"center",letterSpacing:-0.3}}>{won(total)}</p>
       {/* [사용자 확정 2026-11-23] 총 학원비만 남긴다 — 납부·남은 금액은 아래 '낼 곳/납부 완료'가 말해 준다 */}
     </div>
 
@@ -202,7 +203,8 @@ export default function FeeTab({
                 style={{flexShrink:0,width:24,height:24,borderRadius:RAD.sm,border:"none",background:"none",color:SUBD,fontSize:FS.title,fontWeight:FW.bold,cursor:"pointer",fontFamily:"inherit",lineHeight:1}}>⋮</button>
             </div>
             {hasFee?(
-              <p style={{margin:"3px 0 0",fontSize:FS.title,fontWeight:FW.bold,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+              /* 금액은 학원 이름보다 한 단계 작게 — 제목과 금액이 바로 구분되게 (사용자 확정 2026-11-26) */
+              <p style={{margin:"3px 0 0",fontSize:FS.body,fontWeight:FW.semi,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
                 {Number(a.fee).toLocaleString()}원
                 {paid&&<span style={{fontSize:FS.tag,...SUB_LABEL,marginLeft:6}}>
                   · 매월 {a.payDay}일

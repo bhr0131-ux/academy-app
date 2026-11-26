@@ -270,7 +270,7 @@ export default function RegisteredAcademyList({
 
                   {/* ④ 메모 */}
                   {ac.memo && (
-                    <div style={{ marginBottom: 12, background: `${C.orange}0D`, borderRadius: RAD.md,
+                    <div style={{ margin: "5px 0 17px", background: `${C.orange}0D`, borderRadius: RAD.md,   /* 위아래 여백 +5 (사용자 확정 2026-11-26) */
                       padding: "7px 10px", display: "flex", gap: 6, alignItems: "flex-start" }}>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexShrink: 0,
                         color: C.orange, marginTop: 1 }}>

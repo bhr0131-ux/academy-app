@@ -176,7 +176,7 @@ export default function ParentHomeTab({
           보충수업)을 빼고, 감싸던 파스텔 카드도 없앴다. 이름·레벨은 바로 위 아이 선택
           줄에 이미 있고, 요약 3칸의 결석·보충수업은 '오늘 챙길 일' 칩과 겹쳤다.
           이제 이 자리에는 '오늘 챙길 일' 한 칸만 남는다. */}
-      <div style={{marginBottom:32}}>{/* 여백 22→32 (사용자 확정 2026-11-23) */}
+      <div style={{marginBottom:24}}>{/* 여백 22→32→24 (사용자 확정 2026-11-26: 전환 탭 위는 줄이고 아래는 늘림) */}
         {/* 오늘 챙길 일 알림 */}
         {(()=>{
           const pendingRewardCnt=getChildRewardRequests(childId).filter(r=>r.status==="pending").length;
@@ -350,7 +350,7 @@ export default function ParentHomeTab({
              '{날짜} 가는 학원'(날짜를 옮기면 '내일 가는 학원'·'9/30 가는 학원'처럼 따라간다),
              '등록 학원' → '전체 학원'. ④ 전체 학원 목록 쪽에도 그날 가는 곳에 같은 날짜 표를
              붙였다(아래 RegisteredAcademyList 의 todayTag). */}
-      <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 15px"}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,margin:"0 0 20px"}}>
         <div style={{display:"flex",alignItems:"center",gap:2,padding:3,borderRadius:RAD.md+2,
           background:CT.faint,flex:1,minWidth:0,boxSizing:"border-box"}}>{/* 화면 폭 안에 꽉 — 두 칸이 반씩 (2026-11-26) */}
           {[{k:"today",l:`${shortDayLabel} 가는 학원`,n:homeAc.length},{k:"all",l:"전체 학원",n:curAc.length}].map(t=>{
