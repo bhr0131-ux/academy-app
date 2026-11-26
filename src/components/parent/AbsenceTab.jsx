@@ -145,9 +145,10 @@ export default function AbsenceTab({
      카드 오른쪽 아래에 둔다. 색은 상태와 무관하게 검정 하나 —
      '출석 확인 · 보충 추가 · 일정 변경'은 다 같은 무게의 동작이라 색으로 갈릴 이유가 없고,
      상태는 바로 위 배지가 이미 색으로 말한다. 링크까지 물들면 카드에 색이 둘이 된다. */
-  const actLink={ background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",
-    fontSize:FS.sub,fontWeight:FW.semi,textDecoration:"underline",textUnderlineOffset:3,
-    padding:"8px 0 8px 12px",flexShrink:0,whiteSpace:"nowrap",color:C.text };
+  /* [사용자 확정 2026-11-26] 밑줄 글자 → 테마색 연한 테두리·배경의 둥근 알약 버튼 */
+  const actLink={ background:`${th.main}12`,border:`1px solid ${th.main}40`,borderRadius:RAD.pill,cursor:"pointer",fontFamily:"inherit",
+    fontSize:FS.sub,fontWeight:FW.semi,
+    padding:"5px 13px",margin:"4px 0",flexShrink:0,whiteSpace:"nowrap",color:th.main };
   const headRow={ display:"flex",alignItems:"center",gap:8,margin:"0 0 10px" };
   const headTxt={ fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0 };
 
@@ -172,7 +173,13 @@ export default function AbsenceTab({
         {/* [사용자 확정 2026-08-18] 카드 앞 막대는 학원 테마색 — 끝난 건도 마찬가지다.
             (2026-08-17 에 색을 줄이려고 상태색으로 바꿨었는데, 여기 막대는 '어느 학원인가'를
             말하는 자리라 학원색이 맞다는 사용자 확인. 상태는 배지·주 행동 링크가 말한다.) */}
-        <div style={{width:4,borderRadius:`${RAD.md}px 0 0 ${RAD.md}px`,background:ac.color,flexShrink:0}}/>
+        {/* [사용자 확정 2026-11-26] 막대 위아래 끝을 카드 둥근 모서리에 맞게 자른다 —
+            카드 자체에 overflow:hidden 을 걸면 ⋮·출석 메뉴가 잘리므로, 카드와 같은 모양의
+            overflow:hidden 층을 깔고 그 안에 막대를 그린다. 자리 차지용 빈 칸은 그대로 둔다. */}
+        <div aria-hidden="true" style={{position:"absolute",inset:0,borderRadius:RAD.md-1,overflow:"hidden",pointerEvents:"none"}}>
+          <div style={{position:"absolute",left:0,top:0,bottom:0,width:4,background:ac.color}}/>
+        </div>
+        <div style={{width:4,flexShrink:0}}/>
         <div style={{flex:1,minWidth:0,padding:compact?"9px 12px 9px 0":"10px 12px 10px 0"}}>
           {/* ① 학원명 · 상태 */}
           <div style={{display:"flex",alignItems:"center",gap:7}}>
@@ -332,7 +339,7 @@ export default function AbsenceTab({
         여기는 통계 화면이 아니라 결석 관리 화면이라 목록을 먼저 보여 주는 편이 낫다.
         누르면 그 갈래만 걸러 보는 것(예전 3칸이 하던 일)은 그대로 남긴다. */}
     <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:12}}>
-      {[{k:"all",    l:"전체",     v:totalCnt,       c:C.red},
+      {[{k:"all",    l:"전체",     v:totalCnt,       c:th.main},   /* 전체는 아이 테마색 (사용자 확정 2026-11-26) */
         {k:"pending",l:"보충 예정",v:pendingAll.length,c:C.orange},
         {k:"done",   l:"보충 완료",v:doneAll.length,  c:C.sub}].map(s=>{
         const on=absFilter===s.k;
@@ -351,7 +358,7 @@ export default function AbsenceTab({
     </div>
 
     <button onClick={onAdd} className="jelly-tap"
-      style={{width:"100%",padding:"9px",borderRadius:RAD.sm,border:`1px dashed ${C.red}40`,background:`${C.red}06`,color:C.red,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",marginBottom:14,fontFamily:"inherit"}}>
+      style={{width:"100%",padding:"9px",borderRadius:RAD.sm,border:`1px dashed ${th.main}55`,background:`${th.main}0A`,color:th.main,fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",marginBottom:14,fontFamily:"inherit"}}>
       ＋ 결석 기록 추가
     </button>
 
