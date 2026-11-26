@@ -125,8 +125,7 @@ export default function FeePaySheet({ ac, month, value, today, onClose, onSave, 
             <input id="fee-amount-input" className="fps-faint-ph" type="text" inputMode="numeric" value={won(feeV)}
               onChange={e => { setFeeV(e.target.value.replace(/[^0-9]/g, "")); setFeeErr(false); }}
               placeholder="예: 150,000" aria-invalid={feeErr && needFee}
-              style={{ ...inp, paddingRight: 38, textAlign: "right", fontSize: 16,
-                ...(feeErr && needFee ? { borderColor: tone.red, boxShadow: `0 0 0 3px ${tone.red}22` } : {}) }} />
+              style={{ ...inp, paddingRight: 38, textAlign: "right", fontSize: 16 }} />  {/* 칸 테두리는 그대로 — 아래 빨간 문구만으로 알린다 (사용자 확정 2026-11-26) */}
             <span style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)",
               fontSize: 14, fontWeight: 700, color: tone.sub, pointerEvents: "none" }}>원</span>
           </div>
