@@ -61,6 +61,36 @@ export const shareBackupFile = async (text, fileName) => {
   }
 };
 
+/* ── 이미지(PNG) 공유 ────────────────────────────────────────────────────
+   [사용자 요청 2026-11-26] '오늘 일정' 카드를 이미지로 카톡 등에 보내기.
+   앱(WebView)은 navigator.share 로 파일을 못 보내므로, 백업 공유와 같은 방식으로
+   앱 캐시에 PNG 를 쓴 뒤 휴대폰 공유창을 띄운다.
+   dataUrl: "data:image/png;base64,...."
+   결과: { ok:true } · { ok:false, reason:"cancel"|"plugin"|"error" } */
+export const shareImageFile = async (dataUrl, fileName, title) => {
+  const fs = plugin("Filesystem");
+  const share = plugin("Share");
+  if (!fs || !share) return { ok: false, reason: "plugin" };
+  const base64 = String(dataUrl).split(",")[1] || "";
+  let uri;
+  try {
+    const res = await fs.writeFile({ path: fileName, data: base64, directory: "CACHE" });   // encoding 없음 = base64 그대로 파일
+    uri = res && res.uri;
+    if (!uri) { const u = await fs.getUri({ path: fileName, directory: "CACHE" }); uri = u && u.uri; }
+  } catch (e) {
+    return { ok: false, reason: "error", error: e };
+  }
+  const isCancel = (e) => /cancel/i.test(String((e && (e.message || e.errorMessage)) || e));
+  try {
+    await share.share({ title, dialogTitle: "보낼 곳을 골라 주세요", files: [uri] });
+    return { ok: true };
+  } catch (e) {
+    if (isCancel(e)) return { ok: false, reason: "cancel" };
+    try { await share.share({ title, url: uri }); return { ok: true }; }
+    catch (e2) { return { ok: false, reason: isCancel(e2) ? "cancel" : "error", error: e2 }; }
+  }
+};
+
 /* ── 백업 파일을 휴대폰에 바로 저장 ─────────────────────────────────────
    [사용자 요청 2026-11-16] 공유창 말고 한 번에 폰에 저장하는 버튼.
    '내 파일 → 문서(Documents) → 미션팡' 폴더에 쓴다. Android 11 이상은 권한 없이 저장되고,
