@@ -4969,17 +4969,23 @@ export default function App() {
               아래 인사말·원형 버튼들은 이 줄 높이만큼(약 48px) 자연스럽게 내려간다. 캐릭터 발밑 Lv·상장은 그대로. */}
           <div style={{display:"flex",justifyContent:"center",marginBottom:14,position:"relative",pointerEvents:"none"}}>
             <div role="status" aria-label={`${TM.coin} ${getChildCoin(childId).toLocaleString()}, ${TM.xp} ${getChildXP(childId).toLocaleString()}${TM.xpUnit}, 연속 ${getQuestStreak(childId)}일`}
-              style={{display:"inline-flex",alignItems:"center",gap:12,padding:"6px 14px",borderRadius:999,background:"rgba(255,255,255,0.85)",
-                backdropFilter:"blur(6px)",WebkitBackdropFilter:"blur(6px)",boxShadow:"0 2px 10px rgba(60,50,40,0.14)",border:"1px solid rgba(255,255,255,0.9)",
-                fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:14,color:"#4E3B26",whiteSpace:"nowrap",maxWidth:"100%",boxSizing:"border-box"}}>
+              /* [사용자 확정 2026-11-27] 맑은 유리 느낌 — 둥근 네모(14px)·흐림 10px·얇은 흰 테두리·아주 옅은 그림자, 위아래 슬림 */
+              style={{display:"inline-flex",alignItems:"center",gap:11,padding:"4px 13px",borderRadius:14,background:"rgba(255,255,255,0.76)",
+                backdropFilter:"blur(10px)",WebkitBackdropFilter:"blur(10px)",boxShadow:"0 2px 8px rgba(0,0,0,0.06)",border:"1px solid rgba(255,255,255,0.9)",
+                fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",whiteSpace:"nowrap",maxWidth:"100%",boxSizing:"border-box",lineHeight:1.4}}>
               {[
-                {e:TM.coinEmoji,t:getChildCoin(childId).toLocaleString()},
-                {e:TM.xpEmoji,t:`${getChildXP(childId).toLocaleString()}${TM.xpUnit}`},
-                {e:"🔥",t:`${getQuestStreak(childId)}일`},
+                {e:TM.coinEmoji,n:getChildCoin(childId).toLocaleString(),u:""},
+                {e:TM.xpEmoji,n:getChildXP(childId).toLocaleString(),u:TM.xpUnit},
+                {e:"🔥",n:String(getQuestStreak(childId)),u:"일"},
               ].map((it,i)=>(
                 <Fragment key={i}>
-                  {i>0&&<span aria-hidden="true" style={{width:1,height:12,background:"rgba(78,59,38,0.18)"}}/>}
-                  <span style={{display:"inline-flex",alignItems:"center",gap:4}}><EmojiIcon emoji={it.e} size={15}/>{it.t}</span>
+                  {i>0&&<span aria-hidden="true" style={{width:1,height:11,background:"rgba(0,0,0,0.08)"}}/>}
+                  {/* 숫자는 진하게, 단위는 한 단계 작고 연하게 */}
+                  <span style={{display:"inline-flex",alignItems:"center",gap:4}}>
+                    <EmojiIcon emoji={it.e} size={14}/>
+                    <span style={{fontSize:14,fontWeight:700,color:"#2F2416"}}>{it.n}</span>
+                    {it.u&&<span style={{fontSize:11,color:"#9CA3AF",marginLeft:-2}}>{it.u}</span>}
+                  </span>
                 </Fragment>
               ))}
             </div>
@@ -5029,9 +5035,9 @@ export default function App() {
               return (
                 <h1 style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:22,fontWeight:400,margin:"30px 0 0 30px",position:"relative",top:20,left:7,lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",
                   /* '내아바타' 안내가 떠 있는 동안은 인사말을 잠깐 숨긴다 — 같은 자리에 겹친다 (2026-11-21) */
-                  ...(avatarHint==="pending"&&!showEquipShop&&kidSkin!=="cute"&&getCharMode(childId)!==CHAR_DISPLAY_AVATAR?{visibility:"hidden"}:{}),color:_onDark?"#FFF3D9":"#5D4633",
+                  ...(avatarHint==="pending"&&!showEquipShop&&kidSkin!=="cute"&&getCharMode(childId)!==CHAR_DISPLAY_AVATAR?{visibility:"hidden"}:{}),color:_onDark?"#FFF3D9":"#3F2D1C",
                   // 밝은 무대: 흰 글로우 대신 옅은 웜브라운 그림자 — 흰 구름 위에서도 글자가 묻히지 않게
-                  textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 2px rgba(93,70,51,0.30), 0 2px 10px rgba(93,70,51,0.18)"}}>
+                  textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 0 rgba(255,255,255,0.65), 0 0 8px rgba(255,255,255,0.35)"}}>{/* 밝은 무대: 어두운 그림자 대신 옅은 흰 테두리 빛 — 깔끔하고 또렷하게 (2026-11-27) */}
                   {/* 줄 사이에 띄어쓰기를 함께 둔다 — 한 줄로 이어 읽힐 때 '신나는탐험'처럼 붙지 않게 (2026-11-26) */}
                   {_lines.map((ln,i)=><Fragment key={i}>{i>0&&<>{" "}<br/></>}{ln}</Fragment>)}
                   {_emoji&&<EmojiIcon emoji={_emoji} size="0.64em" style={{verticalAlign:"-0.08em",marginLeft:3}}/>}
@@ -5058,7 +5064,7 @@ export default function App() {
               <button onClick={()=>{ setAppMode("parent"); setTab("home"); }} className="jelly-tap"
                 style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
                 <img src={parentGender==="dad"?"assets/btn-parent-dad.webp":"assets/btn-parent.webp"} alt={PT.roleMode}
-                  style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
+                  style={{width:47,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
               </button>
               )}
               {children.length>1&&(kidSkin==="cute"?(
@@ -5085,7 +5091,7 @@ export default function App() {
                     aria-haspopup="listbox" aria-expanded={childPickOpen} aria-label="아이 선택"
                     style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0,display:"block"}}>
                     <img src="assets/btn-child-switch.webp" alt="아이 선택"
-                      style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
+                      style={{width:47,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
                   </button>
                   {childPickOpen&&(<>
                     {/* 바깥 아무 데나 누르면 닫힌다 */}
@@ -5128,7 +5134,7 @@ export default function App() {
                   <img
                     src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
                     alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장 캐릭터 보기":"내 아바타 보기"}
-                    style={{width:52,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
+                    style={{width:47,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
                 </button>
                 {/* 처음 꾸미기를 산 뒤 한 번 — 뱃지 왼쪽에 배경 없이 글자만 (사용자 확정 2026-11-21).
                     상점이 닫혀 있고 아직 성장 캐릭터를 보고 있을 때만. 확인이나 뱃지를 누르면 다시 안 뜬다. */}
