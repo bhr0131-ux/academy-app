@@ -3808,22 +3808,26 @@ export default function App() {
         const base=Number.isFinite(r)?Math.max(0,Math.floor(r)):0;
         return base>=target?prev:{...prev,[cid]:target};
       });
-      const from=petView(PET_STAGES[cur],cur,kidSkin), to=petView(PET_STAGES[target],target,kidSkin);
-      const need=PET_STREAK_STAGES[target-1];
-      const nextGoal=nextPetStreakGoal(target);
+      /* [사용자 확정 2026-11-27] 여러 단계를 한꺼번에 넘었어도 팝업은 단계마다 하나씩 차례로
+         (알→아기 부화 → 아기→다음 → …). 큐가 1개씩 보여 준다. */
       const who=children.length>1?`${c.name} · `:"";
-      const hatch=cur===0&&target===1&&kidSkin!=="cute";   // 알 → 1단계일 때만 '부화' 문구 (여러 단계를 한 번에 건너뛰면 '진화')
-      showGameEvent({
-        type:"title",
-        emoji:to.emoji,
-        charImg:kidSkin!=="cute"?PET_STAGE_IMG[target]:undefined,
-        charImgPrev:kidSkin!=="cute"?PET_STAGE_IMG[cur]:undefined,
-        title:hatch?"부화 성공! 🎉":(kidSkin==="cute"?"펫이 자랐어요!":"펫 진화!"),
-        name:to.name,
-        desc:`${who}🔥 연속 ${need}일 달성!\n${hatch?"알을 깨고 새로운 동료가 깨어났다! 🐣":to.desc}`,
-        reward:`${from.emoji} → ${to.emoji} ${hatch?"펫이 깨어났어요!":(kidSkin==="cute"?"펫이 한 단계 자랐어요!":"펫이 진화했어요!")}`
-          +(nextGoal?`\n다음 진화: 연속 ${nextGoal}일`:"\n🏆 최종 진화 완료!"),
-      });
+      for(let st=cur+1; st<=target; st++){
+        const from=petView(PET_STAGES[st-1],st-1,kidSkin), to=petView(PET_STAGES[st],st,kidSkin);
+        const need=PET_STREAK_STAGES[st-1];
+        const nextGoal=nextPetStreakGoal(st);
+        const hatch=st===1&&kidSkin!=="cute";   // 알 → 1단계만 '부화'
+        showGameEvent({
+          type:"title",
+          emoji:to.emoji,
+          charImg:kidSkin!=="cute"?PET_STAGE_IMG[st]:undefined,
+          charImgPrev:kidSkin!=="cute"?PET_STAGE_IMG[st-1]:undefined,
+          title:hatch?"부화 성공! 🎉":(kidSkin==="cute"?"펫이 자랐어요!":"펫 진화!"),
+          name:to.name,
+          desc:`${who}🔥 연속 ${need}일 달성!\n${hatch?"알을 깨고 새로운 동료가 깨어났다! 🐣":to.desc}`,
+          reward:`${from.emoji} → ${to.emoji} ${hatch?"펫이 깨어났어요!":(kidSkin==="cute"?"펫이 한 단계 자랐어요!":"펫이 진화했어요!")}`
+            +(nextGoal?`\n다음 진화: 연속 ${nextGoal}일`:"\n🏆 최종 진화 완료!"),
+        });
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[loaded,children,bestStreakData,dailyData,petData,kidSkin]);
