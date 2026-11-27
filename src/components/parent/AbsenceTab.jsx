@@ -148,8 +148,8 @@ export default function AbsenceTab({
   /* [사용자 확정 2026-11-26] 밑줄 글자 → 테마색 연한 테두리·배경의 둥근 알약 버튼 */
   /* [사용자 확정 2026-11-26] 톤을 낮춘다 — 연한 회색 배경 + 짙은 회색 글씨. 눈에 띄는 건 상태 배지 하나만 */
   const actLink={ background:"#F3F4F6",border:"none",borderRadius:RAD.pill,cursor:"pointer",fontFamily:"inherit",
-    fontSize:FS.sub,fontWeight:FW.semi,
-    padding:"6px 14px",margin:"4px 0",flexShrink:0,whiteSpace:"nowrap",color:"#374151" };
+    fontSize:FS.tag,fontWeight:FW.semi,
+    padding:"4px 12px",margin:"3px 0",flexShrink:0,whiteSpace:"nowrap",color:"#374151" };   /* 한 단계 작게 (2026-11-27) */
   const headRow={ display:"flex",alignItems:"center",gap:8,margin:"0 0 10px" };
   const headTxt={ fontSize:FS.sub,fontWeight:FW.semi,color:C.sub,flexShrink:0 };
 
@@ -184,7 +184,8 @@ export default function AbsenceTab({
         <div style={{flex:1,minWidth:0,padding:compact?"9px 12px 9px 0":"10px 12px 10px 0"}}>
           {/* ① 학원명 · 상태 */}
           <div style={{display:"flex",alignItems:"center",gap:7}}>
-            <p style={{fontWeight:FW.semi,fontSize:FS.title,margin:0,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
+            {/* 글자 한 단계 작게 — 위 '고른 날 상세' 학원 이름과 같은 크기 (사용자 확정 2026-11-27) */}
+            <p style={{fontWeight:FW.semi,fontSize:FS.cardTitle,margin:0,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
             {carried&&<span style={{flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,color:C.orange,background:`${C.orange}14`,borderRadius:RAD.sm,padding:"1px 6px"}}>이월</span>}
             <span style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 9px",borderRadius:RAD.sm,background:badgeBg,color:badgeC}}>{st.label}</span>
             {/* ✕ 는 '닫기'로도 읽혀서 ⋮ 메뉴로 바꿨다 (사용자 지적) */}
@@ -198,7 +199,7 @@ export default function AbsenceTab({
               화살표로 이어 붙이면 '언제 빠져서 언제 메우나'가 한 번에 읽힌다.
               앞말은 연하게, 실제 값(날짜·시간)만 진하게 — 이 글꼴은 굵기가 하나뿐이라
               위계를 색으로 준다. */}
-          <p style={{margin:"4px 0 0",fontSize:FS.sub,fontWeight:FW.normal,color:C.sub,lineHeight:1.45}}>
+          <p style={{margin:"3px 0 0",fontSize:12,fontWeight:FW.normal,color:C.sub,lineHeight:1.45}}>
             <span style={{color:AB_MID}}>{shortD(ab.date)}</span> 결석
             {ab.reason&&<span> · {ab.reason}</span>}
             <span style={{margin:"0 5px",color:C.sub}}>→</span>
@@ -432,8 +433,8 @@ export default function AbsenceTab({
 
     {/* [사용자 확정 2026-11-26] '＋ 결석 기록 추가'는 목록 맨 아래, 가로로 꽉 찬 둥근 버튼 */}
     <button onClick={onAdd} className="jelly-tap"
-      style={{display:"block",width:"100%",boxSizing:"border-box",margin:"12px 0 10px",padding:"10px 12px",borderRadius:999,border:`1px solid ${th.main}40`,
-        background:mixWhite(th.main,0.9),color:mixBlack(th.main,0.3),fontSize:FS.body,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
+      style={{display:"block",width:"100%",boxSizing:"border-box",margin:"10px 0 10px",padding:"8px 12px",borderRadius:999,border:`1px solid ${th.main}40`,
+        background:mixWhite(th.main,0.9),color:mixBlack(th.main,0.3),fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
       ＋ 결석 기록 추가
     </button>
   </div>
