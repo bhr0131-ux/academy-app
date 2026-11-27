@@ -42,6 +42,9 @@ import { RowAct } from "./AcademyTab.jsx";
    C.sub(#8890B0)보다 한 단계 진한 청회색. 칩은 펼친 카드에서 한 모양으로 쓴다. */
 const SUBD="#5F678C";
 const chip={fontSize:FS.sub,fontWeight:FW.normal,padding:"3px 9px",borderRadius:RAD.lg,lineHeight:1.5};
+/* 학원 카드 '준비물'·'오늘 미션' 줄 — 라벨 고정폭(두 줄 칩 시작선 맞춤) + 칩 묶음 (2026-11-27) */
+const rowLabel={display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD,minWidth:72,minHeight:30};
+const chipWrap={flex:1,minWidth:0,display:"flex",flexWrap:"wrap",alignItems:"center",gap:6};
 /* 체크 버튼 — '준비물 확인' 창(TodayCareModals)의 버튼과 같은 모양·색 (사용자 확정 2026-11-23)
    안 한 것: 흰 바탕·회색 테두리·○ / 한 것: 초록 바탕·초록 글자·✓ / 미완료(실패): 흐린 회색, 못 누름 */
 function CheckChip({ label, on, failed = false, onPress }){
@@ -617,28 +620,34 @@ export default function ParentHomeTab({
                      학원마다 한 줄이었다 두 줄이었다 해서 카드끼리 층이 안 맞았다.
                      준비물이 하나뿐이어도 미션은 늘 그 아래로 내린다. */}
               <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",gap:10,marginBottom:14}}>
-                <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
-                  <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
+                {/* [사용자 확정 2026-11-27] 라벨은 왼쪽에 고정, 칩은 따로 묶어 옆으로 먼저 잇고
+                    넘치면 라벨 아래가 아니라 첫 칩 시작선에 맞춰 줄바꿈 (두 줄의 칩 시작선도 같게) */}
+                <div style={{width:"100%",display:"flex",alignItems:"flex-start",gap:8}}>
+                  <span style={{...rowLabel}}>
                     <CareIcon name="bag" size={14}/>
                     <span style={{fontSize:FS.tag,...SUB_LABEL}}>준비물</span>
                   </span>
+                  <div style={chipWrap}>
                   {baseSup.map((x,i)=><CheckChip key={`b${i}`} label={x} on={checkedSup.includes(x)}
                     onPress={onToggleSupply?()=>onToggleSupply(ac.id,homeDate,x):null}/>)}
                   {sup.map((x,i)=><CheckChip key={`d${i}`} label={x} on={checkedSup.includes("+"+x)}
                     onPress={onToggleSupply?()=>onToggleSupply(ac.id,homeDate,"+"+x):null}/>)}
                   {baseSup.length===0&&sup.length===0&&<span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>}
+                  </div>
                 </div>
-                <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
-                  <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
+                <div style={{width:"100%",display:"flex",alignItems:"flex-start",gap:8}}>
+                  <span style={{...rowLabel}}>
                     <CareIcon name="mission" size={14}/>
                     <span style={{fontSize:FS.tag,...SUB_LABEL}}>오늘 미션</span>
                   </span>
+                  <div style={chipWrap}>
                   {totalTodoCnt===0
                     ? <span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>
                     : missionChips.map((mc,i)=>(
                         <CheckChip key={`m${i}`} label={mc.text} on={!!mc.done} failed={!!mc.failed}
                           onPress={onToggleQuest&&!mc.failed?()=>onToggleQuest({...mc,academyId:ac.id,date:homeDate}):null}/>
                       ))}
+                  </div>
                 </div>
               </div>
               {/* 맨 아랫줄 — 왼쪽 끝에 전화·문자, 오른쪽 끝에 '준비물 수정' (2026-11-22).
