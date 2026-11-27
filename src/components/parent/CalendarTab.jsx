@@ -518,11 +518,12 @@ export default function CalendarTab({
                   <div style={{flex:1,minWidth:0,background:"#fff"}}>
                     {/* 접힌 줄 — 학원 이름 · 시간 · 미션 배지 · 펼침 화살표 (누르면 아래 상세가 열린다) */}
                     <button onClick={()=>setCalAcOpen(p=>({...p,[openKey]:!p[openKey]}))} className="jelly-tap"
-                      aria-expanded={isOpen} aria-label={`${ac.name} 자세히`}
+                      aria-expanded={isOpen} aria-label={`${acKindLabel?acKindLabel(ac):ac.name} 자세히`}
                       style={{width:"100%",border:"none",background:isOpen?`${ac.color}10`:"#fff",padding:"10px 10px 10px 12px",display:"flex",alignItems:"center",gap:7,
                         cursor:"pointer",fontFamily:"inherit",textAlign:"left",touchAction:"manipulation",userSelect:"none",WebkitUserSelect:"none"}}>
                       <span style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:7,overflow:"hidden",whiteSpace:"nowrap"}}>
-                        <span style={{fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>{ac.name}</span>
+                        {/* 접힌 줄은 학원 이름 대신 과목(종류) — 이름은 길 수 있다 (사용자 확정 2026-11-27). 홈 카드처럼 학원 색 글자 */}
+                        <span style={{fontSize:FS.cardTitle,fontWeight:FW.bold,color:ac.color,minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>{acKindLabel?acKindLabel(ac):ac.name}</span>
                         <span style={{flexShrink:0,fontSize:FS.sub,fontWeight:FW.normal,color:ac._absent?C.red:ac._makeup?C.orange:SUBD}}>{timeText}</span>
                       </span>
                       {/* 0/1만 두면 무슨 숫자인지 알 수 없다 → '미션' 을 붙인다 (사용자 지적) */}
@@ -538,6 +539,8 @@ export default function CalendarTab({
                     </button>
                     {isOpen&&(
                     <div style={{padding:"8px 12px 10px"}}>
+                      {/* 펼치면 맨 위에 학원 이름 */}
+                      <p style={{margin:"0 0 4px",fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,overflowWrap:"anywhere"}}>{ac.name}</p>
                       <p style={{margin:0,fontSize:FS.cardTitle,fontWeight:FW.normal,
                         color:ac._absent?C.red:ac._makeup?C.orange:C.text}}>
                         {timeText}
