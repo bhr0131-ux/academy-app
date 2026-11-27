@@ -61,6 +61,7 @@ import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import DiscoveryMemo from "./components/DiscoveryMemo.jsx";
 import PageFlip from "./components/PageFlip.jsx";
 import { GameEventModal, TreasureResultModal } from "./components/KidGameModals.jsx";
+import { SAMPLE_CHILD_ID, SAMPLE_HINT_KEY, isSampleChild, buildSampleChild } from "./data/sampleChild.js";
 import { STREAK_SHIELD_KEY, STREAK_SHIELD_PRICE, normShield, countStreak, applyAutoShield, answerShieldAsk, findRecoverableMiss, applyShieldPurchase } from "./data/streakShield.js";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
@@ -392,6 +393,8 @@ export default function App() {
   /* 레벨 성장 장비 지급 기록 (새 키 v6_growth_gear_granted, 2026-11-27) — { [childId]: string[] }
      null = 아직 불러오기 전(지급 판단을 하지 않는다) */
   const [growthGranted,    setGrowthGranted, growthGrantedRef] = useSyncState(null);
+  /* 샘플 아이 안내('샘플은 ＋에서 삭제가 가능해요')를 봤는지 — 새 키 v6_sample_hint_seen, 1회 (2026-11-27) */
+  const [sampleHintSeen,   setSampleHintSeen]  = useState(true);
   /* 성장 장비 1회 환불 표식 (새 키 v6_growth_gear_refund) — { [childId]: true }, null = 불러오기 전 */
   const [growthRefund,     setGrowthRefund, growthRefundRef]  = useSyncState(null);
   /* 꾸미기 전면 개편(2026-08-19) 환불 안내 — 앱을 켤 때 1회만 뜬다 */
@@ -841,6 +844,9 @@ export default function App() {
       // 완전 최초 실행(저장된 아이 데이터 없음)이면 온보딩 시작 (샘플 주입 안 함)
       if(!ch && !sampleSeeded){
         save("v6_sample_seeded","1");
+        /* [버그 수정 2026-11-27] 첫 실행은 여기서 일찍 끝나서, 아래에서 읽는 새 기록들이 '불러오기 전(null)'으로 남았다
+           → 성장 장비 지급·보호권 판단이 다음 실행까지 멈추고, 샘플 안내도 안 떴다. 빈 값으로 시작시킨다. */
+        setGrowthGranted({}); setGrowthRefund({}); setShieldData({}); setSampleHintSeen(false);
         setLoaded(true);
         const onbDone=await load("v6_onboarding_done");
         if(!onbDone) setShowOnboarding(true);
@@ -965,6 +971,7 @@ export default function App() {
       if(pinHint) setPinHintSeen(true);
       const shieldD=await load(STREAK_SHIELD_KEY);
       setShieldData(shieldD&&typeof shieldD==="object"?shieldD:{});
+      setSampleHintSeen(!!(await load(SAMPLE_HINT_KEY)));
       const gGranted=await load(GROWTH_GEAR_KEY);
       setGrowthGranted(gGranted&&typeof gGranted==="object"?gGranted:{});
       const gRefund=await load(GROWTH_REFUND_KEY);
@@ -1347,9 +1354,10 @@ export default function App() {
     const ageRewards=getRewardsByAge(data.age).map(r=>({
       ...r, title: r.title.includes("엄마") ? r.title.replaceAll("엄마", onbPT.role) : r.title,
     }));
-    setRewardData({ [cid]:ageRewards });
-    setRewardAgeByChild({ [cid]:data.age||"kid" });
-    save("v6_reward_age_by_child",{ [cid]:data.age||"kid" });
+    /* [사용자 확정 2026-11-27] 샘플 아이도 같은 연령대 보상으로 */
+    setRewardData({ [cid]:ageRewards, [SAMPLE_CHILD_ID]:ageRewards });
+    setRewardAgeByChild({ [cid]:data.age||"kid", [SAMPLE_CHILD_ID]:data.age||"kid" });
+    save("v6_reward_age_by_child",{ [cid]:data.age||"kid", [SAMPLE_CHILD_ID]:data.age||"kid" });
     // 옛 단일 키도 함께 남긴다 — 예전 버전으로 되돌려도 화면이 비지 않는다
     save("v6_reward_age_group",data.age||"kid");
 
@@ -1381,6 +1389,32 @@ export default function App() {
         const key=`${cid}-${acId}-${TODAY}`;
         setDailyData({ [key]:{homeworks:hw,todos,supplies:[]} });
       }
+    }
+
+    /* [사용자 확정 2026-11-27] 샘플 아이 — 만든 아이 옆에 하나 더. 기능을 골고루 눌러 볼 수 있게
+       학원 2곳·미션·반복·메모·결석·학원비·점수·보상·펫·보호권까지 채운다 (data/sampleChild.js).
+       엄마용 화면 ＋(아이 관리)에서 지울 수 있다. */
+    {
+      const S=buildSampleChild(TODAY,ageRewards,petStageForStreak);
+      const sc=SAMPLE_CHILD_ID;
+      setChildren(prev=>prev.some(c=>c.id===sc)?prev:[...prev,S.child]);
+      setAcademies(prev=>({...prev,[sc]:S.academies}));
+      setAbsences(prev=>({...prev,[sc]:S.absences}));
+      setDailyData(prev=>({...prev,...S.dailyData}));
+      setMissionRules(prev=>({...prev,[sc]:S.missionRules}));
+      setMemoList(prev=>({...prev,[sc]:S.memoList}));
+      setRepeatMissions(prev=>({...prev,[sc]:S.repeatMissions}));
+      setPaidStatus(prev=>({...prev,...S.paidStatus}));
+      setPayInfo(prev=>({...prev,...S.payInfo}));
+      setScoreData(prev=>({...prev,[sc]:S.scoreData}));
+      setRewardRequests(prev=>({...prev,[sc]:S.rewardRequests}));
+      setTreasureData(prev=>({...prev,[sc]:S.treasure}));
+      setPetData(prev=>({...prev,[sc]:S.petStage}));
+      setBestStreakData(prev=>({...prev,[sc]:S.bestStreak}));
+      setShieldData(prev=>({...(prev||{}),[sc]:S.shield}));
+      const own=normalizeOwned(S.avatarOwnedExtra);
+      setAvatarOwned(prev=>({...prev,[sc]:own}));
+      setAvatarEquipped(prev=>({...prev,[sc]:normalizeEquipped({...getDefaultEquipped(),...S.avatarEquipExtra},own)}));
     }
 
     save("v6_onboarding_done","1");
@@ -2854,7 +2888,8 @@ export default function App() {
     [setAcademies,setAbsences,setScoreData,setRewardRequests,setRewardData,
      setTreasureData,setPetData,setSkinByChild,setSelectedTitles,setSeenTitles,setEarnedTitleIds,
      setSpecialTitles,setBestStreakData,setLastLevelByChild,setOwnedDecor,setEquippedDecor,
-     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData,setMissionRules,setMemoList,setGrowthGranted,setShieldData].forEach(dropKey);
+     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData,setMissionRules,setMemoList,setGrowthGranted,setShieldData,
+     setRepeatMissions,setGrowthRefund].forEach(dropKey);   // 자주 쓰는 미션도 아이별 (2026-11-27 누락 보완)
 
     /* 열쇠 앞머리에 아이 id 가 붙는 저장소 — 접두어로 지운다.
          일별 미션   dailyData[`아이-학원-날짜`]     (dKey)
@@ -2868,7 +2903,7 @@ export default function App() {
       Object.keys(n).forEach(k=>{ if(k.startsWith(`${id}-`)){ delete n[k]; hit=true; } });
       return hit?n:p;
     });
-    [setDailyData,setDayMemos,setPaidStatus,setVacations,setBaseSeededKeys].forEach(dropPrefix);
+    [setDailyData,setDayMemos,setPaidStatus,setPayInfo,setVacations,setBaseSeededKeys].forEach(dropPrefix);   // 납부 기록(payInfo)도 같은 열쇠 모양 (2026-11-27 누락 보완)
 
     // 아이별 보상 연령대 — 새 키라 저장까지 함께 갱신한다
     setRewardAgeByChild(prev=>{
@@ -6393,6 +6428,20 @@ export default function App() {
             );
           })}
         </div>
+        {/* [사용자 확정 2026-11-27] 샘플 아이를 처음 고르면 ＋를 가리키며 한 번 알려 준다 */}
+        {!sampleHintSeen&&isSampleChild(curChild)&&(
+          <div style={{position:"absolute",top:"calc(100% + 10px)",right:2,zIndex:30,maxWidth:230,
+            background:"#2F2A26",color:"#fff",borderRadius:14,padding:"11px 13px 10px",boxShadow:"0 10px 26px rgba(0,0,0,0.28)",animation:"popInUp .25s ease both"}}>
+            <span aria-hidden="true" style={{position:"absolute",top:-7,right:13,width:14,height:14,background:"#2F2A26",transform:"rotate(45deg)",borderRadius:3}}/>
+            <p style={{margin:0,fontSize:13.5,fontWeight:900,lineHeight:1.45,position:"relative"}}>
+              <span style={{display:"inline-block",animation:"avHintNudge2 1s ease-in-out infinite",marginRight:4}}>↑</span>샘플은 <b style={{color:"#FFD77A"}}>＋</b>에서 삭제가 가능해요
+            </p>
+            <p style={{margin:"3px 0 8px",fontSize:12,fontWeight:700,opacity:0.8,lineHeight:1.45,position:"relative"}}>여러 기능을 마음껏 눌러 보세요!</p>
+            <button onClick={()=>{ setSampleHintSeen(true); save(SAMPLE_HINT_KEY,"1"); }}
+              style={{position:"relative",border:"none",borderRadius:10,background:"#FFD77A",color:"#3F2D1C",fontSize:12.5,fontWeight:900,padding:"6px 14px",cursor:"pointer",fontFamily:"inherit"}}>알겠어요</button>
+            <style>{`@keyframes avHintNudge2{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}`}</style>
+          </div>
+        )}
         {/* 아이 추가 */}
         {/* [사용자 확정 2026-08-10] 점선 테두리 대신 단순한 원형 ＋ — 아이 칩과 형태가 겹치지 않게 */}
         <button onClick={openAddChild} className="jelly-tap"
