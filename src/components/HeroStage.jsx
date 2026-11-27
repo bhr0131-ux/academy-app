@@ -415,17 +415,7 @@ export default function HeroStage({ D }) {
                   <div style={{position:"relative",zIndex:2,marginTop:10,marginBottom:0,display:"flex",alignItems:"center",justifyContent:"center",gap:8,flexWrap:"wrap"}}>
                     {cute&&<InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>}
                     {cute&&<InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>}
-                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 — 탐험 모드는 우측 상단 원형 뱃지로 이동(사용자 확정), 베이커리(cute)만 여기 칩 유지 */}
-                    {cute&&(
-                    <button onClick={toggleCharDisplayMode}
-                      style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",
-                        background:`linear-gradient(135deg, ${th.main}22, ${th.main}10)`,
-                        border:`1.5px solid ${th.main}77`,borderRadius:999,padding:"4px 11px",
-                        color:mixBlack(th.main,0.25),fontSize:10,fontWeight:900,whiteSpace:"nowrap",
-                        boxShadow:`0 3px 9px ${th.main}33`}}>
-                      {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"🎒 내 아바타"}
-                    </button>
-                    )}
+                    {/* (삭제됨 2026-11-27) 성장↔아바타 전환 칩 — 캐릭터 통합(사용자 확정) */}
                   </div>
                 );
               })()}
