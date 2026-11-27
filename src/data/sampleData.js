@@ -167,15 +167,16 @@ export const getDayPlan = (academies = [], absences = [], date, day, isVacation 
      탐험일지에서 '어느 학원을 보고 있나'를 가리는 값이라, 겹치면 목록이 잘못 그려지고
      일지도 엉뚱한 학원을 집는다. 결석 기록 id 를 붙여 항상 다르게 만든다
      (예전 데이터에 id 가 없을 수 있어 순번으로 폴백). */
+  /* _abId: 그 보충이 어느 결석 기록인지 (캘린더 한 줄 보충 카드에서 '완료 처리'에 씀, 2026-11-27) */
   makeups.filter(m => m.t).forEach((m, i) => {
-    timed.push({ ...m.ac, _key: `${m.ac.id}-mk-${m.ab?.id ?? `t${i}`}`, _time: m.t, _duration: 40, _makeup: true, _absent: false, _label: `보충 ${m.t}` });
+    timed.push({ ...m.ac, _key: `${m.ac.id}-mk-${m.ab?.id ?? `t${i}`}`, _abId: m.ab?.id, _time: m.t, _duration: 40, _makeup: true, _absent: false, _label: `보충 ${m.t}` });
   });
   timed.sort((x, y) => _min(x._time) - _min(y._time));
   // 시간 없는 보충은 맨 뒤 — 앞 수업이 끝나고 30분 뒤에 끝난 것으로 친다
   makeups.filter(m => !m.t).forEach((m, i) => {
     const prev = timed[timed.length-1];
     const start = prev ? _min(prev._time) + Number(prev._duration||0) : _min(m.ac.time||"15:00");
-    timed.push({ ...m.ac, _key: `${m.ac.id}-mk-${m.ab?.id ?? `n${i}`}`, _time: _hhmm(start), _duration: 30, _makeup: true, _absent: false, _label: "보충" });
+    timed.push({ ...m.ac, _key: `${m.ac.id}-mk-${m.ab?.id ?? `n${i}`}`, _abId: m.ab?.id, _time: _hhmm(start), _duration: 30, _makeup: true, _absent: false, _label: "보충" });
   });
   return timed;
 };

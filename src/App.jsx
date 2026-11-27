@@ -286,6 +286,13 @@ export default function App() {
      반복 미션은 그 날짜를 볼 때 그날 미션 칸(일별 기록)에 한 번 만들어 넣는다(ruleId 표시).
      그날 지운 반복 미션은 entry.skipRules 에 적어 다시 안 만든다. '한 번'은 규칙 없이 그날만. */
   const [missionRules,       setMissionRules]        = useState({});
+  /* [사용자 확정 2026-11-27] 날짜 메모 여러 개 + 반복 — 새 키 v6_memos (옛 v6_dm 은 그대로 두고 읽기 폴백).
+     memoList[아이id] = [{id, text, date:"YYYY-MM-DD", repeat:"none"|"weekly"|"monthly", skip:["YYYY-MM-DD",…]}]
+       · weekly  : date 부터 같은 요일마다 / monthly : date 부터 매월 같은 날
+       · skip    : 반복 메모를 '이 날짜만 삭제'한 날
+     옛 메모(dayMemos[mKey], 날짜당 글 하나)는 그 날짜의 첫 메모로 함께 보여 주고,
+     고치면 그때 이 목록으로 옮긴다(옛 키의 저장 방식은 건드리지 않는다). */
+  const [memoList,           setMemoList]            = useState({});
   const [missionRepeat,      setMissionRepeat]       = useState({type:"once",days:[],dates:[]});
   const [missionCoin,        setMissionCoin]         = useState(null);   // 미션 창 코인 칸 — null 이면 점수에 맞춰 자동(10점→15)   // 미션 편집 팝업에서 고른 종류 (숙제|할 일)
   /* [사용자 확정 2026-08-16] 학원 고르기를 팝업 대신 '미션 추가·관리' 버튼 아래로 펼친다 —
@@ -634,7 +641,7 @@ export default function App() {
             p=await load("v6_paid"), dm=await load("v6_dm"),
             bsk=await load("v6_base_seeded"),
             petD=await load("v6_pet"), discD=await load(DISCOVERY_KEY), bankD=await load(BANK_KEY),
-            repeatD=await load(REPEAT_MISSION_KEY), rulesD=await load("v6_mission_rules"),
+            repeatD=await load(REPEAT_MISSION_KEY), rulesD=await load("v6_mission_rules"), memosD=await load("v6_memos"),
             tmpl=await load("v6_tmpl"), cid=await load("v6_cid"), vac=await load("v6_vac"),
             pin=await load("v6_parent_pin"), pgender=await load("v6_parent_gender"), score=await load("v6_score"),
             reward=await load("v6_reward"), rewardReq=await load("v6_reward_requests"),
@@ -912,6 +919,7 @@ export default function App() {
       if(treasure) setTreasureData(treasure);
       if(repeatD) setRepeatMissions(normalizeRepeat(repeatD,DEFAULT_HOMEWORK_SCORE));
       if(rulesD&&typeof rulesD==="object") setMissionRules(rulesD);
+      if(memosD&&typeof memosD==="object") setMemoList(memosD);
       if(seenTitlesData) setSeenTitles(seenTitlesData);
       if(earnedTitlesData) setEarnedTitleIds(earnedTitlesData);
       if(specialTitleData) setSpecialTitles(specialTitleData);
@@ -1075,6 +1083,7 @@ export default function App() {
   useEffect(()=>{ if(loaded) save(BANK_KEY,bankData); },[bankData,loaded]);
   useEffect(()=>{ if(loaded) save(REPEAT_MISSION_KEY,repeatMissions); },[repeatMissions,loaded]);
   useEffect(()=>{ if(loaded) save("v6_mission_rules",missionRules); },[missionRules,loaded]);
+  useEffect(()=>{ if(loaded) save("v6_memos",memoList); },[memoList,loaded]);
   /* 오늘의 발견 — 하루 1개. [사용자 확정] 미션과 무관하다.
      지도 위 아이가 '이전 학원을 마치고 이동하며 발견 지점을 지나간 순간'
      (AdventureMap의 시간 기준 판정 → onSparkPass) 기록한다.
@@ -2071,7 +2080,8 @@ export default function App() {
       parentGender,
       /* 은행(2026-11-20) — 맡긴 코인은 지갑 코인(scoreData)과 따로 있어서 함께 담아야 복원 때 안 사라진다 */
       bankData,
-      missionRules   // 미션 반복 설정 (2026-11-22)
+      missionRules,  // 미션 반복 설정 (2026-11-22)
+      memoList       // 날짜 메모 여러 개·반복 (2026-11-27)
     };
 
     const text=JSON.stringify(backup,null,2);
@@ -2197,6 +2207,7 @@ export default function App() {
         /* 은행 — 은행이 없던 옛 백업이면 비운다. 지갑 코인(scoreData)은 백업 시점으로 돌아가는데
            맡긴 예금만 지금 것으로 남으면, 맡기느라 빠졌던 코인이 지갑에도 되살아나 두 번 생긴다. */
         setBankData(data.bankData&&typeof data.bankData==="object"?data.bankData:{});
+        if(data.memoList!==undefined) setMemoList(data.memoList&&typeof data.memoList==="object"?data.memoList:{});
         if(data.missionRules!==undefined) setMissionRules(data.missionRules&&typeof data.missionRules==="object"?data.missionRules:{});
 
         // 설치 정보: 복원본과 현재 중 더 이른 설치일을 유지 (창립 사용자 자격 보존)
@@ -2748,7 +2759,7 @@ export default function App() {
     [setAcademies,setAbsences,setScoreData,setRewardRequests,setRewardData,
      setTreasureData,setPetData,setSkinByChild,setSelectedTitles,setSeenTitles,setEarnedTitleIds,
      setSpecialTitles,setBestStreakData,setLastLevelByChild,setOwnedDecor,setEquippedDecor,
-     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData,setMissionRules].forEach(dropKey);
+     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData,setMissionRules,setMemoList].forEach(dropKey);
 
     /* 열쇠 앞머리에 아이 id 가 붙는 저장소 — 접두어로 지운다.
          일별 미션   dailyData[`아이-학원-날짜`]     (dKey)
@@ -4426,6 +4437,46 @@ export default function App() {
   };
 
   const mKey=(cid,y,m,d)=>`${cid}-${y}-${m}-${d}`;
+  /* ── 날짜 메모 (여러 개·반복, 2026-11-27) ── */
+  const mKeyOf=(cid,dateStr)=>{ const [y,m,d]=dateStr.split("-").map(Number); return mKey(cid,y,m-1,d); };
+  const memoOnDate=(mm,dateStr)=>{
+    if(!mm||!mm.date||dateStr<mm.date||(mm.skip||[]).includes(dateStr)) return false;
+    if(mm.repeat==="weekly") return new Date(dateStr.replace(/-/g,"/")).getDay()===new Date(mm.date.replace(/-/g,"/")).getDay();
+    if(mm.repeat==="monthly") return dateStr.slice(8)===mm.date.slice(8);
+    return dateStr===mm.date;
+  };
+  // 그날 보여 줄 메모 — 옛 메모(한 줄)가 있으면 맨 앞, 그다음 새 목록(만든 순서)
+  const getMemosForDate=(cid,dateStr)=>{
+    const out=[];
+    const old=(dayMemos[mKeyOf(cid,dateStr)]||"").trim();
+    if(old) out.push({id:`legacy:${dateStr}`,text:old,date:dateStr,repeat:"none",legacy:true});
+    (memoList[cid]||[]).forEach(mm=>{ if(memoOnDate(mm,dateStr)) out.push(mm); });
+    return out;
+  };
+  // 저장: memo 가 없으면 새로 추가, 있으면 고친다 (반복 메모는 묶음 전체가 바뀐다)
+  const saveMemo=(cid,dateStr,memo,{text,repeat})=>{
+    const t=(text||"").trim(); if(!t) return;
+    if(memo&&memo.legacy){   // 옛 메모를 고치면 새 목록으로 옮긴다
+      setDayMemos(p=>{ const n={...p}; delete n[mKeyOf(cid,dateStr)]; return n; });
+      memo=null;
+    }
+    if(!memo){
+      const item={id:`memo_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,text:t,date:dateStr,repeat:repeat||"none",skip:[]};
+      setMemoList(p=>({...p,[cid]:[...(p[cid]||[]),item]}));
+      return;
+    }
+    setMemoList(p=>({...p,[cid]:(p[cid]||[]).map(x=>x.id===memo.id?{...x,text:t,repeat:repeat||"none"}:x)}));
+  };
+  // 지우기: scope "one"(반복 메모의 이 날짜만) | "all"(통째로)
+  const deleteMemo=(cid,dateStr,memo,scope="all")=>{
+    if(!memo) return;
+    if(memo.legacy){ setDayMemos(p=>{ const n={...p}; delete n[mKeyOf(cid,dateStr)]; return n; }); return; }
+    if(scope==="one"&&memo.repeat&&memo.repeat!=="none"){
+      setMemoList(p=>({...p,[cid]:(p[cid]||[]).map(x=>x.id===memo.id?{...x,skip:[...(x.skip||[]),dateStr]}:x)}));
+      return;
+    }
+    setMemoList(p=>({...p,[cid]:(p[cid]||[]).filter(x=>x.id!==memo.id)}));
+  };
   const calDays=getCalDays(calDate.getFullYear(),calDate.getMonth());
 
   // 공통 스타일
@@ -6341,7 +6392,7 @@ export default function App() {
             }
             questCoinOf={itemCoin} coinEmoji={TM.coinEmoji}
             /* [사용자 요청 2026-11-23] 대시보드에 그날 달력 메모도 — 누르면 달력의 그날로 */
-            dayMemo={(()=>{ const d=new Date(homeDate.replace(/-/g,"/")); return (dayMemos[mKey(childId,d.getFullYear(),d.getMonth(),d.getDate())]||"").trim(); })()}
+            dayMemo={getMemosForDate(childId,homeDate).map(mm=>mm.text).join("\n")}
             onGoMemo={()=>{ const d=new Date(homeDate.replace(/-/g,"/")); setCalDate(new Date(d.getFullYear(),d.getMonth(),1)); setCalSelDate(homeDate); if(rewardUnlocked) setRewardUnlocked(false); setMoreTab("calendar"); setTab("calendar"); }}
             onToggleSupply={(acId,date,key)=>toggleSupplyChecked(childId,acId,date,key)}
             onToggleQuest={(item)=>{ if(item.kind==="homework") toggleHomeworkDone(childId,item.academyId,item.date,item.id); else toggleTodoDone(childId,item.academyId,item.date,item.id); }}
@@ -6404,6 +6455,8 @@ export default function App() {
             memoEdit={memoEdit} setMemoEdit={setMemoEdit}
             memoDraft={memoDraft} setMemoDraft={setMemoDraft}
             mKey={mKey} isVacationDay={isVacationDay} getDailyEntry={getDailyEntry}
+            getMemosForDate={(d)=>getMemosForDate(childId,d)}
+            onSaveMemo={(d,memo,v)=>saveMemo(childId,d,memo,v)} onDeleteMemo={(d,memo,scope)=>deleteMemo(childId,d,memo,scope)}
             getWeeklySchedule={getWeeklySchedule} acKindLabel={acKindLabel} toggleMakeup={toggleMakeup}
             isFeePaidOn={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
