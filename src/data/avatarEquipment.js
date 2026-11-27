@@ -1101,6 +1101,42 @@ export const computeGrowthGrant = (ownedList = [], equippedMap = {}, grantedList
   return { nextOwned: owned, nextEquipped: eq, nextGranted: [...granted], newly, changed };
 };
 
+/* ── 성장 장비 1회 환불 (사용자 확정 2026-11-27) ──────────────────────────
+   레벨 선물이 되기 전에 코인으로 산 성장 장비는 산 값만큼 한 번 돌려준다(장비는 그대로 둔다).
+   산 기록은 코인 내역 메모로 찾는다:
+     · 하나 구매   "<이름> 꾸미기 파츠 구매"            → 그 줄에서 실제로 빠진 코인
+     · 한번에 구매 "꾸미기 한번에 구매 N개 (이름, 이름)" → 그 아이템의 카탈로그 가격
+   같은 장비는 한 번만 센다. 반환: { total, ids: string[] } */
+export const GROWTH_REFUND_KEY = "v6_growth_gear_refund";   // { [childId]: true } 1회 실행 표식
+export const computeGrowthRefund = (history = [], gender = "boy") => {
+  const g = gender === "girl" ? "girl" : "boy";
+  const byName = {};
+  for (const ids of Object.values(GROWTH_GEAR[g])) for (const id of ids) {
+    const it = getAvatarItem(id);
+    if (it) byName[itemLabel(it, g)] = it;
+  }
+  const done = new Set();
+  let total = 0;
+  for (const h of (Array.isArray(history) ? history : [])) {
+    const memo = String(h?.memo || "");
+    const spent = Math.max(0, -Number(h?.coin ?? h?.point ?? 0));
+    let m = memo.match(/^(.+) 꾸미기 파츠 구매$/);
+    if (m) {
+      const it = byName[m[1]];
+      if (it && !done.has(it.id)) { done.add(it.id); total += spent || (it.price || 0); }
+      continue;
+    }
+    m = memo.match(/^꾸미기 한번에 구매 \d+개 \((.*)\)$/);
+    if (m) {
+      for (const nm of m[1].split(", ")) {
+        const it = byName[nm];
+        if (it && !done.has(it.id)) { done.add(it.id); total += it.price || 0; }
+      }
+    }
+  }
+  return { total, ids: [...done] };
+};
+
 /* ── 순수 로직: 구매 (성공 시 자동 장착) ─────────────────────────────── */
 export const computeAvatarPurchase = (ownedList = [], equippedMap = {}, coins = 0, itemId, gender) => {
   const item = getAvatarItem(itemId);
