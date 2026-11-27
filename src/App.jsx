@@ -67,7 +67,7 @@ import {
   getDefaultEquipped, computeAvatarPurchase, computeAvatarEquipToggle,
   computeCharDisplayToggle, normalizeOwned, normalizeEquipped, getAvatarItem,
   AVATAR_RESET_KEY, computeAvatarRefund, getRefundInfo, itemLabel,
-  GROWTH_GEAR_KEY, computeGrowthGrant, isGrowthGear,
+  GROWTH_GEAR_KEY, computeGrowthGrant, isGrowthGear, GROWTH_REFUND_KEY, computeGrowthRefund,
 } from "./data/avatarEquipment.js";
 
 import { Fragment, useState, useEffect, useRef } from "react";
@@ -390,6 +390,8 @@ export default function App() {
   /* 레벨 성장 장비 지급 기록 (새 키 v6_growth_gear_granted, 2026-11-27) — { [childId]: string[] }
      null = 아직 불러오기 전(지급 판단을 하지 않는다) */
   const [growthGranted,    setGrowthGranted, growthGrantedRef] = useSyncState(null);
+  /* 성장 장비 1회 환불 표식 (새 키 v6_growth_gear_refund) — { [childId]: true }, null = 불러오기 전 */
+  const [growthRefund,     setGrowthRefund, growthRefundRef]  = useSyncState(null);
   /* 꾸미기 전면 개편(2026-08-19) 환불 안내 — 앱을 켤 때 1회만 뜬다 */
   const [avatarResetNotice, setAvatarResetNotice] = useState(null);
   const [charDisplayMode,  setCharDisplayMode]  = useState({});   // { [childId]: "growth"|"avatar" }
@@ -958,6 +960,8 @@ export default function App() {
       if(pinHint) setPinHintSeen(true);
       const gGranted=await load(GROWTH_GEAR_KEY);
       setGrowthGranted(gGranted&&typeof gGranted==="object"?gGranted:{});
+      const gRefund=await load(GROWTH_REFUND_KEY);
+      setGrowthRefund(gRefund&&typeof gRefund==="object"?gRefund:{});
       const avHint=await load("v6_avatar_hint_by_child");
       if(avHint&&typeof avHint==="object") setAvatarHintMap(avHint);
       const sfxSaved=await load("v6_sfx_on");          // 없으면(처음) 켜짐
@@ -1201,6 +1205,29 @@ export default function App() {
   useEffect(()=>{ if(loaded) save(AVATAR_EQUIPPED_KEY,avatarEquipped); },[avatarEquipped,loaded]);
   useEffect(()=>{ if(loaded) save(CHAR_DISPLAY_MODE_KEY,charDisplayMode); },[charDisplayMode,loaded]);
   useEffect(()=>{ if(loaded&&growthGranted) save(GROWTH_GEAR_KEY,growthGranted); },[growthGranted,loaded]);
+  /* [사용자 확정 2026-11-27] 성장 장비 1회 환불 — 레벨 선물이 되기 전에 코인으로 산 성장 장비 값을 아이마다 한 번 돌려준다.
+     장비는 그대로 둔다. 표식을 먼저 세워 두 번 돌려주지 않는다(동기 거울로 판단). */
+  useEffect(()=>{
+    if(!loaded||!growthRefund) return;
+    const doneMap=growthRefundRef.current||{};
+    const todo=children.filter(c=>!doneMap[c.id]);
+    if(todo.length===0) return;
+    const next={...doneMap};
+    const msgs=[];
+    for(const c of todo){
+      next[c.id]=true;
+      const g=c.gender==="girl"?"girl":"boy";
+      const {total,ids}=computeGrowthRefund(scoreRef.current[c.id]?.history,g);
+      if(total>0){
+        refundCoin(c.id,total,`성장 장비 코인 환불 (${ids.map(id=>itemLabel(getAvatarItem(id),g)).join(", ")})`);
+        msgs.push(`${c.name} ${TM.coinEmoji}${total}`);
+      }
+    }
+    setGrowthRefund(next);
+    save(GROWTH_REFUND_KEY,next);
+    if(msgs.length) showToast(`🎁 성장 장비가 레벨 선물이 되어 산 값을 돌려줬어요 · ${msgs.join(" · ")}`,3200);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[loaded,growthRefund,children]);
   /* [사용자 확정 2026-11-27] 레벨 성장 장비 자동 지급 — 레벨에 오르면 그 레벨까지의 장비를 공짜로 옷장에 넣고 입힌다.
      산 장비를 입은 칸은 그대로 두고 옷장에만 넣는다(computeGrowthGrant). 한 번 준 건 기록해 다시 입히지 않는다.
      처음 기록을 만드는 아이(업데이트 직후·새 아이)는 조용히 채우고, 그 뒤 레벨업으로 받을 때만 알려 준다. */
@@ -1214,11 +1241,11 @@ export default function App() {
       const g=c.gender==="girl"?"girl":"boy";
       const lv=getChildLevel(cid)?.level||1;
       const r=computeGrowthGrant(getAvatarOwned(cid),getAvatarEquipped(cid),grantedMap[cid]||[],lv,g);
-      if(r.newly.length===0) continue;
+      if(!r.changed) continue;
       nextGranted={...(nextGranted||grantedMap),[cid]:r.nextGranted};
       nextOwnedMap={...(nextOwnedMap||{}),[cid]:r.nextOwned};
       nextEqMap={...(nextEqMap||{}),[cid]:r.nextEquipped};
-      if(Array.isArray(grantedMap[cid])&&cid===childId) got.push(...r.newly.map(id=>itemLabel(getAvatarItem(id),g)));
+      if(Array.isArray(grantedMap[cid])&&cid===childId&&r.newly.length) got.push(...r.newly.map(id=>itemLabel(getAvatarItem(id),g)));
     }
     if(!nextGranted) return;
     setAvatarOwned(prev=>({...prev,...nextOwnedMap}));
@@ -1226,7 +1253,7 @@ export default function App() {
     setGrowthGranted(nextGranted);
     if(got.length) showToast(`🎁 레벨업 선물! ${got.join(" · ")} 획득`,2600);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[loaded,growthGranted,children,scoreData,childId]);
+  },[loaded,growthGranted,children,scoreData,childId,avatarOwned]);   // avatarOwned: 백업 복원 뒤 빠진 성장 장비를 바로 메운다
   useEffect(()=>{ if(loaded) save("v6_reward",rewardData); },[rewardData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_reward_requests",rewardRequests); },[rewardRequests,loaded]);
   useEffect(()=>{ if(loaded) save("v6_unlocked_badges",unlockedBadgeIds); },[unlockedBadgeIds,loaded]);
@@ -3330,7 +3357,7 @@ export default function App() {
     const item=getAvatarItem(itemId);
     if(!item) return;
     const owned=getAvatarOwned(cid), equipped=getAvatarEquipped(cid);
-    const res=computeAvatarPurchase(owned, equipped, getChildCoin(cid), itemId);
+    const res=computeAvatarPurchase(owned, equipped, getChildCoin(cid), itemId, (children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy");
     if(!res.ok){
       if(res.reason==="already_owned") showToast("이미 가지고 있어요 ✨");
       else if(res.reason==="level_reward") showToast("레벨이 오르면 선물로 받아요 🎁",2000);
@@ -3356,20 +3383,21 @@ export default function App() {
   const buyAvatarItems=(ids)=>{
     const cid=childId;
     let owned=getAvatarOwned(cid), equipped=getAvatarEquipped(cid);
+    const gg=(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy";
     const list=[...new Set(ids||[])].map(getAvatarItem).filter(Boolean);
-    const toBuy=list.filter(it=>!owned.includes(it.id)&&!isGrowthGear(it.id));   // 레벨 보상은 사지 않는다
+    const toBuy=list.filter(it=>!owned.includes(it.id)&&!isGrowthGear(it.id,gg));   // 레벨 보상은 사지 않는다
     if(toBuy.length===0) return false;
     const total=toBuy.reduce((s,it)=>s+(it.price||0),0);
     const coin=getChildCoin(cid);
     if(coin<total){ showToast(`${TM.coinEmoji} ${TM.coin} ${total-coin}개 더 모으면 한번에 살 수 있어요`,2200); return false; }
     let budget=coin;
     for(const it of list){
-      if(!owned.includes(it.id)&&isGrowthGear(it.id)) continue;   // 아직 못 받은 레벨 보상은 건너뛴다
+      if(!owned.includes(it.id)&&isGrowthGear(it.id,gg)) continue;   // 아직 못 받은 레벨 보상은 건너뛴다
       if(owned.includes(it.id)){
         if(equipped[it.slot]!==it.id){ const r=computeAvatarEquipToggle(owned,equipped,it.id); if(r.ok) equipped=r.nextEquipped; }
         continue;
       }
-      const r=computeAvatarPurchase(owned,equipped,budget,it.id);
+      const r=computeAvatarPurchase(owned,equipped,budget,it.id,gg);
       if(!r.ok) return false;   // 계산상 일어나지 않지만, 어긋나면 아무것도 사지 않는다
       owned=r.nextOwned; equipped=r.nextEquipped; budget-=r.cost;
     }
