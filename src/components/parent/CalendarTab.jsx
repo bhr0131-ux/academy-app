@@ -90,6 +90,9 @@ export default function CalendarTab({
     (acId)=>isVacationDay(childId,acId,effSelDate));
   /* 고른 날 한 줄 요약 — 상세 카드를 보기 전에 하루 상황을 먼저 알려 준다 */
   const liveAc=selInfo.acList.filter(a=>!isVacationDay(childId,a.id,effSelDate));
+  /* [버그 점검 2026-11-27] 아래 목록에서 결석 줄을 뺐으므로 요약의 '학원 N개'도 결석한 학원은 뺀다
+     (결석은 '결석 N개'로 따로 센다). 휴원 계산(vacCnt)은 그대로 liveAc 를 쓴다. */
+  const goAcCnt=liveAc.filter(a=>!selInfo.absOnDay.some(x=>String(x.academyId)===String(a.id))).length;
   /* 준비물은 '그날 실제로 가는 학원'의 것만 (사용자 확정 2026-08-17).
        · 결석 → 안 가니까 없다   · 보충 → 가니까 항상 챙길 준비물은 그대로
      같은 학원이 정규+보충으로 두 장이어도 가방은 하나라 한 번만 센다. */
@@ -100,7 +103,7 @@ export default function CalendarTab({
       return n+(a.baseSupplies||[]).filter(s=>!(e.hiddenBase||[]).includes(s)).length+(e.supplies||[]).length;
     },0);
   const sumParts=[];
-  if(liveAc.length) sumParts.push(`학원 ${liveAc.length}개`);
+  if(goAcCnt) sumParts.push(`학원 ${goAcCnt}개`);
   if(supCnt) sumParts.push(`준비물 ${supCnt}개`);
   if(selInfo.absOnDay.length) sumParts.push(`결석 ${selInfo.absOnDay.length}개`);
   if(selInfo.makeupOnDay.length) sumParts.push(`보충 ${selInfo.makeupOnDay.length}개`);
