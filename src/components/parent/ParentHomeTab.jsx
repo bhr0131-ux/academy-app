@@ -83,7 +83,7 @@ export default function ParentHomeTab({
   const feeRef = useRef(null);
   /* '학원비' 줄을 누르면 — 학원비 탭이 없어졌으니 '전체 학원'으로 넘겨 학원비 칸까지 내려 준다 */
   const goFeeSection = (month) => {
-    if (onGoFee) onGoFee(month);
+    if (onGoFee) onGoFee(month, hd.getFullYear());
     setAcView("all");
     setTimeout(() => { try { feeRef.current && feeRef.current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch { /* 무시 */ } }, 60);
   };
@@ -133,7 +133,7 @@ export default function ParentHomeTab({
   /* [사용자 확정 2026-11-21] 학원비 — 납부일 '당일'에만, 그달 아직 납부 완료를 안 누른 곳만 센다.
      (달력의 납부일 ▲ 표시와 같은 기준: 학원비가 있고 납부일 = 이 날짜의 '일') */
   const feeMonth=hd.getMonth()+1;
-  const feeDueAc=curAc.filter(a=>Number(a.fee||0)>0&&feeDueDay(a,hd.getFullYear(),hd.getMonth())===hd.getDate()&&!isFeePaid(a.id,feeMonth));
+  const feeDueAc=curAc.filter(a=>Number(a.fee||0)>0&&feeDueDay(a,hd.getFullYear(),hd.getMonth())===hd.getDate()&&!isFeePaid(a.id,feeMonth,hd.getFullYear()));
   /* [사용자 확정 2026-11-21] 내일 준비물 — 오늘을 보고 있고 저녁 6시가 넘었을 때만.
      전날 밤 가방을 미리 챙기라는 뜻. 세는 법은 위 '준비물'과 같다(가는 학원만, 학원마다 한 번) */
   const tomorrow=addDays(homeDate,1);

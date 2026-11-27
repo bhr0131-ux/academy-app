@@ -571,6 +571,7 @@ export default function App() {
   const [tab,                    setTab]                    = useState(initUi.tab);
   const [dayMemos,               setDayMemos]               = useState(initUi.dayMemos);
   const [feeMonth,               setFeeMonth]               = useState(initUi.feeMonth);
+  const [feeYear,                setFeeYear]                = useState(new Date().getFullYear());   // 학원비 보는 해 (2026-11-27 해 넘김)
   const [absMonth,               setAbsMonth]               = useState(()=>TODAY.slice(0,7)); // 결석 탭 월 필터 (YYYY-MM)
   const [calDate,                setCalDate]                = useState(initUi.calDate);
   const [calSelDate,             setCalSelDate]             = useState(initUi.calSelDate);
@@ -2764,7 +2765,7 @@ export default function App() {
     /* 열쇠 앞머리에 아이 id 가 붙는 저장소 — 접두어로 지운다.
          일별 미션   dailyData[`아이-학원-날짜`]     (dKey)
          날짜 메모   dayMemos[`아이-연-월-일`]        (mKey)
-         학원비 납부 paidStatus[`아이-월-학원`]       (pKey)
+         학원비 납부 paidStatus[`아이-해-월-학원`] (pKey, 옛 `아이-월-학원` 도 같은 접두어)
          방학·휴원   vacations[`아이-학원`]           (vacKey)
        paidStatus·vacations 는 아이 id 가 열쇠인 줄 알고 처음엔 위쪽에 넣었다가
        실제 열쇠 모양을 확인하고 이쪽으로 옮겼다. */
@@ -3821,7 +3822,7 @@ export default function App() {
   useEffect(()=>{ if(tab!=="absence") return; const t=setTimeout(()=>{ try{ absSecRef.current&&absSecRef.current.scrollIntoView({behavior:"smooth",block:"start"}); }catch{ /* 무시 */ } },80); return ()=>clearTimeout(t); },[tab]);
   /* [버그 점검 2026-11-23] 학원비가 홈 '전체 학원' 아래로 들어왔으니, 홈 날짜를 다른 달로 넘기면
      학원비 칸도 그 달을 보여 준다 (그 안에서 ‹ › 로 따로 넘기는 건 그대로 된다) */
-  useEffect(()=>{ const m=Number(String(homeDate).slice(5,7)); if(m>=1&&m<=12) setFeeMonth(m); },[homeDate]);
+  useEffect(()=>{ const y=Number(String(homeDate).slice(0,4)), m=Number(String(homeDate).slice(5,7)); if(m>=1&&m<=12){ setFeeMonth(m); if(y>2000) setFeeYear(y); } },[homeDate]);
 
   useEffect(()=>{
     if(!loaded||!childId||appMode!=="child") return;
@@ -4329,11 +4330,20 @@ export default function App() {
   const removeBaseHomework=(i)=>setNewAc(p=>({...p,baseHomeworks:(p.baseHomeworks||[]).filter((_,idx)=>idx!==i)}));
 
   // 학원비
-  const pKey=(cid,aId)=>`${cid}-${feeMonth}-${aId}`;
-  const isPaid=(aId)=>!!paidStatus[pKey(childId,aId)];
-  const togglePaid=(aId)=>{ const k=pKey(childId,aId); setPaidStatus(p=>({...p,[k]:!p[k]})); };
+  /* [버그 수정 2026-11-27] 납부 열쇠에 '해'가 없어(아이-월-학원) 학원비 화면이 올해 1~12월에 갇혔고,
+     해가 바뀌면 작년 같은 달 납부가 그대로 '납부 완료'로 보일 뻔했다.
+     새 열쇠는 '아이-해-월-학원' (같은 v6_paid·v6_pay 저장소 안에 새 모양으로 추가).
+     옛 열쇠는 모두 2026년에 만들어진 것이라, 새 열쇠가 없을 때 2026년에 한해 읽기 폴백으로 쓴다. */
+  const LEGACY_FEE_YEAR=2026;
+  const feeKeyNew=(cid,y,m,aId)=>`${cid}-${y}-${m}-${aId}`;
+  const feeKeyOld=(cid,m,aId)=>`${cid}-${m}-${aId}`;
+  const readPaid=(cid,y,m,aId)=>{ const k=feeKeyNew(cid,y,m,aId); if(k in paidStatus) return !!paidStatus[k]; return y===LEGACY_FEE_YEAR&&!!paidStatus[feeKeyOld(cid,m,aId)]; };
+  const readPayRec=(cid,y,m,aId)=>{ const k=feeKeyNew(cid,y,m,aId); if(k in payInfo) return payInfo[k]||null; if(k in paidStatus) return null; return y===LEGACY_FEE_YEAR?(payInfo[feeKeyOld(cid,m,aId)]||null):null; };
+  const pKey=(cid,aId)=>feeKeyNew(cid,feeYear,feeMonth,aId);
+  const isPaid=(aId)=>readPaid(childId,feeYear,feeMonth,aId);
+  const togglePaid=(aId)=>{ const k=pKey(childId,aId); const cur=isPaid(aId); setPaidStatus(p=>({...p,[k]:!cur})); };
   /* 납부 기록(언제·얼마·어떻게). 없을 수도 있다 — 예전 방식으로 납부만 체크한 건은 기록이 없다. */
-  const payRec=(aId)=>payInfo[pKey(childId,aId)]||null;
+  const payRec=(aId)=>readPayRec(childId,feeYear,feeMonth,aId);
   const savePayRec=(aId,rec)=>{
     const k=pKey(childId,aId);
     setPayInfo(p=>({...p,[k]:rec}));
@@ -4358,7 +4368,7 @@ export default function App() {
        화면에서 제일 도드라지는 게 '더 할 일이 없는 건'이었다. */
     if(isPaid(a.id)) return {key:"paid",label:"납부 완료",color:C.sub};
     const now=new Date(); now.setHours(0,0,0,0);
-    const d=new Date(now.getFullYear(),feeMonth-1,feeDueDay(a,now.getFullYear(),feeMonth-1));   // 31일 납부일도 그 달 안으로
+    const d=new Date(feeYear,feeMonth-1,feeDueDay(a,feeYear,feeMonth-1));   // 31일 납부일도 그 달 안으로 (보는 해 기준)
     const diff=Math.round((d-now)/86400000);
     if(diff<0)   return {key:"late", label:`납부일 ${Math.abs(diff)}일 지남`,color:C.red};
     if(diff===0) return {key:"today",label:"오늘 납부일",color:C.red};
@@ -4439,11 +4449,27 @@ export default function App() {
   const mKey=(cid,y,m,d)=>`${cid}-${y}-${m}-${d}`;
   /* ── 날짜 메모 (여러 개·반복, 2026-11-27) ── */
   const mKeyOf=(cid,dateStr)=>{ const [y,m,d]=dateStr.split("-").map(Number); return mKey(cid,y,m-1,d); };
+  /* 반복 규칙 (2026-11-27 확장) — 반복 메모는 date(만든 날·시작일)부터 나온다
+       weekly  : days [0~6, 일=0] 중 하나인 요일 (예전 메모처럼 days 가 없으면 시작일의 요일)
+       monthly : 매월 mday 일 (없으면 시작일의 일) — 그달에 없는 날(31일 등)은 그달 마지막 날
+       yearly  : 매년 md "MM-DD" (없으면 시작일의 월·일) — 윤년 아닌 해의 2/29 는 2/28 */
   const memoOnDate=(mm,dateStr)=>{
-    if(!mm||!mm.date||dateStr<mm.date||(mm.skip||[]).includes(dateStr)) return false;
-    if(mm.repeat==="weekly") return new Date(dateStr.replace(/-/g,"/")).getDay()===new Date(mm.date.replace(/-/g,"/")).getDay();
-    if(mm.repeat==="monthly") return dateStr.slice(8)===mm.date.slice(8);
-    return dateStr===mm.date;
+    if(!mm||!mm.date||(mm.skip||[]).includes(dateStr)) return false;
+    const rep=mm.repeat||"none";
+    if(rep==="none") return dateStr===mm.date;
+    if(dateStr<mm.date) return false;
+    const [y,m,d]=dateStr.split("-").map(Number);
+    const lastDay=new Date(y,m,0).getDate();
+    if(rep==="weekly"){
+      const days=(mm.days&&mm.days.length)?mm.days:[new Date(mm.date.replace(/-/g,"/")).getDay()];
+      return days.includes(new Date(y,m-1,d).getDay());
+    }
+    if(rep==="monthly"){ const t=Number(mm.mday)||Number(mm.date.slice(8)); return d===Math.min(t,lastDay); }
+    if(rep==="yearly"){
+      const [tm,td]=(mm.md||mm.date.slice(5)).split("-").map(Number);
+      return m===tm&&d===Math.min(td,lastDay);
+    }
+    return false;
   };
   // 그날 보여 줄 메모 — 옛 메모(한 줄)가 있으면 맨 앞, 그다음 새 목록(만든 순서)
   const getMemosForDate=(cid,dateStr)=>{
@@ -4454,18 +4480,21 @@ export default function App() {
     return out;
   };
   // 저장: memo 가 없으면 새로 추가, 있으면 고친다 (반복 메모는 묶음 전체가 바뀐다)
-  const saveMemo=(cid,dateStr,memo,{text,repeat})=>{
+  const saveMemo=(cid,dateStr,memo,{text,repeat,date,days,mday,md})=>{
     const t=(text||"").trim(); if(!t) return;
+    const rep=repeat||"none";
+    // 주기별 설정 — '이 날만'은 고른 날짜(date)가 그 메모의 날이 된다
+    const rule={repeat:rep,days:rep==="weekly"?[...(days||[])]:undefined,mday:rep==="monthly"?Number(mday)||undefined:undefined,md:rep==="yearly"?md:undefined};
     if(memo&&memo.legacy){   // 옛 메모를 고치면 새 목록으로 옮긴다
       setDayMemos(p=>{ const n={...p}; delete n[mKeyOf(cid,dateStr)]; return n; });
       memo=null;
     }
     if(!memo){
-      const item={id:`memo_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,text:t,date:dateStr,repeat:repeat||"none",skip:[]};
+      const item={id:`memo_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,text:t,date:(rep==="none"&&date)?date:dateStr,...rule,skip:[]};
       setMemoList(p=>({...p,[cid]:[...(p[cid]||[]),item]}));
       return;
     }
-    setMemoList(p=>({...p,[cid]:(p[cid]||[]).map(x=>x.id===memo.id?{...x,text:t,repeat:repeat||"none"}:x)}));
+    setMemoList(p=>({...p,[cid]:(p[cid]||[]).map(x=>x.id===memo.id?{...x,text:t,...rule,date:(rep==="none"&&date)?date:x.date}:x)}));
   };
   // 지우기: scope "one"(반복 메모의 이 날짜만) | "all"(통째로)
   const deleteMemo=(cid,dateStr,memo,scope="all")=>{
@@ -6369,13 +6398,13 @@ export default function App() {
             onGoTab={(k)=>{ if(rewardUnlocked) setRewardUnlocked(false); setTab(k); }}
             onGoReward={()=>setShowRewardApprove(true)}
             onOpenSupplyCheck={(d)=>setShowSupplyCheck(typeof d==="string"?d:homeDate)}
-            isFeePaid={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
+            isFeePaid={(acId,month,year)=>readPaid(childId,year||new Date().getFullYear(),month,acId)}
             /* [사용자 확정 2026-11-23] 학원비 탭을 없애고 홈 '전체 학원' 아래로 옮겼다 — 여기선 달만 맞춘다 */
-            onGoFee={(month)=>{ setFeeMonth(month); }}
+            onGoFee={(month,year)=>{ setFeeMonth(month); if(year) setFeeYear(year); }}
             feePanel={
               <FeeTab embedded nameOf={acKindLabel}
                 th={th} CT={CT} curAc={curAc}
-                feeMonth={feeMonth} setFeeMonth={setFeeMonth}
+                feeMonth={feeMonth} setFeeMonth={setFeeMonth} feeYear={feeYear} setFeeYear={setFeeYear}
                 isPaid={isPaid} payRec={payRec} payStatus={payStatus}
                 feeMenu={feeMenu} setFeeMenu={setFeeMenu}
                 onPay={(acId)=>setPaySheet({acId})}
@@ -6458,7 +6487,7 @@ export default function App() {
             getMemosForDate={(d)=>getMemosForDate(childId,d)}
             onSaveMemo={(d,memo,v)=>saveMemo(childId,d,memo,v)} onDeleteMemo={(d,memo,scope)=>deleteMemo(childId,d,memo,scope)}
             getWeeklySchedule={getWeeklySchedule} acKindLabel={acKindLabel} toggleMakeup={toggleMakeup}
-            isFeePaidOn={(acId,month)=>!!paidStatus[`${childId}-${month}-${acId}`]}
+            isFeePaidOn={(acId,month,year)=>readPaid(childId,year||new Date().getFullYear(),month,acId)}
             onSms={(ac)=>{ setShowSmsModal(ac); setSmsDraft(""); }}
             onVacation={()=>{ setVacForm({academyId:"",start:TODAY,end:TODAY}); setShowVacModal({date:TODAY,acList:curAc}); }} />
         )}

@@ -46,21 +46,7 @@ import MemoSheet, { memoRepeatLabel } from "./MemoSheet.jsx";
    보조 글자색도 홈과 같은 한 단계 진한 청회색을 쓴다 (C.sub 는 카드 위에서 흐렸다). */
 const SUBD="#5F678C";
 
-/* [사용자 확정 2026-08-20] 하루 상세의 알림 네 종류(학원비·휴원·결석·보충)가
-   제각각이었다 — 학원비·휴원·결석은 테두리 상자, 보충만 왼쪽 세로선 배너.
-   홈 화면은 이미 '왼쪽 세로선 + 아주 옅은 배경' 배너로 통일돼 있어서 그쪽에 맞춘다.
-   같은 정보가 두 화면에서 같은 모양으로 보인다. */
-function Banner({ color, bg, children }) {
-  return (
-    <div style={{display:"flex",gap:10,background:bg,borderRadius:RAD.sm,marginBottom:9,overflow:"hidden"}}>
-      <div style={{width:3,background:color,flexShrink:0}}/>
-      <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>{children}</div>
-    </div>
-  );
-}
-/* 배너 제목 줄 — 아이콘 13 + 꼬리표 크기 글자 (홈과 같은 값) */
-const bnHead = (color) => ({display:"flex",alignItems:"center",gap:6,color});
-const bnTitle = {fontSize:FS.tag,fontWeight:FW.bold};
+/* (2026-11-27) 왼쪽 세로선 배너(Banner)는 걷고, 알림은 메모 줄과 같은 한 줄 둥근 줄로 바꿨다 — 고른 날 상세의 '알림 줄' 참고 */
 /* 배너 안 오른쪽 작은 버튼·배지 — 문자·완료로·미납이 값이 달라 들쭉날쭉했다 */
 const bnChip = {flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 9px",borderRadius:RAD.sm,
   border:"none",cursor:"pointer",fontFamily:"inherit",lineHeight:1.3};
@@ -87,7 +73,7 @@ export default function CalendarTab({
   const dnOf=(s)=>["일","월","화","수","목","금","토"][new Date(s.replace(/-/g,"/")).getDay()];
   const korDate=(s)=>{ const [,mm,dd]=s.split("-").map(Number); return `${mm}월 ${dd}일`; };
   const selInfo=(()=>{
-    const d=new Date(effSelDate), y=d.getFullYear(), m=d.getMonth(), day=d.getDate();
+    const d=parseLocal(effSelDate), y=d.getFullYear(), m=d.getMonth(), day=d.getDate();   // 로컬 날짜로 (new Date("YYYY-MM-DD") 는 UTC 기준이라 시간대에 따라 하루 밀릴 수 있다)
     const dn=getDN(y,m,day);
     const acList=curAc.filter(a=>hasClassOnDay(a,dn));
     const mk=mKey(childId,y,m,day);
@@ -379,7 +365,7 @@ export default function CalendarTab({
                     <span style={{color:C.sub,marginTop:2,flexShrink:0,display:"flex"}}><CareIcon name="memo" size={14}/></span>
                     <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.normal,color:C.text,lineHeight:1.45}}>
                       {rl&&<span style={{display:"inline-flex",alignItems:"center",gap:3,marginRight:6,verticalAlign:"1px",fontSize:FS.tag,fontWeight:FW.semi,color:th.main,background:`${th.main}14`,borderRadius:RAD.sm,padding:"1px 6px"}}>
-                        <CareIcon name="repeat" size={10}/>{mm.repeat==="weekly"?"매주":"매월"}</span>}
+                        <CareIcon name="repeat" size={10}/>{({weekly:"매주",monthly:"매월",yearly:"매년"})[mm.repeat]||"반복"}</span>}
                       <span style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{mm.text}</span>
                     </span>
                     <span aria-hidden="true" style={{flexShrink:0,color:"#9CA3AF",marginTop:2,display:"flex"}}><CareIcon name="pencil" size={13}/></span>
@@ -389,67 +375,74 @@ export default function CalendarTab({
             </div>
           )}
 
+          {/* [사용자 확정 2026-11-27] 그날만 바뀐 준비물 — 달력 '준비물' 표시가 있는 날에만 한 줄.
+              더한 것은 '과목 물건', 늘 챙기던 걸 그날 뺀 것은 '빼기'로. 그날 실제로 가는 학원(dayPlan)만 본다. */}
+          {(()=>{
+            const seen=new Set(), added=[], removed=[];
+            dayPlan.filter(a=>!a._absent).forEach(a=>{
+              if(seen.has(String(a.id))) return; seen.add(String(a.id));
+              const e=getDailyEntry(childId,a.id,effSelDate);
+              const kind=acKindLabel?acKindLabel(a):a.name;
+              (e.supplies||[]).forEach(x=>added.push({kind,x}));
+              (e.hiddenBase||[]).forEach(x=>removed.push({kind,x}));
+            });
+            if(!added.length&&!removed.length) return null;
+            return (
+              <div style={{marginTop:memos.length?6:12,display:"flex",alignItems:"flex-start",gap:8,background:`${C.orange}0D`,border:`1px solid ${C.orange}33`,
+                borderRadius:RAD.md,padding:"9px 11px"}}>
+                <span style={{color:C.orange,marginTop:2,flexShrink:0,display:"flex"}}><CareIcon name="bag" size={14}/></span>
+                <span style={{flex:1,minWidth:0,fontSize:FS.body,color:C.text,lineHeight:1.5}}>
+                  <span style={{fontSize:FS.tag,fontWeight:FW.bold,color:C.orange,marginRight:6}}>{isTodaySel?"오늘만":"이날만"} 준비물</span>
+                  {added.map((it,i)=>(
+                    <span key={`a${i}`} style={{whiteSpace:"nowrap"}}>{i?<span style={{color:C.sub,margin:"0 4px"}}>·</span>:null}
+                      <span style={{fontSize:FS.tag,...SUB_LABEL,marginRight:3}}>{it.kind}</span><b style={{fontWeight:FW.semi}}>{it.x}</b></span>
+                  ))}
+                  {removed.length>0&&(
+                    <span style={{display:"block",marginTop:2,fontSize:FS.sub,...SUB_LABEL}}>
+                      빼기 · {removed.map(it=>`${it.kind} ${it.x}`).join(" · ")}
+                    </span>
+                  )}
+                </span>
+              </div>
+            );
+          })()}
+
           <div style={{marginTop:12}}>
-            {/* 학원비 납부일 */}
-            {feeDueOnSel.length>0&&(
-              <Banner color={th.main} bg={`${th.main}0A`}>
-                <div style={bnHead(th.main)}>
-                  <Mark kind="fee" size={9}/><span style={bnTitle}>학원비 납부일</span>
-                </div>
-                {feeDueOnSel.map(a=>{
-                  const paid=isFeePaidOn&&isFeePaidOn(a.id,selInfo.m+1);
-                  return (
-                    <div key={a.id} style={{display:"flex",alignItems:"center",gap:8,margin:"2px 0 0"}}>
-                      <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                        {a.name}
-                        <span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginLeft:6}}>{Number(a.fee).toLocaleString()}원</span>
-                      </span>
-                      <span style={{...bnChip,cursor:"default",
-                        background:paid?`${C.green}12`:`${C.orange}12`,color:paid?C.green:C.orange}}>
-                        {paid?"납부 완료":"미납"}
-                      </span>
-                    </div>
-                  );
-                })}
-              </Banner>
-            )}
-
-            {/* 휴원(방학) */}
+            {/* 알림 줄 — [사용자 확정 2026-11-27] 메모 줄과 같은 한 줄·둥근 테두리로 통일.
+                알림마다 은은한 색 배경은 그대로 두어 메모·학원과 구분한다.
+                한 줄 = [아이콘 라벨] 학원 이름 … (오른쪽 상태·버튼) */}
             {(()=>{
-              const vacOnDay=selInfo.acList.filter(a=>isVacationDay(childId,a.id,effSelDate));
-              if(vacOnDay.length===0) return null;
-              return (
-                <Banner color="#F0A500" bg="#FFF9EC">
-                  <div style={bnHead("#E65100")}>
-                    <CareIcon name="vacation" size={13}/><span style={bnTitle}>휴원 (방학)</span>
-                  </div>
-                  <p style={{margin:"2px 0 0",fontSize:FS.body,fontWeight:FW.semi,color:C.text}}>
-                    {vacOnDay.map(ac=>ac.name).join(" · ")}
-                  </p>
-                </Banner>
-              );
-            })()}
-
-            {/* 결석 */}
-            {selInfo.absOnDay.length>0&&(
-              <Banner color={C.red} bg={`${C.red}08`}>
-                <div style={bnHead(C.red)}>
-                  <CareIcon name="absent" size={13}/><span style={bnTitle}>결석</span>
+              const rows=[];
+              const Row=({k,color,bg,icon,mark,label,children,right})=>(
+                <div key={k} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,background:bg,border:`1px solid ${color}33`,
+                  borderRadius:RAD.md,padding:"8px 10px 8px 11px",minWidth:0}}>
+                  <span style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:5,fontSize:FS.tag,fontWeight:FW.bold,color,whiteSpace:"nowrap"}}>
+                    {mark?<Mark kind={mark} size={9}/>:<CareIcon name={icon} size={13}/>}{label}
+                  </span>
+                  <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{children}</span>
+                  {right}
                 </div>
-                {selInfo.absOnDay.map(ab=>{
-                  const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
-                  return (
-                    <div key={ab.id} style={{display:"flex",alignItems:"center",gap:8,margin:"2px 0 0"}}>
-                      <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                        {ac.name}{ab.reason&&<span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub}}> · {ab.reason}</span>}
-                      </span>
-                      {ac.phone&&<button onClick={()=>onSms(ac)} className="jelly-tap"
-                        style={{...bnChip,background:C.purpleL,color:C.purple}}>문자</button>}
-                    </div>
-                  );
-                })}
-              </Banner>
-            )}
+              );
+              /* 학원비 납부일 — 학원마다 한 줄 (낸 것·안 낸 것이 다르므로) */
+              feeDueOnSel.forEach(a=>{
+                const paid=isFeePaidOn&&isFeePaidOn(a.id,selInfo.m+1,selInfo.y);
+                rows.push(Row({k:`fee${a.id}`,color:th.main,bg:`${th.main}0A`,mark:"fee",label:"학원비",
+                  children:<>{a.name}<span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginLeft:6}}>{Number(a.fee).toLocaleString()}원</span></>,
+                  right:<span style={{...bnChip,cursor:"default",background:paid?`${C.green}12`:`${C.orange}12`,color:paid?C.green:C.orange}}>{paid?"납부 완료":"미납"}</span>}));
+              });
+              /* 휴원(방학) — 한 줄에 학원 이름을 이어서 */
+              const vacOnDay=selInfo.acList.filter(a=>isVacationDay(childId,a.id,effSelDate));
+              if(vacOnDay.length) rows.push(Row({k:"vac",color:"#E65100",bg:"#FFF9EC",icon:"vacation",label:"휴원",
+                children:vacOnDay.map(ac=>ac.name).join(" · ")}));
+              /* 결석 — 기록마다 한 줄 (사유는 이름 옆에 흐리게, 오른쪽에 문자) */
+              selInfo.absOnDay.forEach(ab=>{
+                const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return;
+                rows.push(Row({k:`abs${ab.id}`,color:C.red,bg:`${C.red}08`,icon:"absent",label:"결석",
+                  children:<>{ac.name}{ab.reason&&<span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub}}> · {ab.reason}</span>}</>,
+                  right:ac.phone?<button onClick={()=>onSms(ac)} className="jelly-tap" style={{...bnChip,background:C.purpleL,color:C.purple}}>문자</button>:null}));
+              });
+              return rows.length?<div style={{marginBottom:4}}>{rows}</div>:null;
+            })()}
 
             {/* 학원·보충 — 시간순 한 줄 (홈과 겹치는 내용이라 접어 두고, 누르면 펼친다) */}
             {dayPlan.map(ac=>{
