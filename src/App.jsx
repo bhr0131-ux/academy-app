@@ -4965,6 +4965,25 @@ export default function App() {
           <div style={{position:"absolute",top:-30,right:30,width:90,height:90,borderRadius:"50%",background:`${th.main}1f`,pointerEvents:"none"}}/>
           <div style={{position:"absolute",bottom:-24,left:-10,width:70,height:70,borderRadius:"50%",background:GP.bubble,pointerEvents:"none"}}/>
           </>}
+          {/* [사용자 확정 2026-11-27] 맨 위 상태바 — 코인 · 점수 · 연속달성을 반투명 흰 알약 한 줄로.
+              아래 인사말·원형 버튼들은 이 줄 높이만큼(약 48px) 자연스럽게 내려간다. 캐릭터 발밑 Lv·상장은 그대로. */}
+          <div style={{display:"flex",justifyContent:"center",marginBottom:14,position:"relative",pointerEvents:"none"}}>
+            <div role="status" aria-label={`${TM.coin} ${getChildCoin(childId).toLocaleString()}, ${TM.xp} ${getChildXP(childId).toLocaleString()}${TM.xpUnit}, 연속 ${getQuestStreak(childId)}일`}
+              style={{display:"inline-flex",alignItems:"center",gap:12,padding:"6px 14px",borderRadius:999,background:"rgba(255,255,255,0.85)",
+                backdropFilter:"blur(6px)",WebkitBackdropFilter:"blur(6px)",boxShadow:"0 2px 10px rgba(60,50,40,0.14)",border:"1px solid rgba(255,255,255,0.9)",
+                fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:14,color:"#4E3B26",whiteSpace:"nowrap",maxWidth:"100%",boxSizing:"border-box"}}>
+              {[
+                {e:TM.coinEmoji,t:getChildCoin(childId).toLocaleString()},
+                {e:TM.xpEmoji,t:`${getChildXP(childId).toLocaleString()}${TM.xpUnit}`},
+                {e:"🔥",t:`${getQuestStreak(childId)}일`},
+              ].map((it,i)=>(
+                <Fragment key={i}>
+                  {i>0&&<span aria-hidden="true" style={{width:1,height:12,background:"rgba(78,59,38,0.18)"}}/>}
+                  <span style={{display:"inline-flex",alignItems:"center",gap:4}}><EmojiIcon emoji={it.e} size={15}/>{it.t}</span>
+                </Fragment>
+              ))}
+            </div>
+          </div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:kidSkin==="cute"?"center":"flex-start",position:"relative",pointerEvents:"auto"}}>
             {kidSkin==="cute" ? (
             <div style={{display:"flex",alignItems:"center",gap:11}}>
