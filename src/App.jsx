@@ -2054,22 +2054,30 @@ export default function App() {
     openExternal(`https://map.naver.com/p/search/${encodeURIComponent(q)}`,{noPin:true});   // 지도는 비밀번호 없이 (사용자 확정 2026-11-26)
   };
 
+  /* 주소록에서 선생님 연락처 가져오기 (브라우저 Contact Picker — 안드로이드 크롬 등에서만 된다)
+     [버그 수정 2026-11-27] 주소록 화면에서 연락처를 누르지 않고 '완료'를 누르면 빈 목록이 돌아오는데,
+     그때 아무 말 없이 끝나서 "안 가져와진다"로 보였다 → 고르는 방법을 알려 준다.
+     번호는 비어 있지 않은 첫 번호를 쓰고, 이름·번호의 앞뒤 공백을 정리한다. */
   const pickTeacherContact=async()=>{
     if(!("contacts" in navigator)||!navigator.contacts?.select){
       showToast("이 기기에서는 주소록 불러오기를 지원하지 않아요");
       return;
     }
+    let contacts;
     try {
-      const contacts=await navigator.contacts.select(["name","tel"],{multiple:false});
-      const contact=contacts?.[0];
-      if(!contact) return;
-      const name=Array.isArray(contact.name)?contact.name[0]:contact.name;
-      const tel=Array.isArray(contact.tel)?contact.tel[0]:contact.tel;
-      setNewAc(prev=>({...prev,teacher:name||prev.teacher,phone:tel||prev.phone}));
-      showToast("주소록에서 가져왔어요 📞");
+      contacts=await navigator.contacts.select(["name","tel"],{multiple:false});
     } catch(e) {
-      showToast("주소록 선택을 취소했어요");
+      showToast("주소록을 열지 못했어요. 다시 눌러 주세요",2400);
+      return;
     }
+    const contact=contacts?.[0];
+    if(!contact){ showToast("연락처를 한 번 눌러 ✓ 표시가 생긴 뒤 '완료'를 눌러 주세요",3200); return; }
+    const pick=(v)=>(Array.isArray(v)?v:[v]).map(x=>String(x||"").trim()).find(Boolean)||"";
+    const name=pick(contact.name);
+    const tel=pick(contact.tel);
+    if(!name&&!tel){ showToast("이 연락처에는 이름·번호가 없어요",2400); return; }
+    setNewAc(prev=>({...prev,teacher:name||prev.teacher,phone:tel||prev.phone}));
+    showToast(tel?"주소록에서 가져왔어요 📞":"이름만 가져왔어요 — 번호가 없는 연락처예요",2400);
   };
 
   const changeParentPin=()=>{
