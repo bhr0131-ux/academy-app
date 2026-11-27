@@ -61,7 +61,7 @@ import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import DiscoveryMemo from "./components/DiscoveryMemo.jsx";
 import PageFlip from "./components/PageFlip.jsx";
 import { GameEventModal, TreasureResultModal } from "./components/KidGameModals.jsx";
-import { STREAK_SHIELD_KEY, STREAK_SHIELD_PRICE, normShield, countStreak, applyAutoShield, findRecoverableMiss, applyShieldPurchase } from "./data/streakShield.js";
+import { STREAK_SHIELD_KEY, STREAK_SHIELD_PRICE, normShield, countStreak, applyAutoShield, answerShieldAsk, findRecoverableMiss, applyShieldPurchase } from "./data/streakShield.js";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   LEGACY_AVATAR_OWNED_KEY, computeAvatarMigration,
@@ -3789,28 +3789,49 @@ export default function App() {
     return countStreak(states,earliest,TODAY,getShield(cid).protected,TODAY);
   };
 
-  /* 🛡️ 보호권 자동 사용 — 앱을 켤 때·날짜가 바뀔 때·미션이 바뀔 때, 아이마다 어제까지 놓친 날을 따져
-     보호권이 있으면 1개씩 써서 그날을 지킨다(규칙은 applyAutoShield). 처음 따질 때는 기준일만 잡는다. */
+  /* 🛡️ 미리 사 둔 보호권 — [사용자 확정 2026-11-27] 쓰기 전에 팝업으로 물어본다.
+     앱을 켤 때·날짜가 바뀔 때·미션이 바뀔 때 아이마다 어제까지 놓친 날을 따져(applyAutoShield)
+     지킬 수 있는 날을 pending 에 올리고, pending 마다 '쓸까요?' 팝업을 게임 이벤트 큐에 한 번씩 넣는다.
+     답하기 전에 앱을 끄면 다음에 켤 때 다시 묻는다(pending 은 저장된다). */
+  const shieldAskedRef=useRef(new Set());   // 이번 실행에서 이미 큐에 넣은 질문 (cid|날짜)
   useEffect(()=>{
     if(!loaded||!shieldData) return;
     const cur=shieldRef.current||{};
-    let next=null; const msgs=[];
+    let next=null;
     for(const c of children){
       const {states,earliest}=buildDayStates(c.id);
       const r=applyAutoShield(states,earliest,cur[c.id],TODAY);
       const before=normShield(cur[c.id]);
-      if(r.next.checkedThrough===before.checkedThrough&&r.saved.length===0) continue;
-      next={...(next||cur),[c.id]:r.next};
-      if(r.saved.length){
-        const days=r.saved[r.saved.length-1].days;
-        msgs.push(`${children.length>1?c.name+" ":""}${days}일`);
+      if(r.next.checkedThrough!==before.checkedThrough||r.asked.length) next={...(next||cur),[c.id]:r.next};
+    }
+    if(next){ setShieldData(next); return; }   // 저장 뒤 다시 돌면서 아래에서 묻는다
+    for(const c of children){
+      const rec=normShield(cur[c.id]);
+      for(const date of rec.pending){
+        const key=`${c.id}|${date}`;
+        if(shieldAskedRef.current.has(key)) continue;
+        shieldAskedRef.current.add(key);
+        const {states,earliest}=buildDayStates(c.id);
+        const days=countStreak(states,earliest,addDays(date,-1),rec.protected,TODAY);
+        const [,mm,dd]=date.split("-").map(Number);
+        showGameEvent({type:"shield",emoji:"🛡️",cid:c.id,date,
+          title:"연속 보호권을 쓸까요?",
+          name:`${children.length>1?c.name+" · ":""}${mm}월 ${dd}일 미션을 놓쳤어요`,
+          desc:`보호권을 쓰면 연속 ${days}일 기록이 끊기지 않고 이어져요.\n안 쓰면 연속 기록이 처음부터 다시 시작해요.`,
+          reward:`🛡️ 가진 보호권 ${rec.count}개`});
       }
     }
-    if(!next) return;
-    setShieldData(next);
-    if(msgs.length) showToast(`🛡️ 연속 보호권으로 ${msgs.join(" · ")} 기록을 지켰어요!`,3000);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[loaded,shieldData,children,dailyData,dayStamp]);
+  /* 팝업 답 — yes 면 보호권 1개를 써서 그날을 지킨다 */
+  const answerShield=(ev,yes)=>{
+    if(!ev||!ev.cid||!ev.date||!shieldRef.current) return;
+    const {states,earliest}=buildDayStates(ev.cid);
+    const r=answerShieldAsk(states,earliest,(shieldRef.current||{})[ev.cid],ev.date,yes,TODAY);
+    setShieldData(prev=>({...(prev||{}),[ev.cid]:r.next}));
+    if(r.used) showToast(`🛡️ 연속 보호권으로 ${r.days}일 기록을 지켰어요!`,2600);
+    else if(yes) showToast("가진 보호권이 없어요",2000);
+  };
 
   /* 어제 하루만 놓쳐 끊긴 기록 — 지금 보호권을 사면 살릴 수 있는가 (상점 카드 안내용) */
   const getShieldRescue=(cid)=>{
@@ -6145,7 +6166,7 @@ export default function App() {
       {/* ── 통합 게임 이벤트 모달 ── */}
       {/* 통합 게임 이벤트 팝업 — src/components/KidGameModals.jsx. 큐에서 한 번에 1개만 꺼내 그린다(위 effect). */}
       <GameEventModal ev={eventModal} more={eventQueue.length} cute={kidSkin==="cute"} th={th} GP={GP}
-        onClose={()=>setEventModal(null)} onWearGear={wearGrowthGear} />
+        onClose={()=>setEventModal(null)} onWearGear={wearGrowthGear} onShield={answerShield} />
 
       </div>
     );
