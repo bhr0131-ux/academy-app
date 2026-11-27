@@ -282,7 +282,7 @@ export default function EquipmentShop({
     bar = { label: "마음에 드는 걸 골라보세요", tone: "mute", onPress: null };
   } else if (!selOwned && selGrowthLv) {
     bar = { label: `🔒 Lv.${selGrowthLv} 달성 선물`, tone: "mute", onPress: null,
-            note: `🎁 Lv.${selGrowthLv}이 되면 자동으로 받아요 (지금 Lv.${level})` };
+            note: `🎁 Lv.${selGrowthLv} 달성하면 자동으로 받아요 (지금 Lv.${level})` };
   } else if (!selOwned) {
     bar = selAfford
       ? { label: `${coinEmoji} ${sel.price}에 구매`, tone: "go", onPress: () => onBuy && onBuy(sel.id) }

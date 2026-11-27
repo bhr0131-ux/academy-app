@@ -1048,8 +1048,9 @@ export const normalizeEquipped = (equippedMap, ownedList) => {
    다시 입히지 않아서, 아이가 벗거나 갈아입은 선택을 덮어쓰지 않는다. */
 export const GROWTH_GEAR_KEY = "v6_growth_gear_granted";   // { [childId]: string[] }
 export const GROWTH_GEAR = {
-  boy:  { 1: ["top_vest"], 2: ["shoes_jungle"],     3: ["hat_safari_boy"], 4: ["back_xpack_boy", "neck_camera"],        5: ["hand_kickboard"] },
-  girl: { 1: ["top_vest"], 2: ["shoes_wildflower"], 3: ["hat_safari"],     4: ["back_crossbag_girl", "hand_umbrella_girl"], 5: ["hand_kickboard"] },
+  /* [사용자 확정 2026-11-27] 해금 레벨 = 진화 단계 시작 레벨(CHARACTER_EVOLUTIONS minLevel 1·5·9·13·17) */
+  boy:  { 1: ["top_vest"], 5: ["shoes_jungle"],     9: ["hat_safari_boy"], 13: ["back_xpack_boy", "neck_camera"],        17: ["hand_kickboard"] },
+  girl: { 1: ["top_vest"], 5: ["shoes_wildflower"], 9: ["hat_safari"],     13: ["back_crossbag_girl", "hand_umbrella_girl"], 17: ["hand_kickboard"] },
 };
 const GROWTH_GEAR_IDS = new Set(Object.values(GROWTH_GEAR).flatMap(t => Object.values(t).flat()));
 /** 레벨 보상 장비인가 (성별 무관 — 남녀 어느 표에든 있으면 상점 판매 제외) */
