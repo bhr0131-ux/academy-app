@@ -43,7 +43,7 @@ export default function StreakShieldCard({ count = 0, price = 150, coin = 0, res
       <ul style={{ margin: "11px 0 0", padding: "9px 12px 9px 26px", listStyle: "disc", borderRadius: 12,
         background: cute ? C.faint : "#FBF4E2", border: `1px solid ${cute ? C.border : "#EFE1BC"}`,
         fontSize: 12, fontWeight: 700, color: sub, lineHeight: 1.6, wordBreak: "keep-all" }}>
-        <li>미리 사두면 미션을 놓친 날 자동으로 1회 사용돼요.</li>
+        <li>미리 사두면 미션을 놓친 날, 쓸지 한 번 물어보고 1개를 사용해요.</li>
         <li>어제 하루만 놓쳤을 때도 구매하면 바로 기록을 이어갈 수 있어요.</li>
         <li>이틀 이상 연속으로 빠진 기록은 복구할 수 없어요.</li>
       </ul>

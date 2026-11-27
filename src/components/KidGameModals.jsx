@@ -29,6 +29,7 @@ const EX_HEAD = {
   box:      { bg: "linear-gradient(160deg,#FFF1CC 0%,#EEC679 100%)", ink: "#5A3A12" },
   title:    { bg: "linear-gradient(160deg,#FFEFC2 0%,#EAC06A 100%)", ink: "#5A3A12" },
   gear:     { bg: "linear-gradient(160deg,#E6F4D8 0%,#A9D08B 100%)", ink: "#2E4E1C" },
+  shield:   { bg: "linear-gradient(160deg,#E3EFFB 0%,#A9C9EC 100%)", ink: "#1F3D63" },
   treasure: { bg: "linear-gradient(160deg,#FFF0C4 0%,#E8BE63 100%)", ink: "#5A3A12" },
 };
 /* 상자 등급별 헤더(데이터의 원색 그라데이션) → 탐험 팝업용 부드러운 톤 */
@@ -158,9 +159,10 @@ function CertCard({ ev, cute, onClose, more }) {
 /* ── 통합 게임 이벤트 팝업 (레벨업·진화·상자 획득·펫·성장 장비) ─────────────── */
 /* props: ev(지금 띄울 이벤트 1개), more(뒤에 남은 개수), cute, th, GP,
           onClose(), onWearGear(ev) — 성장 장비 '바로 갈아입기' */
-export function GameEventModal({ ev, more = 0, cute, th, GP, onClose, onWearGear }) {
+export function GameEventModal({ ev, more = 0, cute, th, GP, onClose, onWearGear, onShield }) {
   if (!ev) return null;
   const gear = ev.type === "gear";
+  const shield = ev.type === "shield";   // 🛡️ 연속 보호권 쓸까요? (2026-11-27)
   const head = cute ? null : (EX_HEAD[ev.type] || EX_HEAD.level);
   const cuteHead = ev.type === "level"
     ? `linear-gradient(135deg, ${th.main}, ${mixWhite(th.main, 0.4)})`
@@ -203,7 +205,13 @@ export function GameEventModal({ ev, more = 0, cute, th, GP, onClose, onWearGear
             {ev.reward && (cute
               ? <div style={{ background: mixWhite(th.main, 0.86), border: `1px solid ${mixWhite(th.main, 0.6)}`, color: mixBlack(th.main, 0.25), borderRadius: 14, padding: "11px 12px", fontSize: 13, fontWeight: 900, marginBottom: 16, lineHeight: 1.5 }}>{lines(ev.reward)}</div>
               : <InfoCard style={{ marginBottom: 16 }}>{lines(ev.reward)}</InfoCard>)}
-            {gear && ev.held && ev.held.length > 0 ? (
+            {shield ? (
+              /* 답을 고르기 전엔 닫히지 않는다 — 두 버튼 중 하나 */
+              <div style={{ display: "flex", gap: 8 }}>
+                <ExButton tone="sub" onClick={() => { onShield && onShield(ev, false); onClose(); }} style={{ flex: 1, fontSize: 14 }}>안 쓸래요</ExButton>
+                <ExButton onClick={() => { onShield && onShield(ev, true); onClose(); }} style={{ flex: 1, fontSize: 14 }}>🛡️ 보호권 쓰기</ExButton>
+              </div>
+            ) : gear && ev.held && ev.held.length > 0 ? (
               /* 그 칸에 산 꾸미기를 입고 있으면 덮어쓰지 않고 고르게 한다 */
               <div style={{ display: "flex", gap: 8 }}>
                 <ExButton tone="sub" onClick={onClose} style={{ flex: 1, fontSize: 14 }}>옷장에 넣어두기</ExButton>
