@@ -186,6 +186,9 @@ export default function ParentHomeTab({
             go:()=>onOpenSupplyCheck(tomorrow)});
           if(pendingRewardCnt>0) alerts.push({icon:"reward",name:"보상 승인",items:pendingRewards.map(r=>r.title),label:`보상승인 ${pendingRewardCnt}개`,color:C.green,
             go:onGoReward});
+          /* [사용자 확정 2026-11-27] 휴원 배너 대신 여기 한 줄 — 누르면 캘린더(그날 상세)로 */
+          if(vacAcToday.length>0) alerts.push({icon:"vacation",name:"휴원",items:vacAcToday.map(a=>acKindLabel(a)),label:`휴원 ${vacAcToday.length}곳`,color:"#E65100",
+            go:()=>onGoMemo?onGoMemo():onGoTab("calendar")});   /* 메모 줄과 같은 이동 — 캘린더에서 이 날짜를 연다 */
           if(absOnHome.length>0) alerts.push({icon:"absent",name:"결석",items:absOnHome.map(a=>acName(a.academyId)).filter(Boolean),label:`결석 ${absOnHome.length}개`,color:C.red,
             go:()=>onGoTab("absence")});
           if(makeupOnHome.length>0) alerts.push({icon:"makeup",name:"보충수업",items:makeupOnHome.map(a=>acName(a.academyId)).filter(Boolean),label:`보충수업 ${makeupOnHome.length}개`,color:C.orange,
@@ -349,78 +352,12 @@ export default function ParentHomeTab({
 
       </div>
 
-      {/* 방학 중인 학원 표시 */}
-      {vacAcToday.length>0&&(
-        /* [사용자 확정 2026-08-10] 이 알림 세 칸(방학·결석·보충)만 글자가 17px이라
-           카드·칩(12~15px) 사이에서 혼자 튀었다. 달력 상세 카드와 같은 크기로 맞춘다.
-           제목 12.5/900 + 본문 13/700, 이모지는 선 아이콘. */
-        /* [사용자 확정 2026-08-10] 알림 세 종류(휴원·결석·보충)는 학원 카드와 헷갈리지 않게
-           얇은 배너로 통일한다 — 테두리 상자 대신 왼쪽 세로선 하나, 배경은 아주 옅게. */
-        <div style={{display:"flex",gap:10,background:"#FFF9EC",borderRadius:RAD.sm,marginBottom:18,overflow:"hidden"}}>
-          <div style={{width:3,background:"#F0A500",flexShrink:0}}/>
-          <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,color:"#E65100"}}>
-              <CareIcon name="vacation" size={13}/><span style={{fontSize:FS.tag,fontWeight:FW.bold}}>휴원 (방학)</span>
-            </div>
-            <p style={{margin:"2px 0 0",fontSize:FS.body,fontWeight:FW.semi,color:C.text}}>{vacAcToday.map(a=>a.name).join(" · ")}</p>
-          </div>
-        </div>
-      )}
+      {/* (2026-11-27 사용자 확정) 휴원·결석·보충 배너는 뺐다 — '오늘 챙길 일'의 휴원·결석·보충수업 줄과 아래 학원 목록이 같은 내용을 보여 준다 */}
 
       {/* (이동됨) '학원 일정이 없어요' 빈 칸 — 예전엔 학원 칸 '위'에 따로 있었다.
           [사용자 확정 2026-08-16] 오늘의 학원/등록 학원 토글이 생기면서, 빈 칸도
           그 토글 아래 '학원 카드 자리'로 내려갔다. 아래 학원 칸에서 그린다. */}
 
-      {/* 결석 표시 */}
-      {absOnHome.length>0&&(
-        <div style={{display:"flex",gap:10,background:`${C.red}08`,borderRadius:RAD.sm,marginBottom:18,overflow:"hidden"}}>
-          <div style={{width:3,background:C.red,flexShrink:0}}/>
-          <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,color:C.red}}>
-              <CareIcon name="absent" size={13}/><span style={{fontSize:FS.tag,fontWeight:FW.bold}}>결석</span>
-            </div>
-            {absOnHome.map(ab=>{
-              const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
-              return (
-                <p key={ab.id} style={{fontSize:FS.body,fontWeight:FW.semi,color:C.text,margin:"2px 0 0"}}>
-                  {ac.name}{ab.reason&&<span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub}}> · {ab.reason}</span>}
-                </p>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* 보충수업 표시 */}
-      {makeupOnHome.length>0&&(
-        /* [사용자 확정 2026-08-10] 보충수업 카드가 학원 카드만큼 커서 정규 일정으로 착각하기 쉬웠다.
-           왼쪽 주황 세로선 + 두 줄짜리 얇은 배너로 줄이고, 결석일도 '8월 8일 결석분'으로 자연스럽게. */
-        <div style={{display:"flex",gap:10,background:`${C.orange}0A`,borderRadius:RAD.sm,marginBottom:18,overflow:"hidden"}}>
-          <div style={{width:3,background:C.orange,flexShrink:0}}/>
-          <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>
-          {makeupOnHome.map((ab,mi)=>{
-            const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
-            const mt=makeupTimeText(ab);
-            const [,am,ad]=ab.date.split("-").map(Number);
-            return (
-              <div key={ab.id} style={{marginTop:mi?7:0}}>
-                <div style={{display:"flex",alignItems:"center",gap:6,color:C.orange}}>
-                  <CareIcon name="makeup" size={13}/>
-                  <span style={{fontSize:FS.tag,fontWeight:FW.bold}}>보충수업</span>
-                  <span style={{fontSize:FS.tag,fontWeight:FW.semi,color:C.sub,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>· {ac.name}</span>
-                  {ab.makeupStatus==="absent"&&<span style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,color:C.red}}>불참</span>}
-                  {ab.makeupStatus==="done"&&<span style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,color:C.green}}>완료</span>}
-                </div>
-                <p style={{fontSize:FS.body,fontWeight:FW.semi,color:C.text,margin:"2px 0 0"}}>
-                  {dayTag||`${hd.getMonth()+1}월 ${hd.getDate()}일`}{mt&&` ${mt}`}
-                  <span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginLeft:7}}>{am}월 {ad}일 결석분</span>
-                </p>
-              </div>
-            );
-          })}
-          </div>
-        </div>
-      )}
 
       {/* ── 학원 칸 머리 — '오늘 가는 학원 / 전체 학원' 토글 (사용자 확정 2026-09-28 개편) ──
              학원 탭을 따로 두지 않고 이 자리에서 바꿔 본다. 위(날짜·오늘 챙길 일)와
