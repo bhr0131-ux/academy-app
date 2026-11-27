@@ -5146,7 +5146,8 @@ export default function App() {
                 </h1>
               );
             })()}
-            <div style={{display:"flex",flexDirection:"column",gap:kidSkin==="cute"?7:9,alignItems:kidSkin==="cute"?"stretch":"flex-end"}}>
+            {/* [사용자 확정 2026-11-27] 상단 상태바와 띄우고 왼쪽 인사말 높이와 맞추려 탐험 뱃지 묶음을 16px 내림 */}
+            <div style={{display:"flex",flexDirection:"column",gap:kidSkin==="cute"?7:9,alignItems:kidSkin==="cute"?"stretch":"flex-end",marginTop:kidSkin==="cute"?0:16}}>
               {/* [탐험] 사용자 원화 원형 뱃지 버튼 2종 위아래 배치 (엄마용 / 아이 전환) — 베이커리는 기존 칩·셀렉트 유지
                   [사용자 확정 2026-09-28] 보호자 호칭(엄마/아빠)에 맞춰 뱃지 그림 자체가 바뀐다 —
                   btn-parent.webp(엄마모드) / btn-parent-dad.webp(아빠모드), 둘 다 그림 안에 글자가
@@ -5334,7 +5335,9 @@ export default function App() {
                         fullBleed
                         onPick={setJournalAcId}
                         mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
-                        charEmoji={getMapWalker(th.main, curChild?.gender)}
+                        /* [사용자 확정 2026-11-27] 지도 위 아이 = 성장 캐릭터 원화(성별·진화 단계 연동, 투명 배경) */
+                        charEmoji={(kidSkin==="cute"?BAKERY_CHAR_IMG:ADV_CHAR_IMG)[curChild?.gender==="girl"?"girl":"boy"]?.[ADV_CHAR_STAGE_OF(getChildLevel(childId).level)]||getMapWalker(th.main, curChild?.gender)}
+                        charPlain
                         /* (삭제됨) 아이 머리 위 발견 말풍선(bubble) — 무대의 발견 한 줄과
                            중복이라 뺐다 (사용자 확정). 발견 표시는 발견 지점 칩이 계속 맡는다. */
                         spark={(()=>{
@@ -5407,7 +5410,9 @@ export default function App() {
                       <AdventureMap
                         items={ringItems}
                         mode={isChildToday?"today":(childDate<TODAY?"past":"future")}
-                        charEmoji={getMapWalker(th.main, curChild?.gender)}
+                        /* [사용자 확정 2026-11-27] 지도 위 아이 = 성장 캐릭터 원화(성별·진화 단계 연동, 투명 배경) */
+                        charEmoji={(kidSkin==="cute"?BAKERY_CHAR_IMG:ADV_CHAR_IMG)[curChild?.gender==="girl"?"girl":"boy"]?.[ADV_CHAR_STAGE_OF(getChildLevel(childId).level)]||getMapWalker(th.main, curChild?.gender)}
+                        charPlain
                       />
                       )}
                     </div>

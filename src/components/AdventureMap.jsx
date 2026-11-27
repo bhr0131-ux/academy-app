@@ -339,7 +339,7 @@ const toMin = (t = "") => { const [h, m] = String(t).split(":").map(Number); ret
 const isImg = (s) => typeof s === "string" && s.includes("assets/");
 
 // onPick: 학원 건물 탭 → 탐험일지에 해당 학원 표시 (App이 setJournalAcId 전달)
-export default function AdventureMap({ items = [], mode = "today", charEmoji = "", fullBleed = false, onPick, spark = null, onSparkPass = null, eventId = null, dayAnimals = [], showRainbow = false, dayKey = "" }) {
+export default function AdventureMap({ items = [], mode = "today", charEmoji = "", charPlain = false, fullBleed = false, onPick, spark = null, onSparkPass = null, eventId = null, dayAnimals = [], showRainbow = false, dayKey = "" }) {
   /* [사용자 확정 2026-08-13] time 은 '이름표에 찍는 글자'(14:00 · 보충 14:00 · 보충)이고,
      시각 계산은 at(HH:MM)으로 한다 — 보충은 글자와 실제 시각이 다르기 때문이다.
      at 이 없는 예전 호출은 time 을 그대로 시각으로 읽는다(그때는 둘이 같았다). */
@@ -907,9 +907,13 @@ export default function AdventureMap({ items = [], mode = "today", charEmoji = "
       {/* ── 캐릭터 — 항상 길 위 (폴리라인 보간 위치) ── */}
       <div style={{ position: "absolute", left: `${cx}%`, top: `${cy}%`, transform: "translate(-50%,-86%)", animation: "amBob 2.4s ease-in-out infinite", pointerEvents: "none", zIndex: 3 }}>
         {isImg(charEmoji)
-          ? <img src={charEmoji} alt="" draggable={false} style={{ height: 68, width: "auto", display: "block", filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 4px 5px rgba(60,80,40,0.35))" }} />
+          /* charPlain: 성장 캐릭터 원화 — 테두리 빛·그림자 필터 없이 캐릭터만, 그림자는 발밑 타원 하나 (2026-11-27) */
+          ? <img src={charEmoji} alt="" draggable={false} style={{ height: 68, width: "auto", display: "block",
+              filter: charPlain ? "none" : "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 4px 5px rgba(60,80,40,0.35))" }} />
           : <span style={{ fontSize: 32, lineHeight: 1, display: "block", filter: "drop-shadow(0 0 2px rgba(255,251,240,0.9)) drop-shadow(0 4px 5px rgba(60,80,40,0.35))" }}>{charEmoji || "🦸"}</span>}
-        <div style={{ width: 22, height: 6, borderRadius: "50%", background: "rgba(60,80,40,0.3)", filter: "blur(2.5px)", margin: "-2px auto 0" }} />
+        <div style={charPlain
+          ? { width: 30, height: 7, borderRadius: "50%", background: "rgba(60,80,40,0.2)", filter: "blur(3px)", margin: "-4px auto 0" }
+          : { width: 22, height: 6, borderRadius: "50%", background: "rgba(60,80,40,0.3)", filter: "blur(2.5px)", margin: "-2px auto 0" }} />
       </div>
     </div>
   );
