@@ -61,6 +61,7 @@ import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import DiscoveryMemo from "./components/DiscoveryMemo.jsx";
 import PageFlip from "./components/PageFlip.jsx";
 import { GameEventModal, TreasureResultModal } from "./components/KidGameModals.jsx";
+import { STREAK_SHIELD_KEY, STREAK_SHIELD_PRICE, normShield, countStreak, applyAutoShield, findRecoverableMiss, applyShieldPurchase } from "./data/streakShield.js";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   LEGACY_AVATAR_OWNED_KEY, computeAvatarMigration,
@@ -400,6 +401,9 @@ export default function App() {
   const [decorPrices,      setDecorPrices]      = useState(initProgress.decorPrices);
   const [unlockedBadgeIds, setUnlockedBadgeIds] = useState(initProgress.unlockedBadgeIds);
   const [bestStreakData,   setBestStreakData]   = useState(initProgress.bestStreakData);
+  /* 🛡️ 연속 보호권 (새 키 v6_streak_shield, 2026-11-27) — { [childId]: {count, protected[], checkedThrough} }
+     null = 불러오기 전(자동 사용 판단을 하지 않는다) */
+  const [shieldData,       setShieldData, shieldRef] = useSyncState(null);
 
   // ── 도메인 F: sms (문자/템플릿) ──────────────────────────────────
   const [templates,    setTemplates]    = useState(initSms.templates);
@@ -959,6 +963,8 @@ export default function App() {
       if(tipSeen) setFirstTipSeen(true);
       const pinHint=await load("v6_pin_hint_seen");
       if(pinHint) setPinHintSeen(true);
+      const shieldD=await load(STREAK_SHIELD_KEY);
+      setShieldData(shieldD&&typeof shieldD==="object"?shieldD:{});
       const gGranted=await load(GROWTH_GEAR_KEY);
       setGrowthGranted(gGranted&&typeof gGranted==="object"?gGranted:{});
       const gRefund=await load(GROWTH_REFUND_KEY);
@@ -1004,7 +1010,7 @@ export default function App() {
      지난 날짜를 일부러 열어 둔 경우에는 건드리지 않는다.
      저장하지 않는다(새 키 없음). */
   /* 값은 안 쓴다 — 날짜가 바뀐 걸 알리려고 화면을 다시 그리게 하는 용도다. */
-  const [,setDayStamp]=useState(TODAY);
+  const [dayStamp,setDayStamp]=useState(TODAY);
   useEffect(()=>{
     const check=()=>{
       const prev=TODAY;
@@ -1285,6 +1291,7 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_earned_titles",earnedTitleIds); },[earnedTitleIds,loaded]);
   useEffect(()=>{ if(loaded) save("v6_special_titles",specialTitles); },[specialTitles,loaded]);
   useEffect(()=>{ if(loaded) save("v6_best_streak",bestStreakData); },[bestStreakData,loaded]);
+  useEffect(()=>{ if(loaded&&shieldData) save(STREAK_SHIELD_KEY,shieldData); },[shieldData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_owned_decor",ownedDecor); },[ownedDecor,loaded]);
   useEffect(()=>{ if(loaded) save("v6_equipped_decor",equippedDecor); },[equippedDecor,loaded]);
   useEffect(()=>{ if(loaded) save("v6_decor_prices",decorPrices); },[decorPrices,loaded]);
@@ -1878,6 +1885,7 @@ export default function App() {
     setSkinByChild(prev=>({...prev,[cid]:undefined}));
     // 연속기록·마지막 레벨 기록도 초기화
     setBestStreakData(prev=>({...prev,[cid]:0}));
+    setShieldData(prev=>{ const n={...(prev||{})}; delete n[cid]; return n; });   // 보호권도 함께
     setLastLevelByChild(prev=>({...prev,[cid]:undefined}));
     setAvatarOwned(prev=>({...prev,[cid]:normalizeOwned([])}));
     setAvatarEquipped(prev=>({...prev,[cid]:getDefaultEquipped()}));
@@ -1907,7 +1915,7 @@ export default function App() {
     setUnlockedBadgeIds([]); setLastLevelByChild({});
     setSelectedTitles({}); setTreasureData({}); setSeenTitles({});
     setEarnedTitleIds({});
-    setSpecialTitles({}); setBestStreakData({}); setVacations({});
+    setSpecialTitles({}); setBestStreakData({}); setShieldData({}); setVacations({});
     /* [버그 수정 2026-08-15] 아래 네 가지가 빠져 있었다. clearAllStorage 가 저장소는
        비우지만 화면(메모리) 값은 그대로 남아, 초기화 뒤에 발견을 하나 하거나 값이
        바뀌는 순간 예전 것이 통째로 다시 저장됐다 — 지운 도감이 되살아난다. */
@@ -2135,6 +2143,7 @@ export default function App() {
       skinByChild,
       specialTitles,
       bestStreakData,
+      streakShield:shieldData||{},
       vacations,
       templates,
       parentPin,
@@ -2268,6 +2277,7 @@ export default function App() {
         setSkinByChild(data.skinByChild||{});
         setSpecialTitles(data.specialTitles||{});
         setBestStreakData(data.bestStreakData||{});
+        if(data.streakShield!==undefined) setShieldData(data.streakShield||{});   // 보호권이 없던 옛 백업이면 지금 값 유지
         setVacations(data.vacations||{});
         setTemplates(data.templates||SAMPLE_TMPL);
         setParentPin(data.parentPin||"1234");
@@ -2844,7 +2854,7 @@ export default function App() {
     [setAcademies,setAbsences,setScoreData,setRewardRequests,setRewardData,
      setTreasureData,setPetData,setSkinByChild,setSelectedTitles,setSeenTitles,setEarnedTitleIds,
      setSpecialTitles,setBestStreakData,setLastLevelByChild,setOwnedDecor,setEquippedDecor,
-     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData,setMissionRules,setMemoList,setGrowthGranted].forEach(dropKey);
+     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData,setMissionRules,setMemoList,setGrowthGranted,setShieldData].forEach(dropKey);
 
     /* 열쇠 앞머리에 아이 id 가 붙는 저장소 — 접두어로 지운다.
          일별 미션   dailyData[`아이-학원-날짜`]     (dKey)
@@ -3743,36 +3753,82 @@ export default function App() {
     return true;
   };
 
-  /* 연속 달성 일수 — 오늘부터 하루씩 거슬러 올라가며 센다.
-     [사용자 확정 2026-11-27] 그날 해야 할 미션이 아예 0개인 날은 '쉬는 날'로 보고 건너뛴다
-     (끊지도, +1 하지도 않는다). +1 은 미션이 있는 날 전부 완료했을 때만.
-     미션이 있는데 실패했거나 못 끝낸 날을 만나면 거기서 멈춘다(오늘도 같다 — 예전 그대로).
-     날짜별 성공 여부는 한 번에 모아 둔다 — 빈 날을 건너뛰느라 날마다 전체를 다시 훑지 않게.
-     기록이 있는 가장 이른 날보다 앞으로는 가지 않는다(무한히 거슬러 가지 않게). */
-  const getQuestStreak=(cid)=>{
+  /* 날짜별 미션 상태 — { states: {날짜: "ok"|"miss"|"open"}, earliest }
+     미션이 있는 날만 담는다(0개인 날은 없음). getQuestItemsForDate 와 같은 기준(지운 학원 제외).
+     한 번에 모아 두고 연속 계산·보호권 판단이 같이 쓴다. */
+  const buildDayStates=(cid)=>{
     const prefix=`${cid}-`;
-    const dayState={};   // date → "ok" | "ng" (미션이 있는 날만)
+    const agg={};   // date → {all:boolean, fail:boolean}
     let earliest=null;
     for(const [key,entry] of Object.entries(dailyData)){
       if(!key.startsWith(prefix)) continue;
       const date=key.slice(-10);
       const academyId=key.slice(prefix.length,key.length-11);
-      if(!getAcademyById(cid,academyId)) continue;              // getQuestItemsForDate 와 같은 기준
+      if(!getAcademyById(cid,academyId)) continue;
       const list=[...(entry?.homeworks||[]),...(entry?.todos||[])];
       if(list.length===0) continue;
       if(!earliest||date<earliest) earliest=date;
-      const ok=list.every(it=>it.done&&!it.failed);
-      dayState[date]=(dayState[date]==="ng"||!ok)?"ng":"ok";
+      const a=agg[date]||(agg[date]={all:true,fail:false});
+      for(const it of list){ if(it.failed) a.fail=true; if(!it.done||it.failed) a.all=false; }
     }
-    if(!earliest) return 0;
-    let streak=0;
-    for(let date=TODAY; date>=earliest; date=addDays(date,-1)){
-      const st=dayState[date];
-      if(!st) continue;              // 미션 0개인 날 — 건너뛴다
-      if(st==="ng") break;
-      streak+=1;
+    const states={};
+    for(const [d,a] of Object.entries(agg)) states[d]=a.all?"ok":(a.fail?"miss":"open");
+    return {states,earliest};
+  };
+
+  /* 연속 달성 일수 — 오늘부터 하루씩 거슬러 올라가며 센다 (규칙은 data/streakShield.js countStreak).
+     [사용자 확정 2026-11-27]
+     · 미션이 0개인 날은 건너뛴다(끊지도, +1 하지도 않는다). +1 은 미션이 있는 날 전부 완료했을 때만.
+     · 🛡️ 연속 보호권으로 지킨 날도 건너뛴다.
+     · 오늘이 아직 진행 중(실패 없이 덜 끝냄)이면 오늘은 건너뛰고 어제까지를 보여 준다.
+       (예전엔 오늘을 다 끝내기 전까지 0일로 보였다 — 보호권으로 지킨 기록이 0으로 보이면 안 된다)
+     · 그 밖에 못 끝낸 날을 만나면 거기서 멈춘다. */
+  const getShield=(cid)=>normShield((shieldRef.current||{})[cid]);
+  const getQuestStreak=(cid)=>{
+    const {states,earliest}=buildDayStates(cid);
+    return countStreak(states,earliest,TODAY,getShield(cid).protected,TODAY);
+  };
+
+  /* 🛡️ 보호권 자동 사용 — 앱을 켤 때·날짜가 바뀔 때·미션이 바뀔 때, 아이마다 어제까지 놓친 날을 따져
+     보호권이 있으면 1개씩 써서 그날을 지킨다(규칙은 applyAutoShield). 처음 따질 때는 기준일만 잡는다. */
+  useEffect(()=>{
+    if(!loaded||!shieldData) return;
+    const cur=shieldRef.current||{};
+    let next=null; const msgs=[];
+    for(const c of children){
+      const {states,earliest}=buildDayStates(c.id);
+      const r=applyAutoShield(states,earliest,cur[c.id],TODAY);
+      const before=normShield(cur[c.id]);
+      if(r.next.checkedThrough===before.checkedThrough&&r.saved.length===0) continue;
+      next={...(next||cur),[c.id]:r.next};
+      if(r.saved.length){
+        const days=r.saved[r.saved.length-1].days;
+        msgs.push(`${children.length>1?c.name+" ":""}${days}일`);
+      }
     }
-    return streak;
+    if(!next) return;
+    setShieldData(next);
+    if(msgs.length) showToast(`🛡️ 연속 보호권으로 ${msgs.join(" · ")} 기록을 지켰어요!`,3000);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[loaded,shieldData,children,dailyData,dayStamp]);
+
+  /* 어제 하루만 놓쳐 끊긴 기록 — 지금 보호권을 사면 살릴 수 있는가 (상점 카드 안내용) */
+  const getShieldRescue=(cid)=>{
+    const {states,earliest}=buildDayStates(cid);
+    return findRecoverableMiss(states,earliest,getShield(cid),TODAY);
+  };
+  /* 🛡️ 보호권 구매 — 코인 차감 후, 살릴 수 있는 어제가 있으면 바로 그날에 쓴다(applyShieldPurchase) */
+  const buyStreakShield=()=>{
+    const cid=childId;
+    if(!shieldRef.current) return;
+    const coin=getChildCoin(cid);
+    if(coin<STREAK_SHIELD_PRICE){ showToast(`${TM.coinEmoji} ${TM.coin} ${STREAK_SHIELD_PRICE-coin}개 더 모으면 살 수 있어요`,2200); return; }
+    const {states,earliest}=buildDayStates(cid);
+    const r=applyShieldPurchase(states,earliest,getShield(cid),TODAY);
+    spendCoin(cid,STREAK_SHIELD_PRICE,"🛡️ 연속 보호권 구매");
+    setShieldData(prev=>({...(prev||{}),[cid]:r.next}));
+    if(r.recovered) showToast(`🛡️ 놓친 하루를 지켰어요! 연속 ${r.recovered.days}일 기록이 이어져요`,3000);
+    else showToast("🛡️ 연속 보호권 1개를 챙겼어요!",2200);
   };
 
   const getBestStreak=(cid)=>{
@@ -3787,7 +3843,7 @@ export default function App() {
       if(currentStreak<=best) return prev;
       return {...prev,[childId]:currentStreak};
     });
-  },[loaded,childId,dailyData]);
+  },[loaded,childId,dailyData,shieldData,dayStamp]);
 
   /* ── 펫 진화 = 최고 연속 달성 (사용자 확정 2026-11-27) ─────────────────────
      최고 연속 기록(저장된 최고 vs 지금 연속 중 큰 값)으로 펫 단계를 정한다: 3·7·14·30일.
@@ -3830,7 +3886,7 @@ export default function App() {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[loaded,children,bestStreakData,dailyData,petData,kidSkin]);
+  },[loaded,children,bestStreakData,dailyData,petData,kidSkin,shieldData]);
 
   /* ── 가방 카드 '소식' — 캐릭터 탭 가방에 1분간만 띄웠다가 원래 레벨 화면으로 (사용자 확정 2026-08-09)
        띄우는 다섯 가지: 레벨업 · 펫 진화 · 보물상자 생김 · 상장 교체 · 연속 달성 최고기록.
@@ -4969,6 +5025,7 @@ export default function App() {
           onBuy={buyDecor}
           onEquip={toggleEquipDecor}
           onOpenAvatarShop={()=>{ setShowDecorShop(false); setShowEquipShop(true); }}
+          shield={{count:getShield(childId).count,price:STREAK_SHIELD_PRICE,rescue:showDecorShop?getShieldRescue(childId):null,onBuy:buyStreakShield}}
         />
 
         {/* 연속 달성 시트 — 캐릭터 탭 '연속 달성' 카드에서 연다.
