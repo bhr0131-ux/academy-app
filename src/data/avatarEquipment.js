@@ -1061,11 +1061,27 @@ export const isGrowthGear = (id, gender) => {
   if (!gender) return GROWTH_GEAR_IDS.has(id);
   return Object.values(GROWTH_GEAR[gender === "girl" ? "girl" : "boy"]).some(ids => ids.includes(id));
 };
+/** 성장 장비가 열리는 레벨 → 진화 단계 번호 (1·5·9·13·17 → 1~5단계) */
+export const growthStageOfLevel = (lv) => {
+  const lvs = Object.keys(GROWTH_GEAR.boy).map(Number).sort((a, b) => a - b);
+  const i = lvs.indexOf(Number(lv));
+  return i >= 0 ? i + 1 : null;
+};
 /** 이 성별에게 몇 레벨에 주는 장비인지 (없으면 null) */
 export const getGrowthGearLevel = (id, gender) => {
   const t = GROWTH_GEAR[gender === "girl" ? "girl" : "boy"];
   for (const [lv, ids] of Object.entries(t)) if (ids.includes(id)) return Number(lv);
   return null;
+};
+/** 옷장에 있는 장비들을 입힌다(성장 장비 축하 팝업의 '바로 갈아입기'). 가진 것만. */
+export const computeWearItems = (ownedList = [], equippedMap = {}, ids = []) => {
+  let eq = { ...equippedMap };
+  for (const id of ids) {
+    const it = getAvatarItem(id);
+    if (!it || !ownedList.includes(id)) continue;
+    eq = applyBottomRule({ ...yieldTopForBottom(eq, it.slot), [it.slot]: id });
+  }
+  return eq;
 };
 /** 레벨 level 까지 받아야 할 장비를 지급한다(순수 함수).
     · 처음 주는 것(granted 에 없는 id) — 옷장에 넣고, 그 칸이 비었거나 기본 옷이거나 성장 장비면 입힌다.
@@ -1079,6 +1095,7 @@ export const computeGrowthGrant = (ownedList = [], equippedMap = {}, grantedList
   let owned = [...ownedList];
   let eq = { ...equippedMap };
   const newly = [];
+  const held = [];   // 산 장비가 그 칸을 차지해서 옷장에만 넣은 것
   let changed = false;
   for (let lv = 1; lv <= level; lv++) {
     for (const id of (t[lv] || [])) {
@@ -1094,11 +1111,11 @@ export const computeGrowthGrant = (ownedList = [], equippedMap = {}, grantedList
       const cur = getAvatarItem(eq[it.slot]);
       if (!cur || cur.starter || isGrowthGear(cur.id)) {
         eq = applyBottomRule({ ...yieldTopForBottom(eq, it.slot), [it.slot]: id });
-      }
+      } else held.push(id);
     }
   }
   if (!changed && granted.size !== (grantedList || []).length) changed = true;
-  return { nextOwned: owned, nextEquipped: eq, nextGranted: [...granted], newly, changed };
+  return { nextOwned: owned, nextEquipped: eq, nextGranted: [...granted], newly, held, changed };
 };
 
 /* ── 성장 장비 1회 환불 (사용자 확정 2026-11-27) ──────────────────────────

@@ -233,6 +233,7 @@ export default function DevToolsPanel({ D }) {
                     <button onClick={()=>showDevEvent("title")} style={devMiniBtn("#F59E0B")}>👑 상장</button>
                     <button onClick={()=>showDevEvent("box")} style={devMiniBtn("#FBBF24")}>📦 상자획득</button>
                     <button onClick={()=>showDevEvent("treasure")} style={devMiniBtn(C.orange)}>🎁 상자열기</button>
+                    <button onClick={()=>showDevEvent("gear")} style={devMiniBtn("#7FB069")}>🎒 성장장비</button>
                   </div>
                 </div>
 

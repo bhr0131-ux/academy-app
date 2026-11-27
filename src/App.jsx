@@ -60,6 +60,7 @@ import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import DiscoveryMemo from "./components/DiscoveryMemo.jsx";
 import PageFlip from "./components/PageFlip.jsx";
+import { GameEventModal, TreasureResultModal } from "./components/KidGameModals.jsx";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   LEGACY_AVATAR_OWNED_KEY, computeAvatarMigration,
@@ -67,7 +68,7 @@ import {
   getDefaultEquipped, computeAvatarPurchase, computeAvatarEquipToggle,
   computeCharDisplayToggle, normalizeOwned, normalizeEquipped, getAvatarItem,
   AVATAR_RESET_KEY, computeAvatarRefund, getRefundInfo, itemLabel,
-  GROWTH_GEAR_KEY, computeGrowthGrant, isGrowthGear, GROWTH_REFUND_KEY, computeGrowthRefund,
+  GROWTH_GEAR_KEY, computeGrowthGrant, isGrowthGear, getGrowthGearLevel, growthStageOfLevel, computeWearItems, GROWTH_REFUND_KEY, computeGrowthRefund,
 } from "./data/avatarEquipment.js";
 
 import { Fragment, useState, useEffect, useRef } from "react";
@@ -1235,7 +1236,7 @@ export default function App() {
     if(!loaded||!growthGranted) return;
     const grantedMap=growthGrantedRef.current||{};
     let nextGranted=null, nextOwnedMap=null, nextEqMap=null;
-    const got=[];
+    const gearEvents=[];
     for(const c of children){
       const cid=c.id;
       const g=c.gender==="girl"?"girl":"boy";
@@ -1245,13 +1246,33 @@ export default function App() {
       nextGranted={...(nextGranted||grantedMap),[cid]:r.nextGranted};
       nextOwnedMap={...(nextOwnedMap||{}),[cid]:r.nextOwned};
       nextEqMap={...(nextEqMap||{}),[cid]:r.nextEquipped};
-      if(Array.isArray(grantedMap[cid])&&cid===childId&&r.newly.length) got.push(...r.newly.map(id=>itemLabel(getAvatarItem(id),g)));
+      /* [사용자 확정 2026-11-27] 레벨업으로 새로 받은 장비는 진화 단계별 축하 팝업으로 알린다(레벨업 팝업 뒤에 차례로).
+         처음 기록을 만드는 아이(업데이트 직후·새 아이)는 조용히 채운다. */
+      if(Array.isArray(grantedMap[cid])&&r.newly.length){
+        const byLv={};
+        for(const id of r.newly){ const lv=getGrowthGearLevel(id,g)||0; (byLv[lv]=byLv[lv]||[]).push(id); }
+        for(const lv of Object.keys(byLv).map(Number).sort((a,b)=>a-b)){
+          const ids=byLv[lv], held=ids.filter(id=>r.held.includes(id));
+          const names=ids.map(id=>itemLabel(getAvatarItem(id),g));
+          const last=names[names.length-1]; const code=last.charCodeAt(last.length-1)-0xAC00;
+          const josa=(code>=0&&code<=11171&&code%28!==0)?"을":"를";
+          const others=children.length>1?`${c.name} · `:"";
+          gearEvents.push({type:"gear",emoji:"🎉",cid,gender:g,ids,held,
+            title:`${growthStageOfLevel(lv)||""}단계 진화 달성!`,
+            name:`${names.join(" · ")}${josa} 받았어요!`,
+            desc:held.length===0
+              ?`${others}Lv.${lv} 성장 선물이에요. 바로 입혀 줬어요!`
+              :held.length===ids.length
+                ?`${others}지금 입은 꾸미기는 그대로 두고 옷장에 넣었어요.\n바로 갈아입어 볼까요?`
+                :`${others}입을 수 있는 건 바로 입혀 줬어요.\n${held.map(id=>itemLabel(getAvatarItem(id),g)).join(" · ")}은(는) 옷장에 넣었어요.`});
+        }
+      }
     }
     if(!nextGranted) return;
     setAvatarOwned(prev=>({...prev,...nextOwnedMap}));
     setAvatarEquipped(prev=>({...prev,...nextEqMap}));
     setGrowthGranted(nextGranted);
-    if(got.length) showToast(`🎁 레벨업 선물! ${got.join(" · ")} 획득`,2600);
+    gearEvents.forEach(ev=>showGameEvent(ev));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[loaded,growthGranted,children,scoreData,childId,avatarOwned]);   // avatarOwned: 백업 복원 뒤 빠진 성장 장비를 바로 메운다
   useEffect(()=>{ if(loaded) save("v6_reward",rewardData); },[rewardData,loaded]);
@@ -1761,6 +1782,8 @@ export default function App() {
     if(!DEV_MODE) return;
     if(type==="level"){ showGameEvent({type:"level",emoji:"🎉",title:"레벨업!",name:"Lv.10 탐험 대장",desc:"레벨업 팝업 테스트",reward:"🎁 보너스\n⭐ +100점 · 💎 +100 코인"}); return; }
     if(type==="title"){ showGameEvent({type:"title",cert:true,emoji:"👑",title:"상장을 받았어요!",name:"황금 테스트러",desc:"임무를 50개나 끝까지 해낸 멋진 탐험가에게 이 상장을 드립니다",rarity:"epic",reward:"⭐ +100점 · 💎 +100 코인"}); return; }
+    if(type==="gear"){ const g=(children.find(c=>c.id===childId)?.gender)==="girl"?"girl":"boy"; const ids=g==="girl"?["back_crossbag_girl"]:["back_xpack_boy","neck_camera"];
+      showGameEvent({type:"gear",emoji:"🎉",cid:childId,gender:g,ids,held:[ids[0]],title:"4단계 진화 달성!",name:`${ids.map(id=>itemLabel(getAvatarItem(id),g)).join(" · ")}${g==="girl"?"을":"를"} 받았어요!`,desc:"지금 입은 꾸미기는 그대로 두고 옷장에 넣었어요.\n바로 갈아입어 볼까요?"}); return; }
     if(type==="box"){ showGameEvent({type:"box",emoji:"📦",title:"보물상자 획득!",name:"일반상자",desc:`미션 ${TREASURE_MILESTONE.normal}개 달성 보상이에요!`,reward:"🎁 보물창고에서 열어보세요"}); return; }
     if(type==="treasure"){ setTreasureModal({emoji:"👑",boxName:"전설상자",rewardCoin:777,titleReward:{id:"dev_title",name:"황금 테스트러",emoji:"👑",rarity:"legendary"},headerGrad:"linear-gradient(135deg,#F59E0B,#FDE68A)"}); return; }
   };
@@ -3408,6 +3431,13 @@ export default function App() {
     setAvatarEquipped(prev=>({...prev,[cid]:equipped}));
     showToast(`${toBuy.length}개 한번에 획득! 🎉`);
     return true;
+  };
+
+  /* 성장 장비 축하 팝업의 '바로 갈아입기' — 옷장에만 넣어 둔 것(산 꾸미기 때문에)을 입힌다 */
+  const wearGrowthGear=(ev)=>{
+    if(!ev||!ev.cid||!(ev.held||[]).length) return;
+    const next=computeWearItems(getAvatarOwned(ev.cid),getAvatarEquipped(ev.cid),ev.held);
+    setAvatarEquipped(prev=>({...prev,[ev.cid]:next}));
   };
 
   /* 아바타 파츠 장착/벗기 토글 */
@@ -5965,48 +5995,8 @@ export default function App() {
       )}
 
       {/* ── 보물상자 오픈 결과 모달 ── */}
-      {treasureModal&&(
-        <div style={GAME_MODAL_STYLE.overlay}>
-          {/* 반짝이 이펙트 (eventModal과 통일) */}
-          <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
-            {(kidSkin==="cute"?["🧁","🍪","🎀","🌸","🧁"]:["✨","⭐","✨","💫","⭐"]).map((s,i)=>(
-              <span key={i} style={{position:"absolute",left:`${18+i*16}%`,top:`${34+(i%2)*12}%`,fontSize:24,animation:`sparkleFloat ${0.9+i*0.12}s ease-out infinite`,animationDelay:`${i*0.12}s`}}>
-                {s}
-              </span>
-            ))}
-          </div>
-          <div style={kidSkin==="cute"?{...GAME_MODAL_STYLE.card,borderRadius:32,border:`2px solid ${mixWhite(th.main,0.55)}`,boxShadow:`0 25px 90px ${th.main}44, 0 8px 28px rgba(0,0,0,.18)`}:GAME_MODAL_STYLE.card}>
-            <GameModalHeader
-              cute={kidSkin==="cute"}
-              emoji={treasureModal.emoji}
-              title={kidSkin==="cute"?"DESSERT BOX":"TREASURE OPEN"}
-              color={treasureModal.headerGrad||`linear-gradient(135deg, ${GP.gold}, ${th.main})`}
-            />
-            <div style={{...GAME_MODAL_STYLE.body,textAlign:"center"}}>
-              <p style={{fontSize:15,fontWeight:900,color:C.sub,margin:"0 0 8px"}}>{treasureModal.boxName}</p>
-              <p style={{fontSize:30,fontWeight:900,color:kidSkin==="cute"?th.main:GP.gold,margin:"0 0 4px"}}><EmojiIcon emoji={TM.coinEmoji} size={30} style={{verticalAlign:"-0.18em",marginRight:3}}/>+{treasureModal.rewardCoin}</p>
-              <p style={{fontSize:13,color:C.sub,fontWeight:800,margin:"0 0 16px"}}>
-                {kidSkin==="cute"?`${TM.box} 보상을 받았어요!`:`${TM.box} 보상을 획득했어요!`}
-              </p>
-              {treasureModal.titleReward&&(()=>{
-                const dk = kidSkin!=="cute";
-                return (
-                <div style={{marginTop:18,padding:"14px",borderRadius:14,
-                  background:dk?"linear-gradient(180deg,#3A331C 0%,#2A2413 100%)":mixWhite(th.main,0.86),
-                  border:`2px solid ${dk?"#FFD86B":(kidSkin==="cute"?"#F5B301":"#F59E0B")}`,
-                  boxShadow:dk?"0 0 18px rgba(255,216,107,0.30), inset 0 1px 0 rgba(255,232,160,.12)":"none"}}>
-                  <p style={{margin:0,fontSize:13,fontWeight:900,color:dk?"#FFD86B":"#F5B301",textShadow:dk?"0 0 10px rgba(255,216,107,.5)":"none"}}>✨ 전설 상장 획득</p>
-                  <p style={{marginTop:6,fontSize:20,fontWeight:900,margin:"6px 0 0",color:dk?"#FFE9B0":C.text}}>
-                    <EmojiIcon emoji={treasureModal.titleReward.emoji} size={20} style={{verticalAlign:"-0.18em",marginRight:4}}/>{treasureModal.titleReward.name}
-                  </p>
-                </div>
-                );
-              })()}
-              <GameModalButton cute={kidSkin==="cute"} grad={th.grad} onClick={()=>setTreasureModal(null)}/>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 상자 열기 결과 '보물 발견!' — src/components/KidGameModals.jsx (2026-11-27 탐험 톤 정리) */}
+      <TreasureResultModal tm={treasureModal} cute={kidSkin==="cute"} th={th} GP={GP} TM={TM} onClose={()=>setTreasureModal(null)} />
 
       {/* ── 미션 클리어 중앙 보상 연출 (화면을 가리지 않음, 스크롤 위치 무관하게 항상 중앙에 표시) ── */}
       {charCheer&&(
@@ -6080,135 +6070,9 @@ export default function App() {
       )}
 
       {/* ── 통합 게임 이벤트 모달 ── */}
-      {eventModal&&(
-        /* [버그 수정 2026-08-16] z3000 이라 보물창고 시트(4000)·상자 결과 모달(9999) 뒤로
-           숨었다. 큐가 상자 연출 중에는 팝업을 안 띄우므로(위 effect) 이제 겹칠 일이 없고,
-           시트 위에도 제대로 뜬다. 토스트(99999)보다는 아래. */
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.72)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:10000,padding:20}}>
-          {/* 반짝이 이펙트 */}
-          <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
-            {(kidSkin==="cute"?["🧁","🍪","🎀","🌸","🧁"]:["✨","⭐","✨","💫","⭐"]).map((s,i)=>(
-              <span key={i} style={{position:"absolute",left:`${18+i*16}%`,top:`${34+(i%2)*12}%`,fontSize:24,animation:`sparkleFloat ${0.9+i*0.12}s ease-out infinite`,animationDelay:`${i*0.12}s`}}>
-                {s}
-              </span>
-            ))}
-          </div>
-          {/* 모달 카드 */}
-          {eventModal.cert ? (()=>{
-            const cute=kidSkin==="cute";
-            const rar=TITLE_RARITY[eventModal.rarity]||TITLE_RARITY.common;
-            // 모드별 상장 팔레트
-            const cFrame   = cute?"linear-gradient(135deg,#f7c6d6,#f3a8c0)":"linear-gradient(135deg,#1e2547,#0f1430)";
-            const cPaper   = cute
-              ? "radial-gradient(circle at 18% 12%, rgba(255,255,255,.6), transparent 45%), linear-gradient(160deg,#fff6f3,#ffeef2)"
-              : "radial-gradient(circle at 20% 15%, rgba(245,179,1,.05), transparent 40%), radial-gradient(circle at 80% 90%, rgba(245,179,1,.06), transparent 40%), linear-gradient(160deg,#fbf6e9,#f3ead0)";
-            const cBorder  = cute?"rgba(231,140,170,.5)":"rgba(180,140,40,.45)";
-            const cInner   = cute?"rgba(231,140,170,.14)":"rgba(180,140,40,.12)";
-            const cEyebrow = cute?"#d06a92":"#9a7b1e";
-            const cTitle   = cute?"#7a4257":"#1e2547";
-            const cRibbon  = cute?"linear-gradient(90deg,#f3a8c0,#ffd1c2)":"linear-gradient(90deg,#caa23a,#f5d062)";
-            const cName    = cute?"#7a4257":"#1e2547";
-            const cReason  = cute?"#7d5f68":"#4a4636";
-            const cRewardBg= cute?"#fff":"#1e2547";
-            const cRewardTx= cute?"#c25c84":"#f5d98e";
-            const cRewardBd= cute?"rgba(231,140,170,.45)":"rgba(245,179,1,.4)";
-            const cSealBg  = cute?"radial-gradient(circle at 35% 30%,#ffd6e2,#f3a8c0)":"radial-gradient(circle at 35% 30%,#f5d062,#caa23a)";
-            const cSealTx  = cute?"#9c3a63":"#5a4410";
-            const cSealSh  = cute?"0 3px 8px rgba(200,90,130,.35)":"0 3px 8px rgba(120,90,10,.4)";
-            const cBtn     = cute?"linear-gradient(135deg,#f3a8c0,#f7c6d6)":"linear-gradient(135deg,#caa23a,#1e2547)";
-            const cBtnTx   = cute?"#7a4257":"#fff";
-            const sealMark = cute?"✿":"★";
-            return (
-              <div style={{width:"100%",maxWidth:330,borderRadius:18,overflow:"hidden",background:cFrame,padding:9,animation:"gamePop .5s cubic-bezier(.18,.9,.32,1.2)",position:"relative",boxShadow:"0 25px 90px rgba(0,0,0,.45)"}}>
-                <div style={{position:"relative",borderRadius:10,padding:"30px 26px 26px",textAlign:"center",background:cPaper}}>
-                  {/* 이중 헤어라인 테두리 */}
-                  <div style={{position:"absolute",inset:9,borderRadius:5,border:`1.5px solid ${cBorder}`,boxShadow:`inset 0 0 0 4px ${cInner}`,pointerEvents:"none"}}/>
-                  {/* shine */}
-                  <div style={{position:"absolute",inset:0,borderRadius:10,overflow:"hidden",pointerEvents:"none"}}>
-                    <div style={{position:"absolute",top:0,left:"-60%",width:"45%",height:"100%",background:"linear-gradient(105deg,transparent,rgba(255,255,255,.5),transparent)",transform:"skewX(-18deg)",animation:"shineMove 3.2s ease-in-out infinite"}}/>
-                  </div>
-                  <div style={{position:"relative"}}>
-                    <div style={{lineHeight:1,marginBottom:6,filter:"drop-shadow(0 3px 6px rgba(0,0,0,.18))"}}><EmojiIcon emoji={eventModal.emoji} size={50}/></div>
-                    <div style={{fontSize:11,letterSpacing:5,fontWeight:800,color:cEyebrow,marginBottom:6}}>CERTIFICATE</div>
-                    <div style={{fontSize:30,fontWeight:900,letterSpacing:8,color:cTitle,marginBottom:4}}>상 장</div>
-                    <div style={{display:"inline-block",height:3,width:54,borderRadius:2,background:cRibbon,margin:"10px auto 16px"}}/>
-                    <div style={{fontSize:21,fontWeight:900,color:cName,marginBottom:3}}>{eventModal.name}</div>
-                    <div style={{fontSize:11,fontWeight:800,color:rar.color,marginBottom:16}}>{rar.icon} {rar.name}</div>
-                    <div style={{fontSize:13.5,fontWeight:600,lineHeight:1.75,color:cReason,marginBottom:20,wordBreak:"keep-all",whiteSpace:"pre-line"}}>{eventModal.desc}</div>
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:10,marginBottom:kidSkin==="cute"?24:20}}>
-                      <div style={{width:50,height:50,borderRadius:"50%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:900,flexShrink:0,transform:"rotate(-12deg)",background:cSealBg,color:cSealTx,boxShadow:cSealSh}}>
-                        <span style={{fontSize:17,lineHeight:1}}>{sealMark}</span>수여
-                      </div>
-                    </div>
-                    {eventModal.reward&&(
-                      <div style={{borderRadius:11,padding:"10px 12px",fontSize:13,fontWeight:900,marginBottom:kidSkin==="cute"?10:20,marginTop:kidSkin==="cute"?6:0,background:cRewardBg,color:cRewardTx,border:`1px solid ${cRewardBd}`}}>
-                        {String(eventModal.reward).split("\n").map((line,i)=>(<div key={i}><EmojiText>{line}</EmojiText></div>))}
-                      </div>
-                    )}
-                    <button onClick={()=>setEventModal(null)}
-                      style={{marginTop:kidSkin==="cute"&&eventModal.reward?2:18,width:"100%",border:"none",borderRadius:13,padding:13,fontSize:15,fontWeight:900,cursor:"pointer",background:cBtn,color:cBtnTx}}>
-                      확인 {eventQueue.length>0?`(${eventQueue.length}개 더)`:""}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })() : (
-          <div style={{width:"100%",maxWidth:350,borderRadius:kidSkin==="cute"?32:28,overflow:"hidden",background:"#fff",textAlign:"center",boxShadow:kidSkin==="cute"?`0 25px 90px ${th.main}44, 0 8px 28px rgba(0,0,0,.18)`:"0 25px 90px rgba(0,0,0,.38)",animation:"gamePop .45s ease-out",position:"relative",border:kidSkin==="cute"?`2px solid ${mixWhite(th.main,0.55)}`:"none"}}>
-            {/* 헤더 */}
-            <div style={{position:"relative",overflow:"hidden",padding:"28px 20px",color:kidSkin==="cute"?"#6B4A5C":"#fff",
-              background:kidSkin==="cute"
-                ?(eventModal.type==="level"
-                    ?`linear-gradient(135deg, ${th.main}, ${mixWhite(th.main,0.4)})`
-                    :eventModal.type==="title"
-                      ?"linear-gradient(135deg,#F5B301,#FFD98E)"
-                      :eventModal.type==="box"
-                        ?"linear-gradient(135deg,#F8A5C2,#FAD0C4)"
-                        :`linear-gradient(135deg, ${th.main}, ${mixWhite(th.main,0.4)})`)
-                :(eventModal.type==="level"
-                  ?`linear-gradient(135deg, ${GP.gold}, ${th.main})`
-                  :eventModal.type==="title"
-                    ?"linear-gradient(135deg,#F59E0B,#FDE68A)"
-                    :eventModal.type==="box"
-                      ?"linear-gradient(135deg,#F59E0B,#FBBF24)"
-                      :`linear-gradient(135deg, ${GP.dark}, ${th.main})`)
-            }}>
-              {/* shine 효과 */}
-              <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent)",animation:"shineMove 1.4s ease-in-out infinite"}}/>
-              {eventModal.charImg
-                ? <div style={{margin:"0 0 6px",position:"relative",display:"flex",alignItems:"flex-end",justifyContent:"center",gap:6}}>
-                    {/* 이전 모습: 작고 흐리게 */}
-                    <img src={eventModal.charImgPrev||eventModal.charImg} alt="진화 전 캐릭터" draggable={false}
-                      style={{display:"block",height:88,width:"auto",maxWidth:"none",opacity:0.55,filter:"grayscale(0.35) drop-shadow(0 4px 8px rgba(0,0,0,0.18))",marginBottom:10}}/>
-                    {/* 진화 화살표 */}
-                    <div style={{fontSize:22,fontWeight:900,color:kidSkin==="cute"?"#DE869C":"#F5B942",marginBottom:44,animation:"jellyIn 0.55s ease-out 0.15s backwards",textShadow:"0 2px 6px rgba(0,0,0,0.15)"}}>➜</div>
-                    {/* 진화한 모습: 크게 + 등장 애니메이션 */}
-                    <img src={eventModal.charImg} alt="진화한 캐릭터" draggable={false}
-                      style={{display:"block",height:148,width:"auto",maxWidth:"none",filter:"drop-shadow(0 8px 14px rgba(0,0,0,0.25))",animation:"jellyIn 0.55s ease-out 0.25s backwards"}}/>
-                  </div>
-                : <p style={{margin:"0 0 8px",position:"relative"}}><EmojiIcon emoji={eventModal.emoji} size={58}/></p>}
-              <p style={{fontSize:kidSkin==="cute"?22:24,fontWeight:900,margin:0,letterSpacing:kidSkin==="cute"?0:1,position:"relative"}}>{eventModal.title}</p>
-            </div>
-            {/* 본문 */}
-            <div style={{padding:"24px 22px"}}>
-              <p style={{fontSize:20,fontWeight:900,color:C.text,margin:"0 0 8px"}}>{eventModal.name}</p>
-              <p style={{fontSize:13,fontWeight:800,color:C.sub,margin:"0 0 14px",lineHeight:1.45}}>{eventModal.desc}</p>
-              {eventModal.reward&&(
-                <div style={{background:kidSkin==="cute"?mixWhite(th.main,0.86):GP.boxSolid,border:`1px solid ${kidSkin==="cute"?mixWhite(th.main,0.6):GP.boxBorder}`,color:kidSkin==="cute"?mixBlack(th.main,0.25):GP.boxText,borderRadius:14,padding:"11px 12px",fontSize:13,fontWeight:900,marginBottom:16,lineHeight:1.5}}>
-                  {String(eventModal.reward).split("\n").map((line,i)=>(
-                    <div key={i}><EmojiText>{line}</EmojiText></div>
-                  ))}
-                </div>
-              )}
-              <button onClick={()=>setEventModal(null)}
-                style={{width:"100%",border:"none",borderRadius:14,padding:"13px",background:th.grad,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer"}}>
-                확인 {eventQueue.length>0?`(${eventQueue.length}개 더)`:""}
-              </button>
-            </div>
-          </div>
-          )}
-        </div>
-      )}
+      {/* 통합 게임 이벤트 팝업 — src/components/KidGameModals.jsx. 큐에서 한 번에 1개만 꺼내 그린다(위 effect). */}
+      <GameEventModal ev={eventModal} more={eventQueue.length} cute={kidSkin==="cute"} th={th} GP={GP}
+        onClose={()=>setEventModal(null)} onWearGear={wearGrowthGear} />
 
       </div>
     );
