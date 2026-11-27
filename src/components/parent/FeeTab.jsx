@@ -36,7 +36,7 @@ import { feeDueDay } from "../../data/sampleData.js";
 const SUBD = "#5F678C";
 
 export default function FeeTab({
-  th, CT, curAc = [], feeMonth, setFeeMonth,
+  th, CT, curAc = [], feeMonth, setFeeMonth, feeYear = new Date().getFullYear(), setFeeYear = () => {},
   isPaid, payRec, payStatus, feeMenu, setFeeMenu,
   onPay, onEditFee, onDeleteFee, onCopyAccount, onAddFee,
   embedded = false,
@@ -50,6 +50,11 @@ export default function FeeTab({
   const paidSum=paidList.reduce((s,a)=>s+Number(a.fee||0),0);
   const restSum=total-paidSum;
   const thisMonth=new Date().getMonth()+1;
+  const thisYear=new Date().getFullYear();
+  const isThis=feeMonth===thisMonth&&feeYear===thisYear;
+  /* [버그 수정 2026-11-27] 1~12월에 갇혀 있던 달 이동 — 해를 넘어 오간다 (12월 → 다음 해 1월) */
+  const shiftFee=(dir)=>{ let m=feeMonth+dir, y=feeYear; if(m<1){ m=12; y--; } if(m>12){ m=1; y++; } setFeeYear(y); setFeeMonth(m); };
+  const goThis=()=>{ setFeeYear(thisYear); setFeeMonth(thisMonth); };
   const won=(n)=>`${n.toLocaleString()}원`;
   /* [사용자 확정 2026-08-18] 다 낸 곳은 더 할 일이 없다 → 아래로 내리고 기본으로 접는다.
      결석 탭과 같은 규칙이다. 이 화면 자리는 '아직 낼 곳'에 쓰는 게 맞다.
@@ -81,17 +86,17 @@ export default function FeeTab({
         </span>
         <div style={{flex:1}}/>
         <div style={{display:"flex",alignItems:"center",flexShrink:0,background:"#fff",border:`1px solid ${th.main}22`,borderRadius:999,padding:"0 2px"}}>
-          <button onClick={()=>setFeeMonth(m=>Math.max(1,m-1))} className="jelly-tap" aria-label="이전 달"
+          <button onClick={()=>shiftFee(-1)} className="jelly-tap" aria-label="이전 달"
             style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>‹</button>
-          <span style={{fontWeight:FW.bold,fontSize:FS.sub,color:C.text,whiteSpace:"nowrap"}}>{new Date().getFullYear()}년 {feeMonth}월</span>
-          <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} className="jelly-tap" aria-label="다음 달"
+          <span style={{fontWeight:FW.bold,fontSize:FS.sub,color:C.text,whiteSpace:"nowrap"}}>{feeYear}년 {feeMonth}월</span>
+          <button onClick={()=>shiftFee(1)} className="jelly-tap" aria-label="다음 달"
             style={{background:"none",border:"none",width:28,height:30,fontSize:16,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",padding:0}}>›</button>
         </div>
       </div>
       {/* 다른 달을 보고 있을 때만 — 머리 줄 아래 오른쪽 작은 줄 (320px 화면에서 머리 줄이 넘치지 않게, 2026-11-26) */}
-      {feeMonth!==thisMonth&&(
+      {!isThis&&(
         <div style={{display:"flex",justifyContent:"flex-end",marginTop:6}}>
-          <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
+          <button onClick={goThis} className="jelly-tap"
             style={{background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 8px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
             ↩ 이번 달로
           </button>
@@ -100,13 +105,13 @@ export default function FeeTab({
       </div>
     ):(
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginBottom:12,position:"relative"}}>
-        <button onClick={()=>setFeeMonth(m=>Math.max(1,m-1))} className="jelly-tap" aria-label="이전 달"
+        <button onClick={()=>shiftFee(-1)} className="jelly-tap" aria-label="이전 달"
           style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
-        <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text}}>{new Date().getFullYear()}년 {feeMonth}월</span>
-        <button onClick={()=>setFeeMonth(m=>Math.min(12,m+1))} className="jelly-tap" aria-label="다음 달"
+        <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text}}>{feeYear}년 {feeMonth}월</span>
+        <button onClick={()=>shiftFee(1)} className="jelly-tap" aria-label="다음 달"
           style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
-        {feeMonth!==thisMonth&&(
-          <button onClick={()=>setFeeMonth(thisMonth)} className="jelly-tap"
+        {!isThis&&(
+          <button onClick={goThis} className="jelly-tap"
             style={{position:"absolute",right:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
             ↩ 이번 달로
           </button>
@@ -247,7 +252,7 @@ export default function FeeTab({
               <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
                 <span style={{fontSize:FS.tag,...SUB_LABEL,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                   {/* 31일 납부는 30일까지인 달에 그 달 마지막 날로 — 캘린더·D-day 와 같은 계산(feeDueDay) */}
-                  납부 예정일 {feeMonth}월 {feeDueDay(a,new Date().getFullYear(),feeMonth-1)}일
+                  납부 예정일 {feeMonth}월 {feeDueDay(a,feeYear,feeMonth-1)}일
                 </span>
                 {/* [사용자 확정 2026-11-25] 밑줄 글자 대신 작은 알약 버튼 */}
                 <button onClick={()=>onPay(a.id)} className="jelly-tap" style={{...payPill,marginLeft:"auto"}}>

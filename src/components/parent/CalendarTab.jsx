@@ -397,7 +397,7 @@ export default function CalendarTab({
                   <Mark kind="fee" size={9}/><span style={bnTitle}>학원비 납부일</span>
                 </div>
                 {feeDueOnSel.map(a=>{
-                  const paid=isFeePaidOn&&isFeePaidOn(a.id,selInfo.m+1);
+                  const paid=isFeePaidOn&&isFeePaidOn(a.id,selInfo.m+1,selInfo.y);
                   return (
                     <div key={a.id} style={{display:"flex",alignItems:"center",gap:8,margin:"2px 0 0"}}>
                       <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
