@@ -230,6 +230,7 @@ export default function ParentHomeTab({
   const [shareData, setShareData] = useState(null);
   const buildShareData=()=>({
     childName:(childrenList.find(c=>String(c.id)===String(childId))||{}).name||"",
+    childGender:(childrenList.find(c=>String(c.id)===String(childId))||{}).gender||childGender,
     dateText:fullLabel+(dayTag==="오늘"?" (오늘)":""), dateKey:homeDate,
     listLabel:dayTag?`${dayTag} 챙길 일`:"이 날 챙길 일",
     alerts:homeAlerts.map(a=>({icon:a.icon,name:a.name,color:a.color,items:a.items,allDone:a.allDone,memo:a.memo})),

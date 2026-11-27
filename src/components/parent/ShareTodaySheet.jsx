@@ -26,6 +26,7 @@ import { createPortal } from "react-dom";
 import { C, FS, FW, RAD, SHADOW, CLOSE_BTN, mixWhite, mixBlack, SUB_LABEL } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 import EmojiIcon from "../EmojiIcon.jsx";
+import ChildFace from "./ChildFace.jsx";
 import { isNativeApp, shareImageFile } from "../../utils/native.js";
 
 const F = "'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif";
@@ -54,10 +55,18 @@ function ShareCard({ data, th }) {
   const { childName, dateText, listLabel, alerts = [], academies = [] } = data;
   return (
     <div style={{ width: CARD_W, boxSizing: "border-box", padding: "18px 14px 14px", background: PAGE_BG, fontFamily: F, color: C.text }}>
-      {/* 맨 위 — 아이 이름 · 날짜 */}
-      <div style={{ background: th.grad || th.main, borderRadius: RAD.lg, padding: "16px 16px 15px", marginBottom: 12, color: "#fff" }}>
-        <p style={{ margin: 0, fontSize: 21, fontWeight: FW.bold, lineHeight: 1.3 }}>{childName ? `${childName}의 일정` : "오늘의 일정"}</p>
-        <p style={{ margin: "4px 0 0", fontSize: FS.body, fontWeight: FW.semi, opacity: 0.92 }}>{dateText}</p>
+      {/* 맨 위 — [사용자 확정 2026-11-27] 슬림한 한 줄: 왼쪽 흰 원 안 아이 얼굴 + '○○의 일정', 오른쪽 날짜 알약 */}
+      <div style={{ background: th.grad || th.main, borderRadius: RAD.lg, padding: "14px 18px", marginBottom: 12, color: "#fff",
+        display: "flex", alignItems: "center", gap: 9 }}>
+        <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: "50%", background: "#fff",
+          display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <ChildFace child={{ gender: data.childGender }} size={30} />
+        </span>
+        <p style={{ margin: 0, flex: 1, minWidth: 0, fontSize: 16, fontWeight: FW.bold, lineHeight: 1.3, wordBreak: "keep-all", overflowWrap: "anywhere" }}>
+          {childName ? `${childName}의 일정` : "오늘의 일정"}
+        </p>
+        <span style={{ flexShrink: 0, background: "rgba(255,255,255,0.22)", borderRadius: 9999, padding: "4px 10px",
+          fontSize: FS.tag, fontWeight: FW.semi, color: "#fff", whiteSpace: "nowrap" }}>{dateText}</span>
       </div>
 
       {/* 오늘 챙길 일 — 홈 카드와 같은 줄 모양 */}
