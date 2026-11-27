@@ -2889,7 +2889,9 @@ export default function App() {
      setTreasureData,setPetData,setSkinByChild,setSelectedTitles,setSeenTitles,setEarnedTitleIds,
      setSpecialTitles,setBestStreakData,setLastLevelByChild,setOwnedDecor,setEquippedDecor,
      setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData,setMissionRules,setMemoList,setGrowthGranted,setShieldData,
-     setRepeatMissions,setGrowthRefund].forEach(dropKey);   // 자주 쓰는 미션도 아이별 (2026-11-27 누락 보완)
+     setRepeatMissions].forEach(dropKey);
+    /* 성장 장비 환불 표식은 저장 effect 없이 바로 저장하는 키라 여기서도 같이 저장한다 */
+    setGrowthRefund(p=>{ if(!p||!(id in p)) return p; const n={...p}; delete n[id]; save(GROWTH_REFUND_KEY,n); return n; });   // 자주 쓰는 미션도 아이별 (2026-11-27 누락 보완)
 
     /* 열쇠 앞머리에 아이 id 가 붙는 저장소 — 접두어로 지운다.
          일별 미션   dailyData[`아이-학원-날짜`]     (dKey)
