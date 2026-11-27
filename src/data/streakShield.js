@@ -7,6 +7,8 @@ import { addDays } from "../utils/dates.js";
      그날을 '보호한 날'로 만든다 → 연속 기록이 끊기지 않는다(그날 +1 은 없다).
    · 보호권 없이 어제 하루만 놓쳤으면: 오늘 사는 순간 그 하루를 보호해 기록이 이어진다.
      이틀 이상 연달아 놓친 기록은 살릴 수 없다.
+   · 미리 사 둔 보호권도 '하루'만 — 연달아 놓치면 첫날만 지키고 둘째 날에 기록이 끊긴다
+     (보호권이 여러 개 있어도 같다. 사용자 확정 2026-11-27).
    · 미션이 0개인 날은 원래 건너뛰므로(끊기지 않음) 보호권을 쓰지 않는다.
    · 이어 오던 기록이 0일이면 지킬 게 없으므로 보호권을 쓰지 않는다.
 
@@ -57,6 +59,16 @@ export const countStreak = (states, earliest, fromDate, protectedDates = [], tod
   return n;
 };
 
+/** d 바로 앞의 '미션 있는 날'이 완료(ok)였는가.
+    [사용자 확정 2026-11-27] 보호권은 '하루'만 지킨다 — 연달아 놓친 둘째 날부터는
+    보호권이 여러 개 있어도 쓰지 않는다(앞날이 놓친 날이면, 이미 보호했어도 false). */
+const prevDayWasOk = (states, earliest, d) => {
+  for (let x = addDays(d, -1); x >= earliest; x = addDays(x, -1)) {
+    if (states[x]) return states[x] === "ok";
+  }
+  return false;
+};
+
 /** 자동 사용 — checkedThrough 다음 날부터 어제까지, 놓친 날마다 보호권이 있으면 1개씩 쓴다.
     반환: { next, saved: [{ date, days }] }  (days = 그 덕분에 지킨 연속 일수) */
 export const applyAutoShield = (states, earliest, rec, today) => {
@@ -70,6 +82,7 @@ export const applyAutoShield = (states, earliest, rec, today) => {
   for (let d = addDays(r.checkedThrough, 1); d <= yesterday; d = addDays(d, 1)) {
     const st = states[d];
     if (!st || st === "ok" || prot.includes(d) || count <= 0) continue;
+    if (!prevDayWasOk(states, earliest, d)) continue;   // 연달아 놓친 날은 지키지 않는다(하루만)
     const days = countStreak(states, earliest, addDays(d, -1), prot, today);
     if (days <= 0) continue;                 // 지킬 기록이 없으면 아낀다
     prot.push(d); count -= 1; saved.push({ date: d, days });
@@ -86,6 +99,7 @@ export const findRecoverableMiss = (states, earliest, rec, today) => {
   let last = null;
   for (let d = addDays(today, -1); d >= earliest; d = addDays(d, -1)) { if (states[d]) { last = d; break; } }
   if (!last || states[last] === "ok" || r.protected.includes(last)) return null;
+  if (!prevDayWasOk(states, earliest, last)) return null;   // 그 전날도 놓쳤으면(보호했어도) 살릴 수 없다
   const days = countStreak(states, earliest, addDays(last, -1), r.protected, today);
   return days > 0 ? { date: last, days } : null;
 };
