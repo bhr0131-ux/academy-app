@@ -1,6 +1,6 @@
 import { C, CAMP_SHEET, mixWhite } from "../../data/tokens.js";
 import EmojiIcon, { EmojiText } from "../EmojiIcon.jsx";
-import { PET_STAGES, petView, PET_STAGE_IMG } from "../../data/gameData.jsx";
+import { PET_STAGES, petView, PET_STAGE_IMG, PET_STREAK_STAGES, nextPetStreakGoal } from "../../data/gameData.jsx";
 
 /* ════════════════════════════════════════════════════════════════════════
    PetSheet — 나의 펫 (캐릭터 탭에서 열리는 바텀시트, 캠프 개편 4/6)
@@ -23,10 +23,11 @@ import { PET_STAGES, petView, PET_STAGE_IMG } from "../../data/gameData.jsx";
                쓴다. 펫 스킨을 장착했으면(완성형) img가 비어 있어 스킨 이모지로 그려진다.
                안 주면(구버전 호환) 이 컴포넌트가 직접 petView로 계산한다 — 스킨은 반영 안 됨.
      themeMain : th.main (배경 그라데이션에 살짝 섞는 테마색)
-     boxName, boxEmoji : TM.box / TM.boxEmoji (스킨별 상자 이름)
+     boxName, boxEmoji : TM.box / TM.boxEmoji (스킨별 상자 이름 — 지금은 안 쓴다, 호출부 호환용)
+     streak, best : 지금 연속 일수 / 최고 연속 일수 — [사용자 확정 2026-11-27] 펫은 연속 달성으로 진화
    ════════════════════════════════════════════════════════════════════════ */
 export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dungeon", pet: petProp,
-  themeMain = "#60A8FF", boxName = "보물상자", boxEmoji = "🎁" }) {
+  themeMain = "#60A8FF", boxName = "보물상자", boxEmoji = "🎁", streak = 0, best = 0 }) {
   if (!open) return null;
 
   const pet = petProp || petView(PET_STAGES[stage], stage, skin);
@@ -49,7 +50,7 @@ export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dunge
               <p style={{ margin: 0, fontSize: 19, fontWeight: 900 }}>{cute ? "🦄" : "🐾"} 나의 펫</p>
               <p style={{ margin: "4px 0 0", fontSize: 12.5, fontWeight: 700,
                 color: dark ? CAMP_SHEET.headerTextSub : "#8A6B7A" }}>
-                <EmojiIcon emoji={boxEmoji} size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>{boxName}를 열면 펫이 조금씩 자라요
+                <EmojiIcon emoji="🔥" size={12.5} style={{verticalAlign:"-0.18em",marginRight:3}}/>연속 달성을 이어가면 펫이 자라요
               </p>
             </div>
             <button onClick={onClose} aria-label="닫기" style={{ border: "none", cursor: "pointer",
@@ -100,9 +101,14 @@ export default function PetSheet({ open, onClose, dark, stage = 0, skin = "dunge
                 border: `1px solid ${cute ? themeMain + "1A" : "rgba(230,190,110,0.4)"}` }}>
                 {/* 펫 스킨을 끼고 있으면 그 동물의 한 줄로 바뀐다(pet.maxMsg) —
                     스킨은 최종 진화 뒤에만 낄 수 있어서 isMax 쪽에서만 본다. */}
-                <EmojiText>{isMax
-                  ? (pet.maxMsg || (cute ? "🏆 최종 성장 완료! 최고의 펫이에요" : "🏆 최종 진화 완료! 최고의 펫이에요"))
-                  : `${boxEmoji} ${boxName}를 열면 가끔 ${cute ? "펫이 자라요" : "펫이 진화해요"}`}</EmojiText>
+                {isMax
+                  ? <EmojiText>{pet.maxMsg || (cute ? "🏆 최종 성장 완료! 최고의 펫이에요" : "🏆 최종 진화 완료! 최고의 펫이에요")}</EmojiText>
+                  : (<>
+                      <EmojiText>{`🔥 연속 ${PET_STREAK_STAGES.join("일·")}일 달성 시 ${cute ? "자라요" : "진화해요"}`}</EmojiText>
+                      <div style={{ marginTop: 4, fontWeight: 900, color: cute ? C.text : CAMP_SHEET.text }}>
+                        다음 {cute ? "성장" : "진화"}: 연속 {nextPetStreakGoal(stage)}일 <span style={{ fontWeight: 700, opacity: 0.8 }}>(지금 {streak}일 · 최고 {best}일)</span>
+                      </div>
+                    </>)}
               </div>
             </div>
           </div>

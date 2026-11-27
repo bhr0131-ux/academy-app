@@ -62,7 +62,7 @@ export function KidCoachmark({ th, onFinish, skin="dungeon" }){
         { icon:"🗺️", title:"오늘 갈 곳을 확인해요", desc:"탐험 탭에서 오늘 갈 곳과 시간,\n챙길 준비물을 볼 수 있어요." },
         { icon:"🎯", title:"미션을 해내요", desc:"미션 탭에서 할 일을 눌러 완료하면\n코인(💎)과 점수(⭐)를 받아요." },
         { icon:"💎", title:"코인을 모아요!", desc:"간식 같은 보상을 받고\n내 아바타도 꾸밀 수 있어요." },
-        { icon:"⭐", title:"점수를 모아요!", desc:"내 성장캐릭터와 펫이 진화해요.\n보물상자를 열어 보너스를 받아보세요." },
+        { icon:"⭐", title:"점수를 모아요!", desc:"레벨이 오르고 보물상자도 받아요.\n연속으로 해내면 펫이 진화해요!" },
       ];
   const [i,setI]=useState(0);
   const last=i===cards.length-1;

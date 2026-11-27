@@ -798,7 +798,7 @@ export const CHARACTER_EVOLUTIONS = [
   { minLevel:17, name:"전설기", avatar:{boy:"🧑‍🚀",girl:"👩‍🚀"}, badge:"🚀", bg:"linear-gradient(135deg,#FFF7ED,#FEF3C7)" },
 ];
 
-// ── 펫 진화 (한 길, 0→4단계). 보물상자에서 낮은 확률로 1단계씩 진화 ──
+// ── 펫 진화 (한 길, 0→4단계). 최고 연속 달성 일수로 진화 (아래 PET_STREAK_STAGES, 2026-11-27) ──
 // 단계별로 그림을 받은 만큼만 이모지 대신 그림으로 — 사용자 원화(2026-08-24).
 // 그림이 아직 없는 단계는 이모지 그대로 (PET_STAGE_IMG[stage] 가 없으면 폴백).
 export const PET_STAGE_IMG = {
@@ -815,6 +815,19 @@ export const PET_STAGES = [
   { stage:3, emoji:"🐲", name:"늠름한 청룡",   desc:"용기와 책임감을 갖춘 수호자" },
   { stage:4, emoji:"🐉", name:"전설의 드래곤", desc:"전설로 남을 위대한 존재" },
 ];
+/* ── 펫 진화 = 최고 연속 달성 일수 (사용자 확정 2026-11-27) ─────────────────
+   보물상자 랜덤 진화를 없애고, 최고 연속 달성 기록으로 단계를 정한다.
+     알(0) → 3일 부화(1) → 7일(2) → 14일(3) → 30일 최종(4)
+   최고 기록 기준이라 연속이 끊겨도 이미 오른 단계는 내려가지 않는다.
+   (아래 PET_EVOLVE_CHANCE·PET_EVOLVE_LEGEND_PITY 는 더 이상 쓰지 않는다 — 기록용으로 남김) */
+export const PET_STREAK_STAGES = [3, 7, 14, 30];   // 1·2·3·4단계에 필요한 최고 연속 일수
+export const petStageForStreak = (best) => {
+  const n = Number(best);
+  if (!Number.isFinite(n)) return 0;
+  return PET_STREAK_STAGES.filter(d => n >= d).length;
+};
+/** 다음 진화에 필요한 연속 일수 (최종이면 null) */
+export const nextPetStreakGoal = (stage) => PET_STREAK_STAGES[Math.max(0, Number(stage) || 0)] ?? null;
 // 상자 등급별 펫 진화 확률 (6개월 만렙 곡선 기준, 4단계 평균완성 약 4.5개월에 맞춰 하향)
 // 천장이 기본 보장선을 깔고, 이 확률은 '가끔 일찍 터지는 재미' 보조 역할.
 export const PET_EVOLVE_CHANCE = { normal:0.0125, rare:0.021, legend:0.033 };
