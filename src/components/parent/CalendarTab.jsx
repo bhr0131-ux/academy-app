@@ -586,7 +586,7 @@ export default function CalendarTab({
                       <span style={{color:C.sub,marginTop:2,flexShrink:0,display:"flex"}}><CareIcon name="memo" size={14}/></span>
                       <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.normal,color:C.text,lineHeight:1.45}}>
                         {rl&&<span style={{display:"inline-flex",alignItems:"center",gap:3,marginRight:6,verticalAlign:"1px",fontSize:FS.tag,fontWeight:FW.semi,color:th.main,background:`${th.main}14`,borderRadius:RAD.sm,padding:"1px 6px"}}>
-                          <CareIcon name="repeat" size={10}/>{({weekly:"매주",monthly:"매월",yearly:"매년"})[mm.repeat]||"반복"}</span>}
+                          <CareIcon name="repeat" size={10}/>{({weekly:"매주",monthly:"매월",yearly:"매년",dates:"여러 날"})[mm.repeat]||"반복"}</span>}
                         <span style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{mm.text}</span>
                       </span>
                       <span aria-hidden="true" style={{flexShrink:0,color:"#9CA3AF",marginTop:2,display:"flex"}}><CareIcon name="pencil" size={13}/></span>

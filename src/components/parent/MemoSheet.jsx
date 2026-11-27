@@ -28,32 +28,37 @@ export const memoRepeatLabel = (memo) => {
   }
   if (memo.repeat === "monthly") return `매월 ${Number(memo.mday) || d.getDate()}일`;
   if (memo.repeat === "yearly") { const [mm, dd] = (memo.md || String(memo.date).slice(5)).split("-").map(Number); return `매년 ${mm}월 ${dd}일`; }
+  if (memo.repeat === "dates") return `여러 날 ${(memo.dates || []).length}일`;
   return "";
 };
 
 export default function MemoSheet({ dateStr, dn, memo = null, th, CT, onSave, onDelete, onClose }) {
   const editing = !!memo;
   const [text, setText] = useState(memo ? memo.text : "");
-  const [repeat, setRepeat] = useState(memo ? (memo.repeat || "none") : "none");
+  /* [사용자 확정 2026-11-27] 기본은 아무것도 안 고른 상태(null) = 이 날만. 고른 버튼을 다시 누르면 해제 */
+  const [repeat, setRepeat] = useState(memo && memo.repeat && memo.repeat !== "none" ? memo.repeat : null);
   const [askDel, setAskDel] = useState(false);
   const [y, m, d] = dateStr.split("-").map(Number);
   /* [사용자 확정 2026-11-27] 주기 4가지 + 주기별 날짜·요일 고르기. 기본값은 창을 연 날짜.
      수정할 때는 그 메모에 저장된 값을 먼저 채운다(예전 메모는 시작일에서 계산). */
   const base = memo && memo.date ? new Date(memo.date.replace(/-/g, "/")) : new Date(y, m - 1, d);
-  const [oneDate, setOneDate] = useState(memo && (memo.repeat || "none") === "none" ? memo.date : dateStr);
+  // 여러 날 — 미니 달력에서 고른 날짜들 (처음엔 창을 연 날짜 하나)
+  const [pickDates, setPickDates] = useState(memo && memo.repeat === "dates" && memo.dates && memo.dates.length ? memo.dates : [dateStr]);
+  const [calYM, setCalYM] = useState({ y, m });   // 미니 달력이 보여 주는 달
+  const togglePick = (ds) => setPickDates(p => p.includes(ds) ? p.filter(x => x !== ds) : [...p, ds]);
   const [days, setDays] = useState(memo && memo.days && memo.days.length ? memo.days : [base.getDay()]);
   const [mday, setMday] = useState(memo && memo.mday ? Number(memo.mday) : base.getDate());
   const [ymd, setYmd] = useState(() => {
     const [mm, dd] = (memo && memo.md ? memo.md : `${String(base.getMonth() + 1).padStart(2, "0")}-${String(base.getDate()).padStart(2, "0")}`).split("-").map(Number);
     return { m: mm, d: dd };
   });
-  const opts = [{ k: "none", l: "이 날만" }, { k: "weekly", l: "매주" }, { k: "monthly", l: "매월" }, { k: "yearly", l: "매년" }];
+  const opts = [{ k: "dates", l: "여러 날" }, { k: "weekly", l: "매주" }, { k: "monthly", l: "매월" }, { k: "yearly", l: "매년" }];
   const maxDayOf = (mm) => [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mm - 1];
   const toggleDay = (x) => setDays(p => p.includes(x) ? p.filter(v => v !== x) : [...p, x]);
   const fieldBox = { width: "100%", boxSizing: "border-box", background: CT.faint, border: `1px solid ${CT.faintB}`, borderRadius: RAD.sm,
     padding: "11px 12px", color: C.text, fontSize: FS.cardTitle, outline: "none", fontFamily: "inherit" };
   const isRepeat = memo && memo.repeat && memo.repeat !== "none";
-  const canSave = text.trim().length > 0 && (repeat !== "weekly" || days.length > 0) && (repeat !== "none" || !!oneDate);
+  const canSave = text.trim().length > 0 && (repeat !== "weekly" || days.length > 0) && (repeat !== "dates" || pickDates.length > 0);
   const lbl = { fontSize: FS.body, color: C.sub, display: "block", marginBottom: 7, fontWeight: FW.normal };
 
   /* body 바로 아래로 — 캘린더 안에 두면 하단 메뉴가 창 아래쪽(저장 버튼)을 덮었다 */
@@ -78,12 +83,15 @@ export default function MemoSheet({ dateStr, dn, memo = null, th, CT, onSave, on
             lineHeight: 1.5, marginBottom: 16 }} />
         <style>{`.memo-faint-ph::placeholder{color:#C4C9D4;opacity:1}`}</style>
 
-        <label style={lbl}>반복</label>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 7 }}>
+          <span style={{ ...lbl, marginBottom: 0 }}>반복</span>
+          <span style={{ fontSize: FS.tag, color: "#9CA3AF", fontWeight: FW.normal }}>선택하지 않으면 이 날만 반영</span>
+        </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
           {opts.map(o => {
             const on = repeat === o.k;
             return (
-              <button key={o.k} onClick={() => setRepeat(o.k)} className="jelly-tap" aria-pressed={on}
+              <button key={o.k} onClick={() => setRepeat(r => r === o.k ? null : o.k)} className="jelly-tap" aria-pressed={on}
                 style={{ flex: "1 1 0", minWidth: 0, padding: "9px 6px", borderRadius: RAD.pill, cursor: "pointer", fontFamily: "inherit",
                   border: `1.5px solid ${on ? th.main : C.border}`, background: on ? `${th.main}14` : "#fff",
                   color: on ? th.main : C.sub, fontSize: FS.sub, fontWeight: FW.semi, whiteSpace: "nowrap" }}>
@@ -93,10 +101,41 @@ export default function MemoSheet({ dateStr, dn, memo = null, th, CT, onSave, on
           })}
         </div>
         {/* 주기별 날짜·요일 */}
-        <div style={{ marginBottom: 22 }}>
-          {repeat === "none" && (
-            <input type="date" value={oneDate} onChange={e => setOneDate(e.target.value)} aria-label="메모 날짜" style={fieldBox} />
-          )}
+        <div style={{ marginBottom: repeat ? 22 : 12 }}>
+          {repeat === "dates" && (() => {
+            /* 미니 달력 — 여러 날짜를 눌러 고르고 다시 눌러 뺀다 */
+            const first = new Date(calYM.y, calYM.m - 1, 1).getDay();
+            const last = new Date(calYM.y, calYM.m, 0).getDate();
+            const cells = [...Array(first).fill(null), ...Array.from({ length: last }, (_, i) => i + 1)];
+            const ds = (dd) => `${calYM.y}-${String(calYM.m).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+            const move = (k) => setCalYM(v => { const t = new Date(v.y, v.m - 1 + k, 1); return { y: t.getFullYear(), m: t.getMonth() + 1 }; });
+            const navB = { border: "none", background: "none", width: 30, height: 28, fontSize: 17, color: C.sub, cursor: "pointer", fontFamily: "inherit", padding: 0 };
+            return (
+              <div style={{ border: `1px solid ${C.border}`, borderRadius: RAD.md, padding: "8px 8px 6px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 2, marginBottom: 4 }}>
+                  <button onClick={() => move(-1)} aria-label="이전 달" className="jelly-tap" style={navB}>‹</button>
+                  <span style={{ fontSize: FS.body, fontWeight: FW.bold, color: C.text }}>{calYM.y}년 {calYM.m}월</span>
+                  <button onClick={() => move(1)} aria-label="다음 달" className="jelly-tap" style={navB}>›</button>
+                  <span style={{ marginLeft: "auto", fontSize: FS.tag, fontWeight: FW.semi, color: pickDates.length ? th.main : C.red, paddingRight: 4 }}>
+                    {pickDates.length ? `${pickDates.length}일 선택됨` : "날짜를 골라 주세요"}
+                  </span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", textAlign: "center", rowGap: 2 }}>
+                  {DN.map((w, i) => <span key={w} style={{ fontSize: 11, color: i === 0 ? C.red : i === 6 ? "#3498DB" : C.sub, padding: "2px 0" }}>{w}</span>)}
+                  {cells.map((dd, i) => {
+                    if (!dd) return <span key={`e${i}`} />;
+                    const on = pickDates.includes(ds(dd));
+                    return (
+                      <button key={dd} onClick={() => togglePick(ds(dd))} aria-pressed={on} aria-label={`${calYM.m}월 ${dd}일`}
+                        style={{ justifySelf: "center", width: 30, height: 30, borderRadius: "50%", border: on ? "none" : "1px solid transparent", cursor: "pointer",
+                          background: on ? th.main : "transparent", color: on ? "#fff" : C.text, fontSize: FS.sub, fontWeight: on ? FW.bold : FW.normal,
+                          fontFamily: "inherit", padding: 0 }}>{dd}</button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
           {repeat === "weekly" && (<>
             <div style={{ display: "flex", gap: 5 }}>
               {WEEK_ORDER.map(x => {
@@ -139,7 +178,7 @@ export default function MemoSheet({ dateStr, dn, memo = null, th, CT, onSave, on
           )}
         </div>
 
-        <button onClick={() => canSave && onSave({ text, repeat, date: oneDate, days, mday,
+        <button onClick={() => canSave && onSave({ text, repeat: repeat || "none", dates: pickDates, days, mday,
             md: `${String(ymd.m).padStart(2, "0")}-${String(ymd.d).padStart(2, "0")}` })} className="jelly-tap" aria-disabled={!canSave}
           style={{ width: "100%", padding: 15, borderRadius: 14, border: "none", background: th.grad || th.main, color: "#fff",
             fontSize: 17, fontWeight: 700, cursor: canSave ? "pointer" : "default", opacity: canSave ? 1 : 0.45, fontFamily: "inherit" }}>

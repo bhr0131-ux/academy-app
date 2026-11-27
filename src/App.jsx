@@ -4457,6 +4457,7 @@ export default function App() {
     if(!mm||!mm.date||(mm.skip||[]).includes(dateStr)) return false;
     const rep=mm.repeat||"none";
     if(rep==="none") return dateStr===mm.date;
+    if(rep==="dates") return (mm.dates||[]).includes(dateStr);   // 여러 날 — 고른 날짜들에만 (2026-11-27)
     if(dateStr<mm.date) return false;
     const [y,m,d]=dateStr.split("-").map(Number);
     const lastDay=new Date(y,m,0).getDate();
@@ -4480,11 +4481,11 @@ export default function App() {
     return out;
   };
   // 저장: memo 가 없으면 새로 추가, 있으면 고친다 (반복 메모는 묶음 전체가 바뀐다)
-  const saveMemo=(cid,dateStr,memo,{text,repeat,date,days,mday,md})=>{
+  const saveMemo=(cid,dateStr,memo,{text,repeat,date,days,mday,md,dates})=>{
     const t=(text||"").trim(); if(!t) return;
     const rep=repeat||"none";
     // 주기별 설정 — '이 날만'은 고른 날짜(date)가 그 메모의 날이 된다
-    const rule={repeat:rep,days:rep==="weekly"?[...(days||[])]:undefined,mday:rep==="monthly"?Number(mday)||undefined:undefined,md:rep==="yearly"?md:undefined};
+    const rule={repeat:rep,days:rep==="weekly"?[...(days||[])]:undefined,mday:rep==="monthly"?Number(mday)||undefined:undefined,md:rep==="yearly"?md:undefined,dates:rep==="dates"?[...new Set(dates||[])].sort():undefined};
     if(memo&&memo.legacy){   // 옛 메모를 고치면 새 목록으로 옮긴다
       setDayMemos(p=>{ const n={...p}; delete n[mKeyOf(cid,dateStr)]; return n; });
       memo=null;
