@@ -42,6 +42,9 @@ import { RowAct } from "./AcademyTab.jsx";
    C.sub(#8890B0)보다 한 단계 진한 청회색. 칩은 펼친 카드에서 한 모양으로 쓴다. */
 const SUBD="#5F678C";
 const chip={fontSize:FS.sub,fontWeight:FW.normal,padding:"3px 9px",borderRadius:RAD.lg,lineHeight:1.5};
+/* 학원 카드 '준비물'·'오늘 미션' 줄 — 라벨 고정폭(두 줄 칩 시작선 맞춤) + 칩 묶음 (2026-11-27) */
+const rowLabel={display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD,minWidth:72,minHeight:30};
+const chipWrap={flex:1,minWidth:0,display:"flex",flexWrap:"wrap",alignItems:"center",gap:6};
 /* 체크 버튼 — '준비물 확인' 창(TodayCareModals)의 버튼과 같은 모양·색 (사용자 확정 2026-11-23)
    안 한 것: 흰 바탕·회색 테두리·○ / 한 것: 초록 바탕·초록 글자·✓ / 미완료(실패): 흐린 회색, 못 누름 */
 function CheckChip({ label, on, failed = false, onPress }){
@@ -54,7 +57,9 @@ function CheckChip({ label, on, failed = false, onPress }){
         border:`1px solid ${on?G+"88":C.border}`,color:on?G:failed?"#A6ADBD":SUBD,
         textDecoration:failed?"line-through":"none",display:"inline-flex",alignItems:"center",gap:6,minWidth:0}}>
       <span style={{flexShrink:0,display:"flex"}}><CareIcon name={on?"check":"checkEmpty"} size={14}/></span>
-      <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{label}</span>
+      {/* [사용자 확정 2026-11-27] 긴 글자는 두 줄까지 보이고, 그 이상만 '…' */}
+      <span style={{minWidth:0,overflow:"hidden",whiteSpace:"normal",wordBreak:"keep-all",overflowWrap:"anywhere",textAlign:"left",lineHeight:1.3,
+        display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{label}</span>
     </button>
   );
 }
@@ -181,6 +186,9 @@ export default function ParentHomeTab({
             go:()=>onOpenSupplyCheck(tomorrow)});
           if(pendingRewardCnt>0) alerts.push({icon:"reward",name:"보상 승인",items:pendingRewards.map(r=>r.title),label:`보상승인 ${pendingRewardCnt}개`,color:C.green,
             go:onGoReward});
+          /* [사용자 확정 2026-11-27] 휴원 배너 대신 여기 한 줄 — 누르면 캘린더(그날 상세)로 */
+          if(vacAcToday.length>0) alerts.push({icon:"vacation",name:"휴원",items:vacAcToday.map(a=>acKindLabel(a)),label:`휴원 ${vacAcToday.length}곳`,color:"#E65100",
+            go:()=>onGoMemo?onGoMemo():onGoTab("calendar")});   /* 메모 줄과 같은 이동 — 캘린더에서 이 날짜를 연다 */
           if(absOnHome.length>0) alerts.push({icon:"absent",name:"결석",items:absOnHome.map(a=>acName(a.academyId)).filter(Boolean),label:`결석 ${absOnHome.length}개`,color:C.red,
             go:()=>onGoTab("absence")});
           if(makeupOnHome.length>0) alerts.push({icon:"makeup",name:"보충수업",items:makeupOnHome.map(a=>acName(a.academyId)).filter(Boolean),label:`보충수업 ${makeupOnHome.length}개`,color:C.orange,
@@ -344,78 +352,12 @@ export default function ParentHomeTab({
 
       </div>
 
-      {/* 방학 중인 학원 표시 */}
-      {vacAcToday.length>0&&(
-        /* [사용자 확정 2026-08-10] 이 알림 세 칸(방학·결석·보충)만 글자가 17px이라
-           카드·칩(12~15px) 사이에서 혼자 튀었다. 달력 상세 카드와 같은 크기로 맞춘다.
-           제목 12.5/900 + 본문 13/700, 이모지는 선 아이콘. */
-        /* [사용자 확정 2026-08-10] 알림 세 종류(휴원·결석·보충)는 학원 카드와 헷갈리지 않게
-           얇은 배너로 통일한다 — 테두리 상자 대신 왼쪽 세로선 하나, 배경은 아주 옅게. */
-        <div style={{display:"flex",gap:10,background:"#FFF9EC",borderRadius:RAD.sm,marginBottom:18,overflow:"hidden"}}>
-          <div style={{width:3,background:"#F0A500",flexShrink:0}}/>
-          <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,color:"#E65100"}}>
-              <CareIcon name="vacation" size={13}/><span style={{fontSize:FS.tag,fontWeight:FW.bold}}>휴원 (방학)</span>
-            </div>
-            <p style={{margin:"2px 0 0",fontSize:FS.body,fontWeight:FW.semi,color:C.text}}>{vacAcToday.map(a=>a.name).join(" · ")}</p>
-          </div>
-        </div>
-      )}
+      {/* (2026-11-27 사용자 확정) 휴원·결석·보충 배너는 뺐다 — '오늘 챙길 일'의 휴원·결석·보충수업 줄과 아래 학원 목록이 같은 내용을 보여 준다 */}
 
       {/* (이동됨) '학원 일정이 없어요' 빈 칸 — 예전엔 학원 칸 '위'에 따로 있었다.
           [사용자 확정 2026-08-16] 오늘의 학원/등록 학원 토글이 생기면서, 빈 칸도
           그 토글 아래 '학원 카드 자리'로 내려갔다. 아래 학원 칸에서 그린다. */}
 
-      {/* 결석 표시 */}
-      {absOnHome.length>0&&(
-        <div style={{display:"flex",gap:10,background:`${C.red}08`,borderRadius:RAD.sm,marginBottom:18,overflow:"hidden"}}>
-          <div style={{width:3,background:C.red,flexShrink:0}}/>
-          <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,color:C.red}}>
-              <CareIcon name="absent" size={13}/><span style={{fontSize:FS.tag,fontWeight:FW.bold}}>결석</span>
-            </div>
-            {absOnHome.map(ab=>{
-              const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
-              return (
-                <p key={ab.id} style={{fontSize:FS.body,fontWeight:FW.semi,color:C.text,margin:"2px 0 0"}}>
-                  {ac.name}{ab.reason&&<span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub}}> · {ab.reason}</span>}
-                </p>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* 보충수업 표시 */}
-      {makeupOnHome.length>0&&(
-        /* [사용자 확정 2026-08-10] 보충수업 카드가 학원 카드만큼 커서 정규 일정으로 착각하기 쉬웠다.
-           왼쪽 주황 세로선 + 두 줄짜리 얇은 배너로 줄이고, 결석일도 '8월 8일 결석분'으로 자연스럽게. */
-        <div style={{display:"flex",gap:10,background:`${C.orange}0A`,borderRadius:RAD.sm,marginBottom:18,overflow:"hidden"}}>
-          <div style={{width:3,background:C.orange,flexShrink:0}}/>
-          <div style={{flex:1,minWidth:0,padding:"8px 11px 8px 0"}}>
-          {makeupOnHome.map((ab,mi)=>{
-            const ac=curAc.find(a=>String(a.id)===String(ab.academyId)); if(!ac) return null;
-            const mt=makeupTimeText(ab);
-            const [,am,ad]=ab.date.split("-").map(Number);
-            return (
-              <div key={ab.id} style={{marginTop:mi?7:0}}>
-                <div style={{display:"flex",alignItems:"center",gap:6,color:C.orange}}>
-                  <CareIcon name="makeup" size={13}/>
-                  <span style={{fontSize:FS.tag,fontWeight:FW.bold}}>보충수업</span>
-                  <span style={{fontSize:FS.tag,fontWeight:FW.semi,color:C.sub,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>· {ac.name}</span>
-                  {ab.makeupStatus==="absent"&&<span style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,color:C.red}}>불참</span>}
-                  {ab.makeupStatus==="done"&&<span style={{marginLeft:"auto",flexShrink:0,fontSize:FS.tag,fontWeight:FW.semi,color:C.green}}>완료</span>}
-                </div>
-                <p style={{fontSize:FS.body,fontWeight:FW.semi,color:C.text,margin:"2px 0 0"}}>
-                  {dayTag||`${hd.getMonth()+1}월 ${hd.getDate()}일`}{mt&&` ${mt}`}
-                  <span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginLeft:7}}>{am}월 {ad}일 결석분</span>
-                </p>
-              </div>
-            );
-          })}
-          </div>
-        </div>
-      )}
 
       {/* ── 학원 칸 머리 — '오늘 가는 학원 / 전체 학원' 토글 (사용자 확정 2026-09-28 개편) ──
              학원 탭을 따로 두지 않고 이 자리에서 바꿔 본다. 위(날짜·오늘 챙길 일)와
@@ -617,28 +559,35 @@ export default function ParentHomeTab({
                      학원마다 한 줄이었다 두 줄이었다 해서 카드끼리 층이 안 맞았다.
                      준비물이 하나뿐이어도 미션은 늘 그 아래로 내린다. */}
               <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",gap:10,marginBottom:14}}>
-                <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
-                  <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
+                {/* [사용자 확정 2026-11-27] 라벨은 왼쪽에 고정, 칩은 따로 묶어 옆으로 먼저 잇고
+                    넘치면 라벨 아래가 아니라 첫 칩 시작선에 맞춰 줄바꿈 (두 줄의 칩 시작선도 같게) */}
+                <div style={{width:"100%",display:"flex",alignItems:"flex-start",gap:8}}>
+                  <span style={{...rowLabel}}>
                     <CareIcon name="bag" size={14}/>
                     <span style={{fontSize:FS.tag,...SUB_LABEL}}>준비물</span>
                   </span>
+                  <div style={chipWrap}>
                   {baseSup.map((x,i)=><CheckChip key={`b${i}`} label={x} on={checkedSup.includes(x)}
                     onPress={onToggleSupply?()=>onToggleSupply(ac.id,homeDate,x):null}/>)}
                   {sup.map((x,i)=><CheckChip key={`d${i}`} label={x} on={checkedSup.includes("+"+x)}
                     onPress={onToggleSupply?()=>onToggleSupply(ac.id,homeDate,"+"+x):null}/>)}
                   {baseSup.length===0&&sup.length===0&&<span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>}
+                  </div>
                 </div>
-                <div style={{maxWidth:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
-                  <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD}}>
+                {/* 오늘 미션은 정렬선을 맞추지 않는다 — 넘치면 라벨 아래 왼쪽 끝부터 이어져 긴 미션이 넓게 쓴다 (사용자 확정 2026-11-27) */}
+                <div style={{width:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
+                  <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD,minHeight:30,marginRight:2}}>
                     <CareIcon name="mission" size={14}/>
                     <span style={{fontSize:FS.tag,...SUB_LABEL}}>오늘 미션</span>
                   </span>
+                  <div style={{display:"contents"}}>
                   {totalTodoCnt===0
                     ? <span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>
                     : missionChips.map((mc,i)=>(
                         <CheckChip key={`m${i}`} label={mc.text} on={!!mc.done} failed={!!mc.failed}
                           onPress={onToggleQuest&&!mc.failed?()=>onToggleQuest({...mc,academyId:ac.id,date:homeDate}):null}/>
                       ))}
+                  </div>
                 </div>
               </div>
               {/* 맨 아랫줄 — 왼쪽 끝에 전화·문자, 오른쪽 끝에 '준비물 수정' (2026-11-22).
@@ -673,16 +622,19 @@ export default function ParentHomeTab({
       {/* [사용자 확정 2026-08-16] 이 줄은 '그날' 쉬는 학원을 고르는 것이라
           날짜와 무관한 '등록 학원'을 볼 때는 뜻이 맞지 않는다 → 오늘의 학원일 때만. */}
       {acView==="today"&&holidayName&&(homeAc.length>0||vacAcToday.length>0)&&(
+        /* [사용자 확정 2026-11-27] 빨간 점선 상자 → 캘린더 알림 줄처럼 흰 바탕·얇은 회색 테두리 한 줄 (공휴일 이름만 빨강) */
         <button onClick={()=>onHolidayRest&&onHolidayRest(holidayName)} className="jelly-tap"
-          style={{width:"100%",marginTop:homeAc.length>0?2:0,marginBottom:4,padding:"11px 12px",borderRadius:RAD.md,
-            border:`1px dashed ${C.red}45`,background:`${C.red}08`,cursor:"pointer",fontFamily:"inherit",
+          style={{width:"100%",marginTop:homeAc.length>0?2:0,marginBottom:4,padding:"10px 12px",borderRadius:RAD.md,
+            border:"1px solid #E5E7EB",background:"#fff",cursor:"pointer",fontFamily:"inherit",
             display:"flex",alignItems:"center",gap:8,textAlign:"left"}}>
-          <span style={{fontSize:FS.body,fontWeight:FW.bold,color:C.red,flexShrink:0}}>{holidayName}</span>
+          <span style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:5,fontSize:FS.tag,fontWeight:FW.bold,color:C.red}}>
+            <CareIcon name="vacation" size={13}/>{holidayName}
+          </span>
           <span style={{flex:1,minWidth:0,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,
             overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
             {vacAcToday.length>0?`${vacAcToday.length}곳 휴원 · 바꾸기`:"쉬는 학원 고르기"}
           </span>
-          <span style={{flexShrink:0,fontSize:12,fontWeight:FW.bold,color:C.red}}>›</span>
+          <span style={{flexShrink:0,fontSize:12,fontWeight:FW.bold,color:"#B9B3AD"}}>›</span>
         </button>
       )}
 
