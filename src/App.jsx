@@ -1,5 +1,5 @@
 import { CLOSE_BTN, DAYS, FS, FW, RAD, CTRL_H, DAY_COLORS, GENDER_THEME, CHILD_THEME_COLORS, C, mixWhite, mixBlack, headerTone, softTint, dungeonTone, KID_PAPER, mixHex, makeThemeColors, SHADOW, CHARACTER_CARD, GAME_MODAL_STYLE, PALETTE, parentTheme, DEFAULT_HOMEWORK_SCORE, EXTRA_QUEST_ID, EXTRA_QUEST_ICON, DEV_PIN, QUEST_COIN_MUL, RECOVERY_QUESTIONS, PREMIUM_ENABLED, FOUNDING_USER_IS_PREMIUM, FREE_THEME_COUNT } from "./data/tokens.js";
-import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_EVOLVE_CHANCE, PET_EVOLVE_LEGEND_PITY, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
+import { DEFAULT_LEVELS, levelView, SKINS, DEFAULT_SKIN, BAKERY_ENABLED, getSkin, getAcademyTheme, IslandMap, ACADEMY_KINDS, ACADEMY_KIND_CUSTOM, getAcademyKind, guessAcademyKind, CHARACTER_EVOLUTIONS, PET_STAGES, PET_STAGE_IMG, PET_STREAK_STAGES, petStageForStreak, nextPetStreakGoal, EVOLUTION_MESSAGES, BAKERY_EVOLUTIONS, evoView, petView, evoMsgView } from "./data/gameData.jsx";
 import { ADV_CHAR_STAGE_OF, ADV_CHAR_SIZE, AVATAR_HOME_SIZE, BAKERY_CHAR_SIZE, ADV_STAGE_BG_OF, ADV_STAGE_BG_ALL, DECOR_STAGE_BG_ALL, ADV_CHAR_IMG, BAKERY_CHAR_IMG, ADV_SIT_IMG, ADV_SIT_EMPTY_H, LEVEL_UP_REWARDS, LEVEL_DESCRIPTION, REWARD_GRADES, getRewardGrade, DEFAULT_REWARDS, REWARD_SETS_BY_AGE, getRewardsByAge, getBoxInfo, getRandomTreasureCoin, UI_TEXT, LEGENDARY_TITLES, TITLE_RARITY, DEFAULT_TITLES, titleView, DECOR_RARITY, BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER, DECOR_GROUPS, TREASURE_MILESTONE, computeQuestTreasure, nextTreasureGoal, getDecorById, computeDecorPurchase, decorNeedsMaxPet, decorView, getTerms, getParentTerms, getHolidayName, fixRewardTitles } from "./data/characters.js";
 import { TODAY, refreshToday, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, newId, save, load, setSaveErrorHandler, clearAllStorage, smsLink, copyText, DEFAULT_CHILDREN } from "./utils/dates.js";
 import { useSyncState } from "./utils/useSyncState.js";
@@ -3551,50 +3551,18 @@ export default function App() {
       // 천장 카운트: 실제 드롭 성공 여부에 맞춰 보정 (성공=0, 미획득=누적)
       nextLegendPity = dropResult.title ? 0 : pity;
     }
-    // 펫 진화: 등급별 확률 + 전설상자 천장(PET_EVOLVE_LEGEND_PITY 개마다 보장 — 지금 4개).
-    // 이미 최종단계면 진화 없음
-    let petEvolved=null;
-    const curStage=getPetStage(childId);
-    // 전설상자를 열 때마다 누적 카운트 증가, 천장에 닿으면 이번에 보장
-    let petGuaranteed=false;
-    let nextPetPity=Number(cur.legendPetPity||0);
-    if(boxType==="legend"){
-      nextPetPity=Number(cur.legendPetPity||0)+1;
-      if(nextPetPity>=PET_EVOLVE_LEGEND_PITY){ petGuaranteed=true; nextPetPity=0; }
-    }
-    // ── 첫 상자 부화 보장 (탐험 전용) ──
-    // 이 아이가 상자를 처음 여는 거라면(petHatched 플래그 없음) 등급/확률과 무관하게
-    // 무조건 1단계 진화(알→아기 드래곤)시켜 "부화 순간"을 첫 보상으로 확정한다.
-    // 이미 최종단계인 예외 케이스를 빼면 사실상 알→1단계 전환을 보장.
-    // 베이커리(cute)는 강아지 상태로 시작해 부화 개념이 없으므로 보장 로직을 적용하지 않는다.
-    const firstHatch = kidSkin!=="cute" && !cur.petHatched && curStage<PET_STAGES.length-1;
-    if(firstHatch) petGuaranteed=true;
-    const willEvolve = curStage<PET_STAGES.length-1 &&
-      (petGuaranteed || Math.random()<(PET_EVOLVE_CHANCE[boxType]||0));
-    // 확률로 먼저 진화가 터졌다면 천장 카운트도 리셋(전설상자 한정)
-    // (단, 첫 상자 보장으로 켜진 경우는 천장과 무관하므로 리셋하지 않음)
-    if(boxType==="legend" && willEvolve && !petGuaranteed) nextPetPity=0;
+    /* [사용자 확정 2026-11-27] 보물상자는 코인·상장 보상 전용 — 펫 성장·랜덤 진화는 뺐다.
+       펫은 최고 연속 달성 일수로 진화한다(아래 '펫 진화 = 연속 달성' effect).
+       treasureData 의 옛 필드(legendPetPity·petHatched)는 지우지 않고 그대로 둔다(CLAUDE.md 8). */
     // ── treasureData 단일 갱신 ──
-    // 개수 감소 + 전설 천장(legendPity/legendPetPity) + 첫부화(petHatched)를 한 번의 set으로 처리.
+    // 개수 감소 + 전설 상장 천장(legendPity)을 한 번의 set으로 처리.
     // (함수형 업데이트 prev로 처리해 여러 필드를 원자적으로 패치 — 감소가 덮어써지지 않음)
     setTreasureData(prev=>{
       const t=prev[childId]||cur;
       const patch={...t,[boxKey]:Math.max(0,Number(t[boxKey]||0)-1)};
-      if(boxType==="legend"){ patch.legendPity=nextLegendPity; patch.legendPetPity=nextPetPity; }
-      if(firstHatch) patch.petHatched=true; // 첫 상자 부화 완료 — 다음부터는 일반 확률
+      if(boxType==="legend") patch.legendPity=nextLegendPity;
       return {...prev,[childId]:patch};
     });
-    if(willEvolve){
-      const nextStage=curStage+1;
-      petEvolved={ from:petView(PET_STAGES[curStage],curStage,kidSkin), to:petView(PET_STAGES[nextStage],nextStage,kidSkin) };
-      /* 절대값(nextStage)을 써넣지 않고 prev 에서 한 칸 올린다 — 어떤 순서로 들어와도
-         '한 번 열면 한 칸'이 지켜진다. 위 거울과 이중으로 막는 셈. */
-      setPetData(prev=>{
-        const r=Number(prev[childId]??0);
-        const base=Number.isFinite(r)?Math.max(0,Math.floor(r)):0;   // 깨진 값이면 알(0)부터
-        return {...prev,[childId]:Math.min(PET_STAGES.length-1,base+1)};
-      });
-    }
     setScoreData(prev=>{
       const score=prev[childId]||{xp:0,coin:0,history:[]};
       return {...prev,[childId]:{
@@ -3609,31 +3577,8 @@ export default function App() {
     setTimeout(()=>{
       setOpeningTreasure(false);
       playSfx("chestOpen");
-      setTreasureModal({emoji,boxName,rewardCoin,titleReward:dropResult.title,headerGrad,petEvolved});
+      setTreasureModal({emoji,boxName,rewardCoin,titleReward:dropResult.title,headerGrad});
       // 상장 획득 팝업은 상장 감지 useEffect가 일원화해 처리 (중복 방지)
-      if(petEvolved){
-        // 첫 상자에서 알→1단계로 깨어난 경우 = "부화 순간". 전용 카피로 이벤트를 특별하게.
-        // (첫 부화 보장은 탐험 전용이므로 isFirstHatch 는 탐험에서만 true)
-        const isFirstHatch = firstHatch && curStage===0;
-        setTimeout(()=>showGameEvent({
-          type:"title",
-          emoji:petEvolved.to.emoji,
-          charImg:PET_STAGE_IMG[petEvolved.to.stage],
-          charImgPrev:PET_STAGE_IMG[petEvolved.from.stage],
-          title:isFirstHatch
-            ? "부화 성공! 🎉"
-            : (kidSkin==="cute"?"펫이 자랐어요!":"펫 진화!"),
-          name:petEvolved.to.name,
-          desc:isFirstHatch
-            ? "알을 깨고 새로운 동료가 깨어났다!\n이제 함께 탐험을 떠나자 🐣"
-            : petEvolved.to.desc,
-          reward:`${petEvolved.from.emoji} → ${petEvolved.to.emoji} ${
-            isFirstHatch
-              ? "펫이 깨어났어요!"
-              : (kidSkin==="cute"?"펫이 한 단계 자랐어요!":"펫이 성장했어요!")
-          }`
-        }),500);
-      }
     },1200);
   };
 
@@ -3798,12 +3743,34 @@ export default function App() {
     return true;
   };
 
+  /* 연속 달성 일수 — 오늘부터 하루씩 거슬러 올라가며 센다.
+     [사용자 확정 2026-11-27] 그날 해야 할 미션이 아예 0개인 날은 '쉬는 날'로 보고 건너뛴다
+     (끊지도, +1 하지도 않는다). +1 은 미션이 있는 날 전부 완료했을 때만.
+     미션이 있는데 실패했거나 못 끝낸 날을 만나면 거기서 멈춘다(오늘도 같다 — 예전 그대로).
+     날짜별 성공 여부는 한 번에 모아 둔다 — 빈 날을 건너뛰느라 날마다 전체를 다시 훑지 않게.
+     기록이 있는 가장 이른 날보다 앞으로는 가지 않는다(무한히 거슬러 가지 않게). */
   const getQuestStreak=(cid)=>{
+    const prefix=`${cid}-`;
+    const dayState={};   // date → "ok" | "ng" (미션이 있는 날만)
+    let earliest=null;
+    for(const [key,entry] of Object.entries(dailyData)){
+      if(!key.startsWith(prefix)) continue;
+      const date=key.slice(-10);
+      const academyId=key.slice(prefix.length,key.length-11);
+      if(!getAcademyById(cid,academyId)) continue;              // getQuestItemsForDate 와 같은 기준
+      const list=[...(entry?.homeworks||[]),...(entry?.todos||[])];
+      if(list.length===0) continue;
+      if(!earliest||date<earliest) earliest=date;
+      const ok=list.every(it=>it.done&&!it.failed);
+      dayState[date]=(dayState[date]==="ng"||!ok)?"ng":"ok";
+    }
+    if(!earliest) return 0;
     let streak=0;
-    let date=TODAY;
-    while(isQuestSuccessDay(cid,date)){
+    for(let date=TODAY; date>=earliest; date=addDays(date,-1)){
+      const st=dayState[date];
+      if(!st) continue;              // 미션 0개인 날 — 건너뛴다
+      if(st==="ng") break;
       streak+=1;
-      date=addDays(date,-1);
     }
     return streak;
   };
@@ -3821,6 +3788,45 @@ export default function App() {
       return {...prev,[childId]:currentStreak};
     });
   },[loaded,childId,dailyData]);
+
+  /* ── 펫 진화 = 최고 연속 달성 (사용자 확정 2026-11-27) ─────────────────────
+     최고 연속 기록(저장된 최고 vs 지금 연속 중 큰 값)으로 펫 단계를 정한다: 3·7·14·30일.
+     · 단계는 올라가기만 한다 — 저장된 petData 보다 낮으면 그대로 둔다(상자로 이미 키운 펫도 보호).
+     · 새 단계에 오르면 축하 팝업을 게임 이벤트 큐에 넣는다(다른 팝업과 차례로 1개씩).
+       여러 단계를 한꺼번에 건너뛰면(예: 업데이트 직후 이미 14일 기록) 팝업은 하나로, 최종 도달 단계 기준.
+     · 판단은 동기 거울(petRef)로 — setPetData 직후 다시 돌아도 같은 진화를 두 번 띄우지 않는다. */
+  useEffect(()=>{
+    if(!loaded) return;
+    for(const c of children){
+      const cid=c.id;
+      const best=Math.max(Number(bestStreakData[cid]||0),Number(getQuestStreak(cid)||0));
+      const target=petStageForStreak(best);
+      const cur=getPetStage(cid);
+      if(target<=cur) continue;
+      setPetData(prev=>{
+        const r=Number(prev[cid]??0);
+        const base=Number.isFinite(r)?Math.max(0,Math.floor(r)):0;
+        return base>=target?prev:{...prev,[cid]:target};
+      });
+      const from=petView(PET_STAGES[cur],cur,kidSkin), to=petView(PET_STAGES[target],target,kidSkin);
+      const need=PET_STREAK_STAGES[target-1];
+      const nextGoal=nextPetStreakGoal(target);
+      const who=children.length>1?`${c.name} · `:"";
+      const hatch=cur===0&&target===1&&kidSkin!=="cute";   // 알 → 1단계일 때만 '부화' 문구 (여러 단계를 한 번에 건너뛰면 '진화')
+      showGameEvent({
+        type:"title",
+        emoji:to.emoji,
+        charImg:kidSkin!=="cute"?PET_STAGE_IMG[target]:undefined,
+        charImgPrev:kidSkin!=="cute"?PET_STAGE_IMG[cur]:undefined,
+        title:hatch?"부화 성공! 🎉":(kidSkin==="cute"?"펫이 자랐어요!":"펫 진화!"),
+        name:to.name,
+        desc:`${who}🔥 연속 ${need}일 달성!\n${hatch?"알을 깨고 새로운 동료가 깨어났다! 🐣":to.desc}`,
+        reward:`${from.emoji} → ${to.emoji} ${hatch?"펫이 깨어났어요!":(kidSkin==="cute"?"펫이 한 단계 자랐어요!":"펫이 진화했어요!")}`
+          +(nextGoal?`\n다음 진화: 연속 ${nextGoal}일`:"\n🏆 최종 진화 완료!"),
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[loaded,children,bestStreakData,dailyData,petData,kidSkin]);
 
   /* ── 가방 카드 '소식' — 캐릭터 탭 가방에 1분간만 띄웠다가 원래 레벨 화면으로 (사용자 확정 2026-08-09)
        띄우는 다섯 가지: 레벨업 · 펫 진화 · 보물상자 생김 · 상장 교체 · 연속 달성 최고기록.
@@ -5005,7 +5011,8 @@ export default function App() {
         <PetSheet open={openPet} onClose={()=>setOpenPet(false)}
           dark={kidSkin!=="cute"} stage={getPetStage(childId)} skin={kidSkin}
           pet={getPet(childId)}
-          themeMain={th.main} boxName={TM.box} boxEmoji={TM.boxEmoji} />
+          themeMain={th.main} boxName={TM.box} boxEmoji={TM.boxEmoji}
+          streak={getQuestStreak(childId)} best={getBestStreak(childId)} />
         {/* 보물창고 시트 — 캐릭터 탭 '보물창고' 카드에서 연다 */}
         <TreasureSheet open={openTreasure} onClose={()=>setOpenTreasure(false)}
           dark={kidSkin!=="cute"} skin={kidSkin} treasure={getChildTreasure(childId)}
