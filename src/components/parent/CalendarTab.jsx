@@ -87,7 +87,7 @@ export default function CalendarTab({
   const dnOf=(s)=>["일","월","화","수","목","금","토"][new Date(s.replace(/-/g,"/")).getDay()];
   const korDate=(s)=>{ const [,mm,dd]=s.split("-").map(Number); return `${mm}월 ${dd}일`; };
   const selInfo=(()=>{
-    const d=new Date(effSelDate), y=d.getFullYear(), m=d.getMonth(), day=d.getDate();
+    const d=parseLocal(effSelDate), y=d.getFullYear(), m=d.getMonth(), day=d.getDate();   // 로컬 날짜로 (new Date("YYYY-MM-DD") 는 UTC 기준이라 시간대에 따라 하루 밀릴 수 있다)
     const dn=getDN(y,m,day);
     const acList=curAc.filter(a=>hasClassOnDay(a,dn));
     const mk=mKey(childId,y,m,day);
