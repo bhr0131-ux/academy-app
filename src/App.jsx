@@ -1214,11 +1214,11 @@ export default function App() {
       const g=c.gender==="girl"?"girl":"boy";
       const lv=getChildLevel(cid)?.level||1;
       const r=computeGrowthGrant(getAvatarOwned(cid),getAvatarEquipped(cid),grantedMap[cid]||[],lv,g);
-      if(r.newly.length===0) continue;
+      if(!r.changed) continue;
       nextGranted={...(nextGranted||grantedMap),[cid]:r.nextGranted};
       nextOwnedMap={...(nextOwnedMap||{}),[cid]:r.nextOwned};
       nextEqMap={...(nextEqMap||{}),[cid]:r.nextEquipped};
-      if(Array.isArray(grantedMap[cid])&&cid===childId) got.push(...r.newly.map(id=>itemLabel(getAvatarItem(id),g)));
+      if(Array.isArray(grantedMap[cid])&&cid===childId&&r.newly.length) got.push(...r.newly.map(id=>itemLabel(getAvatarItem(id),g)));
     }
     if(!nextGranted) return;
     setAvatarOwned(prev=>({...prev,...nextOwnedMap}));
@@ -1226,7 +1226,7 @@ export default function App() {
     setGrowthGranted(nextGranted);
     if(got.length) showToast(`🎁 레벨업 선물! ${got.join(" · ")} 획득`,2600);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[loaded,growthGranted,children,scoreData,childId]);
+  },[loaded,growthGranted,children,scoreData,childId,avatarOwned]);   // avatarOwned: 백업 복원 뒤 빠진 성장 장비를 바로 메운다
   useEffect(()=>{ if(loaded) save("v6_reward",rewardData); },[rewardData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_reward_requests",rewardRequests); },[rewardRequests,loaded]);
   useEffect(()=>{ if(loaded) save("v6_unlocked_badges",unlockedBadgeIds); },[unlockedBadgeIds,loaded]);
@@ -3330,7 +3330,7 @@ export default function App() {
     const item=getAvatarItem(itemId);
     if(!item) return;
     const owned=getAvatarOwned(cid), equipped=getAvatarEquipped(cid);
-    const res=computeAvatarPurchase(owned, equipped, getChildCoin(cid), itemId);
+    const res=computeAvatarPurchase(owned, equipped, getChildCoin(cid), itemId, (children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy");
     if(!res.ok){
       if(res.reason==="already_owned") showToast("이미 가지고 있어요 ✨");
       else if(res.reason==="level_reward") showToast("레벨이 오르면 선물로 받아요 🎁",2000);
@@ -3356,20 +3356,21 @@ export default function App() {
   const buyAvatarItems=(ids)=>{
     const cid=childId;
     let owned=getAvatarOwned(cid), equipped=getAvatarEquipped(cid);
+    const gg=(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy";
     const list=[...new Set(ids||[])].map(getAvatarItem).filter(Boolean);
-    const toBuy=list.filter(it=>!owned.includes(it.id)&&!isGrowthGear(it.id));   // 레벨 보상은 사지 않는다
+    const toBuy=list.filter(it=>!owned.includes(it.id)&&!isGrowthGear(it.id,gg));   // 레벨 보상은 사지 않는다
     if(toBuy.length===0) return false;
     const total=toBuy.reduce((s,it)=>s+(it.price||0),0);
     const coin=getChildCoin(cid);
     if(coin<total){ showToast(`${TM.coinEmoji} ${TM.coin} ${total-coin}개 더 모으면 한번에 살 수 있어요`,2200); return false; }
     let budget=coin;
     for(const it of list){
-      if(!owned.includes(it.id)&&isGrowthGear(it.id)) continue;   // 아직 못 받은 레벨 보상은 건너뛴다
+      if(!owned.includes(it.id)&&isGrowthGear(it.id,gg)) continue;   // 아직 못 받은 레벨 보상은 건너뛴다
       if(owned.includes(it.id)){
         if(equipped[it.slot]!==it.id){ const r=computeAvatarEquipToggle(owned,equipped,it.id); if(r.ok) equipped=r.nextEquipped; }
         continue;
       }
-      const r=computeAvatarPurchase(owned,equipped,budget,it.id);
+      const r=computeAvatarPurchase(owned,equipped,budget,it.id,gg);
       if(!r.ok) return false;   // 계산상 일어나지 않지만, 어긋나면 아무것도 사지 않는다
       owned=r.nextOwned; equipped=r.nextEquipped; budget-=r.cost;
     }

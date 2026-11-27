@@ -1054,35 +1054,42 @@ export const GROWTH_GEAR = {
   girl: { 1: ["top_vest"], 5: ["shoes_wildflower"], 9: ["hat_safari"],     13: ["back_crossbag_girl"], 17: ["hand_kickboard"] },
 };
 const GROWTH_GEAR_IDS = new Set(Object.values(GROWTH_GEAR).flatMap(t => Object.values(t).flat()));
-/** 레벨 보상 장비인가 (성별 무관 — 남녀 어느 표에든 있으면 상점 판매 제외) */
-export const isGrowthGear = (id) => GROWTH_GEAR_IDS.has(id);
+/** 레벨 보상 장비인가.
+    gender 를 주면 **그 성별이 받는** 장비만 true — 공용 아이템(탐험 카메라)은 남아만 레벨로 받으므로
+    여아에게는 상점에서 파는 보통 아이템이다. gender 없이 부르면 어느 성별 표에든 있으면 true. */
+export const isGrowthGear = (id, gender) => {
+  if (!gender) return GROWTH_GEAR_IDS.has(id);
+  return Object.values(GROWTH_GEAR[gender === "girl" ? "girl" : "boy"]).some(ids => ids.includes(id));
+};
 /** 이 성별에게 몇 레벨에 주는 장비인지 (없으면 null) */
 export const getGrowthGearLevel = (id, gender) => {
   const t = GROWTH_GEAR[gender === "girl" ? "girl" : "boy"];
   for (const [lv, ids] of Object.entries(t)) if (ids.includes(id)) return Number(lv);
-  /* 다른 성별 표에만 있는 경우 — 그 레벨을 돌려준다(표시용) */
-  const o = GROWTH_GEAR[gender === "girl" ? "boy" : "girl"];
-  for (const [lv, ids] of Object.entries(o)) if (ids.includes(id)) return Number(lv);
   return null;
 };
 /** 레벨 level 까지 받아야 할 장비를 지급한다(순수 함수).
-    · 아직 안 준 것만 — granted 에 없는 id
-    · 옷장(owned)에 넣고, 그 칸이 비었거나 기본 옷이거나 다른 성장 장비면 입힌다.
+    · 처음 주는 것(granted 에 없는 id) — 옷장에 넣고, 그 칸이 비었거나 기본 옷이거나 성장 장비면 입힌다.
       코인으로 산 장비를 입고 있는 칸은 건드리지 않는다.
-    반환: { nextOwned, nextEquipped, nextGranted, newly: string[] } */
+    · 이미 준 기록이 있는데 옷장에 없는 것(옛 백업 복원 등) — 옷장에만 다시 넣는다(입히지는 않음).
+      성장 장비는 상점에서 살 수 없어서, 이렇게 메우지 않으면 영영 못 얻는다.
+    반환: { nextOwned, nextEquipped, nextGranted, newly: string[], changed: boolean } */
 export const computeGrowthGrant = (ownedList = [], equippedMap = {}, grantedList = [], level = 1, gender = "boy") => {
   const t = GROWTH_GEAR[gender === "girl" ? "girl" : "boy"];
   const granted = new Set(grantedList || []);
   let owned = [...ownedList];
   let eq = { ...equippedMap };
   const newly = [];
+  let changed = false;
   for (let lv = 1; lv <= level; lv++) {
     for (const id of (t[lv] || [])) {
-      if (granted.has(id)) continue;
       const it = getAvatarItem(id);
+      if (granted.has(id)) {
+        if (it && !owned.includes(id)) { owned.push(id); changed = true; }
+        continue;
+      }
       granted.add(id);
       if (!it) continue;
-      newly.push(id);
+      newly.push(id); changed = true;
       if (!owned.includes(id)) owned.push(id);
       const cur = getAvatarItem(eq[it.slot]);
       if (!cur || cur.starter || isGrowthGear(cur.id)) {
@@ -1090,15 +1097,16 @@ export const computeGrowthGrant = (ownedList = [], equippedMap = {}, grantedList
       }
     }
   }
-  return { nextOwned: owned, nextEquipped: eq, nextGranted: [...granted], newly };
+  if (!changed && granted.size !== (grantedList || []).length) changed = true;
+  return { nextOwned: owned, nextEquipped: eq, nextGranted: [...granted], newly, changed };
 };
 
 /* ── 순수 로직: 구매 (성공 시 자동 장착) ─────────────────────────────── */
-export const computeAvatarPurchase = (ownedList = [], equippedMap = {}, coins = 0, itemId) => {
+export const computeAvatarPurchase = (ownedList = [], equippedMap = {}, coins = 0, itemId, gender) => {
   const item = getAvatarItem(itemId);
   if (!item) return { ok: false, reason: "not_found", nextOwned: ownedList, nextEquipped: equippedMap, cost: 0 };
   if (ownedList.includes(itemId)) return { ok: false, reason: "already_owned", nextOwned: ownedList, nextEquipped: equippedMap, cost: 0 };
-  if (isGrowthGear(itemId)) return { ok: false, reason: "level_reward", nextOwned: ownedList, nextEquipped: equippedMap, cost: 0 };   // 레벨 보상은 코인으로 안 판다
+  if (isGrowthGear(itemId, gender)) return { ok: false, reason: "level_reward", nextOwned: ownedList, nextEquipped: equippedMap, cost: 0 };   // 레벨 보상은 코인으로 안 판다
   if (coins < item.price) return { ok: false, reason: "insufficient", nextOwned: ownedList, nextEquipped: equippedMap, cost: item.price };
   return { ok: true, reason: null, nextOwned: [...ownedList, itemId], nextEquipped: applyBottomRule({ ...yieldTopForBottom(equippedMap, item.slot), [item.slot]: itemId }), cost: item.price };
 };

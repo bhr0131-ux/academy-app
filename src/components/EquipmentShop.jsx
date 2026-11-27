@@ -233,7 +233,7 @@ export default function EquipmentShop({
   const selNeed = sel ? Math.max(0, sel.price - coins) : 0;
   /* [사용자 확정 2026-11-27] 레벨 성장 장비 — 코인으로 안 팔고 그 레벨에 오르면 선물로 받는다.
      아직 못 받은 것도 입어 보기는 된다(무대에서 미리 보기만). */
-  const selGrowthLv = sel && isGrowthGear(sel.id) ? getGrowthGearLevel(sel.id, gender) : null;
+  const selGrowthLv = sel && isGrowthGear(sel.id, gender) ? getGrowthGearLevel(sel.id, gender) : null;
 
   /* 카드를 누르면 = 입어만 본다. 사거나 입는 건 하단 바에서 한 번 더 누른다.
      [사용자 확정 2026-10-01] 미리보기로 입은 카드를 한 번 더 누르면 벗는다 —
@@ -264,7 +264,7 @@ export default function EquipmentShop({
   /* [사용자 확정 2026-11-21] 한번에 구매 — 입어보는 중인 것 중 아직 안 가진 것이 2개 이상이면 나온다.
      이미 가진 건 값을 치르지 않는다(입기만). 코인이 모자라면 꺼 두고 얼마나 모자란지 알려 준다. */
   const tryIds = Object.values(preview).filter(Boolean);
-  const bulkItems = tryIds.map(getAvatarItem).filter((it) => it && !owned.includes(it.id) && !isGrowthGear(it.id));
+  const bulkItems = tryIds.map(getAvatarItem).filter((it) => it && !owned.includes(it.id) && !isGrowthGear(it.id, gender));
   const bulkTotal = bulkItems.reduce((sum, it) => sum + (it.price || 0), 0);
   const showBulk = bulkItems.length >= 2;
   const bulkAfford = coins >= bulkTotal;
@@ -459,7 +459,7 @@ export default function EquipmentShop({
             const isEquipped = equipped[item.slot] === item.id;
             const isSel = !!sel && sel.id === item.id;
             const canAfford = coins >= item.price;
-            const growthLv = isGrowthGear(item.id) ? getGrowthGearLevel(item.id, gender) : null;
+            const growthLv = isGrowthGear(item.id, gender) ? getGrowthGearLevel(item.id, gender) : null;
             const rar = AVATAR_RARITY[item.rarity] || AVATAR_RARITY.common;
 
             /* 상태 한 줄 — '보유 중'(가지고만 있음)과 '입는 중'(지금 입고 있음)을 나눈다.
