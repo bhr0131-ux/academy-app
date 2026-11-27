@@ -37,7 +37,7 @@ import { hasClassOnDay, getShuttleText, makeupTimeText, getDayPlan, feeDueDay } 
 import { getHolidayName } from "../../data/characters.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
-import { Mark, MarkText } from "./CalendarMarks.jsx";
+import { Mark, MarkText, MARK_COLORS } from "./CalendarMarks.jsx";
 import { useState } from "react";
 import MemoSheet, { memoRepeatLabel } from "./MemoSheet.jsx";
 
@@ -116,7 +116,8 @@ export default function CalendarTab({
      월간으로 돌아갔을 때 그 달이 열린다. */
   const weekMon=(()=>{ const d=parseLocal(effSelDate); return addDays(effSelDate,-d.getDay()); })();   // 그 주의 일요일
   const weekSun=addDays(weekMon,6);                                                                    // 그 주의 토요일
-  const weekMDs=(s)=>{ const [,mm,dd]=s.split("-").map(Number); return `${mm}/${dd}`; };   // 주간 머리 — 한 줄에 들어가게 짧게
+  /* 주간 머리 — '11월 22~28일' (달이 바뀌면 '11/29~12/5') (사용자 확정 2026-11-27) */
+  const weekTitle=(()=>{ const [,m1,d1]=weekMon.split("-").map(Number), [,m2,d2]=weekSun.split("-").map(Number); return m1===m2?`${m1}월 ${d1}~${d2}일`:`${m1}/${d1}~${m2}/${d2}`; /* 달이 바뀌는 주는 '11/29~12/5' — 360px 폰에서 '↩ 이번주로'까지 한 줄에 */ })();
   const goWeek=(dir)=>{
     const next=addDays(weekMon,dir*7);
     setCalSelDate(next);
@@ -137,7 +138,7 @@ export default function CalendarTab({
             className="jelly-tap" aria-label={isWeek?"이전 주":"이전 달"}
             style={{background:"none",border:"none",borderRadius:RAD.sm,width:20,height:32,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0,padding:0}}>‹</button>
           <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text,whiteSpace:"nowrap"}}>
-            {isWeek?`${weekMDs(weekMon)} ~ ${weekMDs(weekSun)}`:`${calDate.getFullYear()}년 ${calDate.getMonth()+1}월`}
+            {isWeek?weekTitle:`${calDate.getFullYear()}년 ${calDate.getMonth()+1}월`}
           </span>
           <button onClick={()=>isWeek?goWeek(1):goMonth(1)}
             className="jelly-tap" aria-label={isWeek?"다음 주":"다음 달"}
@@ -269,6 +270,28 @@ export default function CalendarTab({
               const items=byDay[day]||[];
               const dayDate=weekDates[day];
               const isTodayRow=dayDate===TODAY;
+              /* [사용자 확정 2026-11-27] 주간에도 월간 달력의 특이사항을 함께 —
+                   학원 줄 옆: 결석 · 보충/보충✓ · 휴원
+                   카드 아래 칩: 학원비 · 준비물(그날만 바뀐 것) · 메모(내용 한 줄) */
+              const absOn=curAbs.filter(x=>x.date===dayDate);
+              const mkOn=curAbs.filter(x=>x.makeupDate===dayDate);
+              const itemIds=new Set(items.map(it=>String(it.id)));
+              // 정규 수업이 없는 학원의 보충은 줄을 하나 더 만든다
+              const extraMk=mkOn.filter(x=>!itemIds.has(String(x.academyId))).map(x=>curAc.find(a=>String(a.id)===String(x.academyId))).filter(Boolean);
+              const [yy,mm,dd]=dayDate.split("-").map(Number);
+              const feeOn=curAc.filter(a=>Number(a.fee||0)>0&&feeDueDay(a,yy,mm-1)===dd);
+              const supOn=items.some(a=>{ if(isVacationDay(childId,a.id,dayDate)||absOn.some(x=>String(x.academyId)===String(a.id))) return false;
+                const e=getDailyEntry(childId,a.id,dayDate); return (e.supplies||[]).length>0||(e.hiddenBase||[]).length>0; });
+              const memosOn=getMemosForDate?getMemosForDate(dayDate):[];
+              const pill=(kind,txt,key)=>(<span key={key||kind} style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:3,fontSize:11,fontWeight:FW.semi,
+                color:MARK_COLORS[kind],background:`${MARK_COLORS[kind]}14`,borderRadius:999,padding:"1px 7px",whiteSpace:"nowrap"}}>{txt}</span>);
+              const acBadges=(acId)=>{
+                const out=[];
+                if(absOn.some(x=>String(x.academyId)===String(acId))) out.push(pill("absent","결석","ab"));
+                mkOn.filter(x=>String(x.academyId)===String(acId)).forEach(x=>out.push(x.makeupDone?pill("makeupDone","보충 ✓",`m${x.id}`):pill("makeup","보충",`m${x.id}`)));
+                return out;
+              };
+              const hasChips=feeOn.length||supOn||memosOn.length;
               return (
                 <div key={day} onClick={()=>{ setCalSelDate(dayDate); setCalView("month"); }}
                   style={{background:CT.card,borderRadius:RAD.md,border:`1px solid ${isTodayRow?th.main+"55":C.border}`,
@@ -306,9 +329,33 @@ export default function CalendarTab({
                               </span>
                               <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,
                                 overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
+                              {acBadges(ac.id)}
                             </div>
                           );
                         })}
+                    {/* 정규 수업이 없는 날의 보충 */}
+                    {extraMk.map(ac=>(
+                      <div key={`mk${ac.id}`} style={{display:"flex",alignItems:"center",gap:9,minWidth:0}}>
+                        <span style={{width:3,height:15,borderRadius:RAD.pill,background:ac.color,flexShrink:0}}/>
+                        <span style={{flexShrink:0,minWidth:46,fontSize:FS.sub,fontWeight:FW.bold,color:MARK_COLORS.makeup}}>보충</span>
+                        <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
+                        {acBadges(ac.id)}
+                      </div>
+                    ))}
+                    {/* 날짜 단위 알림 — 학원비 · 준비물 · 메모(내용 한 줄) */}
+                    {hasChips?(
+                      <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:5,marginTop:items.length||extraMk.length?-2:0,minWidth:0}}>
+                        {feeOn.length>0&&pill("fee",`학원비 ${feeOn.map(a=>acKindLabel(a)).join("·")}`)}
+                        {supOn&&pill("supply","준비물")}
+                        {memosOn.length>0&&(
+                          <span style={{flex:"1 1 120px",minWidth:0,display:"inline-flex",alignItems:"center",gap:4,fontSize:11,fontWeight:FW.semi,
+                            color:"#6B7280",background:"#F3F4F6",borderRadius:999,padding:"1px 8px"}}>
+                            <span style={{flexShrink:0,color:MARK_COLORS.memo}}>메모{memosOn.length>1?` ${memosOn.length}`:""}</span>
+                            <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:C.text,fontWeight:FW.normal}}>{memosOn[0].text.split("\n")[0]}</span>
+                          </span>
+                        )}
+                      </div>
+                    ):null}
                   </div>
                 </div>
               );
