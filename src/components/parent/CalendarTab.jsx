@@ -389,6 +389,38 @@ export default function CalendarTab({
             </div>
           )}
 
+          {/* [사용자 확정 2026-11-27] 그날만 바뀐 준비물 — 달력 '준비물' 표시가 있는 날에만 한 줄.
+              더한 것은 '과목 물건', 늘 챙기던 걸 그날 뺀 것은 '빼기'로. 그날 실제로 가는 학원(dayPlan)만 본다. */}
+          {(()=>{
+            const seen=new Set(), added=[], removed=[];
+            dayPlan.filter(a=>!a._absent).forEach(a=>{
+              if(seen.has(String(a.id))) return; seen.add(String(a.id));
+              const e=getDailyEntry(childId,a.id,effSelDate);
+              const kind=acKindLabel?acKindLabel(a):a.name;
+              (e.supplies||[]).forEach(x=>added.push({kind,x}));
+              (e.hiddenBase||[]).forEach(x=>removed.push({kind,x}));
+            });
+            if(!added.length&&!removed.length) return null;
+            return (
+              <div style={{marginTop:memos.length?6:12,display:"flex",alignItems:"flex-start",gap:8,background:`${C.orange}0D`,border:`1px solid ${C.orange}33`,
+                borderRadius:RAD.md,padding:"9px 11px"}}>
+                <span style={{color:C.orange,marginTop:2,flexShrink:0,display:"flex"}}><CareIcon name="bag" size={14}/></span>
+                <span style={{flex:1,minWidth:0,fontSize:FS.body,color:C.text,lineHeight:1.5}}>
+                  <span style={{fontSize:FS.tag,fontWeight:FW.bold,color:C.orange,marginRight:6}}>{isTodaySel?"오늘만":"이날만"} 준비물</span>
+                  {added.map((it,i)=>(
+                    <span key={`a${i}`} style={{whiteSpace:"nowrap"}}>{i?<span style={{color:C.sub,margin:"0 4px"}}>·</span>:null}
+                      <span style={{fontSize:FS.tag,...SUB_LABEL,marginRight:3}}>{it.kind}</span><b style={{fontWeight:FW.semi}}>{it.x}</b></span>
+                  ))}
+                  {removed.length>0&&(
+                    <span style={{display:"block",marginTop:2,fontSize:FS.sub,...SUB_LABEL}}>
+                      빼기 · {removed.map(it=>`${it.kind} ${it.x}`).join(" · ")}
+                    </span>
+                  )}
+                </span>
+              </div>
+            );
+          })()}
+
           <div style={{marginTop:12}}>
             {/* 학원비 납부일 */}
             {feeDueOnSel.length>0&&(
