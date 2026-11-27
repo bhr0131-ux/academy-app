@@ -6855,8 +6855,9 @@ export default function App() {
             {list.length===0?(
               <p style={{fontSize:FS.body,fontWeight:FW.normal,color:C.sub,margin:"18px 0 22px",textAlign:"center"}}>이 날 수업이 있는 학원이 없어요</p>
             ):(<>
+              {/* [사용자 확정 2026-11-27] 밑줄 링크 → 다른 창과 같은 작은 둥근 버튼 */}
               <button onClick={()=>setHolidayRest(v=>({...v,ids:allOn?[]:list.map(a=>String(a.id))}))} className="jelly-tap"
-                style={{marginBottom:8,background:"none",border:"none",padding:"4px 0",color:th.main,fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit",textDecoration:"underline",textUnderlineOffset:3}}>
+                style={{marginBottom:10,background:mixWhite(th.main,0.9),border:`1px solid ${th.main}40`,borderRadius:999,padding:"5px 12px",color:mixBlack(th.main,0.3),fontSize:FS.sub,fontWeight:FW.semi,cursor:"pointer",fontFamily:"inherit"}}>
                 {allOn?"모두 해제":"모두 쉬어요"}
               </button>
               <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:14}}>

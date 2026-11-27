@@ -622,16 +622,19 @@ export default function ParentHomeTab({
       {/* [사용자 확정 2026-08-16] 이 줄은 '그날' 쉬는 학원을 고르는 것이라
           날짜와 무관한 '등록 학원'을 볼 때는 뜻이 맞지 않는다 → 오늘의 학원일 때만. */}
       {acView==="today"&&holidayName&&(homeAc.length>0||vacAcToday.length>0)&&(
+        /* [사용자 확정 2026-11-27] 빨간 점선 상자 → 캘린더 알림 줄처럼 흰 바탕·얇은 회색 테두리 한 줄 (공휴일 이름만 빨강) */
         <button onClick={()=>onHolidayRest&&onHolidayRest(holidayName)} className="jelly-tap"
-          style={{width:"100%",marginTop:homeAc.length>0?2:0,marginBottom:4,padding:"11px 12px",borderRadius:RAD.md,
-            border:`1px dashed ${C.red}45`,background:`${C.red}08`,cursor:"pointer",fontFamily:"inherit",
+          style={{width:"100%",marginTop:homeAc.length>0?2:0,marginBottom:4,padding:"10px 12px",borderRadius:RAD.md,
+            border:"1px solid #E5E7EB",background:"#fff",cursor:"pointer",fontFamily:"inherit",
             display:"flex",alignItems:"center",gap:8,textAlign:"left"}}>
-          <span style={{fontSize:FS.body,fontWeight:FW.bold,color:C.red,flexShrink:0}}>{holidayName}</span>
+          <span style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:5,fontSize:FS.tag,fontWeight:FW.bold,color:C.red}}>
+            <CareIcon name="vacation" size={13}/>{holidayName}
+          </span>
           <span style={{flex:1,minWidth:0,fontSize:FS.sub,fontWeight:FW.normal,color:SUBD,
             overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
             {vacAcToday.length>0?`${vacAcToday.length}곳 휴원 · 바꾸기`:"쉬는 학원 고르기"}
           </span>
-          <span style={{flexShrink:0,fontSize:12,fontWeight:FW.bold,color:C.red}}>›</span>
+          <span style={{flexShrink:0,fontSize:12,fontWeight:FW.bold,color:"#B9B3AD"}}>›</span>
         </button>
       )}
 
