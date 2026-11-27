@@ -4449,11 +4449,27 @@ export default function App() {
   const mKey=(cid,y,m,d)=>`${cid}-${y}-${m}-${d}`;
   /* ── 날짜 메모 (여러 개·반복, 2026-11-27) ── */
   const mKeyOf=(cid,dateStr)=>{ const [y,m,d]=dateStr.split("-").map(Number); return mKey(cid,y,m-1,d); };
+  /* 반복 규칙 (2026-11-27 확장) — 반복 메모는 date(만든 날·시작일)부터 나온다
+       weekly  : days [0~6, 일=0] 중 하나인 요일 (예전 메모처럼 days 가 없으면 시작일의 요일)
+       monthly : 매월 mday 일 (없으면 시작일의 일) — 그달에 없는 날(31일 등)은 그달 마지막 날
+       yearly  : 매년 md "MM-DD" (없으면 시작일의 월·일) — 윤년 아닌 해의 2/29 는 2/28 */
   const memoOnDate=(mm,dateStr)=>{
-    if(!mm||!mm.date||dateStr<mm.date||(mm.skip||[]).includes(dateStr)) return false;
-    if(mm.repeat==="weekly") return new Date(dateStr.replace(/-/g,"/")).getDay()===new Date(mm.date.replace(/-/g,"/")).getDay();
-    if(mm.repeat==="monthly") return dateStr.slice(8)===mm.date.slice(8);
-    return dateStr===mm.date;
+    if(!mm||!mm.date||(mm.skip||[]).includes(dateStr)) return false;
+    const rep=mm.repeat||"none";
+    if(rep==="none") return dateStr===mm.date;
+    if(dateStr<mm.date) return false;
+    const [y,m,d]=dateStr.split("-").map(Number);
+    const lastDay=new Date(y,m,0).getDate();
+    if(rep==="weekly"){
+      const days=(mm.days&&mm.days.length)?mm.days:[new Date(mm.date.replace(/-/g,"/")).getDay()];
+      return days.includes(new Date(y,m-1,d).getDay());
+    }
+    if(rep==="monthly"){ const t=Number(mm.mday)||Number(mm.date.slice(8)); return d===Math.min(t,lastDay); }
+    if(rep==="yearly"){
+      const [tm,td]=(mm.md||mm.date.slice(5)).split("-").map(Number);
+      return m===tm&&d===Math.min(td,lastDay);
+    }
+    return false;
   };
   // 그날 보여 줄 메모 — 옛 메모(한 줄)가 있으면 맨 앞, 그다음 새 목록(만든 순서)
   const getMemosForDate=(cid,dateStr)=>{
@@ -4464,18 +4480,21 @@ export default function App() {
     return out;
   };
   // 저장: memo 가 없으면 새로 추가, 있으면 고친다 (반복 메모는 묶음 전체가 바뀐다)
-  const saveMemo=(cid,dateStr,memo,{text,repeat})=>{
+  const saveMemo=(cid,dateStr,memo,{text,repeat,date,days,mday,md})=>{
     const t=(text||"").trim(); if(!t) return;
+    const rep=repeat||"none";
+    // 주기별 설정 — '이 날만'은 고른 날짜(date)가 그 메모의 날이 된다
+    const rule={repeat:rep,days:rep==="weekly"?[...(days||[])]:undefined,mday:rep==="monthly"?Number(mday)||undefined:undefined,md:rep==="yearly"?md:undefined};
     if(memo&&memo.legacy){   // 옛 메모를 고치면 새 목록으로 옮긴다
       setDayMemos(p=>{ const n={...p}; delete n[mKeyOf(cid,dateStr)]; return n; });
       memo=null;
     }
     if(!memo){
-      const item={id:`memo_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,text:t,date:dateStr,repeat:repeat||"none",skip:[]};
+      const item={id:`memo_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,text:t,date:(rep==="none"&&date)?date:dateStr,...rule,skip:[]};
       setMemoList(p=>({...p,[cid]:[...(p[cid]||[]),item]}));
       return;
     }
-    setMemoList(p=>({...p,[cid]:(p[cid]||[]).map(x=>x.id===memo.id?{...x,text:t,repeat:repeat||"none"}:x)}));
+    setMemoList(p=>({...p,[cid]:(p[cid]||[]).map(x=>x.id===memo.id?{...x,text:t,...rule,date:(rep==="none"&&date)?date:x.date}:x)}));
   };
   // 지우기: scope "one"(반복 메모의 이 날짜만) | "all"(통째로)
   const deleteMemo=(cid,dateStr,memo,scope="all")=>{
