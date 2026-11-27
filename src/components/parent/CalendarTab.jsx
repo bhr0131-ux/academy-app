@@ -37,7 +37,7 @@ import { hasClassOnDay, getShuttleText, makeupTimeText, getDayPlan, feeDueDay } 
 import { getHolidayName } from "../../data/characters.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
-import { Mark, MarkText, MARK_COLORS } from "./CalendarMarks.jsx";
+import { MarkText, MARK_COLORS } from "./CalendarMarks.jsx";
 import { useState } from "react";
 import MemoSheet, { memoRepeatLabel } from "./MemoSheet.jsx";
 
@@ -422,38 +422,6 @@ export default function CalendarTab({
             </div>
           )}
 
-          {/* [사용자 확정 2026-11-27] 그날만 바뀐 준비물 — 달력 '준비물' 표시가 있는 날에만 한 줄.
-              더한 것은 '과목 물건', 늘 챙기던 걸 그날 뺀 것은 '빼기'로. 그날 실제로 가는 학원(dayPlan)만 본다. */}
-          {(()=>{
-            const seen=new Set(), added=[], removed=[];
-            dayPlan.filter(a=>!a._absent).forEach(a=>{
-              if(seen.has(String(a.id))) return; seen.add(String(a.id));
-              const e=getDailyEntry(childId,a.id,effSelDate);
-              const kind=acKindLabel?acKindLabel(a):a.name;
-              (e.supplies||[]).forEach(x=>added.push({kind,x}));
-              (e.hiddenBase||[]).forEach(x=>removed.push({kind,x}));
-            });
-            if(!added.length&&!removed.length) return null;
-            return (
-              <div style={{marginTop:memos.length?6:12,display:"flex",alignItems:"flex-start",gap:8,background:`${C.orange}0D`,border:`1px solid ${C.orange}33`,
-                borderRadius:RAD.md,padding:"9px 11px"}}>
-                <span style={{color:C.orange,marginTop:2,flexShrink:0,display:"flex"}}><CareIcon name="bag" size={14}/></span>
-                <span style={{flex:1,minWidth:0,fontSize:FS.body,color:C.text,lineHeight:1.5}}>
-                  <span style={{fontSize:FS.tag,fontWeight:FW.bold,color:C.orange,marginRight:6}}>{isTodaySel?"오늘만":"이날만"} 준비물</span>
-                  {added.map((it,i)=>(
-                    <span key={`a${i}`} style={{whiteSpace:"nowrap"}}>{i?<span style={{color:C.sub,margin:"0 4px"}}>·</span>:null}
-                      <span style={{fontSize:FS.tag,...SUB_LABEL,marginRight:3}}>{it.kind}</span><b style={{fontWeight:FW.semi}}>{it.x}</b></span>
-                  ))}
-                  {removed.length>0&&(
-                    <span style={{display:"block",marginTop:2,fontSize:FS.sub,...SUB_LABEL}}>
-                      빼기 · {removed.map(it=>`${it.kind} ${it.x}`).join(" · ")}
-                    </span>
-                  )}
-                </span>
-              </div>
-            );
-          })()}
-
           <div style={{marginTop:12}}>
             {/* 알림 줄 — [사용자 확정 2026-11-27] 메모 줄과 같은 한 줄·둥근 테두리로 통일.
                 알림마다 은은한 색 배경은 그대로 두어 메모·학원과 구분한다.
@@ -464,7 +432,7 @@ export default function CalendarTab({
                 <div key={k} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,background:bg,border:`1px solid ${color}33`,
                   borderRadius:RAD.md,padding:"8px 10px 8px 11px",minWidth:0}}>
                   <span style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:5,fontSize:FS.tag,fontWeight:FW.bold,color,whiteSpace:"nowrap"}}>
-                    {mark?<Mark kind={mark} size={9}/>:<CareIcon name={icon} size={13}/>}{label}
+                    <CareIcon name={icon} size={13}/>{label}
                   </span>
                   <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{children}</span>
                   {right}
@@ -473,7 +441,7 @@ export default function CalendarTab({
               /* 학원비 납부일 — 학원마다 한 줄 (낸 것·안 낸 것이 다르므로) */
               feeDueOnSel.forEach(a=>{
                 const paid=isFeePaidOn&&isFeePaidOn(a.id,selInfo.m+1,selInfo.y);
-                rows.push(Row({k:`fee${a.id}`,color:th.main,bg:`${th.main}0A`,mark:"fee",label:"학원비",
+                rows.push(Row({k:`fee${a.id}`,color:th.main,bg:`${th.main}0A`,icon:"fee",label:"학원비",   /* ▲ 대신 지폐 선 아이콘 (2026-11-27) */
                   children:<>{a.name}<span style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,marginLeft:6}}>{Number(a.fee).toLocaleString()}원</span></>,
                   right:<span style={{...bnChip,cursor:"default",background:paid?`${C.green}12`:`${C.orange}12`,color:paid?C.green:C.orange}}>{paid?"납부 완료":"미납"}</span>}));
               });
@@ -491,8 +459,42 @@ export default function CalendarTab({
               return rows.length?<div style={{marginBottom:4}}>{rows}</div>:null;
             })()}
 
+            {/* [사용자 확정 2026-11-27] 그날만 바뀐 준비물 — 달력 '준비물' 표시가 있는 날에만 한 줄.
+                자리는 알림 줄 아래·학원 목록 바로 위, 바탕은 메모 줄과 같은 차분한 회색(라벨·아이콘만 주황).
+                더한 것은 '과목 물건', 늘 챙기던 걸 그날 뺀 것은 '빼기'로. 그날 실제로 가는 학원(dayPlan)만 본다. */}
+            {(()=>{
+              const seen=new Set(), added=[], removed=[];
+              dayPlan.filter(a=>!a._absent).forEach(a=>{
+                if(seen.has(String(a.id))) return; seen.add(String(a.id));
+                const e=getDailyEntry(childId,a.id,effSelDate);
+                const kind=acKindLabel?acKindLabel(a):a.name;
+                (e.supplies||[]).forEach(x=>added.push({kind,x}));
+                (e.hiddenBase||[]).forEach(x=>removed.push({kind,x}));
+              });
+              if(!added.length&&!removed.length) return null;
+              return (
+                <div style={{marginBottom:6,display:"flex",alignItems:"flex-start",gap:8,background:"#F9FAFB",border:"1px solid #E5E7EB",
+                  borderRadius:RAD.md,padding:"9px 11px"}}>
+                  <span style={{color:C.orange,marginTop:2,flexShrink:0,display:"flex"}}><CareIcon name="bag" size={14}/></span>
+                  <span style={{flex:1,minWidth:0,fontSize:FS.body,color:C.text,lineHeight:1.5}}>
+                    <span style={{fontSize:FS.tag,fontWeight:FW.bold,color:C.orange,marginRight:6}}>{isTodaySel?"오늘만":"이날만"} 준비물</span>
+                    {added.map((it,i)=>(
+                      <span key={`a${i}`} style={{whiteSpace:"nowrap"}}>{i?<span style={{color:C.sub,margin:"0 4px"}}>·</span>:null}
+                        <span style={{fontSize:FS.tag,...SUB_LABEL,marginRight:3}}>{it.kind}</span><b style={{fontWeight:FW.semi}}>{it.x}</b></span>
+                    ))}
+                    {removed.length>0&&(
+                      <span style={{display:"block",marginTop:2,fontSize:FS.sub,...SUB_LABEL}}>
+                        빼기 · {removed.map(it=>`${it.kind} ${it.x}`).join(" · ")}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              );
+            })()}
+
             {/* 학원·보충 — 시간순 한 줄 (홈과 겹치는 내용이라 접어 두고, 누르면 펼친다) */}
-            {dayPlan.map(ac=>{
+            {/* 결석한 학원은 위 '결석' 알림 줄에 이미 있어 목록에서는 뺀다 (2026-11-27) */}
+            {dayPlan.filter(ac=>!ac._absent).map(ac=>{
               const entry=getDailyEntry(childId,ac.id,effSelDate);
               const hw=entry.homeworks||[], todos=entry.todos||[];
               /* 결석한 날은 그 학원에 안 가므로 준비물도 없다 (사용자 확정 2026-08-17).
@@ -525,11 +527,12 @@ export default function CalendarTab({
                         color:ac._absent?C.red:ac._makeup?C.orange:SUBD,whiteSpace:"nowrap"}}>{timeText}</span>
                       {/* 과목 — 학원 이름은 길 수 있어 접힌 줄에는 과목 (사용자 확정 2026-11-27) */}
                       {/* 과목 이름이 다른 칸에 밀려 사라지지 않게 — 3글자까지는 꼭 보이고, 길면 말줄임 */}
-                      <span style={{flex:"1 1 auto",minWidth:`${Math.min(String(acKindLabel?acKindLabel(ac):ac.name).length,3)*1.05}em`,fontSize:FS.cardTitle,fontWeight:FW.bold,color:ac.color,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                      <span style={{flex:ac._makeup?"0 1 auto":"1 1 auto",minWidth:`${Math.min(String(acKindLabel?acKindLabel(ac):ac.name).length,3)*1.05}em`,fontSize:FS.cardTitle,fontWeight:FW.bold,color:ac.color,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                         {acKindLabel?acKindLabel(ac):ac.name}
                       </span>
                       {ac._makeup?(<>
                         {ab&&<span style={{flexShrink:0,fontSize:11,...SUB_LABEL,whiteSpace:"nowrap"}}>({Number(ab.date.slice(5,7))}/{Number(ab.date.slice(8))} 결석분)</span>}
+                        <span style={{flex:1}}/>{/* '보충 피아노 (12/21 결석분)'은 왼쪽에 붙이고, 버튼·화살표는 오른쪽 끝 */}
                         {ab&&(ab.makeupStatus==="absent"
                           ? badge("✕ 불참",C.sub)
                           : <button onClick={e=>{ e.stopPropagation(); toggleMakeup(ab.id); }} className="jelly-tap"
