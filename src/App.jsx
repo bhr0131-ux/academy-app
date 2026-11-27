@@ -4971,7 +4971,7 @@ export default function App() {
           <div style={{display:"flex",margin:"-9px -4px 14px",position:"relative",pointerEvents:"none"}}>
             <div role="status" aria-label={`${TM.coin} ${getChildCoin(childId).toLocaleString()}, ${TM.xp} ${getChildXP(childId).toLocaleString()}${TM.xpUnit}, 연속 ${getQuestStreak(childId)}일`}
               /* [사용자 확정 2026-11-27] 맑은 유리 느낌 — 둥근 네모(14px)·흐림 10px·얇은 흰 테두리·아주 옅은 그림자, 위아래 슬림 */
-              style={{flex:1,display:"flex",alignItems:"center",justifyContent:"space-evenly",gap:8,padding:"5px 10px",borderRadius:11,background:"rgba(255,255,255,0.76)",
+              style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:16,padding:"5px 10px",borderRadius:11,background:"rgba(255,255,255,0.76)",
                 backdropFilter:"blur(10px)",WebkitBackdropFilter:"blur(10px)",boxShadow:"0 2px 8px rgba(0,0,0,0.06)",border:"1px solid rgba(255,255,255,0.9)",
                 fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",whiteSpace:"nowrap",maxWidth:"100%",boxSizing:"border-box",lineHeight:1.4}}>
               {[
