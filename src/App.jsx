@@ -67,6 +67,7 @@ import {
   getDefaultEquipped, computeAvatarPurchase, computeAvatarEquipToggle,
   computeCharDisplayToggle, normalizeOwned, normalizeEquipped, getAvatarItem,
   AVATAR_RESET_KEY, computeAvatarRefund, getRefundInfo, itemLabel,
+  GROWTH_GEAR_KEY, computeGrowthGrant, isGrowthGear,
 } from "./data/avatarEquipment.js";
 
 import { Fragment, useState, useEffect, useRef } from "react";
@@ -386,6 +387,9 @@ export default function App() {
   // ── 꾸미기 아바타 장비 시스템 (신규, 아이별 맵. 기존 decor와 별개) ──
   const [avatarOwned,      setAvatarOwned, avatarOwnedRef] = useSyncState({});   // { [childId]: string[] }
   const [avatarEquipped,   setAvatarEquipped, avatarEquippedRef] = useSyncState({});   // { [childId]: {slot:itemId} }
+  /* 레벨 성장 장비 지급 기록 (새 키 v6_growth_gear_granted, 2026-11-27) — { [childId]: string[] }
+     null = 아직 불러오기 전(지급 판단을 하지 않는다) */
+  const [growthGranted,    setGrowthGranted, growthGrantedRef] = useSyncState(null);
   /* 꾸미기 전면 개편(2026-08-19) 환불 안내 — 앱을 켤 때 1회만 뜬다 */
   const [avatarResetNotice, setAvatarResetNotice] = useState(null);
   const [charDisplayMode,  setCharDisplayMode]  = useState({});   // { [childId]: "growth"|"avatar" }
@@ -952,6 +956,8 @@ export default function App() {
       if(tipSeen) setFirstTipSeen(true);
       const pinHint=await load("v6_pin_hint_seen");
       if(pinHint) setPinHintSeen(true);
+      const gGranted=await load(GROWTH_GEAR_KEY);
+      setGrowthGranted(gGranted&&typeof gGranted==="object"?gGranted:{});
       const avHint=await load("v6_avatar_hint_by_child");
       if(avHint&&typeof avHint==="object") setAvatarHintMap(avHint);
       const sfxSaved=await load("v6_sfx_on");          // 없으면(처음) 켜짐
@@ -1194,6 +1200,33 @@ export default function App() {
   useEffect(()=>{ if(loaded) save(AVATAR_OWNED_KEY,avatarOwned); },[avatarOwned,loaded]);
   useEffect(()=>{ if(loaded) save(AVATAR_EQUIPPED_KEY,avatarEquipped); },[avatarEquipped,loaded]);
   useEffect(()=>{ if(loaded) save(CHAR_DISPLAY_MODE_KEY,charDisplayMode); },[charDisplayMode,loaded]);
+  useEffect(()=>{ if(loaded&&growthGranted) save(GROWTH_GEAR_KEY,growthGranted); },[growthGranted,loaded]);
+  /* [사용자 확정 2026-11-27] 레벨 성장 장비 자동 지급 — 레벨에 오르면 그 레벨까지의 장비를 공짜로 옷장에 넣고 입힌다.
+     산 장비를 입은 칸은 그대로 두고 옷장에만 넣는다(computeGrowthGrant). 한 번 준 건 기록해 다시 입히지 않는다.
+     처음 기록을 만드는 아이(업데이트 직후·새 아이)는 조용히 채우고, 그 뒤 레벨업으로 받을 때만 알려 준다. */
+  useEffect(()=>{
+    if(!loaded||!growthGranted) return;
+    const grantedMap=growthGrantedRef.current||{};
+    let nextGranted=null, nextOwnedMap=null, nextEqMap=null;
+    const got=[];
+    for(const c of children){
+      const cid=c.id;
+      const g=c.gender==="girl"?"girl":"boy";
+      const lv=getChildLevel(cid)?.level||1;
+      const r=computeGrowthGrant(getAvatarOwned(cid),getAvatarEquipped(cid),grantedMap[cid]||[],lv,g);
+      if(r.newly.length===0) continue;
+      nextGranted={...(nextGranted||grantedMap),[cid]:r.nextGranted};
+      nextOwnedMap={...(nextOwnedMap||{}),[cid]:r.nextOwned};
+      nextEqMap={...(nextEqMap||{}),[cid]:r.nextEquipped};
+      if(Array.isArray(grantedMap[cid])&&cid===childId) got.push(...r.newly.map(id=>itemLabel(getAvatarItem(id),g)));
+    }
+    if(!nextGranted) return;
+    setAvatarOwned(prev=>({...prev,...nextOwnedMap}));
+    setAvatarEquipped(prev=>({...prev,...nextEqMap}));
+    setGrowthGranted(nextGranted);
+    if(got.length) showToast(`🎁 레벨업 선물! ${got.join(" · ")} 획득`,2600);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[loaded,growthGranted,children,scoreData,childId]);
   useEffect(()=>{ if(loaded) save("v6_reward",rewardData); },[rewardData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_reward_requests",rewardRequests); },[rewardRequests,loaded]);
   useEffect(()=>{ if(loaded) save("v6_unlocked_badges",unlockedBadgeIds); },[unlockedBadgeIds,loaded]);
@@ -1799,6 +1832,7 @@ export default function App() {
     setAvatarOwned(prev=>({...prev,[cid]:normalizeOwned([])}));
     setAvatarEquipped(prev=>({...prev,[cid]:getDefaultEquipped()}));
     setCharDisplayMode(prev=>({...prev,[cid]:DEFAULT_CHAR_DISPLAY_MODE}));
+    setGrowthGranted(prev=>{ const n={...(prev||{})}; delete n[cid]; return n; });   // 레벨 장비도 다시 받게
     /* [버그 수정 2026-08-15] 오늘의 발견 도감이 빠져 있었다. 코인·꾸미기·아바타·보물은
        0으로 돌아가는데 도감만 그대로 남아, 초기화한 아이의 수집품이 계속 보였다.
        (발견 도감은 나중에 붙은 기능이라 백업·초기화 여러 곳에서 함께 누락돼 있었다) */
@@ -1819,7 +1853,7 @@ export default function App() {
     setPetData({});
     setSkinByChild({});
     setOwnedDecor({}); setEquippedDecor({}); setDecorPrices({});
-    setAvatarOwned({}); setAvatarEquipped({}); setCharDisplayMode({}); setShowEquipShop(false);
+    setAvatarOwned({}); setAvatarEquipped({}); setCharDisplayMode({}); setGrowthGranted({}); setShowEquipShop(false);
     setUnlockedBadgeIds([]); setLastLevelByChild({});
     setSelectedTitles({}); setTreasureData({}); setSeenTitles({});
     setEarnedTitleIds({});
@@ -2760,7 +2794,7 @@ export default function App() {
     [setAcademies,setAbsences,setScoreData,setRewardRequests,setRewardData,
      setTreasureData,setPetData,setSkinByChild,setSelectedTitles,setSeenTitles,setEarnedTitleIds,
      setSpecialTitles,setBestStreakData,setLastLevelByChild,setOwnedDecor,setEquippedDecor,
-     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData,setMissionRules,setMemoList].forEach(dropKey);
+     setAvatarOwned,setAvatarEquipped,setCharDisplayMode,setDiscoveryData,setBankData,setMissionRules,setMemoList,setGrowthGranted].forEach(dropKey);
 
     /* 열쇠 앞머리에 아이 id 가 붙는 저장소 — 접두어로 지운다.
          일별 미션   dailyData[`아이-학원-날짜`]     (dKey)
@@ -3268,7 +3302,9 @@ export default function App() {
      연타 안전 — 동기 거울에서 읽는다(구매·장착 판단이 옛 값을 보면 안 된다). */
   const getAvatarOwned    = (cid)=> avatarOwnedRef.current[cid]    || normalizeOwned([]);
   const getAvatarEquipped = (cid)=> avatarEquippedRef.current[cid] || getDefaultEquipped();
-  const getCharMode       = (cid)=> charDisplayMode[cid] || DEFAULT_CHAR_DISPLAY_MODE;
+  /* [사용자 확정 2026-11-27] 성장 캐릭터·내 아바타 통합 — 늘 아바타 하나만 보인다.
+     저장된 표시 모드(v6_char_display_mode)는 지우지 않고 읽지만 화면엔 쓰지 않는다. */
+  const getCharMode       = (_cid)=> CHAR_DISPLAY_AVATAR;
 
   /* 아바타 베이스 몸체로 쓸 3단계 성장 캐릭터 이미지 경로.
      현재 모드(탐험/베이커리)·성별을 자동 반영한다. (아바타는 항상 stage 3 사용) */
@@ -3297,6 +3333,7 @@ export default function App() {
     const res=computeAvatarPurchase(owned, equipped, getChildCoin(cid), itemId);
     if(!res.ok){
       if(res.reason==="already_owned") showToast("이미 가지고 있어요 ✨");
+      else if(res.reason==="level_reward") showToast("레벨이 오르면 선물로 받아요 🎁",2000);
       /* [사용자 확정 2026-09-26] "부족해요"만으로는 얼마나 모자란지를 모른다 —
          아이템 상점(ItemShopSheet)이 이미 "N 코인 더 모으면 살 수 있어요"라고
          말하고 있어서 꾸미기 상점도 같은 말로 맞춘다. */
@@ -3320,13 +3357,14 @@ export default function App() {
     const cid=childId;
     let owned=getAvatarOwned(cid), equipped=getAvatarEquipped(cid);
     const list=[...new Set(ids||[])].map(getAvatarItem).filter(Boolean);
-    const toBuy=list.filter(it=>!owned.includes(it.id));
+    const toBuy=list.filter(it=>!owned.includes(it.id)&&!isGrowthGear(it.id));   // 레벨 보상은 사지 않는다
     if(toBuy.length===0) return false;
     const total=toBuy.reduce((s,it)=>s+(it.price||0),0);
     const coin=getChildCoin(cid);
     if(coin<total){ showToast(`${TM.coinEmoji} ${TM.coin} ${total-coin}개 더 모으면 한번에 살 수 있어요`,2200); return false; }
     let budget=coin;
     for(const it of list){
+      if(!owned.includes(it.id)&&isGrowthGear(it.id)) continue;   // 아직 못 받은 레벨 보상은 건너뛴다
       if(owned.includes(it.id)){
         if(equipped[it.slot]!==it.id){ const r=computeAvatarEquipToggle(owned,equipped,it.id); if(r.ok) equipped=r.nextEquipped; }
         continue;
@@ -4942,6 +4980,7 @@ export default function App() {
           onBuy={buyAvatarItem}
           onBuyMany={buyAvatarItems}
           onToggle={toggleAvatarItem}
+          level={getChildLevel(childId)?.level||1}
         />
         {/* 발견 도감 — 탐험일지의 '도감' 버튼으로 연다 */}
         <DiscoveryBook
@@ -5036,7 +5075,7 @@ export default function App() {
               return (
                 <h1 style={{fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",fontSize:22,fontWeight:400,margin:"30px 0 0 30px",position:"relative",top:20,left:7,lineHeight:1.3,letterSpacing:"0.01em",maxWidth:"62%",
                   /* '내아바타' 안내가 떠 있는 동안은 인사말을 잠깐 숨긴다 — 같은 자리에 겹친다 (2026-11-21) */
-                  ...(avatarHint==="pending"&&!showEquipShop&&kidSkin!=="cute"&&getCharMode(childId)!==CHAR_DISPLAY_AVATAR?{visibility:"hidden"}:{}),color:_onDark?"#FFF3D9":"#3F2D1C",
+                  color:_onDark?"#FFF3D9":"#3F2D1C",
                   // 밝은 무대: 흰 글로우 대신 옅은 웜브라운 그림자 — 흰 구름 위에서도 글자가 묻히지 않게
                   textShadow:_onDark?"0 1px 2px rgba(10,20,15,0.6), 0 3px 14px rgba(0,0,0,0.4)":"0 1px 0 rgba(255,255,255,0.65), 0 0 8px rgba(255,255,255,0.35)"}}>{/* 밝은 무대: 어두운 그림자 대신 옅은 흰 테두리 빛 — 깔끔하고 또렷하게 (2026-11-27) */}
                   {/* 줄 사이에 띄어쓰기를 함께 둔다 — 한 줄로 이어 읽힐 때 '신나는탐험'처럼 붙지 않게 (2026-11-26) */}
@@ -5126,36 +5165,7 @@ export default function App() {
                   </>)}
                 </div>
               ))}
-              {/* 아바타 표시 전환 뱃지 — 우측 상단 세로 3번째 (엄마용-아이전환-아바타, 사용자 확정 순서)
-                  marginTop 2: 뱃지 원화의 여백 차이로 2·3번째 사이가 좁아 보이는 착시 보정 */}
-              {kidSkin!=="cute"&&(
-                <div style={{position:"relative",lineHeight:0,marginTop:2}}>
-                <button onClick={()=>{ doneAvatarHint(); toggleCharDisplayMode(); }} className="jelly-tap"
-                  style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}>
-                  <img
-                    src={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"assets/btn-growth-character.webp":"assets/btn-my-avatar.webp"}
-                    alt={getCharMode(childId)===CHAR_DISPLAY_AVATAR?"성장 캐릭터 보기":"내 아바타 보기"}
-                    style={{width:47,height:"auto",display:"block",filter:"drop-shadow(0 3px 9px rgba(155,114,74,0.30))"}}/>
-                </button>
-                {/* 처음 꾸미기를 산 뒤 한 번 — 뱃지 왼쪽에 배경 없이 글자만 (사용자 확정 2026-11-21).
-                    상점이 닫혀 있고 아직 성장 캐릭터를 보고 있을 때만. 확인이나 뱃지를 누르면 다시 안 뜬다. */}
-                {avatarHint==="pending"&&!showEquipShop&&getCharMode(childId)!==CHAR_DISPLAY_AVATAR&&(
-                  <div style={{position:"absolute",right:"100%",top:"50%",transform:"translateY(-50%)",marginRight:8,zIndex:41,pointerEvents:"none"}}>
-                  <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,lineHeight:1.2,
-                    animation:"popInUp .25s ease both"}}>
-                    <p style={{margin:0,whiteSpace:"nowrap",fontSize:16,fontWeight:900,color:"#4E3B26",
-                      textShadow:"0 0 3px #fff, 0 0 3px #fff, 0 0 6px #fff, 0 1px 2px rgba(255,255,255,0.9)"}}>
-                      내 아바타를 눌러보세요 <span style={{fontSize:19,display:"inline-block",animation:"avHintNudge 1s ease-in-out infinite"}}>→</span>
-                    </p>
-                    <button onClick={doneAvatarHint} style={{pointerEvents:"auto",border:"none",cursor:"pointer",
-                      background:"#5E9A4E",color:"#fff",borderRadius:999,padding:"6px 16px",fontSize:13,fontWeight:900,
-                      fontFamily:"inherit",boxShadow:"0 3px 8px rgba(60,90,40,0.3)"}}>확인</button>
-                    <style>{`@keyframes avHintNudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}`}</style>
-                  </div>
-                  </div>
-                )}
-                </div>
-              )}
+              {/* (삭제됨 2026-11-27) 성장↔내아바타 전환 뱃지·첫 구매 안내 — 캐릭터를 아바타 하나로 통합(사용자 확정). 엄마모드·아이선택만 남김 */}
             </div>
           </div>
         </div>
