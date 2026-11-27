@@ -324,17 +324,19 @@ export default function CalendarTab({
                                주간은 한 주 흐름을 훑는 화면이라 '무슨 수업인가'가 먼저다.
                                어느 학원인지는 날짜를 눌러 월간 상세에서 본다.
                                길면 두 줄로 내리지 않고 말줄임 — 카드 높이를 일정하게 둔다. */
-                            <div key={ac.id} style={{display:"flex",alignItems:"center",gap:9,minWidth:0,opacity:onVac?0.55:1}}>
-                              <span style={{width:3,height:15,borderRadius:RAD.pill,background:ac.color,flexShrink:0}}/>
-                              <span style={{flexShrink:0,minWidth:46,display:"flex"}}>
-                                {onVac
-                                  ? <span style={{fontSize:FS.tag,fontWeight:FW.semi,color:"#E65100",background:"#F0A50022",borderRadius:RAD.sm,padding:"2px 7px"}}>휴원</span>
-                                  : <span style={{fontSize:FS.sub,fontWeight:FW.normal,color:C.sub}}>{ac.classTime}</span>}
-                              </span>
-                              <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,
+                            /* [사용자 확정 2026-11-27] 휴원이어도 시간은 그대로, 배지(결석·보충·휴원)는 과목 바로 옆.
+                               안 가는 수업(결석·휴원)은 시간·과목을 연회색으로 낮춰 가는 수업과 한눈에 구분 */
+                            (()=>{ const off=onVac||absOn.some(x=>String(x.academyId)===String(ac.id)); const offC="#B4BAC6";
+                            return (
+                            <div key={ac.id} style={{display:"flex",alignItems:"center",gap:9,minWidth:0}}>
+                              <span style={{width:3,height:15,borderRadius:RAD.pill,background:off?mixWhite(ac.color,0.5):ac.color,flexShrink:0}}/>
+                              <span style={{flexShrink:0,minWidth:46,fontSize:FS.sub,fontWeight:FW.normal,color:off?offC:C.sub}}>{ac.classTime}</span>
+                              <span style={{flex:"0 1 auto",minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:off?offC:C.text,
                                 overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
+                              {onVac&&pill("vacation","휴원","vac")}
                               {acBadges(ac.id)}
                             </div>
+                            ); })()
                           );
                         })}
                     {/* 정규 수업이 없는 날의 보충 */}
@@ -342,7 +344,7 @@ export default function CalendarTab({
                       <div key={`mk${ac.id}`} style={{display:"flex",alignItems:"center",gap:9,minWidth:0}}>
                         <span style={{width:3,height:15,borderRadius:RAD.pill,background:ac.color,flexShrink:0}}/>
                         <span style={{flexShrink:0,minWidth:46,fontSize:FS.sub,fontWeight:FW.bold,color:MARK_COLORS.makeup}}>보충</span>
-                        <span style={{flex:1,minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
+                        <span style={{flex:"0 1 auto",minWidth:0,fontSize:FS.body,fontWeight:FW.semi,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{acKindLabel(ac)}</span>
                         {acBadges(ac.id)}
                       </div>
                     ))}
@@ -410,7 +412,8 @@ export default function CalendarTab({
             {/* [사용자 확정 2026-11-27] 순서: ① 학원·보충 목록 → ② 이날만 준비물 → ③ 휴원·결석·학원비 → ④ 메모 */}
             {/* 학원·보충 — 시간순 한 줄 (홈과 겹치는 내용이라 접어 두고, 누르면 펼친다) */}
             {/* 결석한 학원은 위 '결석' 알림 줄에 이미 있어 목록에서는 뺀다 (2026-11-27) */}
-            {dayPlan.filter(ac=>!ac._absent).map(ac=>{
+            {/* 정규 수업(시간순) 먼저, 그다음 보충(시간순) — 사용자 확정 2026-11-27 */}
+            {[...dayPlan.filter(ac=>!ac._absent&&!ac._makeup),...dayPlan.filter(ac=>ac._makeup)].map(ac=>{
               const entry=getDailyEntry(childId,ac.id,effSelDate);
               const hw=entry.homeworks||[], todos=entry.todos||[];
               /* 결석한 날은 그 학원에 안 가므로 준비물도 없다 (사용자 확정 2026-08-17).
