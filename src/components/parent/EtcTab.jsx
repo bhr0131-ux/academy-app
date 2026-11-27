@@ -31,7 +31,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useState } from "react";
-import { C, FS, FW, RAD, gameCard, SHADOW, mixWhite } from "../../data/tokens.js";
+import { C, FS, FW, RAD, gameCard, SHADOW, mixWhite, SUB_LABEL } from "../../data/tokens.js";
 import CareIcon from "./CareIcons.jsx";
 import EmojiIcon from "../EmojiIcon.jsx";
 import XpAdjustCard from "./XpAdjustCard.jsx";
@@ -55,7 +55,9 @@ export default function EtcTab({ D }) {
                    border:`1px solid ${th.main}22`, boxShadow:SHADOW.sm };
   const title  = { fontSize:FS.title, fontWeight:FW.bold, margin:"0 0 3px", color:C.text,
                    display:"flex", alignItems:"center", gap:7 };
-  const sub    = { fontSize:FS.body, fontWeight:FW.normal, color:C.sub, margin:0, lineHeight:1.5 };
+  /* [사용자 확정 2026-11-27] 카드 설명 문구는 굵지 않게 — 이 앱 글꼴(카페24)은 굵기가 하나뿐이라 굵어 보였다.
+     설명만 시스템 글꼴 보통 굵기(SUB_LABEL)로, 13px. */
+  const sub    = { fontSize:13, ...SUB_LABEL, margin:0, lineHeight:1.5 };
   const btnMain= { width:"100%", padding:12, borderRadius:RAD.md, fontSize:FS.body,
                    fontWeight:FW.bold, cursor:"pointer", fontFamily:"inherit", boxSizing:"border-box" };
   const btnSmall={ padding:"5px 11px", borderRadius:RAD.sm, fontSize:FS.sub,
@@ -185,9 +187,8 @@ export default function EtcTab({ D }) {
         <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,lineHeight:1.5,margin:"9px 0 0"}}>
           {isNative && <>※ 백업 파일은 내 파일 → 내장 저장공간 → Documents → 미션팡 폴더에 저장돼요.<br/>
           ※ 폰을 잃어버리면 백업 파일도 함께 사라지니, 가끔은 '백업 파일 보내기'로 드라이브에도 보관해 주세요.<br/></>}
-          ※ 백업 파일로 다른 기기에서도 복원하여 사용할 수 있어요.<br/>
-          {/* [사용자 확정 2026-11-26] 백업은 비밀번호 없이 바로 된다 — 대신 파일에 무엇이 들어 있는지 알린다 */}
-          ※ 백업 파일에는 비밀번호와 비밀번호 찾기 답이 함께 들어 있어요. 본인만 볼 수 있는 곳에 보관해 주세요.
+          ※ 백업 파일로 다른 기기에서도 복원하여 사용할 수 있어요.
+          {/* (2026-11-27 사용자 확정) '백업 파일에는 비밀번호·찾기 답이 들어 있어요' 안내 문구는 뺐다 */}
         </p>
       </div>
 
@@ -228,7 +229,7 @@ export default function EtcTab({ D }) {
       {/* 앱 정보 — 다른 카드와 같은 패딩·테두리 (사용자 점검: 이 카드만 달랐다) */}
       <div style={{...card,marginBottom:0,textAlign:"center"}}>
         <p style={{...title,justifyContent:"center",margin:"0 0 6px"}}>{ico("info")}앱 정보</p>
-        <p style={{fontSize:FS.body,fontWeight:FW.bold,color:C.text,margin:"0 0 3px"}}>미션팡</p>
+        <p style={{fontSize:19,fontWeight:FW.bold,color:C.text,margin:"2px 0 4px",letterSpacing:-0.3}}>미션팡</p>{/* 앱 이름은 '앱 정보' 제목보다 한 단계 크게 (2026-11-27) */}
         <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:"0 0 6px"}}>버전 1.0</p>
         <p style={{fontSize:FS.tag,fontWeight:FW.normal,color:C.sub,margin:0,lineHeight:1.5}}>
           학원 일정과 아이의 숙제를 게임처럼 관리하는 플래너
