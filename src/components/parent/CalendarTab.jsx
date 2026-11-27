@@ -130,7 +130,7 @@ export default function CalendarTab({
      월간으로 돌아갔을 때 그 달이 열린다. */
   const weekMon=(()=>{ const d=parseLocal(effSelDate); return addDays(effSelDate,-d.getDay()); })();   // 그 주의 일요일
   const weekSun=addDays(weekMon,6);                                                                    // 그 주의 토요일
-  const korMD=(s)=>{ const [,mm,dd]=s.split("-").map(Number); return `${mm}월 ${dd}일`; };
+  const weekMDs=(s)=>{ const [,mm,dd]=s.split("-").map(Number); return `${mm}/${dd}`; };   // 주간 머리 — 한 줄에 들어가게 짧게
   const goWeek=(dir)=>{
     const next=addDays(weekMon,dir*7);
     setCalSelDate(next);
@@ -141,45 +141,44 @@ export default function CalendarTab({
   const isWeek=calView==="week";
   return (
     <div>
-      {/* [사용자 확정 2026-08-10] 월간|주간·화살표·월 제목이 한 줄에서 비슷한 무게로
-          경쟁해 무엇이 중심인지 안 잡혔다. 월 제목과 화살표를 한 묶음으로 첫 줄에,
-          보기 전환은 둘째 줄로 내린다.
-          [2026-08-20] 둘째 줄 오른쪽에 있던 '범례' 버튼은 뺐다 (사용자 확정). */}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:2,marginBottom:10,position:"relative",minWidth:0}}>
-        <button onClick={()=>isWeek?goWeek(-1):goMonth(-1)}
-          className="jelly-tap" aria-label={isWeek?"이전 주":"이전 달"}
-          style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>‹</button>
-        <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text,whiteSpace:"nowrap",minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>
-          {isWeek?`${korMD(weekMon)} ~ ${korMD(weekSun)}`:`${calDate.getFullYear()}년 ${calDate.getMonth()+1}월`}
-        </span>
-        <button onClick={()=>isWeek?goWeek(1):goMonth(1)}
-          className="jelly-tap" aria-label={isWeek?"다음 주":"다음 달"}
-          style={{background:"none",border:"none",borderRadius:RAD.sm,width:34,height:34,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0}}>›</button>
-      </div>
-      <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10,minWidth:0}}>
-        <div style={{display:"flex",background:CT.faint,borderRadius:RAD.md,padding:2,flexShrink:0}}>
-          {[{k:"month",l:"월간"},{k:"week",l:"주간"}].map(v=>(
-            <button key={v.k} onClick={()=>setCalView(v.k)} className="jelly-tap"
-              style={{border:"none",cursor:"pointer",borderRadius:RAD.sm,padding:"5px 14px",fontFamily:"inherit",
-                fontSize:FS.sub,fontWeight:calView===v.k?FW.bold:FW.normal,
-                background:calView===v.k?"#fff":"transparent",color:calView===v.k?th.main:C.sub,
-                boxShadow:calView===v.k?"0 1px 4px rgba(90,70,60,0.14)":"none"}}>{v.l}</button>
-          ))}
+      {/* [사용자 확정 2026-11-27] 달력 전체를 '고른 날 상세'·'결석·보충'과 같은 흰 둥근 카드로 감싸고,
+          머리는 한 줄 — 왼쪽 '‹ 2026년 11월 ›'(+ 다른 달이면 '↩ 이번 달로'), 오른쪽 끝 [월간|주간].
+          (2026-08-10 의 두 줄 배치를 한 줄로 줄였다. 아주 좁은 폰에서 넘치면 전환 탭만 아랫줄로 내려간다) */}
+      <div style={{background:"#FFFFFF",border:`1px solid ${C.border}`,borderRadius:RAD.lg,padding:"10px 10px 10px",boxShadow:SHADOW.sm}}>
+      <div style={{display:"flex",alignItems:"center",flexWrap:"wrap",columnGap:4,rowGap:6,marginBottom:8,minWidth:0}}>
+        <div style={{display:"flex",alignItems:"center",flexShrink:0,minWidth:0}}>
+          <button onClick={()=>isWeek?goWeek(-1):goMonth(-1)}
+            className="jelly-tap" aria-label={isWeek?"이전 주":"이전 달"}
+            style={{background:"none",border:"none",borderRadius:RAD.sm,width:20,height:32,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0,padding:0}}>‹</button>
+          <span style={{fontWeight:FW.bold,fontSize:FS.title,color:C.text,whiteSpace:"nowrap"}}>
+            {isWeek?`${weekMDs(weekMon)} ~ ${weekMDs(weekSun)}`:`${calDate.getFullYear()}년 ${calDate.getMonth()+1}월`}
+          </span>
+          <button onClick={()=>isWeek?goWeek(1):goMonth(1)}
+            className="jelly-tap" aria-label={isWeek?"다음 주":"다음 달"}
+            style={{background:"none",border:"none",borderRadius:RAD.sm,width:20,height:32,fontSize:18,fontWeight:FW.semi,cursor:"pointer",color:C.sub,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",flexShrink:0,padding:0}}>›</button>
         </div>
-        <div style={{flex:1}}/>
         {/* [사용자 확정 2026-11-25] 돌아가기 버튼은 '↩ ○○로' 한 모양 — 주간 '↩ 이번주로', 월간 '↩ 이번 달로' */}
         {isWeek&&!(TODAY>=weekMon&&TODAY<=weekSun)&&(
           <button onClick={()=>setCalSelDate(TODAY)} className="jelly-tap"
-            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 5px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
             ↩ 이번주로
           </button>
         )}
         {!isWeek&&!(calDate.getFullYear()===parseLocal(TODAY).getFullYear()&&calDate.getMonth()===parseLocal(TODAY).getMonth())&&(
           <button onClick={()=>{ const t=parseLocal(TODAY); setCalDate(new Date(t.getFullYear(),t.getMonth(),1)); setCalSelDate(null); }} className="jelly-tap"
-            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"4px 10px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            style={{flexShrink:0,background:`${th.main}14`,border:`1px solid ${th.main}40`,borderRadius:RAD.sm,color:th.main,fontSize:FS.tag,fontWeight:FW.semi,padding:"3px 5px",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
             ↩ 이번 달로
           </button>
         )}
+        <div style={{display:"flex",background:CT.faint,borderRadius:RAD.md,padding:2,flexShrink:0,marginLeft:"auto"}}>
+          {[{k:"month",l:"월간"},{k:"week",l:"주간"}].map(v=>(
+            <button key={v.k} onClick={()=>setCalView(v.k)} className="jelly-tap" aria-pressed={calView===v.k}
+              style={{border:"none",cursor:"pointer",borderRadius:RAD.sm,padding:"4px 7px",fontFamily:"inherit",
+                fontSize:FS.tag,fontWeight:calView===v.k?FW.bold:FW.normal,
+                background:calView===v.k?"#fff":"transparent",color:calView===v.k?th.main:C.sub,
+                boxShadow:calView===v.k?"0 1px 4px rgba(90,70,60,0.14)":"none"}}>{v.l}</button>
+          ))}
+        </div>
       </div>
 
       {/* ── 월간 보기 ── */}
@@ -331,6 +330,8 @@ export default function CalendarTab({
           </div>
         );
       })()}
+
+      </div>{/* ── 달력 카드 끝 ── */}
 
       {/* ── 고른 날 상세 (월간 보기에서만 — 주간에서는 요일을 누르면 월간으로 돌아온다) ──
           [사용자 확정 2026-11-27] '결석·보충'과 같은 흰 그룹 카드 하나로, 안쪽 겹 상자를 걷었다.
