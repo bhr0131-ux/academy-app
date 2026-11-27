@@ -88,31 +88,9 @@ export default function CalendarTab({
      결석·보충 요약 줄(위)은 그대로 둔다 — 사유·결석일은 거기서만 볼 수 있다. */
   const dayPlan=getDayPlan(curAc,curAbs,effSelDate,selInfo.dn,
     (acId)=>isVacationDay(childId,acId,effSelDate));
-  /* 고른 날 한 줄 요약 — 상세 카드를 보기 전에 하루 상황을 먼저 알려 준다 */
-  const liveAc=selInfo.acList.filter(a=>!isVacationDay(childId,a.id,effSelDate));
-  /* [버그 점검 2026-11-27] 아래 목록에서 결석 줄을 뺐으므로 요약의 '학원 N개'도 결석한 학원은 뺀다
-     (결석은 '결석 N개'로 따로 센다). 휴원 계산(vacCnt)은 그대로 liveAc 를 쓴다. */
-  const goAcCnt=liveAc.filter(a=>!selInfo.absOnDay.some(x=>String(x.academyId)===String(a.id))).length;
-  /* 준비물은 '그날 실제로 가는 학원'의 것만 (사용자 확정 2026-08-17).
-       · 결석 → 안 가니까 없다   · 보충 → 가니까 항상 챙길 준비물은 그대로
-     같은 학원이 정규+보충으로 두 장이어도 가방은 하나라 한 번만 센다. */
-  const supCnt=[...dayPlan.filter(a=>!a._absent)
-    .reduce((m,a)=>m.set(String(a.id),a),new Map()).values()]
-    .reduce((n,a)=>{
-      const e=getDailyEntry(childId,a.id,effSelDate);
-      return n+(a.baseSupplies||[]).filter(s=>!(e.hiddenBase||[]).includes(s)).length+(e.supplies||[]).length;
-    },0);
-  const sumParts=[];
-  if(goAcCnt) sumParts.push(`학원 ${goAcCnt}개`);
-  if(supCnt) sumParts.push(`준비물 ${supCnt}개`);
-  if(selInfo.absOnDay.length) sumParts.push(`결석 ${selInfo.absOnDay.length}개`);
-  if(selInfo.makeupOnDay.length) sumParts.push(`보충 ${selInfo.makeupOnDay.length}개`);
-  const vacCnt=selInfo.acList.length-liveAc.length;
-  if(vacCnt) sumParts.push(`휴원 ${vacCnt}곳`);
+  /* (2026-11-27) 고른 날 요약 줄('학원 N개 · 준비물 N개 …')은 뺐다 — 계산도 함께 걷었다 */
   /* 학원비 납부일 — 매월 같은 날이라 '평소와 다른 일'은 아니지만 놓치면 곤란해서 예외로 둔다 */
   const feeDueOnSel=curAc.filter(a=>Number(a.fee||0)>0&&feeDueDay(a,selInfo.y,selInfo.m)===selInfo.day);
-  if(feeDueOnSel.length) sumParts.push(`학원비 납부일 ${feeDueOnSel.length}곳`);
-  { const mc=getMemosForDate?getMemosForDate(effSelDate).length:0; if(mc) sumParts.push(`메모 ${mc}개`); }   // 메모 개수도 (2026-11-27)
 
   /* [사용자 확정 2026-08-10] 월 이동 화살표가 주간 보기에서는 아무 일도 하지 않았다 —
      주간은 effSelDate가 속한 주를 그리는데, 화살표는 calDate(달)만 바꿨기 때문이다.
@@ -404,11 +382,9 @@ export default function CalendarTab({
             </button>
           </div>
           {selInfo.holiday&&<span style={{display:"inline-block",marginTop:6,fontSize:FS.tag,background:`${C.red}14`,color:C.red,borderRadius:RAD.sm,padding:"2px 8px",fontWeight:FW.semi}}>{selInfo.holiday}</span>}
-          <p style={{margin:"5px 0 0",fontSize:FS.sub,...SUB_LABEL}}>
-            {sumParts.length?sumParts.join(" · "):"일정 없음"}
-          </p>
+          {/* (2026-11-27 사용자 확정) 요약 줄('학원 N개 · 준비물 N개 …')은 뺐다 — 아래 카드들이 그대로 보여 준다 */}
 
-          <div style={{marginTop:12}}>
+          <div style={{marginTop:13}}>
             {/* [사용자 확정 2026-11-27] 순서: ① 학원·보충 목록 → ② 이날만 준비물 → ③ 휴원·결석·학원비 → ④ 메모 */}
             {/* 학원·보충 — 시간순 한 줄 (홈과 겹치는 내용이라 접어 두고, 누르면 펼친다) */}
             {/* 결석한 학원은 위 '결석' 알림 줄에 이미 있어 목록에서는 뺀다 (2026-11-27) */}
