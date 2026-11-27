@@ -4967,10 +4967,11 @@ export default function App() {
           </>}
           {/* [사용자 확정 2026-11-27] 맨 위 상태바 — 코인 · 점수 · 연속달성을 반투명 흰 알약 한 줄로.
               아래 인사말·원형 버튼들은 이 줄 높이만큼(약 48px) 자연스럽게 내려간다. 캐릭터 발밑 Lv·상장은 그대로. */}
-          <div style={{display:"flex",justifyContent:"center",marginBottom:14,position:"relative",pointerEvents:"none"}}>
+          {/* [사용자 확정 2026-11-27] 화면 맨 위에 바짝(위 약 9px)·양옆 14px 만 남기고 가로로 넓게 */}
+          <div style={{display:"flex",margin:"-9px -4px 14px",position:"relative",pointerEvents:"none"}}>
             <div role="status" aria-label={`${TM.coin} ${getChildCoin(childId).toLocaleString()}, ${TM.xp} ${getChildXP(childId).toLocaleString()}${TM.xpUnit}, 연속 ${getQuestStreak(childId)}일`}
               /* [사용자 확정 2026-11-27] 맑은 유리 느낌 — 둥근 네모(14px)·흐림 10px·얇은 흰 테두리·아주 옅은 그림자, 위아래 슬림 */
-              style={{display:"inline-flex",alignItems:"center",gap:11,padding:"4px 13px",borderRadius:14,background:"rgba(255,255,255,0.76)",
+              style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:16,padding:"5px 10px",borderRadius:11,background:"rgba(255,255,255,0.76)",
                 backdropFilter:"blur(10px)",WebkitBackdropFilter:"blur(10px)",boxShadow:"0 2px 8px rgba(0,0,0,0.06)",border:"1px solid rgba(255,255,255,0.9)",
                 fontFamily:"'Cafe24Ssurround','Apple SD Gothic Neo','Noto Sans KR',sans-serif",whiteSpace:"nowrap",maxWidth:"100%",boxSizing:"border-box",lineHeight:1.4}}>
               {[
@@ -4983,8 +4984,8 @@ export default function App() {
                   {/* 숫자는 진하게, 단위는 한 단계 작고 연하게 */}
                   <span style={{display:"inline-flex",alignItems:"center",gap:4}}>
                     <EmojiIcon emoji={it.e} size={14}/>
-                    <span style={{fontSize:14,fontWeight:700,color:"#2F2416"}}>{it.n}</span>
-                    {it.u&&<span style={{fontSize:11,color:"#9CA3AF",marginLeft:-2}}>{it.u}</span>}
+                    {/* 숫자와 단위는 붙여서 '80점' (사이 띄우지 않음) */}
+                    <span><span style={{fontSize:14,fontWeight:700,color:"#2F2416"}}>{it.n}</span>{it.u&&<span style={{fontSize:11,color:"#9CA3AF"}}>{it.u}</span>}</span>
                   </span>
                 </Fragment>
               ))}
