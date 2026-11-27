@@ -57,7 +57,9 @@ function CheckChip({ label, on, failed = false, onPress }){
         border:`1px solid ${on?G+"88":C.border}`,color:on?G:failed?"#A6ADBD":SUBD,
         textDecoration:failed?"line-through":"none",display:"inline-flex",alignItems:"center",gap:6,minWidth:0}}>
       <span style={{flexShrink:0,display:"flex"}}><CareIcon name={on?"check":"checkEmpty"} size={14}/></span>
-      <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{label}</span>
+      {/* [사용자 확정 2026-11-27] 긴 글자는 두 줄까지 보이고, 그 이상만 '…' */}
+      <span style={{minWidth:0,overflow:"hidden",whiteSpace:"normal",wordBreak:"keep-all",overflowWrap:"anywhere",textAlign:"left",lineHeight:1.3,
+        display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{label}</span>
     </button>
   );
 }
@@ -635,12 +637,13 @@ export default function ParentHomeTab({
                   {baseSup.length===0&&sup.length===0&&<span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>}
                   </div>
                 </div>
-                <div style={{width:"100%",display:"flex",alignItems:"flex-start",gap:8}}>
-                  <span style={{...rowLabel}}>
+                {/* 오늘 미션은 정렬선을 맞추지 않는다 — 넘치면 라벨 아래 왼쪽 끝부터 이어져 긴 미션이 넓게 쓴다 (사용자 확정 2026-11-27) */}
+                <div style={{width:"100%",display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
+                  <span style={{display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,color:SUBD,minHeight:30,marginRight:2}}>
                     <CareIcon name="mission" size={14}/>
                     <span style={{fontSize:FS.tag,...SUB_LABEL}}>오늘 미션</span>
                   </span>
-                  <div style={chipWrap}>
+                  <div style={{display:"contents"}}>
                   {totalTodoCnt===0
                     ? <span style={{...chip,background:CT.faint,color:SUBD}}>없음</span>
                     : missionChips.map((mc,i)=>(
