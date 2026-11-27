@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import EmojiIcon from "../EmojiIcon.jsx";
 import { C, CAMP_SHEET, DUNGEON_DECOR_CARD, dungeonDecorRarity, mixWhite } from "../../data/tokens.js";
+import StreakShieldCard from "./StreakShieldCard.jsx";
 import {
   DECOR_GROUPS, DECOR_RARITY, decorView,
   BAKERY_HAT_ORDER, BAKERY_HAT_PRICE, BAKERY_HAT_RARITY, BAKERY_BGS, BAKERY_PETSKIN_ORDER,
@@ -55,6 +56,7 @@ export default function DecorShopSheet({
   coin = 0, ownedCount = 0, avatarOwnedCount = 0, equipped = {},
   isOwned = () => false, priceOf = (it) => it.price,
   maxPet = false, onBuy, onEquip, onOpenAvatarShop,
+  shield = null,   // { count, price, rescue, onBuy } — 🛡️ 연속 보호권 (도우미 섹션, 2026-11-27)
 }) {
   /* 첫 화면은 늘 '고르기'(picker) — 시트를 새로 열 때마다 되돌아온다.
      '배경 꾸미기'를 누르면 이 시트 안에서 그리드로 전환된다(bg). */
@@ -75,7 +77,7 @@ export default function DecorShopSheet({
                   style={{border:"none",background:cute?"rgba(255,255,255,0.6)":CAMP_SHEET.chipBg,color:cute?"#6B4A5C":CAMP_SHEET.chipText,width:30,height:30,borderRadius:"50%",fontSize:16,fontWeight:900,cursor:"pointer",flexShrink:0}}>‹</button>
               )}
               <p style={{fontSize:19,fontWeight:900,margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                {view==="bg" ? "🌈 배경 꾸미기" : `🛍️ ${cute?"꾸미기 가게":"꾸미기 상점"}`}
+                {view==="bg" ? "🌈 배경 · 도우미 · 펫" : `🛍️ ${cute?"꾸미기 가게":"꾸미기 상점"}`}
               </p>
             </div>
             <button onClick={()=>onClose()} style={{border:"none",background:cute?"rgba(255,255,255,0.6)":CAMP_SHEET.chipBg,color:cute?"#6B4A5C":CAMP_SHEET.chipText,width:34,height:34,borderRadius:"50%",fontSize:18,fontWeight:900,cursor:"pointer",flexShrink:0}}>✕</button>
@@ -106,8 +108,8 @@ export default function DecorShopSheet({
                 boxShadow:cute?`0 6px 16px ${th.main}22`:"0 6px 18px rgba(60,90,105,0.28)"}}>
               <span style={{fontSize:34,flexShrink:0}}>👗</span>
               <span style={{flex:1,minWidth:0}}>
-                <span style={{display:"block",fontSize:17,fontWeight:900,color:cute?C.text:"#FFFFFF"}}>아바타 꾸미기</span>
-                <span style={{display:"block",fontSize:12.5,fontWeight:800,color:cute?C.sub:"rgba(255,255,255,0.85)",marginTop:3}}>모자·옷·신발로 나만의 아바타를 만들어요 · {avatarOwnedCount}개 보유</span>
+                <span style={{display:"block",fontSize:17,fontWeight:900,color:cute?C.text:"#FFFFFF"}}>캐릭터 꾸미기</span>
+                <span style={{display:"block",fontSize:12.5,fontWeight:800,color:cute?C.sub:"rgba(255,255,255,0.85)",marginTop:3}}>모자·옷·신발로 나만의 캐릭터를 꾸며요 · {avatarOwnedCount}개 보유</span>
               </span>
               <span style={{fontSize:19,color:cute?C.sub:"rgba(255,255,255,0.85)",flexShrink:0}}>›</span>
             </button>
@@ -122,19 +124,20 @@ export default function DecorShopSheet({
                 boxShadow:cute?`0 6px 16px ${th.main}22`:"0 6px 18px rgba(60,90,105,0.28)"}}>
               <span style={{fontSize:34,flexShrink:0}}>🌈</span>
               <span style={{flex:1,minWidth:0}}>
-                <span style={{display:"block",fontSize:17,fontWeight:900,color:cute?C.text:"#FFFFFF"}}>배경 꾸미기</span>
-                <span style={{display:"block",fontSize:12.5,fontWeight:800,color:cute?C.sub:"rgba(255,255,255,0.85)",marginTop:3}}>배경·펫을 꾸며요 · {ownedCount}개 보유</span>
+                <span style={{display:"block",fontSize:17,fontWeight:900,color:cute?C.text:"#FFFFFF"}}>배경 · 도우미 · 펫</span>
+                <span style={{display:"block",fontSize:12.5,fontWeight:800,color:cute?C.sub:"rgba(255,255,255,0.85)",marginTop:3}}>배경과 탐험 도우미, 펫을 만나요 · {ownedCount}개 보유</span>
               </span>
               <span style={{fontSize:19,color:cute?C.sub:"rgba(255,255,255,0.85)",flexShrink:0}}>›</span>
             </button>
           </div>
         ) : (
-        /* 본문: 카테고리별 (배경 꾸미기 — 배경·펫) */
+        /* 본문: 카테고리별 (배경 · 도우미 · 펫 — 도우미는 배경 그룹 바로 뒤에 끼운다) */
         <div style={{padding:"6px 16px 26px"}}>
           {DECOR_GROUPS.filter(grp=>grp.key!=="hat"&&grp.key!=="border").map(grp=>{   // 모자/장비(hat)는 '아바타 꾸미기'와 중복, 테두리(border)는 수채화 배경과 안 어울려 제외 — 둘 다 데이터·저장 로직은 유지
             const grpLocked = grp.lockUntilMaxPet && !maxPet;   // 펫 스킨만 잠금 대상(캐릭터 스킨은 폐지)
             return (
-            <div key={grp.key} style={{marginTop:18}}>
+            <Fragment key={grp.key}>
+            <div style={{marginTop:18}}>
               <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:!cute?CAMP_SHEET.text:C.text}}>{grp.icon} {grp.label}{grp.key==="petskin"&&<span style={{fontSize:11,fontWeight:800,color:!cute?CAMP_SHEET.textSub:C.sub,marginLeft:6}}>펫 최종 진화 시 해제</span>}</p>
               {grpLocked?(
                 <div style={!cute
@@ -274,6 +277,15 @@ export default function DecorShopSheet({
               </div>
               )}
             </div>
+            {/* [사용자 확정 2026-11-27] ① 배경 → ② 도우미 → ③ 펫 — 도우미는 배경 바로 아래 */}
+            {grp.key==="bg"&&shield&&(
+              <div style={{marginTop:18}}>
+                <p style={{fontSize:15,fontWeight:900,margin:"0 0 10px",color:!cute?CAMP_SHEET.text:C.text}}>🧭 도우미</p>
+                <StreakShieldCard count={shield.count} price={shield.price} coin={coin} rescue={shield.rescue}
+                  onBuy={shield.onBuy} cute={cute} th={th} TM={TM} />
+              </div>
+            )}
+            </Fragment>
             );
           })}
           <p style={{fontSize:11.5,color:!cute?CAMP_SHEET.textSub:C.sub,textAlign:"center",margin:"20px 0 0",lineHeight:1.5}}>꾸민 모습은 '내 캐릭터' 카드에 바로 나타나요 ✨</p>
