@@ -38,6 +38,7 @@ import { getHolidayName } from "../../data/characters.js";
 import { ADV_SIT_IMG } from "../../data/characters.js";
 import CareIcon from "./CareIcons.jsx";
 import { Mark, MarkText } from "./CalendarMarks.jsx";
+import { useState } from "react";
 
 /* [사용자 확정 2026-08-17] 달력 아래 하루 상세는 홈의 학원 카드와 같은 것을 보여 주는
    자리인데 글자 크기·굵기·칩 규격이 제각각이었다 → 홈 카드 값에 맞춘다.
@@ -77,6 +78,9 @@ export default function CalendarTab({
      주간 시간표는 같은 자리의 '보기 전환'으로 옮겼다 — 월간은 그날의 특이사항,
      주간은 반복 일정 비교로 역할을 나눈다. */
   const effSelDate=calSelDate||TODAY;
+  /* [사용자 확정 2026-11-27] 고른 날 학원 카드는 홈 탭과 겹친다 → 접어 두고, 누르면 펼친다.
+     열쇠는 '날짜:카드' — 날짜를 바꾸면 다시 모두 접힌 상태로 보인다. */
+  const [calAcOpen, setCalAcOpen] = useState({});
   const dnOf=(s)=>["일","월","화","수","목","금","토"][new Date(s.replace(/-/g,"/")).getDay()];
   const korDate=(s)=>{ const [,mm,dd]=s.split("-").map(Number); return `${mm}월 ${dd}일`; };
   const selInfo=(()=>{
@@ -507,21 +511,32 @@ export default function CalendarTab({
                 : ac._makeup ? (String(ac._label).includes(":") ? `${ac._label}–${endT}` : ac._label)
                 : `${ac._time}–${endT}`;
               const shuttleText=getShuttleText(ac,selInfo.dn);
+              const openKey=`${effSelDate}:${ac._key||ac.id}`, isOpen=!!calAcOpen[openKey];
               return (
                 <div key={ac._key||ac.id} style={{marginBottom:9,borderRadius:RAD.md,border:`1px solid ${ac.color}44`,overflow:"hidden",boxShadow:SHADOW.sm,display:"flex"}}>
                   <div style={{width:4,background:ac.color,flexShrink:0}}/>
                   <div style={{flex:1,minWidth:0,background:"#fff"}}>
-                    <div style={{background:`${ac.color}10`,padding:"9px 12px",display:"flex",alignItems:"center",gap:9}}>
-                      <p style={{fontSize:FS.cardTitle,fontWeight:FW.bold,margin:0,flex:1,minWidth:0,color:C.text,
-                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ac.name}</p>
+                    {/* 접힌 줄 — 학원 이름 · 시간 · 미션 배지 · 펼침 화살표 (누르면 아래 상세가 열린다) */}
+                    <button onClick={()=>setCalAcOpen(p=>({...p,[openKey]:!p[openKey]}))} className="jelly-tap"
+                      aria-expanded={isOpen} aria-label={`${ac.name} 자세히`}
+                      style={{width:"100%",border:"none",background:isOpen?`${ac.color}10`:"#fff",padding:"10px 10px 10px 12px",display:"flex",alignItems:"center",gap:7,
+                        cursor:"pointer",fontFamily:"inherit",textAlign:"left",touchAction:"manipulation",userSelect:"none",WebkitUserSelect:"none"}}>
+                      <span style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:7,overflow:"hidden",whiteSpace:"nowrap"}}>
+                        <span style={{fontSize:FS.cardTitle,fontWeight:FW.bold,color:C.text,minWidth:0,overflow:"hidden",textOverflow:"ellipsis"}}>{ac.name}</span>
+                        <span style={{flexShrink:0,fontSize:FS.sub,fontWeight:FW.normal,color:ac._absent?C.red:ac._makeup?C.orange:SUBD}}>{timeText}</span>
+                      </span>
                       {/* 0/1만 두면 무슨 숫자인지 알 수 없다 → '미션' 을 붙인다 (사용자 지적) */}
                       {totalTodoCnt>0&&(
-                        <span style={{flexShrink:0,display:"inline-flex",alignItems:"center",gap:3,fontSize:FS.tag,fontWeight:FW.semi,
-                          color:allDone?C.green:C.orange,background:allDone?`${C.green}12`:`${C.orange}12`,borderRadius:RAD.sm,padding:"3px 8px"}}>
-                          <CareIcon name="mission" size={11}/>미션 {doneCnt}/{totalTodoCnt}
+                        /* 접힌 줄은 좁아서(320px 폰 238px) 아이콘은 빼고 '미션 0/1' 글자만 — 학원 이름이 잘리지 않게 (2026-11-27) */
+                        <span style={{flexShrink:0,display:"inline-flex",alignItems:"center",fontSize:FS.tag,fontWeight:FW.semi,whiteSpace:"nowrap",
+                          color:allDone?C.green:C.orange,background:allDone?`${C.green}12`:`${C.orange}12`,borderRadius:RAD.sm,padding:"3px 7px"}}>
+                          미션 {doneCnt}/{totalTodoCnt}
                         </span>
                       )}
-                    </div>
+                      <span aria-hidden style={{flexShrink:0,width:20,height:20,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"#B9B3AD",fontWeight:FW.bold,
+                        transition:"transform .2s",transform:isOpen?"rotate(180deg)":"none"}}>⌄</span>
+                    </button>
+                    {isOpen&&(
                     <div style={{padding:"8px 12px 10px"}}>
                       <p style={{margin:0,fontSize:FS.cardTitle,fontWeight:FW.normal,
                         color:ac._absent?C.red:ac._makeup?C.orange:C.text}}>
@@ -544,6 +559,7 @@ export default function CalendarTab({
                             </>)}
                       </div>
                     </div>
+                    )}
                   </div>
                 </div>
               );
