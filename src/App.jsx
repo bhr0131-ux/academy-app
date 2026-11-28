@@ -6121,7 +6121,7 @@ export default function App() {
           </div>
         )}
 
-      {/* ── 보물상자 여는 중 — KidGameModals.jsx (탐험: 지도 보물상자 그림, 2026-11-28) ── */}
+      {/* ── 보물상자 여는 중 — KidGameModals.jsx ── */}
       <TreasureOpeningOverlay open={openingTreasure} cute={kidSkin==="cute"} TM={TM} />
 
       {/* ── 보물상자 오픈 결과 모달 ── */}

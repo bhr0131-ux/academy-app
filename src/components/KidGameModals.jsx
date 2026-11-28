@@ -336,7 +336,7 @@ export function PastQuestModal({ info, chip = "엄마모드", role = "엄마", o
   );
 }
 
-/* ── 보물상자 여는 중 — 탐험은 지도 속 보물상자 그림 (사용자 확정 2026-11-28, 예전엔 이모지) ── */
+/* ── 보물상자 여는 중 — 스킨별 상자 이모지(탐험 🎁 · 베이커리 🎀) 그대로 (사용자 확정 2026-11-28: 지도 그림 대신 기존대로) ── */
 export function TreasureOpeningOverlay({ open, cute, TM }) {
   if (!open) return null;
   return (
@@ -344,9 +344,7 @@ export function TreasureOpeningOverlay({ open, cute, TM }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.80)", zIndex: 9998, display: "flex", justifyContent: "center", alignItems: "center" }}>
       <div style={{ textAlign: "center", color: "#fff" }}>
         <div style={{ animation: "boxBounce .7s ease-in-out infinite" }}>
-          {cute
-            ? <EmojiIcon emoji={TM.boxEmoji} size={82} />
-            : <img src="assets/chest-closed.webp" alt="" draggable={false} style={{ height: 104, width: "auto", display: "block", margin: "0 auto", filter: "drop-shadow(0 8px 18px rgba(255,200,90,0.35))" }} />}
+          <EmojiIcon emoji={TM.boxEmoji} size={82} />
         </div>
         <p style={{ fontSize: 24, fontWeight: 900, margin: "14px 0 6px" }}>{cute ? `${TM.box} 여는 중...` : `${TM.box} 오픈 중...`}</p>
         <p style={{ fontSize: 15, opacity: 0.7, margin: 0, animation: "shimmer 1s ease-in-out infinite" }}>두근두근...</p>
