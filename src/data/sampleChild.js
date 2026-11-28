@@ -9,7 +9,7 @@ import { EMPTY_AC } from "./sampleData.js";
    샘플은 엄마용 화면 아이 칩 옆 ＋(아이 관리)에서 지울 수 있다.
 
    넣는 것 (모두 기존 저장 형식 그대로 — 새 키는 만들지 않는다)
-     · 학원 1곳 — 피아노(월·수·금, 셔틀·준비물·반복 숙제)
+     · 학원 1곳 — 피아노(매일, 셔틀·준비물·반복 숙제)
        [사용자 확정 2026-11-28] 2곳이면 처음 보는 사람에게 복잡해 보여서 1곳으로 줄였다
      · 오늘 미션(숙제·할 일·준비물) + 지난 일주일 완료 기록(연속 달성·점수 내역)
      · 반복: 피아노 '수업 있는 날마다' 숙제 규칙, 매주 메모, 자주 쓰는 미션
@@ -37,11 +37,9 @@ export const buildSampleChild = (today, rewards = [], petStageOf = () => 0) => {
   let seq = 0;
   const nid = () => stamp + (seq++);
   const acA = `ac_sample_piano`;
-  const todayDn = dnOf(today);
 
-  /* 오늘이 수업 요일이 아니면 오늘도 넣어 '오늘 미션'이 보이게 */
-  const daysA = ["월", "수", "금"];
-  if (!daysA.includes(todayDn)) daysA.push(todayDn);
+  /* [사용자 확정 2026-11-28] 어떤 요일에 둘러봐도 보이게 매일 수업 */
+  const daysA = ["월", "화", "수", "목", "금", "토", "일"];
 
   const academies = [
     { ...EMPTY_AC, id: acA, name: "피아노 학원", kind: "piano", kindLabel: "피아노",
