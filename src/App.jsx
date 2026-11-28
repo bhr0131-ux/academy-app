@@ -3855,6 +3855,9 @@ export default function App() {
     }
     if(next){ setShieldData(next); return; }   // 저장 뒤 다시 돌면서 아래에서 묻는다
     for(const c of children){
+      /* [버그 수정 2026-11-28] 샘플 아이는 아무도 미션을 안 하니 이튿날부터 '놓쳤어요' 질문이 생긴다 —
+         실제 아이를 보고 있는데 샘플 질문이 뜨지 않게, 샘플을 고른 동안에만 묻는다(질문은 남겨 둔다) */
+      if(isSampleChild(c)&&c.id!==childId) continue;
       const rec=normShield(cur[c.id]);
       for(const date of rec.pending){
         const key=`${c.id}|${date}`;
@@ -3871,7 +3874,7 @@ export default function App() {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[loaded,shieldData,children,dailyData,dayStamp]);
+  },[loaded,shieldData,children,dailyData,dayStamp,childId]);
   /* 팝업 답 — yes 면 보호권 1개를 써서 그날을 지킨다 */
   const answerShield=(ev,yes)=>{
     if(!ev||!ev.cid||!ev.date||!shieldRef.current) return;

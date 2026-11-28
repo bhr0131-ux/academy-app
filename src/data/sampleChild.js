@@ -14,7 +14,7 @@ import { EMPTY_AC } from "./sampleData.js";
      · 오늘 미션(숙제·할 일·준비물) + 지난 일주일 완료 기록(연속 달성·점수 내역)
      · 반복: 피아노 '수업 있는 날마다' 숙제 규칙, 매주 메모, 자주 쓰는 미션
      · 메모(오늘), 결석 1건 + 보충 예정, 학원비(피아노 납부 완료 / 영어 미납)
-     · 점수·코인, 보물상자, 펫(연속 기록에 맞는 단계), 연속 보호권 1개
+     · 점수·코인, 보물상자, 펫(연속 기록에 맞는 단계) — 연속 보호권은 사 두지 않는다(상점에서 직접 사 보게)
      · 보상 구매 요청(대기 1 · 승인 1), 꾸미기 아이템 1개
    펫·보호권은 기록에 맞춰 미리 맞춰 둬서 처음 켰을 때 진화·보호권 팝업이 쏟아지지 않는다.
    ════════════════════════════════════════════════════════════════════════ */
@@ -129,7 +129,7 @@ export const buildSampleChild = (today, rewards = [], petStageOf = () => 0) => {
     scoreData, rewardRequests,
     treasure: { completedQuestCount: doneCount, normalBox: 1, rareBox: 1, legendBox: 0 },
     petStage: petStageOf(best), bestStreak: best,
-    shield: { count: 1, protected: [], checkedThrough: addDays(today, -1), pending: [] },
+    shield: { count: 0, protected: [], checkedThrough: addDays(today, -1), pending: [] },   // [사용자 확정 2026-11-28] 보호권은 미리 사 두지 않는다
     avatarOwnedExtra: ["shoes_strawberry"], avatarEquipExtra: { shoes: "shoes_strawberry" },
   };
 };
