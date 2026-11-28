@@ -276,3 +276,81 @@ export function TreasureResultModal({ tm, cute, th, GP, TM, onClose }) {
     </div>
   );
 }
+
+/* ── 공용 헤더 (부드러운 파스텔 + 진한 글씨) ───────────────────────────── */
+function SoftHeader({ emoji, title, bg, ink, img }) {
+  return (
+    <div style={{ padding: "26px 20px 22px", textAlign: "center", position: "relative", overflow: "hidden", color: ink, background: bg }}>
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent)", animation: "shineMove 1.8s ease-in-out infinite" }} />
+      <p style={{ margin: "0 0 8px", position: "relative" }}>
+        {img ? <img src={img} alt="" draggable={false} style={{ height: 58, width: "auto", verticalAlign: "middle" }} /> : <EmojiIcon emoji={emoji} size={56} />}
+      </p>
+      <p style={{ margin: 0, fontSize: 23, fontWeight: 900, position: "relative" }}>{title}</p>
+    </div>
+  );
+}
+
+/* ── 미션 실패 (잠깐 떴다 사라짐 — 누를 것 없음) [사용자 확정 2026-11-28 탐험 톤] ── */
+export function QuestFailModal({ title }) {
+  if (!title && title !== "") return null;
+  return (
+    <div style={{ ...GAME_MODAL_STYLE.overlay, pointerEvents: "none", zIndex: 1300 }}>
+      <div style={{ ...GAME_MODAL_STYLE.card, borderRadius: 26, animation: "gamePop .4s ease-out" }}>
+        <SoftHeader emoji="💥" title="미션 실패" bg="linear-gradient(160deg,#FFEAE4 0%,#F7B8AA 100%)" ink="#374151" />
+        <div style={{ padding: "20px 20px 22px", textAlign: "center" }}>
+          <InfoCard ink="#374151" style={{ padding: "14px 14px 13px" }}>
+            <p style={{ margin: 0, fontSize: 16.5, fontWeight: 900, color: "#374151", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</p>
+            <p style={{ margin: "6px 0 0", fontSize: 13.5, fontWeight: 800, color: EX.sub }}>다음에 다시 도전! 💪</p>
+          </InfoCard>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── 날짜가 지났어요 (아이 모드: 지난 미션은 보호자가 처리) [사용자 확정 2026-11-28 탐험 톤] ──
+   안내 경로는 한 덩어리로 줄바꿈하지 않고, 비밀번호 안내는 따로 한 줄 — '(🔒 비\n밀번호)'처럼 끊기지 않게 */
+export function PastQuestModal({ info, chip = "엄마모드", role = "엄마", onClose }) {
+  if (!info) return null;
+  const nw = { whiteSpace: "nowrap" };
+  return (
+    <div style={{ ...GAME_MODAL_STYLE.overlay }} onClick={onClose}>
+      <div style={{ ...GAME_MODAL_STYLE.card, borderRadius: 26, animation: "gamePop .4s ease-out" }} onClick={(e) => e.stopPropagation()}>
+        <SoftHeader emoji="⏰" title="날짜가 지났어요" bg="linear-gradient(160deg,#FFF2DD 0%,#F2C48C 100%)" ink="#5A3A12" />
+        <div style={{ padding: "20px 20px 22px", textAlign: "center", wordBreak: "keep-all" }}>
+          <p style={{ fontWeight: 900, fontSize: 16, margin: "0 0 6px", color: EX.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {info.dateText} · {info.label}
+          </p>
+          <p style={{ fontSize: 13.5, fontWeight: 800, color: EX.sub, margin: "0 0 14px", lineHeight: 1.5 }}>{role}가 대신 처리해 줄 수 있어요 🙆</p>
+          <InfoCard style={{ marginBottom: 16, padding: "12px 12px 11px", fontSize: 13, lineHeight: 1.6 }}>
+            <div style={{ fontWeight: 900, color: "#A8611A" }}>
+              <span style={nw}>{chip}</span> <span style={nw}>→ 미션</span> <span style={nw}>→ 지난 미션 관리</span>
+            </div>
+            <div style={{ marginTop: 2 }}>여기에서 완료·실패로 바꿀 수 있어요.</div>
+            <div style={{ marginTop: 4, fontSize: 12, fontWeight: 800, color: EX.sub, ...nw }}>🔒 보호자 비밀번호가 필요해요</div>
+          </InfoCard>
+          <ExButton onClick={onClose}>알겠어요</ExButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── 보물상자 여는 중 — 탐험은 지도 속 보물상자 그림 (사용자 확정 2026-11-28, 예전엔 이모지) ── */
+export function TreasureOpeningOverlay({ open, cute, TM }) {
+  if (!open) return null;
+  return (
+    /* zIndex 9998: 보물창고 시트(4000) 위, 결과 모달(9999) 아래 */
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.80)", zIndex: 9998, display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <div style={{ textAlign: "center", color: "#fff" }}>
+        <div style={{ animation: "boxBounce .7s ease-in-out infinite" }}>
+          {cute
+            ? <EmojiIcon emoji={TM.boxEmoji} size={82} />
+            : <img src="assets/chest-closed.webp" alt="" draggable={false} style={{ height: 104, width: "auto", display: "block", margin: "0 auto", filter: "drop-shadow(0 8px 18px rgba(255,200,90,0.35))" }} />}
+        </div>
+        <p style={{ fontSize: 24, fontWeight: 900, margin: "14px 0 6px" }}>{cute ? `${TM.box} 여는 중...` : `${TM.box} 오픈 중...`}</p>
+        <p style={{ fontSize: 15, opacity: 0.7, margin: 0, animation: "shimmer 1s ease-in-out infinite" }}>두근두근...</p>
+      </div>
+    </div>
+  );
+}

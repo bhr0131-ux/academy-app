@@ -60,7 +60,7 @@ import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import DiscoveryMemo from "./components/DiscoveryMemo.jsx";
 import PageFlip from "./components/PageFlip.jsx";
-import { GameEventModal, TreasureResultModal } from "./components/KidGameModals.jsx";
+import { GameEventModal, TreasureResultModal, QuestFailModal, PastQuestModal, TreasureOpeningOverlay } from "./components/KidGameModals.jsx";
 import { SAMPLE_CHILD_ID, SAMPLE_HINT_KEY, isSampleChild, buildSampleChild } from "./data/sampleChild.js";
 import { STREAK_SHIELD_KEY, STREAK_SHIELD_PRICE, normShield, countStreak, applyAutoShield, answerShieldAsk, findRecoverableMiss, applyShieldPurchase } from "./data/streakShield.js";
 import {
@@ -6121,17 +6121,8 @@ export default function App() {
           </div>
         )}
 
-      {/* ── 보물상자 오픈 애니메이션 모달 ── */}
-      {openingTreasure&&(
-        /* zIndex 9998: 보물창고가 시트(4000)로 바뀌며 연출이 그 위에 와야 한다. 결과 모달은 9999. */
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.80)",zIndex:9998,display:"flex",justifyContent:"center",alignItems:"center"}}>
-          <div style={{textAlign:"center",color:"#fff"}}>
-            <div style={{animation:"boxBounce .7s ease-in-out infinite"}}><EmojiIcon emoji={TM.boxEmoji} size={82}/></div>
-            <p style={{fontSize:24,fontWeight:900,marginTop:14,margin:"14px 0 6px"}}>{kidSkin==="cute"?`${TM.box} 여는 중...`:`${TM.box} 오픈 중...`}</p>
-            <p style={{fontSize:15,opacity:0.7,margin:0,animation:"shimmer 1s ease-in-out infinite"}}>두근두근...</p>
-          </div>
-        </div>
-      )}
+      {/* ── 보물상자 여는 중 — KidGameModals.jsx (탐험: 지도 보물상자 그림, 2026-11-28) ── */}
+      <TreasureOpeningOverlay open={openingTreasure} cute={kidSkin==="cute"} TM={TM} />
 
       {/* ── 보물상자 오픈 결과 모달 ── */}
       {/* 상자 열기 결과 '보물 발견!' — src/components/KidGameModals.jsx (2026-11-27 탐험 톤 정리) */}
@@ -6161,52 +6152,10 @@ export default function App() {
         </div>
       )}
 
-      {/* ── 미션 실패 안내 모달 (클리어는 인라인 이펙트로 대체) ── */}
-      {questResultModal&&questResultModal.type==="failed"&&(
-        <div style={{...GAME_MODAL_STYLE.overlay,pointerEvents:"none",zIndex:1300}}>
-          <div style={GAME_MODAL_STYLE.card}>
-            <GameModalHeader
-              emoji="💥"
-              title="미션 실패"
-              color={`linear-gradient(135deg, ${C.red}, #FF8A80)`}
-            />
-            <div style={{...GAME_MODAL_STYLE.body,textAlign:"center"}}>
-              <p style={{fontWeight:900,fontSize:17,margin:"0 0 10px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                {questResultModal.title}
-              </p>
-              <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0}}>다음에 다시 도전!</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── 지난 미션 완료 차단 안내 모달 (아이 모드: 날짜 지난 미션은 엄마가 처리) ── */}
-      {pastQuestBlockModal&&(
-        <div style={{...GAME_MODAL_STYLE.overlay}} onClick={()=>setPastQuestBlockModal(null)}>
-          <div style={GAME_MODAL_STYLE.card} onClick={e=>e.stopPropagation()}>
-            <GameModalHeader
-              emoji="⏰"
-              title="날짜가 지났어요"
-              color={`linear-gradient(135deg, ${C.orange}, #FFC36B)`}
-            />
-            <div style={{...GAME_MODAL_STYLE.body,textAlign:"center"}}>
-              <p style={{fontWeight:900,fontSize:16,margin:"0 0 8px",color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                {(()=>{const d=parseLocal(pastQuestBlockModal.date);return `${d.getMonth()+1}월 ${d.getDate()}일`;})()} · {pastQuestBlockModal.label}
-              </p>
-              <p style={{fontSize:14,fontWeight:800,color:C.sub,margin:"0 0 16px",lineHeight:1.5}}>
-                보호자가 대신 처리할 수 있어요 🙆
-              </p>
-              <div style={{background:CT.faint,borderRadius:14,padding:"12px 14px",fontSize:13,fontWeight:800,color:C.sub,lineHeight:1.5}}>
-                <span style={{color:C.orange,fontWeight:900}}>{PT.chip} → 미션 → 지난 미션 관리(🔒 비밀번호)</span>에서 {PT.role}가 완료/실패를 처리해 줄 수 있어요.
-              </div>
-              <button onClick={()=>setPastQuestBlockModal(null)}
-                style={{marginTop:16,width:"100%",padding:"12px",borderRadius:14,border:"none",background:`linear-gradient(135deg, ${C.orange}, #FFC36B)`,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer"}}>
-                알겠어요
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── 미션 실패 안내 (클리어는 인라인 이펙트로 대체) · 지난 미션 차단 안내 — KidGameModals.jsx (탐험 톤, 2026-11-28) ── */}
+      {questResultModal&&questResultModal.type==="failed"&&<QuestFailModal title={questResultModal.title||""} />}
+      <PastQuestModal chip={PT.roleMode} role={PT.role} onClose={()=>setPastQuestBlockModal(null)}
+        info={pastQuestBlockModal?{label:pastQuestBlockModal.label,dateText:(()=>{const d=parseLocal(pastQuestBlockModal.date);return `${d.getMonth()+1}월 ${d.getDate()}일`;})()}:null} />
 
       {/* ── 통합 게임 이벤트 모달 ── */}
       {/* 통합 게임 이벤트 팝업 — src/components/KidGameModals.jsx. 큐에서 한 번에 1개만 꺼내 그린다(위 effect). */}
