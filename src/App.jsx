@@ -60,7 +60,7 @@ import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import DiscoveryMemo from "./components/DiscoveryMemo.jsx";
 import PageFlip from "./components/PageFlip.jsx";
-import { GameEventModal, TreasureResultModal } from "./components/KidGameModals.jsx";
+import { GameEventModal, TreasureResultModal, QuestFailModal, PastQuestModal, TreasureOpeningOverlay } from "./components/KidGameModals.jsx";
 import { SAMPLE_CHILD_ID, SAMPLE_HINT_KEY, isSampleChild, buildSampleChild } from "./data/sampleChild.js";
 import { STREAK_SHIELD_KEY, STREAK_SHIELD_PRICE, normShield, countStreak, applyAutoShield, answerShieldAsk, findRecoverableMiss, applyShieldPurchase } from "./data/streakShield.js";
 import {
@@ -395,6 +395,7 @@ export default function App() {
   const [growthGranted,    setGrowthGranted, growthGrantedRef] = useSyncState(null);
   /* 샘플 아이 안내('샘플은 ＋에서 삭제가 가능해요')를 봤는지 — 새 키 v6_sample_hint_seen, 1회 (2026-11-27) */
   const [sampleHintSeen,   setSampleHintSeen]  = useState(true);
+  const [guideHold,        setGuideHold]       = useState(false);   // 아이 첫 안내를 띄울지 확인하는 중 — 게임 팝업 잠시 대기
   /* 성장 장비 1회 환불 표식 (새 키 v6_growth_gear_refund) — { [childId]: true }, null = 불러오기 전 */
   const [growthRefund,     setGrowthRefund, growthRefundRef]  = useSyncState(null);
   /* 꾸미기 전면 개편(2026-08-19) 환불 안내 — 앱을 켤 때 1회만 뜬다 */
@@ -1973,9 +1974,12 @@ export default function App() {
     if(BAKERY_ENABLED && !skinPicked){
       setShowModeSelect(true);                 // 즉시 모드선택 노출 (탐험 화면 깜빡임 방지)
     } else {
+      /* 안내를 띄울지 확인하는 동안(최대 0.4초) 게임 팝업 큐를 잡아 둔다 — 그 틈에 상장 팝업이 먼저 떠 안내를 덮었다 (2026-11-28) */
+      setGuideHold(true);
       (async()=>{
         const seen=await load("v6_kid_guide_seen");
-        if(!seen) setTimeout(()=>setShowKidCoachmark(true),400);   // 모드는 골랐는데 가이드 미시청(구버전 사용자)
+        if(!seen) setTimeout(()=>{ setShowKidCoachmark(true); setGuideHold(false); },400);   // 모드는 골랐는데 가이드 미시청(구버전 사용자)
+        else setGuideHold(false);
       })();
     }
     // 보물상자 있으면 알림
@@ -2054,22 +2058,30 @@ export default function App() {
     openExternal(`https://map.naver.com/p/search/${encodeURIComponent(q)}`,{noPin:true});   // 지도는 비밀번호 없이 (사용자 확정 2026-11-26)
   };
 
+  /* 주소록에서 선생님 연락처 가져오기 (브라우저 Contact Picker — 안드로이드 크롬 등에서만 된다)
+     [버그 수정 2026-11-27] 주소록 화면에서 연락처를 누르지 않고 '완료'를 누르면 빈 목록이 돌아오는데,
+     그때 아무 말 없이 끝나서 "안 가져와진다"로 보였다 → 고르는 방법을 알려 준다.
+     번호는 비어 있지 않은 첫 번호를 쓰고, 이름·번호의 앞뒤 공백을 정리한다. */
   const pickTeacherContact=async()=>{
     if(!("contacts" in navigator)||!navigator.contacts?.select){
       showToast("이 기기에서는 주소록 불러오기를 지원하지 않아요");
       return;
     }
+    let contacts;
     try {
-      const contacts=await navigator.contacts.select(["name","tel"],{multiple:false});
-      const contact=contacts?.[0];
-      if(!contact) return;
-      const name=Array.isArray(contact.name)?contact.name[0]:contact.name;
-      const tel=Array.isArray(contact.tel)?contact.tel[0]:contact.tel;
-      setNewAc(prev=>({...prev,teacher:name||prev.teacher,phone:tel||prev.phone}));
-      showToast("주소록에서 가져왔어요 📞");
+      contacts=await navigator.contacts.select(["name","tel"],{multiple:false});
     } catch(e) {
-      showToast("주소록 선택을 취소했어요");
+      showToast("주소록을 열지 못했어요. 다시 눌러 주세요",2400);
+      return;
     }
+    const contact=contacts?.[0];
+    if(!contact){ showToast("연락처를 한 번 눌러 ✓ 표시가 생긴 뒤 '완료'를 눌러 주세요",3200); return; }
+    const pick=(v)=>(Array.isArray(v)?v:[v]).map(x=>String(x||"").trim()).find(Boolean)||"";
+    const name=pick(contact.name);
+    const tel=pick(contact.tel);
+    if(!name&&!tel){ showToast("이 연락처에는 이름·번호가 없어요",2400); return; }
+    setNewAc(prev=>({...prev,teacher:name||prev.teacher,phone:tel||prev.phone}));
+    showToast(tel?"주소록에서 가져왔어요 📞":"이름만 가져왔어요 — 번호가 없는 연락처예요",2400);
   };
 
   const changeParentPin=()=>{
@@ -4070,12 +4082,16 @@ export default function App() {
   useEffect(()=>{
     if(eventModal) return;
     if(openingTreasure||treasureModal) return;
+    /* [버그 수정 2026-11-28] 아이 첫 안내(코치마크, z9998) 위로 상장·레벨업 팝업(z10000)이 덮여
+       안내의 '다음' 버튼을 누를 수 없었다 → 안내가 끝날 때까지 큐를 잡아 둔다 */
+    /* 팝업은 아이 화면에서만 그린다 — 엄마용 화면에 있는 동안 꺼내 두면 아이 화면을 여는 순간 안내 위로 바로 뜬다 */
+    if(appMode!=="child"||showKidCoachmark||guideHold) return;
     if(eventQueue.length===0) return;
     const nextEvent=eventQueue[0];
     setEventModal(nextEvent);
     if(appMode==="child"&&(nextEvent.type==="level"||nextEvent.type==="title")) playSfx("levelUp");   // 레벨업·상장 팡파르
     setEventQueue(prev=>prev.slice(1));
-  },[eventQueue,eventModal,openingTreasure,treasureModal]);
+  },[eventQueue,eventModal,openingTreasure,treasureModal,showKidCoachmark,appMode,guideHold]);
 
   // 첫 미션 안내창은 제거됨 (사탕 구매 유도 팝업 미사용)
   useEffect(()=>{
@@ -6113,17 +6129,8 @@ export default function App() {
           </div>
         )}
 
-      {/* ── 보물상자 오픈 애니메이션 모달 ── */}
-      {openingTreasure&&(
-        /* zIndex 9998: 보물창고가 시트(4000)로 바뀌며 연출이 그 위에 와야 한다. 결과 모달은 9999. */
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.80)",zIndex:9998,display:"flex",justifyContent:"center",alignItems:"center"}}>
-          <div style={{textAlign:"center",color:"#fff"}}>
-            <div style={{animation:"boxBounce .7s ease-in-out infinite"}}><EmojiIcon emoji={TM.boxEmoji} size={82}/></div>
-            <p style={{fontSize:24,fontWeight:900,marginTop:14,margin:"14px 0 6px"}}>{kidSkin==="cute"?`${TM.box} 여는 중...`:`${TM.box} 오픈 중...`}</p>
-            <p style={{fontSize:15,opacity:0.7,margin:0,animation:"shimmer 1s ease-in-out infinite"}}>두근두근...</p>
-          </div>
-        </div>
-      )}
+      {/* ── 보물상자 여는 중 — KidGameModals.jsx ── */}
+      <TreasureOpeningOverlay open={openingTreasure} cute={kidSkin==="cute"} TM={TM} />
 
       {/* ── 보물상자 오픈 결과 모달 ── */}
       {/* 상자 열기 결과 '보물 발견!' — src/components/KidGameModals.jsx (2026-11-27 탐험 톤 정리) */}
@@ -6153,52 +6160,10 @@ export default function App() {
         </div>
       )}
 
-      {/* ── 미션 실패 안내 모달 (클리어는 인라인 이펙트로 대체) ── */}
-      {questResultModal&&questResultModal.type==="failed"&&(
-        <div style={{...GAME_MODAL_STYLE.overlay,pointerEvents:"none",zIndex:1300}}>
-          <div style={GAME_MODAL_STYLE.card}>
-            <GameModalHeader
-              emoji="💥"
-              title="미션 실패"
-              color={`linear-gradient(135deg, ${C.red}, #FF8A80)`}
-            />
-            <div style={{...GAME_MODAL_STYLE.body,textAlign:"center"}}>
-              <p style={{fontWeight:900,fontSize:17,margin:"0 0 10px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                {questResultModal.title}
-              </p>
-              <p style={{fontSize:15,fontWeight:800,color:C.sub,margin:0}}>다음에 다시 도전!</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── 지난 미션 완료 차단 안내 모달 (아이 모드: 날짜 지난 미션은 엄마가 처리) ── */}
-      {pastQuestBlockModal&&(
-        <div style={{...GAME_MODAL_STYLE.overlay}} onClick={()=>setPastQuestBlockModal(null)}>
-          <div style={GAME_MODAL_STYLE.card} onClick={e=>e.stopPropagation()}>
-            <GameModalHeader
-              emoji="⏰"
-              title="날짜가 지났어요"
-              color={`linear-gradient(135deg, ${C.orange}, #FFC36B)`}
-            />
-            <div style={{...GAME_MODAL_STYLE.body,textAlign:"center"}}>
-              <p style={{fontWeight:900,fontSize:16,margin:"0 0 8px",color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                {(()=>{const d=parseLocal(pastQuestBlockModal.date);return `${d.getMonth()+1}월 ${d.getDate()}일`;})()} · {pastQuestBlockModal.label}
-              </p>
-              <p style={{fontSize:14,fontWeight:800,color:C.sub,margin:"0 0 16px",lineHeight:1.5}}>
-                보호자가 대신 처리할 수 있어요 🙆
-              </p>
-              <div style={{background:CT.faint,borderRadius:14,padding:"12px 14px",fontSize:13,fontWeight:800,color:C.sub,lineHeight:1.5}}>
-                <span style={{color:C.orange,fontWeight:900}}>{PT.chip} → 미션 → 지난 미션 관리(🔒 비밀번호)</span>에서 {PT.role}가 완료/실패를 처리해 줄 수 있어요.
-              </div>
-              <button onClick={()=>setPastQuestBlockModal(null)}
-                style={{marginTop:16,width:"100%",padding:"12px",borderRadius:14,border:"none",background:`linear-gradient(135deg, ${C.orange}, #FFC36B)`,color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer"}}>
-                알겠어요
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── 미션 실패 안내 (클리어는 인라인 이펙트로 대체) · 지난 미션 차단 안내 — KidGameModals.jsx (탐험 톤, 2026-11-28) ── */}
+      {questResultModal&&questResultModal.type==="failed"&&<QuestFailModal title={questResultModal.title||""} />}
+      <PastQuestModal chip={PT.roleMode} role={PT.role} onClose={()=>setPastQuestBlockModal(null)}
+        info={pastQuestBlockModal?{label:pastQuestBlockModal.label,dateText:(()=>{const d=parseLocal(pastQuestBlockModal.date);return `${d.getMonth()+1}월 ${d.getDate()}일`;})()}:null} />
 
       {/* ── 통합 게임 이벤트 모달 ── */}
       {/* 통합 게임 이벤트 팝업 — src/components/KidGameModals.jsx. 큐에서 한 번에 1개만 꺼내 그린다(위 effect). */}
@@ -6432,16 +6397,18 @@ export default function App() {
         </div>
         {/* [사용자 확정 2026-11-27] 샘플 아이를 처음 고르면 ＋를 가리키며 한 번 알려 준다 */}
         {!sampleHintSeen&&isSampleChild(curChild)&&(
-          <div style={{position:"absolute",top:"calc(100% + 10px)",right:2,zIndex:30,maxWidth:230,
-            background:"#2F2A26",color:"#fff",borderRadius:14,padding:"11px 13px 10px",boxShadow:"0 10px 26px rgba(0,0,0,0.28)",animation:"popInUp .25s ease both"}}>
-            <span aria-hidden="true" style={{position:"absolute",top:-7,right:13,width:14,height:14,background:"#2F2A26",transform:"rotate(45deg)",borderRadius:3}}/>
+          /* [사용자 확정 2026-11-28] 엄마 모드 톤 — 흰 카드 + 테마(핑크) 테두리·그림자, 꼬리가 ＋를 가리키므로 ↑ 는 뺐다 */
+          <div style={{position:"absolute",top:"calc(100% + 10px)",right:2,zIndex:30,maxWidth:232,
+            background:"#fff",color:"#374151",border:`1.5px solid ${mixWhite(th.main,0.35)}`,borderRadius:14,padding:"11px 13px 11px",
+            boxShadow:`0 10px 26px ${th.main}33, 0 2px 8px rgba(0,0,0,0.06)`,animation:"popInUp .25s ease both"}}>
+            <span aria-hidden="true" style={{position:"absolute",top:-8,right:13,width:14,height:14,background:"#fff",
+              borderLeft:`1.5px solid ${mixWhite(th.main,0.35)}`,borderTop:`1.5px solid ${mixWhite(th.main,0.35)}`,transform:"rotate(45deg)",borderRadius:"3px 0 0 0"}}/>
             <p style={{margin:0,fontSize:13.5,fontWeight:900,lineHeight:1.45,position:"relative"}}>
-              <span style={{display:"inline-block",animation:"avHintNudge2 1s ease-in-out infinite",marginRight:4}}>↑</span>샘플은 <b style={{color:"#FFD77A"}}>＋</b>에서 삭제가 가능해요
+              샘플은 <b style={{color:th.main}}>＋</b>에서 삭제가 가능해요
             </p>
-            <p style={{margin:"3px 0 8px",fontSize:12,fontWeight:700,opacity:0.8,lineHeight:1.45,position:"relative"}}>여러 기능을 마음껏 눌러 보세요!</p>
+            <p style={{margin:"3px 0 9px",fontSize:12,fontWeight:700,color:"#6B7280",lineHeight:1.45,position:"relative"}}>여러 기능을 마음껏 눌러 보세요!</p>
             <button onClick={()=>{ setSampleHintSeen(true); save(SAMPLE_HINT_KEY,"1"); }}
-              style={{position:"relative",border:"none",borderRadius:10,background:"#FFD77A",color:"#3F2D1C",fontSize:12.5,fontWeight:900,padding:"6px 14px",cursor:"pointer",fontFamily:"inherit"}}>알겠어요</button>
-            <style>{`@keyframes avHintNudge2{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}`}</style>
+              style={{position:"relative",border:"none",borderRadius:10,background:th.main,color:"#fff",fontSize:12.5,fontWeight:900,padding:"6px 14px",cursor:"pointer",fontFamily:"inherit",boxShadow:`0 3px 8px ${th.main}44`}}>알겠어요</button>
           </div>
         )}
         {/* 아이 추가 */}
