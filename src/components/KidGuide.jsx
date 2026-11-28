@@ -8,7 +8,7 @@ import { GROWTH_GEAR, getAvatarItem, itemLabel, itemEmoji } from "../data/avatar
    아이 모드 첫 안내 (탐험) — 5단계 (사용자 확정 2026-11-28)
    ────────────────────────────────────────────────────────────────────────
    · 다른 탐험 팝업처럼 위쪽 파스텔 헤더 안에 그림·제목
-   · 설명과 페이지 점 사이에 '실제 화면 미니 미리보기'
+   · 설명 위에 '실제 화면 미니 미리보기' (2026-11-28 설명 아래 → 위로)
        1 탐험 탭 / 2 미션 탭 / 3 캐릭터 탭 — 실제 탭 줄(HomeSheet)과 같은 색으로 그 탭만 강조
        4 맨 위 상태바(💎 코인 | ⭐ 점수 | 🔥 연속)
        5 레벨별 성장 장비 그림 (아이 성별에 맞춰, 진화 단계 1~5)
@@ -123,14 +123,15 @@ export default function KidGuide({ onFinish, gender = "boy", TM = {}, coin = 0, 
           <div style={{ position: "relative", height: 56, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}><EmojiIcon emoji={c.icon} size={50} /></div>
           <p style={{ position: "relative", fontSize: last ? 19 : 21, fontWeight: 900, margin: 0, lineHeight: 1.3 }}>{c.title}</p>
         </div>
-        {/* 본문 — 설명 · 미리보기 · 점 · 버튼 (높이를 고정해 장마다 카드가 들썩이지 않게) */}
+        {/* 본문 — 미리보기 · 설명 · 점 · 버튼 (사용자 확정 2026-11-28: 미리보기를 설명 위로)
+            높이를 고정해 장마다 카드가 들썩이지 않게 */}
         <div style={{ display: "flex", flexDirection: "column", padding: "18px 20px 20px" }}>
-          <p style={{ fontSize: 15, fontWeight: 700, color: "#5A4A3A", lineHeight: 1.65, margin: 0, minHeight: 50, whiteSpace: "pre-line" }}>{withIcons(c.desc)}</p>
-          <div style={{ minHeight: 86, display: "flex", flexDirection: "column", justifyContent: "center", margin: "14px 0 4px" }}>
+          <div style={{ minHeight: 76, display: "flex", flexDirection: "column", justifyContent: "center", margin: "0 0 12px" }}>
             {pv.tab && <TabBarPreview active={pv.tab} />}
             {pv.status && <StatusPreview TM={TM} coin={coin} xp={xp} streak={streak} />}
             {pv.gear && <GearPreview gender={gender} />}
           </div>
+          <p style={{ fontSize: 15, fontWeight: 700, color: "#5A4A3A", lineHeight: 1.65, margin: 0, minHeight: 50, whiteSpace: "pre-line" }}>{withIcons(c.desc)}</p>
           <div style={{ display: "flex", gap: 6, justifyContent: "center", margin: "12px 0 16px" }}>
             {STEPS.map((_, idx) => (<span key={idx} style={{ width: idx === i ? 22 : 8, height: 8, borderRadius: 99, background: idx === i ? ORANGE : "#EDE3D2", transition: "all .25s" }} />))}
           </div>
