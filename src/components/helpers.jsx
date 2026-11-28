@@ -68,36 +68,7 @@ export function KidCoachmark({ th, onFinish, skin="dungeon" }){
   const [i,setI]=useState(0);
   const last=i===cards.length-1;
   const c=cards[i];
-  /* 탐험 — 파스텔 헤더 카드 + 오렌지·골드 점·버튼 (사용자 확정 2026-11-28). 베이커리는 아래 기존 모양 그대로 */
-  if(!cute){
-    const ORANGE="linear-gradient(135deg,#F97316 0%,#F59E0B 100%)";
-    return (
-      <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.8)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px",wordBreak:"keep-all"}}>
-        <div style={{background:"#fff",borderRadius:26,overflow:"hidden",width:"100%",maxWidth:340,minHeight:380,boxSizing:"border-box",textAlign:"center",boxShadow:"0 24px 70px rgba(0,0,0,0.32)",display:"flex",flexDirection:"column"}}>
-          <div key={i} style={{position:"relative",overflow:"hidden",padding:"28px 20px 22px",background:c.head,color:c.ink,animation:"popInUp .25s ease both"}}>
-            <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent)",animation:"shineMove 1.8s ease-in-out infinite"}}/>
-            <div style={{position:"relative",height:58,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}><EmojiIcon emoji={c.icon} size={52}/></div>
-            <p style={{position:"relative",fontSize:21,fontWeight:900,margin:0,lineHeight:1.3}}>{c.title}</p>
-          </div>
-          <div style={{flex:1,display:"flex",flexDirection:"column",padding:"20px 22px 22px"}}>
-            <div style={{minHeight:64,display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <p style={{fontSize:15,fontWeight:700,color:"#5A4A3A",lineHeight:1.7,margin:0,whiteSpace:"pre-line"}}>
-                {c.desc.split(/(💎|⭐)/).map((s2,k)=>(s2==="💎"||s2==="⭐")
-                  ?<EmojiIcon key={k} emoji={s2} size={16} style={{verticalAlign:"-2px",margin:"0 1px"}}/>:s2)}
-              </p>
-            </div>
-            <div style={{display:"flex",gap:6,justifyContent:"center",margin:"auto 0 18px",paddingTop:16}}>
-              {cards.map((_,idx)=>(<span key={idx} style={{width:idx===i?22:8,height:8,borderRadius:99,background:idx===i?ORANGE:"#EDE3D2",transition:"all .25s"}}/>))}
-            </div>
-            <button onClick={()=>last?onFinish():setI(i+1)} style={{width:"100%",padding:15,borderRadius:15,border:"none",background:ORANGE,color:"#fff",fontSize:17,fontWeight:900,cursor:"pointer",fontFamily:"inherit",
-              boxShadow:"0 3px 0 #C8701D, 0 8px 18px rgba(249,115,22,.28)",textShadow:"0 1px 1px rgba(150,80,10,.35)"}}>
-              {last?"시작하기 🎉":"다음"}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  /* 탐험 안내는 components/KidGuide.jsx (5단계·미리보기, 2026-11-28) — 여기는 베이커리용 */
   return (
     <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(15,16,30,0.8)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px",wordBreak:"keep-all"}}>
       <div style={{background:"#fff",borderRadius:26,padding:"32px 24px 24px",width:"100%",maxWidth:340,minHeight:380,boxSizing:"border-box",textAlign:"center",boxShadow:"0 24px 70px rgba(0,0,0,0.32)",display:"flex",flexDirection:"column"}}>

@@ -60,6 +60,7 @@ import AdventureJournalCard from "./components/AdventureJournalCard.jsx";
 import AdventureSpotPicker from "./components/AdventureSpotPicker.jsx";
 import DiscoveryMemo from "./components/DiscoveryMemo.jsx";
 import PageFlip from "./components/PageFlip.jsx";
+import KidGuide from "./components/KidGuide.jsx";
 import { GameEventModal, TreasureResultModal, QuestFailModal, PastQuestModal, TreasureOpeningOverlay } from "./components/KidGameModals.jsx";
 import { SAMPLE_CHILD_ID, SAMPLE_HINT_KEY, isSampleChild, buildSampleChild } from "./data/sampleChild.js";
 import { STREAK_SHIELD_KEY, STREAK_SHIELD_PRICE, normShield, countStreak, applyAutoShield, answerShieldAsk, findRecoverableMiss, applyShieldPurchase } from "./data/streakShield.js";
@@ -5025,7 +5026,12 @@ export default function App() {
         {toast&&<div style={{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",background:th.main,color:"#fff",padding:"10px 24px",borderRadius:20,fontSize:17,fontWeight:700,zIndex:99999,boxShadow:`0 4px 16px ${th.main}55`}}><EmojiText>{toast}</EmojiText></div>}
 
         {showKidCoachmark&&(
-          <KidCoachmark th={th} skin={kidSkin} onFinish={()=>{ setShowKidCoachmark(false); save("v6_kid_guide_seen","1"); }} />
+          kidSkin==="cute"
+            ? <KidCoachmark th={th} skin={kidSkin} onFinish={()=>{ setShowKidCoachmark(false); save("v6_kid_guide_seen","1"); }} />
+            /* 탐험 — 5단계 + 실제 화면 미니 미리보기 (components/KidGuide.jsx, 사용자 확정 2026-11-28) */
+            : <KidGuide gender={(curChild?.gender)==="girl"?"girl":"boy"} TM={TM}
+                coin={getChildCoin(childId)} xp={getChildXP(childId)} streak={getQuestStreak(childId)}
+                onFinish={()=>{ setShowKidCoachmark(false); save("v6_kid_guide_seen","1"); }} />
         )}
         {BAKERY_ENABLED&&showModeSelect&&(
           <ModeSelect onPick={(skin)=>{ setKidSkin(skin); setShowModeSelect(false); showToast(skin==="cute"?"🧁 베이커리 게임 시작!":"🧭 탐험 게임 시작!"); load("v6_kid_guide_seen").then(seen=>{ if(!seen) setTimeout(()=>setShowKidCoachmark(true),350); }); }} />
